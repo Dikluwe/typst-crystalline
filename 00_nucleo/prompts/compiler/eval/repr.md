@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 8ce5bf18
+Hash do Código: 40c8d20b
 
 
 **Camada:** L1
@@ -20,6 +20,16 @@ incluindo variation selectors e ZWJ, sem conversão para `char`, normalização 
 substituição pelo nome canônico.
 
 ## Restrições e aceitação
+
+P1224: `Stroke` simples conserva a forma histórica `thickness + paint`.
+Quando qualquer dimensão complexa diverge do default, usa dict morfológico com
+campos explícitos `paint`, `thickness` quando não-default, `cap`, `join`,
+`dash: (array:, phase:)` e `miter-limit`. A ordem do dash é preservada;
+`DashLength::LineWidth` usa `"dot"`. Não usar `Debug` dos enums.
+
+P1225 permite que o módulo pai exponha esse formatter por uma função pública
+estreita para o serializer L2. O formatter genérico de `Value` continua
+interno; somente a representação de `Stroke` integra o contrato cross-layer.
 
 L1 puro, sem I/O. Toda nova variante pública exige medição anterior contra o
 vanilla e branch explícito; não usar `Debug` como fallback. Testes focais

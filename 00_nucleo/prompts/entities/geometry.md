@@ -1,5 +1,5 @@
 # Prompt L0 — geometry
-Hash do Código: e6ca99d2
+Hash do Código: 723ac493
 
 ## Módulo
 `01_core/src/entities/geometry.rs`
@@ -22,6 +22,53 @@ pub struct Stroke {
 }
 ```
 Usa `Color` de `layout_types` (já existente em L1) — sem tipo `RgbaColor` separado.
+
+### P1223 — contrato proposto para stroke complexo (GATE ADR-0127)
+
+> **Estado:** especificação L0 guardada; materialização produtiva bloqueada até
+> confirmação humana porque adiciona campos à entidade pública compartilhada.
+
+A superfície Typst ratificada aceita e preserva `cap`, `join`, `dash` e
+`miter-limit`. A entidade não pode descartá-los entre eval, layout e exportação.
+O modelo resolvido será:
+
+```rust
+pub enum LineCap { Butt, Round, Square }
+pub enum LineJoin { Miter, Round, Bevel }
+pub enum DashLength { Length(f64), LineWidth }
+pub struct DashPattern {
+    pub array: Vec<DashLength>,
+    pub phase: f64,
+}
+pub struct Stroke {
+    pub paint: Paint,
+    pub thickness: f64,
+    pub cap: LineCap,
+    pub join: LineJoin,
+    pub dash: Option<DashPattern>,
+    pub miter_limit: f64,
+    pub overhang: bool,
+}
+```
+
+Defaults de linguagem: `cap = Butt`, `join = Miter`, `dash = None`,
+`miter_limit = 4.0`. `DashLength::LineWidth` preserva o item público `"dot"`
+até a espessura estar resolvida; comprimentos explícitos e `phase` usam pontos.
+A ordem do array é semântica e nunca pode ser ordenada ou deduplicada.
+
+`overhang` continua sendo extensão interna cristalina e não substitui nenhum
+campo vanilla. Eval deve aceitar os nomes vanilla, validar seus domínios e
+produzir `Value::Stroke` sem perda. Layout/`FrameItem::Shape` transporta o
+mesmo `Stroke`; exportadores decidem apenas a serialização tardia. SVG emite
+`stroke-linecap`, `stroke-linejoin`, `stroke-miterlimit`, `stroke-dasharray` e
+`stroke-dashoffset` quando seus observáveis diferirem do default aplicável.
+
+Critérios RED futuros: os quatro construtores aceitos pelo vanilla em P1223
+(`cap: "round"`, `join: "bevel"`, `dash: "dashed"`, `miter-limit: 2`) devem
+deixar de produzir “argumento nomeado inesperado”; o valor avaliado e o SVG
+devem conservar cada dimensão separadamente. O trabalho deve começar pela
+entidade e testes, e não pelo exportador, pois a primeira perda medida ocorre
+antes de L3.
 
 **P252 (M9d / M7+5; ADR-0079 Categoria A.4 Boxed COMPLETO 6/6;
 cita ADR-0082 PROPOSTO N=3 terceira aplicação citante — limiar
@@ -139,6 +186,42 @@ preserved absoluto).
 LineTo-only paths preservam bit-exact min/max behavior.
 
 ## Exposição em `entities/mod.rs`
+
+## P1225 — presença explícita dos campos (NOVO GATE ADR-0127)
+
+Medição pública mostrou que valores resolvidos não bastam para `repr`:
+
+```text
+stroke()                    -> "1pt + black"
+stroke(paint: red)          -> "rgb(\"#ff4136\")"
+stroke(thickness: 1pt)      -> "1pt"
+stroke(cap: "butt")         -> "(cap: \"butt\")"
+stroke(miter-limit: 4)      -> "(miter-limit: 4.0)"
+```
+
+`Stroke` deve preservar quais campos foram explicitamente fornecidos, mesmo
+quando iguais ao default resolvido:
+
+```rust
+pub struct StrokeFields {
+    pub paint: bool,
+    pub thickness: bool,
+    pub cap: bool,
+    pub join: bool,
+    pub dash: bool,
+    pub miter_limit: bool,
+}
+```
+
+`Stroke` ganha `pub specified: StrokeFields`. Construtores internos usam todos
+os bits `false`; `native_stroke` marca cada named presente. Layout/exportadores
+consomem os valores resolvidos e ignoram `specified`; repr usa os bits para
+distinguir ausência de valor explicitamente igual ao default.
+
+> **Estado:** preparado em P1225 e aguarda confirmação humana, pois acrescenta
+> estado a entidade pública compartilhada. A materialização P1225 para aqui.
+
+## Exposição histórica em `entities/mod.rs`
 ```rust
 pub mod geometry;
 ```

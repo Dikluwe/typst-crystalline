@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 4a222767
+Hash do Código: 8a8f1ea9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -16,6 +16,14 @@ base, a passagem dupla, `eval_markup` e o dispatcher exaustivo de `Expr`; os
 corpos especializados já delegam aos seus módulos donos.
 
 ## Contrato
+
+### P1225 — formatter público estreito de Stroke
+
+L1 expõe `repr_stroke_value(&Stroke) -> String` exclusivamente para consumidores
+que precisam da representação morfológica pública de `Stroke`. A função delega
+ao owner `compiler/eval/repr.rs`; não expõe `repr_value` genérico, não faz I/O e
+não autoriza fallback de tipos desconhecidos. Consumer imediato: serializer
+JSON nominal da CLI em `02_shell/src/cli.rs`.
 
 Os entrypoints constroem scope fresco e avaliam `Source` sem I/O direto.
 `eval_expression` avalia código isolado. O dispatcher preserva spans, scopes,

@@ -1,0 +1,12 @@
+field	value
+protocol	tekt-materializacao-segregada/full
+execution	single session; no isolation attestation
+head	0a0fabe05cd001802c6dfcfffb183f7651ab17d1
+timestamp	2026-08-26T17:00:56-03:00
+working_tree	uncommitted; typst-passo-1222.md initially untracked
+baseline	vanilla upstream/main a51e02804; binary sha256 7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
+spec	typst-passo-1222.md
+observable	ordered analytic geometry, transforms, fill and modeled stroke
+unknown_policy	unsupported paint/server/clip/image/link stays Unknown
+contract	00_nucleo/diagnosticos/p1222-svg-analytic-contract.tsv
+roles	A-I executed sequentially by same Codex session; write capabilities shared

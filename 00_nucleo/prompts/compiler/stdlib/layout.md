@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: 8f81608a
+Hash do Código: 5047d9fc
 
 ## P1140.20.2 — canvas preparatório
 
@@ -513,9 +513,9 @@ measure([abc], width: 5cm)        -> Err "named arg não suportado"
 
 ---
 
-### `native_stroke(paint?, thickness?, overhang?)`
+### `native_stroke(paint?, thickness?, cap?, join?, dash?, miter-limit?, overhang?)`
 
-**Assinatura**: `stroke(paint: Color?, thickness: Length?, overhang: bool = true) -> Stroke`
+**Assinatura**: `stroke(paint: Color?, thickness: Length?, cap: Str?, join: Str?, dash: none | Str | Array | Dict?, miter-limit: Number?, overhang: bool = true) -> Stroke`
 
 **Argumentos**:
 - `paint`: `Color`, default `BLACK`.
@@ -523,7 +523,12 @@ measure([abc], width: 5cm)        -> Err "named arg não suportado"
 - `overhang`: bool default `true`.
 - Sem posicionais.
 
-**Semântica**: Cria `Value::Stroke(Stroke { paint: Paint::Solid(paint), thickness, overhang })`.
+**Semântica P1224**: cria `Value::Stroke` preservando paint, thickness,
+cap (`butt|round|square`), join (`miter|round|bevel`), dash ordenado,
+miter-limit positivo finito e overhang. Defaults vanilla: butt, miter, nenhum
+dash e miter-limit 4. Dash aceita os nove presets vanilla, array de comprimentos
+e `"dot"`, ou dict `(array:, phase:)`; `"dot"` permanece `LineWidth` na
+entidade até a espessura efetiva ser conhecida.
 
 **Paridade vanilla**: Equivalente a `#stroke(thickness: 2pt)`.
 

@@ -1,0 +1,6 @@
+language_input	evaluated_value	entity_field	FrameItem_field	svg_attribute	vanilla	crystalline	state	first_loss_file_line
+stroke(paint: red)	rgb("#ff4136")	paint	shape.stroke.paint	stroke	GREEN	eval serialization error	PARTIAL	01_core/src/compiler/stdlib/layout.rs:2342
+stroke(paint: red, cap: "round")	(paint: rgb("#ff4136"), cap: "round")	MISSING	MISSING	stroke-linecap	exit 0	exit 1 unexpected named argument	Violated	01_core/src/compiler/stdlib/layout.rs:2333
+stroke(paint: red, join: "bevel")	(paint: rgb("#ff4136"), join: "bevel")	MISSING	MISSING	stroke-linejoin	exit 0	exit 1 unexpected named argument	Violated	01_core/src/compiler/stdlib/layout.rs:2333
+stroke(paint: red, dash: "dashed")	(paint: rgb("#ff4136"), dash: (array: (3pt, 3pt), phase: 0pt))	MISSING	MISSING	stroke-dasharray/stroke-dashoffset	exit 0	exit 1 unexpected named argument	Violated	01_core/src/compiler/stdlib/layout.rs:2333
+stroke(paint: red, miter-limit: 2)	(paint: rgb("#ff4136"), miter-limit: 2.0)	MISSING	MISSING	stroke-miterlimit	exit 0	exit 1 unexpected named argument	Violated	01_core/src/compiler/stdlib/layout.rs:2333

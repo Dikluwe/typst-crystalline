@@ -1,0 +1,6 @@
+rank	fixture	verdict	category	owner	next_action
+1	ellipse/circle	Preserved	mechanical representation	none	control
+2	overlap	Preserved	paint order	none	control
+3	transforms	Preserved	flattened vs nested matrices	none	control
+4	rounded uniform	Violated	stroke centerline radius and split fill/stroke	03_infra/src/export/svg.rs	RED then minimal correction
+5	rounded asymmetric	Violated	radius path semantics	03_infra/src/export/svg.rs	covered by same causal correction

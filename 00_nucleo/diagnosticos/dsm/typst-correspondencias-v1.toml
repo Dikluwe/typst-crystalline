@@ -66,12 +66,10 @@ nota = "Fechamento declarado e limitado à semântica pública dos operadores da
 [[correspondencia]]
 id = "svg-plain-page-paint"
 antes = [
-  "typst_svg::svg",
   "typst_svg::SVGRenderer::render_page",
   "typst_svg::SVGRenderer::render_text",
 ]
 depois = [
-  "typst_infra::export::svg::export_svg_with_fonts",
   "typst_infra::export::svg::render_text_shaped",
 ]
 relacao = "consolidacao"
@@ -86,16 +84,15 @@ evidencias = [
 nota = "Alegação limitada a canvas, fundo branco e glyph paints do plain.typ. IDs, whitespace e grupos matriciais neutros são mecânica após resolução. Shapes e restante vocabulário SVG permanecem Unknown/PARTIAL."
 
 [[correspondencia]]
-id = "svg-solid-rect-line-stroke"
+id = "svg-solid-analytic-shapes"
 antes = [
-  "typst_layout::shapes::layout_shape",
   "typst_svg::SVGRenderer::render_shape",
 ]
 depois = [
-  "typst_core::compiler::stdlib::shapes::parse_shape_stroke",
-  "typst_infra::export::svg::render_shape",
+  "typst_infra::export::svg::render_item",
+  "typst_infra::export::svg::write_shape_attrs",
 ]
-relacao = "consolidacao"
+relacao = "divisao"
 alegacao = "parcial"
 evidencias = [
   "00_nucleo/diagnosticos/p1221-svg-shape-contract.tsv",
@@ -104,8 +101,13 @@ evidencias = [
   "00_nucleo/diagnosticos/p1221-svg-shape-ataques.tsv",
   "00_nucleo/diagnosticos/p1221-svg-shape-resultados.tsv",
   "00_nucleo/diagnosticos/typst-p1221-svg-solid-shapes.md",
+  "00_nucleo/diagnosticos/p1222-svg-analytic-contract.tsv",
+  "00_nucleo/diagnosticos/p1222-svg-analytic-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1222-svg-analytic-ataques.tsv",
+  "00_nucleo/diagnosticos/p1222-svg-analytic-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1222-svg-analytic-and-extension.md",
 ]
-nota = "Alegação limitada a rect/line focal com fill sólido e Stroke rico (paint e espessura). Path versus elementos analíticos é normalizado. Ellipse, rounded rect, paths gerais e stroke-complex permanecem Unknown."
+nota = "Alegação limitada a rect/line/ellipse/circle/rounded rect focal, transforms matriciais, fill sólido e Stroke rico. Path versus elementos analíticos é normalizado. Paths gerais com arcos, paint servers e stroke-complex permanecem parciais/Unknown."
 
 [[correspondencia]]
 id = "syntax-binop-split"

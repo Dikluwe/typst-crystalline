@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 00d53433
+Hash do Código: 49d42c99
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
@@ -423,6 +423,37 @@ Critérios RED→GREEN:
 - expressão inválida produz diagnóstico em stderr e exit 1;
 - `P1137-B-001` passa de `ABSENT` para `MATCH` sem normalização no runner;
 - `query` permanece explicitamente `ABSENT` nesta entrega.
+
+### P1224 — proposta de serialização JSON de `Stroke` (GATE ADR-0127)
+
+> **Estado:** contrato confirmado pelo dono em 2026-08-26. A confirmação
+> aprova somente a branch nominal de `Value::Stroke`; fallback genérico para
+> `repr` permanece proibido. Resselar antes da materialização em
+> `02_shell/src/cli.rs`.
+
+Medição em 2026-08-26 contra o vanilla ratificado `a51e02804`:
+
+```text
+typst eval 'stroke(paint: red, cap: "round")'
+vanilla    -> "(paint: rgb(\"#ff4136\"), cap: \"round\")" + newline, exit 0
+cristalino -> cannot serialize stroke to JSON, exit 1
+```
+
+A regra genérica acima (“tipo não representável produz diagnóstico”) passa a
+ter uma exceção explícita: `Value::Stroke` é serializado como string JSON com
+sua representação pública Typst. Isso não converte dict/array em `repr` e não
+amplia `--format raw`. O formatter L2 deve consumir uma representação L1
+pública estável ou reproduzir apenas o contrato de `Stroke`; não pode acessar
+módulo `pub(crate)` nem depender da mecânica Rust do valor.
+
+Critérios RED futuros:
+
+- stroke simples deixa de produzir `cannot serialize stroke to JSON`;
+- `cap`, `join`, `dash` e `miter-limit` aparecem separadamente quando definidos;
+- defaults omitidos permanecem morfologicamente equivalentes ao vanilla;
+- array de dash conserva ordem e phase negativa;
+- `--pretty` continua sendo apenas formatação JSON;
+- tipos não listados continuam a falhar em vez de cair genericamente em repr.
 
 ### P1163 — serialização de `Symbol` dentro do escopo vigente
 

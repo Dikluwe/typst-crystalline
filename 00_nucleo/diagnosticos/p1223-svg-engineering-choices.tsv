@@ -1,0 +1,6 @@
+choice	decision	reason
+stroke-representation	preserve cap/join/dash/miter in L1 entity	first loss precedes layout and L3
+dash-order	preserve input order	order changes morphology
+dot-resolution	DashLength::LineWidth until thickness resolution	avoid early information loss
+svg-only-fix	rejected	cannot recover fields discarded by eval/entity
+product-code	gated	public shared entity expansion requires ADR-0127 confirmation

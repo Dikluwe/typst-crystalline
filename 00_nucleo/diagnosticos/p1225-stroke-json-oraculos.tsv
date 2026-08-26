@@ -1,0 +1,4 @@
+oracle	provenance
+vanilla	lab/typst-original/target/release/typst; upstream a51e02804; sha256 7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
+crystalline	target/release/typst; working tree at HEAD 0a0fabe05cd001802c6dfcfffb183f7651ab17d1; sha256 ea79771653663570dd667aac688fa4185d7c58d91b31c30918600643e38f6910
+measurement-time	2026-08-26T17:59:45-03:00

@@ -1,0 +1,5 @@
+id	contract
+SJ-01	Value::Stroke serializes as one JSON string using the L1 morphological repr
+SJ-02	non-allowlisted values remain explicit JSON errors
+SJ-03	Stroke remains forbidden in raw format
+SJ-04	explicit field presence is independent from resolved default values

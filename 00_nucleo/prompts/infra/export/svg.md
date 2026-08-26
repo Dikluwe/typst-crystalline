@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
-Hash do Código: cfe64868
+Hash do Código: 7914fbb0
 
 ## P1140.20.2 — canvas SVG
 
@@ -71,8 +71,31 @@ pub fn export_svg_with_fonts(
 - P1133: raios de `ShapeKind<Pt>::RoundedRect` chegam como `Corners<Pt>` já resolvidos.
   O SVG serializa esses pontos diretamente, sem `resolve_pt(0.0)` e sem
   projeção de parcela absoluta de `Length`.
+- P1222: em rounded rect com stroke, o raio público descreve o contorno
+  externo. O path central do stroke usa `max(radius - thickness/2, 0)` por
+  canto. Fill e stroke são operações SVG separadas sobre essa geometria,
+  preservando a morfologia do vanilla e evitando que o stroke aumente o raio
+  exterior. O fill fecha o path; o stroke termina no ponto inicial sem `Z`,
+  preservando cap/join do emissor de referência. Sem stroke, o fill usa os
+  raios resolvidos sem inset.
 
 ## Critérios de verificação
+
+### P1224 — stroke complexo preservado no SVG
+
+Quando `FrameItem::Shape` carrega `Stroke`, o exportador preserva tardiamente
+`cap`, `join`, `miter_limit`, `dash.array` e `dash.phase`. Emite
+`stroke-linecap`, `stroke-linejoin`, `stroke-miterlimit`, `stroke-dasharray` e
+`stroke-dashoffset`; `DashLength::LineWidth` resolve para a espessura efetiva
+sem reordenar o array. Phase negativa e alpha do paint são observáveis.
+
+Os atributos podem ser omitidos somente quando a omissão for semanticamente
+igual ao default SVG. Transform não é assado nos comprimentos de stroke por
+este módulo. A entidade L1 é a fonte; L3 não reconstrói informação perdida.
+
+Critério focal: cap round, join bevel, miter 2, dash `[3pt, LineWidth]`, phase
+`-0.5pt`, thickness `2pt` e paint com alpha devem aparecer separadamente e na
+ordem declarada no SVG.
 
 - Documento "Hello" produz SVG parseável com texto renderizado como paths de glifo.
 - Documento com formas produz elementos SVG correspondentes.
@@ -80,6 +103,8 @@ pub fn export_svg_with_fonts(
 - Estrutura SVG comparável à do vanilla (não byte-exact).
 - SVG renderiza correctamente mesmo sem a fonte instalada no sistema.
 - `radius: 1em` preserva o raio absoluto resolvido pelo layout.
+- `rect(radius: 4pt, stroke: 2pt + blue)` emite centro de stroke com raio 3pt,
+  fill e stroke separados, mantendo raio exterior 4pt.
 
 ## P1140.5-A — SVG visualmente transparente
 
