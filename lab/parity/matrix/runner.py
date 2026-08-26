@@ -16,6 +16,8 @@ from collections import Counter
 from html.parser import HTMLParser
 from xml.etree import ElementTree as ET
 
+from svg_morphology import compare as compare_svg_morphology
+
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 DEFAULT_VANILLA = ROOT / "lab/typst-original/target/release/typst"
@@ -197,6 +199,8 @@ def comparison_observables(comparison: str, oracle: dict, crystalline: dict, art
         return {"oracle": typed_value(oracle["stdout"]), "crystalline": typed_value(crystalline["stdout"])}
     if comparison == "semantic_tree":
         suffix = ".html" if any(path.endswith(".html") for path in oracle.get("artifact_paths", [])) else ".svg"
+        if suffix == ".svg":
+            return compare_svg_morphology(artifact(oracle, suffix), artifact(crystalline, suffix))
         return {"oracle": semantic_tree(artifact(oracle, suffix)), "crystalline": semantic_tree(artifact(crystalline, suffix))}
     if comparison == "geometry":
         return {"unit": "pt", "rounding": 0.001, "oracle": pdf_geometry(artifact(oracle, ".pdf")), "crystalline": pdf_geometry(artifact(crystalline, ".pdf"))}
@@ -233,8 +237,14 @@ def classify(comparison: str, oracle: dict, crystalline: dict) -> tuple[str, str
             suffix = ({"geometry": ".pdf", "raster": ".png", "pdf_observables": ".pdf"}.get(comparison)
                       or (".html" if any(path.endswith(".html") for path in oracle.get("artifact_paths", [])) else ".svg"))
             left, right = artifact(oracle, suffix), artifact(crystalline, suffix)
-            extract = {"semantic_tree": semantic_tree, "geometry": pdf_geometry, "raster": png_pixels, "pdf_observables": pdf_observables}[comparison]
-            same = oracle["exit_code"] == crystalline["exit_code"] == 0 and extract(left) == extract(right)
+            if comparison == "semantic_tree" and suffix == ".svg":
+                verdict = compare_svg_morphology(left, right)["verdict"]
+                if verdict == "Unknown":
+                    return "PARTIAL", "UNKNOWN"
+                same = oracle["exit_code"] == crystalline["exit_code"] == 0 and verdict == "Preserved"
+            else:
+                extract = {"semantic_tree": semantic_tree, "geometry": pdf_geometry, "raster": png_pixels, "pdf_observables": pdf_observables}[comparison]
+                same = oracle["exit_code"] == crystalline["exit_code"] == 0 and extract(left) == extract(right)
         except (OSError, ValueError, subprocess.SubprocessError, ET.ParseError): return "ERROR", "HARNESS_DEFECT"
         classes = {"semantic_tree": "LANGUAGE_MORPHOLOGY", "geometry": "LANGUAGE_MORPHOLOGY", "raster": "PUBLIC_FORMAT", "pdf_observables": "PUBLIC_FORMAT"}
         return ("MATCH", None) if same else ("DIFF", classes[comparison])

@@ -77,6 +77,16 @@ class ClassifierTests(unittest.TestCase):
             right.write_text('<svg id="b"><text x="1">Hi</text></svg>')
             self.assertEqual(runner.semantic_tree(left), runner.semantic_tree(right))
 
+    def test_svg_classifier_uses_resolved_paint_model(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            left = pathlib.Path(tmp) / "left.svg"; right = pathlib.Path(tmp) / "right.svg"
+            left.write_text('<svg width="10pt" height="10pt"><use href="#a"/><defs><symbol id="a"><path d="M0 0"/></symbol></defs></svg>')
+            right.write_text('<svg width="10pt" height="10pt"><use href="#b"/><defs><symbol id="b"><path d="M 0 0"/></symbol></defs></svg>')
+            oracle = {"exit_code": 0, "artifact_paths": [str(left)]}
+            crystal = {"exit_code": 0, "artifact_paths": [str(right)]}
+            self.assertEqual(runner.classify("semantic_tree", oracle, crystal)[0], "MATCH")
+
     def test_geometry_tolerance_is_three_decimal_points(self):
         self.assertEqual(round(10.0004, 3), round(10.00049, 3))
 
