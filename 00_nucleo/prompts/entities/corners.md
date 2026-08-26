@@ -1,5 +1,5 @@
 # Prompt L0 — entities/corners
-Hash do Código: a091b801
+Hash do Código: a52c28ad
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/corners.rs`

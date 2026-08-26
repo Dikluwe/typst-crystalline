@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/state` — `StateElem`
-Hash do Código: 18ffda4e
+Hash do Código: 16e5aca4
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/state.rs`
 **Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:

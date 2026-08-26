@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/footnote` — layout do marcador de nota de rodapé
-Hash do Código: 6f0fb64a
+Hash do Código: a8cd810a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/layout/footnote.rs`

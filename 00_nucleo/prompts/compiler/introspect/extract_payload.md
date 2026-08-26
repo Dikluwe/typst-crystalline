@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/extract_payload`
-Hash do Código: 0f9523a9
+Hash do Código: 78c38134
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/extract_payload.rs`

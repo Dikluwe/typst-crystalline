@@ -1,9 +1,9 @@
 # Prompt L0 — `compiler/lexer/markup` — modo Markup
+Hash do Código: 4c2bac88
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:aae80d538980eeec87b884712269e3b777fe44c0dae6b3503b5fa9ee4f9ad76f
 
-Hash do Código: f5d2c97a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/lexer/markup.rs`

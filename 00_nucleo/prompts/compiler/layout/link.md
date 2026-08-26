@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/link` — Layout de `Content::Link`
-Hash do Código: 03639cf2
+Hash do Código: b0fc1327
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/link.rs`
 **Origem**: P422 (S) — atomização do layout de hiperligações; **P424** — bbox.

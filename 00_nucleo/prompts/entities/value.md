@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: d01f6037
+Hash do Código: e5c3ef0f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`

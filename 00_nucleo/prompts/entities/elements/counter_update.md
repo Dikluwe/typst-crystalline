@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/counter_update` — `CounterUpdateElem`
-Hash do Código: f336924a
+Hash do Código: eab67012
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/counter_update.rs`
 **Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:

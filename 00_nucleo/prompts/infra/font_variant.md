@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_variant` — Helpers para Variation Fonts
-Hash do Código: 335ffd25
+Hash do Código: f4ea81ad
 
 **Camada**: L3  
 **Criado em**: 2026-07-01  

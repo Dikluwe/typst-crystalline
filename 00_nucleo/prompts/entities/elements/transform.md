@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/transform` — `TransformElem`
-Hash do Código: 6c5a47d7
+Hash do Código: 26d088ec
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/transform.rs`
 **Origem**: modelo D (ADR-0105), **Lote 9 P324** (por largura). Trait e glossário (§A.0): ver

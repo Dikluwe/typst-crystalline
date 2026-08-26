@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text/smartquote` — `smartquote`
-Hash do Código: 3ce868d8
+Hash do Código: 844653a1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/smartquote.rs`

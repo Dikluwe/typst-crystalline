@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/stack` — `StackElem`
-Hash do Código: ca9a3fa8
+Hash do Código: a2c00e37
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/stack.rs`
 **Origem**: modelo D (ADR-0105), **Lote 9 P324** (por largura). Trait e glossário (§A.0): ver

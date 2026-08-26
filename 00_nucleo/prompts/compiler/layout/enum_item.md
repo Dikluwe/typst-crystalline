@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/enum_item` — layout de `EnumItemElem`
-Hash do Código: 1fdc5a12
+Hash do Código: c9897533
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/enum_item.rs`
 **Origem**: atomização (ADR-0109, P380); campos `indent`/`body_indent`/`tight`

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text/shift` — `sub`, `super`
-Hash do Código: 905b66af
+Hash do Código: a2f5c607
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/shift.rs`

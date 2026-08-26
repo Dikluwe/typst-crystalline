@@ -1,5 +1,5 @@
 # Prompt L0 — Parser BibTeX minimal (P450)
-Hash do Código: 0bc1a5be
+Hash do Código: a1887dad
 
 **Camada**: L1 (parser puro; exposto para L3 via `SystemWorld::load_bibliography`).
 **Ficheiro alvo**: `01_core/src/compiler/eval/bibtex.rs`

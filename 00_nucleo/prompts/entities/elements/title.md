@@ -1,6 +1,6 @@
 # Prompt L0 — `entities/elements/title` — entidade `TitleElem`
+Hash do Código: 62f1a7d9
 
-Hash do Código: ef2b41ab
 
 **Camada:** L1  
 **Ficheiro proprietário:** `01_core/src/entities/elements/title.rs`  

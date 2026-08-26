@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/ast/markup`
-Hash do Código: 2c648213
+Hash do Código: 6f305d72
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/ast/markup.rs`

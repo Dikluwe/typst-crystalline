@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/block` — `BlockElem`
-Hash do Código: d15dc6cf
+Hash do Código: f62b2886
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/block.rs`
 **Origem**: modelo D (ADR-0105), **Lote 15 P330** (lote tardio da triagem

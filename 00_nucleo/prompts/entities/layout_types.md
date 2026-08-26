@@ -1,4 +1,5 @@
 # Prompt L0 — layout_types
+Hash do Código: bb7c9df4
 
 ## P1140.20.2 — canvas e camadas
 
@@ -34,7 +35,6 @@ significa `auto` para esse lado; `PageMargins` é o snapshot físico resolvido.
 removido: auto existe por lado na especificação aplicada. O default resolve os
 quatro lados com `auto_margin()`; margem uniforme produz quatro valores iguais.
 Nenhum alias escalar escolhe um lado silenciosamente.
-Hash do Código: f551b39d
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`

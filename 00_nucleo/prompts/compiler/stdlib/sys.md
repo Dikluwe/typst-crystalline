@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib/sys` — módulo builtin `sys`
-Hash do Código: b97a6b5a
+Hash do Código: ffe9ed74
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/sys.rs`

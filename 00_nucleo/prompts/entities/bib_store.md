@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/bib_store`
-Hash do Código: 581b57be
+Hash do Código: 7f168ca4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/bib_store.rs`

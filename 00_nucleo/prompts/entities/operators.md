@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/operators`
-Hash do Código: 106874c0
+Hash do Código: d3e173dc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/operators.rs`

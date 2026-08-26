@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/heading` — `HeadingElem`
-Hash do Código: 262625ed
+Hash do Código: e12972fa
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/heading.rs`
 **Origem**: modelo D (ADR-0105), lote piloto P316. Trait, regras partilhadas e glossário (§A.0):

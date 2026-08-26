@@ -1,5 +1,5 @@
 # L0 — Layout: Contadores e Numeração
-Hash do Código: 1f18613f
+Hash do Código: bf43f367
 
 ## Módulo
 `01_core/src/compiler/layout/counters.rs`

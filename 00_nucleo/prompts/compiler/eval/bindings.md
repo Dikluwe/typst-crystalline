@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings` — hub de bindings, acesso e métodos
-Hash do Código: 60b046c2
+Hash do Código: 25075799
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/mod.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/regex` — construtor `regex`
-Hash do Código: 39b9bb03
+Hash do Código: f6e6f18f
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/regex_constructor.rs`  

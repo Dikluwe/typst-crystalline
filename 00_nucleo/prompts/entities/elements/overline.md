@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/overline` — `OverlineElem`
-Hash do Código: 91916f30
+Hash do Código: e0cdeba0
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/overline.rs`
 **Origem**: modelo D (ADR-0105), **Lote 4 P319** (decorações de texto). Trait, regras partilhadas

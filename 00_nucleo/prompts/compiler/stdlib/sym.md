@@ -1,5 +1,5 @@
 # Prompt L0 — `sym` — módulo de símbolos Unicode
-Hash do Código: 9bf5af9a
+Hash do Código: aec2cc62
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/sym.rs`, `01_core/src/compiler/eval/mod.rs`

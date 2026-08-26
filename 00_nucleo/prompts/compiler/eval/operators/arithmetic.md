@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/arithmetic` — aritmética, unários e lógica booleana
-Hash do Código: a72bf582
+Hash do Código: c03accc0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/arithmetic.rs`

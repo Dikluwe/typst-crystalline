@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/ty` — `type(v)`
-Hash do Código: 58656f32
+Hash do Código: 7d9c475b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/ty.rs`

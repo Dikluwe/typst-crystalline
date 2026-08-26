@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/selector_matching` — matching de selectores de show rule
-Hash do Código: 788a489e
+Hash do Código: 38982abe
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/selector_matching.rs`

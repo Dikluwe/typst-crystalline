@@ -1,6 +1,6 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
+Hash do Código: 8ce5bf18
 
-Hash do Código: 333feb71
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/compiler/eval/repr.rs`

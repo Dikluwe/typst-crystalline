@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/panic` — aborto de avaliação
-Hash do Código: fc5d7407
+Hash do Código: 277f949d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/panic.rs`

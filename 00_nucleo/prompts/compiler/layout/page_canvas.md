@@ -1,6 +1,6 @@
 # Prompt L0 — `compiler/layout/page_canvas` — layers decorativos
+Hash do Código: 03c714e2
 
-Hash do Código: 3e82f5a4
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/compiler/layout/page_canvas.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/footnote` — `FootnoteElem`
-Hash do Código: 860488b2
+Hash do Código: 793262d3
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/footnote.rs`
 **Origem**: modelo D (ADR-0105), **Lote 11 P326** (por largura). Trait e glossário (§A.0): ver

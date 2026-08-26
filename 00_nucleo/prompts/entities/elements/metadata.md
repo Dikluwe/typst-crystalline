@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/metadata` — `MetadataElem`
-Hash do Código: 6d0f065d
+Hash do Código: 1f0cc8a6
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/metadata.rs`
 **Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait e glossário (§A.0):

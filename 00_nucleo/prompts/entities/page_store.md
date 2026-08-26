@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/page_store`
-Hash do Código: 91a632a1
+Hash do Código: fb75d767
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/page_store.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/math_style` — 14 funções math style
-Hash do Código: 2e815d39
+Hash do Código: b554c551
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/math_style.rs`

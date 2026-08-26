@@ -1,4 +1,5 @@
 ---
+Hash do Código: de355de7
 prompt: infra/shaper
 layer: L3
 created: 2026-06-27
@@ -10,7 +11,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: de355de7
 
 ## Propósito
 

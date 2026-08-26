@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/eval` — runtime de re-avaliação
-Hash do Código: 8e14f4c4
+Hash do Código: 464ee2a8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/eval.rs`

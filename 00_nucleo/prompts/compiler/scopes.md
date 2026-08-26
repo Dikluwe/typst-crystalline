@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/scopes`
-Hash do Código: ecc1fd7f
+Hash do Código: 85a36a45
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/scopes.rs`

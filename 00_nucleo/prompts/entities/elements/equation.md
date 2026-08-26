@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `entities/elements/equation` — `EquationElem`**
-Hash do Código: b8d17fc7
+Hash do Código: f255d53f
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/equation.rs`
 **Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver

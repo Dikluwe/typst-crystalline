@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/counter_display_callback` — `CounterDisplayCallbackElem`
-Hash do Código: 7288fc0e
+Hash do Código: 88f024ba
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/counter_display_callback.rs`
 **Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:

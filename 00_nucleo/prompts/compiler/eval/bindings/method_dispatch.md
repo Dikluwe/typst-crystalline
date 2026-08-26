@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/method_dispatch` — métodos mutantes e de acesso
-Hash do Código: d8f0bb92
+Hash do Código: 2894025f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/method_dispatch.rs`

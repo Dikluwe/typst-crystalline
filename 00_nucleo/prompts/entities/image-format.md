@@ -1,5 +1,5 @@
 # Prompt L0 — entities/image_format
-Hash do Código: 5f6b3ebb
+Hash do Código: 8e82463d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/image_format.rs`

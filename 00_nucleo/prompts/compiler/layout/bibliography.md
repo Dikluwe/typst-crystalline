@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/bibliography` — Layout de Bibliography e Cite (fallback numérico)
-Hash do Código: 97f01adf
+Hash do Código: e8ed5446
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/compiler/layout/bibliography.rs`, `01_core/src/compiler/layout/cite.rs`

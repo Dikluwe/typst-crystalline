@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/underline` — `UnderlineElem`
-Hash do Código: 59b936ba
+Hash do Código: 4511eede
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/underline.rs`
 **Origem**: modelo D (ADR-0105), **Lote 4 P319** (decorações de texto). Trait, regras partilhadas

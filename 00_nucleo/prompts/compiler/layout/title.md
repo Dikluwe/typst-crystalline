@@ -1,6 +1,6 @@
 # Prompt L0 — `compiler/layout/title` — layout de `TitleElem`
+Hash do Código: 3da4144c
 
-Hash do Código: 88f73a98
 
 **Camada:** L1  
 **Ficheiro proprietário:** `01_core/src/compiler/layout/title.rs`  

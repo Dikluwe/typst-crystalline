@@ -1,5 +1,5 @@
 # Prompt L0 — `Decimal` — precisão fixa decimal
-Hash do Código: 3fdc3b93
+Hash do Código: c4e022f6
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/decimal.rs`, `01_core/src/entities/value.rs`

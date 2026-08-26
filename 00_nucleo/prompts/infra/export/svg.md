@@ -1,10 +1,10 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
+Hash do Código: cfe64868
 
 ## P1140.20.2 — canvas SVG
 
 render_bleed inclui bleed e translada TrimBox; sem ele recorta. Fill auto é
 branco, none transparente, Paint pelo consumer. Ordem: background/body/foreground.
-Hash do Código: b1715ecd
 
 **Camada**: L3  
 **Ficheiro alvo**: `03_infra/src/export/svg.rs`  

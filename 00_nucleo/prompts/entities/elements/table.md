@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/table` — `TableElem`
-Hash do Código: 46b30e2d
+Hash do Código: 0fe0fe94
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table.rs`
 **Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).

@@ -1,5 +1,5 @@
 # Prompt L0 — `Version` — sequência de componentes inteiros
-Hash do Código: e275c63a
+Hash do Código: 1e86df0e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/version.rs`, `01_core/src/entities/value.rs`

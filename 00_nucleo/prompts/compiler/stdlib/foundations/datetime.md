@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/datetime` — superfície pública de `datetime`
-Hash do Código: 02bddb03
+Hash do Código: 9dbe969d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/datetime.rs`

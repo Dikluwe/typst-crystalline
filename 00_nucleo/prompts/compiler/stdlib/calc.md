@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: 11f331b6
+Hash do Código: 4f58eb82
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/calc.rs`

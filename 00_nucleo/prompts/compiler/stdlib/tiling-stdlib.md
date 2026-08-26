@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/tiling` — constructor `tiling(...)`
-Hash do Código: 2cb94964
+Hash do Código: 04da143a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/visualize.rs`

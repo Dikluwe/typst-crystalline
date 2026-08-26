@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/gradients/conic` — Conic Type 6 Coons Patch Mesh
-Hash do Código: ac19f896
+Hash do Código: d2240efd
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/gradients/conic.rs`

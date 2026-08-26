@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/package_spec`
-Hash do Código: 87f01f6a
+Hash do Código: 765e500c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/package_spec.rs`

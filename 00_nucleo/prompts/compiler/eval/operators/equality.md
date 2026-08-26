@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/equality` — igualdade e pertença
-Hash do Código: b777ac4c
+Hash do Código: d9f6ab2d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/equality.rs`

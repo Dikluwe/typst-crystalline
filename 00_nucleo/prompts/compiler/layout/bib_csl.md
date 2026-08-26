@@ -1,6 +1,6 @@
 # Prompt L0 — `compiler/layout/bib_csl` — Renderização CSL via hayagriva
+Hash do Código: 78ae94b8
 
-Hash do Código: a4c9e58d
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/bib_csl.rs`
 **Origem**: P418 (XL) — Bibliography/Cite CSL real.

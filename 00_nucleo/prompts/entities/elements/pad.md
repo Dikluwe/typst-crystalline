@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/pad` — `PadElem`
-Hash do Código: ade8e6e5
+Hash do Código: 27636f2f
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/pad.rs`
 **Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver

@@ -1,4 +1,5 @@
 # L0 — `LayouterRuntimeState` (`entities/layouter_runtime_state.rs`)
+Hash do Código: ffffffff
 
 ## Módulo
 `01_core/src/entities/layouter_runtime_state.rs`

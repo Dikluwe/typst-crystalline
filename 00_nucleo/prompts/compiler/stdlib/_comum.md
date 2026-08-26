@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib` — comum (convenção e helpers partilhados)
-Hash do Código: 6d5d6605
+Hash do Código: fc6a211a
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade

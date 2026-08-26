@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/ast/math`
-Hash do Código: f1ee4107
+Hash do Código: 9651dbbc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/ast/math.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/shape` — `ShapeElem`
-Hash do Código: 6b4baf30
+Hash do Código: f6f448d6
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/shape.rs`
 **Origem**: modelo D (ADR-0105), **Lote 11 P326** (por largura). Trait e glossário (§A.0): ver

@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: 3bddf2b3
+Hash do Código: 4e293a07
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/link` — `LinkElem`
-Hash do Código: 534cb50c
+Hash do Código: e1bc668f
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/link.rs`
 **Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Trait, regras partilhadas

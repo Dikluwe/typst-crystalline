@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/rel`
-Hash do Código: —
+Hash do Código: ffffffff
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/rel.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib/ref` — `ref(name, supplement: ?)`
-Hash do Código: —
+Hash do Código: ffffffff
 
 **Camada**: L1..L3 · **Alvo**: `01_core/src/compiler/stdlib/ref.rs`
 

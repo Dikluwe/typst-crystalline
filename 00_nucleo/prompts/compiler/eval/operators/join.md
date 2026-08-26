@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/join` — combinação sequencial de valores
-Hash do Código: 9bc7688c
+Hash do Código: 38674721
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/join.rs`

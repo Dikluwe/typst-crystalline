@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/state_registry`
-Hash do Código: d32fc8b7
+Hash do Código: 3223be16
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/state_registry.rs`

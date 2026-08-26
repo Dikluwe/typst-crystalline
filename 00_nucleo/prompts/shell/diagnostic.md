@@ -1,5 +1,5 @@
 # Shell Diagnostic — typst-shell::diagnostic
-Hash do Código: 95d8e859
+Hash do Código: 0096c215
 
 ## Módulo
 

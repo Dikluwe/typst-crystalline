@@ -1,5 +1,5 @@
 # L0 — Supplement e referências de página
-Hash do Código: 79cc1212
+Hash do Código: 0d79ef0e
 
 ## Linhagem e alcance
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/source.rs`
-Hash do Código: 2ca68c96
+Hash do Código: 8d49c4e0
 
 **Camada**: L1 — domínio puro
 **Módulo**: `01_core/src/entities/source.rs`

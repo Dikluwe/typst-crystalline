@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_state_legacy`
-Hash do Código: d5fbc8b4
+Hash do Código: 3c3a1d9e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter_state_legacy.rs`

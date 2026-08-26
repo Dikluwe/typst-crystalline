@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/figure` — `FigureElem`
-Hash do Código: 8937a844
+Hash do Código: 2caa9204
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/figure.rs`
 **Origem**: modelo D (ADR-0105), **Lote 13 P328** (o último element-shaped).

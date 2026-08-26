@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: 46730b69
+Hash do Código: 6056618f
 
 ## Módulo
 `01_core/src/compiler/stdlib/color.rs`

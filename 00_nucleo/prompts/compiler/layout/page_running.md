@@ -1,6 +1,6 @@
 # Prompt L0 — `compiler/layout/page_running` — composição marginal
+Hash do Código: 7f2bbac6
 
-Hash do Código: 02034ce3
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/compiler/layout/page_running.rs`

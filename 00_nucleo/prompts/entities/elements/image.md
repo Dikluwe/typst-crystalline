@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/image` — `ImageElem`
-Hash do Código: 003f6fcd
+Hash do Código: a86dc4d0
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/image.rs`
 **Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/par` — `par` e `parbreak`
-Hash do Código: af3c3240
+Hash do Código: 7568a8bb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/par.rs`

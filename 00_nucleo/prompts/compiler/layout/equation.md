@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `compiler/layout/equation` — Layout de Equações**
-Hash do Código: a5e7925f
+Hash do Código: 9211dc66
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)

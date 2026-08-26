@@ -1,6 +1,6 @@
 # Prompt L0 — `compiler/layout/shape_block_behaviour` — `Content::Shape` como bloco que quebra parágrafo
+Hash do Código: 563c3a3d
 
-Hash do Código: badad90c
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/shape.rs` (com impacto no dispatch de `Content::Shape` em `compiler/layout/mod.rs`)
 **Origem**: P767 — arqueologia de P763h.

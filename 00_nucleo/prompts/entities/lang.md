@@ -1,5 +1,5 @@
 # Prompt L0 — entities/lang
-Hash do Código: 402212db
+Hash do Código: af93146b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/lang.rs`

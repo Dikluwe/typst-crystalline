@@ -1,5 +1,5 @@
 # Prompt L0 — entities/sides
-Hash do Código: d5d8273f
+Hash do Código: 7ab2ffda
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/sides.rs`

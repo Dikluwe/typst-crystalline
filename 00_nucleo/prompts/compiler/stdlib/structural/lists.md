@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/lists` — nativas de lista
-Hash do Código: 8926c761
+Hash do Código: 7dd1583f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/lists.rs`

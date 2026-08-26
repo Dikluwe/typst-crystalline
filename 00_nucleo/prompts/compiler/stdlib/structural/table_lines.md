@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/table_lines` — linhas de tabela e grelha
-Hash do Código: 39bc21b6
+Hash do Código: ba8a5360
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/table_lines.rs`

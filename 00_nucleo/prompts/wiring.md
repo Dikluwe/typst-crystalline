@@ -1,10 +1,10 @@
 # Wiring — typst-wiring
+Hash do Código: f7f446e5
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:96b4b53ee7cc95ed530231f42539707f85108de22446dd47c22f162e144cfeb9
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 - 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
 
-Hash do Código: f7f446e5
 
 ## Módulo
 `04_wiring/src/main.rs`

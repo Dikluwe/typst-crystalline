@@ -1,6 +1,6 @@
 # Prompt L0 — `contracts/package_downloader` — porta pura
+Hash do Código: 57ae4d5a
 
-Hash do Código: ee741d0d
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/contracts/package_downloader.rs`

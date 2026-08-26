@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/images` — Imagens PDF
-Hash do Código: 912e29b6
+Hash do Código: 13c64656
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/images.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/tiling` — padrão de azulejos (Tiling)
-Hash do Código: c0bf7146
+Hash do Código: 8fb9a293
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/tiling.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/str` — `str`, `str.from-unicode`
-Hash do Código: 5cb1f520
+Hash do Código: f824b2f2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/str.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/mod` — Agregador do Motor de Regras
-Hash do Código: 0ce46798
+Hash do Código: 100a86e0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/mod.rs`

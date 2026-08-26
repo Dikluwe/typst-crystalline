@@ -1,5 +1,5 @@
 # Prompt L0 — Entidade `ShowRule` (Passo 68-70; atualizado P352)
-Hash do Código: 59ae1915
+Hash do Código: d610960a
 
 ## Propósito
 

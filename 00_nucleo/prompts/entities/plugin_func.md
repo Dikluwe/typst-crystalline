@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/plugin_func` — `PluginFunc` chamável + cache (níveis 4–5 de P696)
-Hash do Código: dea7392d
+Hash do Código: 08bb296f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/plugin_func.rs`

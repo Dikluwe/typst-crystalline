@@ -1,5 +1,5 @@
 # L0 — Layout: Figuras e Legendas
-Hash do Código: b3d26917
+Hash do Código: ed7dd7a6
 
 ## Módulo
 `01_core/src/compiler/layout/figure.rs`

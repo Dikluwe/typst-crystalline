@@ -1,6 +1,6 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
+Hash do Código: 70a484a4
 
-Hash do Código: 0161d0bc
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/layout/columns.rs`  

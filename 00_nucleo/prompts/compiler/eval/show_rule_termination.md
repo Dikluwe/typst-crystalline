@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/show_rule_termination` — loop α e terminação de show rules
-Hash do Código: a24edf71
+Hash do Código: b5897386
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/show_rule_termination.rs`

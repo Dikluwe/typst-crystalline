@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/query` — query, localização e metadados
-Hash do Código: 681adeae
+Hash do Código: fd4f6cc1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/query.rs`

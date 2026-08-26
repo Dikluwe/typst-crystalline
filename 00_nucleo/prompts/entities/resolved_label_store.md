@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/resolved_label_store`
-Hash do Código: 91cb7ff7
+Hash do Código: ad382e48
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/resolved_label_store.rs`

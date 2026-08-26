@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: 7aea13e2
+Hash do Código: 8e18a02c
 
 ## Módulo
 `01_core/src/compiler/layout/outline.rs`

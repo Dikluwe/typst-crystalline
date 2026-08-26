@@ -1,9 +1,9 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
+Hash do Código: a1d371e8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
 
-Hash do Código: 14f76723
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`

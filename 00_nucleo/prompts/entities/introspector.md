@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 2cec5715
+Hash do Código: 10b008ba
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`

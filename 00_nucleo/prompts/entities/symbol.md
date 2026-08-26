@@ -1,5 +1,5 @@
 # Prompt L0 — `Symbol` — grapheme Unicode nomeado com modifiers e constructor
-Hash do Código: 3bae2e1e
+Hash do Código: 5a1c3363
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/symbol.rs`, `01_core/src/entities/value.rs`, `01_core/src/compiler/eval/bindings.rs`, `01_core/src/compiler/eval/closures.rs`, `01_core/src/compiler/eval/repr.rs`, `01_core/src/compiler/stdlib/sym.rs`, `01_core/src/compiler/stdlib/foundations.rs`

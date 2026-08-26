@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/world` — O Contrato Supremo do Sistema
-Hash do Código: f4becd19
+Hash do Código: 5abd444e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/world.rs`

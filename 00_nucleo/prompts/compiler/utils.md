@@ -1,5 +1,5 @@
 # Prompt L0 — `utils` (utilitários internos de L1)
-Hash do Código: b233a30e
+Hash do Código: b6143520
 
 **Camada**: L1
 **Ficheiro**: `01_core/src/utils.rs`

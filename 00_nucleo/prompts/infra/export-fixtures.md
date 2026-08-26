@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export-fixtures` — Corpus canónico de snapshot binário
-Hash do Código: 22983866
+Hash do Código: 705cb4e7
 
 **Camada**: L3 (apoio — fixtures de teste)
 **Diretório alvo**: `03_infra/fixtures/p307b/`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/hide` — `HideElem`
-Hash do Código: 0b7dfddb
+Hash do Código: 86c62663
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/hide.rs`
 **Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver

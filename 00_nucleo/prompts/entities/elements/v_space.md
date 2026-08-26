@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/v_space` — `VSpaceElem`
-Hash do Código: 962b0938
+Hash do Código: 8c7c158a
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/v_space.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver

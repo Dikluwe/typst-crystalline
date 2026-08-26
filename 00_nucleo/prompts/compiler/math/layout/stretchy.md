@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/stretchy` — operadores extensíveis
-Hash do Código: d47bf9b4
+Hash do Código: c6756ae8
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/stretchy.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo

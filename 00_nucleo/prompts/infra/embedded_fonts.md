@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/embedded_fonts` — Fontes Embutidas via `typst-assets`
-Hash do Código: beb29fef
+Hash do Código: 24bd12e2
 
 **Camada**: L3  
 **Criado em**: 2026-07-14 (Passo 753)  

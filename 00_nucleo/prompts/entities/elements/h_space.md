@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/h_space` — `HSpaceElem`
-Hash do Código: e7c196ce
+Hash do Código: 05b6c36d
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/h_space.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver

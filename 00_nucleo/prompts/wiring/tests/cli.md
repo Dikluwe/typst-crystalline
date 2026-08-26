@@ -1,9 +1,9 @@
 # Prompt L0 — `wiring/tests/cli` — integração do binário typst
+Hash do Código: 7b73dcf7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
 
-Hash do Código: 62a83a1f
 
 **Camada**: L4
 **Ficheiro alvo**: `04_wiring/tests/cli.rs`

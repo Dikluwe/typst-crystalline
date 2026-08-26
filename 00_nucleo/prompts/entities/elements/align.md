@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/align` — `AlignElem`
-Hash do Código: 2cda91eb
+Hash do Código: f8d8e349
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/align.rs`
 **Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver

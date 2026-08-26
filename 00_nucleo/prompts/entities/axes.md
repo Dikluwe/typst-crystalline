@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/axes`
-Hash do Código: c942a18a
+Hash do Código: fd124da2
 
 ## Módulo
 `01_core/src/entities/axes.rs`

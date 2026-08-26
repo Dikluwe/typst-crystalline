@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_matrix` — `MathMatrixElem`
-Hash do Código: 91c3f67b
+Hash do Código: 687e1a34
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_matrix.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras

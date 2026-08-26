@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_info`
-Hash do Código: d36b7190
+Hash do Código: 32f54c3d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_info.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — entities/parity
-Hash do Código: ce1c056c
+Hash do Código: a3ef6c07
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/parity.rs`

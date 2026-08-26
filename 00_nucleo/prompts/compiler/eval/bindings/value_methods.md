@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: 9433f2ee
+Hash do Código: cf8dcf06
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/value_methods.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/terms` — `TermsElem`
-Hash do Código: ee374355
+Hash do Código: 667514fc
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/terms.rs`
 **Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Trait, regras partilhadas

@@ -1,6 +1,6 @@
 # Prompt L0 — `infra` — raiz da crate `typst-infra`
-
 Hash do Código: 4cc717a7
+
 
 **Camada:** L3
 **Ficheiro proprietário:** `03_infra/src/lib.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators` — hub dos operadores do eval
-Hash do Código: 39f8eec5
+Hash do Código: 0f45ea4e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/mod.rs` (dispatcher)

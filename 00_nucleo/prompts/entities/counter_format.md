@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_format`
-Hash do Código: 1a6773b7
+Hash do Código: 25914603
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/counter_format.rs`
 **Criado em**: 2026-06-24 (P451 — heading numbering patterns)

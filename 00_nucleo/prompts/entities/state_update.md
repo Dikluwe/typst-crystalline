@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/state_update`
-Hash do Código: 8716ebb4
+Hash do Código: 80cd95bb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/state_update.rs`

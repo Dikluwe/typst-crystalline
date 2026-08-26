@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/plugin_host` — fronteira do runtime WASM (nível 3 de P696)
-Hash do Código: 3f538240
+Hash do Código: 93f5264e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/plugin_host.rs`

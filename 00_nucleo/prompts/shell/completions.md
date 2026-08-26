@@ -1,5 +1,5 @@
 # Prompt L0 — comando `typst completions`
-Hash do Código: 041e8dec
+Hash do Código: be42ff66
 
 **Camadas:** L2/L4  
 **Ficheiros alvo:** `02_shell/src/cli.rs`, `02_shell/src/completions.rs`,

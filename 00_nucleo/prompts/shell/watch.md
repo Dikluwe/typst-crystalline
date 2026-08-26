@@ -1,5 +1,5 @@
 # Prompt L0 — comando `typst watch`
-Hash do Código: 465d00da
+Hash do Código: 257f724f
 
 **Camadas:** L2/L3/L4  
 **Ficheiros alvo:** `02_shell/src/cli.rs`, `03_infra/src/watch.rs`,

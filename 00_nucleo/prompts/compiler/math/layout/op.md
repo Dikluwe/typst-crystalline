@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/op` — `MathOp`
-Hash do Código: 50140cd3
+Hash do Código: 7b8881f3
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/op.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento

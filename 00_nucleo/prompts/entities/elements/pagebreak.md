@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/pagebreak` — `PagebreakElem`
-Hash do Código: f11e2b5c
+Hash do Código: 92ccb6c5
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/pagebreak.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver

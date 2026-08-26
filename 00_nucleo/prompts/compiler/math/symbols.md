@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/symbols` — Resolução de Símbolos Matemáticos
-Hash do Código: 154510c0
+Hash do Código: 53b8abb9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/math/symbols.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/span`
-Hash do Código: 1f5a1ef5
+Hash do Código: f9a43129
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/span.rs`

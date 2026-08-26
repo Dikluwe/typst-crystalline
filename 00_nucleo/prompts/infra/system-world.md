@@ -2,7 +2,7 @@
 Hash do Código: 7baffcc9
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:96b4b53ee7cc95ed530231f42539707f85108de22446dd47c22f162e144cfeb9
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`

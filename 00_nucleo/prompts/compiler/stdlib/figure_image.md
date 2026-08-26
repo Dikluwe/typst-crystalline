@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: 27604782
+Hash do Código: 5ed74abb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/figure_image.rs`

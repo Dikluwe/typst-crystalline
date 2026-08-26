@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/gradients/mod` — Tipos + scan + dispatch
-Hash do Código: c6e7f80c
+Hash do Código: 2587497c
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/gradients/mod.rs`

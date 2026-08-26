@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_align_point` — `MathAlignPointElem`
-Hash do Código: 80501352
+Hash do Código: 45fe73c4
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_align_point.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras

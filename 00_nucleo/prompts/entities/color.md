@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: 2abf697a
+Hash do Código: 99c91d52
 
 ## Módulo
 `01_core/src/entities/color.rs`

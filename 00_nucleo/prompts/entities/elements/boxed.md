@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/boxed` — `BoxedElem`
-Hash do Código: 55e997b6
+Hash do Código: dd0edfc0
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/boxed.rs`
 **Origem**: modelo D (ADR-0105), **Lote 14 P329** (reclassificado da triagem

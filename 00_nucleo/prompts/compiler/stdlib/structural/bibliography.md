@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/bibliography` — bibliografia e citação
-Hash do Código: 2e904617
+Hash do Código: 724bb68b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/bibliography.rs`

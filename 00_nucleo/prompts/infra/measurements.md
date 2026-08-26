@@ -1,10 +1,10 @@
 # Prompt L0 — `infra/measurements`
+Hash do Código: 51502962
 
 > **P1140.4-A:** `CountingIntrospector` delega também
 > `equation_numbering_content(Location)`. A instrumentação não materializa nem
 > transforma o número; apenas preserva integralmente o novo método read-only do
 > trait L1.
-Hash do Código: 7b72666b
 
 **Camada**: L3.
 **Fase**: M8 / P204G.

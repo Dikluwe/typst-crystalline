@@ -1,5 +1,5 @@
 # Prompt: GlyphVariants — Variantes de Tamanho de Glifos Matemáticos
-Hash do Código: b68083b2
+Hash do Código: a25db483
 
 ## Módulo
 

@@ -1,6 +1,6 @@
 # Prompt L0 — `infra/runtime_info` — snapshot do runtime
+Hash do Código: 9f0e9425
 
-Hash do Código: 16249cb6
 
 **Camada:** L3
 **Ficheiro proprietário:** `03_infra/src/runtime_info.rs`

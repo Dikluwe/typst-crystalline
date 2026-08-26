@@ -1,6 +1,6 @@
 # Prompt L0 — `entities/elements/context_block`
+Hash do Código: 173b59ad
 
-Hash do Código: b4010394
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/entities/elements/context_block.rs`

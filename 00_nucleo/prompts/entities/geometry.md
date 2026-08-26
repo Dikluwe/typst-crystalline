@@ -1,5 +1,5 @@
 # Prompt L0 — geometry
-Hash do Código: 300b776c
+Hash do Código: e6ca99d2
 
 ## Módulo
 `01_core/src/entities/geometry.rs`

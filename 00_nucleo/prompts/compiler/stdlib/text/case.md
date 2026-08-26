@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text/case` — `upper`, `lower`, `replace`
-Hash do Código: a3ce5c7e
+Hash do Código: 4382da9f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/case.rs`

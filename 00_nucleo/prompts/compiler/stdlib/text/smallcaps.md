@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text/smallcaps` — `smallcaps`
-Hash do Código: 69c2d5b6
+Hash do Código: 7769a522
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/smallcaps.rs`

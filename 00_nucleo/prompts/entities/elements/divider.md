@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/divider` — `DividerElem`
-Hash do Código: 14c39ac1
+Hash do Código: 556ebc9b
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/divider.rs`
 **Origem**: modelo D (ADR-0105), lote piloto P316. Trait, regras partilhadas e glossário (§A.0):

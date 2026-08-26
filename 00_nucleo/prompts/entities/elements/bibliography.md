@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/bibliography` — `BibliographyElem`
-Hash do Código: ba379e19
+Hash do Código: 0b783296
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/bibliography.rs`
 **Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver

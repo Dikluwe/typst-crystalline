@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/font_book` — `FontBook`, `FontInfo` e cobertura Unicode exacta
-Hash do Código: 14ad27e5
+Hash do Código: 5393608b
 
 **Camada**: L1  
 **Ficheiros alvo**: `01_core/src/entities/font_book.rs`, `01_core/src/entities/world_types.rs`  

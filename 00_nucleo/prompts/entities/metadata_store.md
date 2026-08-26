@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/metadata_store`
-Hash do Código: a40c8338
+Hash do Código: efce4ce8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/metadata_store.rs`

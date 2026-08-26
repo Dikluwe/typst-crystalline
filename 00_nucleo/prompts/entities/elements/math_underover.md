@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_underover` — `MathUnderoverElem`
-Hash do Código: 54670ea5
+Hash do Código: 7deb7b91
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_underover.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras

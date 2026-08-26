@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/ordering` — ordenação de valores
-Hash do Código: 9ad57729
+Hash do Código: e5f95af4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/ordering.rs`

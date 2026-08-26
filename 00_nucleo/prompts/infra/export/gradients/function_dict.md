@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/gradients/function_dict` — PDF Function dict
-Hash do Código: fc627472
+Hash do Código: 97fda67b
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/gradients/function_dict.rs`

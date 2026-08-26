@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/sealed-positions`
-Hash do Código: 14d42d6a
+Hash do Código: 8946561e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/sealed_positions.rs`

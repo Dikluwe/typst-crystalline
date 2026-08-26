@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text` — hub do módulo `text`
-Hash do Código: 968460d6
+Hash do Código: a8732f7f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/mod.rs`

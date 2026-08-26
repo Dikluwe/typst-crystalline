@@ -1,6 +1,6 @@
 # Prompt L0 — `shell/build` — captura de identidade compile-time
+Hash do Código: 24e7f743
 
-Hash do Código: 8cbf4ebb
 
 **Camada:** tooling de build da L2
 **Ficheiro proprietário:** `02_shell/build.rs`

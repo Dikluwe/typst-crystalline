@@ -1,10 +1,10 @@
 # Prompt L0 — `infra/export/render` — Rasterização PNG
+Hash do Código: d7ebd488
 
 ## P1140.20.2 — canvas raster
 
 render_bleed expande bitmap. Fill auto branco, none alpha transparente e Paint
 suportado. Ordem fill→background→body→foreground; layers sem texto acessível.
-Hash do Código: 3f68d84e
 
 **Camada**: L3  
 **Ficheiro alvo**: `03_infra/src/export/render.rs`  

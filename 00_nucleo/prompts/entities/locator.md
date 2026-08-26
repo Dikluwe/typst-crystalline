@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/locator`
-Hash do Código: 6e8c9eb3
+Hash do Código: fb8154be
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/locator.rs`

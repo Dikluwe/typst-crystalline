@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/cast` — conversões e constructors
-Hash do Código: 6db1ab92
+Hash do Código: 66cf18e0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/cast.rs`

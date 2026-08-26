@@ -1,4 +1,5 @@
 # Prompt L0 — `infra/fontdb` — Descoberta automática de fontes do sistema
+Hash do Código: ffffffff
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  

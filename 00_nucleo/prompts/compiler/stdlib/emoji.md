@@ -1,5 +1,5 @@
 # Prompt L0 — `emoji` — módulo de emoji Unicode
-Hash do Código: c7f0bbc2
+Hash do Código: f4a84c9e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/emoji.rs`, `01_core/src/compiler/eval/mod.rs`

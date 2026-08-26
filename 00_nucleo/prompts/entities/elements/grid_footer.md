@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/grid_footer` — `GridFooterElem`
-Hash do Código: 6529606c
+Hash do Código: d6e0e8e9
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/grid_footer.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver

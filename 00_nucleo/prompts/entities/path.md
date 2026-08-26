@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/path` — caminho virtual enraizado
-Hash do Código: 26ff79df
+Hash do Código: 007e2063
 
 **Camada:** L1  
 **Ficheiro alvo:** `01_core/src/entities/path.rs`  

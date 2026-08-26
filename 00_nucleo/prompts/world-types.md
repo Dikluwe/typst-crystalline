@@ -1,5 +1,5 @@
 # world_types — stubs opacos para contratos de World
-Hash do Código: b8367659
+Hash do Código: 8f032246
 
 **Camada**: L1 — entities
 **Criado em**: 2026-03-22

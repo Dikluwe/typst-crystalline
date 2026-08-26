@@ -1,5 +1,5 @@
 # Prompt L0 — P537b — `#set page(columns:)` → mecanismo de colunas
-Hash do Código: 45417626
+Hash do Código: f28e7cd2
 
 **Camada**: L1  
 **Ficheiros alvo**: `01_core/src/entities/content.rs`, `01_core/src/entities/layout_types.rs`, `01_core/src/compiler/eval/rules.rs`, `01_core/src/compiler/eval/mod.rs`, `01_core/src/compiler/layout/set_page.rs`, `01_core/src/compiler/layout/mod.rs`, `01_core/src/compiler/layout/tests.rs`  

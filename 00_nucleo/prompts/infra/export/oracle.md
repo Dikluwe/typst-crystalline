@@ -1,5 +1,5 @@
 # export/oracle — oráculo de paridade de operador (P980)
-Hash do Código: 4c630398
+Hash do Código: 7ce9fe09
 
 **Data:** 2026-08-05 · **Camada:** L3 · **Passo:** 980 (gate confirmado
 pelo dono em 2026-08-05)

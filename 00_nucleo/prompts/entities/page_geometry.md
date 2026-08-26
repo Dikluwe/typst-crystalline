@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/page_geometry`
-Hash do Código: 2136ff3d
+Hash do Código: e9e7a288
 
 **Camada:** L1  
 **Alvo:** `01_core/src/entities/page_geometry.rs`  

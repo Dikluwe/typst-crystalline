@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: ea95a978
+Hash do Código: b6e32f90
 
 **Camada**: L3.
 **Fase**: P206C / Vanilla integration.

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text/constructor` — `text(...)` e validação de argumentos
-Hash do Código: a2e83f0d
+Hash do Código: c7807d84
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/constructor.rs`

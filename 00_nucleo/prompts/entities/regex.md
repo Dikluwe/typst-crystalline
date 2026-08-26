@@ -1,5 +1,5 @@
 # Prompt L0 — `Regex` — wrapper L1 sobre `regex::Regex`
-Hash do Código: a6f0865d
+Hash do Código: b57030cc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/regex.rs`, `01_core/src/entities/value.rs`

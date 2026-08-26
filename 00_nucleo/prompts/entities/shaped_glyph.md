@@ -1,4 +1,5 @@
 ---
+Hash do Código: b9e0e19f
 prompt: entities/shaped_glyph
 layer: L1
 created: 2026-06-27
@@ -7,7 +8,6 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `ShapedGlyph` (P482)
-Hash do Código: 1330ae2d
 
 ## Propósito
 

@@ -1,5 +1,5 @@
 # Prompt L0 — entities/font_variations
-Hash do Código: 1f69c06e
+Hash do Código: 8669fc16
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/font_variations.rs`

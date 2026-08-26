@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/root` — `MathRoot`
-Hash do Código: af9a050d
+Hash do Código: d151b46e
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/root.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo

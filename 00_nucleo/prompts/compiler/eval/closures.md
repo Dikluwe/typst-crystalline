@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/closures` — criação e aplicação de closures
-Hash do Código: 5fb7121c
+Hash do Código: 29b35d09
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/closures.rs`

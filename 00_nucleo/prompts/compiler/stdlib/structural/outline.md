@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/outline` — `outline`, `lof`, `lot`
-Hash do Código: 0f83d029
+Hash do Código: 01b891e9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/outline.rs`

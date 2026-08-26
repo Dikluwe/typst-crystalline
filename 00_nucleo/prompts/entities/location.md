@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/location`
-Hash do Código: a9cb6961
+Hash do Código: 2857d3b9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/location.rs`

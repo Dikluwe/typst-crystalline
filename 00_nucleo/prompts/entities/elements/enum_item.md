@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/enum_item` — `EnumItemElem`
-Hash do Código: 4d28ccbf
+Hash do Código: f29b9a3a
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/enum_item.rs`
 **Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Campo

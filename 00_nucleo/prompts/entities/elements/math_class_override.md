@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_class_override` — `MathClassOverrideElem`
-Hash do Código: ebfe7784
+Hash do Código: d1bf6016
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_class_override.rs`
 **Origem**: modelo D (ADR-0105), **P772y** (`math.class(class, body)`). Trait, regras partilhadas

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/gradients/adaptive` — Adaptive N multispace
-Hash do Código: 2c164715
+Hash do Código: fab5f533
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/gradients/adaptive.rs`

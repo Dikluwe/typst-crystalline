@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/strike` — `StrikeElem`
-Hash do Código: 899f5d0e
+Hash do Código: a88288e5
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/strike.rs`
 **Origem**: modelo D (ADR-0105), **Lote 4 P319** (decorações de texto). Trait, regras partilhadas

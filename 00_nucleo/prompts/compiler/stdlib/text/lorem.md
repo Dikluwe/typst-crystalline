@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text/lorem` — `lorem`
-Hash do Código: 5e93e04d
+Hash do Código: 84ed3780
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/lorem.rs`

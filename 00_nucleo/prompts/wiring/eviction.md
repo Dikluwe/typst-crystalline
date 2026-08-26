@@ -1,5 +1,5 @@
 # Prompt L0 — `wiring/eviction`
-Hash do Código: 36fde5f8
+Hash do Código: 76195d6f
 
 **Camada**: L4.
 **Fase**: M8 / P204E.

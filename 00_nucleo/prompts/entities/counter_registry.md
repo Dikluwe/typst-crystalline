@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_registry`
-Hash do Código: afd075f2
+Hash do Código: 2984caae
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter_registry.rs`

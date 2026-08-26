@@ -1,6 +1,6 @@
 # Prompt L0 — compiler/layout/image — `Content::Image` como bloco com ancoramento vertical
+Hash do Código: 6bad1d60
 
-Hash do Código: bb673d26
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/image.rs`  
 **ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (anti-deriva), ADR-0109 (atomização forma B)  

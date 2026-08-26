@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter` — chave de counter documental
-Hash do Código: bddae8c7
+Hash do Código: 9e704044
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter.rs`

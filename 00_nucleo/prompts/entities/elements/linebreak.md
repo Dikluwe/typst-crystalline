@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/linebreak` — `LinebreakElem`
-Hash do Código: 5b886366
+Hash do Código: 2a86c30d
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/linebreak.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320** (quebras/espaços + grid/table

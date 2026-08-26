@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/gradients/cmyk` — CMYK conversão + stops
-Hash do Código: 6d95916a
+Hash do Código: 6de34698
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/gradients/cmyk.rs`

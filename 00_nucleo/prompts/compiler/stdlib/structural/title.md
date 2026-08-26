@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/title` — `title`
-Hash do Código: ae6363e0
+Hash do Código: dfc59335
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/title.rs`

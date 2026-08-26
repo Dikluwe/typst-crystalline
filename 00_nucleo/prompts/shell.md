@@ -1,5 +1,5 @@
 # Shell — typst-shell
-Hash do Código: 38ce9ad6
+Hash do Código: a8c743da
 
 ## Propósito
 

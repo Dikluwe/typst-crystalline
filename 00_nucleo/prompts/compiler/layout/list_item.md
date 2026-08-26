@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/list_item` — layout de `ListItemElem`
-Hash do Código: 83c313b5
+Hash do Código: 9662cf3a
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/list_item.rs`
 **Origem**: atomização (ADR-0109, P380); campos `indent`/`body_indent`/`tight`

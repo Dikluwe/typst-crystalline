@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements` — trait `Element` (modelo D, lote piloto)
-Hash do Código: cfd3696d
+Hash do Código: e962d8b0
 
 **Camada**: L1 · **Módulo**: `01_core/src/entities/elements/`
 **Decisão de origem**: ADR-0105 (modelo D incremental; F como destino) +

@@ -1,6 +1,6 @@
 # Prompt L0 — `entities/state` — valor documental State
+Hash do Código: 36fba5ee
 
-Hash do Código: 0984caf6
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/entities/state.rs`

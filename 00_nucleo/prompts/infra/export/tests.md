@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/tests` — Testes agregadores E2E
-Hash do Código: 26417c41
+Hash do Código: 0c915794
 
 **Camada**: L3 (apoio — testes)
 **Ficheiro alvo**: `03_infra/src/export/tests.rs`

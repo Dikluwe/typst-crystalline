@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/int` — superfície pública de `int`
-Hash do Código: 0b09836a
+Hash do Código: 5317a0e5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/int.rs`

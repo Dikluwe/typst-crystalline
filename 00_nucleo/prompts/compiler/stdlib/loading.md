@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: 27a4efb8
+Hash do Código: 9379f85f
 
 **Camada**: L1 (decode puro) + composição com L3 já existente.
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/loading.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/grid_header` — `GridHeaderElem`
-Hash do Código: a588f7d9
+Hash do Código: 253c5d4b
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/grid_header.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver

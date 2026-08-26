@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — API pública do exporter PDF
-Hash do Código: b17f6568
+Hash do Código: 353ce4a4
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`

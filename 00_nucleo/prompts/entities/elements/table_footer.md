@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/table_footer` — `TableFooterElem`
-Hash do Código: 9d022a57
+Hash do Código: 88b07686
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table_footer.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: d3eb6e7f
+Hash do Código: 211c7f10
 
 ## Módulo
 `01_core/src/entities/gradient.rs`

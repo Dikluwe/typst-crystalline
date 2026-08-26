@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/cite` — `CiteElem`
-Hash do Código: 7dda9bfa
+Hash do Código: 69723b48
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/cite.rs`
 **Origem**: modelo D (ADR-0105), **Lote 9 P324** (por largura). Trait e glossário (§A.0): ver

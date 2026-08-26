@@ -1,5 +1,5 @@
 # Prompt L0 — comando `typst init`
-Hash do Código: ab4cee47
+Hash do Código: e636235b
 
 **Camadas:** L2/L3/L4  
 **Ficheiros alvo:** `02_shell/src/cli.rs`, `03_infra/src/project_init.rs`,

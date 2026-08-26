@@ -1,9 +1,9 @@
 # Prompt L0 — `rules/lexer/mod` — Motor de Tokenização (Lexer)
+Hash do Código: 33a1fe9b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:aae80d538980eeec87b884712269e3b777fe44c0dae6b3503b5fa9ee4f9ad76f
 
-Hash do Código: 33a1fe9b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/lexer/mod.rs`

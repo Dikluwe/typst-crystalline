@@ -1,5 +1,5 @@
 # Prompt L0 — CitationForm
-Hash do Código: e5dbc272
+Hash do Código: 0ee1a2dd
 
 ## Módulo
 `01_core/src/entities/citation_form.rs`

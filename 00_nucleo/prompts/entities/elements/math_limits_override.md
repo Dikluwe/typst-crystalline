@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_limits_override` — `MathLimitsOverrideElem`
-Hash do Código: 2507c5f3
+Hash do Código: 700f15ad
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_limits_override.rs`
 **Origem**: Passo 992 (achado externo 2026-08-07, secção 32 do documento

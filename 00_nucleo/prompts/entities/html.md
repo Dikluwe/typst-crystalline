@@ -1,5 +1,5 @@
 # Prompt L0 — entidade de conteúdo HTML
-Hash do Código: 40662cb9
+Hash do Código: 453c2796
 
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  

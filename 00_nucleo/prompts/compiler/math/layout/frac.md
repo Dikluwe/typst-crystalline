@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/frac` — `MathFrac`
-Hash do Código: 3eb02e14
+Hash do Código: 0829c079
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/frac.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo

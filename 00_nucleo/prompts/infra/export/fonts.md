@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/fonts` — Helpers de fontes e escape
-Hash do Código: d34fda56
+Hash do Código: 5b920043
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/fonts.rs`

@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: cbf3e303
+Hash do Código: 7e067213
 
 ## Módulo
 `03_infra/src/pipeline.rs`

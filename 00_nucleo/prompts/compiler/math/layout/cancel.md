@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/cancel` — `MathCancel`
-Hash do Código: bcf0d4a2
+Hash do Código: 369ab691
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/cancel.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento

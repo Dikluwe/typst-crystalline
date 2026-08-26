@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/assert` — módulo `assert`
-Hash do Código: c4394a42
+Hash do Código: b48054b1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/assert.rs`

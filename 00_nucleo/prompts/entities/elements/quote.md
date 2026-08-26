@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/quote` — `QuoteElem`
-Hash do Código: e75db3d8
+Hash do Código: 4766fc44
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/quote.rs`
 **Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura). Trait e glossário (§A.0): ver

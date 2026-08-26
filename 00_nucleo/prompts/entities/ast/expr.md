@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/ast/expr`
-Hash do Código: bdca75b8
+Hash do Código: d4a4c964
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/ast/expr.rs`

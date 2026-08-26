@@ -1,4 +1,5 @@
 ---
+Hash do Código: 4883bd99
 prompt: infra/layout_bidi
 layer: L3
 created: 2026-07-04
@@ -8,7 +9,6 @@ adr: ADR-0120, ADR-0109, ADR-0114, ADR-0108
 ---
 
 # Prompt L0 — Reordenação visual bidireccional de linhas (layout bidi)
-Hash do Código: c4c72016
 
 ## P1140.12 — quebra explícita é barreira de reflow
 

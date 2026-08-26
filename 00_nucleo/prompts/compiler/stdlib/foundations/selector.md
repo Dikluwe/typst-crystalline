@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/selector` — construtor e parsing
-Hash do Código: 7cec0f30
+Hash do Código: 93448072
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/selector.rs`  

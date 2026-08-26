@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/access` — lugares mutáveis e erros de nome
-Hash do Código: 1baa167a
+Hash do Código: 27d61f16
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/access.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/table_grid` — estrutura de tabela e grelha
-Hash do Código: ee0f7374
+Hash do Código: 6116f71a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/table_grid.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/smartquote` — `SmartQuoteElem`
-Hash do Código: 62c6d0c9
+Hash do Código: 10180bfe
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/smartquote.rs`
 **Origem**: modelo D (ADR-0105), **Lote 9 P324** (por largura). Trait e glossário (§A.0): ver

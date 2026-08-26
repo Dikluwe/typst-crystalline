@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/color` — construtores de cor
-Hash do Código: c7d0f7ec
+Hash do Código: 464c2d96
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/color.rs`

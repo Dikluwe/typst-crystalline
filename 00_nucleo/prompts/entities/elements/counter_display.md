@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/counter_display` — `CounterDisplayElem`
-Hash do Código: 06af50b0
+Hash do Código: db3bf8c7
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/counter_display.rs`
 **Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait e glossário (§A.0):

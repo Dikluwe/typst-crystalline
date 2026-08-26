@@ -1,5 +1,5 @@
 # Prompt L0 — infra/image_sizer
-Hash do Código: f94af611
+Hash do Código: f7916d20
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/image_sizer.rs`

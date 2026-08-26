@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/footnote` — `footnote` (construção)
-Hash do Código: c43a00aa
+Hash do Código: 5a4c737b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/footnote.rs`

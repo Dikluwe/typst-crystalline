@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/state_display` — `StateDisplayElem`
-Hash do Código: 285c8400
+Hash do Código: ced154b4
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/state_display.rs`
 **Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:

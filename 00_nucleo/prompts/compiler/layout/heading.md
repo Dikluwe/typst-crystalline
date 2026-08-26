@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/heading`
-Hash do Código: 9af3b5c3
+Hash do Código: 2d297d4f
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/heading.rs`
 **Criado em**: 2026-06-24 (P451 — heading numbering patterns)

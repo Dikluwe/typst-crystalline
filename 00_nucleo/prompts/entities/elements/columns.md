@@ -1,6 +1,6 @@
 # Prompt L0 — `entities/elements/columns` — `ColumnsElem`
+Hash do Código: cc40e1cd
 
-Hash do Código: 8c0598a4
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/columns.rs`
 **Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura). Trait e glossário (§A.0): ver

@@ -1,5 +1,5 @@
 # Prompt L0 — `math_style` entity
-Hash do Código: dbd2c738
+Hash do Código: 1f90ea0c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/math_style.rs`

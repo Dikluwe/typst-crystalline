@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/enum_numbering` — `EnumNumbering`
-Hash do Código: 0ec7dd26
+Hash do Código: 9346876e
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/enum_numbering.rs`
 **Origem**: P470 — Marcadores configuráveis de `enum`.

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/syntax_mode`
-Hash do Código: ea1eb31b
+Hash do Código: e68e45ff
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/syntax_mode.rs`

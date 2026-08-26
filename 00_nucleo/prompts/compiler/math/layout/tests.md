@@ -1,6 +1,6 @@
 # Prompt L0 — `compiler/math/layout/tests` — suíte matemática
+Hash do Código: 57c9f8a4
 
-Hash do Código: 3d7edc4b
 
 **Camada:** L1, testes
 **Ficheiro proprietário:** `01_core/src/compiler/math/layout/tests.rs`

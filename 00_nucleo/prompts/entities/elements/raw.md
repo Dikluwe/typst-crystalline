@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/raw` — `RawElem`
-Hash do Código: faeb884a
+Hash do Código: 14b01220
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/raw.rs`
 **Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver

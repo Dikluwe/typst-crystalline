@@ -1,5 +1,5 @@
 # Prompt L0 — `Bytes` — sequência binária opaca
-Hash do Código: c2d4e403
+Hash do Código: 374a56fc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/bytes.rs`, `01_core/src/entities/value.rs`

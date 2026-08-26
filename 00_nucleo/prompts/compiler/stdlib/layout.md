@@ -1,4 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
+Hash do Código: 8f81608a
 
 ## P1140.20.2 — canvas preparatório
 
@@ -11,7 +12,6 @@ Completar somente transporte de `#set page` para paper, flipped, binding e
 margem lógica. Não registrar `page`/`std.page`, função nativa ou constructor
 parcial. P1140.20.2–.4 completam argumentos; P1140.21 cria função/reflexão.
 Named desconhecido é rejeitado, nunca ignorado.
-Hash do Código: 39cd4476
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/layout.rs`

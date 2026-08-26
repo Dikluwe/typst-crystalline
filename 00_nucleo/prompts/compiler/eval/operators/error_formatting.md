@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/error_formatting` — mensagens de fronteira
-Hash do Código: 67e7ee2b
+Hash do Código: fc399441
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/error_formatting.rs`

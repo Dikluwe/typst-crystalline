@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/raw_highlight` — Highlighting em Blocos Raw
-Hash do Código: 202645af
+Hash do Código: 4b333868
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/raw.rs`
 **Origem**: P785a (restauração de syntax highlighting em blocos `raw`).

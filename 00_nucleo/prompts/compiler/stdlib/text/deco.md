@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text/deco` — `underline`, `strike`, `overline`, `highlight`
-Hash do Código: 963b3c89
+Hash do Código: d88e131b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/deco.rs`

@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 19f37729
+Hash do Código: 81ad4d1c
 
 ## Módulo
 `01_core/src/compiler/introspect.rs`

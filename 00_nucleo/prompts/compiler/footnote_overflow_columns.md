@@ -1,6 +1,6 @@
 # Prompt L0 — `rules/footnote_overflow_columns` — Notas de rodapé grandes em colunas
+Hash do Código: dd2c9191
 
-Hash do Código: 80a187ae
 
 **Camada**: L1 (com wiring de warnings em L3/L4)  
 **Ficheiros alvo**: `01_core/src/compiler/layout/cursor.rs`, `01_core/src/compiler/layout/columns.rs`, `01_core/src/entities/layout_types.rs`  

@@ -1,6 +1,6 @@
 # Prompt L0 — `testing/mod` — hub test-only
+Hash do Código: b3cd620d
 
-Hash do Código: b9cb23ff
 
 **Camada:** L1, somente testes
 **Ficheiro proprietário:** `01_core/src/testing/mod.rs`

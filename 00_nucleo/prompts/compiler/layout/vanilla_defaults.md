@@ -1,5 +1,5 @@
 # Prompt L0 — `layout/vanilla_defaults` — Constantes Canónicas de Layout
-Hash do Código: 285bf5c1
+Hash do Código: f9f664e8
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/vanilla_defaults.rs`
 **Origem**: Criado no **Passo 1058** para consolidar constantes canónicas do domínio `layout` com proveniência e fundamentação tipográfica formal (precedente `entities/math_constants.md`).

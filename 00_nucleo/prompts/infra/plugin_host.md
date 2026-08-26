@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/plugin_host` — `WasmiPluginHost` (nível 3 de P696)
-Hash do Código: 10c6a1d4
+Hash do Código: fbc7d62d
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/plugin_host.rs`

@@ -1,10 +1,10 @@
 # Prompt L0 — `rules/introspect/from_tags`
+Hash do Código: 21bf9080
 
 > **P1140.4-A2:** `apply_equation_numberings` recebe tags, introspector já
 > populado, `Engine` e `EvalContext`; formata pattern ou aplica callback unário
 > ao inteiro, guarda `Content` por `Location` e propaga erros. É chamada pelo
 > fixpoint e por `introspect_with_runtime`.
-Hash do Código: 983f7ced
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/from_tags.rs`

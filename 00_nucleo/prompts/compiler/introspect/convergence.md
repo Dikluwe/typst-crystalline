@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/convergence`
-Hash do Código: cf9fe005
+Hash do Código: 49ad3608
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/convergence.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_op` — `MathOpElem`
-Hash do Código: 0f68db55
+Hash do Código: b301f36d
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_op.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras

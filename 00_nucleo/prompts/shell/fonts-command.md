@@ -1,5 +1,5 @@
 # Prompt L0 — comando `typst fonts`
-Hash do Código: b4ea5f27
+Hash do Código: 7c6204a0
 
 **Camadas:** L2/L3/L4  
 **Ficheiros alvo:** `02_shell/src/cli.rs`, `02_shell/src/fonts.rs`,

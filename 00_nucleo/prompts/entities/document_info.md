@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/document_info`
-Hash do Código: eac2a939
+Hash do Código: 77aa0cfc
 
 ## Camada
 L1

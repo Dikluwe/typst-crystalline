@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/markup` — nativas de markup inline
-Hash do Código: c9593c9d
+Hash do Código: bdfe2355
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/markup.rs`

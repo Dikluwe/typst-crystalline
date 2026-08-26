@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/font_dict` — parsing do argumento `text.font`
-Hash do Código: 898ffa4f
+Hash do Código: b7ea0701
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/font_dict.rs`

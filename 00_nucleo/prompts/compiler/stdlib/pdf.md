@@ -1,5 +1,5 @@
 # Prompt L0 — `pdf` — módulo de funcionalidade específica de PDF
-Hash do Código: 25eb8995
+Hash do Código: 23b735af
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/pdf.rs`, `01_core/src/compiler/eval/mod.rs`

@@ -1,4 +1,5 @@
 # Prompt L0 — Content
+Hash do Código: 21f9a700
 
 ## P1166 — variante de nó HTML explícito
 
@@ -63,7 +64,6 @@ Alterar o campo público para `margin: Option<PageMarginSpec>`. `None` externo
 significa não alterar margens; `Some(spec)` significa propriedade explícita;
 cada lado `None` dentro da spec significa `auto`. Mapeamento, igualdade, Debug
 e hashing preservam os quatro lados.
-Hash do Código: 72ccd694
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 

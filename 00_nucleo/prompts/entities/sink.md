@@ -1,5 +1,5 @@
 # Prompt L0 — Sink
-Hash do Código: ae6c4ac7
+Hash do Código: 2602b896
 
 ## Módulo
 `01_core/src/entities/sink.rs`

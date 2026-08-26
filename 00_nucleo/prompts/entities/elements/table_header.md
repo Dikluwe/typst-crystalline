@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/table_header` — `TableHeaderElem`
-Hash do Código: fa4b53fb
+Hash do Código: 89eac155
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table_header.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver

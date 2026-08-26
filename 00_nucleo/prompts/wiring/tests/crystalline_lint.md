@@ -1,6 +1,6 @@
 # Prompt L0 — `wiring/tests/crystalline_lint` — whitelist type-level
-
 Hash do Código: 687b9f29
+
 
 **Camada**: L4
 **Ficheiro alvo**: `04_wiring/tests/crystalline_lint.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — entities/dir
-Hash do Código: 3257959a
+Hash do Código: bc025298
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/dir.rs`

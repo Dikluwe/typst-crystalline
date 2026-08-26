@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/heading` — `heading`
-Hash do Código: b692aa47
+Hash do Código: 5fe69f10
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/heading.rs`

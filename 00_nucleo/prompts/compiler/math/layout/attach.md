@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/attach` — `MathAttach`
-Hash do Código: 536dcfdd
+Hash do Código: ca7c67e8
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/attach.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo

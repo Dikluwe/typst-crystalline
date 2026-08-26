@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/repr` — `repr(v)`
-Hash do Código: 1fd34e99
+Hash do Código: d65301d3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/repr.rs`

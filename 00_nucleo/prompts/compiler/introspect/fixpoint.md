@@ -1,10 +1,10 @@
 # Prompt L0 — `rules/introspect/fixpoint`
+Hash do Código: e602268f
 
 > **P1140.4-A2:** a sequência pós-walk inclui
 > `apply_equation_numberings`. O harness fica coerente com o entrypoint runtime
 > de produção, mas L3 não é descrito como reavaliação completa: usa
 > `introspect_with_runtime` sobre conteúdo pós-contexto estabilizado.
-Hash do Código: b6a5a7b5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/fixpoint.rs`

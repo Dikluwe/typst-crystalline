@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/document` — metadados do documento
-Hash do Código: bf84a49b
+Hash do Código: 093b7ea0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/document.rs`

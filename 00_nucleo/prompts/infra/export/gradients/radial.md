@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/gradients/radial` — Radial gradient coords + stops
-Hash do Código: 6e889301
+Hash do Código: 578a3803
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/gradients/radial.rs`

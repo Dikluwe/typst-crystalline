@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/mod` — Agregador do Subsistema Matemático
-Hash do Código: b15d889f
+Hash do Código: 6d1cc5aa
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/math/mod.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/label_registry`
-Hash do Código: 7bd1f25f
+Hash do Código: dad12553
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/label_registry.rs`

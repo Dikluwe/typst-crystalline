@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/ptr_eq_arc` — PtrEqArc<T>
-Hash do Código: 52a69fe6
+Hash do Código: 941e2bb3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/ptr_eq_arc.rs`

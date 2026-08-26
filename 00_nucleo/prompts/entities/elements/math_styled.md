@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_styled` — `MathStyledElem`
-Hash do Código: 3b81457b
+Hash do Código: cd6a1fe1
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_styled.rs`
 **Origem**: modelo D (ADR-0105), lote piloto P316. Trait, regras partilhadas e glossário (§A.0):

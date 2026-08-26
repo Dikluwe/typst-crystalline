@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/font_subset` — Subsetting de fontes no PDF
-Hash do Código: ebe34cd0
+Hash do Código: 7c2d5724
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  

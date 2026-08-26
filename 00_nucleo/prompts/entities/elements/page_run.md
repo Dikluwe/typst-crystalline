@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/elements/page_run` — `PageRunElem`
+Hash do Código: e77d675d
 
 ## P1140.20.2 — canvas lexical condicionado ao gate
 
@@ -14,7 +15,6 @@ de valer apenas para estes três após o gate; P1140.20.2–.4 seguem excluídos
 Map/hash/eq preservam deltas e só body recursa. Snapshot/restauração inclui
 binding e margem folded. Paper resolve eixos e não é introspectável. O
 constructor interno segue incompleto e `page` fica para P1140.21.
-Hash do Código: dfe29fc9
 
 **Camada:** L1  
 **Alvo:** `01_core/src/entities/elements/page_run.rs`  

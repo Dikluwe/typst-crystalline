@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/tag`
-Hash do Código: 18a953ba
+Hash do Código: d7d73492
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/tag.rs`

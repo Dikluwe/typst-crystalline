@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/quote` — `quote`
-Hash do Código: 8ea15dc9
+Hash do Código: c0729e2c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/quote.rs`

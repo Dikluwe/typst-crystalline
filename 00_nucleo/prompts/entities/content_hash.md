@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/content_hash`
-Hash do Código: e55b46d6
+Hash do Código: 7f0d80a4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/content_hash.rs`

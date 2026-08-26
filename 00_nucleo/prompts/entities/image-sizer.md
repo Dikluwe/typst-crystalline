@@ -1,5 +1,5 @@
 # Prompt L0 — entities/image_sizer
-Hash do Código: aaad8ac7
+Hash do Código: 907c63a2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/image_sizer.rs`

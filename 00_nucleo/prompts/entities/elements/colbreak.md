@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/colbreak` — `ColbreakElem`
-Hash do Código: 1c020da9
+Hash do Código: cefb38a2
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/colbreak.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_update`
-Hash do Código: ca05087e
+Hash do Código: a77f50a9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter_update.rs`

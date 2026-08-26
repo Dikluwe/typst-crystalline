@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/divider` — `divider`
-Hash do Código: a86e3178
+Hash do Código: fb0b6772
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/divider.rs`

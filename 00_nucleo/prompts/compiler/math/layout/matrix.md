@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/matrix` — `MathMatrix`
-Hash do Código: dd88f51a
+Hash do Código: 90b21d98
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/matrix.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -9,6 +9,12 @@ partilhado: ver `math/layout/_comum.md`.
 
 `MathMatrix` — matrizes. Layout de linhas via `layout_grid_rows`/`layout_grid`
 do `MathLayouter` (ver `_comum.md`).
+
+**Proveniência dos escalares:** vanilla ratificado
+`typst-library/src/math/matrix.rs:15-16` define `DEFAULT_ROW_GAP=0.2em` e
+`DEFAULT_COL_GAP=0.5em`; `typst-layout/src/math/table.rs:14,36-42` define e
+resolve `DEFAULT_STROKE_THICKNESS=0.05em` para augment. Os três valores são
+defaults normativos, não calibrações por PDF.
 
 ## P923 — Células renderizadas em estilo de denominador
 

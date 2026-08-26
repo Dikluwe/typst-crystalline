@@ -1,6 +1,6 @@
 # Prompt L0 — `entities/label_kind` — classe de label não referenciável
+Hash do Código: aa5bec2e
 
-Hash do Código: ed5de277
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/entities/label_kind.rs`

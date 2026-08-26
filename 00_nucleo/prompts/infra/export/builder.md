@@ -1,4 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
+Hash do Código: 0327af88
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -8,7 +9,6 @@ Núcleos Tekt:
 MediaBox cobre canvas incluindo bleed. Bleed não zero cria TrimBox
 `[left top left+width top+height]`; zero omite. Stream pinta fill PDF,
 background, body, foreground, com origem física. Bytes não são oracle.
-Hash do Código: 0327af88
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`

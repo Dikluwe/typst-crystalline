@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/numbering` — função global `numbering()` e `format_pattern`
-Hash do Código: (pendente — calculado por `crystalline-lint --fix-hashes .` no fecho do passo)
+Hash do Código: ffffffff
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/numbering.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/assembly` — assembly de delimitadores grandes
-Hash do Código: 4f3b7478
+Hash do Código: a60208f0
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/assembly.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo

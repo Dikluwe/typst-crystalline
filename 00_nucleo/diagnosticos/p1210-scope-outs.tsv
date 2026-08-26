@@ -1,0 +1,421 @@
+l0_file	line	consumer	classification	measurement	text
+00_nucleo/prompts/passo-537b-set-page-columns.md	7	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0107 (paridade linguagem vs mecânica), ADR-0108 (medir antes de decidir), ADR-0109 (atomização forma B), ADR-0054 (perfil graded / scope-outs).
+00_nucleo/prompts/passo-537b-set-page-columns.md	109	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **Não forçar nova página só por mudança de `columns`** nesta fase (scope-out: paginação real por set-page columns é diferida; o teste de P537b usa `#set page(columns: 2)` no topo do documento, onde a página já está vazia).
+00_nucleo/prompts/passo-537b-set-page-columns.md	137	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"- A transformação envolve o resto do escopo léxico, não ""cada página"". Isso é suficiente para o caso de uso do topo do documento e preserva o observable de duas colunas reais. Paginação real com mudança de colunas a meio do documento é scope-out per ADR-0054 graded."
+00_nucleo/prompts/passo-537b-set-page-columns.md	215	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 6. Scope-outs
+00_nucleo/prompts/auditar-spec.md	46	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"deliberada"" (scope-out)."
+00_nucleo/prompts/compiler/layout_outline.md	21	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	específica scope-out per ADR-0054).
+00_nucleo/prompts/compiler/layout_outline.md	94	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	5. Divergência declarada: sem page numbers (requer 2-pass — scope-out).
+00_nucleo/prompts/compiler/layout_outline.md	100	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-out explícito (P472)
+00_nucleo/prompts/compiler/columns.md	9	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0109 (atomização forma B), ADR-0054 (graded / scope-outs).
+00_nucleo/prompts/compiler/columns.md	174	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out consciente**: se a alteração de `layout_flow` para empilhar notas exigir refacção profunda do `Layouter`, fica para passo seguinte. O critério mínimo de P552 é corrigir `layout_segmented` (caso com `colbreak()`), que é o observado nas imagens.
+00_nucleo/prompts/compiler/columns.md	262	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `#set page(columns: N)` a meio do documento continua scope-out per ADR-0054.
+00_nucleo/prompts/compiler/columns.md	263	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Gutter personalizado via `#set page(gutter: ...)` continua scope-out.
+00_nucleo/prompts/compiler/math/symbols.md	55	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	codex (`AA`, `BB`, `DD`, ...) fica scope-out — adicionar on-demand se o
+00_nucleo/prompts/compiler/style/font-dict.md	78	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out
+00_nucleo/prompts/compiler/style/font-dict.md	81	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	named fields) permanece scope-out (ADR-0054bis condicional; requer
+00_nucleo/prompts/compiler/style/font-dict.md	83	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Optimização O(1) para literais em dict com regex — scope-out performance
+00_nucleo/prompts/compiler/style/font-dict.md	86	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `stretch` no dict named fields — scope-out futuro.
+00_nucleo/prompts/compiler/style/font-dict.md	87	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Dict spread (`..dict`) — scope-out P407, mantido.
+00_nucleo/prompts/compiler/math/layout/underover.md	135	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.
+00_nucleo/prompts/infra/shaper.md	99	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out (Fase 1)
+00_nucleo/prompts/infra/shaper.md	155	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-out P484
+00_nucleo/prompts/infra/shaper.md	271	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-out P515
+00_nucleo/prompts/infra/shaper.md	401	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-out P534
+00_nucleo/prompts/infra/shaper.md	405	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Fundir blocos `BT...ET` consecutivos da mesma fonte — scope-out; cada
+00_nucleo/prompts/infra/shaper.md	756	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	O scope-out de P484 (`paragraphs[0]` assume 1 parágrafo por `FrameItem::Text`)
+00_nucleo/prompts/compiler/show-regex.md	25	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **Scope-out**: split interno do nó de texto casado; `.where(field:)` é materializado em P417/P467 (não neste passo).
+00_nucleo/prompts/compiler/show-regex.md	50	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- A paridade é semântica (ADR-0107): todo o nó de texto que casa é transformado. A divisão interna do nó (split por match) é scope-out deste passo.
+00_nucleo/prompts/compiler/show-regex.md	69	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 8. Scope-out
+00_nucleo/prompts/compiler/math/layout/spacing.md	127	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	vanilla resolveria por item) não são um caso observado nos benchmarks actuais — scope-out
+00_nucleo/prompts/compiler/math/layout/root.md	99	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.
+00_nucleo/prompts/compiler/math/layout/root.md	119	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"em scope-out (""fica para passo dedicado"") — este é esse passo."
+00_nucleo/prompts/infra/plugin_host.md	84	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	o pool é optimização de concorrência — **scope-out** de P698 (host testado em
+00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md	7	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0017 (portão aberto por P395), ADR-0107 (paridade linguagem), ADR-0054 (graded scope-out).
+00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md	27	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"- `Value::Gradient(_)` → erro `""gradient em tiling não suportado — scope-out ADR-0054""`."
+00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md	59	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	exhaustivo. Não adicionar pattern fill real (scope-out ADR-0054).
+00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md	61	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 6. Scope-out
+00_nucleo/prompts/shell/diagnostic.md	122	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out
+00_nucleo/prompts/infra/pipeline.md	169	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	de Grid/Table/etc. neste subset (scope-out pré-existente, inalterado
+00_nucleo/prompts/infra/pipeline.md	172	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out benigno — era resultado **silenciosamente vazio**, porque
+00_nucleo/prompts/infra/bibtex.md	80	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Limitações / scope-outs
+00_nucleo/prompts/compiler/math/layout/frac.md	147	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.
+00_nucleo/prompts/compiler/math/layout/frac.md	162	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Correcção** (supera o scope-out registado em P944 §8.3.6 — aprovado pelo
+00_nucleo/prompts/infra/export/svg.md	30	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	/// Exporta uma página para SVG (texto sem fontes resolvidas → scope-out/tofu).
+00_nucleo/prompts/compiler/stdlib/text.md	8	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0037 (coesão por domínio), ADR-0054 (perfil graded / scope-outs),
+00_nucleo/prompts/compiler/stdlib/text.md	122	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	As mensagens de scope-out de `underline`/`strike`/`overline` (`evade`, `background`) e de
+00_nucleo/prompts/compiler/stdlib/text.md	130	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	deste fatiamento**. Fica registado aqui com dono: o passo que revisitar os scope-outs
+00_nucleo/prompts/compiler/stdlib/text.md	185	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"| 2026-08-13 | Fatiado em hub + 8 nós; o L0 passa a especificar a fronteira e a história, a superfície muda para os L0s dos nós; fecha a lacuna ""deriva (F4)"" (`upper`/`lower`/`replace` nunca especificados) e três derivas de scope-out (`size` em `sub`/`super`, `radius`/`extent` em `highlight`, consumer de `smallcaps`) | `stdlib/text/*.rs`, `stdlib/text/*.md` |"
+00_nucleo/prompts/infra/fonts.md	147	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	/// `text/font/exceptions.rs:46-342` (todas as entradas, sem scope-out).
+00_nucleo/prompts/compiler/math/layout/cancel.md	16	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Sem `inverted`/`cross`/`angle`/`stroke` cosméticos — scope-out para passo futuro dedicado a
+00_nucleo/prompts/entities/version.md	222	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 10. Scope-out
+00_nucleo/prompts/infra/layout_bidi.md	344	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out
+00_nucleo/prompts/compiler/math/layout/_comum.md	324	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`Spacing::Fractional` (`1fr`) fica `width: 0.0` — scope-out registado, não
+00_nucleo/prompts/infra/export/font_subset.md	140	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-outs
+00_nucleo/prompts/compiler/stdlib/sym.md	65	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 6. Scope-out
+00_nucleo/prompts/compiler/stdlib/sym.md	67	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Tabela completa do vanilla (~centenas de símbolos emoji) — apenas grupos com uso identificado no corpus são implementados em P766; restantes ficam scope-out consciente.
+00_nucleo/prompts/compiler/stdlib/sym.md	68	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **P820 — depreciação ao nível de variante**: o codex `sym.txt` (vanilla 0.15.0) tem 14 tags `@deprecated`; 13 são ao nível de **variante** (`gt.tri`, `gt.tri.eq`, `gt.tri.eq.not`, `gt.tri.not`, `lt.tri` + 3, `tack.*.double` ×5) e ficam em scope-out — requerem mensagem de depreciação por variante em `SymbolVariant`, mecanismo separado. Apenas `join` é depreciação de símbolo de topo (ver §7).
+00_nucleo/prompts/entities/tiling.md	7	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0017 (enum fechado; variant novo exige tipo migrado), ADR-0107 (paridade linguagem), ADR-0029 (pureza L1), ADR-0054 (graded scope-out).
+00_nucleo/prompts/entities/tiling.md	73	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `TilingBody::Gradient` é **placeholder** — o tipo `Gradient` existe (P262) mas o consumer real de Tiling+Gradient é scope-out ADR-0054. O variant existe para paridade futura.
+00_nucleo/prompts/entities/tiling.md	85	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `TilingBody::Image(_)` → cor preta (scope-out graded — pattern fill de imagem ainda não renderizado).
+00_nucleo/prompts/entities/tiling.md	87	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 5. Scope-out
+00_nucleo/prompts/entities/tiling.md	90	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Render PDF de pattern fill — scope-out ADR-0054 graded.
+00_nucleo/prompts/entities/tiling.md	91	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `TilingBody::Gradient` consumer real — scope-out.
+00_nucleo/prompts/entities/tiling.md	92	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `TilingBody::Image` consumer real — scope-out.
+00_nucleo/prompts/compiler/math/layout/attach.md	216	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.
+00_nucleo/prompts/compiler/math/layout/attach.md	239	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`max(rise/drop, …)` (scope-out de P944 §4, aqui fechado). Valores reais
+00_nucleo/prompts/infra/export/stream.md	95	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### `y_offset` — scope-out confirmado
+00_nucleo/prompts/infra/export/stream.md	98	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`y_offset != 0`. Scope-out declarado — não implementado em P486.
+00_nucleo/prompts/compiler/layout/table.md	68	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out
+00_nucleo/prompts/compiler/stdlib/transforms.md	48	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/transforms.md	49	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `origin` scope-out (paridade vanilla).
+00_nucleo/prompts/compiler/stdlib/transforms.md	76	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/transforms.md	77	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `origin` scope-out (paridade vanilla).
+00_nucleo/prompts/compiler/stdlib/transforms.md	102	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/transforms.md	103	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `origin` scope-out (paridade vanilla).
+00_nucleo/prompts/compiler/stdlib/transforms.md	129	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/transforms.md	130	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `origin` scope-out (paridade vanilla).
+00_nucleo/prompts/infra/export/render.md	32	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	/// Renderiza uma página para uma imagem PNG (texto sem fontes resolvidas → scope-out/tofu).
+00_nucleo/prompts/entities/tag.md	131	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Vanilla `TagFlags` (struct com 2 bools): scope-out em P161. Não há tagged-PDF nem distinção introspectable/non-introspectable porque todos os elementos no enum cristalino `ElementKind` são introspectable.
+00_nucleo/prompts/entities/tag.md	132	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Vanilla `TagElem` (`#[elem]` wrapper): scope-out — cristalino não usa vtable elements; tags fluem como `Vec<Tag>` do walk para o consumer.
+00_nucleo/prompts/entities/tag.md	135	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3 para classificação de `TagFlags` (concept needed; forma vanilla aplicável quando relevante) e `TagElem` (vtable — scope-out).
+00_nucleo/prompts/compiler/stdlib/shapes.md	61	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/shapes.md	62	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `stroke` só aceita cor sólida; espessura/overhang/dash scope-out.
+00_nucleo/prompts/compiler/stdlib/shapes.md	86	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Idênticas a `rect`.
+00_nucleo/prompts/compiler/stdlib/shapes.md	110	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Idênticas a `rect`.
+00_nucleo/prompts/compiler/stdlib/shapes.md	131	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`end` ou com `length`/`angle`. **Scope-out medido**: `start` ≠ `(0,0)` —
+00_nucleo/prompts/compiler/stdlib/shapes.md	133	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	corrente); erro explícito de scope-out em vez de desenhar deslocada para a origem.
+00_nucleo/prompts/compiler/stdlib/shapes.md	138	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`Ratio` (`length: 100%`) — **scope-out**: o native não tem a região para
+00_nucleo/prompts/compiler/stdlib/shapes.md	157	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Stroke sólido 1pt; espessura/overhang scope-out.
+00_nucleo/prompts/compiler/stdlib/shapes.md	158	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`length:` como `Ratio` (percentagem) — scope-out (P804, sem região no native).
+00_nucleo/prompts/compiler/stdlib/shapes.md	159	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`start` ≠ `(0,0)` — scope-out (acima).
+00_nucleo/prompts/compiler/stdlib/shapes.md	168	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	line(start: (10pt, 0pt), end: (50pt, 50pt)) -> Err scope-out  (P739B)
+00_nucleo/prompts/compiler/stdlib/shapes.md	200	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/shapes.md	201	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Vértices com componente `em` ou `Ratio` (`50%`): scope-out — o vanilla
+00_nucleo/prompts/compiler/stdlib/shapes.md	206	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out, não a mensagem vanilla.
+00_nucleo/prompts/compiler/stdlib/shapes.md	207	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **P741 — scope-out reforçado, com custo medido.** A sonda confirmou a
+00_nucleo/prompts/compiler/stdlib/shapes.md	215	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out. Custo da paridade completa (medido, não estimado): (1)
+00_nucleo/prompts/compiler/stdlib/shapes.md	279	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/shapes.md	355	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-outs explícitos**:
+00_nucleo/prompts/compiler/layout/bib_csl.md	55	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	>   A ausência de `Full` é **scope-out declarado** em `entities/citation_form.md`
+00_nucleo/prompts/compiler/layout/bib_csl.md	81	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out
+00_nucleo/prompts/compiler/layout/list_item.md	100	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	visual de alinhamento do marker é scope-out.
+00_nucleo/prompts/compiler/layout/list_item.md	114	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-outs explícitos
+00_nucleo/prompts/compiler/stdlib/context.md	124	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 7. Scope-outs
+00_nucleo/prompts/compiler/stdlib/context.md	126	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `context` com acesso a métricas de layout (`measure`, posições de página) — scope-out; este prompt cobre apenas runtime state.
+00_nucleo/prompts/compiler/stdlib/gradients.md	70	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/gradients.md	73	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `tiling(gradient)` é rejeitado em `visualize.rs` (scope-out ADR-0054).
+00_nucleo/prompts/compiler/stdlib/gradients.md	114	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/gradients.md	148	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/layout/heading.md	77	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-outs
+00_nucleo/prompts/compiler/layout/equation.md	61	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Scope-out P813: o colapso `max(prev.below, above)` entre blocos
+00_nucleo/prompts/compiler/layout/equation.md	185	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **Numeração**: quando infinito, o número da equação **não é posicionado** (scope-out deliberado —
+00_nucleo/prompts/compiler/layout/equation.md	261	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out** (medidos em P944, registados para passo dedicado — não corrigidos aqui):
+00_nucleo/prompts/compiler/layout/equation.md	367	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	mesma fórmula do fixup de centragem P896). **Revoga o scope-out de P813**
+00_nucleo/prompts/entities/symbol.md	162	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 11. Scope-out
+00_nucleo/prompts/compiler/stdlib/state.md	153	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 7. Scope-outs
+00_nucleo/prompts/compiler/stdlib/state.md	156	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Estados locais a um scope (vanilla permite state local em show-rules) — scope-out; este prompt cobre apenas estado documental global por key.
+00_nucleo/prompts/compiler/eval/operators/ordering.md	69	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Scope-out medido: ordenação `Ratio ↔ Relative` (`ops.rs:492,494`) — sem
+00_nucleo/prompts/infra/export/builder.md	634	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Escopo: `QuadPoints` multi-linha e escaping avançado de nomes são scope-out.
+00_nucleo/prompts/compiler/layout/link.md	34	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out
+00_nucleo/prompts/compiler/layout/link.md	58	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"> **Aparência por defeito — o ""scope-out"" anterior era, afinal, paridade.**"
+00_nucleo/prompts/compiler/layout/link.md	60	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"> A lista de scope-outs deste L0 incluía *""Cor azul / sublinhado — aguarda"
+00_nucleo/prompts/compiler/stdlib/collections.md	315	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 6. Scope-outs
+00_nucleo/prompts/compiler/introspect/locatable.md	130	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	vtable-driven (scope-out cristalino).
+00_nucleo/prompts/compiler/eval/operators/arithmetic.md	91	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`Decimal ↔ Int`): sem consumidor medido; scope-out explícito.
+00_nucleo/prompts/compiler/eval/operators/arithmetic.md	92	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Scope-outs medidos (não reabrir sem medição nova): divisões mistas
+00_nucleo/prompts/compiler/layout/enum_item.md	141	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-outs explícitos
+00_nucleo/prompts/compiler/stdlib/structural/footnote.md	43	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **Qualquer outro nomeado** → erro que cita o scope-out graded (ADR-0054), não
+00_nucleo/prompts/compiler/stdlib/structural/footnote.md	63	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	#footnote(zz: 1)[x]            → Err citando o scope-out graded (ADR-0054)
+00_nucleo/prompts/compiler/introspect/extract_payload.md	99	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3 para classificação de marker traits vanilla como vtable-driven (scope-out cristalino).
+00_nucleo/prompts/compiler/stdlib/html.md	56	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `html.frame` e tags tipadas continuam ausentes e declaradas como scope-out.
+00_nucleo/prompts/entities/state_update.md	94	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"> agrava o scope-out face à estimativa ""`Set` cobre 80% dos casos""."
+00_nucleo/prompts/entities/state_update.md	97	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	> sustente, e a documentação empurra os utilizadores para a forma que falta. O scope-out
+00_nucleo/prompts/compiler/stdlib/counter.md	206	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 7. Scope-outs
+00_nucleo/prompts/compiler/stdlib/color.md	37	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(scope-out; também ausentes como métodos de instância).
+00_nucleo/prompts/compiler/stdlib/color.md	42	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"P476 — fecho parcial ADR-0083 §""Operadores cor"" scope-out:"
+00_nucleo/prompts/compiler/stdlib/color.md	43	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	4 dos 6 operadores implementados (`saturate`/`desaturate` scope-out futuro P477).
+00_nucleo/prompts/compiler/stdlib/color.md	297	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-outs P742/P744 (medidos, com erro explícito)
+00_nucleo/prompts/compiler/stdlib/color.md	303	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out
+00_nucleo/prompts/compiler/stdlib/color.md	305	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `color.mix` com N > 2 cores — scope-out (cristalino aceita 2 + weight).
+00_nucleo/prompts/compiler/stdlib/color.md	306	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `color.saturate/desaturate` com `space:` arg — scope-out (não suportado no vanilla).
+00_nucleo/prompts/compiler/stdlib/color.md	314	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `mix` variádico com pesos — scope-out (acima).
+00_nucleo/prompts/entities/state_registry.md	173	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	> **Consequência para o scope-out**: a convergência iterativa **é superfície de linguagem
+00_nucleo/prompts/entities/state_registry.md	177	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	> legítimo como scope-out declarado, mas fica registado com essa natureza e não como
+00_nucleo/prompts/compiler/stdlib/loading.md	8	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0029 (pureza L1 / zero I/O — a razão da separação decode/leitura), ADR-0107 (paridade é com a língua — paridade = `Value` de saída, não a árvore interna do parser), ADR-0054 (perfil graded — subset por formato documentado), ADR-0111 (autorização de crates de parsing, PROPOSTO neste passo), ADR-0017 (não adicionar variant `Value` sem ADR + tipo migrado — base do scope-out de `Value::Bytes`).
+00_nucleo/prompts/compiler/stdlib/loading.md	128	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Scope-out explícito: nenhum consumidor real medido (`cetz`, único motivador
+00_nucleo/prompts/compiler/stdlib/loading.md	146	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"A ""heurística UTF-8 com fallback silencioso para Bytes"" que este L0 descrevia **não corresponde ao vanilla medido** (refutada em P810 §11, reconfirmada em P824) e foi removida do código e deste L0. Encoding detection sofisticado (BOM, ISO, etc.) permanece scope-out ADR-0054 graded — e é também scope-out do próprio vanilla (que só conhece `utf8`)."
+00_nucleo/prompts/compiler/stdlib/text/smartquote.md	50	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out com erro educacional** (ADR-0054 graded): `alternative` (aspas alternativas
+00_nucleo/prompts/compiler/stdlib/text/smartquote.md	51	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	DE/FR) e `quotes` (`Smart<SmartQuoteDict>`) respondem com mensagem que cita o scope-out —
+00_nucleo/prompts/compiler/stdlib/text/smartquote.md	52	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"literalmente `""smartquote({key}:) não suportado neste passo (P287 §A.2 scope-out /"
+00_nucleo/prompts/compiler/stdlib/text/smartquote.md	79	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	#smartquote(alternative: true)         → Err com a mensagem de scope-out literal (acima)
+00_nucleo/prompts/compiler/stdlib/text/smartquote.md	80	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"#smartquote(quotes: ""()"")              → Err com a mensagem de scope-out literal (acima)"
+00_nucleo/prompts/compiler/stdlib/assert.md	44	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/emoji.md	28	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Continuam scope-out para passos medidos posteriores:
+00_nucleo/prompts/compiler/stdlib/foundations/datetime.md	86	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	sem scope-out L0 nomeado.
+00_nucleo/prompts/compiler/layout/bibliography.md	123	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out**: ibid. apenas para `Numeric + Normal`; outros styles e forms não usam ibid.
+00_nucleo/prompts/compiler/layout/bibliography.md	220	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out
+00_nucleo/prompts/compiler/layout/bibliography.md	223	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Numeração correcta em documentos multi-bibliografia (scope-out para P420).
+00_nucleo/prompts/compiler/stdlib/figure_image.md	24	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(`visualize/image/mod.rs:158-161`), e PDF-como-fonte continua scope-out
+00_nucleo/prompts/compiler/stdlib/figure_image.md	50	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	não usa `krilla`) — scope-out consciente, não implementado. Mesmo
+00_nucleo/prompts/compiler/stdlib/figure_image.md	99	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-outs SVG/PDF não mudam.
+00_nucleo/prompts/compiler/stdlib/plugin.md	303	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out transversal).
+00_nucleo/prompts/compiler/stdlib/plugin.md	324	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Named args: rejeitados (routing genérico cristalino — ver scope-out
+00_nucleo/prompts/compiler/stdlib/plugin.md	362	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**mantêm** os seus prefixos PT neste passo (scope-out transversal).
+00_nucleo/prompts/compiler/stdlib/text/shift.md	56	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	> **Correcção de deriva**: o L0 pai declarava `offset` **e** `size` como scope-out
+00_nucleo/prompts/compiler/stdlib/text/shift.md	58	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	> scope-out vale agora só para `offset` configurável.
+00_nucleo/prompts/entities/math_constants.md	187	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	dois termos de baseline (scope-out registado em P944 §4, aqui promovido).
+00_nucleo/prompts/compiler/stdlib/structural.md	7	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0033 (divergência intencional), ADR-0037 (coesão por domínio), ADR-0054 (perfil graded / scope-outs), ADR-0060 (model structural roadmap), ADR-0061 (layout roadmap), ADR-0064 (smart option default), ADR-0107/ADR-0108/ADR-0109 (bibliografia CSL e asset).
+00_nucleo/prompts/compiler/stdlib/structural.md	59	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Nenhuma conhecida nesta camada.
+00_nucleo/prompts/compiler/stdlib/structural.md	83	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Nenhuma conhecida nesta camada.
+00_nucleo/prompts/compiler/stdlib/structural.md	107	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	108	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Destaque de syntax real scope-out per ADR-0054 graded.
+00_nucleo/prompts/compiler/stdlib/structural.md	139	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"**Limitações / scope-outs**: Nenhuma conhecida nesta camada para os parâmetros `outlined`/`bookmarked`. P829: `heading(numbering:)` continua a transportar o gate na chain (`Content::Styled`) — `has(""numbering"")` devolve false (o campo não é materializado no `HeadingElem`; scope-out registado em `compiler/eval.md` §P829-B)."
+00_nucleo/prompts/compiler/stdlib/structural.md	166	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `length`/`function` são aceites e armazenados; renderização específica é scope-out per ADR-0054.
+00_nucleo/prompts/compiler/stdlib/structural.md	172	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Outros campos do vanilla (`fill`, `entry`, etc.) são scope-out por ora; `length`/`function` em `indent` são aceites mas renderização específica scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	199	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Nenhuma conhecida nesta camada.
+00_nucleo/prompts/compiler/stdlib/structural.md	227	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	228	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Forma posicional e separador customizado scope-out per ADR-0054 graded.
+00_nucleo/prompts/compiler/stdlib/structural.md	253	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Nenhuma conhecida nesta camada.
+00_nucleo/prompts/compiler/stdlib/structural.md	334	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs** (ADR-0054 graded):
+00_nucleo/prompts/compiler/stdlib/structural.md	336	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `inset` / `align` / `fill` (adicionalmente scope-out em P157A, mas `fill` e `stroke` foram depois incluídos em P227/P228).
+00_nucleo/prompts/compiler/stdlib/structural.md	375	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	377	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Atributos de célula vanilla `kind` / `is_repeated` scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	400	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	402	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `level: NonZeroU32` e `repeat-rows: Smart<usize>` scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	424	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	446	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	478	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `.json` scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	484	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	485	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Renderização CSL real em `compiler/layout/bib_csl.rs` — ver scope-out dedicado abaixo.
+00_nucleo/prompts/compiler/stdlib/structural.md	486	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `sources` (parsing externo genérico), `full`, `lang`, `region` scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	514	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	516	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Propagação automática de `bibliography.style` para cite — scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	545	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Layout real de hiperligações (`FrameItem::Link`, bbox, links internos, sublinhado azul) — ver `00_nucleo/prompts/compiler/layout/link.md`.
+00_nucleo/prompts/compiler/stdlib/structural.md	569	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs** (ADR-0054 graded):
+00_nucleo/prompts/compiler/stdlib/structural.md	570	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Uso de `numbering` no marcador de rodapé scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	571	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `FootnoteBody::Reference(Label)` (multi-ref) scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	596	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs** (P296, ADR-0054 graded):
+00_nucleo/prompts/compiler/stdlib/structural.md	597	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Cosméticos `size`, `dotless`, `inverted` scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	598	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Shaping real de acentos matemáticos (OpenType math) — ver scope-out dedicado abaixo.
+00_nucleo/prompts/compiler/stdlib/structural.md	620	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs** (P296, ADR-0054 graded):
+00_nucleo/prompts/compiler/stdlib/structural.md	621	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `length`, `inverted`, `cross`, `angle`, `stroke` scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	622	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Renderização real do cancelamento (traço diagonal) — ver scope-out dedicado abaixo.
+00_nucleo/prompts/compiler/stdlib/structural.md	645	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	646	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Renderização real de under/over (posicionamento, braces extensíveis) — ver scope-out dedicado abaixo.
+00_nucleo/prompts/compiler/stdlib/structural.md	669	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	670	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Shaping real de operadores matemáticos (tamanho, posicionamento de limits) — ver scope-out dedicado abaixo.
+00_nucleo/prompts/compiler/stdlib/structural.md	714	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	715	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Metadata real no PDF Info dict — scope-out ADR-0054 graded (XL futuro).
+00_nucleo/prompts/compiler/stdlib/structural.md	762	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-outs**:
+00_nucleo/prompts/compiler/stdlib/structural.md	763	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Resource registry real (carregamento / embed / deduplicação) — scope-out
+00_nucleo/prompts/compiler/stdlib/structural.md	787	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	item; efeito visual scope-out.
+00_nucleo/prompts/compiler/stdlib/structural.md	799	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out explícito (P470/P504/P505)**:
+00_nucleo/prompts/compiler/stdlib/structural.md	829	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out (P472)**: page numbers em LoF (requer 2-pass — DEBT). Filtro por kind.
+00_nucleo/prompts/compiler/stdlib/structural.md	852	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out (P472)**: page numbers em LoT (requer 2-pass — DEBT). Filtro por kind.
+00_nucleo/prompts/compiler/stdlib/structural.md	886	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out explícito (P470/P505)**:
+00_nucleo/prompts/compiler/stdlib/structural.md	904	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-outs transversais (P430)
+00_nucleo/prompts/compiler/stdlib/structural.md	906	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	| Área | Scope-out | Notas |
+00_nucleo/prompts/compiler/stdlib/structural.md	1090	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out medido — ver `layout.md` P726.
+00_nucleo/prompts/compiler/stdlib/structural.md	1184	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	fica scope-out (`width: 0.0`, registado, não exercitado pelos 5 nomes).
+00_nucleo/prompts/compiler/stdlib/structural.md	1209	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**P1132m — scope-out fechado por medição** (secção 12, working tree não
+00_nucleo/prompts/compiler/stdlib/text/smallcaps.md	54	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out (ADR-0054 graded)**: shaping OpenType nativo (`smcp`/`c2sc`) continua fora
+00_nucleo/prompts/compiler/stdlib/layout.md	19	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0033 (divergência intencional), ADR-0037 (coesão por domínio), ADR-0054 (perfil graded / scope-outs), ADR-0061 (layout roadmap), ADR-0064 (smart option default), ADR-0078 (multi-region flow), ADR-0079 (stroke), ADR-0109 (atomização forma B).
+00_nucleo/prompts/compiler/stdlib/layout.md	56	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Nenhuma conhecida; DEBT-36 (legacy strings) está encerrado.
+00_nucleo/prompts/compiler/stdlib/layout.md	83	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Paridade vanilla**: Equivalente a `place(top + right, [body])`; floats reais são scope-out.
+00_nucleo/prompts/compiler/stdlib/layout.md	85	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/layout.md	86	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Float real (P245) e posicionamento flutuante avançado scope-out per ADR-0054 graded.
+00_nucleo/prompts/compiler/stdlib/layout.md	115	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Paridade vanilla**: Equivalente a `#grid(columns: 2, ..)`; layout multi-region real scope-out per ADR-0078.
+00_nucleo/prompts/compiler/stdlib/layout.md	117	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/layout.md	145	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Padding negativo rejeitado (vanilla aceita; divergência intencional per ADR-0054).
+00_nucleo/prompts/compiler/stdlib/layout.md	169	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Nenhuma conhecida.
+00_nucleo/prompts/compiler/stdlib/layout.md	207	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/layout.md	210	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(scope-out P475 — resolução percentual requer contexto de layout).
+00_nucleo/prompts/compiler/stdlib/layout.md	230	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(distribuição vertical fracionária é outro mecanismo — scope-out
+00_nucleo/prompts/compiler/stdlib/layout.md	239	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(scope-out P842).
+00_nucleo/prompts/compiler/stdlib/layout.md	304	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Semântica**: Cria `Content::Block(BlockElem { body, width, height, inset, breakable, outset, radius, clip, fill, stroke, spacing, above, below, sticky })`. `inset`/`outset` resolvidos como `Sides<Length>` via `extract_sides_from_value`; parte `rel` de `Relative` truncada (scope-out: requer contexto de layout).
+00_nucleo/prompts/compiler/stdlib/layout.md	306	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Paridade vanilla**: Equivalente a `#block(width: 5cm, [body])`; scope-outs listados acima.
+00_nucleo/prompts/compiler/stdlib/layout.md	308	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: `inset: (left: 50%)` — parte relativa truncada para `Length::ZERO`; fills complexos scope-out per ADR-0054 graded.
+00_nucleo/prompts/compiler/stdlib/layout.md	335	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: `spacing` negativo rejeitado.
+00_nucleo/prompts/compiler/stdlib/layout.md	361	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Parte `rel` de `Relative` truncada (scope-out: requer contexto de layout). Outras limitações idênticas a `block`.
+00_nucleo/prompts/compiler/stdlib/layout.md	386	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**:
+00_nucleo/prompts/compiler/stdlib/layout.md	411	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Paridade vanilla**: Equivalente a `#columns(2, [body])`; multi-region flow real scope-out per ADR-0078.
+00_nucleo/prompts/compiler/stdlib/layout.md	413	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Layout de colunas reais é stub/transparente; `colbreak` faz downgrade a pagebreak.
+00_nucleo/prompts/compiler/stdlib/layout.md	441	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Multi-region flow real scope-out per ADR-0078.
+00_nucleo/prompts/compiler/stdlib/layout.md	459	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Não aceita named args (width/height override — scope-out, ADR-0054).
+00_nucleo/prompts/compiler/stdlib/layout.md	499	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs (inalterados)**:
+00_nucleo/prompts/compiler/stdlib/layout.md	501	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `measure(body, width: 5cm)` scope-out.
+00_nucleo/prompts/compiler/stdlib/layout.md	530	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Outras propriedades de stroke (dash, cap, join, miter-limit) scope-out per ADR-0079.
+00_nucleo/prompts/compiler/stdlib/layout.md	559	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Limitações / scope-outs**: Comportamento de `weak` collapse adiado.
+00_nucleo/prompts/compiler/stdlib/layout.md	697	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	outros consumidores do helper (hlines/vlines — scope-out abaixo).
+00_nucleo/prompts/compiler/stdlib/layout.md	706	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-out medido — hline/vline `stroke: none`
+00_nucleo/prompts/entities/sides.md	98	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(`inv`, `next_cw`, `axis`) são scope-out neste passo. Adicionar
+00_nucleo/prompts/compiler/stdlib/eval.md	77	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 6. Scope-out
+00_nucleo/prompts/compiler/stdlib/pdf.md	19	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Decisão registada: o exportador PDF cristalino não suporta embedding nem tagging (scope-out global). Implementar o módulo com as duas funções, com o comportamento honesto máximo dentro desse limite:
+00_nucleo/prompts/compiler/stdlib/pdf.md	21	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"- `pdf.attach(...)` → **erro de scope-out explícito** (""o exportador PDF cristalino não suporta ficheiros embutidos — scope-out""). Não há aproximação honesta: o efeito do vanilla é alterar o ficheiro PDF produzido."
+00_nucleo/prompts/compiler/stdlib/pdf.md	23	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"- **P826** — `pdf.artifact(kind: ...)`: o named `kind:` é **aceite e validado**. Enumeração medida no vanilla 0.15.0 (`pdf/accessibility.rs:58-98`, `ArtifactKind` com derive `Cast`, kebab-case): `""header""`, `""footer""`, `""watermark""`, `""page-number""`, `""line-number""`, `""redaction""`, `""bates""`, `""page""`, `""pagination-other""`, `""layout""`, `""background""`, `""other""` (default `""other""`). O valor só afecta o tag tree (scope-out global do exportador — sem tag tree em `03_infra`), pelo que não é propagado; a paridade é de **aceitação/erro**: string fora do domínio → erro verbatim do vanilla `expected ""header"", ..., or ""other""` (sem sufixo ""found""); outro tipo → sufixo `, found {tipo}` (nomes do vanilla: `integer`/`boolean`/`string`), mesma convenção do cast de `encoding:` (P824)."
+00_nucleo/prompts/compiler/stdlib/pdf.md	30	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	fn native_pdf_attach(...) -> SourceResult<Value>;   // Err scope-out
+00_nucleo/prompts/compiler/stdlib/pdf.md	44	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `pdf.attach(...)` → erro com a mensagem de scope-out.
+00_nucleo/prompts/entities/math_style.md	210	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	passa-through — scope-out registado)
+00_nucleo/prompts/entities/math_style.md	262	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	continuam scope-out — passa-through, como o vanilla para chars não
+00_nucleo/prompts/entities/math_style.md	317	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	passa-through (scope-out, registado).
+00_nucleo/prompts/entities/math_style.md	335	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`kind` não-`Plain` (scope-out registado em P809; Greek `Plain`
+00_nucleo/prompts/compiler/stdlib/text/deco.md	41	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	| `stroke` | `Color \| none` | paint da linha; `none` desactiva o default. Objecto `Stroke` rico do vanilla é scope-out |
+00_nucleo/prompts/compiler/stdlib/text/deco.md	49	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out com erro educacional** (ADR-0054 graded): `evade` e `background` respondem
+00_nucleo/prompts/compiler/stdlib/text/deco.md	50	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"com mensagem que cita o scope-out, não com ""argumento inesperado"" genérico. Qualquer"
+00_nucleo/prompts/compiler/stdlib/text/deco.md	69	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	> (2026-06-27); o L0 pai continuava a declará-los scope-out. Estão implementados — a
+00_nucleo/prompts/compiler/stdlib/text/deco.md	70	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	> cláusula de scope-out vale agora só para gradient fill e math mode.
+00_nucleo/prompts/compiler/stdlib/text/deco.md	93	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"""…não suportado neste passo (P284 §A.1 scope-out /"
+00_nucleo/prompts/compiler/stdlib/calc.md	513	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	em secções individuais porque são scope-out ou já cobertas por passos
+00_nucleo/prompts/entities/font-list.md	36	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	pub variants: Vec<EcoString>,    // variant names (scope-out usage)
+00_nucleo/prompts/entities/location.md	54	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Nenhum trait extra para esta materialização. `Display`, `Ord`, serialização, aritmética: scope-out.
+00_nucleo/prompts/entities/location.md	94	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Sem traits `Locatable`/`Unqueriable`/`Tagged` (vtable markers vanilla, scope-out per `inventario-tipos-introspection-vanilla.md` 2026-04-30).
+00_nucleo/prompts/entities/citation_form.md	127	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **ADR-0054**: graded scope-out de forms adicionais (Full,
+00_nucleo/prompts/entities/gradient.md	100	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-outs vanilla** (per ADR-0087):
+00_nucleo/prompts/entities/gradient.md	183	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-outs P264 (per ADR-0088)
+00_nucleo/prompts/entities/gradient.md	198	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(Conic continua scope-out).
+00_nucleo/prompts/entities/gradient.md	247	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-outs P267 (per ADR-0089)
+00_nucleo/prompts/entities/gradient.md	253	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **Sem `focal_*` scope-out** — não existe em ConicGradient
+00_nucleo/prompts/entities/gradient.md	336	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"(anotação cumulativa N=7; subpadrão ""ADR scope-out revogado"
+00_nucleo/prompts/entities/gradient.md	386	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-outs preservados pós-P269
+00_nucleo/prompts/entities/gradient.md	401	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"- P267 — Conic activado (precedente ""ADR scope-out revogado"
+00_nucleo/prompts/entities/gradient.md	507	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(dispatcher P270 arm Cmyk). **Conic CMYK preserved scope-out**
+00_nucleo/prompts/entities/gradient.md	512	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(cristalino emit `/DeviceCMYK` correcto). **ICC profiles scope-out
+00_nucleo/prompts/entities/gradient.md	532	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out **revogado parcialmente** (Type 6 sai; Type 7 preserved).
+00_nucleo/prompts/entities/gradient.md	533	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"Sub-padrão ""ADR scope-out revogado parcialmente"" N=4 → **N=5"
+00_nucleo/prompts/entities/gradient.md	551	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	CMYK). **ADR-0091 §Conic CMYK scope-out** revogado **final**.
+00_nucleo/prompts/entities/gradient.md	553	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"""ADR scope-out revogado parcialmente"" N=5 → **N=6 cumulativo limiar"
+00_nucleo/prompts/entities/gradient.md	651	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	contentores): {Block} apenas; Boxed difere P273.7; outros scope-out
+00_nucleo/prompts/entities/gradient.md	676	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out per ADR-0054 graded). **Sem cascade novo**: cascade ~86
+00_nucleo/prompts/entities/gradient.md	790	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Anotação P273.14**: CMYK-ICC paridade — **SCOPE-OUT-RECONFIRMED**
+00_nucleo/prompts/entities/gradient.md	798	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out preserved reconfirmado por evidência empírica P273.14
+00_nucleo/prompts/entities/gradient.md	803	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"Sub-padrão emergente inaugural **""Scope-out reconfirmado por Fase A"""
+00_nucleo/prompts/entities/gradient.md	814	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Anotação P273.15**: Bbox medido pós-layout — **SCOPE-OUT-RECONFIRMED**
+00_nucleo/prompts/entities/gradient.md	829	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"concreto + decisão executiva custo perf. Sub-padrão ""Scope-out"
+00_nucleo/prompts/entities/gradient.md	842	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**SCOPE-OUT-RECONFIRMED** via NO-GO Fase A factual; **terceira
+00_nucleo/prompts/entities/gradient.md	843	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"aplicação consolidando padrão ""Scope-out reconfirmado por Fase A"""
+00_nucleo/prompts/entities/gradient.md	852	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	vs S-M cluster Gradient; Fase 4 multi-region scope-out per
+00_nucleo/prompts/entities/gradient.md	858	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"consciente + ADR-0078 §""Decisão"" sub-fase (b) Fase 4 scope-out."
+00_nucleo/prompts/entities/gradient.md	865	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"Sub-padrão ""Scope-out reconfirmado por Fase A"" N=2 → N=3"
+00_nucleo/prompts/entities/gradient.md	884	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"P273.9); **ADR-0097** ""Scope-out reconfirmado por Fase A"" (N=3 com"
+00_nucleo/prompts/entities/list_marker.md	39	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out explícito (P470)
+00_nucleo/prompts/entities/paint.md	61	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Métodos vanilla não materializados** (scope-out ADR-0086):
+00_nucleo/prompts/entities/show.md	33	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	ser `NodeKind` (nativo) em P417; outros bases são scope-out. Matching: o
+00_nucleo/prompts/entities/show.md	118	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	cross-node é divergência registada (scope-out). `Style` sobre `Text` falha
+00_nucleo/prompts/entities/show.md	121	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	dinâmicos (`DynKind`) são scope-out. O matching delega a free function que
+00_nucleo/prompts/entities/layout_types.md	148	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	são scope-out (aguardam `FrameItem::Decoration`).
+00_nucleo/prompts/entities/enum_numbering.md	27	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	/// como Decimal (fallback). Scope-out: parse completo de patterns.
+00_nucleo/prompts/entities/enum_numbering.md	71	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Implementação de `nth_alpha`: `(n-1) % 26` → índice em a-z/A-Z. Ciclos > 26: duplica a letra (aa, bb...) — divergência intencional (Typst usa sequências completas mas esse é scope-out P470).
+00_nucleo/prompts/entities/enum_numbering.md	76	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out explícito (P470)
+00_nucleo/prompts/entities/element_kind.md	153	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3: `Locatable`/`Tagged`/`Unqueriable` traits vanilla são scope-out porque cristalino não usa marker-traits-per-element.
+00_nucleo/prompts/compiler/stdlib/panic.md	56	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 6. Scope-out
+00_nucleo/prompts/entities/regex.md	12	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	regex scope-out); DEBT-52 (`text.font` dict desbloqueado para futuro).
+00_nucleo/prompts/entities/regex.md	149	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Flags regex — scope-out ADR-0054.
+00_nucleo/prompts/entities/regex.md	150	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `str.replace` com regex — scope-out (P689 cobre apenas `str.match`/`str.position`).
+00_nucleo/prompts/entities/rel.md	55	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Fronteiras e scope-out
+00_nucleo/prompts/entities/rel.md	59	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Comparação `<`/`>` de `Relative` — requer contexto; scope-out.
+00_nucleo/prompts/entities/region.md	256	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"**Sub-padrão ""promoção real scope-out ADR-0054 graded""** N=1 →"
+00_nucleo/prompts/entities/region.md	258	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-outs**). Atinge limiar formalização N=2 candidato a ADR
+00_nucleo/prompts/entities/region.md	265	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-outs via `regions.current.width` save/restore. Magnitude
+00_nucleo/prompts/entities/counter_format.md	88	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-outs
+00_nucleo/prompts/entities/func.md	342	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-outs
+00_nucleo/prompts/entities/geometry.md	83	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Promoções reais scope-outs ADR-0054 graded granular**: N=13 →
+00_nucleo/prompts/entities/geometry.md	86	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	100% scope-outs originais fechados cumulativamente após Block
+00_nucleo/prompts/entities/geometry.md	277	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	5. **Transform `origin` pivot** (E.5) — ausente com **scope-out
+00_nucleo/prompts/entities/geometry.md	279	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	104-105`. Materializar reverte scope-out arquitectural.
+00_nucleo/prompts/entities/geometry.md	286	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	administrativa documental + scope-out ADR-0061 sobre Opção 4).
+00_nucleo/prompts/compiler/stdlib/text/constructor.md	52	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(scope-out silencioso).
+00_nucleo/prompts/entities/duration.md	7	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0017 (portão aberto P395), ADR-0107 (paridade linguagem), ADR-0029 (pureza L1), ADR-0054 (operações temporais scope-out).
+00_nucleo/prompts/entities/duration.md	109	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `Value::Str` → `Duration`: scope-out ADR-0054 graded (parsing futuro).
+00_nucleo/prompts/entities/duration.md	138	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 9. Scope-out
+00_nucleo/prompts/entities/duration.md	140	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Cast de `Str` → `Duration` — scope-out ADR-0054 graded.
+00_nucleo/prompts/entities/duration.md	141	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Checks de overflow em constructors — scope-out para valores fora de escopo real.
+00_nucleo/prompts/entities/elements/footnote.md	6	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`entities/elements/_comum.md`. **Locatável desde P1016** — o scope-out de P326
+00_nucleo/prompts/entities/elements/footnote.md	29	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(P502 — `native_footnote` aceita `numbering:` named; uso no marcador de rodapé scope-out per ADR-0054.)
+00_nucleo/prompts/entities/elements/math_accent.md	8	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`AccentElem` minimal (P296; cosméticos `size`/`dotless` scope-out, inalterado).
+00_nucleo/prompts/entities/citation_style.md	7	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs relevantes**: ADR-0037 (coesão por domínio), ADR-0054 (graded scope-out), ADR-0107 (paridade linguagem)
+00_nucleo/prompts/entities/citation_style.md	109	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out
+00_nucleo/prompts/entities/decimal.md	7	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**ADRs**: ADR-0017 (portão aberto P395), ADR-0107 (paridade linguagem), ADR-0029 (pureza L1), ADR-0054 (operações aritméticas scope-out).
+00_nucleo/prompts/entities/decimal.md	52	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `bigdecimal` (precisão arbitrária com heap) é scope-out; `rust_decimal` é a opção pragmática.
+00_nucleo/prompts/entities/decimal.md	96	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 7. Scope-out
+00_nucleo/prompts/entities/decimal.md	99	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Operações aritméticas (`+`, `-`, `*`, `/`, `%`, `pow`) — scope-out ADR-0054 graded.
+00_nucleo/prompts/entities/color.md	19	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	vanilla. Scope-outs formalizados em **ADR-0083 PROPOSTO**:
+00_nucleo/prompts/entities/color.md	236	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	/// `c = (1-r-k)/(1-k)` — o ICC do vanilla é scope-out ADR-0083).
+00_nucleo/prompts/entities/color.md	243	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	> **Fonte da afirmação sobre CMYK (P1031)** — o scope-out ADR-0083 estava correcto e agora
+00_nucleo/prompts/entities/color.md	262	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	> continua coberta pelo scope-out ADR-0083, mas fica registada como divergência de
+00_nucleo/prompts/entities/color.md	388	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-outs P257 documentados em ADR-0083 PROPOSTO**:
+00_nucleo/prompts/entities/content.md	669	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out per P155 §A.1.2); alterna `self.smartquote_single_open`.
+00_nucleo/prompts/entities/content.md	723	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	vanilla scope-out per Tabela A.7 linha 201 `stroke(...)` parcial). `None`
+00_nucleo/prompts/entities/content.md	730	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Scope-out (per diagnóstico §A.1 + ADR-0054 graded)
+00_nucleo/prompts/entities/content.md	806	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **`right` é scope-out neste passo** (perfil ADR-0054 graded):
+00_nucleo/prompts/entities/content.md	865	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `right` padding **scope-out** em layout — ver acima. Refino
+00_nucleo/prompts/entities/content.md	867	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Padding negativo **scope-out** (rejeitado com erro). Refino
+00_nucleo/prompts/entities/content.md	1123	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `origin` (ponto de pivot) **scope-out** — análogo a
+00_nucleo/prompts/entities/content.md	1189	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Atributos scope-out** (refino futuro per ADR-0054 graded):
+00_nucleo/prompts/entities/content.md	1212	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `inset.right` é scope-out (Layouter actual sem largura
+00_nucleo/prompts/entities/content.md	1223	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(incluindo lista de scope-outs).
+00_nucleo/prompts/entities/content.md	1237	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **9 atributos vanilla scope-out** (outset, fill, stroke,
+00_nucleo/prompts/entities/content.md	1246	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `inset.right` scope-out em layout (mesma razão que
+00_nucleo/prompts/entities/content.md	1300	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Atributos scope-out** (refino futuro per ADR-0054 graded):
+00_nucleo/prompts/entities/content.md	1311	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	| Layouter | flush + inset_top + offset_left + body + flush + inset_bottom + height_min | append inline + inset_left + body + inset_right (top/bottom/baseline scope-out em layout actual) |
+00_nucleo/prompts/entities/content.md	1347	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- 6 atributos vanilla scope-out (outset, fill, stroke,
+00_nucleo/prompts/entities/content.md	1436	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Named arg desconhecido rejeitado (sem scope-out adicional;
+00_nucleo/prompts/entities/content.md	1573	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(refactor scope-out).
+00_nucleo/prompts/entities/content.md	1647	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"ambos os variants como scope-out P156G/H graded (""semantic adiada"")."
+00_nucleo/prompts/entities/content.md	1679	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"sub-padrão emergente ""promoção real scope-out ADR-0054 graded"""
+00_nucleo/prompts/entities/content.md	1682	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out (refino futuro).
+00_nucleo/prompts/entities/content.md	1691	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Promoção scope-outs Pad.right / Block.width / Boxed.width — Passo 243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
+00_nucleo/prompts/entities/content.md	1693	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"P156C declarou `Pad.right` scope-out (""Layouter actual não tem"
+00_nucleo/prompts/entities/content.md	1736	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"**Sub-padrão ""promoção real scope-out ADR-0054 graded""** N=2"
+00_nucleo/prompts/entities/content.md	1739	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"transitam de ""scope-out"" / ""armazenado adiada"" para"
+00_nucleo/prompts/entities/content.md	1742	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Promoção scope-outs Block/Boxed fill+stroke+outset — Passo 247 (M9d / M7+5; ADR-0079 Categoria A.4)
+00_nucleo/prompts/entities/content.md	1744	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	P156G/H declararam **9 atributos vanilla scope-out** em Block e
+00_nucleo/prompts/entities/content.md	1817	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"**Sub-padrão ""promoção real scope-out ADR-0054 graded""** N=2 →"
+00_nucleo/prompts/entities/content.md	1823	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"**Sub-padrão emergente ""agregar promoções scope-outs cosméticos"
+00_nucleo/prompts/entities/content.md	1828	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-outs originais Block fechados cumulativamente (outset
+00_nucleo/prompts/entities/content.md	1833	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-outs originais Boxed fechados cumulativamente (outset +
+00_nucleo/prompts/entities/content.md	1932	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **Row break real é scope-out P248** (refino futuro per
+00_nucleo/prompts/entities/content.md	1948	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Promoções reais scope-outs ADR-0054 graded granular cumulativas
+00_nucleo/prompts/entities/content.md	1962	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	P156G declarou 9 scope-outs originais Block; P247 + P248
+00_nucleo/prompts/entities/content.md	1964	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	semantic real. **P250 fecha os 4 scope-outs restantes** em
+00_nucleo/prompts/entities/content.md	1983	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	estes 4 scope-outs são exclusivos Block (vanilla BlockElem
+00_nucleo/prompts/entities/content.md	2063	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	1. **Storage prévio** ✓ — 4 fields scope-out P156G declarados
+00_nucleo/prompts/entities/content.md	2075	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"**Sub-padrão ""promoção real scope-out ADR-0054 graded""**"
+00_nucleo/prompts/entities/content.md	2088	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-outs originais P156G + breakable contado = **Block A.4
+00_nucleo/prompts/entities/content.md	2091	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Boxed continua 5/6 scope-outs** (resta stroke-overhang;
+00_nucleo/prompts/entities/content.md	2130	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Cristalino P295 scope-outs:
+00_nucleo/prompts/entities/content.md	2132	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"- `numbering: Numbering` (default `""1""`) **scope-out** (cosmético;"
+00_nucleo/prompts/entities/content.md	2136	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `FootnoteBody::Reference(Label)` **scope-out** (multi-ref
+00_nucleo/prompts/entities/content.md	2216	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	Cristalino P296 scope-outs:
+00_nucleo/prompts/entities/content.md	2217	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `AccentElem.size`/`dotless` → scope-out (cosméticos).
+00_nucleo/prompts/entities/content.md	2218	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `CancelElem.length`/`angle`/`stroke` → scope-out (cosméticos).
+00_nucleo/prompts/entities/content.md	2219	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- `CancelElem.inverted`/`cross` → scope-out (toggles funcionais;
+00_nucleo/prompts/entities/content.md	2435	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Operadores vanilla pré-definidos (scope-out P298)
+00_nucleo/prompts/entities/content.md	2439	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**scope-out P298** — passo P298.X candidato se necessário.
+00_nucleo/prompts/entities/content.md	2666	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"condicional""; sem prioridade designada; scope-out formal"
+00_nucleo/prompts/entities/content.md	2673	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	preservados como scope-out informal P258 (cobertura útil
+00_nucleo/prompts/entities/content.md	2676	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	### Bloco B hayagriva — scope-out implícito P258
+00_nucleo/prompts/entities/content.md	2698	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out implícito documentado; Fase 3 + footnote refinos
+00_nucleo/prompts/entities/elements/cite.md	67	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out P418:**
+00_nucleo/prompts/entities/elements/cite.md	113	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	| 2026-06-23 | P418 (XL): adicionar seção de renderização CSL real e scope-out. | `cite.md`, `cite.rs`, `bibliography.md`, `bibliography.rs`, `loading.md` |
+00_nucleo/prompts/entities/elements/math_cancel.md	9	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	`stroke` scope-out, inalterado).
+00_nucleo/prompts/entities/elements/raw.md	24	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(P502 — `native_raw` passa a aceitar `lang:` e `block:` named; syntax highlighting real continua scope-out per ADR-0054.)
+00_nucleo/prompts/entities/elements/image.md	27	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	(P502 — paridade `image.fit` do vanilla 0.14.2; renderização do fit scope-out per ADR-0054.)
+00_nucleo/prompts/entities/elements/bibliography.md	72	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	>   **múltiplos** ficheiros, o que o cristalino declara como scope-out em P418
+00_nucleo/prompts/entities/elements/bibliography.md	106	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out P418:**
+00_nucleo/prompts/entities/elements/bibliography.md	118	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	com input literal P159A/P418 (scope-out parcial: paridade linguagem do path
+00_nucleo/prompts/entities/elements/bibliography.md	123	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out P419:**
+00_nucleo/prompts/entities/elements/bibliography.md	142	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out P420:**
+00_nucleo/prompts/entities/elements/bibliography.md	150	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	| 2026-06-23 | P418 (XL): adicionar seção de renderização CSL real e scope-out. | `bibliography.md`, `bibliography.rs`, `cite.md`, `cite.rs`, `loading.md`, `loading.rs` |
+00_nucleo/prompts/entities/elements/bibliography.md	151	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	| 2026-06-23 | P419 (M): adicionar `path`, loading de disco e scope-out. | `bibliography.md`, `bibliography.rs`, `content.rs`, `rules/eval/bibliography.rs`, `rules/stdlib/structural.rs` |
+00_nucleo/prompts/entities/elements/link.md	49	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	**Scope-out P422:**
+00_nucleo/prompts/entities/elements/link.md	52	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Consumer PDF que emite annotation URI — scope-out; o `FrameItem::Link` é
+00_nucleo/prompts/entities/elements/link.md	54	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"- Links internos (`#link(""<label>"")`) / inter-página — scope-out."
+00_nucleo/prompts/entities/elements/link.md	55	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- Hover tooltip — renderizador-dependente, scope-out.
+00_nucleo/prompts/contracts/plugin_host.md	122	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	"registado em ""Scope-out""."
+00_nucleo/prompts/contracts/plugin_host.md	137	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## Scope-out (próximos passos) — NÃO implementado aqui
+00_nucleo/prompts/entities/elements/outline.md	57	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	são aceites e armazenados, mas a renderização específica é scope-out per
+00_nucleo/prompts/entities/elements/heading.md	40	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	scope-out (não modelado; `depth` exposto = `level`).
+00_nucleo/prompts/entities/elements/list_item.md	20	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	/// scope-out; o campo é aceite e preservado sem efeito visual.
+00_nucleo/prompts/entities/bib_entry.md	80	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	- **ADR-0054**: graded scope-out de fields adicionais
+00_nucleo/prompts/entities/bytes.md	79	UNRESOLVED	HARNESS-GAP	not individually probed in P1210	## 6. Scope-out

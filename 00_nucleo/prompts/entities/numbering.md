@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/numbering` — numbering tipado e vistas realizadas
-Hash do Código: (pendente — P1158 materializa após gate ADR-0127)
+Hash do Código: ffffffff
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/entities/numbering.rs`
