@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/completions.md
-//! @prompt-hash e7265331
+//! @prompt-hash 02938678
 //! @layer L2
 
 pub fn generate(shell: clap_complete::Shell) -> Vec<u8> {

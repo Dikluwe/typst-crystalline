@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/fonts-command.md
-//! @prompt-hash 95edd126
+//! @prompt-hash 40b7a47a
 //! @layer L2
 
 use std::path::PathBuf;
