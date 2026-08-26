@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/eviction.md
-//! @prompt-hash 7ac7b48b
+//! @prompt-hash a8955734
 //! @layer L4
 //! @updated 2026-05-06
 //!
