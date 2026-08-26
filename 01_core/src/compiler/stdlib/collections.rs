@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/collections.md
-//! @prompt-hash 18df1a29
+//! @prompt-hash ced13ecc
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -23,6 +23,7 @@ use crate::compiler::stdlib::{
     native_state, native_str, native_symbol, native_type,
 };
 use crate::entities::args::Args;
+use crate::entities::bytes::Bytes;
 use crate::entities::engine::Engine;
 use crate::entities::func::Func;
 use crate::entities::regex::Regex;
@@ -114,8 +115,164 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Str(s), "match") => Some(str_match(s, args)),
         (Value::Str(s), "matches") => Some(str_matches(s, args)),
 
+        // ── bytes (P1214) ───────────────────────────────────────────────────
+        (Value::Bytes(bytes), method) => try_dispatch_bytes_method(bytes, method, args),
+
         _ => None, // neutro: N16[β] — Value não-indexável retorna None na projecção de colecção
     }
+}
+
+fn try_dispatch_bytes_method(
+    bytes: Bytes,
+    method: &str,
+    args: Args,
+) -> Option<SourceResult<Value>> {
+    match method {
+        "len" => Some(bytes_len(bytes, args)),
+        "at" => Some(bytes_at(bytes, args)),
+        "slice" => Some(bytes_slice(bytes, args)),
+        _ => None,
+    }
+}
+
+fn unexpected_named(args: &Args, allowed: &[&str]) -> Option<SourceDiagnostic> {
+    args.named
+        .keys()
+        .find(|name| !allowed.contains(&name.as_str()))
+        .map(|name| {
+            SourceDiagnostic::error(args.span, format!("unexpected argument: {name}"))
+        })
+}
+
+fn bytes_len(bytes: Bytes, args: Args) -> SourceResult<Value> {
+    if let Some(err) = unexpected_named(&args, &[]) {
+        return Err(vec![err]);
+    }
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    Ok(Value::Int(bytes.len() as i64))
+}
+
+fn bytes_at(bytes: Bytes, args: Args) -> SourceResult<Value> {
+    let Some(index_value) = args.items.first() else {
+        return Err(vec![SourceDiagnostic::error(args.span, "missing argument: index")]);
+    };
+    let index = match index_value {
+        Value::Int(index) => *index,
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "expected integer, found {}",
+                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                        other
+                    )
+                ),
+            )])
+        }
+    };
+    if args.items.len() > 1 {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    if let Some(err) = unexpected_named(&args, &["default"]) {
+        return Err(vec![err]);
+    }
+
+    let len = bytes.len() as i64;
+    let resolved = if index >= 0 { Some(index) } else { len.checked_add(index) };
+    if let Some(byte) = resolved
+        .filter(|&value| value >= 0 && value < len)
+        .and_then(|value| bytes.as_slice().get(value as usize))
+    {
+        return Ok(Value::Int((*byte).into()));
+    }
+    if let Some(default) = args.named.get("default") {
+        return Ok(default.clone());
+    }
+    Err(vec![SourceDiagnostic::error(
+        args.span,
+        format!(
+            "byte index out of bounds (index: {index}, len: {len}) and no default value was specified"
+        ),
+    )])
+}
+
+fn bytes_slice(bytes: Bytes, args: Args) -> SourceResult<Value> {
+    let Some(start_value) = args.items.first() else {
+        return Err(vec![SourceDiagnostic::error(args.span, "missing argument: start")]);
+    };
+    let start = match start_value {
+        Value::Int(start) => *start,
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "expected integer, found {}",
+                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                        other
+                    )
+                ),
+            )])
+        }
+    };
+    let end = match args.items.get(1) {
+        None | Some(Value::None) => None,
+        Some(Value::Int(end)) => Some(*end),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "expected integer or none, found {}",
+                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                        other
+                    )
+                ),
+            )])
+        }
+    };
+    if args.items.len() > 2 {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    if let Some(err) = unexpected_named(&args, &["count"]) {
+        return Err(vec![err]);
+    }
+    let count = match args.named.get("count") {
+        None => None,
+        Some(Value::Int(count)) => Some(*count),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "expected integer, found {}",
+                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                        other
+                    )
+                ),
+            )])
+        }
+    };
+
+    let len = bytes.len() as i64;
+    let locate = |index: i64| -> Result<usize, Vec<SourceDiagnostic>> {
+        let wrapped = if index >= 0 { Some(index) } else { len.checked_add(index) };
+        wrapped
+            .and_then(|value| usize::try_from(value).ok())
+            .filter(|&value| value <= bytes.len())
+            .ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("byte index out of bounds (index: {index}, len: {len})"),
+                )]
+            })
+    };
+
+    let start_index = locate(start)?;
+    let end_raw = end
+        .or(count.map(|count| (start_index as i64).wrapping_add(count)))
+        .unwrap_or(len);
+    let end_index = locate(end_raw)?.max(start_index);
+    Ok(Value::Bytes(Bytes::new(bytes.as_slice()[start_index..end_index].to_vec())))
 }
 
 /// **P1142** — membros não ligados expostos nos valores-tipo `array` e `str`.
@@ -1435,6 +1592,58 @@ mod tests {
             args.named.insert(k.into(), v);
         }
         args
+    }
+
+    // ── P1214 — bytes.len / at / slice ──────────────────────────────────────
+
+    #[test]
+    fn p1214_bytes_len_conta_octetos_utf8() {
+        let bytes = crate::entities::bytes::Bytes::new("é".as_bytes().to_vec());
+        assert_eq!(bytes_len(bytes, make_args(vec![], None)).unwrap(), Value::Int(2));
+    }
+
+    #[test]
+    fn p1214_bytes_at_negativo_default_e_limite() {
+        let bytes = crate::entities::bytes::Bytes::new(vec![0, 127, 255]);
+        assert_eq!(
+            bytes_at(bytes.clone(), make_args(vec![Value::Int(-1)], None)).unwrap(),
+            Value::Int(255)
+        );
+        assert_eq!(
+            bytes_at(
+                bytes.clone(),
+                make_args(vec![Value::Int(3)], Some(("default", Value::Int(99))))
+            )
+            .unwrap(),
+            Value::Int(99)
+        );
+        let err = bytes_at(bytes, make_args(vec![Value::Int(3)], None)).unwrap_err();
+        assert_eq!(
+            err[0].message,
+            "byte index out of bounds (index: 3, len: 3) and no default value was specified"
+        );
+    }
+
+    #[test]
+    fn p1214_bytes_slice_preserva_conteudo_e_precedencia_end() {
+        let bytes = crate::entities::bytes::Bytes::new(vec![1, 2, 3]);
+        let mut args = make_args(vec![Value::Int(0), Value::Int(2)], None);
+        args.named.insert("count".into(), Value::Int(1));
+        let Value::Bytes(slice) = bytes_slice(bytes, args).unwrap() else {
+            panic!("esperado bytes");
+        };
+        assert_eq!(slice.as_slice(), &[1, 2]);
+    }
+
+    #[test]
+    fn p1214_bytes_nao_inventa_first_last() {
+        let bytes = Value::Bytes(crate::entities::bytes::Bytes::new(vec![1, 2, 3]));
+        let no_args = make_args(vec![], None);
+        let Value::Bytes(bytes) = bytes else { unreachable!() };
+        assert!(
+            try_dispatch_bytes_method(bytes.clone(), "first", no_args.clone()).is_none()
+        );
+        assert!(try_dispatch_bytes_method(bytes, "last", no_args).is_none());
     }
 
     #[test]
