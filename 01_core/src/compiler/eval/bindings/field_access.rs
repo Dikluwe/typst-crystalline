@@ -45,6 +45,7 @@ pub(in crate::compiler::eval) fn eval_field_access(
         target.clone(),
         field,
         crate::entities::args::Args::positional(vec![]),
+        None,
         scopes,
         ctx,
         engine,

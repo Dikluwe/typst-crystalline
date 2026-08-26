@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 2efe6c00
+//! @prompt-hash 9244f658
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -38,6 +38,7 @@ use crate::compiler::stdlib::{
     native_type,
     native_version,
     try_dispatch_collection_method,
+    CollectionCallSpans,
 };
 use crate::entities::args::Args;
 use crate::entities::ast::expr::{Arg, Expr, FuncCall as FuncCallNode};
@@ -442,10 +443,28 @@ pub(super) fn eval_func_call(
     if let Expr::FieldAccess(access) = call.callee() {
         let target = eval_expr(access.target(), scopes, ctx, engine)?;
         let method = access.field().as_str();
+        let mut positional = Vec::new();
+        let mut named: IndexMap<EcoString, Span, FxBuildHasher> = IndexMap::default();
+        for arg in call.args().items() {
+            match arg {
+                Arg::Pos(expr) => positional.push(expr.span()),
+                Arg::Named(named_arg) => {
+                    named.insert(named_arg.name().as_str().into(), named_arg.span());
+                }
+                Arg::Spread(_) => {}
+            }
+        }
+        let call_spans = CollectionCallSpans { call: call.span(), positional, named };
         let args = eval_args(call.args(), scopes, ctx, engine)?;
-        if let Some(result) =
-            try_dispatch_collection_method(target, method, args, scopes, ctx, engine)
-        {
+        if let Some(result) = try_dispatch_collection_method(
+            target,
+            method,
+            args,
+            Some(&call_spans),
+            scopes,
+            ctx,
+            engine,
+        ) {
             return result;
         }
     }

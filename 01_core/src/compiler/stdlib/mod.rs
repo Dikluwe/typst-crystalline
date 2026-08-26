@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash bd4b274b
+//! @prompt-hash 1ab23ae7
 //! @layer L1
 //! @updated 2026-06-22
 
@@ -160,7 +160,7 @@ pub use crate::compiler::stdlib::primitives_constructors::{
 };
 // P466 — dispatcher de métodos de array/dict/str.
 pub(crate) use crate::compiler::stdlib::collections::{
-    collection_type_field, try_dispatch_collection_method,
+    collection_type_field, try_dispatch_collection_method, CollectionCallSpans,
 };
 // P471 — módulo sym.
 pub use crate::compiler::stdlib::sym::build_sym_module;

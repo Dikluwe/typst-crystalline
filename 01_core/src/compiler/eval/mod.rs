@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 878eeeb0
+//! @prompt-hash c96de6c7
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -325,6 +325,11 @@ pub fn eval_expression_with_features(
     let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
     let mut active_guards = Vec::new();
     let current_file = world.main();
+    let source = Source::new_with_parser(
+        current_file,
+        expression.to_string(),
+        crate::compiler::parse::parse_code,
+    );
     let route = Route::root().with_id(current_file);
     let fixed_metrics = FixedMetrics;
     let mut sink = Sink::new();
@@ -340,14 +345,30 @@ pub fn eval_expression_with_features(
             current_file,
             sink: &mut tracked_sink,
         };
-        crate::compiler::stdlib::native_eval(
-            &mut ctx,
-            &crate::entities::args::Args::positional(vec![Value::Str(expression.into())]),
-            world,
-            current_file,
-            &mut scopes,
-            &mut engine,
-        )
+        if source.root().erroneous() {
+            Err(source
+                .root()
+                .errors()
+                .into_iter()
+                .map(|error| {
+                    let mut diagnostic =
+                        SourceDiagnostic::error(error.span, error.message.to_string());
+                    diagnostic.hints =
+                        error.hints.iter().map(|hint| hint.to_string()).collect();
+                    diagnostic
+                })
+                .collect())
+        } else {
+            (|| -> SourceResult<Value> {
+                let mut last = Value::None;
+                for child in source.root().children() {
+                    if let Some(expr) = Expr::from_untyped(child) {
+                        last = eval_expr(expr, &mut scopes, &mut ctx, &mut engine)?;
+                    }
+                }
+                Ok(last)
+            })()
+        }
     };
     (result, sink.into_diagnostics())
 }

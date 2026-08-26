@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash b36560cd
+//! @prompt-hash 54796a0d
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -17113,41 +17113,23 @@ mod tests {
 
     #[test]
     fn p1215_bytes_span_chamada_inteira() {
-        assert_eq!(
-            p1215_eval_error_range("bytes((1,2,3)).at()"),
-            0..19
-        );
-        assert_eq!(
-            p1215_eval_error_range("bytes((1,2,3)).slice(0,4)"),
-            0..25
-        );
+        assert_eq!(p1215_eval_error_range("bytes((1,2,3)).at()"), 0..19);
+        assert_eq!(p1215_eval_error_range("bytes((1,2,3)).slice(0,4)"), 0..25);
     }
 
     #[test]
     fn p1215_bytes_span_positional_especifico() {
-        assert_eq!(
-            p1215_eval_error_range("bytes((1,2,3)).at(\"1\")"),
-            18..21
-        );
-        assert_eq!(
-            p1215_eval_error_range("bytes((1,2,3)).slice(0,1,2)"),
-            25..26
-        );
+        assert_eq!(p1215_eval_error_range("bytes((1,2,3)).at(\"1\")"), 18..21);
+        assert_eq!(p1215_eval_error_range("bytes((1,2,3)).slice(0,1,2)"), 25..26);
     }
 
     #[test]
     fn p1215_bytes_span_named_completo() {
-        assert_eq!(
-            p1215_eval_error_range("bytes((1,2,3)).at(0,foo:1)"),
-            20..25
-        );
+        assert_eq!(p1215_eval_error_range("bytes((1,2,3)).at(0,foo:1)"), 20..25);
     }
 
     #[test]
     fn p1215_bytes_span_acompanha_deslocamento() {
-        assert_eq!(
-            p1215_eval_error_range("\n\n  bytes((1,2,3)).at(\"1\")"),
-            22..25
-        );
+        assert_eq!(p1215_eval_error_range("\n\n  bytes((1,2,3)).at(\"1\")"), 22..25);
     }
 }

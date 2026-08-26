@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/error_formatting.md
-//! @prompt-hash 3e518ce4
+//! @prompt-hash 31b42131
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -21,7 +21,7 @@ pub(crate) fn binary_mismatch(op: BinOp, lhs: &Value, rhs: &Value) -> String {
         BinOp::Sub => format!("cannot subtract {b} from {a}"),
         BinOp::Mul => format!("cannot multiply {a} with {b}"),
         BinOp::Div => format!("cannot divide {a} by {b}"),
-        _ => format!("cannot apply {op:?} to {a} and {b}"),
+        _ => format!("cannot apply '{}' to {a} and {b}", op.as_str()),
     }
 }
 
@@ -141,6 +141,18 @@ mod tests {
             )
             .unwrap_err(),
             "cannot add relative length and direction"
+        );
+
+        // P1216 — spelling da linguagem, nunca o nome Debug da enum Rust.
+        assert_eq!(
+            eval_binary_op(BinOp::In, Value::Int(1), Value::Str("hello".into()))
+                .unwrap_err(),
+            "cannot apply 'in' to integer and string"
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::NotIn, Value::Int(1), Value::Str("hello".into()))
+                .unwrap_err(),
+            "cannot apply 'not in' to integer and string"
         );
     }
 }
