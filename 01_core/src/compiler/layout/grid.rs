@@ -1509,6 +1509,7 @@ mod smoke {
             paint: Color::luma(0.0).into(),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         };
         let cells = vec![
             PlacedCell {
@@ -1559,6 +1560,7 @@ mod smoke {
             paint: Color::luma(0.0).into(),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         };
         let cells = vec![
             PlacedCell {
@@ -1610,11 +1612,13 @@ mod smoke {
             paint: Color::luma(0.0).into(),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         };
         let stroke2 = Stroke {
             paint: Color::luma(0.0).into(),
             thickness: 2.0,
             overhang: false,
+            ..Stroke::default()
         };
         use crate::entities::elements::grid_cell::GridCellElem;
         use std::sync::Arc;

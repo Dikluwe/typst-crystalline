@@ -4585,6 +4585,7 @@ mod tests {
             paint: Paint::Solid(Color::rgb(0, 116, 217)),
             thickness: 2.0,
             overhang: true,
+            ..Stroke::default()
         };
         let mut args = Args::positional(vec![]);
         args.named
@@ -4736,6 +4737,7 @@ mod tests {
             paint: Paint::Solid(Color::rgb(255, 65, 54)),
             thickness: 2.0,
             overhang: true,
+            ..Stroke::default()
         };
         let mut args = Args::positional(vec![]);
         args.named.insert("stroke".into(), Value::Stroke(expected.clone()));
@@ -8491,6 +8493,7 @@ mod tests {
             paint: Paint::Solid(Color::rgb(255, 0, 0)),
             thickness: 2.5,
             overhang: false,
+            ..Stroke::default()
         };
         let v = Value::Stroke(s.clone());
         assert_eq!(v.type_name(), "stroke");
@@ -8509,6 +8512,35 @@ mod tests {
         } else {
             panic!("esperado Value::Stroke");
         }
+    }
+
+    #[test]
+    fn p1224_native_stroke_preserva_campos_complexos() {
+        use crate::entities::geometry::{DashLength, LineCap, LineJoin};
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("cap".into(), Value::Str("round".into()));
+        args.named.insert("join".into(), Value::Str("bevel".into()));
+        let mut dash = IndexMap::with_hasher(FxBuildHasher);
+        dash.insert(
+            "array".into(),
+            Value::Array(vec![Value::Length(Length::pt(2.0)), Value::Str("dot".into())]),
+        );
+        dash.insert("phase".into(), Value::Length(Length::pt(-0.5)));
+        args.named.insert("dash".into(), Value::Dict(dash));
+        args.named.insert("miter-limit".into(), Value::Float(2.0));
+        let Value::Stroke(stroke) =
+            native_stroke(&mut ctx, &args, &null_world(), test_file_id()).unwrap()
+        else {
+            panic!("esperado stroke");
+        };
+        assert_eq!(stroke.cap, LineCap::Round);
+        assert_eq!(stroke.join, LineJoin::Bevel);
+        assert_eq!(stroke.miter_limit, 2.0);
+        let dash = stroke.dash.unwrap();
+        assert_eq!(dash.array, vec![DashLength::Length(2.0), DashLength::LineWidth]);
+        assert_eq!(dash.phase, -0.5);
     }
 
     #[test]
@@ -8610,6 +8642,7 @@ mod tests {
             paint: Paint::Solid(Color::rgb(0, 255, 0)),
             thickness: 3.0,
             overhang: false,
+            ..Stroke::default()
         };
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("stroke".into(), Value::Stroke(s.clone()));

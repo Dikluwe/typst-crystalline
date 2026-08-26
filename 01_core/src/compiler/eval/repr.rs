@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash b7099f1e
+//! @prompt-hash d8e97fc4
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -341,8 +341,85 @@ fn repr_color(c: &Color) -> String {
 /// (visualize/stroke.rs:308) adaptada: o cristalino não modela
 /// `Smart::Auto` (thickness colapsa para 1.0pt na construção, P227), logo
 /// imprime sempre `"{thickness} + {paint}"`.
-fn repr_stroke(s: &Stroke) -> String {
-    format!("{} + {}", format_float_with_unit(s.thickness, "pt"), repr_paint(&s.paint))
+pub(super) fn repr_stroke(s: &Stroke) -> String {
+    use crate::entities::geometry::{DashLength, LineCap, LineJoin};
+    let complex = s.specified.cap
+        || s.specified.join
+        || s.specified.dash
+        || s.specified.miter_limit;
+    if !complex {
+        if !s.specified.paint
+            && !s.specified.thickness
+            && s.paint == Stroke::default().paint
+            && s.thickness == 1.0
+        {
+            return "1pt + black".to_string();
+        }
+        return match (s.specified.paint, s.specified.thickness) {
+            (true, false) => repr_paint(&s.paint),
+            (false, true) => format_float_with_unit(s.thickness, "pt"),
+            _ => format!(
+                "{} + {}",
+                format_float_with_unit(s.thickness, "pt"),
+                repr_paint(&s.paint)
+            ),
+        };
+    }
+    let mut fields = Vec::new();
+    if s.specified.paint {
+        fields.push(format!("paint: {}", repr_paint(&s.paint)));
+    }
+    if s.specified.thickness {
+        fields.push(format!("thickness: {}", format_float_with_unit(s.thickness, "pt")));
+    }
+    if s.specified.cap {
+        fields.push(format!(
+            "cap: {:?}",
+            match s.cap {
+                LineCap::Butt => "butt",
+                LineCap::Round => "round",
+                LineCap::Square => "square",
+            }
+        ));
+    }
+    if s.specified.join {
+        fields.push(format!(
+            "join: {:?}",
+            match s.join {
+                LineJoin::Miter => "miter",
+                LineJoin::Round => "round",
+                LineJoin::Bevel => "bevel",
+            }
+        ));
+    }
+    if s.specified.dash {
+        if let Some(dash) = &s.dash {
+            let array = dash
+                .array
+                .iter()
+                .map(|value| match value {
+                    DashLength::Length(value) => format_float_with_unit(*value, "pt"),
+                    DashLength::LineWidth => "\"dot\"".to_string(),
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            fields.push(format!(
+                "dash: (array: ({array}), phase: {})",
+                format_float_with_unit(dash.phase, "pt")
+            ));
+        } else {
+            fields.push("dash: none".to_string());
+        }
+    }
+    if s.specified.miter_limit {
+        let value = if s.miter_limit.fract() == 0.0 {
+            format!("{:.1}", s.miter_limit)
+        } else {
+            format_float_component(s.miter_limit)
+        };
+        fields.push(format!("miter-limit: {value}"));
+    }
+    format!("({})", fields.join(", "))
 }
 
 /// Representação de um `Paint` — `Solid` delega em `repr_color`;
@@ -1198,8 +1275,14 @@ mod tests {
             paint: Paint::Solid(Color::rgb(255, 65, 54)),
             thickness: 2.0,
             overhang: true,
+            ..Stroke::default()
         };
         assert_eq!(repr_value(&Value::Stroke(s)), "2pt + rgb(\"#ff4136\")");
+    }
+
+    #[test]
+    fn p1225_repr_stroke_preserva_default_nominal() {
+        assert_eq!(repr_value(&Value::Stroke(Stroke::default())), "1pt + black");
     }
 
     #[test]

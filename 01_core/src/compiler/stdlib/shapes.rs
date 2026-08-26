@@ -77,6 +77,7 @@ fn parse_shape_stroke(val: &Value, fn_name: &str) -> SourceResult<Stroke> {
             paint: Paint::Solid(color),
             thickness: 1.0,
             overhang: true,
+            ..Stroke::default()
         });
     }
     crate::compiler::stdlib::layout::extract_stroke(val, fn_name, "stroke")
@@ -120,6 +121,7 @@ pub fn native_rect(
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         })
     } else {
         parsed_stroke
@@ -197,6 +199,7 @@ pub fn native_square(
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         })
     } else {
         parsed_stroke
@@ -252,6 +255,7 @@ pub fn native_ellipse(
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         })
     } else {
         parsed_stroke
@@ -314,6 +318,7 @@ pub fn native_circle(
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         })
     } else {
         parsed_stroke
@@ -364,6 +369,7 @@ pub fn native_line(
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         },
     };
 
@@ -658,6 +664,7 @@ pub fn native_polygon(
             paint: Paint::Solid(c),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         });
 
     // P732 — fallback determinístico (paridade vanilla `Smart::Auto`,
@@ -671,6 +678,7 @@ pub fn native_polygon(
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         })
     } else {
         parsed_stroke
@@ -950,6 +958,7 @@ pub fn native_curve(
             paint: Paint::Solid(c),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         });
 
     // P727 — fallback determinístico (paridade vanilla `Smart::Auto`,
@@ -962,6 +971,7 @@ pub fn native_curve(
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         })
     } else {
         parsed_stroke

@@ -1,11 +1,47 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/geometry.md
-//! @prompt-hash 3e0e2ede
+//! @prompt-hash 33b949c9
 //! @layer L1
 //! @updated 2026-04-20
 
 use crate::entities::layout_types::{Length, Point};
 use crate::entities::paint::Paint;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LineCap {
+    Butt,
+    Round,
+    Square,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LineJoin {
+    Miter,
+    Round,
+    Bevel,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum DashLength {
+    Length(f64),
+    LineWidth,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct DashPattern {
+    pub array: Vec<DashLength>,
+    pub phase: f64,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct StrokeFields {
+    pub paint: bool,
+    pub thickness: bool,
+    pub cap: bool,
+    pub join: bool,
+    pub dash: bool,
+    pub miter_limit: bool,
+}
 
 /// Segmento de um caminho vectorial.
 #[derive(Debug, Clone, PartialEq)]
@@ -36,12 +72,32 @@ pub struct Stroke {
     pub paint: Paint,
     /// Espessura do contorno em pontos tipográficos.
     pub thickness: f64,
+    pub cap: LineCap,
+    pub join: LineJoin,
+    pub dash: Option<DashPattern>,
+    pub miter_limit: f64,
+    pub specified: StrokeFields,
     /// **P252** — `true` expande bounds Shape por `thickness/2` em
     /// todos os lados quando emit em Layouter (paridade vanilla
     /// overhang). `false` preserva bounds literais (default
     /// construtor Rust cristalino; backward compat literal estrita
     /// pré-P252).
     pub overhang: bool,
+}
+
+impl Default for Stroke {
+    fn default() -> Self {
+        Self {
+            paint: Paint::Solid(crate::entities::layout_types::Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            cap: LineCap::Butt,
+            join: LineJoin::Miter,
+            dash: None,
+            miter_limit: 4.0,
+            specified: StrokeFields::default(),
+            overhang: false,
+        }
+    }
 }
 
 /// Tipo de forma geométrica primitiva.
@@ -258,11 +314,29 @@ mod tests {
     use crate::entities::paint::Paint;
 
     #[test]
+    fn p1224_stroke_complex_defaults_e_ordem_do_dash() {
+        let stroke = Stroke::default();
+        assert_eq!(stroke.cap, LineCap::Butt);
+        assert_eq!(stroke.join, LineJoin::Miter);
+        assert_eq!(stroke.miter_limit, 4.0);
+        assert_eq!(stroke.dash, None);
+
+        let dash = DashPattern {
+            array: vec![DashLength::Length(3.0), DashLength::LineWidth],
+            phase: -1.5,
+        };
+        assert_eq!(dash.array[0], DashLength::Length(3.0));
+        assert_eq!(dash.array[1], DashLength::LineWidth);
+        assert_eq!(dash.phase, -1.5);
+    }
+
+    #[test]
     fn stroke_clone_e_partialeq() {
         let s = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         };
         assert_eq!(s.clone(), s);
     }

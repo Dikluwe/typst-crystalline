@@ -117,6 +117,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         paint: Paint::Solid(Color::rgb(0, 0, 0)),
         thickness: 1.0,
         overhang: false,
+        ..Stroke::default()
     };
 
     layouter.regions.current.current_items.push(FrameItem::Shape {

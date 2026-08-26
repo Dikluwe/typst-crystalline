@@ -32,6 +32,7 @@ pub(super) fn default_hline_stroke() -> Stroke {
         paint: Paint::Solid(Color::rgb(0, 0, 0)),
         thickness: 1.0,
         overhang: true,
+        ..Stroke::default()
     }
 }
 

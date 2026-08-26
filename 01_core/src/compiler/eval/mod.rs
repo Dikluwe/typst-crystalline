@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash c96de6c7
+//! @prompt-hash 9c8cdb68
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -68,6 +68,12 @@ pub(crate) mod bindings;
 mod markup;
 mod modules;
 pub(crate) mod repr;
+
+/// Representação morfológica pública e estreita de `Stroke` para consumidores
+/// que possuem uma branch nominal do tipo. Não é fallback genérico de `Value`.
+pub fn repr_stroke_value(stroke: &crate::entities::geometry::Stroke) -> String {
+    repr::repr_stroke(stroke)
+}
 pub(crate) mod rules;
 pub(crate) mod selector_matching;
 pub(crate) mod show_rule_termination;

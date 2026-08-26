@@ -7769,6 +7769,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
             },
@@ -7835,6 +7836,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
             },
@@ -7883,11 +7885,13 @@ mod tests_show_rule_integration {
             paint: Paint::Solid(Color::rgb(255, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         };
         let blue = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 255)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         };
 
         // Célula (0,0) com stroke vermelho explícito; célula (0,1) sem
@@ -8019,6 +8023,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
             },
@@ -8125,6 +8130,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
                     thickness: 0.5,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
                 caption: None,
@@ -8327,6 +8333,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: Some(Color::rgb(255, 255, 0)),
             },
@@ -8539,6 +8546,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
                     thickness: 5.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
                 align: None,
@@ -8562,6 +8570,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(255, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
             },
@@ -8659,6 +8668,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 3.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
             },
@@ -8703,6 +8713,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
                 align: None,
@@ -8766,6 +8777,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }), // cell stroke
                 fill: None,
                 align: None,
@@ -9171,6 +9183,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
             },
         ));
@@ -9220,6 +9233,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
             },
         ));
@@ -9357,6 +9371,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(10, 20, 30)),
                     thickness: 1.5,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 spacing: None,
                 above: None,
@@ -11126,6 +11141,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }), // P247
                 spacing: Some(Length::pt(5.0)),            // P250
                 above: Some(Length::pt(10.0)),             // P250
@@ -11640,17 +11656,20 @@ mod tests_show_rule_integration {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         };
         let s2 = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: true,
+            ..Stroke::default()
         };
         assert_ne!(s1, s2, "P252 — overhang distingue strokes em PartialEq");
         let s3 = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         };
         assert_eq!(s1, s3);
     }
@@ -11663,6 +11682,7 @@ mod tests_show_rule_integration {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 2.0,
             overhang: true,
+            ..Stroke::default()
         };
         let s2 = s.clone();
         assert_eq!(s.overhang, s2.overhang);
@@ -11692,6 +11712,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 4.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 spacing: None,
                 above: None,
@@ -11738,6 +11759,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 4.0,
                     overhang: true,
+                    ..Stroke::default()
                 }),
                 spacing: None,
                 above: None,
@@ -11780,6 +11802,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 6.0,
                     overhang: true,
+                    ..Stroke::default()
                 }),
             },
         ));
@@ -12513,6 +12536,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(255, 0, 0)),
                     thickness: 2.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
                 align: None,
@@ -12574,6 +12598,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
                     thickness: 7.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
                 align: None,
@@ -12597,6 +12622,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(255, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
             },
@@ -12675,6 +12701,7 @@ mod tests_show_rule_integration {
                     paint: Paint::Solid(Color::rgb(100, 100, 100)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
             },

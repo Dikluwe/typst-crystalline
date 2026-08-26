@@ -42,6 +42,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 0.5,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     });

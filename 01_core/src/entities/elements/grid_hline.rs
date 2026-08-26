@@ -77,6 +77,7 @@ mod tests {
                 paint: Paint::Solid(Color::rgb(0, 0, 0)),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             position: EcoString::from("top"),
         }

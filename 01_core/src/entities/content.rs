@@ -5702,6 +5702,7 @@ mod tests {
                     paint: Paint::Solid(Color::rgb(255, 0, 0)),
                     thickness: 2.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
             },
@@ -5733,6 +5734,7 @@ mod tests {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
                     thickness: 1.5,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: None,
                 caption: None,
@@ -5778,6 +5780,7 @@ mod tests {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         };
         assert_ne!(mk(None), mk(Some(s)));
     }
@@ -5905,6 +5908,7 @@ mod tests {
             paint: Paint::Solid(Color::rgb(100, 100, 100)),
             thickness: 3.0,
             overhang: false,
+            ..Stroke::default()
         };
         let g = Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
@@ -5947,6 +5951,7 @@ mod tests {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 fill: Some(Color::rgb(255, 255, 0)),
                 align: None,
@@ -6016,6 +6021,7 @@ mod tests {
             paint: Paint::Solid(Color::rgb(50, 50, 50)),
             thickness: 2.0,
             overhang: false,
+            ..Stroke::default()
         };
         let fill_orig = Color::rgb(200, 200, 200);
         let c = Content::GridCell(std::sync::Arc::new(
@@ -6303,6 +6309,7 @@ mod tests {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 2.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 spacing: None,
                 above: None,
@@ -6339,6 +6346,7 @@ mod tests {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
                     thickness: 1.5,
                     overhang: false,
+                    ..Stroke::default()
                 }),
             },
         ));
@@ -6391,6 +6399,7 @@ mod tests {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 3.0,
             overhang: false,
+            ..Stroke::default()
         });
         let b = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {

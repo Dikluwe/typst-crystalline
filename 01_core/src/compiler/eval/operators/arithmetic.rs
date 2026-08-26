@@ -334,6 +334,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
                 paint: crate::entities::paint::Paint::Solid(c),
                 thickness: l.abs.to_pt(),
                 overhang: false,
+                ..crate::entities::geometry::Stroke::default()
             }))
         }
         // Ratio * Int ou Int * Ratio → escala o rácio
@@ -415,6 +416,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
                 paint: crate::entities::paint::Paint::Solid(c),
                 thickness: r.abs.abs.to_pt(),
                 overhang: false,
+                ..crate::entities::geometry::Stroke::default()
             }))
         }
         // Relative - Length

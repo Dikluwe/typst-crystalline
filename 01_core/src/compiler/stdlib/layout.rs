@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout.md
-//! @prompt-hash 6fb8937d
+//! @prompt-hash d185de1d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -947,12 +947,14 @@ pub(super) fn extract_stroke(
                 paint: Paint::Solid(Color::rgb(0, 0, 0)),
                 thickness,
                 overhang: true,
+                ..Stroke::default()
             }
         }
         Value::Color(c) => Stroke {
             paint: Paint::Solid(*c),
             thickness: 1.0,
             overhang: true,
+            ..Stroke::default()
         },
         Value::Stroke(s) => s.clone(),
         other => {
@@ -2273,7 +2275,9 @@ pub fn native_stroke(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    use crate::entities::geometry::Stroke;
+    use crate::entities::geometry::{
+        DashLength, DashPattern, LineCap, LineJoin, Stroke, StrokeFields,
+    };
     use crate::entities::layout_types::Color;
     use crate::entities::paint::Paint;
 
@@ -2311,6 +2315,114 @@ pub fn native_stroke(
         None => 1.0,
     };
 
+    let parse_name = |field: &str, choices: &[&str]| -> SourceResult<Option<&str>> {
+        match args.named.get(field) {
+            Some(Value::Str(value)) if choices.contains(&value.as_str()) => {
+                Ok(Some(value.as_str()))
+            }
+            Some(Value::Str(value)) => Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("stroke({field}): valor inesperado {:?}", value.as_str()),
+            )]),
+            Some(other) => Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("stroke({field}): espera string, recebeu {}", other.type_name()),
+            )]),
+            None => Ok(None),
+        }
+    };
+    let cap = match parse_name("cap", &["butt", "round", "square"])? {
+        Some("round") => LineCap::Round,
+        Some("square") => LineCap::Square,
+        _ => LineCap::Butt,
+    };
+    let join = match parse_name("join", &["miter", "round", "bevel"])? {
+        Some("round") => LineJoin::Round,
+        Some("bevel") => LineJoin::Bevel,
+        _ => LineJoin::Miter,
+    };
+    let miter_limit = match args.named.get("miter-limit") {
+        Some(Value::Float(value)) if value.is_finite() && *value > 0.0 => *value,
+        Some(Value::Int(value)) if *value > 0 => *value as f64,
+        Some(Value::Float(_) | Value::Int(_)) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "stroke(miter-limit): deve ser finito e > 0".to_string(),
+            )]);
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "stroke(miter-limit): espera número, recebeu {}",
+                    other.type_name()
+                ),
+            )]);
+        }
+        None => 4.0,
+    };
+
+    fn dash_item(value: &Value) -> Option<DashLength> {
+        match value {
+            Value::Length(length) if length.abs.to_pt() >= 0.0 => {
+                Some(DashLength::Length(length.abs.to_pt()))
+            }
+            Value::Str(value) if value.as_str() == "dot" => Some(DashLength::LineWidth),
+            _ => None,
+        }
+    }
+    fn dash_array(values: &[Value]) -> Option<Vec<DashLength>> {
+        (!values.is_empty())
+            .then(|| values.iter().map(dash_item).collect::<Option<Vec<_>>>())?
+    }
+    fn preset(name: &str) -> Option<Vec<DashLength>> {
+        let l = DashLength::LineWidth;
+        let pt = |value| DashLength::Length(value);
+        Some(match name {
+            "dotted" => vec![l, pt(2.0)],
+            "densely-dotted" => vec![l, pt(1.0)],
+            "loosely-dotted" => vec![l, pt(4.0)],
+            "dashed" => vec![pt(3.0), pt(3.0)],
+            "densely-dashed" => vec![pt(3.0), pt(2.0)],
+            "loosely-dashed" => vec![pt(3.0), pt(6.0)],
+            "dash-dotted" => vec![pt(3.0), pt(2.0), l, pt(2.0)],
+            "densely-dash-dotted" => vec![pt(3.0), pt(1.0), l, pt(1.0)],
+            "loosely-dash-dotted" => vec![pt(3.0), pt(4.0), l, pt(4.0)],
+            _ => return None,
+        })
+    }
+    let dash = match args.named.get("dash") {
+        None | Some(Value::None) => None,
+        Some(Value::Str(name)) => {
+            preset(name.as_str()).map(|array| DashPattern { array, phase: 0.0 })
+        }
+        Some(Value::Array(values)) => {
+            dash_array(values).map(|array| DashPattern { array, phase: 0.0 })
+        }
+        Some(Value::Dict(dict)) => {
+            let array = match dict.get("array") {
+                Some(Value::Array(values)) => dash_array(values),
+                _ => None,
+            };
+            let phase = match dict.get("phase") {
+                None => Some(0.0),
+                Some(Value::Length(value)) => Some(value.abs.to_pt()),
+                _ => None,
+            };
+            array.zip(phase).map(|(array, phase)| DashPattern { array, phase })
+        }
+        _ => None,
+    };
+    if args.named.contains_key("dash")
+        && dash.is_none()
+        && !matches!(args.named.get("dash"), Some(Value::None))
+    {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "stroke(dash): espera preset, array ou dict (array:, phase:)".to_string(),
+        )]);
+    }
+
     if thickness <= 0.0 {
         return Err(vec![SourceDiagnostic::error(
             args.span,
@@ -2331,15 +2443,33 @@ pub fn native_stroke(
     };
 
     for key in args.named.keys() {
-        if !["paint", "thickness", "overhang"].contains(&key.as_str()) {
+        if !["paint", "thickness", "cap", "join", "dash", "miter-limit", "overhang"]
+            .contains(&key.as_str())
+        {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("stroke(): argumento nomeado inesperado '{}' (esperado: paint, thickness, overhang)", key),
+                format!("stroke(): argumento nomeado inesperado '{}'", key),
             )]);
         }
     }
 
-    Ok(Value::Stroke(Stroke { paint: Paint::Solid(paint), thickness, overhang }))
+    Ok(Value::Stroke(Stroke {
+        paint: Paint::Solid(paint),
+        thickness,
+        cap,
+        join,
+        dash,
+        miter_limit,
+        specified: StrokeFields {
+            paint: args.named.contains_key("paint"),
+            thickness: args.named.contains_key("thickness"),
+            cap: args.named.contains_key("cap"),
+            join: args.named.contains_key("join"),
+            dash: args.named.contains_key("dash"),
+            miter_limit: args.named.contains_key("miter-limit"),
+        },
+        overhang,
+    }))
 }
 
 /// `pagebreak(weak: false, to: ?)` → `Content::Pagebreak`.
