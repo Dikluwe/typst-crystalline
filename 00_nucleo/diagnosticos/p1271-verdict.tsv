@@ -1,0 +1,9 @@
+scope	status	evidence	boundary
+C1 diagnostic contract	CLOSED	P1266 repaired probe equals f64-offset control byte-for-byte	diagnostic only
+C2 Luma D65 to Oklab	CLOSED	public vanilla components and focused RED→GREEN; D65 mutant rejected	Color Oklab destination only
+C3 repeat offsets	CLOSED	three variants expose f64 Ratios; input/output narrowing mutants rejected	repeat and language stops accessor
+C4 Radial sampling	CLOSED	Oklab/LinearRgb witness GREEN; f32-t mutant rejected	Radial Oklab/LinearRgb only
+P1270 frozen product divergences	CLOSED	all normative serialized counterfactual rows Preserved	raw un-serialized diagnostic remains non-normative
+P1266 general numeric envelope	PRESERVED	graph/numeric/raster 96/96; determinism 192/192	cost/validity keeps four pairs Unknown-generalization
+productive fallback	UNCHANGED	productive_promotions_applied=0	promotion prohibited
+P1271	EXECUTED	build/tests/fmt/diff/lint PASS	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

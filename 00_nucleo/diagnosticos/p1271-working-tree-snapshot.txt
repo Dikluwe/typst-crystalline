@@ -1,0 +1,8 @@
+P1271 measurement state
+captured_at=2026-08-29T09:15:42-03:00
+head=e055a12faefb2b1773d140fc5fcae3874422cf45
+working_tree=uncommitted
+tracked_delta_before_closure_receipts=8 files changed, 379 insertions(+), 71 deletions(-)
+tracked_files=00_nucleo/prompts/compiler/eval/tests.md;00_nucleo/prompts/compiler/stdlib/gradients.md;00_nucleo/prompts/entities/color.md;00_nucleo/prompts/entities/gradient.md;01_core/src/compiler/eval/tests.rs;01_core/src/compiler/stdlib/gradients.rs;01_core/src/entities/color.rs;01_core/src/entities/gradient.rs
+diagnostic_files_present_before_this_snapshot=00_nucleo/diagnosticos/p1271-c1-contract-repair.tsv;00_nucleo/diagnosticos/p1271-input-manifest.tsv;00_nucleo/diagnosticos/p1271-l0-seals.tsv;00_nucleo/diagnosticos/p1271-role-capabilities.tsv
+note=the snapshot, attacks, receipts, verdict, manifest and report are subsequent diagnostic-only closure files

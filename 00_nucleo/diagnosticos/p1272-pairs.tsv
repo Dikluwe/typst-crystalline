@@ -1,0 +1,5 @@
+pair	population	all_gates	numeric	nonnumeric_failures	invalid_rejected	direct_inverse_repeat	mutation_score	opaque_successes	productive_promotion	classification
+linear/oklab	24/24	24/24	24/24		6/6	192/192	24/24	0/10	false	Generalization-Preserved
+radial/oklab	24/24	24/24	24/24		8/8	192/192	24/24	0/10	false	Generalization-Preserved
+linear/linear-rgb	24/24	24/24	24/24		6/6	192/192	24/24	0/10	false	Generalization-Preserved
+radial/linear-rgb	24/24	24/24	24/24		8/8	192/192	24/24	0/10	false	Generalization-Preserved

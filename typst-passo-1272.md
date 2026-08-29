@@ -1,6 +1,6 @@
 # P1272 — certificar a conjunção completa dos quatro pares
 
-**Estado:** PLANEADO
+**Estado:** EXECUTADO
 **Predecessores:** P1269 sem dívida ou todas as materializações P1271
 **Regime:** verificação segregada; sem escrita produtiva
 
@@ -36,3 +36,18 @@ violações.
 Somente 24/24 produz `Generalization-Preserved` para o par. Um par não fecha
 outro. O certificado limita a alegação ao envelope de 96 fixtures e não altera
 o fallback nem autoriza promoção.
+
+## Resultado
+
+Os quatro pares fecharam independentemente em 24/24 como
+`Generalization-Preserved`. A conjunção final registrou 96/96 fixtures,
+384/384 métricas numéricas, 1.224/1.224 intervalos de custo, 28/28 probes
+inválidos rejeitados, 192/192 recibos direto/inverso/repetido e 24/24 mutantes
+rejeitados (`mutation_score=1.0`), com zero `Unknown` necessário.
+
+S20 preservou o stroke degenerado e S21 preservou fill sem área. O fallback
+produtivo permaneceu inalterado e a rota seguinte é P1273. Os gates de
+repositório passaram com zero violações. Evidência completa em
+`00_nucleo/diagnosticos/typst-p1272-generalization-certificate.md`.
+
+**Atestação:** EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO.

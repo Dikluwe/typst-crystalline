@@ -1,0 +1,13 @@
+cluster	sealed_at	prompt	sha256	baseline	adr0127_class
+C2	2026-08-29T08:45:02-03:00	00_nucleo/prompts/entities/color.md	82dd8a553476ef7b54c774538d5a5b36bc0074d7825d939eb0ab34f5660f4bb3	e055a12faefb2b1773d140fc5fcae3874422cf45	continuous parity formula correction
+C2	2026-08-29T08:45:02-03:00	00_nucleo/prompts/compiler/eval/tests.md	26b810ecd5842173f2870927bf8f5c09087c0b5e49df13950a1d3780217804aa	e055a12faefb2b1773d140fc5fcae3874422cf45	continuous parity formula correction
+C2-reseal	2026-08-29T08:49:43-03:00	00_nucleo/prompts/entities/color.md	af49b3540d78195557b4cba54e86351ea537994377b56de39cb6528341b3e645	e055a12faefb2b1773d140fc5fcae3874422cf45	measurement corrected to public JSON morphology
+C3	2026-08-29T08:49:43-03:00	00_nucleo/prompts/entities/gradient.md	260f702f1f3754f6122f14890ea551e856337bd386e5e9335d819314014d23ca	e055a12faefb2b1773d140fc5fcae3874422cf45	continuous internal carrier correction
+C3	2026-08-29T08:49:43-03:00	00_nucleo/prompts/compiler/stdlib/gradients.md	e300cffdb04e99e5ab4f61299c9935ab61d4403f28786859842e17f656edd681	e055a12faefb2b1773d140fc5fcae3874422cf45	continuous internal carrier correction
+C3	2026-08-29T08:49:43-03:00	00_nucleo/prompts/compiler/eval/tests.md	2649e80a1ad2e228d5764ae915852a6bdf595e3699b31ef723d4dfeabd907bc2	e055a12faefb2b1773d140fc5fcae3874422cf45	continuous internal carrier correction
+C3b	2026-08-29T08:53:15-03:00	00_nucleo/prompts/entities/gradient.md	133630752d41f02a64735e729432411887a96fb0a1d645793b634839203bb166	e055a12faefb2b1773d140fc5fcae3874422cf45	second serial narrowing found by RED after C3a
+C3b	2026-08-29T08:53:15-03:00	00_nucleo/prompts/compiler/stdlib/gradients.md	30fe9ad9b9dfa3534efd477b7ad9f371904dc8270413a2474d6b2acece78a96d	e055a12faefb2b1773d140fc5fcae3874422cf45	second serial narrowing found by RED after C3a
+C4	2026-08-29T08:57:00-03:00	00_nucleo/prompts/entities/gradient.md	dfc4b4138eff83d5525b15bcb933b75c5ca2f49f1caccc5dc6c4b1a26fd4a617	e055a12faefb2b1773d140fc5fcae3874422cf45	continuous internal carrier correction
+C4	2026-08-29T08:57:00-03:00	00_nucleo/prompts/compiler/stdlib/gradients.md	fe2f56652c77018e7f6cc925112e12c4d9a8f23c89c025649e4571cc5bb16d20	e055a12faefb2b1773d140fc5fcae3874422cf45	continuous internal carrier correction
+C4	2026-08-29T08:57:00-03:00	00_nucleo/prompts/compiler/eval/tests.md	19029de5c4b0c339bf4d181d302c572202c06ac17a74ff5817ac9012c31a78bc	e055a12faefb2b1773d140fc5fcae3874422cf45	continuous internal carrier correction
+C2b	2026-08-29T08:59:06-03:00	00_nucleo/prompts/entities/color.md	0fb8ce3b74645fd88e8fcfd341fa54f9770e3ddb3294a711bb3a2119b417ed3a	e055a12faefb2b1773d140fc5fcae3874422cf45	FromColor clamp located while exercising C4

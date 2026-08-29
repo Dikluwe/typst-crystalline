@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: a1de7182
+Hash do Código: 2e820a22
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -39,6 +39,21 @@ razão pública devolvida por `stops()`; a coincidência exata escolhe o primeir
 stop daquele offset e um epsilon positivo escolhe o ramo à direita. O controle
 usa `sharp(3)` para exercer `1/3` e `2/3` sem depender da representação textual
 decimal.
+
+P1271-C2 protege a morfologia pública de uma cor Luma normalizada para Oklab.
+O stop `white` de um gradient Oklab deve expor os mesmos quatro componentes do
+vanilla ratificado — inclusive os pequenos canais `a` e `b` não nulos — e o
+controle sRGB vermelho continua no caminho P1253. O teste não observa a
+estrutura das matrizes nem autoriza qualquer alteração de budget SVG.
+
+P1271-C3 exige que `repeat(2)` preserve a resolução `f64` dos offsets
+automáticos. Linear, Radial e Conic com quatro stops devem expor exatamente
+`0, 1/6, 1/3, 1/2, 1/2, 2/3, 5/6, 1`; `sharp` é scope-out deste teste.
+
+P1271-C4 fixa o sampling Radial em `37.123456789%`: Oklab `black/white` e
+Linear RGB `red/blue` devem expor os componentes medidos no vanilla. O
+controle nos endpoints continua idêntico; Conic e outros espaços são
+scope-out, assim como qualquer observável SVG/PDF.
 
 ## P1215
 

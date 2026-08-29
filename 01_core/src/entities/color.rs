@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash d1034e3f
+//! @prompt-hash 56c71e6f
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -417,10 +417,45 @@ fn linear_rgb_to_oklab_p476(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
     )
 }
 
+/// D65 Luma → Oklab pelo despacho e pelas matrizes do `palette 0.7.6`.
+///
+/// Luma não é sRGB com três canais duplicados para fins de conversão:
+/// `palette` passa por XYZ D65 antes de Oklab (P1271-C2).
+fn luma_to_oklab_p1271(luma: f32) -> (f32, f32, f32) {
+    let linear = srgb_to_linear_p476(luma);
+    let x = 0.95047_f32 * linear;
+    let y = linear;
+    let z = 1.08883_f32 * linear;
+
+    let l = 0.8190224432164319_f32 * x
+        + 0.3619062562801221_f32 * y
+        + -0.12887378261216414_f32 * z;
+    let m = 0.0329836671980271_f32 * x
+        + 0.9292868468965546_f32 * y
+        + 0.03614466816999844_f32 * z;
+    let s = 0.048177199566046255_f32 * x
+        + 0.26423952494422764_f32 * y
+        + 0.6335478258136937_f32 * z;
+    let l_ = palette_cbrtf_p1253(l);
+    let m_ = palette_cbrtf_p1253(m);
+    let s_ = palette_cbrtf_p1253(s);
+
+    (
+        (0.2104542553_f32 * l_ + 0.7936177850_f32 * m_ + -0.0040720468_f32 * s_)
+            .clamp(0.0, 1.0),
+        1.9779984951_f32 * l_ + -2.4285922050_f32 * m_ + 0.4505937099_f32 * s_,
+        0.0259040371_f32 * l_ + 0.7827717662_f32 * m_ + -0.8086757660_f32 * s_,
+    )
+}
+
 /// Qualquer Color → Oklab (l, a, b, alpha). Base de `mix` e `to_oklch_p476`.
 fn to_oklab_p476(c: Color) -> (f32, f32, f32, f32) {
     match c {
         Color::Oklab { l, a, b, alpha } => (l, a, b, alpha),
+        Color::Luma { l, a } => {
+            let (lab_l, lab_a, lab_b) = luma_to_oklab_p1271(l);
+            (lab_l, lab_a, lab_b, a)
+        }
         _ => {
             let (r, g, b_c, alpha) = c.to_rgba_f32();
             let (lab_l, lab_a, lab_b) = linear_rgb_to_oklab_p476(
@@ -1306,6 +1341,19 @@ mod tests {
         assert_eq!(a.to_bits(), 0.19973529875278473_f32.to_bits());
         assert_eq!(b.to_bits(), 0.10818812251091003_f32.to_bits());
         assert_eq!(alpha.to_bits(), 1.0_f32.to_bits());
+    }
+
+    #[test]
+    fn p1271_luma_white_para_oklab_segue_d65_palette() {
+        let Color::Oklab { l, a, b, alpha } =
+            Color::luma(1.0).to_space(ColorSpace::Oklab)
+        else {
+            panic!("esperado Oklab")
+        };
+        assert_eq!(l.to_bits(), 0x3f80_0000);
+        assert_eq!(a.to_bits(), 0x3740_0000);
+        assert_eq!(b.to_bits(), 0x381b_8000);
+        assert_eq!(alpha.to_bits(), 0x3f80_0000);
     }
 
     #[test]

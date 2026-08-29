@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash db0d44fd
+//! @prompt-hash 2c87f3cf
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -16803,6 +16803,79 @@ mod tests {
         ]);
         assert_eq!(m.scope().get("oklab"), Some(&expected));
         assert_eq!(m.scope().get("linear_rgb"), Some(&expected));
+    }
+
+    #[test]
+    fn p1271_luma_white_normalizado_para_oklab_componentes_publicos() {
+        let m = p729_eval(
+            "#let c = gradient.linear(black, white, space: color.oklab).stops().last().first().components()\n\
+             #let got = (repr(c.at(0)), c.at(1), c.at(2), repr(c.at(3)))",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("got"),
+            Some(&Value::Array(vec![
+                Value::Str("100%".into()),
+                Value::Float(f32::from_bits(0x3740_0000) as f64),
+                Value::Float(f32::from_bits(0x381b_8000) as f64),
+                Value::Str("100%".into()),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p1271_repeat_preserva_offsets_automaticos_f64_nos_tres_variants() {
+        let m = p729_eval(
+            "#let offsets(g) = g.repeat(2).stops().map(stop => stop.at(1))\n\
+             #let linear = offsets(gradient.linear(red, green, blue, yellow, space: color.linear-rgb))\n\
+             #let radial = offsets(gradient.radial(red, green, blue, yellow, space: color.linear-rgb))\n\
+             #let conic = offsets(gradient.conic(red, green, blue, yellow, space: color.linear-rgb))",
+        )
+        .unwrap();
+        let expected = Value::Array(
+            [
+                0.0,
+                (1.0 / 3.0) / 2.0,
+                (2.0 / 3.0) / 2.0,
+                0.5,
+                0.5,
+                (1.0 / 3.0 + 1.0) / 2.0,
+                (2.0 / 3.0 + 1.0) / 2.0,
+                1.0,
+            ]
+            .into_iter()
+            .map(|offset| Value::Ratio(crate::entities::layout_types::Ratio(offset)))
+            .collect(),
+        );
+        assert_eq!(m.scope().get("linear"), Some(&expected));
+        assert_eq!(m.scope().get("radial"), Some(&expected));
+        assert_eq!(m.scope().get("conic"), Some(&expected));
+    }
+
+    #[test]
+    fn p1271_radial_sample_preserva_t_f64_ate_os_pesos() {
+        let m = p729_eval(
+            "#let o = gradient.radial(black, white, space: color.oklab).sample(37.123456789%).components()\n\
+             #let oklab = (o.at(0) / 100%, o.at(1), o.at(2), o.at(3) / 100%)\n\
+             #let l = gradient.radial(red, blue, space: color.linear-rgb).sample(37.123456789%).components()\n\
+             #let linear-rgb = (l.at(0) / 100%, l.at(1) / 100%, l.at(2) / 100%, l.at(3) / 100%)",
+        )
+        .unwrap();
+        let values = |bits: [u32; 4]| {
+            Value::Array(
+                bits.into_iter()
+                    .map(|bits| Value::Float(f32::from_bits(bits) as f64))
+                    .collect(),
+            )
+        };
+        assert_eq!(
+            m.scope().get("oklab"),
+            Some(&values([0x3ebe_1275, 0x368e_8dd8, 0x3766_e86c, 0x3f80_0000]))
+        );
+        assert_eq!(
+            m.scope().get("linear-rgb"),
+            Some(&values([0x3f20_f6c5, 0x3dc8_da06, 0x3e8f_c2e4, 0x3f80_0000]))
+        );
     }
 
     #[test]

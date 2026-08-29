@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: fd6dffa5
+Hash do Código: 3a7a726b
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -272,6 +272,31 @@ observáveis e também é proibido. A raiz cúbica deve ser bit-compatível com
 intrínseca de `std` não é substituto numericamente equivalente.
 `libm 0.2.11` é dependência pura autorizada em L1 somente para `powf`, `fmaf`
 e `cbrtf`, sem expor tipos externos em contratos.
+
+**P1271-C2 — medição do caminho D65 Luma → Oklab antes da decisão.** No
+baseline ratificado, `visualize/color.rs:1784-1794` despacha uma origem
+`ProcessColor::Luma` diretamente para `Oklab::from_color`; no `palette 0.7.6`,
+`xyz.rs:317-334` converte Luma linearizada para XYZ multiplicando pelo branco
+D65 `(0.95047, 1.0, 1.08883)`, e `oklab.rs:262-280` aplica as matrizes XYZ →
+LMS → Oklab. A superfície pública medida em 2026-08-29 para
+`gradient.linear(black, white, space: oklab).stops().last().first().components()`
+devolve no JSON vanilla `["100%", 0.000011444091796875,
+0.00003707408905029297, "100%"]`; o baseline cristalino `e055a12f` expunha
+os canais `[0.0, 5.960464477539063e-8]`. `white` é Luma nos dois produtos.
+
+**Decisão P1271-C2.** `to_space(Oklab)` deve preservar o despacho por espaço
+de origem: Luma usa Luma sRGB-encoded → Luma linear → XYZ D65 → Oklab, com
+constantes completas do `palette`, ordem de produtos/somas da sua matriz e
+`libm::cbrtf`. Como o baseline chama `Oklab::from_color` e não a variante
+`unclamped`, o componente `l` resultante é limitado a `[0,1]`; `a/b` não são
+limitados (`oklab/properties.rs:8-20`). A rota sRGB direta P1253 permanece para origens sRGB; demais
+rotas e contratos públicos Rust não mudam. A inferência causal é que a rota
+sRGB indevida para Luma é a primeira causa do cluster C2; seria refutada se a
+rota exata do `palette` não reproduzisse os componentes públicos acima nem
+fechasse S06/S22. Aceitação é igualdade dos componentes da linguagem, não
+igualdade da estrutura ou dos passos internos Rust. Conversões Luma para
+destinos não-Oklab, ICC/PDF, tolerâncias e budgets adaptativos ficam fora deste
+subpasso.
 
 > **Fonte da afirmação sobre CMYK (P1031)** — o scope-out ADR-0083 estava correcto e agora
 > tem `file:line`. O vanilla **usa mesmo um perfil ICC**, não uma fórmula:

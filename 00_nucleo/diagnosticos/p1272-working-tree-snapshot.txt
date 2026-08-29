@@ -1,0 +1,37 @@
+measured_at=2026-08-29T10:25:02-03:00
+head=e055a12faefb2b1773d140fc5fcae3874422cf45
+working_tree=uncommitted;pre-P1272-materialization
+
+git status --short
+ M 00_nucleo/prompts/compiler/eval/tests.md
+ M 00_nucleo/prompts/compiler/stdlib/gradients.md
+ M 00_nucleo/prompts/entities/color.md
+ M 00_nucleo/prompts/entities/gradient.md
+ M 01_core/src/compiler/eval/tests.rs
+ M 01_core/src/compiler/stdlib/gradients.rs
+ M 01_core/src/entities/color.rs
+ M 01_core/src/entities/gradient.rs
+ M typst-passo-1271.md
+?? 00_nucleo/diagnosticos/p1271-attacks.tsv
+?? 00_nucleo/diagnosticos/p1271-c1-contract-repair.tsv
+?? 00_nucleo/diagnosticos/p1271-execution-receipts.tsv
+?? 00_nucleo/diagnosticos/p1271-final-manifest.tsv
+?? 00_nucleo/diagnosticos/p1271-input-manifest.tsv
+?? 00_nucleo/diagnosticos/p1271-l0-seals.tsv
+?? 00_nucleo/diagnosticos/p1271-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1271-verdict.tsv
+?? 00_nucleo/diagnosticos/p1271-working-tree-snapshot.txt
+?? 00_nucleo/diagnosticos/p1272-materialize.py
+?? 00_nucleo/diagnosticos/typst-p1271-materializacao-correcoes-numericas.md
+
+git diff HEAD --stat
+ 00_nucleo/prompts/compiler/eval/tests.md       |  17 ++-
+ 00_nucleo/prompts/compiler/stdlib/gradients.md |  35 +++++-
+ 00_nucleo/prompts/entities/color.md            |  27 ++++-
+ 00_nucleo/prompts/entities/gradient.md         |  56 ++++++++-
+ 01_core/src/compiler/eval/tests.rs             |  75 +++++++++++-
+ 01_core/src/compiler/stdlib/gradients.rs       |  35 +++---
+ 01_core/src/entities/color.rs                  |  50 +++++++-
+ 01_core/src/entities/gradient.rs               | 155 ++++++++++++++++++-------
+ typst-passo-1271.md                            |  13 ++-
+ 9 files changed, 391 insertions(+), 72 deletions(-)

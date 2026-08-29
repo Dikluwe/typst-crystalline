@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/gradients` — tipo `gradient`
-Hash do Código: 50c3caf3
+Hash do Código: ab29e4ac
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/gradients.rs`
@@ -228,11 +228,20 @@ ratio ou angle; `samples` recebe zero ou mais ratios/angles posicionais.
   normalizada para o offset canônico `Ratio(f64)` correspondente antes do
   sampling preciso. Em stops coincidentes, isso seleciona o primeiro stop
   daquele offset, exceto no offset zero, que seleciona o último stop zero;
-  qualquer epsilon positivo seleciona o ramo à direita. A correção preserva o
-  carrier público histórico de `stops()`, não autoriza arredondar argumentos
-  gerais de `sample` para `f32` e vale igualmente para `samples`.
+  qualquer epsilon positivo seleciona o ramo à direita. Depois de P1271-C3b,
+  `stops()` expõe o carrier preciso; a compatibilidade com identidades `f32`
+  históricas permanece, sem autorizar arredondar argumentos gerais de
+  `sample`, e vale igualmente para `samples`.
 - `samples(..ts)` aplica `sample` a cada posição, preservando ordem; zero
   posições devolve array vazio.
+
+**P1271-C4 — sampling Radial preciso.** Medição em `e055a12f` localizou o
+estreitamento `Ratio(f64) → f32` no braço Radial de `sample_gradient`; em
+`37.123456789%` ele alterava componentes públicos Oklab e Linear RGB. O braço
+Radial deve encaminhar `f64` ao sampling preciso da entidade, preservando clamp
+e as formas `sample`/`samples`. Linear permanece no caminho preciso vigente;
+Conic e demais espaços são scope-out. Nenhuma assinatura pública, default,
+fase, budget ou caminho de render muda.
 
 ### Verificação P1144
 
@@ -292,6 +301,24 @@ variant/fields e define `anti_alias = false`.
 `repeat(self, repetitions, mirror: false) -> gradient` replica e reescala os
 stops para cada subintervalo, inverte as repetições ímpares quando `mirror` é
 true, deduplica fronteiras, preserva variant/fields e preserva `anti_alias`.
+
+**P1271-C3 — precisão de `repeat`.** Medição em `e055a12f` mostrou que quatro
+stops automáticos repetidos duas vezes expunham `1/6`, `1/3`, `2/3` e `5/6`
+arredondados primeiro para `f32`, ao contrário do vanilla ratificado. Antes da
+decisão, `resolved_stops` foi localizado como o estreitamento comum às três
+variantes. A transformação deve consumir a resolução efetiva `f64` do owner de
+entidade e reconstruir Ratios sem carrier `f32` intermediário. Não muda
+assinaturas, validação, deduplicação, mirror, `sharp`, sampling ou render.
+Aceitação: `stops()` da linguagem após `repeat(2)` coincide com os Ratios
+vanilla nos três variants; a estrutura do helper Rust não é observável.
+
+**P1271-C3b — estreitamento de saída medido após C3a.** Com `repeat` já
+consumindo `f64`, o teste RED ainda expôs os mesmos offsets `f32`; a medição em
+`native_gradient_stops` mostrou uma segunda chamada ao resolver histórico
+`Vec<f32>`. O accessor de linguagem passa a usar a resolução precisa do owner
+para Linear, Radial e Conic. O método Rust público `effective_offsets()` não
+muda. Isto também alinha stops explícitos e automáticos comuns ao carrier
+`Ratio(f64)` da linguagem; não altera `sharp`, sampling nem render.
 
 As formas estática e de instância são públicas na linguagem. Sampling dos
 stops transformados é critério primário; passos e alocação Rust são mecânica.

@@ -1,0 +1,5 @@
+executor	role	environment	reads	writes	restriction	attestation
+/root	input-freezer	shared workspace and inherited conversation	P1268 protected inputs;P1271 candidate state	p1272 input manifest and snapshot	No product or protected-input write	SEM ATESTAÇÃO DE ISOLAMENTO
+/root	executor	shared workspace and inherited conversation	sealed P1268 contract;96-fixture corpus;candidate;vanilla	/tmp/p1269 only	No L0/product/budget/corpus mutation	SEM ATESTAÇÃO DE ISOLAMENTO
+/root	adjudicator	shared workspace and inherited conversation	complete execution receipts;sealed contract and attacks	/tmp/p1269/adjudication only	Unknown never succeeds;pair-local conjunction only	SEM ATESTAÇÃO DE ISOLAMENTO
+/root	verifier/materializer	shared workspace and inherited conversation	all execution and repository-gate outputs	00_nucleo/diagnosticos/p1272-*;typst-passo-1272.md	Cannot claim independent verification because authority and filesystem are shared	SEM ATESTAÇÃO DE ISOLAMENTO

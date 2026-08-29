@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient.md
-//! @prompt-hash aac49e06
+//! @prompt-hash 176e2640
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -47,6 +47,48 @@ impl GradientStop {
     pub fn unspaced(color: Color) -> Self {
         Self { color, offset: None }
     }
+}
+
+/// Resolve offsets sem estreitar o carrier público `Ratio(f64)` (P1271-C3).
+fn effective_offsets_precise_for(stops: &[GradientStop]) -> Vec<f64> {
+    let n = stops.len();
+    if n == 0 {
+        return Vec::new();
+    }
+    if n == 1 {
+        return vec![stops[0].offset.map(|ratio| ratio.0).unwrap_or(0.0)];
+    }
+
+    let mut offsets: Vec<Option<f64>> =
+        stops.iter().map(|stop| stop.offset.map(|ratio| ratio.0)).collect();
+    if offsets[0].is_none() {
+        offsets[0] = Some(0.0);
+    }
+    if offsets[n - 1].is_none() {
+        offsets[n - 1] = Some(1.0);
+    }
+
+    let mut resolved = vec![0.0; n];
+    let mut i = 0;
+    while i < n {
+        if let Some(value) = offsets[i] {
+            resolved[i] = value;
+            i += 1;
+            continue;
+        }
+        let mut j = i;
+        while j < n && offsets[j].is_none() {
+            j += 1;
+        }
+        let previous = resolved[i - 1];
+        let next = offsets[j].unwrap();
+        let gap = j - i + 1;
+        for k in 0..gap {
+            resolved[i + k] = previous + (next - previous) * (k + 1) as f64 / gap as f64;
+        }
+        i = j;
+    }
+    resolved
 }
 
 /// P273 — Define a que bounding box o gradient é relativo.
@@ -154,48 +196,7 @@ impl Linear {
     /// usados para reconhecer identidades de `gradient.stops` e pelo sampling
     /// preciso.
     pub(crate) fn effective_offsets_precise(&self) -> Vec<f64> {
-        let n = self.stops.len();
-        if n == 0 {
-            return Vec::new();
-        }
-        if n == 1 {
-            return vec![self.stops[0].offset.map(|ratio| ratio.0).unwrap_or(0.0)];
-        }
-
-        let mut offsets: Vec<Option<f64>> = self
-            .stops
-            .iter()
-            .map(|stop| stop.offset.map(|ratio| ratio.0))
-            .collect();
-        if offsets[0].is_none() {
-            offsets[0] = Some(0.0);
-        }
-        if offsets[n - 1].is_none() {
-            offsets[n - 1] = Some(1.0);
-        }
-
-        let mut resolved = vec![0.0; n];
-        let mut i = 0;
-        while i < n {
-            if let Some(value) = offsets[i] {
-                resolved[i] = value;
-                i += 1;
-                continue;
-            }
-            let mut j = i;
-            while j < n && offsets[j].is_none() {
-                j += 1;
-            }
-            let previous = resolved[i - 1];
-            let next = offsets[j].unwrap();
-            let gap = j - i + 1;
-            for k in 0..gap {
-                resolved[i + k] =
-                    previous + (next - previous) * (k + 1) as f64 / gap as f64;
-            }
-            i = j;
-        }
-        resolved
+        effective_offsets_precise_for(&self.stops)
     }
 
     /// Amostra a cor interpolada em parâmetro t ∈ [0, 1].
@@ -680,6 +681,10 @@ impl Radial {
         result
     }
 
+    pub(crate) fn effective_offsets_precise(&self) -> Vec<f64> {
+        effective_offsets_precise_for(&self.stops)
+    }
+
     /// Amostragem 1D em t ∈ [0, 1] (paridade `Linear::sample`).
     ///
     /// **P270**: interpola no `self.space` via dispatcher
@@ -710,6 +715,66 @@ impl Radial {
             }
         }
         if t <= offs[0] {
+            self.stops[0].color
+        } else {
+            self.stops[n - 1].color
+        }
+    }
+
+    /// Sampling da superfície de linguagem sem estreitar `Ratio(f64)` antes
+    /// da formação dos pesos do mixing (P1271-C4).
+    pub(crate) fn sample_precise(&self, t: f64) -> Color {
+        let t = t.clamp(0.0, 1.0);
+        let n = self.stops.len();
+        if n == 0 {
+            return Color::rgb(0, 0, 0);
+        }
+        if n == 1 {
+            return self.stops[0].color;
+        }
+
+        let offsets = self.effective_offsets_precise();
+        for i in 0..(n - 1) {
+            let (o0, o1) = (offsets[i], offsets[i + 1]);
+            if t >= o0 && t <= o1 {
+                let local = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
+                let (w0, w1) = ((1.0 - local) as f32, local as f32);
+                let total = w0 + w1;
+                return match self.space {
+                    ColorSpace::Oklab => {
+                        let (l0, a0, b0, alpha0) =
+                            color_to_oklab_with_alpha(self.stops[i].color);
+                        let (l1, a1, b1, alpha1) =
+                            color_to_oklab_with_alpha(self.stops[i + 1].color);
+                        Color::oklab(
+                            (w0 * l0 + w1 * l1) / total,
+                            (w0 * a0 + w1 * a1) / total,
+                            (w0 * b0 + w1 * b1) / total,
+                            (w0 * alpha0 + w1 * alpha1) / total,
+                        )
+                    }
+                    ColorSpace::LinearRgb => {
+                        let (r0, g0, b0, a0) =
+                            to_linear_rgb_components(self.stops[i].color);
+                        let (r1, g1, b1, a1) =
+                            to_linear_rgb_components(self.stops[i + 1].color);
+                        Color::linear_rgb(
+                            (w0 * r0 + w1 * r1) / total,
+                            (w0 * g0 + w1 * g1) / total,
+                            (w0 * b0 + w1 * b1) / total,
+                            (w0 * a0 + w1 * a1) / total,
+                        )
+                    }
+                    _ => interpolate_in_space(
+                        self.stops[i].color,
+                        self.stops[i + 1].color,
+                        local as f32,
+                        self.space,
+                    ),
+                };
+            }
+        }
+        if t <= offsets[0] {
             self.stops[0].color
         } else {
             self.stops[n - 1].color
@@ -786,6 +851,10 @@ impl Conic {
             i = j;
         }
         result
+    }
+
+    pub(crate) fn effective_offsets_precise(&self) -> Vec<f64> {
+        effective_offsets_precise_for(&self.stops)
     }
 
     /// Amostragem 1D em t ∈ [0, 1] (paridade `Linear::sample` +

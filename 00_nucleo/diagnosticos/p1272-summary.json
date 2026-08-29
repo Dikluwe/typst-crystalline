@@ -1,0 +1,28 @@
+{
+  "attestation": "EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO",
+  "baseline": "upstream/main a51e02804 ratified",
+  "candidate_sha256": "f152d0dead810054996bdc8e1450022746b7dd2405d73d3237baa024297ae555",
+  "controls": "Preserved-by-identity; current workspace gates PASS",
+  "determinism": "192/192",
+  "fixtures": 96,
+  "graph": "96/96",
+  "head": "e055a12faefb2b1773d140fc5fcae3874422cf45",
+  "interval_cost": "1224/1224",
+  "invalid_rejected": "28/28",
+  "measured_at": "2026-08-29T10:25:02-03:00",
+  "mutants_rejected": "24/24",
+  "mutation_score": 1.0,
+  "necessary_unknown": 0,
+  "numeric": "96/96 fixtures;384/384 metrics",
+  "pair_verdicts": {
+    "linear/linear-rgb": "Generalization-Preserved",
+    "linear/oklab": "Generalization-Preserved",
+    "radial/linear-rgb": "Generalization-Preserved",
+    "radial/oklab": "Generalization-Preserved"
+  },
+  "productive_promotion": false,
+  "raster": "96/96",
+  "route": "P1273",
+  "scope": "96-fixture Linear/Radial x Oklab/LinearRgb envelope only",
+  "verdict": "Generalization-Preserved"
+}

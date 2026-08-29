@@ -1,0 +1,24 @@
+kind	path_or_identity	sha256	policy
+protocol	tekt-materializacao-segregada/SKILL.md	loaded-in-full	full protocol; executed without isolation attestation
+obligation	typst-passo-1271.md	162fbfe41bbb791b267cc06e60608d6870eb94e13e53b0e7a11018750ef6b7ed	frozen until closure
+baseline	git:e055a12faefb2b1773d140fc5fcae3874422cf45	n/a	clean committed predecessor
+p1270-causes	00_nucleo/diagnosticos/p1270-fixture-causes.tsv	8cbace14ff1b2b16924d46e01e5e582bc2c818b54e1c8ef5ce652a1635353f75	read-only
+p1270-counterfactuals	00_nucleo/diagnosticos/p1270-counterfactuals.tsv	94684b68b558752f8d4e7286dacd0b1af22523855d3f0329a1b4b41d0be7b731	read-only
+p1270-verdict	00_nucleo/diagnosticos/p1270-verdict.tsv	39d61edd7aa27ef96c8bdd1866c48504ad40b9d1adbf2047ee9cd18e86ea2c9b	read-only
+p1270-proposals	00_nucleo/diagnosticos/p1270-l0-proposals.tsv	062062cd1719e37da4b9fb1698f90b5c43fd3f5e3f60ef4e7ccf1de82bbf2477	read-only; refined only by new source measurement
+l0-color	00_nucleo/prompts/entities/color.md	94fb20c08399aaedd01a67ccc4555593d31f5260481235859bc6cb9798e3f412	L0-first C2
+l0-gradient	00_nucleo/prompts/entities/gradient.md	a8fcf5c78909b3905d2f705a98f493c1ea534fd2cf053e4608879d618659a19a	L0-first C3/C4
+l0-stdlib-gradient	00_nucleo/prompts/compiler/stdlib/gradients.md	601aa88acd0ba66051c3343577748f0d9affe832382c2a8d888f941a451e02ae	L0-first C3/C4
+l0-eval-tests	00_nucleo/prompts/compiler/eval/tests.md	7d236fdd2caefd97fc998cb5d633eb2aaa7814ff3d4600df1fa2b9f328920abf	L0-first language tests
+owner-color	01_core/src/entities/color.rs	1271f869ff216c5a199ada81f62c92e5d2751f1b23a1e91266d04640c6a7b225	productive C2
+owner-gradient	01_core/src/entities/gradient.rs	10c7fb4fab464656251cbb862fe9d5223591247758264e84d37957a6a8931757	productive C3/C4
+owner-stdlib-gradient	01_core/src/compiler/stdlib/gradients.rs	315219ca60ff77fc97095e63fe5bcec1e54c0ab7b8c4e659b07c245fae13e581	productive C3/C4
+test-owner	01_core/src/compiler/eval/tests.rs	b987da348e5f2d27305b7f56911fed9e66b2ee2d89e9978196f958a26e2c9971	test-only
+adaptive-owner	03_infra/src/export/gradients/adaptive.rs	dd2c3a696c63ded7df7a5b56c5103f3d70b404bf7bf50d021d0d592530e2b331	read-only; P1270 exonerated
+candidate-binary	target/debug/typst	b0d7e976b96f2ff0039f0e9cc46fc4d94fcad286a49ac2ffb8d2e18c2a7a54fe	pre-implementation
+vanilla-baseline	/usr/local/bin/typst	7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8	read-only; ratified a51e02804
+c1-probe	lab/parity/matrix/p1266_probe/src/main.rs	b21197ccedd1c2da2069ad4da5d16a80c47452cb2a5b64ca53148801d3d474f2	contract repair only
+c1-counterfactual	lab/parity/matrix/p1270_probe/src/main.rs	38d80c7f12ed8a468bbea35bf8e0ad744f09f15ee662c260cdc3bf7b9fb614af	read-only oracle for repair
+causal-runner	lab/parity/matrix/p1270_causal.py	fd484ba24a0f77fb8028e46155b35d80114a52953729a8907087b5f731945af4	read-only
+observables	public-stop-components;public-stop-offsets;sample;numeric-envelope	n/a	language-level; mechanics only for contract C1
+unknown-policy	UNKNOWN remains blocking	n/a	never converted to tolerance or success

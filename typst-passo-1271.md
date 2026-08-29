@@ -1,6 +1,6 @@
 # P1271 — materializar as correções numéricas causalmente provadas
 
-**Estado:** PLANEADO E CONDICIONAL
+**Estado:** EXECUTADO
 **Predecessor:** certificado causal P1270
 **Regime:** L0-first, RED→GREEN e protocolo Tekt por cluster
 
@@ -37,3 +37,14 @@ genérica que tente fechar vários sintomas de uma vez.
 - copiar bytes, contagem ou passos do vanilla sem classificação de linguagem;
 - alterar o cap por intervalo sem nova decisão medida;
 - promover qualquer par durante a correção.
+
+## Resultado
+
+Materialização e recibos:
+`00_nucleo/diagnosticos/typst-p1271-materializacao-correcoes-numericas.md`.
+
+C1, C2, C3a, C3b e C4 foram fechados com L0-first, RED→GREEN e mutantes
+focais. P1270, os quatro pares, P1234, P1236, P1237 e P1264 foram reexecutados.
+Não houve mudança de budget, cap, fallback ou promoção produtiva.
+
+Veredito: **EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO**.

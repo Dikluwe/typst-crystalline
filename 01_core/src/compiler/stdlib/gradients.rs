@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/gradients.md
-//! @prompt-hash 7cfe6f5a
+//! @prompt-hash c9e78f16
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -170,20 +170,17 @@ gradient_accessor!(native_gradient_kind, "gradient.kind", |g: &Gradient| {
 });
 
 gradient_accessor!(native_gradient_stops, "gradient.stops", |g: &Gradient| {
-    let (stops, offsets): (&[GradientStop], Vec<f32>) = match g {
-        Gradient::Linear(v) => (&v.stops, v.effective_offsets()),
-        Gradient::Radial(v) => (&v.stops, v.effective_offsets()),
-        Gradient::Conic(v) => (&v.stops, v.effective_offsets()),
+    let (stops, offsets): (&[GradientStop], Vec<f64>) = match g {
+        Gradient::Linear(v) => (&v.stops, v.effective_offsets_precise()),
+        Gradient::Radial(v) => (&v.stops, v.effective_offsets_precise()),
+        Gradient::Conic(v) => (&v.stops, v.effective_offsets_precise()),
     };
     Value::Array(
         stops
             .iter()
             .zip(offsets)
             .map(|(stop, offset)| {
-                Value::Array(vec![
-                    Value::Color(stop.color),
-                    Value::Ratio(Ratio(offset as f64)),
-                ])
+                Value::Array(vec![Value::Color(stop.color), Value::Ratio(Ratio(offset))])
             })
             .collect(),
     )
@@ -282,7 +279,15 @@ fn sample_gradient(gradient: &Gradient, value: &Value) -> SourceResult<Value> {
                 .unwrap_or(t);
             v.sample_precise(t)
         }
-        Gradient::Radial(v) => v.sample(t as f32),
+        Gradient::Radial(v) => {
+            let t = v
+                .effective_offsets_precise()
+                .into_iter()
+                .zip(v.effective_offsets())
+                .find_map(|(precise, public)| (t == f64::from(public)).then_some(precise))
+                .unwrap_or(t);
+            v.sample_precise(t)
+        }
         Gradient::Conic(v) => v.sample(t as f32),
     }))
 }
@@ -331,15 +336,15 @@ pub(crate) fn native_gradient_samples(
 }
 
 fn resolved_stops(gradient: &Gradient) -> Vec<GradientStop> {
-    let (stops, offsets): (&[GradientStop], Vec<f32>) = match gradient {
-        Gradient::Linear(v) => (&v.stops, v.effective_offsets()),
-        Gradient::Radial(v) => (&v.stops, v.effective_offsets()),
-        Gradient::Conic(v) => (&v.stops, v.effective_offsets()),
+    let (stops, offsets): (&[GradientStop], Vec<f64>) = match gradient {
+        Gradient::Linear(v) => (&v.stops, v.effective_offsets_precise()),
+        Gradient::Radial(v) => (&v.stops, v.effective_offsets_precise()),
+        Gradient::Conic(v) => (&v.stops, v.effective_offsets_precise()),
     };
     stops
         .iter()
         .zip(offsets)
-        .map(|(stop, offset)| GradientStop::new(stop.color, Ratio(offset as f64)))
+        .map(|(stop, offset)| GradientStop::new(stop.color, Ratio(offset)))
         .collect()
 }
 

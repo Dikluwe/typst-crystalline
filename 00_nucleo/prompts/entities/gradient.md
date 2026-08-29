@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: 00184a57
+Hash do Código: 428d13da
 
 ## Módulo
 `01_core/src/entities/gradient.rs`
@@ -159,10 +159,56 @@ inalterado para os consumidores existentes.
 offsets Linear em `f64` é uma única operação interna compartilhada pelo
 sampling preciso e pela normalização de identidades públicas de fronteira. Ela
 preserva offsets explícitos e calcula auto-spacing sem carrier intermediário
-`f32`. O accessor `gradient.stops` e o método Rust histórico
-`effective_offsets() -> Vec<f32>` permanecem inalterados; apenas uma igualdade
-exata com um offset que esse accessor expõe pode mapear de volta para a
-fronteira canônica, inclusive em coincidências não diádicas de `sharp`.
+`f32`. O método Rust histórico `effective_offsets() -> Vec<f32>` permanece
+inalterado. O accessor de linguagem `gradient.stops` expõe a resolução precisa;
+o sampling aceita tanto essa fronteira canônica quanto as identidades `f32`
+históricas, inclusive em coincidências não diádicas de `sharp`.
+
+**P1271-C3 — medição anterior à decisão.** Em `e055a12f`,
+`Gradient::repeat(2)` sobre quatro stops automáticos Linear RGB expunha offsets
+`0, 0.1666666716337204, 0.3333333432674408, 0.5, 0.5,
+0.6666666865348816, 0.8333333730697632, 1`; o vanilla ratificado expõe
+`0, 1/6, 1/3, 1/2, 1/2, 2/3, 5/6, 1`. A fonte cristalina resolvia todos os
+variants por `effective_offsets() -> Vec<f32>` antes de reconstruir
+`Ratio(f64)`; a fonte vanilla `gradient.rs:664-688` consome os `Ratio(f64)`
+resolvidos pela transformação.
+
+**Refinamento medido C3b.** O primeiro RED após remover esse estreitamento
+continuou a expor exatamente os mesmos Ratios arredondados. A nova inspeção
+localizou um segundo estreitamento serial no accessor de linguagem
+`native_gradient_stops`, que voltava a chamar `effective_offsets() -> Vec<f32>`.
+Logo C3 contém dois primeiros pontos independentes na cadeia: C3a na entrada
+de `repeat` e C3b na exposição dos stops; ambos recebem selo próprio.
+
+**Decisão P1271-C3.** A resolução efetiva precisa é operação interna comum às
+três variantes e conserva `Ratio(f64)` até concluir auto-spacing. Linear,
+Radial e Conic podem expô-la apenas dentro da crate; os métodos Rust públicos
+históricos em `f32` e seus consumidores permanecem. A transformação `repeat`
+e o accessor de linguagem são os novos consumidores deste subpasso. A
+inferência é que os dois carriers `f32` seriais são as causas de C3; seria
+refutada se removê-los não reproduzisse os offsets públicos do vanilla.
+Aceitação compara os Ratios da linguagem. `sharp`, sampling, quantização,
+budgets e render ficam explicitamente fora de C3.
+
+**P1271-C4 — medição anterior à decisão.** Depois de C2/C3, a superfície
+Radial em `t = 37.123456789%` ainda estreitava o argumento público para `f32`.
+No espaço Oklab com stops `black/white`, o cristalino expunha lightness
+`0.3712349534034729`, enquanto o vanilla ratificado expõe
+`0.37123456597328186`; os canais `a/b` já coincidiam após C2. Em Linear RGB
+com `red/blue`, o primeiro canal cristalino era `0.6287654638290405` e o
+vanilla `0.6287654042243958`. A fonte vanilla `gradient.rs:846-860` encaminha
+`t: f64` e `sample_stops` em `gradient.rs:1461-1484` só materializa os pesos
+como `f32` no mixing.
+
+**Decisão P1271-C4.** Radial ganha sampling interno preciso que preserva `t` e
+offsets em `f64` até calcular o peso local. Nos espaços Oklab e Linear RGB,
+materializa separadamente `w0=(1-local) as f32` e `w1=local as f32`, e cada
+canal usa `(w0*c0+w1*c1)/(w0+w1)`, inclusive alpha. O método Rust público
+histórico `sample(f32)` não muda; Conic e os outros seis espaços ficam fora
+deste cluster. A inferência é que o cast público `f64→f32` é a primeira causa
+de C4; seria refutada se sua remoção não reproduzisse os componentes acima.
+Aceitação é pelos componentes da linguagem, sem alterar budget, quantização,
+cap ou render adaptativo.
 
 ---
 

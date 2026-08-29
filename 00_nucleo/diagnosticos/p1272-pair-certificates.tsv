@@ -1,0 +1,5 @@
+pair	population	conjunction_g01_g13	numeric	invalid_rejected	direct_inverse_repeat	mutation_score	necessary_unknown	productive_promotion	classification	scope
+linear/oklab	24/24	24/24	24/24	6/6	192/192	1.0 (24/24)	0	false	Generalization-Preserved	24-fixture pair-local fragment inside frozen 96-fixture envelope
+radial/oklab	24/24	24/24	24/24	8/8	192/192	1.0 (24/24)	0	false	Generalization-Preserved	24-fixture pair-local fragment inside frozen 96-fixture envelope
+linear/linear-rgb	24/24	24/24	24/24	6/6	192/192	1.0 (24/24)	0	false	Generalization-Preserved	24-fixture pair-local fragment inside frozen 96-fixture envelope
+radial/linear-rgb	24/24	24/24	24/24	8/8	192/192	1.0 (24/24)	0	false	Generalization-Preserved	24-fixture pair-local fragment inside frozen 96-fixture envelope
