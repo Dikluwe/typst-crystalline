@@ -1,0 +1,17 @@
+{
+  "attacks": 7,
+  "attacks_rejected": 7,
+  "attestation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "boundary_rows": 48,
+  "mutation_score": 1.0,
+  "owner": "03_infra/src/export/gradients/adaptive.rs",
+  "p1234_public_divergences": 0,
+  "p1237_eligible_pairs": 2,
+  "p1237_numeric_pass": 20,
+  "p1237_promotions_applied": 0,
+  "preserved": 8,
+  "productive_color_changes": 0,
+  "secondary_owner": "03_infra/src/export/svg.rs",
+  "targets": 8,
+  "unknown_in_mutation_numerator": 0
+}

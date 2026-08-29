@@ -1,0 +1,17 @@
+field	value
+step	P1265
+decision	B
+decision_label	ampliar o envelope antes da promoção
+confirmed_by	dono
+confirmed_at	2026-08-28T19:52:26-03:00
+head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+working_tree	uncommitted; predecessor state pinned by P1264 snapshot and manifest
+predecessor_certificate	00_nucleo/diagnosticos/p1264-final-certificate.tsv sha256:d8a5eee14e6cf75c9001a77b780583c1e072552a9e862206d8041fe885b80a89
+predecessor_manifest	00_nucleo/diagnosticos/p1264-manifest.tsv sha256:df47eae1e2f47516ad42ed94307318c479c9c867023b3d18cb3908e6ded18377
+productive_promotion	NONE
+fallback	UNCHANGED; gradient-color-space remains for Linear/Radial Oklab/LinearRgb
+l0_writes	NONE
+productive_code_writes	NONE
+successor	typst-passo-1266.md
+future_gate	new explicit ADR-0127 owner decision required after pair-local generalization
+attestation	OWNER DECISION RECORDED; execution artifacts not isolation-attested

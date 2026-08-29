@@ -1,0 +1,33 @@
+field	value
+step	P1254
+protocol	tekt-materializacao-segregada/full/preseal-candidate
+baseline_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T12:34:49-03:00
+working_tree	uncommitted; git diff HEAD --stat: 65 files, 3164 insertions, 248 deletions
+ratified_vanilla	a51e02804
+entities_l0	00_nucleo/prompts/entities/tiling.md
+entities_l0_sha256	cd982be9c5263f82bb50b701dd1f45eeae967a7641dc9577a6a478aeee69490f
+stdlib_l0	00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md
+stdlib_l0_sha256	4f82c81d7683993c45699b8f55c53ea9f694faf53d0a390c842e28d89ecabbc4
+layout_l0	00_nucleo/prompts/compiler/layout/tiling.md
+layout_l0_sha256	ef6797e5fe4d5dc9c1c7b1069067153c6813e8c22b60e803de5138f85af61cfd
+contract	00_nucleo/diagnosticos/p1254-tiling-contract.tsv
+contract_sha256	48f509b90518fb92ee1895706888b13d5a352f8ccd4344b94bd7a720ffc158d3
+oracles	00_nucleo/diagnosticos/p1254-tiling-oracles.tsv
+oracles_sha256	09a8902577fcb8c22061c619255c0c3c49436f2bfdb039062774d15bc03db45c
+attacks	00_nucleo/diagnosticos/p1254-tiling-attacks.tsv
+attacks_sha256	5f500124e4cf0f8bf999ec755e8f95ef0e793077b805eef3353885a8809b36ce
+observables	public construction; content morphology; cell extent and pitch; offset; angle; transform order; relative basis; phase ownership; fill/stroke; target independence; diagnostics
+unknown_policy	opaque conversion or missing discriminating landmark remains Unknown; Unknown never counts as Preserved
+mutation_threshold	1.0; all 18 valid mutations must be rejected
+intent_author	owner decision recorded in P1245
+contract_author	current authority; read L0 baseline and prior P1243 artifacts; no candidate implementation exists
+oracle_author	current authority; not independently attested
+adversary_author	current authority; not independently attested
+verifier	required independent authority; may read frozen artifacts and baseline; may write only receipt/seal
+implementer	prohibited until seal; may later read only frozen L0 contract and seal inputs
+test_author_ab	required after seal; must not read candidate implementation before tests freeze
+write_scope_preseal	typst-passo-1254.md and 00_nucleo/diagnosticos/p1254-*
+productive_writes	NONE
+isolation_attestation	NOT ATTESTED; shared authority authored contract oracles and attacks
+verdict	REVISED_PRESEAL_CANDIDATE_AWAITING_INDEPENDENT_VERIFICATION

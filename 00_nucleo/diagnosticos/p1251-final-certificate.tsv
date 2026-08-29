@@ -1,0 +1,28 @@
+field	value
+step	P1251
+protocol	tekt-materializacao-segregada-v1; diagnostic consolidation; no new semantic preseal
+verdict	PASS_DIAGNOSTIC_CLOSURE
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T15:40:57-03:00
+working_tree	uncommitted shared tree before certificate; 82 files changed, 4762 insertions, 496 deletions; 426 status entries
+vanilla_baseline	upstream/main a51e02804 ratified
+contract_authority	P1251 step plus terminal states and certificates P1232-P1250
+verification_authority	deterministic workspace tools; final adjudication did not modify productive code
+workspace_tests	PASS; cargo test --workspace; includes P1236-P1250 focused tests and integrated P1250 corpus
+workspace_build	PASS; cargo build --workspace
+format_initial	FAIL; seven rustfmt-only fragments in preexisting test changes
+format_repair	PASS; cargo fmt --all followed by cargo fmt --all -- --check
+diff_check	PASS; git diff --check
+architecture	PASS; crystalline-lint --checks v1,v5,v15,v26 .; no violations
+full_lint	PASS_WITH_WARNINGS; exit 0; V16=211; V19=358; V20=635; no V1/V5/V15/V26
+full_lint_log_sha256	a55d1eed1efdaa7929b41fc6f4a900d78ad21f642153297f42728d3ea39b60a9
+lente	PASS; two executions byte-identical; 18 common edges; known extraction failures preserved
+lente_output_sha256	ad7ebd280c3162113ac8410d50e89c025e07c8d08b18d079d71016020cb71a92
+lente_binary_sha256	6eac85581b292ec5d0bea41a7d991dd246a34acd41b892ae1a96c871a51c915a
+dsm_map_sha256	5916a4dbdac6869a35a7461886d407702a725ff5b7e7e9a70c3dde07d22faa94
+p1213_queue_sha256	2d27abf076e4a06a61d19d3c1ed06a8b82be65fde92d08dfecfb8f78c8b7ea5f
+closure_report_sha256	1bbd0b3ed221e3ed3db1d08ddf0f7ce39e17f67d3783d080f2dd910471f0404a
+mutation_gate	not newly claimed; P1251 consolidates existing certified fragments and does not author a semantic implementation contract
+unknown_policy	paint multispace not proved, cross-page links, opaque images/SVGZ, fontless wrappers and broad bilateral SVG remain Unknown/PARTIAL
+attestation	process roles and deterministic tools recorded; strong environmental isolation not attested because filesystem and context are shared
+scope	certifies the sanitized P1232-P1250 closure and current repository gates; no general SVG or Typst equivalence claim

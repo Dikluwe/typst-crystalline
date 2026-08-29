@@ -1,0 +1,8 @@
+attack_id	description	expected	actual	witness	status
+M01	omit final endpoint	Violated	Violated	candidate-radial-oklab-two-wide-stroke:count;candidate-radial-oklab-two-wide-stroke:endpoint;candidate-radial-oklab-two-wide-stroke:envelope;candidate-radial-oklab-two-wide-stroke:penultimate-color;candidate-radial-oklab-two-wide-stroke:penultimate-offset	REJECTED
+M02	duplicate final endpoint	Violated	Violated	candidate-radial-oklab-two-wide-stroke:count;candidate-radial-oklab-two-wide-stroke:endpoint;candidate-radial-oklab-two-wide-stroke:penultimate-color;candidate-radial-oklab-two-wide-stroke:penultimate-offset	REJECTED
+M03	round penultimate offset before adaptive decision	Violated	Violated	candidate-radial-oklab-two-wide-stroke:predecision-rounding	REJECTED
+M04	measure only t=1 and hide the frozen worst_t	Violated	Violated	candidate-radial-linear-rgb-two-wide-stroke:worst-t;candidate-radial-oklab-two-wide-stroke:worst-t;regression-linear-linear-rgb-two-wide-stroke:worst-t;regression-linear-oklab-two-wide-stroke:worst-t	REJECTED
+M05	increase global cap from 64 to 128	Violated	Violated	cap	REJECTED
+M06	correct Linear and infer Radial	Violated	Violated	candidate-radial-linear-rgb-two-wide-stroke:envelope;candidate-radial-linear-rgb-two-wide-stroke:penultimate-offset;candidate-radial-oklab-two-wide-stroke:envelope;candidate-radial-oklab-two-wide-stroke:penultimate-offset	REJECTED
+M07	promote Oklab penultimate color from LinearRgb	Violated	Violated	regression-linear-oklab-two-wide-stroke:envelope;regression-linear-oklab-two-wide-stroke:penultimate-color	REJECTED

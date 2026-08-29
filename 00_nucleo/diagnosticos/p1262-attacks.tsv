@@ -1,0 +1,8 @@
+mutant	executed	witness	status
+M01-no-clamp	true	eight decisive midpoint traces	REJECTED
+M02-clamp-native-components-early	true	negative Oklab a would be destroyed before conversion	REJECTED
+M03-compare-after-u8	true	float criterion differs before quantization	REJECTED
+M04-saturated-auto-success	true	native-only mutant violates 8/8 color maxima	REJECTED
+M05-coerce-oklab-to-srgb	true	sRGB native-stop mutant violates 8/8 color maxima	REJECTED
+M06-drop-saturated-fixture	true	population guard rejects 7/8	REJECTED
+M07-widen-budget	true	frozen budget guard rejects scale 2	REJECTED

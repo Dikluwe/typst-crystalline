@@ -1,0 +1,622 @@
+measured_at=2026-08-28T19:53:22-03:00
+head=697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+working_tree=uncommitted
+
+git status --short
+ M 00_nucleo/diagnosticos/dsm/typst-correspondencias-v1.toml
+ M 00_nucleo/diagnosticos/p1213-fila-implementacao.tsv
+ M 00_nucleo/prompts/compiler/eval/operators/arithmetic.md
+ M 00_nucleo/prompts/compiler/eval/tests.md
+ M 00_nucleo/prompts/compiler/layout/curve.md
+ M 00_nucleo/prompts/compiler/layout/shape_block_behaviour.md
+ M 00_nucleo/prompts/compiler/stdlib/color.md
+ M 00_nucleo/prompts/compiler/stdlib/foundations/color.md
+ M 00_nucleo/prompts/compiler/stdlib/gradients.md
+ M 00_nucleo/prompts/compiler/stdlib/shapes.md
+ M 00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md
+ M 00_nucleo/prompts/entities/color.md
+ M 00_nucleo/prompts/entities/elements/curve.md
+ M 00_nucleo/prompts/entities/elements/shape.md
+ M 00_nucleo/prompts/entities/geometry.md
+ M 00_nucleo/prompts/entities/gradient.md
+ M 00_nucleo/prompts/entities/layout_types.md
+ M 00_nucleo/prompts/entities/tiling.md
+ M 00_nucleo/prompts/infra/export/gradients/adaptive.md
+ M 00_nucleo/prompts/infra/export/svg.md
+ M 00_nucleo/prompts/infra/pipeline.md
+ M 01_core/Cargo.toml
+ M 01_core/src/compiler/eval/bibtex.rs
+ M 01_core/src/compiler/eval/math.rs
+ M 01_core/src/compiler/eval/mod.rs
+ M 01_core/src/compiler/eval/operators/arithmetic.rs
+ M 01_core/src/compiler/eval/rules.rs
+ M 01_core/src/compiler/eval/tests.rs
+ M 01_core/src/compiler/layout/block.rs
+ M 01_core/src/compiler/layout/boxed.rs
+ M 01_core/src/compiler/layout/cursor.rs
+ M 01_core/src/compiler/layout/curve.rs
+ M 01_core/src/compiler/layout/divider.rs
+ M 01_core/src/compiler/layout/equation.rs
+ M 01_core/src/compiler/layout/footnote_flush.rs
+ M 01_core/src/compiler/layout/grid.rs
+ M 01_core/src/compiler/layout/grid_placement.rs
+ M 01_core/src/compiler/layout/helpers.rs
+ M 01_core/src/compiler/layout/mod.rs
+ M 01_core/src/compiler/layout/shape.rs
+ M 01_core/src/compiler/layout/slicing.rs
+ M 01_core/src/compiler/layout/tests.rs
+ M 01_core/src/compiler/lexer/markup.rs
+ M 01_core/src/compiler/lexer/math.rs
+ M 01_core/src/compiler/lexer/mod.rs
+ M 01_core/src/compiler/math/layout/mod.rs
+ M 01_core/src/compiler/math/layout/spacing.rs
+ M 01_core/src/compiler/math/layout/tests.rs
+ M 01_core/src/compiler/stdlib/color.rs
+ M 01_core/src/compiler/stdlib/foundations/color.rs
+ M 01_core/src/compiler/stdlib/foundations/selector.rs
+ M 01_core/src/compiler/stdlib/gradients.rs
+ M 01_core/src/compiler/stdlib/layout.rs
+ M 01_core/src/compiler/stdlib/mod.rs
+ M 01_core/src/compiler/stdlib/shapes.rs
+ M 01_core/src/compiler/stdlib/visualize.rs
+ M 01_core/src/entities/color.rs
+ M 01_core/src/entities/content.rs
+ M 01_core/src/entities/elements/curve.rs
+ M 01_core/src/entities/elements/shape.rs
+ M 01_core/src/entities/geometry.rs
+ M 01_core/src/entities/gradient.rs
+ M 01_core/src/entities/layout_types.rs
+ M 01_core/src/entities/tiling.rs
+ M 01_core/src/entities/world_types.rs
+ M 03_infra/src/export/builder.rs
+ M 03_infra/src/export/fonts.rs
+ M 03_infra/src/export/gradients/adaptive.rs
+ M 03_infra/src/export/gradients/mod.rs
+ M 03_infra/src/export/mod.rs
+ M 03_infra/src/export/oracle.rs
+ M 03_infra/src/export/render.rs
+ M 03_infra/src/export/stream.rs
+ M 03_infra/src/export/svg.rs
+ M 03_infra/src/export/tests.rs
+ M 03_infra/src/integration_tests.rs
+ M 03_infra/src/layout_bidi.rs
+ M 03_infra/src/pipeline.rs
+ M Cargo.lock
+ M crystalline.toml
+ M lab/parity/matrix/svg_morphology.py
+ M lab/parity/matrix/test_svg_morphology.py
+?? 00_nucleo/diagnosticos/p1226-svg-engineering-choices.tsv
+?? 00_nucleo/diagnosticos/p1226-svg-path-ataques.tsv
+?? 00_nucleo/diagnosticos/p1226-svg-path-contract.tsv
+?? 00_nucleo/diagnosticos/p1226-svg-path-fixtures.tsv
+?? 00_nucleo/diagnosticos/p1226-svg-path-oraculos.tsv
+?? 00_nucleo/diagnosticos/p1226-svg-path-resultados.tsv
+?? 00_nucleo/diagnosticos/p1226-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1226-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1227-svg-engineering-choices.tsv
+?? 00_nucleo/diagnosticos/p1227-svg-paint-ataques.tsv
+?? 00_nucleo/diagnosticos/p1227-svg-paint-capacidades.tsv
+?? 00_nucleo/diagnosticos/p1227-svg-paint-contract.tsv
+?? 00_nucleo/diagnosticos/p1227-svg-paint-oraculos.tsv
+?? 00_nucleo/diagnosticos/p1227-svg-paint-resultados.tsv
+?? 00_nucleo/diagnosticos/p1227-svg-paint-selo.tsv
+?? 00_nucleo/diagnosticos/p1227-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1227-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1228-pre-svg-paint-ataques.tsv
+?? 00_nucleo/diagnosticos/p1228-pre-svg-paint-resultados.tsv
+?? 00_nucleo/diagnosticos/p1228-pre-svg-paint-sondas.tsv
+?? 00_nucleo/diagnosticos/p1228-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1228-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1229-svg-multispace-ataques.tsv
+?? 00_nucleo/diagnosticos/p1229-svg-multispace-contract.tsv
+?? 00_nucleo/diagnosticos/p1229-svg-multispace-error-budget.tsv
+?? 00_nucleo/diagnosticos/p1229-svg-multispace-oraculos.tsv
+?? 00_nucleo/diagnosticos/p1229-svg-multispace-resultados.tsv
+?? 00_nucleo/diagnosticos/p1229-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1229-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1230-svg-conic-ataques.tsv
+?? 00_nucleo/diagnosticos/p1230-svg-conic-contract.tsv
+?? 00_nucleo/diagnosticos/p1230-svg-conic-error-budget.tsv
+?? 00_nucleo/diagnosticos/p1230-svg-conic-oraculos.tsv
+?? 00_nucleo/diagnosticos/p1230-svg-conic-resultados.tsv
+?? 00_nucleo/diagnosticos/p1230-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1230-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1231-svg-multispace-frontier-ataques.tsv
+?? 00_nucleo/diagnosticos/p1231-svg-multispace-frontier-contract.tsv
+?? 00_nucleo/diagnosticos/p1231-svg-multispace-frontier-error-budget.tsv
+?? 00_nucleo/diagnosticos/p1231-svg-multispace-frontier-oraculos.tsv
+?? 00_nucleo/diagnosticos/p1231-svg-multispace-frontier-resultados.tsv
+?? 00_nucleo/diagnosticos/p1231-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1231-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1232-r01-reproducao.tsv
+?? 00_nucleo/diagnosticos/p1232-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1232-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1233-execution-provenance.txt
+?? 00_nucleo/diagnosticos/p1233-f01-f02-join.tsv
+?? 00_nucleo/diagnosticos/p1233-mesh-2048-4096.tsv
+?? 00_nucleo/diagnosticos/p1233-r01-allowlist.tsv
+?? 00_nucleo/diagnosticos/p1233-svg-multispace-ataques.tsv
+?? 00_nucleo/diagnosticos/p1233-svg-multispace-contract.tsv
+?? 00_nucleo/diagnosticos/p1233-svg-multispace-error-budget.tsv
+?? 00_nucleo/diagnosticos/p1233-svg-multispace-oraculos.tsv
+?? 00_nucleo/diagnosticos/p1233-svg-multispace-resultados.tsv
+?? 00_nucleo/diagnosticos/p1233-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1233-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1234-execution-provenance.txt
+?? 00_nucleo/diagnosticos/p1234-precision-ataques.tsv
+?? 00_nucleo/diagnosticos/p1234-precision-boundaries.tsv
+?? 00_nucleo/diagnosticos/p1234-precision-clusters.tsv
+?? 00_nucleo/diagnosticos/p1234-precision-commands.tsv
+?? 00_nucleo/diagnosticos/p1234-precision-contract.tsv
+?? 00_nucleo/diagnosticos/p1234-precision-owners.tsv
+?? 00_nucleo/diagnosticos/p1234-precision-preseal-ataques.tsv
+?? 00_nucleo/diagnosticos/p1234-precision-probes.tsv
+?? 00_nucleo/diagnosticos/p1234-precision-summary.json
+?? 00_nucleo/diagnosticos/p1234-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1234-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1234-tekt-preseal-receipt.tsv
+?? 00_nucleo/diagnosticos/p1235-execution-provenance.txt
+?? 00_nucleo/diagnosticos/p1235-gates.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-ataques.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-boundaries.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-clusters.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-commands.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-contract.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-metrics.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-observables.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-observations.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-preseal-ataques.tsv
+?? 00_nucleo/diagnosticos/p1236-alpha-summary.json
+?? 00_nucleo/diagnosticos/p1236-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1236-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1236-tekt-preseal-receipt.tsv
+?? 00_nucleo/diagnosticos/p1237-oklab-linear-rgb-ataques.tsv
+?? 00_nucleo/diagnosticos/p1237-oklab-linear-rgb-contract.tsv
+?? 00_nucleo/diagnosticos/p1237-oklab-linear-rgb-input-manifest.tsv
+?? 00_nucleo/diagnosticos/p1237-oklab-linear-rgb-inputs.tsv
+?? 00_nucleo/diagnosticos/p1237-oklab-linear-rgb-numeric.tsv
+?? 00_nucleo/diagnosticos/p1237-oklab-linear-rgb-resultados.tsv
+?? 00_nucleo/diagnosticos/p1237-oklab-linear-rgb-summary.json
+?? 00_nucleo/diagnosticos/p1237-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1237-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1238-dependency-gate.tsv
+?? 00_nucleo/diagnosticos/p1238-polar-ataques.tsv
+?? 00_nucleo/diagnosticos/p1238-polar-attack-results.tsv
+?? 00_nucleo/diagnosticos/p1238-polar-commands.tsv
+?? 00_nucleo/diagnosticos/p1238-polar-contract.tsv
+?? 00_nucleo/diagnosticos/p1238-polar-fixtures.tsv
+?? 00_nucleo/diagnosticos/p1238-polar-metrics.tsv
+?? 00_nucleo/diagnosticos/p1238-polar-observations.tsv
+?? 00_nucleo/diagnosticos/p1238-polar-results.tsv
+?? 00_nucleo/diagnosticos/p1238-polar-summary.json
+?? 00_nucleo/diagnosticos/p1238-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1238-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1238-working-tree-snapshot.txt
+?? 00_nucleo/diagnosticos/p1239-luma-ataques.tsv
+?? 00_nucleo/diagnosticos/p1239-luma-commands.tsv
+?? 00_nucleo/diagnosticos/p1239-luma-contract.tsv
+?? 00_nucleo/diagnosticos/p1239-luma-observations.tsv
+?? 00_nucleo/diagnosticos/p1239-luma-resultados.tsv
+?? 00_nucleo/diagnosticos/p1239-luma-summary.json
+?? 00_nucleo/diagnosticos/p1239-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1240-raster-ataques.tsv
+?? 00_nucleo/diagnosticos/p1240-raster-contract.tsv
+?? 00_nucleo/diagnosticos/p1240-raster-resultados.tsv
+?? 00_nucleo/diagnosticos/p1240-raster-run.json
+?? 00_nucleo/diagnosticos/p1240-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1241-final-gates.tsv
+?? 00_nucleo/diagnosticos/p1241-preflight-results.tsv
+?? 00_nucleo/diagnosticos/p1241-svg-multispace-ataques.tsv
+?? 00_nucleo/diagnosticos/p1241-svg-multispace-attack-results.tsv
+?? 00_nucleo/diagnosticos/p1241-svg-multispace-contract.tsv
+?? 00_nucleo/diagnosticos/p1241-svg-multispace-inputs.tsv
+?? 00_nucleo/diagnosticos/p1241-svg-multispace-oracles.tsv
+?? 00_nucleo/diagnosticos/p1241-svg-multispace-results.tsv
+?? 00_nucleo/diagnosticos/p1241-svg-multispace-summary.json
+?? 00_nucleo/diagnosticos/p1241-tekt-certificado.tsv
+?? 00_nucleo/diagnosticos/p1241-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1241-working-tree-snapshot.txt
+?? 00_nucleo/diagnosticos/p1242-dependency-receipt.tsv
+?? 00_nucleo/diagnosticos/p1242-svg-gap-inventory.tsv
+?? 00_nucleo/diagnosticos/p1242-svg-gap-summary.json
+?? 00_nucleo/diagnosticos/p1243-adversary-capabilities-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-adversary-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1243-contract-author-capabilities-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-contract-author-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1243-oracle-author-capabilities-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-oracle-author-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1243-revalidation-summary.json
+?? 00_nucleo/diagnosticos/p1243-tekt-manifesto-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1243-tekt-preseal-receipt.tsv
+?? 00_nucleo/diagnosticos/p1243-tiling-attacks-v2.tsv
+?? 00_nucleo/diagnosticos/p1243-tiling-attacks-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-tiling-contract-v2.tsv
+?? 00_nucleo/diagnosticos/p1243-tiling-contract-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-tiling-contract.tsv
+?? 00_nucleo/diagnosticos/p1243-tiling-observables.tsv
+?? 00_nucleo/diagnosticos/p1243-tiling-oracles-v2.tsv
+?? 00_nucleo/diagnosticos/p1243-tiling-oracles-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-tiling-preseal-ataques.tsv
+?? 00_nucleo/diagnosticos/p1243-verifier-capabilities-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-verifier-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1243-verifier-receipt-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-verifier-receipt.tsv
+?? 00_nucleo/diagnosticos/p1243-verifier-results-v3.tsv
+?? 00_nucleo/diagnosticos/p1243-verifier-results.tsv
+?? 00_nucleo/diagnosticos/p1244-closure-receipt.tsv
+?? 00_nucleo/diagnosticos/p1244-closure-summary.json
+?? 00_nucleo/diagnosticos/p1245-closure-receipt.tsv
+?? 00_nucleo/diagnosticos/p1245-contract-gap-receipt.tsv
+?? 00_nucleo/diagnosticos/p1245-gate-summary.json
+?? 00_nucleo/diagnosticos/p1245-owner-confirmation.tsv
+?? 00_nucleo/diagnosticos/p1245-tiling-consumers.tsv
+?? 00_nucleo/diagnosticos/p1245-tiling-l0-draft.md
+?? 00_nucleo/diagnosticos/p1245-tiling-options.tsv
+?? 00_nucleo/diagnosticos/p1246-clip-attacks-draft.tsv
+?? 00_nucleo/diagnosticos/p1246-clip-attacks.tsv
+?? 00_nucleo/diagnosticos/p1246-clip-contract-draft.tsv
+?? 00_nucleo/diagnosticos/p1246-clip-contract.tsv
+?? 00_nucleo/diagnosticos/p1246-clip-oracles-draft.tsv
+?? 00_nucleo/diagnosticos/p1246-clip-oracles.tsv
+?? 00_nucleo/diagnosticos/p1246-final-certificate-v2.tsv
+?? 00_nucleo/diagnosticos/p1246-final-summary-v2.json
+?? 00_nucleo/diagnosticos/p1246-gate-receipt.tsv
+?? 00_nucleo/diagnosticos/p1246-gate-summary.json
+?? 00_nucleo/diagnosticos/p1246-owner-decision.tsv
+?? 00_nucleo/diagnosticos/p1246-preseal-summary-v2.json
+?? 00_nucleo/diagnosticos/p1246-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1246-tekt-manifesto-v2.tsv
+?? 00_nucleo/diagnosticos/p1246-tekt-preseal-v2.tsv
+?? 00_nucleo/diagnosticos/p1246-verifier-receipt-v2.tsv
+?? 00_nucleo/diagnosticos/p1247-final-certificate.tsv
+?? 00_nucleo/diagnosticos/p1247-final-summary.json
+?? 00_nucleo/diagnosticos/p1247-gap-receipt.tsv
+?? 00_nucleo/diagnosticos/p1247-gap-summary.json
+?? 00_nucleo/diagnosticos/p1247-link-attacks.tsv
+?? 00_nucleo/diagnosticos/p1247-link-boundaries.tsv
+?? 00_nucleo/diagnosticos/p1247-link-contract.tsv
+?? 00_nucleo/diagnosticos/p1247-link-options.tsv
+?? 00_nucleo/diagnosticos/p1247-link-oracles.tsv
+?? 00_nucleo/diagnosticos/p1247-owner-decision.tsv
+?? 00_nucleo/diagnosticos/p1247-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1247-tekt-preseal.tsv
+?? 00_nucleo/diagnosticos/p1247-verifier-receipt.tsv
+?? 00_nucleo/diagnosticos/p1248-final-certificate.tsv
+?? 00_nucleo/diagnosticos/p1248-final-summary.json
+?? 00_nucleo/diagnosticos/p1248-image-attacks.tsv
+?? 00_nucleo/diagnosticos/p1248-image-contract.tsv
+?? 00_nucleo/diagnosticos/p1248-image-oracles.tsv
+?? 00_nucleo/diagnosticos/p1248-image-summary.json
+?? 00_nucleo/diagnosticos/p1248-preseal-receipt.tsv
+?? 00_nucleo/diagnosticos/p1248-presemantic-receipt.tsv
+?? 00_nucleo/diagnosticos/p1248-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1248-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1248-tekt-preseal.tsv
+?? 00_nucleo/diagnosticos/p1249-final-certificate.tsv
+?? 00_nucleo/diagnosticos/p1249-final-summary.json
+?? 00_nucleo/diagnosticos/p1249-gate-receipt.tsv
+?? 00_nucleo/diagnosticos/p1249-gate-summary.json
+?? 00_nucleo/diagnosticos/p1249-glyph-attacks.tsv
+?? 00_nucleo/diagnosticos/p1249-glyph-boundaries.tsv
+?? 00_nucleo/diagnosticos/p1249-glyph-contract.tsv
+?? 00_nucleo/diagnosticos/p1249-glyph-options.tsv
+?? 00_nucleo/diagnosticos/p1249-glyph-oracles.tsv
+?? 00_nucleo/diagnosticos/p1249-owner-decision.tsv
+?? 00_nucleo/diagnosticos/p1249-preseal-receipt.tsv
+?? 00_nucleo/diagnosticos/p1249-preseal-summary.json
+?? 00_nucleo/diagnosticos/p1249-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1249-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1249-tekt-preseal.tsv
+?? 00_nucleo/diagnosticos/p1250-dependency-gate.tsv
+?? 00_nucleo/diagnosticos/p1250-dependency-receipt.tsv
+?? 00_nucleo/diagnosticos/p1250-dependency-summary.json
+?? 00_nucleo/diagnosticos/p1250-final-certificate.tsv
+?? 00_nucleo/diagnosticos/p1250-final-summary.json
+?? 00_nucleo/diagnosticos/p1250-integrated-attacks.tsv
+?? 00_nucleo/diagnosticos/p1250-integrated-contract.tsv
+?? 00_nucleo/diagnosticos/p1250-integrated-oracles.tsv
+?? 00_nucleo/diagnosticos/p1250-preseal-receipt.tsv
+?? 00_nucleo/diagnosticos/p1250-preseal-summary.json
+?? 00_nucleo/diagnosticos/p1250-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1250-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1250-tekt-preseal.tsv
+?? 00_nucleo/diagnosticos/p1250a-warning-inventory-final-summary.json
+?? 00_nucleo/diagnosticos/p1250a-warning-inventory-final.tsv
+?? 00_nucleo/diagnosticos/p1250a-warning-inventory-summary.json
+?? 00_nucleo/diagnosticos/p1250a-warning-inventory.tsv
+?? 00_nucleo/diagnosticos/p1250b-final-certificate.tsv
+?? 00_nucleo/diagnosticos/p1251-final-certificate.tsv
+?? 00_nucleo/diagnosticos/p1252-luma-alpha-ataques.tsv
+?? 00_nucleo/diagnosticos/p1252-luma-alpha-contract.tsv
+?? 00_nucleo/diagnosticos/p1252-luma-alpha-resultados.tsv
+?? 00_nucleo/diagnosticos/p1252-revalidation-certificate.tsv
+?? 00_nucleo/diagnosticos/p1252-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1253-attacks.tsv
+?? 00_nucleo/diagnosticos/p1253-contract.tsv
+?? 00_nucleo/diagnosticos/p1253-final-certificate.tsv
+?? 00_nucleo/diagnosticos/p1253-manifest.tsv
+?? 00_nucleo/diagnosticos/p1253-results.tsv
+?? 00_nucleo/diagnosticos/p1254-final-certificate.tsv
+?? 00_nucleo/diagnosticos/p1254-final-gate.json
+?? 00_nucleo/diagnosticos/p1254-final-summary.json
+?? 00_nucleo/diagnosticos/p1254-saneamento-certificate.tsv
+?? 00_nucleo/diagnosticos/p1254-saneamento-manifest.tsv
+?? 00_nucleo/diagnosticos/p1254-tekt-manifesto.tsv
+?? 00_nucleo/diagnosticos/p1254-tekt-preseal.tsv
+?? 00_nucleo/diagnosticos/p1254-tiling-attacks.tsv
+?? 00_nucleo/diagnosticos/p1254-tiling-contract.tsv
+?? 00_nucleo/diagnosticos/p1254-tiling-oracles.tsv
+?? 00_nucleo/diagnosticos/p1254-verifier-receipt.tsv
+?? 00_nucleo/diagnosticos/p1255-envelope-summary.tsv
+?? 00_nucleo/diagnosticos/p1255-manifest.tsv
+?? 00_nucleo/diagnosticos/p1256-localization.tsv
+?? 00_nucleo/diagnosticos/p1256-manifest.tsv
+?? 00_nucleo/diagnosticos/p1256-summary.tsv
+?? 00_nucleo/diagnosticos/p1257-manifest.tsv
+?? 00_nucleo/diagnosticos/p1257-pre-post-serialization.tsv
+?? 00_nucleo/diagnosticos/p1258-manifest.tsv
+?? 00_nucleo/diagnosticos/p1258-summary.json
+?? 00_nucleo/diagnosticos/p1258-uniform-curve.tsv
+?? 00_nucleo/diagnosticos/p1258-uniform-minimum.tsv
+?? 00_nucleo/diagnosticos/p1259-manifest.tsv
+?? 00_nucleo/diagnosticos/p1259-results.tsv
+?? 00_nucleo/diagnosticos/p1259-summary.json
+?? 00_nucleo/diagnosticos/p1260-frontiers.tsv
+?? 00_nucleo/diagnosticos/p1260-manifest.tsv
+?? 00_nucleo/diagnosticos/p1260-summary.json
+?? 00_nucleo/diagnosticos/p1261-endpoint-attacks.tsv
+?? 00_nucleo/diagnosticos/p1261-endpoint-results.tsv
+?? 00_nucleo/diagnosticos/p1261-endpoint-stages.tsv
+?? 00_nucleo/diagnosticos/p1261-manifest.tsv
+?? 00_nucleo/diagnosticos/p1261-p1237-numeric.tsv
+?? 00_nucleo/diagnosticos/p1261-p1237-pairs.tsv
+?? 00_nucleo/diagnosticos/p1261-p1264-correction-roadmap.tsv
+?? 00_nucleo/diagnosticos/p1261-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1261-summary.json
+?? 00_nucleo/diagnosticos/p1261-working-tree-snapshot.txt
+?? 00_nucleo/diagnosticos/p1262-attacks.tsv
+?? 00_nucleo/diagnosticos/p1262-boundary-matrix.tsv
+?? 00_nucleo/diagnosticos/p1262-manifest.tsv
+?? 00_nucleo/diagnosticos/p1262-p1234-public.tsv
+?? 00_nucleo/diagnosticos/p1262-p1237-numeric.tsv
+?? 00_nucleo/diagnosticos/p1262-p1237-pairs.tsv
+?? 00_nucleo/diagnosticos/p1262-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1262-saturated-results.tsv
+?? 00_nucleo/diagnosticos/p1262-stop-cost.tsv
+?? 00_nucleo/diagnosticos/p1262-summary.json
+?? 00_nucleo/diagnosticos/p1262-working-tree-snapshot.txt
+?? 00_nucleo/diagnosticos/p1263-attacks.tsv
+?? 00_nucleo/diagnosticos/p1263-cost-decisions.tsv
+?? 00_nucleo/diagnosticos/p1263-manifest.tsv
+?? 00_nucleo/diagnosticos/p1263-opaque.tsv
+?? 00_nucleo/diagnosticos/p1263-p1237-numeric.tsv
+?? 00_nucleo/diagnosticos/p1263-p1237-pairs.tsv
+?? 00_nucleo/diagnosticos/p1263-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1263-summary.json
+?? 00_nucleo/diagnosticos/p1263-target-results.tsv
+?? 00_nucleo/diagnosticos/p1263-working-tree-snapshot.txt
+?? 00_nucleo/diagnosticos/p1264-attacks.tsv
+?? 00_nucleo/diagnosticos/p1264-before-after.tsv
+?? 00_nucleo/diagnosticos/p1264-contract.tsv
+?? 00_nucleo/diagnosticos/p1264-cost-decisions.tsv
+?? 00_nucleo/diagnosticos/p1264-execution-receipts.tsv
+?? 00_nucleo/diagnosticos/p1264-final-certificate.tsv
+?? 00_nucleo/diagnosticos/p1264-l1-revalidation.tsv
+?? 00_nucleo/diagnosticos/p1264-manifest.tsv
+?? 00_nucleo/diagnosticos/p1264-opaque.tsv
+?? 00_nucleo/diagnosticos/p1264-p1237-numeric.tsv
+?? 00_nucleo/diagnosticos/p1264-pairs.tsv
+?? 00_nucleo/diagnosticos/p1264-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1264-summary.json
+?? 00_nucleo/diagnosticos/p1264-working-tree-snapshot.txt
+?? 00_nucleo/diagnosticos/p1265-owner-decision.tsv
+?? 00_nucleo/diagnosticos/p1265-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1266-generalization-attacks.tsv
+?? 00_nucleo/diagnosticos/p1266-generalization-contract.tsv
+?? 00_nucleo/diagnosticos/p1266-generalization-matrix.tsv
+?? 00_nucleo/diagnosticos/p1266-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1266-unknown-policy.tsv
+?? 00_nucleo/diagnosticos/typst-p1226-svg-general-paths.md
+?? 00_nucleo/diagnosticos/typst-p1227-svg-paint-servers.md
+?? 00_nucleo/diagnosticos/typst-p1228-pre-svg-paint-loss.md
+?? 00_nucleo/diagnosticos/typst-p1229-svg-multispace.md
+?? 00_nucleo/diagnosticos/typst-p1230-svg-conic.md
+?? 00_nucleo/diagnosticos/typst-p1231-svg-multispace-frontier.md
+?? 00_nucleo/diagnosticos/typst-p1232-r01-reproducao.md
+?? 00_nucleo/diagnosticos/typst-p1233-retificacao-p1229.md
+?? 00_nucleo/diagnosticos/typst-p1234-precision-preseal.md
+?? 00_nucleo/diagnosticos/typst-p1235-rollback-saneamento.md
+?? 00_nucleo/diagnosticos/typst-p1236-alpha-preseal.md
+?? 00_nucleo/diagnosticos/typst-p1237-oklab-linear-rgb.md
+?? 00_nucleo/diagnosticos/typst-p1238-dependency-stop.md
+?? 00_nucleo/diagnosticos/typst-p1238-polar.md
+?? 00_nucleo/diagnosticos/typst-p1239-luma.md
+?? 00_nucleo/diagnosticos/typst-p1240-raster-preseal.md
+?? 00_nucleo/diagnosticos/typst-p1241-svg-multispace-reseal.md
+?? 00_nucleo/diagnosticos/typst-p1242-svg-gap-inventory.md
+?? 00_nucleo/diagnosticos/typst-p1243-tiling-preseal.md
+?? 00_nucleo/diagnosticos/typst-p1245-tiling-contract-gap.md
+?? 00_nucleo/diagnosticos/typst-p1246-clip-preseal.md
+?? 00_nucleo/diagnosticos/typst-p1247-internal-links-gap.md
+?? 00_nucleo/diagnosticos/typst-p1248-image-preseal.md
+?? 00_nucleo/diagnosticos/typst-p1249-glyph-contract-gap.md
+?? 00_nucleo/diagnosticos/typst-p1251-nightly-closure.md
+?? 00_nucleo/diagnosticos/typst-p1252-luma-alpha.md
+?? 00_nucleo/diagnosticos/typst-p1253-precision-revalidation.md
+?? 00_nucleo/diagnosticos/typst-p1261-endpoint-near.md
+?? 00_nucleo/diagnosticos/typst-p1262-saturated-interior.md
+?? 00_nucleo/diagnosticos/typst-p1263-nonsaturated-interior.md
+?? 00_nucleo/diagnosticos/typst-p1264-svg-readjudication.md
+?? 00_nucleo/diagnosticos/typst-p1265-owner-decision.md
+?? 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml
+?? 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml
+?? 00_nucleo/prompts/compiler/layout/tiling.md
+?? 00_nucleo/prompts/infra/export/p1250_svg_integrated.md
+?? 01_core/src/compiler/layout/tiling.rs
+?? 03_infra/tests/p1250_svg_integrated.rs
+?? lab/parity/matrix/fixtures/p1226_curve.typ
+?? lab/parity/matrix/fixtures/p1226_curve_straight.typ
+?? lab/parity/matrix/fixtures/p1240/
+?? lab/parity/matrix/fixtures/p1243/
+?? lab/parity/matrix/p1233_rectification.py
+?? lab/parity/matrix/p1234_precision.py
+?? lab/parity/matrix/p1236_alpha.py
+?? lab/parity/matrix/p1237_recompute.py
+?? lab/parity/matrix/p1238_polar.py
+?? lab/parity/matrix/p1239_luma.py
+?? lab/parity/matrix/p1240_raster.py
+?? lab/parity/matrix/p1241_consolidate.py
+?? lab/parity/matrix/p1242_inventory.py
+?? lab/parity/matrix/p1243_revalidate.py
+?? lab/parity/matrix/p1244_close.py
+?? lab/parity/matrix/p1245_gate.py
+?? lab/parity/matrix/p1246_gate.py
+?? lab/parity/matrix/p1246_preseal.py
+?? lab/parity/matrix/p1247_gap.py
+?? lab/parity/matrix/p1248_preseal.py
+?? lab/parity/matrix/p1249_gate.py
+?? lab/parity/matrix/p1249_preseal.py
+?? lab/parity/matrix/p1250_dependency_gate.py
+?? lab/parity/matrix/p1250_integrated_preseal.py
+?? lab/parity/matrix/p1250a_warning_inventory.py
+?? lab/parity/matrix/p1254_final_gate.py
+?? lab/parity/matrix/p1256_localize.py
+?? lab/parity/matrix/p1258_uniform_envelope.py
+?? lab/parity/matrix/p1259_local_refinement.py
+?? lab/parity/matrix/p1260_frontier_classify.py
+?? lab/parity/matrix/p1261_endpoint_near.py
+?? lab/parity/matrix/p1262_palette_probe.rs
+?? lab/parity/matrix/p1262_saturated.py
+?? lab/parity/matrix/p1263_nonsaturated.py
+?? lab/parity/matrix/p1264_consolidate.py
+?? lab/parity/matrix/test_p1240_raster.py
+?? typst-passo-1226.md
+?? typst-passo-1227.md
+?? typst-passo-1228.md
+?? typst-passo-1229.md
+?? typst-passo-1230.md
+?? typst-passo-1231.md
+?? typst-passo-1232.md
+?? typst-passo-1233.md
+?? typst-passo-1234.md
+?? typst-passo-1235.md
+?? typst-passo-1236.md
+?? typst-passo-1237.md
+?? typst-passo-1238.md
+?? typst-passo-1239.md
+?? typst-passo-1240.md
+?? typst-passo-1241.md
+?? typst-passo-1242.md
+?? typst-passo-1243.md
+?? typst-passo-1244.md
+?? typst-passo-1245.md
+?? typst-passo-1246.md
+?? typst-passo-1247.md
+?? typst-passo-1248.md
+?? typst-passo-1249.md
+?? typst-passo-1250.md
+?? typst-passo-1250a.md
+?? typst-passo-1250b.md
+?? typst-passo-1251.md
+?? typst-passo-1252.md
+?? typst-passo-1253.md
+?? typst-passo-1254.md
+?? typst-passo-1255.md
+?? typst-passo-1256.md
+?? typst-passo-1257.md
+?? typst-passo-1258.md
+?? typst-passo-1259.md
+?? typst-passo-1260.md
+?? typst-passo-1261.md
+?? typst-passo-1262.md
+?? typst-passo-1263.md
+?? typst-passo-1264.md
+?? typst-passo-1265.md
+?? typst-passo-1266.md
+
+git diff HEAD --stat
+ .../dsm/typst-correspondencias-v1.toml             |   78 +-
+ .../diagnosticos/p1213-fila-implementacao.tsv      |    3 +-
+ .../prompts/compiler/eval/operators/arithmetic.md  |    5 +-
+ 00_nucleo/prompts/compiler/eval/tests.md           |   18 +-
+ 00_nucleo/prompts/compiler/layout/curve.md         |    7 +-
+ .../compiler/layout/shape_block_behaviour.md       |   29 +-
+ 00_nucleo/prompts/compiler/stdlib/color.md         |    8 +-
+ .../prompts/compiler/stdlib/foundations/color.md   |   21 +-
+ 00_nucleo/prompts/compiler/stdlib/gradients.md     |   12 +-
+ 00_nucleo/prompts/compiler/stdlib/shapes.md        |   21 +-
+ 00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md |   45 +-
+ 00_nucleo/prompts/entities/color.md                |   49 +-
+ 00_nucleo/prompts/entities/elements/curve.md       |   14 +-
+ 00_nucleo/prompts/entities/elements/shape.md       |   10 +-
+ 00_nucleo/prompts/entities/geometry.md             |   10 +-
+ 00_nucleo/prompts/entities/gradient.md             |   19 +-
+ 00_nucleo/prompts/entities/layout_types.md         |   32 +-
+ 00_nucleo/prompts/entities/tiling.md               |   46 +-
+ .../prompts/infra/export/gradients/adaptive.md     |   73 +-
+ 00_nucleo/prompts/infra/export/svg.md              |  358 ++-
+ 00_nucleo/prompts/infra/pipeline.md                |   46 +-
+ 01_core/Cargo.toml                                 |    2 +-
+ 01_core/src/compiler/eval/bibtex.rs                |    3 +-
+ 01_core/src/compiler/eval/math.rs                  |    6 +-
+ 01_core/src/compiler/eval/mod.rs                   |   16 +-
+ 01_core/src/compiler/eval/operators/arithmetic.rs  |   17 +-
+ 01_core/src/compiler/eval/rules.rs                 |   26 +-
+ 01_core/src/compiler/eval/tests.rs                 |   56 +-
+ 01_core/src/compiler/layout/block.rs               |    3 +-
+ 01_core/src/compiler/layout/boxed.rs               |    3 +-
+ 01_core/src/compiler/layout/cursor.rs              |    9 +-
+ 01_core/src/compiler/layout/curve.rs               |   40 +-
+ 01_core/src/compiler/layout/divider.rs             |    1 +
+ 01_core/src/compiler/layout/equation.rs            |    2 +
+ 01_core/src/compiler/layout/footnote_flush.rs      |    2 +
+ 01_core/src/compiler/layout/grid.rs                |   14 +-
+ 01_core/src/compiler/layout/grid_placement.rs      |    8 +-
+ 01_core/src/compiler/layout/helpers.rs             |    2 +
+ 01_core/src/compiler/layout/mod.rs                 |    1 +
+ 01_core/src/compiler/layout/shape.rs               |   71 +-
+ 01_core/src/compiler/layout/slicing.rs             |    3 +
+ 01_core/src/compiler/layout/tests.rs               |  196 +-
+ 01_core/src/compiler/lexer/markup.rs               |    6 +-
+ 01_core/src/compiler/lexer/math.rs                 |   10 +-
+ 01_core/src/compiler/lexer/mod.rs                  |   11 +-
+ 01_core/src/compiler/math/layout/mod.rs            |   20 +-
+ 01_core/src/compiler/math/layout/spacing.rs        |    9 +-
+ 01_core/src/compiler/math/layout/tests.rs          |   12 +-
+ 01_core/src/compiler/stdlib/color.rs               |    6 +-
+ 01_core/src/compiler/stdlib/foundations/color.rs   |   78 +-
+ .../src/compiler/stdlib/foundations/selector.rs    |   14 +-
+ 01_core/src/compiler/stdlib/gradients.rs           |   10 +-
+ 01_core/src/compiler/stdlib/layout.rs              |   28 +-
+ 01_core/src/compiler/stdlib/mod.rs                 |   39 +-
+ 01_core/src/compiler/stdlib/shapes.rs              |  134 +-
+ 01_core/src/compiler/stdlib/visualize.rs           |  206 +-
+ 01_core/src/entities/color.rs                      |   71 +-
+ 01_core/src/entities/content.rs                    |   13 +-
+ 01_core/src/entities/elements/curve.rs             |   11 +-
+ 01_core/src/entities/elements/shape.rs             |   10 +-
+ 01_core/src/entities/geometry.rs                   |    9 +-
+ 01_core/src/entities/gradient.rs                   |  142 +-
+ 01_core/src/entities/layout_types.rs               |    5 +-
+ 01_core/src/entities/tiling.rs                     |   29 +-
+ 01_core/src/entities/world_types.rs                |    3 +-
+ 03_infra/src/export/builder.rs                     |   25 +-
+ 03_infra/src/export/fonts.rs                       |    9 +-
+ 03_infra/src/export/gradients/adaptive.rs          |  613 ++++-
+ 03_infra/src/export/gradients/mod.rs               |    4 +-
+ 03_infra/src/export/mod.rs                         |    7 +-
+ 03_infra/src/export/oracle.rs                      |   15 +-
+ 03_infra/src/export/render.rs                      |    7 +-
+ 03_infra/src/export/stream.rs                      |    6 +-
+ 03_infra/src/export/svg.rs                         | 2491 +++++++++++++++++++-
+ 03_infra/src/export/tests.rs                       |   90 +-
+ 03_infra/src/integration_tests.rs                  |   10 +-
+ 03_infra/src/layout_bidi.rs                        |    5 +-
+ 03_infra/src/pipeline.rs                           |   91 +-
+ Cargo.lock                                         |    5 +-
+ crystalline.toml                                   |  336 +--
+ lab/parity/matrix/svg_morphology.py                |   66 +-
+ lab/parity/matrix/test_svg_morphology.py           |   54 +
+ 82 files changed, 5594 insertions(+), 501 deletions(-)
+

@@ -1,0 +1,5 @@
+pair	before_graph	before_numeric	before_classification	after_graph	after_numeric	causal_unknown	applicable_focal_seals	promotion_gate	certified_classification	productive_promotion_applied
+linear/oklab	6/6	0/6	Unknown-native-approximation	6/6	6/6	0	P1261;P1262;P1263	PASS	Preserved-fragment	false
+radial/oklab	6/6	0/6	Unknown-fallback	6/6	6/6	0	P1261;P1262;P1263	PASS	Preserved-fragment	false
+linear/linear-rgb	6/6	3/6	Unknown-native-approximation	6/6	6/6	0	P1261;P1263	PASS	Preserved-fragment	false
+radial/linear-rgb	6/6	3/6	Unknown-fallback	6/6	6/6	0	P1261;P1263	PASS	Preserved-fragment	false

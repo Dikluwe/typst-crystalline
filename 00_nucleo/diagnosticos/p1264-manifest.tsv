@@ -1,0 +1,49 @@
+field	value
+step	P1264 SVG consolidation and pair-local readjudication
+protocol	tekt-materializacao-segregada-v1; full diagnostic protocol without authority-isolation attestation
+head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T18:59:40-03:00
+working_tree	uncommitted; exact status and git diff HEAD --stat in p1264-working-tree-snapshot.txt
+working_tree_snapshot_sha256	293ed5b3f1ea2d0525230f40d28c84d83e40da549d973f8e7ec60ce183415d1c
+baseline	upstream/main a51e02804 ratified; /usr/local/bin/typst sha256:7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
+crystalline_binary	target/debug/typst sha256:129a9f9dda55d7c07afead03e22d9ba0c68df830f74e9b82597eb3376a0981aa
+authority	typst-passo-1264.md sha256:6add500f993c6f9981a563801f7bdb50b7618aa30a4579f3b39047169d3e595f
+contract	00_nucleo/diagnosticos/p1264-contract.tsv sha256:cb9fe092802853fd40cee79caa4e4c2c9a2bee23dcca0b585a028ee0d1abdbaf
+roles	00_nucleo/diagnosticos/p1264-role-capabilities.tsv sha256:b75e0719e93565fb4e3af10817496227f94a129957b711dbfbff712e0c945e4c
+runner	lab/parity/matrix/p1264_consolidate.py sha256:0e900c09f5fe6be1a841e4041e78d22a9a892a6abc567d37339c7b0f04496a3b
+p1261_manifest	00_nucleo/diagnosticos/p1261-manifest.tsv sha256:d49fa271ba57571c32b6ad68716205d029b9cd0ffe491cab6eb5ef61bfa19647
+p1262_manifest	00_nucleo/diagnosticos/p1262-manifest.tsv sha256:4494c5733449fd3a74c95963a8f0944a7d992a5ff56b5df29dabf24833314dba
+p1263_manifest	00_nucleo/diagnosticos/p1263-manifest.tsv sha256:a268934155755eeb644f659b8bd1918e90de5e2e9f2ab8f361f7c0ea5e26b32d
+adaptive_prompt	00_nucleo/prompts/infra/export/gradients/adaptive.md sha256:4e2e19b5af1aab3c33596166fbcef647df1aceed1739bab395d432126f46d737
+adaptive_consumer	03_infra/src/export/gradients/adaptive.rs sha256:dd2c3a696c63ded7df7a5b56c5103f3d70b404bf7bf50d021d0d592530e2b331
+svg_prompt	00_nucleo/prompts/infra/export/svg.md sha256:41c5d785d9e4ecdb184fd5e6344dd7422d874e826e3bdeac2ddb2d6617530d29
+svg_consumer	03_infra/src/export/svg.rs sha256:ffd9b7095fc52b1aab222003be2018431885ea1bdb301ab9403a35bbbc0d3165
+fixtures	/tmp/p1237-minimal/oracle/fixtures.tsv sha256:0d06a45884fc91d4c36f1569728e6c70521ec0a50bcdecead431ce604aa76bf4
+budgets	/tmp/p1231-isolation/oracles/error-budget.tsv sha256:25702f9edb31ca49d2504159827a028f45e43e4b3cfe43ac419a3f5c560e39aa
+graph	/tmp/p1237-minimal/out/graph-role.tsv sha256:e03ef090cba1f3deb7edb25d39e67bd1c721b74e25cb59d233d20ab868bafb77
+oracle	/tmp/p1231-isolation/oracles/scripts/build.py sha256:ea8f2a02cf38b299f1edf7a5df20044ec99b597d85274c421f5db78e6178cc03
+before_after_sha256	3782f314b6322c352378eb66d5ec60104ef78e85d176cd7ab0be3b502cc36b75
+p1237_numeric_sha256	5a302dfbce3f3dd98e57b8fa3afd942435d960e13789e343786d9e218d118c4
+pairs_sha256	975039bc431c60840d85cc42f1dd0ecb64a9deb10e8e8b37e4d9123c568d40a9
+cost_sha256	c06903a537c0ed2b98e57b8fa3afd942435d960e13789e343786d9e218d118c4
+l1_revalidation_sha256	f48f7513e294e0cf9886e00528bdaeed2901013c7e4cd498ec3211d406cdca9f
+attacks_sha256	3d9bf459e558594be504c591f6f12a53812d8e84a6449a4c1b90e8eb4816a711
+opaque_sha256	eb118a70a9fe610421ec908be19d245d3fc23ae3c8455448d0e7887cc7f8f637
+execution_receipts_sha256	5c6ba33f197048a3777bf3845e2ea1b68b318ed6bd5dd6db501cfd2c32e5153d
+summary_sha256	f2955ad649543b895da928975f577b0b2faa5e3ca306ff41cc97ed3fdce7a574
+report_sha256	253c1f4a3d1e2ddbb0916aaf54541fc0bf22fed799e7f05f98d24f1e57188472
+unknown_policy	Unknown never succeeds; missing necessary evidence blocks only its pair; opaque controls excluded from mutation numerator
+p1234_repeat	PASS byte-identical; 15 fixtures;30 probes;public_divergences=0
+p1236_repeat	PASS byte-identical; 6 fixtures;42 pairs;luma_max=0;unknown=0
+p1237_repeat	PASS semantic direct/inverse; graph=24/24;numeric=24/24
+focal_mutation	23/23 executable P1261-P1263 mutants rejected
+integration_mutation	7/7 executable P1264 mutants rejected; score=1.0
+promotion_gate	four independent pairs PASS and classified Preserved-fragment
+productive_promotion	NONE; default fallback unchanged under P1264 scope and ADR-0127
+workspace_tests	PASS; cargo test --workspace; 6332 passed;0 failed;3 doc tests ignored
+workspace_build	PASS; cargo build --workspace
+format	PASS; cargo fmt --all -- --check
+diff_check	PASS; git diff --check
+tekt_focus	PASS; crystalline-lint --checks v1,v5,v15,v26 .; zero violations
+full_lint	PASS; crystalline-lint .; zero violations; informational V16-V20 remain
+attestation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

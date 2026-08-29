@@ -1,0 +1,26 @@
+field	value
+step	P1254
+verdict	PASS_FOCAL_REVALIDATED_WITH_GLOBAL_FLAKY_TEST
+head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T16:32:51-03:00
+attestation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO
+drift_found	entities and stdlib L0 still described owner approval as pending after materialization
+drift_repair	corrected historical gate wording; crystalline-lint --fix-hashes updated only lineage headers
+entities_consumer_sha256	15bcaf3ce812ee3408e6df6e8d1f15fa82944a0edf8d39e8d76a6dd94dfb697a
+stdlib_consumer_sha256	71a6a46c26c701e6f2b43ce6dfb44d6fae091572a8ecf4738bf81fab5982c481
+layout_consumer_sha256	629f3824787c52563d3b9f86d8c9e2592a6dae359ef3e9fd959029382e7df73a
+deterministic_gate	PASS; two byte-identical outputs; sha256:5e492d8ab2304d2e1c1422fb0eb364790fea31665ca208ec13521271da484cbd
+p1254_core	PASS; 5 passed; 0 failed
+p1254_svg	PASS; 1 passed; 0 failed
+p1245_compatibility	PASS; 3 passed; 0 failed
+workspace_build	PASS
+format	PASS
+diff_check	PASS
+tekt_architecture	PASS; V1/V5/V15/V26 zero violations
+full_lint	PASS_WITH_GLOBAL_DEBT; exit=0; V16=211; V19=358; V20=635
+workspace_tests	NOT_ALL_GREEN; two full runs each failed only p1137_watch_dependencias_recuperacao_e_filtro by 20s timeout
+p1137_isolated_retry	PASS; 1 passed; 0 failed; 2.01s
+workspace_test_classification	pre-existing timing-sensitive global failure outside P1254; not evidence against tiling; no code modified to hide it
+prior_mutation_score	HISTORICAL_1.0_NOT_RESEALED; old preseal byte-invalidated by L0 status correction
+scope	sealed tiling construction/layout/SVG-fill fragment only; stroke/PDF/HTML remain Unknown
+closure	P1254 remains functionally closed; certificate truthfully records global suite exception and lack of new strong segregation

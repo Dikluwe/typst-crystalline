@@ -1,0 +1,168 @@
+{
+  "head": "697eaf31e8ce6aaa4eef7d61d7808e377005c3c5",
+  "measured_at": "2026-08-28T12:34:49-03:00",
+  "o11_target_vector": [
+    [
+      "HTML",
+      "Unknown",
+      "HTML",
+      "fill",
+      "unsupported-content-tiling",
+      false
+    ],
+    [
+      "PDF",
+      "Unknown",
+      "PDF",
+      "fill",
+      "unsupported-content-tiling",
+      false
+    ],
+    [
+      "SVG",
+      "Preserved",
+      "SVG",
+      "fill",
+      null,
+      true
+    ]
+  ],
+  "o14_deterministic": true,
+  "o14_runs": [
+    {
+      "digest": "4c4379227bbc5821f9cd29b624ef70475d9fc5e9a8938a9a0a524aad72b8ed75",
+      "rows": [
+        [
+          "A",
+          "placement",
+          [
+            3.196152423,
+            6.464101615
+          ],
+          "Preserved"
+        ],
+        [
+          "B-fill",
+          "repetition",
+          "closed",
+          "Preserved"
+        ],
+        [
+          "B-stroke",
+          "SVG",
+          "stroke",
+          "unsupported-content-tiling",
+          "Unknown"
+        ],
+        [
+          "C",
+          "unsupported",
+          "fallback",
+          "Unknown"
+        ]
+      ]
+    },
+    {
+      "digest": "4c4379227bbc5821f9cd29b624ef70475d9fc5e9a8938a9a0a524aad72b8ed75",
+      "rows": [
+        [
+          "A",
+          "placement",
+          [
+            3.196152423,
+            6.464101615
+          ],
+          "Preserved"
+        ],
+        [
+          "B-fill",
+          "repetition",
+          "closed",
+          "Preserved"
+        ],
+        [
+          "B-stroke",
+          "SVG",
+          "stroke",
+          "unsupported-content-tiling",
+          "Unknown"
+        ],
+        [
+          "C",
+          "unsupported",
+          "fallback",
+          "Unknown"
+        ]
+      ]
+    },
+    {
+      "digest": "4c4379227bbc5821f9cd29b624ef70475d9fc5e9a8938a9a0a524aad72b8ed75",
+      "rows": [
+        [
+          "A",
+          "placement",
+          [
+            3.196152423,
+            6.464101615
+          ],
+          "Preserved"
+        ],
+        [
+          "B-fill",
+          "repetition",
+          "closed",
+          "Preserved"
+        ],
+        [
+          "B-stroke",
+          "SVG",
+          "stroke",
+          "unsupported-content-tiling",
+          "Unknown"
+        ],
+        [
+          "C",
+          "unsupported",
+          "fallback",
+          "Unknown"
+        ]
+      ]
+    },
+    {
+      "digest": "4c4379227bbc5821f9cd29b624ef70475d9fc5e9a8938a9a0a524aad72b8ed75",
+      "rows": [
+        [
+          "A",
+          "placement",
+          [
+            3.196152423,
+            6.464101615
+          ],
+          "Preserved"
+        ],
+        [
+          "B-fill",
+          "repetition",
+          "closed",
+          "Preserved"
+        ],
+        [
+          "B-stroke",
+          "SVG",
+          "stroke",
+          "unsupported-content-tiling",
+          "Unknown"
+        ],
+        [
+          "C",
+          "unsupported",
+          "fallback",
+          "Unknown"
+        ]
+      ]
+    }
+  ],
+  "unknown_is_not_preserved": true,
+  "verdict": "PASS",
+  "working_tree": "uncommitted; git diff HEAD --stat: 65 files, 3164 insertions, 248 deletions"
+}

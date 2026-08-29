@@ -1,0 +1,8 @@
+mutant	executed	witness	status
+M01-promote-by-aggregate-total	true	aggregate 24/24 cannot override a contradictory pair-local 5/6	REJECTED
+M02-linear-promotes-radial	true	Linear 6/6 cannot promote Radial 5/6	REJECTED
+M03-oklab-promotes-linear-rgb	true	Oklab 6/6 cannot promote LinearRgb 5/6	REJECTED
+M04-ignore-p95	true	P1263 executable p95 witness	REJECTED
+M05-unknown-as-success	true	one necessary Unknown blocks only its pair	REJECTED
+M06-partial-focal-receipts	true	missing P1262 Oklab seal blocks the pair	REJECTED
+M07-fixture-hash-drift	true	mutated fixture digest is rejected against the sealed manifest	REJECTED

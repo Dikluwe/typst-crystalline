@@ -1,0 +1,16 @@
+field	value
+step	P1257 pre/post serialization diagnostic
+head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T16:51:07-03:00
+working_tree	uncommitted; git diff HEAD --stat: 82 files changed, 4856 insertions, 496 deletions
+l0	00_nucleo/prompts/infra/export/gradients/adaptive.md
+l0_sha256	ec94bb7cd1cac6bf250ee3bdbc2af7caa4ba9eb3c6af58965ce79c9e06ee00ef
+instrumentation	03_infra/src/export/gradients/adaptive.rs; cfg(test) only
+instrumentation_sha256	6e64eef8e5a7279f90b9770b479620f45dcaf1f889fa3d4c2a3637b70683a3e8
+command	cargo test -p typst-infra p1257_pre_pos_serializacao -- --nocapture
+test_log_sha256	3287f381704c49af38f86f4d51f52af908fc4dd67cfe33997281db60249e8603
+tests	2 passed; 0 failed
+unknown_policy	all P1237 pairs remain Unknown; diagnostic uses internal crystalline exact samples and cannot adjudicate vanilla parity
+mutation_score	NOT_MEASURED
+productive_semantic_writes	NONE
+attestation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

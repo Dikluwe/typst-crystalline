@@ -1,0 +1,38 @@
+record	id	status	evidence
+meta	verdict	PASS	P1254/P1245 certified for the sealed observable fragment only
+meta	verified_at	INFO	2026-08-28T12:47:12-03:00
+meta	head	INFO	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+meta	working-tree	INFO	uncommitted; git diff HEAD --stat: 65 files changed, 3259 insertions, 248 deletions
+protocol	regime	LIMITED	segregated final verification against current preseal; process-constrained writes, without strong filesystem/context isolation attestation
+sealed-input	preseal	PASS-UNCHANGED	sha256:02434498209402375f785158cc2e8dde969578dd21aecc9d6d25c17afc1ab55c; mutation score 1.0
+sealed-input	manifest	PASS	sha256:f35f6a96419e66ae974e55ef702c4dc8e9c4b612169dc61d57f8e5d62b51690a
+sealed-input	owner-confirmation	PASS	sha256:c5f691490e4c5ab6c0300d8d381ce5dd69b9b85c21f2441883369623cc1217d5
+sealed-input	entities-owner	PASS	sha256:cd982be9c5263f82bb50b701dd1f45eeae967a7641dc9577a6a478aeee69490f
+sealed-input	stdlib-owner	PASS	sha256:4f82c81d7683993c45699b8f55c53ea9f694faf53d0a390c842e28d89ecabbc4
+sealed-input	layout-owner	PASS	sha256:ef6797e5fe4d5dc9c1c7b1069067153c6813e8c22b60e803de5138f85af61cfd
+sealed-input	contract	PASS	C01-C15; sha256:48f509b90518fb92ee1895706888b13d5a352f8ccd4344b94bd7a720ffc158d3
+sealed-input	oracles	PASS	O01-O15; sha256:09a8902577fcb8c22061c619255c0c3c49436f2bfdb039062774d15bc03db45c
+sealed-input	attacks	PASS	A01-A18; sha256:5f500124e4cf0f8bf999ec755e8f95ef0e793077b805eef3353885a8809b36ce
+implementation	layout-tests	INFO	sha256:2948a63937ab6fef36b65243d1509a77de412f87f01f6aca87ad95ba2f44fdce
+implementation	svg	INFO	sha256:393a2a3decce6fda3c8f3cf62e655d35fcf322093525a6b54e99930f43dd361e
+contract	C01-C10	PASS	focused constructor/entity/layout tests cover arbitrary Content, identity, extent/pitch, offset/angle/order, contextual phase, and private single-phase materialization
+contract	C11	PASS-SCOPED	Content tiling fill is materialized and SVG morphology is witnessed; stroke tiling remains exact scoped Unknown without cross-role promotion
+contract	C12	PASS-SCOPED	productive Content fixture passes through real layout into real SVG export; PDF and HTML remain exact scoped Unknown with no preservation claim
+contract	C13	PASS	fallback remains explicit Unknown and cannot establish preservation
+contract	C14	PASS	real layout executes direct/direct/reverse/reverse and yields equal canonical repetition signatures; full layout-to-SVG pipeline is byte-identical across two executions
+contract	C15	PASS	current lineage hashes align and V5/V15/V26 are zero
+oracle	O09	PASS-LANGUAGE-WITNESS	one productive Content tiling contains ordered red then blue LTR landmarks; real layout and SVG export preserve multiple occurrences of both colors, red before blue, with clipping
+oracle	O11	PASS-SCOPED	SVG row is observed as Preserved through the productive layout-to-export join; PDF and HTML rows remain their declared exact scoped Unknown classifications
+oracle	O14	PASS	two direct and two reverse real layout executions agree; two complete layout-to-SVG executions are byte-identical
+attacks	A01-A18	REJECTED	sealed attacks are rejected by the combined focused tests, productive SVG morphology witness, exact Unknown policy, deterministic repetitions, and V15/V26 gates
+gate	p1254-core	PASS	cargo test -p typst-core p1254: 5 passed, 0 failed
+gate	p1254-svg	PASS	cargo test -p typst-infra p1254_svg_executa_grafo_repetido_e_recortado_do_layout: 1 passed, 0 failed; executes layout and export_svg twice
+gate	p1245-core	PASS	cargo test -p typst-core p1245: 3 passed, 0 failed
+gate	workspace-build	PASS	cargo build --workspace: exit 0
+gate	v5-v15-v26	PASS	crystalline-lint --checks v5,v15,v26 .: no violations
+gate	full-lint	PASS-WITH-WARNINGS	crystalline-lint .: exit 0; 255 warnings and 1002 info diagnostics; no zero-warning claim
+gate	diff-check	PASS	git diff --check: exit 0
+policy	unknown	PASS	stroke, PDF, and HTML remain exact scoped Unknown; SVG fill success promotes neither another role nor another target
+scope	certificate	INFO	attests only the sealed tiling construction/layout/SVG-fill fragment and exact Unknown boundaries; it does not claim general Typst or cross-target equivalence
+limitation	fixture-geometry	INFO	productive SVG test uses a semantically discriminating two-landmark fixture with dimensions different from O09 illustrative coordinates; acceptance is at language morphology level, not mechanical coordinate identity
+limitation	isolation	INFO	filesystem capability isolation, inherited-context isolation, and independent upstream suite authorship are not fully attested

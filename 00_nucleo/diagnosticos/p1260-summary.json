@@ -1,0 +1,19 @@
+{
+  "frontiers": 36,
+  "inputs": {
+    "localization": "264a7772535ccf50f93e5c08f72ed9481cb5d94619533b81bcda9105806639a1",
+    "numeric": "22d35642d786511389d6e096847bf8de6438acf7f96b2f824974167ba50d1191",
+    "oracle": "ea8f2a02cf38b299f1edf7a5df20044ec99b597d85274c421f5db78e6178cc03"
+  },
+  "mutation_score": null,
+  "open_frontiers": 22,
+  "position_counts": {
+    "declared-boundary": 0,
+    "endpoint-near": 4,
+    "segment-interior": 18
+  },
+  "saturated_open": 8,
+  "scope": "public vanilla exact sample at frozen candidate worst-t; saturation is observable clipping, not proof of source out-of-gamut",
+  "unknown_policy": "no owner or pair promoted",
+  "violated_fixtures": 18
+}

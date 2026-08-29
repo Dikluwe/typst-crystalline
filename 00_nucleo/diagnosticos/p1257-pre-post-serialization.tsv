@@ -1,0 +1,3 @@
+space	stops	pre_max	post_max	pre_worst_t	post_worst_t	classification
+oklab	85	0.030778080	1.069208622	0.367919922	0.654785156	serialization-gamut-boundary-material; public parity not adjudicated
+linear-rgb	65	0.019714614	0.018983630	0.374023438	0.996093750	serialization-not-amplifying-in-synthetic-witness; helper remains candidate

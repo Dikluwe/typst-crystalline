@@ -1,0 +1,27 @@
+{
+  "attacks": 7,
+  "attacks_rejected": 7,
+  "attestation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "cap": 64,
+  "inputs": {
+    "budgets": "25702f9edb31ca49d2504159827a028f45e43e4b3cfe43ac419a3f5c560e39aa",
+    "fixtures": "0d06a45884fc91d4c36f1569728e6c70521ec0a50bcdecead431ce604aa76bf4",
+    "frontiers": "08cdd27e80a8d88766b057158925f117339a61b0b9bcd9e54d1d87476fdb77c4",
+    "graph": "e03ef090cba1f3deb7edb25d39e67bd1c721b74e25cb59d233d20ab868bafb77",
+    "oracle": "ea8f2a02cf38b299f1edf7a5df20044ec99b597d85274c421f5db78e6178cc03"
+  },
+  "mutation_score": 1.0,
+  "non_targets_unchanged": true,
+  "p1237_numeric_pass": 10,
+  "preserved": 4,
+  "promoted_pairs": 0,
+  "scope": "four endpoint-near two-wide-stroke color maxima only",
+  "target_ids": [
+    "candidate-radial-oklab-two-wide-stroke",
+    "candidate-radial-linear-rgb-two-wide-stroke",
+    "regression-linear-oklab-two-wide-stroke",
+    "regression-linear-linear-rgb-two-wide-stroke"
+  ],
+  "targets": 4,
+  "unknown_policy": "Unknown is never success and is excluded from the mutation numerator"
+}

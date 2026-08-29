@@ -1,0 +1,3 @@
+phase	population	result	repeat	status
+P1234	15 fixtures;30 probes	public_divergences=0	byte-identical	Preserved
+P1236	6 fixtures;42 pairs	luma_max=0;unknown=0;Known-Upstream-Bug=14	byte-identical	Preserved

@@ -1,0 +1,20 @@
+field	value
+step	P1256 localization diagnostic
+head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T16:46:16-03:00
+working_tree	uncommitted; git diff HEAD --stat: 82 files changed, 4763 insertions, 496 deletions
+baseline	upstream/main a51e02804 ratified
+fixtures	/tmp/p1237-minimal/oracle/fixtures.tsv
+fixtures_sha256	0d06a45884fc91d4c36f1569728e6c70521ec0a50bcdecead431ce604aa76bf4
+oracle	/tmp/p1231-isolation/oracles/scripts/build.py
+oracle_sha256	ea8f2a02cf38b299f1edf7a5df20044ec99b597d85274c421f5db78e6178cc03
+svg_root	/tmp/p1237-minimal/verify/run; each SVG hash recorded per row
+runner	lab/parity/matrix/p1256_localize.py
+runner_sha256	1837c95a2b685071ef46e4598ed30e851041757e4c050c27853171eef25f54be
+localization_sha256	264a7772535ccf50f93e5c08f72ed9481cb5d94619533b81bcda9105806639a1
+summary_sha256	5898c48d315a7ff0ce09b629c277d5b4e9208762cddaa21b5bfe2d254962a347
+repeatability	PASS; two output directories byte-identical
+unknown_policy	no pair promotion; emitted interval is measured, private runtime path remains opaque
+mutation_score	NOT_MEASURED
+productive_writes	NONE
+attestation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

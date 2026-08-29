@@ -1,0 +1,28 @@
+{
+  "adaptive_code_changes": 0,
+  "additional_decisions": 0,
+  "additional_stops": 0,
+  "alpha_targets": 6,
+  "attacks": 9,
+  "attacks_rejected": 9,
+  "attestation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "color_targets": 4,
+  "deterministic_direct_reverse": true,
+  "inputs": {
+    "before_numeric": "604a85e352caa38012d22ae42625293884a122ad13dfa892d9a86c2c8f907b4f",
+    "budgets": "25702f9edb31ca49d2504159827a028f45e43e4b3cfe43ac419a3f5c560e39aa",
+    "fixtures": "0d06a45884fc91d4c36f1569728e6c70521ec0a50bcdecead431ce604aa76bf4",
+    "frontiers": "08cdd27e80a8d88766b057158925f117339a61b0b9bcd9e54d1d87476fdb77c4",
+    "oracle": "ea8f2a02cf38b299f1edf7a5df20044ec99b597d85274c421f5db78e6178cc03",
+    "p1259_results": "c8cae86b6ca5fad3045a0437a0aa9ef26eee5c1eb387d19c2d556defac885a69"
+  },
+  "mutation_score": 1.0,
+  "owner": "03_infra/src/export/svg.rs",
+  "p1237_eligible_pairs": 4,
+  "p1237_numeric_pass": 24,
+  "p1237_promotions_applied": 0,
+  "preserved": 10,
+  "productive_gate": "passed",
+  "targets": 10,
+  "unknown_in_mutation_numerator": 0
+}

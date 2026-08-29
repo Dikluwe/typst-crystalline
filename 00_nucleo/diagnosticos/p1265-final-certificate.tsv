@@ -1,0 +1,19 @@
+field	value
+step	P1265
+verdict	OPTION_B_CONFIRMED_GENERALIZE_BEFORE_PROMOTION
+manifest	00_nucleo/diagnosticos/p1265-manifest.tsv sha256:79b609d4804ea874579dc3e34dfbffc346cbe39ca7a7f1c64f42fdfc91b4f88c
+owner_decision	B; ampliar o envelope antes da promoção
+confirmed_at	2026-08-28T19:52:26-03:00
+predecessor	P1264 PASS_FOUR_PAIRS_PRESERVED_FRAGMENT_NO_PRODUCTIVE_PROMOTION
+productive_promotion	NONE
+fallback	UNCHANGED; gradient-color-space remains productive default for the four pairs
+l0_changes	NONE
+productive_code_changes	NONE
+successor	typst-passo-1266.md; PLANEADO — CONTRATO CONGELADO, ORÁCULOS E CORPUS PENDENTES
+successor_population	96 valid fixtures;24 per pair;8 invalid-domain probe families
+successor_contract	14 obligations;24 planned mutants;13 Unknown-policy rows
+successor_mutation_score	NOT_MEASURED; attacks are planned and unexecuted
+future_promotion_gate	new explicit owner confirmation under ADR-0127 after pair-local P1266 success
+architecture	V1/V5/V15/V26 PASS; git diff --check PASS
+scope	decision recording and future diagnostic preparation only
+attestation	OWNER DECISION RECORDED; EXECUTION PREPARATION WITHOUT ISOLATION ATTESTATION

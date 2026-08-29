@@ -1,0 +1,19 @@
+field	value
+step	P1260 frontier classification
+head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T17:07:06-03:00
+working_tree	uncommitted; git diff HEAD --stat: 82 files changed, 4856 insertions, 496 deletions
+baseline	upstream/main a51e02804 ratified
+numeric_sha256	22d35642d786511389d6e096847bf8de6438acf7f96b2f824974167ba50d1191
+localization_sha256	264a7772535ccf50f93e5c08f72ed9481cb5d94619533b81bcda9105806639a1
+oracle_sha256	ea8f2a02cf38b299f1edf7a5df20044ec99b597d85274c421f5db78e6178cc03
+runner	lab/parity/matrix/p1260_frontier_classify.py
+runner_sha256	9aa796095e8c7861c5b13e1ca20919ce215c07c508f1f76115670ee95031a8ea
+frontiers_sha256	08cdd27e80a8d88766b057158925f117339a61b0b9bcd9e54d1d87476fdb77c4
+summary_sha256	282410d97147e912da9880eb29caf81d8a10771bf0b130404d8daf85597cac35
+repeatability	PASS; two output directories byte-identical
+scope	public vanilla sample at frozen candidate worst-t; saturation is observable clipping only
+unknown_policy	no owner or pair promoted
+mutation_score	NOT_MEASURED
+productive_writes	NONE
+attestation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

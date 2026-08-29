@@ -1,0 +1,12 @@
+id	attack	expected_witness	revalidation
+A01	force alpha to 1 in crystalline Luma	P1252 tests and P1236 alpha classification	NOT_EXECUTED; obligation retained
+A02	use Known-Upstream-Bug to forgive luminance	P1236 violated_luma or luma_max	REJECTED_BY_CURRENT_RESULT; both are zero independently
+A03	compare only quantized u8 output	P1234 B01/B02 public component probes	REJECTED_BY_CURRENT_RESULT; public components measured before SVG adjudication
+A04	widen frozen vanilla budget	P1237 manifest and four V fields	REJECTED_BY_INPUT_PIN; no budget rewrite
+A05	read candidate-only approval fields	P1237 decision field allowlist	REJECTED_BY_CONTRACT; runner uses only V fields
+A06	promote all pairs from one pass	P1237 pair rows	REJECTED_BY_CURRENT_RESULT; four rows classified independently
+A07	infer Radial from Linear	Radial rows remain Unknown-fallback	REJECTED_BY_CURRENT_RESULT
+A08	increase cap blindly	adaptive consumer hash and no productive write	NOT_EXECUTED; production unchanged
+A09	sample midpoint only	4096-point P1237 numeric runner	REJECTED_BY_CURRENT_RESULT
+A10	cluster only by magnitude	pair keys preserve geometry and space; fixtures preserve alpha role	REJECTED_BY_CURRENT_RESULT
+score	new mutation campaign	valid killed mutants / valid mutants	NOT_CLAIMED; no mutation score for P1253 revalidation

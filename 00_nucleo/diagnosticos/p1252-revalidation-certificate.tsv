@@ -1,0 +1,32 @@
+field	value
+step	P1252 revalidation after P1239 and P1251
+protocol	tekt-materializacao-segregada-v1; additive revalidation of frozen implementation
+verdict	PASS_KNOWN_UPSTREAM_BUG_REVALIDATED
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T16:01:39-03:00
+working_tree	uncommitted shared tree before certificate; 82 files changed, 4762 insertions, 496 deletions; 427 status entries
+vanilla_baseline	upstream/main a51e02804 ratified; /usr/local/bin/typst
+alpha_tests	PASS; cargo test -p typst-core p1252; 4 passed 0 failed
+luminance_runner	PASS; p1239_luma.py executed twice with byte-identical directories
+luminance_summary	42/42 Linear/Radial P1236 pairs without luminance delta; alpha adjudicated independently
+p1239_summary_sha256	e695b924d2bc0b5ee2f2b7e668d7b87b5dcbd7069a7e857ad0fbfd1cb8ee17d3
+p1239_observations_sha256	766305ff6987f4e65f3b360a69fc281ea709ca5df71e37ec419d569e82c4cfda
+p1239_commands_sha256	de7c0eee4bd5ebb203d2d9887082a6068725be77449bdf088ced2b5548fc813e
+workspace_build	PASS; cargo build --workspace
+format	PASS; cargo fmt --all -- --check
+diff_check	PASS; git diff --check
+architecture	PASS; crystalline-lint --checks v1,v5,v15,v26 .; no violations
+full_lint	PASS_WITH_WARNINGS; exit 0; V16=211; V19=358; V20=635; no V1/V5/V15/V26
+full_lint_log_sha256	a55d1eed1efdaa7929b41fc6f4a900d78ad21f642153297f42728d3ea39b60a9
+foundations_color_l0_sha256	e385c68745ec677b151361d61977b88b42845876e892f58a8071d2238337cb4f
+entity_color_l0_sha256	94fb20c08399aaedd01a67ccc4555593d31f5260481235859bc6cb9798e3f412
+gradients_l0_sha256	254a2a700516a1134455e6f21e081c39beb4b21121b8010583380a61c804e385
+eval_tests_l0_sha256	6ab649ca98ece014eda4600a711a309ac9b1c08ab12178c4d728d2216b7464e5
+contract_sha256	199f84708a51782abb60060e854f52dd11f2492b65569e84ef7523f8d0684d60
+attacks_sha256	203d7eb0e10c4649b04159640f16dd7ff7ed0158ce68deed1096ff36e3f69c5d
+results_sha256	a8ccb576e07c8ebc785e657482779b4bbc70373820e6de60b599e88a05f374af
+historical_manifest_sha256	a4b9b201bd1dabaaff5a2369d0ca7911c8d2144df85140046b2537478814df74
+mutation_gate	5/5 historical attack obligations remain recorded; supporting tests/corpus pass, but revalidation did not execute a new mutation campaign
+unknown_policy	SVG Luma and missing upstream issue identity remain Unknown; no cross-promotion
+attestation	artifact order and deterministic gates recorded; strong environmental isolation not attested because filesystem and context are shared
+scope	certifies P1252 alpha preservation and P1239 luminance supersession only; no general color or SVG equivalence claim

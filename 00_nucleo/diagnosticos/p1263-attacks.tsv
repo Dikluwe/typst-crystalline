@@ -1,0 +1,10 @@
+mutant	executed	witness	status
+M01-ignore-alpha	true	coverage guard rejects removal of six alpha rows	REJECTED
+M02-alpha-only-in-premultiplied-rgb	true	4 explicit float-alpha witnesses remain observable	REJECTED
+M03-alpha-after-u8	true	u8 changes 6 float-alpha observations and hides 0	REJECTED
+M04-global-quarters	true	adds 360 stops and closes 0 fixtures	REJECTED
+M05-approval-guided-points	true	frozen target rows reject changed worst_t	REJECTED
+M06-max-without-p95	true	LinearRgb alpha-mid max passes while p95 fails	REJECTED
+M07-p95-without-max	true	LinearRgb alpha-mid p95 passes while max fails	REJECTED
+M08-share-linear-radial	true	coverage guard requires both variants	REJECTED
+M09-remove-coincident-right-continuity	true	structural stop-order guard rejects removed coincident stop	REJECTED

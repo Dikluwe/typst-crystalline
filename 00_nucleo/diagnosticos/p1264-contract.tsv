@@ -1,0 +1,9 @@
+contract_id	observable	population	preserved	violated	unknown_policy
+C01-P1234-L1	public gradient sample components	15 fixtures;30 probes	public_divergences=0	any public divergence	internal opaque boundary remains Unknown and cannot assign an owner
+C02-P1236-L1	luma and alpha public tuples	6 fixtures;42 pairs	luma_max=0;unknown=0	any Violated-Luma or unavailable tuple	unavailable tuple remains Unknown; P1252 applies only to known upstream alpha loss
+C03-P1237-GRAPH	variant;URL resolution;raster absence;fill-stroke role;geometry	6 fixtures per pair	6/6 per pair	any pair-local graph failure	missing or ambiguous server remains Unknown and blocks only its pair
+C04-P1237-NUMERIC	color_max;color_p95;alpha_max;alpha_p95	6 fixtures per pair	6/6 per pair under frozen V_* budgets	any metric over its frozen limit	missing metric remains Unknown and blocks only its pair
+C05-COST	emitted stops;adaptive decisions;cap	24 fixtures	zero incremental cost;cap<=64	incremental cost or cap excess	unavailable cost remains Unknown
+C06-FOCAL-SEALS	P1261;P1262;P1263 attacks	23 executable focal mutants	23/23 REJECTED	any survivor or missing applicable seal	Unknown is excluded from the numerator and never succeeds
+C07-ORDER	direct and inverse corpus reductions	all generated P1237 artifacts	semantic equality after row canonicalization	any semantic difference	parser ambiguity remains Unknown
+C08-PROMOTION	pair-local conjunction of C03;C04;C06	four independent pairs	promotion gate PASS	failed or cross-inferred pair	zero necessary causal Unknown; no productive default change in P1264

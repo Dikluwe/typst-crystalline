@@ -1,0 +1,5 @@
+pair	fixture_id	stop_count	pre_penultimate_offset	serialized_penultimate_offset	endpoint_count	endpoint_color	before_color_max	after_color_max	color_limit	before_color_p95	after_color_p95	before_alpha_max	after_alpha_max	before_alpha_p95	after_alpha_p95	status
+radial/oklab	candidate-radial-oklab-two-wide-stroke	25	0.984375	98.44%	1	#0074d9	0.009071938982020467	0.008998699508545004	0.0089996999999999994	0.0039215686274509665	0.0039215686274509665	0.0	0.0	0.0	0.0	Preserved
+radial/linear-rgb	candidate-radial-linear-rgb-two-wide-stroke	29	0.984375	98.44%	1	#0074d9	0.020785701026582535	0.020706225660859	0.020707226000000002	0.004017687885860882	0.004015818432895857	0.0	0.0	0.0	0.0	Preserved
+linear/oklab	regression-linear-oklab-two-wide-stroke	25	0.984375	98.44%	1	#0074d9	0.009071938982020467	0.008998699508545004	0.0089996999999999994	0.0039215686274509665	0.0039215686274509665	0.0	0.0	0.0	0.0	Preserved
+linear/linear-rgb	regression-linear-linear-rgb-two-wide-stroke	29	0.984375	98.44%	1	#0074d9	0.020785701026582535	0.020706225660859	0.020707226000000002	0.004017687885860882	0.004015818432895857	0.0	0.0	0.0	0.0	Preserved
