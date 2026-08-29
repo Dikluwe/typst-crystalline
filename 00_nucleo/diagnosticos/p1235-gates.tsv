@@ -1,0 +1,12 @@
+gate	verdict	evidence
+rollback-linear-oklab	Preserved	cargo test -p typst-infra p1235;test p1235_linear_oklab_regressa_a_unknown_explicito passed
+rollback-linear-linear-rgb	Preserved	cargo test -p typst-infra p1235;test p1235_linear_linear_rgb_regressa_a_unknown_explicito passed
+rollback-radial-hsv	Preserved	cargo test -p typst-infra p1235;test p1235_radial_hsv_regressa_a_unknown_explicito passed
+red-history	Unknown-not-persisted	no reproducible RED receipt retained
+mutation-testing	Unknown-not-executed	no reproducible mutant artifacts retained;no mutation score claimed
+V15-V26	Preserved	crystalline-lint --checks v15,v26 --fail-on warning .;No violations found
+V5-owner-scope	Preserved	adaptive and svg consumers have no V5 warning
+V5-global	Violated-preexisting	visualize.rs and tiling.rs drift outside P1235 owners
+diff-check	Preserved	git diff --check;no diagnostics
+production-policy	Preserved	paint_is_svg_native admits only sRGB for Linear and Radial
+final	ACCEPTED_WITH_EXTERNAL_V5	rollback preserved;no new promotion;external drift not attributed to P1235

@@ -1,0 +1,23 @@
+field	value
+verdict	ACCEPTED_CONSERVATIVE_MULTISPACE_CONSOLIDATION_WITH_EXTERNAL_V5
+predecessor	P1240 auxiliary rectangular raster harness; not a Tekt seal
+predecessor_mutation_score	NOT_MEASURED
+contract_state	CURRENT; diagnostic contract, not frozen by a Tekt attestation
+oracle_state	CURRENT; conservative adjudication inputs
+attacks_state	NOT_MUTATIONS; logical checks only
+attack_discrimination	NOT_EXECUTED; no executable mutation campaign
+multispace_pairs_adjudicated	16
+preserved_pairs	2; Linear/Srgb and Radial/Srgb
+unknown_pairs	14
+conic_controls	Unknown; P1240 has no Conic path coverage
+consolidator_determinism	PASS; normal and reverse outputs byte-identical
+python_tests	PASS; P1240 7
+core_p1239_tests	PASS; 2
+infra_svg_tests	PASS; command exit 0
+cargo_fmt_check	PASS
+focused_v15_v26	PASS; zero violations
+focused_v5	EXTERNAL_DRIFT; visualize.rs and tiling.rs outside P1241 scope
+git_diff_check	PASS
+productive_change	no semantic production change by P1241
+isolation_attestation	NOT_AVAILABLE; diagnostic A/B execution on shared filesystem
+next_action	P1241 closed diagnostically; retain 2 Preserved and 14 Unknown classifications

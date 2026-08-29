@@ -1,0 +1,10 @@
+metric	rule	meshes	status
+color_max	value <= max(0.001,V_color_max)+0.000001	2048,4096	executed
+color_p95	value <= V_color_p95+0.000001	2048,4096	executed
+alpha_max	value <= V_alpha_max+0.000001	2048,4096	executed-separately
+alpha_p95	value <= V_alpha_p95+0.000001	2048,4096	executed-separately
+fixture_verdict	both meshes pass all four metrics	2048,4096	15 pass;15 fail
+Linear/Oklab	all six normative fixtures	2048,4096	0 pass;6 fail
+Linear/LinearRgb	all six normative fixtures	2048,4096	2 pass;4 fail
+Radial/Hsv	all six normative fixtures	2048,4096	1 pass;5 fail
+Linear+Radial/sRGB	twelve controls	2048,4096	12 pass;0 fail

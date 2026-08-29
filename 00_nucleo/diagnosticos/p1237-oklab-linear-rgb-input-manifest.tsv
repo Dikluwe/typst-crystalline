@@ -1,0 +1,5 @@
+input	path	sha256
+fixtures_manifest	/tmp/p1237-minimal/oracle/fixtures.tsv	0d06a45884fc91d4c36f1569728e6c70521ec0a50bcdecead431ce604aa76bf4
+vanilla_budget	/tmp/p1231-isolation/oracles/error-budget.tsv	25702f9edb31ca49d2504159827a028f45e43e4b3cfe43ac419a3f5c560e39aa
+graph	/tmp/p1237-minimal/out/graph-role.tsv	e03ef090cba1f3deb7edb25d39e67bd1c721b74e25cb59d233d20ab868bafb77
+oracle_script	/tmp/p1231-isolation/oracles/scripts/build.py	ea8f2a02cf38b299f1edf7a5df20044ec99b597d85274c421f5db78e6178cc03

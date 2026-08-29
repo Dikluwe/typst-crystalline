@@ -1,0 +1,5 @@
+pair	graph_pass	graph_total	numeric_pass	numeric_total	classification	promotion_applied	earliest_witness
+linear/oklab	6	6	6	6	Eligible	false	
+radial/oklab	6	6	6	6	Eligible	false	
+linear/linear-rgb	6	6	6	6	Eligible	false	
+radial/linear-rgb	6	6	6	6	Eligible	false	

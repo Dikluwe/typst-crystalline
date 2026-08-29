@@ -1,0 +1,12 @@
+id	boundary	obligation	adjudication
+B01	public-construction	every fixture uses only rgb colors and gradient constructors accepted by both binaries	constructor failure makes that fixture Unknown and prevents pair promotion
+B02	public-sample	measure gradient.sample(t).components(alpha:true) at endpoints interior and epsilon positions	private Rust equality or SVG bytes are inadmissible
+B03	pair-independence	classify Linear/Oklch Radial/Oklch Linear/Hsl Radial/Hsl Linear/Hsv Radial/Hsv separately	no result may be inherited across space or geometry
+B04	short-route	for seam-forward seam-reverse and no-wrap controls hue follows vanilla at every sampled t	long-route or reversed-direction mutation violates
+B05	seam	compare hue modulo 360 with shortest angular distance	359.99 and -0.01 are equivalent; raw subtraction is forbidden
+B06	undefined-hue	low-chroma fixtures preserve the public vanilla sample rather than inventing a universal hue	space-specific vanilla result is authoritative; cross-space analogy violates
+B07	alpha	compare alpha as an independent component at first middle and last stop	P1252 exception applies only when the measured conversion is the documented Luma upstream bug
+B08	color-components	compare non-hue components independently with fixed tolerance 0.0001 normalized and hue tolerance 0.01deg	alpha or hue cannot mask another component delta
+B09	determinism	repeated and reordered executions produce identical canonical observations	order-dependent or nondeterministic classification violates
+B10	unknown-policy	Unknown never promotes a pair and a failing fixture rejects only its own pair	promotion requires all fixtures of that exact pair preserved
+ATTACKS	mutation-testing	no executable mutation suite was run in this sanitation	no mutation score or Tekt seal may be claimed

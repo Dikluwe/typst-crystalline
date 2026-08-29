@@ -1,0 +1,17 @@
+pair	classification	evidence
+Linear/Cmyk	Unknown-ADR0097	ICC/profile absent
+Linear/Hsl	Unknown	P1238 L1 42/42; SVG budget absent
+Linear/Hsv	Unknown	P1238 L1 42/42; SVG budget absent
+Linear/LinearRgb	Unknown-native-approximation	P1237 numeric 3/6
+Linear/Luma	Unknown	P1239 Luma public fragment preserved; SVG budget absent
+Linear/Oklab	Unknown-native-approximation	P1237 numeric 0/6
+Linear/Oklch	Unknown	P1238 L1 42/42; SVG budget absent
+Linear/Srgb	Preserved	current SVG L0 native sRGB boundary; P1240 auxiliary raster stable
+Radial/Cmyk	Unknown-ADR0097	ICC/profile absent
+Radial/Hsl	Unknown	P1238 L1 42/42; SVG budget absent
+Radial/Hsv	Unknown	P1238 L1 42/42; SVG budget absent
+Radial/LinearRgb	Unknown-fallback	P1237 numeric 3/6
+Radial/Luma	Unknown	P1239 Luma public fragment preserved; SVG budget absent
+Radial/Oklab	Unknown-fallback	P1237 numeric 0/6
+Radial/Oklch	Unknown	P1238 L1 42/42; SVG budget absent
+Radial/Srgb	Preserved	current SVG L0 native sRGB boundary; P1240 auxiliary raster stable

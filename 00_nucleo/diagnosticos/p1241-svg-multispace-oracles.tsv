@@ -1,0 +1,18 @@
+pair	graph	l1_sample	numeric_svg	raster	classification
+Linear/Srgb	required	Preserved	Preserved	P1240-auxiliary	Preserved
+Radial/Srgb	required	Preserved	Preserved	P1240-auxiliary	Preserved
+Linear/Oklab	required	Preserved	0/6 P1237	P1240-fragment-only	Unknown-native-approximation
+Radial/Oklab	required	Preserved	0/6 P1237	P1240-fragment-only	Unknown-fallback
+Linear/Oklch	required	42/42 P1238	not sealed	P1240-fragment-only	Unknown
+Radial/Oklch	required	42/42 P1238	not sealed	P1240-fragment-only	Unknown
+Linear/LinearRgb	required	Preserved	3/6 P1237	P1240-fragment-only	Unknown-native-approximation
+Radial/LinearRgb	required	Preserved	3/6 P1237	P1240-fragment-only	Unknown-fallback
+Linear/Luma	required	42/42 P1239	not sealed	P1240-fragment-only	Unknown
+Radial/Luma	required	42/42 P1239	not sealed	P1240-fragment-only	Unknown
+Linear/Hsl	required	42/42 P1238	not sealed	P1240-fragment-only	Unknown
+Radial/Hsl	required	42/42 P1238	not sealed	P1240-fragment-only	Unknown
+Linear/Hsv	required	42/42 P1238	not sealed	P1240-fragment-only	Unknown
+Radial/Hsv	required	42/42 P1238	not sealed	P1240-fragment-only	Unknown
+Linear/Cmyk	required	not normative without ICC	not sealed	P1240-fragment-only	Unknown-ADR0097
+Radial/Cmyk	required	not normative without ICC	not sealed	P1240-fragment-only	Unknown-ADR0097
+Conic-controls	required	space-specific prior evidence	P1230 fragment	P1240-no-path-coverage	Unknown

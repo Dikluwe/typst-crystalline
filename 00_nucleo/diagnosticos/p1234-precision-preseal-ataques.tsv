@@ -1,0 +1,9 @@
+id	mutation	expected	corrected_result
+A01	quantize before adaptive decision	Violated	rejected
+A02	premultiply alpha twice or drop alpha	Violated	rejected
+A03	measure linear RGB instead of encoded sRGB	Violated	rejected
+A04	coerce inaccessible hidden representation to pass	Unknown	rejected
+A05	skip independent CSS reparse	Violated	rejected
+A06	assign owner from a later boundary over an earlier delta	Violated	rejected
+A07	change fixture or probe population	Violated	rejected by exact 15-fixture/30-probe gate
+SUMMARY	historical synthetic mutations	SUPERSEDED	score revoked;not real mutation testing

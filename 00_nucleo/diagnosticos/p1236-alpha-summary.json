@@ -1,0 +1,16 @@
+{
+  "alpha_divergent": 14,
+  "alpha_max": 0.6,
+  "attack_regime": "not_executed; no mutation claim",
+  "fixtures": 6,
+  "isolation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "known_upstream_bug": 14,
+  "luma_max": 0.0,
+  "mutation_score": null,
+  "observations": 84,
+  "pairs": 42,
+  "positions": 7,
+  "preserved": 28,
+  "unknown": 0,
+  "violated_luma": 0
+}

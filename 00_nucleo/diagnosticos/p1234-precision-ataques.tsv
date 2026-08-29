@@ -1,0 +1,6 @@
+check	observed	status
+C01_EXACT_POPULATION	15 fixtures;2 meshes each	enforced
+C02_MISSING_INPUT	fixture and SVG existence required	enforced
+C03_BINARY_IDENTITY	path and binary SHA included in transcript hash	enforced
+C04_OPAQUE_BOUNDARY	B03/B04 remain Unknown	enforced
+C05_CAUSALITY	public divergence never assigns owner	enforced

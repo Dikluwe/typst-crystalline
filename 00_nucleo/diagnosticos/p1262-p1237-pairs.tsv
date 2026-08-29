@@ -1,0 +1,5 @@
+pair	graph_pass	graph_total	numeric_pass	numeric_total	classification	earliest_witness
+linear/oklab	6	6	6	6	Preserved	
+radial/oklab	6	6	6	6	Preserved	
+linear/linear-rgb	6	6	4	6	Unknown	regression-linear-linear-rgb-alpha-mid-wide-stroke
+radial/linear-rgb	6	6	4	6	Unknown	candidate-radial-linear-rgb-alpha-mid-wide-stroke

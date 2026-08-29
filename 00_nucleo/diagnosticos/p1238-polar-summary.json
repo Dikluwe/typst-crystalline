@@ -1,0 +1,62 @@
+{
+  "attack_regime": "not executed; no mutation claim",
+  "binary_sha256": {
+    "crystalline": "aae068f1d1d22b3e533158291e2bb69256d53a9421b7a6bcbfa26db4d35300a1",
+    "vanilla": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "fixtures": 36,
+  "isolation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "mutation_score": null,
+  "observations": 504,
+  "pairs": [
+    {
+      "classification": "Preserved",
+      "pair": "Linear/Oklch",
+      "preserved": 42,
+      "total": 42,
+      "unknown": 0,
+      "violated": 0
+    },
+    {
+      "classification": "Preserved",
+      "pair": "Linear/Hsl",
+      "preserved": 42,
+      "total": 42,
+      "unknown": 0,
+      "violated": 0
+    },
+    {
+      "classification": "Preserved",
+      "pair": "Linear/Hsv",
+      "preserved": 42,
+      "total": 42,
+      "unknown": 0,
+      "violated": 0
+    },
+    {
+      "classification": "Preserved",
+      "pair": "Radial/Oklch",
+      "preserved": 42,
+      "total": 42,
+      "unknown": 0,
+      "violated": 0
+    },
+    {
+      "classification": "Preserved",
+      "pair": "Radial/Hsl",
+      "preserved": 42,
+      "total": 42,
+      "unknown": 0,
+      "violated": 0
+    },
+    {
+      "classification": "Preserved",
+      "pair": "Radial/Hsv",
+      "preserved": 42,
+      "total": 42,
+      "unknown": 0,
+      "violated": 0
+    }
+  ],
+  "positions": 7
+}

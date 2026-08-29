@@ -1,0 +1,11 @@
+{
+  "boundary_rows": 630,
+  "fixture_count": 15,
+  "isolation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "l1_causes": 0,
+  "l3_causes": 0,
+  "mutation_score": null,
+  "probe_count": 30,
+  "public_divergences": 0,
+  "unknown_causes": 30
+}

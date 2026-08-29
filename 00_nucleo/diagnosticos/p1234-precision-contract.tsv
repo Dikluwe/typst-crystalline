@@ -1,0 +1,15 @@
+id	boundary	obligation	adjudication
+P01	probe-universe	Derive exactly two worst-t probes for each of the 15 failing P1233 fixtures	Any missing or added fixture rejects execution
+B01	vanilla-sample	Read public Gradient.sample components without reconstruction	Query failure is Unknown
+B02	crystalline-sample	Read the same public components and compare in the declared native space	A delta is observation only; it never proves causal owner
+B03	to-rgba-f32	Observe normalized encoded-sRGB floats without integer conversion	Unavailable public method remains Unknown
+B04	adaptive-metric	Observe premultiplied encoded-sRGB RGB and alpha separately	Unavailable pre-quantized tuple remains Unknown
+B05	u8-quantization	Read emitted quantized endpoints and preserve alpha separately	Output observation only while B04 is inaccessible
+B06	css-serialization	Record stop-color and stop-opacity as distinct exact strings	Output observation does not prove numeric-to-text loss
+B07	css-reparse	Parse the supported emitted CSS subset	Unsupported syntax is Unknown; parsing alone does not prove causality
+C01	causal-order	Record earliest observed divergence without promoting it to cause	Unknown never becomes pass or owner
+C02	owner	B03/B04 opacidade blocks owner assignment	All owners remain Unknown until a quantitative causal link is measured
+C03	clusters	Cluster only identical earliest-boundary outcomes	Every member is explicit
+D01	determinism	Two complete executions must be byte-identical	Any differing artifact rejects the verdict
+A01-A05	checks	Enforce population,inputs,binary identity,opacidade and no implicit causality	Execution checks are not mutation testing
+FINAL	diagnostic	Return observed divergence separately from causal owner; make no production edit	Scope is only the 30 probes and seven declared boundaries

@@ -1,0 +1,8 @@
+id	obligation	verdict_rule
+L01	Use the exact palette 0.7.6 sRGB Y row 0.2126729/0.7151522/0.0721750	Any abbreviated or reordered coefficient is Violated
+L02	luma(red), Linear/Luma red endpoint and Radial/Luma red endpoint expose 54.02%	All three public values must match the ratified vanilla
+L03	The six P1236 fixtures at seven positions close luminance independently	All 42 paired luma deltas must be zero
+L04	Preserve P1252 alpha adjudication	Alpha differences caused by vanilla loss remain Known-Upstream-Bug, never Preserved or luminance forgiveness
+L05	Do not promote SVG Luma	Linear/Luma and Radial/Luma remain explicit Unknown fallback
+U01	Unavailable public tuple	Unknown, never implicit success
+ATTACKS	No executable mutation suite in this sanitation	No mutation score or Tekt seal may be claimed

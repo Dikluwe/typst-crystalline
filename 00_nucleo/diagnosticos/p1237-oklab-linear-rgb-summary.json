@@ -1,0 +1,17 @@
+{
+  "attack_regime": "not executed; no mutation claim",
+  "decision_budget_fields": [
+    "V_color_max",
+    "V_color_p95",
+    "V_alpha_max",
+    "V_alpha_p95"
+  ],
+  "fixtures": 24,
+  "graph_pass": 24,
+  "isolation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "mutation_score": null,
+  "numeric_pass": 6,
+  "pairs": 4,
+  "promotions": 0,
+  "scope": "frozen SVG corpus; not current productive binary"
+}

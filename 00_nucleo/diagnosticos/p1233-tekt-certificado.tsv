@@ -1,0 +1,13 @@
+gate	verdict	evidence
+manifest	Preserved-with-limit	executable inputs and hashes pinned;no segregated seal
+F01	Preserved	0 exact semantic tuples after executed join
+F02	Preserved	30/30 pass full dimension validation as normative coverage extensions;0 unknown scope dimensions
+independent-input-policy	Preserved	ID-only allowlist;0 prior verdict fields read;no new candidate observed
+mesh	Preserved	2048 and 4096 executed;60 rows;repeat byte-identical
+metric	Preserved	encoded sRGB premultiplied RGB plus alpha separate;stop-opacity parsed once
+mutation	Unknown-not-reexecuted	attack inventory retained;no mutation score claimed after P1232 changed
+controls	Preserved	Linear/Radial sRGB 12/12 pass
+P1229-promotions	Violated	Linear/Oklab 6/6 fail;Linear/LinearRgb 4/6 fail;Radial/Hsv 5/6 fail
+production-write	Preserved	no L0 or L1-L4 change by corrected P1233
+final	ACCEPTED_DIAGNOSTIC	P1229_REOPENED;three promotions remain Unknown;diagnostic reproduction only;no whitelist change authorized
+isolation	EXECUTADO SEM ATESTACAO DE ISOLAMENTO	filesystem shared;hashes and roles do not prove OS isolation

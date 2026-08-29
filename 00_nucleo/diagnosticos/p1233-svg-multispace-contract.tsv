@@ -1,0 +1,12 @@
+id	classification	obligation	result
+C01	Preserved	baseline vanilla a51e02804 and binary hash pinned	PASS
+C02	Preserved	R01 universe exactly 30 fixtures selected by persisted ID-only allowlist	PASS
+C03	Preserved	F01 tuple includes variant,space,stops,offsets,alpha,geometry,role,box	PASS;0 exact matches
+C04	Preserved	F02 validates every tuple dimension against P1229 normative dimensions	PASS;30 coverage extensions;0 unknown dimensions
+C05	Preserved	public vanilla Gradient.sample versus parsed SVG linear function	PASS
+C06	Preserved	meshes 2048 and 4096 include offsets and epsilon boundaries	PASS;60 rows
+C07	Preserved	encoded sRGB premultiplied RGB and alpha separate	PASS;stop-opacity parsed separately
+C08	Preserved	budget from sealed vanilla V_* plus 0.000001	PASS;no prior verdict field read
+C09	Preserved	direct and repeated executions byte-identical	PASS
+C10	Preserved	any normative failure reopens affected P1229 promotion	PASS;15/30 fixtures fail
+C11	Unknown	raster as acceptance gate	not used;local geometric normalization outside this rectification

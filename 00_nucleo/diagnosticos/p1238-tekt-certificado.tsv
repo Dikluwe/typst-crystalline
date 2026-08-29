@@ -1,0 +1,25 @@
+field	value
+verdict	ACCEPTED_POLAR_L1_SAMPLE_ONLY
+observations_sha256	a9779567b7985c3f62ea4d83802df61a064c5f3e7033c852580a073bce1ce074
+metrics_sha256	ee984a1ea74f3669ce8438021d9acffe88039991b6a44af9f4038b7931ddaf08
+commands_sha256	edf06aff758d1c3560a2702f13edba601d82925e0afdd80354b7403f3c5b124b
+attack_results_sha256	7d5fe55d27245251730c924861599e4ab8c87ff4e8f74bca74578aa9869e4552
+pair_results_sha256	0ce11ff77746bf5e6be5dfc5a6c9c0036ce6ee1386810ebb04a6a35984d9ddd5
+summary_sha256	5522398f044cf60244463a149e1ebb57b99440777ed79134e85fad2f6ec0cf1a
+fixtures	36
+positions_per_fixture	7
+public_observations	504
+paired_measurements	252
+linear_oklch	Preserved 42/42
+radial_oklch	Preserved 42/42
+linear_hsl	Preserved 42/42
+radial_hsl	Preserved 42/42
+linear_hsv	Preserved 42/42
+radial_hsv	Preserved 42/42
+unknown	0
+violated	0
+mutation_score	NOT_CLAIMED; no executable mutation suite
+determinism	PASS; normal and reverse traversals byte-identical after canonicalization
+productive_change	false
+l3_svg_promotion	false; outside measured fragment
+isolation	EXECUTADO SEM ATESTACAO DE ISOLAMENTO

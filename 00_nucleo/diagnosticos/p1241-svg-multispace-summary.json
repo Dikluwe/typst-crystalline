@@ -1,0 +1,9 @@
+{
+  "attack_regime": "not executed; logical policy checks only",
+  "conic_scope": "Unknown; P1240 has no path/wedge Conic coverage",
+  "isolation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "mutation_score": null,
+  "pairs": 16,
+  "preserved": 2,
+  "unknown": 14
+}

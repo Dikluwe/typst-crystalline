@@ -1,0 +1,2 @@
+status	reason
+REVOKED	Historical rows mix controls and hypothetical mutations without mutated-source hashes or execution receipts

@@ -1,0 +1,22 @@
+field	value
+step	P1237 corrected
+protocol	A/B diagnostic; no Tekt isolation attestation
+head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-27T22:30:51-03:00
+runner	lab/parity/matrix/p1237_recompute.py
+runner_sha256	d2de1f551be52e67eccebb165bca1f26354edcb066e8685e9b60d8c89dd30ac7
+oracle_sha256	ea8f2a02cf38b299f1edf7a5df20044ec99b597d85274c421f5db78e6178cc03
+vanilla_budget_sha256	25702f9edb31ca49d2504159827a028f45e43e4b3cfe43ac419a3f5c560e39aa
+graph_sha256	e03ef090cba1f3deb7edb25d39e67bd1c721b74e25cb59d233d20ab868bafb77
+fixtures	24
+pairs	4
+input_manifest	00_nucleo/diagnosticos/p1237-oklab-linear-rgb-input-manifest.tsv
+input_manifest_sha256	4f6ce840c10dc1a9773a2fa8519b4ea9196d31d356fc1d5218cb3ee789a06aac
+svg_l0_sha256	98616af62e17692c6bebbfab0ca85436819112bd9f124d1c1b13904743833b9e
+adaptive_l0_sha256	ec94bb7cd1cac6bf250ee3bdbc2af7caa4ba9eb3c6af58965ce79c9e06ee00ef
+decision_budget_fields	V_color_max;V_color_p95;V_alpha_max;V_alpha_p95
+unknown_policy	Any graph or numeric failure keeps the individual pair Unknown
+production_writes	NONE
+attacks	NOT_EXECUTED; historical synthetic rows revoked
+scope	frozen SVG corpus; not current productive binary
+isolation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO
