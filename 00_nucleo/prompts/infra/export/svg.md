@@ -227,6 +227,64 @@ qualquer quantização `u8`; as 24 fixtures P1237 não podem regredir; execuçã
 direta e inversa deve ser determinística; o custo incremental deve permanecer
 em zero stops e zero decisões; nenhum target é promovido por esta correção.
 
+#### P1273 — promoção dos quatro pares certificados
+
+**Gate ADR-0127:** proposta L0 confirmada explicitamente pelo dono em
+2026-08-29. A mudança é deliberadamente classificada como comportamento por
+defeito: substitui fallback sólido por servidor SVG nativo somente nos quatro
+pares nomeados abaixo.
+
+Medição anterior à proposta, sobre o commit
+`9f0bed3633f3245cf27609751a3743968d5956b0`: o owner continua biunívoco com
+`03_infra/src/export/svg.rs`; `paint_is_svg_native` admite Linear/Radial apenas
+em sRGB, enquanto `write_svg_gradient_stops` já possui a rota adaptativa para
+Oklab e LinearRgb. Consequentemente, os quatro pares abaixo ainda recebem
+`gradient-color-space` antes de alcançar o writer adaptativo.
+
+O certificado P1272
+`00_nucleo/diagnosticos/typst-p1272-generalization-certificate.md`
+(SHA-256 `d07786a848af1778a02bdff7d468fd9db47a499c565281b36df02c21e76359ec`),
+pinado pelo manifesto final
+`00_nucleo/diagnosticos/p1272-final-manifest.tsv`
+(SHA-256 `0c711546ab246becb1468a61e859ea9e6202e79f0379658ff8eea7d7d699619c`),
+classificou individualmente como `Generalization-Preserved`, 24/24 cada:
+
+- Linear/Oklab;
+- Radial/Oklab;
+- Linear/LinearRgb;
+- Radial/LinearRgb.
+
+Decisão aprovada: esses quatro pares deixam o fallback `gradient-color-space`
+e usam o servidor SVG Linear/Radial já existente com os stops de
+`svg_adaptive_stops`. sRGB conserva a rota nativa histórica. Não se altera
+geometria, orçamento, cap 64, fórmula de subdivisão, offsets, cores, alpha,
+ordem, multiplicidade, descontinuidades, reutilização de definição nem papel
+fill/stroke.
+
+Hsv, Oklch, Hsl, Luma e CMYK continuam `Unknown` para Linear e Radial e mantêm
+o fallback explícito `gradient-color-space`. Qualquer espaço ou par não
+certificado também permanece `Unknown`; opacidade nunca é convertida em
+`Preserved` por default. Conic e Tiling conservam os seus contratos e reasons
+próprios, sem promoção por arrasto.
+
+A evidência P1272 limita-se ao envelope congelado de 96 fixtures, com 24 por
+par: 96/96 no grafo e raster, 384/384 métricas numéricas, 28/28 entradas
+inválidas rejeitadas, 192/192 recibos determinísticos e 24/24 mutantes
+rejeitados (`mutation_score=1.0`). Esse envelope autoriza somente a mudança de
+rota identificada acima; não prova equivalência SVG geral, não cobre espaços
+não listados e não autoriza ampliar budgets ou reinterpretar `Unknown`.
+
+Plano RED→GREEN autorizado: primeiro substituir os testes de regressão
+P1231/P1235 dos quatro pares por testes que exijam referência local resolvida,
+variante correta, ausência do fallback, offsets/stops/alpha preservados e
+fill/stroke; confirmar RED com o predicate produtivo ainda restrito a sRGB;
+depois ampliar apenas esse predicate para Oklab e LinearRgb em Linear/Radial e
+confirmar GREEN. Ataques devem sobreviver como gates negativos para promoção
+indevida de Hsv/Oklch/Hsl/Luma/CMYK, remoção silenciosa de fallback e bypass da
+amostragem adaptativa. Por fim, repetir integralmente o envelope P1272, os
+controles sRGB/P1234/P1236/P1237/P1264 e os gates V1/V5/V15/V26; qualquer
+regressão ou `Unknown` necessário cancela a promoção.
+
 ### P1230 — Conic vetorial por pattern de cunhas
 
 Conic aprovado no SVG permanece paint vetorial. O exportador materializa um

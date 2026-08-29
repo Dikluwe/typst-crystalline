@@ -1,0 +1,23 @@
+field	value
+artifact	P1273-L0-PROPOSAL
+measured_at	2026-08-29T10:44:53-03:00
+head	9f0bed3633f3245cf27609751a3743968d5956b0
+working_tree	uncommitted;only 00_nucleo/prompts/infra/export/svg.md changed at measurement time
+owner_prompt	00_nucleo/prompts/infra/export/svg.md
+owner_consumer	03_infra/src/export/svg.rs
+ownership_gate	crystalline-lint --checks v15,v26 .;PASS;zero violations
+prompt_before_sha256	41c5d785d9e4ecdb184fd5e6344dd7422d874e826e3bdeac2ddb2d6617530d29
+prompt_proposed_sha256	209dbb2ac14be0f05e5e8bc9c651bbb6e7e1fdcd69533d6b2bd40a348be95478
+prompt_proposed_linter_hash	f742c368
+consumer_current_prompt_hash	69409a7d
+consumer_sha256	ffd9b7095fc52b1aab222003be2018431885ea1bdb301ab9403a35bbbc0d3165
+expected_open_gate	V5;Hash L0 f742c368;Código 69409a7d
+p1272_certificate	00_nucleo/diagnosticos/typst-p1272-generalization-certificate.md sha256:d07786a848af1778a02bdff7d468fd9db47a499c565281b36df02c21e76359ec
+p1272_manifest	00_nucleo/diagnosticos/p1272-final-manifest.tsv sha256:0c711546ab246becb1468a61e859ea9e6202e79f0379658ff8eea7d7d699619c
+p1272_pair_certificates	00_nucleo/diagnosticos/p1272-pair-certificates.tsv sha256:1cab84734cbd9da0b10a759941c2bba9f80b2bbe3bcf9747729adbc6adfde36c
+promote_after_owner_confirmation	linear/oklab;radial/oklab;linear/linear-rgb;radial/linear-rgb
+remain_unknown	linear|radial x hsv|oklch|hsl|luma|cmyk;all uncertified pairs
+scope	96 frozen fixtures;24 per promoted pair;no general SVG equivalence
+productive_writes	NONE
+attestation	single authority /root;no claim of isolation
+gate	STOP-ADR-0127;explicit owner confirmation required
