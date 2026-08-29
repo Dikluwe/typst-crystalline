@@ -1,0 +1,9 @@
+pair	general	general_valid	focal	focal_preserved	invalid_rejected	product_fallback	final_classification	productive_promotion
+linear/oklch	Unknown-generalization	14/24	Focal-Preserved	42/42	6/6	Preserved	Unknown-generalization	false
+radial/oklch	Unknown-generalization	15/24	Focal-Preserved	42/42	8/8	Preserved	Unknown-generalization	false
+linear/hsl	Unknown-generalization	14/24	Focal-Preserved	42/42	6/6	Preserved	Unknown-generalization	false
+radial/hsl	Unknown-generalization	14/24	Focal-Preserved	42/42	8/8	Preserved	Unknown-generalization	false
+linear/hsv	Unknown-generalization	13/24	Focal-Preserved	42/42	6/6	Preserved	Unknown-generalization	false
+radial/hsv	Unknown-generalization	13/24	Focal-Preserved	42/42	8/8	Preserved	Unknown-generalization	false
+linear/luma	Unknown-generalization	7/24	Focal-Preserved	42/42	6/6	Preserved	Unknown-generalization	false
+radial/luma	Unknown-generalization	7/24	Focal-Preserved	42/42	8/8	Preserved	Unknown-generalization	false

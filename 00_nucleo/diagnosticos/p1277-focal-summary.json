@@ -1,0 +1,24 @@
+{
+  "attestation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "binary_sha256": {
+    "candidate": "1ca120604797e49d79ed37770c082ef9859a78830b6374dfe765e6a1b4dfb2a0",
+    "vanilla": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "fixture_groups": 48,
+  "mutants": 6,
+  "mutants_rejected": 6,
+  "observations": 336,
+  "pair_verdicts": {
+    "linear/hsl": "Focal-Preserved",
+    "linear/hsv": "Focal-Preserved",
+    "linear/luma": "Focal-Preserved",
+    "linear/oklch": "Focal-Preserved",
+    "radial/hsl": "Focal-Preserved",
+    "radial/hsv": "Focal-Preserved",
+    "radial/luma": "Focal-Preserved",
+    "radial/oklch": "Focal-Preserved"
+  },
+  "preserved": 336,
+  "unknown": 0,
+  "violated": 0
+}

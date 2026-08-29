@@ -1,0 +1,4 @@
+attempt	class	result	used_for_verdict
+A01	operational	cargo build attempted network access; offline rebuild succeeded	false
+A02	executor-contract	rgb(color) unsupported by crystalline eval; native-component oracle replaced it	false
+A03	attack-schema	M20 named predecessor column; semantic outputs reproduced by final run	false

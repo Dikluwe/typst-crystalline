@@ -1,0 +1,15 @@
+measured_at=2026-08-29T13:01:54-03:00
+head=4d7e224c8a843635b5052ee53e80cbe59bd9ade6
+working_tree=uncommitted
+
+git status --short
+
+
+git diff HEAD --stat
+
+ignored P1277 executor inputs present at measurement
+lab/parity/matrix/p1277_generalize.py	b82c91cede63b9687c0e7495adddabf0f9269e21608d6d2593262697fb015b57
+lab/parity/matrix/p1277_focal.py	d1a3eefaee0df44dee98cc974f62217e3cc028ac9d5219494b3abb4e79750fe0
+lab/parity/matrix/p1277_probe/src/main.rs	aa0a5c16bb276e4dc92d59d2aa06366a6ab09ad6bad37bc10abd140ed9c3f65b
+lab/parity/matrix/p1277_probe/Cargo.toml	af9adf9c8fcc4dd37387509942f279238be94f4d867660a43bf50f71bd151cf8
+lab/parity/matrix/p1277_probe/Cargo.lock	14a59e0136df9ba37c219c4f6fa0200fdf7e617f2c6dd45df4e7689fa9ead462

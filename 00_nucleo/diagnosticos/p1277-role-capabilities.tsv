@@ -1,0 +1,5 @@
+role	artifact	write_scope	read_scope	isolation
+oracle	p1277-oracle-budgets.tsv + vanilla masks in temporary run	oracle artifacts	P1276 inputs, vanilla binary and generated fixtures	logical-order-only
+implementation	p1277 probe + diagnostic adapter	candidate observations and adapter SVG in temporary run	oracle artifacts and existing adaptive.rs	not isolated
+attacker	p1277-attacks-executed.tsv + p1277-focal-attacks.tsv	attack receipts	contract and execution outputs	not isolated
+judge	p1277-final-pairs.tsv + certificate	adjudication artifacts	all P1277 evidence	not isolated
