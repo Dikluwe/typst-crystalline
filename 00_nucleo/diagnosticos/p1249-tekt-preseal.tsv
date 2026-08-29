@@ -1,0 +1,44 @@
+field	value
+protocol	tekt-materializacao-segregada-v1
+step	P1249
+verdict	PASS_PRESEMANTIC_UNATTESTED_ISOLATION
+sealed_at	2026-08-28T13:43:36-03:00; mechanically resealed 2026-08-28T13:54:14-03:00, 2026-08-28T14:00:20-03:00 and 2026-08-28T14:05:08-03:00
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+manifest	00_nucleo/diagnosticos/p1249-tekt-manifesto.tsv
+manifest_sha256	12300c0b6dcf54483f029c52f0c608f8f36bbccc928911e6f087f1b3a591f1c9
+receipt	00_nucleo/diagnosticos/p1249-preseal-receipt.tsv
+receipt_sha256	caa5b401beaa23a9ff488930808f11de6fed41a8af7514d54a08d97e3948bbb4
+summary	00_nucleo/diagnosticos/p1249-preseal-summary.json
+summary_sha256	96152e4dada85e8a8e406a541ff8bf7c8e4ec76e7653d21f54c7dc02ecd7bbb4
+prompt	00_nucleo/prompts/infra/export/svg.md
+prompt_sha256	a3145515c463b0d133e8b88b0f188c841ba226b8754e766e02e18dab4da6873d
+nucleus	00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml
+nucleus_file_sha256	f4b82bcf0dc6948c177742924e237844201f008864a4ebccac8e51e5aa5f48ac
+nucleus_effective_sha256	4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
+baseline	lab/typst-original/crates/typst-svg/src/text.rs
+baseline_sha256	d5ffcdc23ccc7f15822b67ef774779bf1a97bfb9c56e5ef0b71cb4b6c037b479
+contract	00_nucleo/diagnosticos/p1249-glyph-contract.tsv
+contract_sha256	548d6e0eb4e1be8b68eeec54abaff3d371ee55bbb78a87a3dd2a76decc5a7485
+oracles	00_nucleo/diagnosticos/p1249-glyph-oracles.tsv
+oracles_sha256	a2eb2b51f8a54e0a0720f61e8746a0724c0d3bddd96f9cb59887a2ab4663b764
+attacks	00_nucleo/diagnosticos/p1249-glyph-attacks.tsv
+attacks_sha256	a487a97826d27e856d68be3033d7d56231dbac3ce118e3bffad85edaed7bc6b9
+runner	lab/parity/matrix/p1249_preseal.py
+runner_sha256	17d7638f9c9f4a011e6b6a9ef6cf28806cc8d6c68e7995879dfcf2951c2cc2e9
+observable_count	12
+oracle_count	21
+positive_cases	12
+negative_cases	4
+unknown_cases	5
+valid_mutations	15
+rejected_mutations	15
+mutation_score	1.0
+determinism_runs_per_execution	4
+canonical_gate_sha256	fcde70d9adea53143c80b172ab6dcf8c2bf7aef7871df3a93d9bb4afe34b1e4f
+external_execution_count	2
+normalized_cross_run_sha256	9830245910ea505ff47578bfcbc57d5255f930e858ad4e90a05b92ad760ad658
+candidate_executed	false
+productive_change	false
+isolation_attested	false
+scope	seals only P1249 frozen presemantic inputs and discriminator; implementation and final refinement remain future independent gates
+reseal_reason	final mechanical Hash do Código refresh only (6f8b32d1 -> 134fc7ef); P1249 semantics protected suite score Unknown policy and canonical digest preserved; candidate-level witnesses remain outside presemantic seal

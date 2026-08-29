@@ -1,0 +1,50 @@
+{
+  "attestation": "segregated_fragment_pass_without_strong_isolation_attestation",
+  "candidate": {
+    "exports_sha256": "56d2484579e26715fa870b66cdbfb6aaca8aa88a674d1ab9b9efefda2490632c",
+    "pipeline_sha256": "b975c6d60ad2874baa97c27e2124d0c49f6e67bb28595e7f2deb7cc22f1475a1",
+    "svg_sha256": "134fc7ef00beb45a8e9319cd674eacf3a88f2ee02ae18e2313cafb7121d491b5"
+  },
+  "coverage": {
+    "M02_request_key_drops_variant": "REJECTED",
+    "M04_wrong_glyph_or_tofu": "REJECTED_BY_SAME_FACE_EXPECTED_OUTLINE",
+    "M05_scale_applied_twice": "REJECTED_BY_EXACT_EXPECTED_SCALE",
+    "assembly_recursion": "PASS",
+    "collision_reordering": "PASS_REAL_FONTS",
+    "determinism": "PASS",
+    "transform_composition": "PASS",
+    "unknown_policy": "PASS",
+    "x_advance_noninterference": "PASS"
+  },
+  "frozen_inputs": {
+    "attacks_sha256": "a487a97826d27e856d68be3033d7d56231dbac3ce118e3bffad85edaed7bc6b9",
+    "contract_sha256": "548d6e0eb4e1be8b68eeec54abaff3d371ee55bbb78a87a3dd2a76decc5a7485",
+    "manifest_sha256": "12300c0b6dcf54483f029c52f0c608f8f36bbccc928911e6f087f1b3a591f1c9",
+    "oracles_sha256": "a2eb2b51f8a54e0a0720f61e8746a0724c0d3bddd96f9cb59887a2ab4663b764",
+    "preseal_sha256": "497ba277a89906bf791fbf867b3544515fdd692c52bb3a1bd50434749ec59127",
+    "prompt_sha256": "a3145515c463b0d133e8b88b0f188c841ba226b8754e766e02e18dab4da6873d",
+    "runner_sha256": "17d7638f9c9f4a011e6b6a9ef6cf28806cc8d6c68e7995879dfcf2951c2cc2e9"
+  },
+  "gates": {
+    "cargo_build_workspace": {"exit": 0, "verdict": "PASS"},
+    "crystalline_lint_full": {"exit": 0, "infos": 1004, "verdict": "PASS_WITH_DIAGNOSTICS", "warnings": 256},
+    "crystalline_lint_v5_v15_v26": {"exit": 0, "verdict": "PASS"},
+    "git_diff_check": {"exit": 0, "verdict": "PASS"},
+    "p1249_tests": {"exit": 0, "failed": 0, "passed": 5, "verdict": "PASS"},
+    "preseal_runner": {"exit": 0, "mutation_score": 1.0, "rejected_mutations": 15, "valid_mutations": 15, "verdict": "PASS_PRESEMANTIC"},
+    "svg_suite": {"exit": 0, "failed": 0, "passed": 41, "verdict": "PASS"}
+  },
+  "head": "697eaf31e8ce6aaa4eef7d61d7808e377005c3c5",
+  "limitations": [
+    "Shared filesystem and inherited conversation prevent strong capability-isolation attestation.",
+    "The verdict covers only the frozen P1249 direct-glyph SVG fragment.",
+    "No general SVG, Typst or whole-compiler equivalence is claimed."
+  ],
+  "measured_at_end": "2026-08-28T14:07:54-03:00",
+  "measured_at_start": "2026-08-28T14:07:34-03:00",
+  "prompt_integrity": "PASS_MECHANICAL_RESEAL",
+  "semantic_refinement": "PASS_FOR_SEALED_P1249_FRAGMENT",
+  "step": "P1249",
+  "verdict": "PASS_SEGREGATED_FRAGMENT_UNATTESTED_ISOLATION",
+  "working_tree": {"state": "uncommitted_shared", "tracked_status_entries": 65, "untracked_entries": 323}
+}

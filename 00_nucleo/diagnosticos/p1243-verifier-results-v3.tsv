@@ -1,0 +1,44 @@
+kind	id	expected	observed	correct	witness
+attack	V3-A01	Unknown	Unknown	true	O01 has no common SVG graph; matching color or one-sided construction cannot prove direct-solid reduction.
+attack	V3-A02	Unknown	Unknown	true	No frozen graph exists to resolve a dangling, cyclic, or wrong-kind target; C05 would yield FAIL only when malformation is proved.
+attack	V3-A03	Unknown	Unknown	true	No produced pattern exposes coordinate semantics; mechanics or current source inspection cannot substitute for the frozen common witness.
+attack	V3-A04	Unknown	Unknown	true	O03 emits no common SVG and flat color has no boundary landmark; effective period is unobserved.
+attack	V3-A05	Unknown	Unknown	true	Spacing-only pitch cannot be semantically measured without axis-specific periods from a common graph.
+attack	V3-A06	Unknown	Unknown	true	Asymmetric inputs would discriminate a swap only after effective periods exist; none exist in frozen output.
+attack	V3-A07	CONTRACT-GAP	CONTRACT-GAP	true	Cell-extent versus repeat-cell viewport requires a body landmark absent from current TilingBody::Color.
+attack	V3-A08	CONTRACT-GAP	CONTRACT-GAP	true	No public/frozen internal edge landmark exists and C01 forbids inventing one.
+attack	V3-A09	Unknown	Unknown	true	Uniform color and absent SVG phase witness cannot distinguish shared phase from self anchoring.
+attack	V3-A10	CONTRACT-GAP	CONTRACT-GAP	true	Parent identity/geometry does not reach the current consumer; no API expansion is authorized.
+attack	V3-A11	CONTRACT-GAP	CONTRACT-GAP	true	The paired claim is dominated by Parent's scoped-out consumer; Self is also phase-opaque.
+attack	V3-A12	Unknown	Unknown	true	O02 supplies no graph or rendering from which opacity loss can be recovered.
+attack	V3-A13	Unknown	Unknown	true	No compositing or graph-alpha witness measures application count.
+attack	V3-A14	Unknown	Unknown	true	O01 supplies no resolved fill/stroke role; any-url presence cannot decide attachment.
+attack	V3-A15	CONTRACT-GAP	CONTRACT-GAP	true	The frozen crystalline pipeline cannot form tiling paint in stroke position.
+attack	V3-A16	Unknown	Unknown	true	No phase landmark measures double transform application; transform spelling is excluded mechanics.
+attack	V3-A17	Unknown	Unknown	true	Implicit shift/rotation is unobservable without a phase landmark; nonzero public offset/angle remains a separate gap.
+attack	V3-A18	Unknown	Unknown	true	No emitted role exists in frozen evidence, so an unannotated reduction is not proved; if produced it would be FAIL.
+attack	V3-A19	Unknown	Unknown	true	Role-specific fallback annotation resolves only the diagnostic fallback classification and is never PASS.
+attack	V3-A20	Unknown	Unknown	true	One-sided or opaque construction cannot satisfy the shared SVG gate; current-only construction remains separately observed.
+attack	V3-A21	CONTRACT-GAP	CONTRACT-GAP	true	Flat color supplies no intrinsic size and arbitrary unit geometry is forbidden.
+attack	V3-A22	FAIL	FAIL	true	C23 can reject promotion of zero/non-finite size or non-finite spacing before any SVG claim.
+attack	V3-A23	CONTRACT-GAP	CONTRACT-GAP	true	Image bytes/geometry and the real image consumer are absent; fallback color cannot promote the feature.
+attack	V3-A24	CONTRACT-GAP	CONTRACT-GAP	true	Gradient is constructor-rejected and its entity variant is placeholder; first-stop substitution cannot promote it.
+attack	V3-A25	CONTRACT-GAP	CONTRACT-GAP	true	Arbitrary Content is absent from the closed public body enum and v3 forbids expansion.
+attack	V3-A26	CONTRACT-GAP	CONTRACT-GAP	true	Nonzero offset/angle fields are publicly absent; indirect encoding cannot establish support.
+attack	V3-A27	Unknown	Unknown	true	Uniform flat color has no edge landmark; exact element count cannot prove repetition or stretching.
+attack	V3-A28	Unknown	Unknown	true	Repeated absence/failure is not semantic determinism because base SVG witnesses are unresolved.
+attack	V3-A29	Unknown	Unknown	true	Order-invariant absence is mechanics-only and cannot promote unresolved base observations.
+attack	V3-A30	PASS	PASS	true	With the stipulated resolved graph, alpha-renaming IDs and reordering defs preserve the semantic reference graph under C24.
+attack	V3-A31	FAIL	FAIL	true	The stipulated dangling edge changes reachability, so C05 distinguishes it from mechanics-only renaming.
+attack	V3-P01	PASS	PASS	true	constructor-explicit-size.typ compiled successfully in both direct and inverse runs; claim remains current-only.
+attack	V3-P02	PASS	PASS	true	constructor-identity.typ compiled successfully in both direct and inverse runs; claim remains current-only.
+attack	V3-P03	Unknown	Unknown	true	Vanilla rejected both current-only fixture syntaxes; this proves neither crystalline equivalence nor error, so shared constructor parity remains Unknown.
+metric	mutation_score	1.0	1.0 (34/34 exact adjudications)	true	All negative, opaque, metamorphic, and positive controls received the contract-prescribed vocabulary without implicit promotion.
+oracle	V3-O13	PASS	PASS	true	Current crystalline explicit-size assertion passed twice; both SVG outputs sha256 0ab0b1901f851951eb33d2dc9fab6f86f6176af15ce29f6aae955c34b446228b.
+oracle	V3-O14	PASS	PASS	true	Current crystalline identity assertion passed twice; both SVG outputs sha256 0ab0b1901f851951eb33d2dc9fab6f86f6176af15ce29f6aae955c34b446228b.
+oracle	V3-O17	PASS	PASS	true	Both current-only assertions passed in direct and inverse ordering while retaining their narrow claim scopes.
+oracle	V3-O18	PASS	PASS	true	Identity repeatability survived inverse ordering and was not widened to parent anchoring, pitch, or SVG parity.
+oracle	V3-O01-O03,O06,O15,O16	Unknown	Unknown	true	No common frozen SVG witness exists; repeated or reordered absence remains unresolved rather than PASS.
+oracle	V3-O04,O05,O07-O12	CONTRACT-GAP	CONTRACT-GAP	true	Each row depends on a public-model field, carrier, body morphology, or scoped-out consumer absent from v3.
+oracle	V3-O19,O20	Unknown	Unknown	true	Fallback-bearing roles and invalid/opaque eligibility remain non-positive without adding fixtures.
+verdict	preseal	PRESEAL_SEALED	PRESEAL_SEALED	true	Score is 1.0; current-only positives and their direct/inverse repeatability pass; opaque and gap rows remain exact; protected inputs remained unchanged. Seal covers only the frozen v3 observable universe, not SVG or vanilla parity.

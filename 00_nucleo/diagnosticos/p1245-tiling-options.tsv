@@ -1,0 +1,5 @@
+option	public_contract	pipeline	language_coverage	risk	decision
+declarative-content-existing-layout	Content plus size spacing offset angle relative	public value stays unresolved; existing layout phase materializes a private tile representation	complete target without a second public resolved contract	medium	PROPOSED; explicit owner confirmation of both L0 hashes and later segregated seal required
+public-resolved-tiling	second public resolved tiling/frame contract	new public value crosses from layout to exporters	complete but expands public surface and mirrors vanilla mechanics	high	rejected: unnecessary parallel abstraction
+resolve-in-each-exporter	no new public resolved type	each exporter repeats layout and size-auto resolution	inconsistent phase authority and target-dependent behavior	high	rejected: duplicates layout and violates the single layout-phase authority
+rasterize-early	smaller apparent surface	constructor or exporter bakes bitmap	loses morphology and semantic target independence	high	rejected by ADR0107/ADR0128

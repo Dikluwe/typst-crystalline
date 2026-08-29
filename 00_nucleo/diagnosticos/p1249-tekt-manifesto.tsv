@@ -1,0 +1,28 @@
+field	value
+protocol	tekt-materializacao-segregada-v1; adversarial preseal
+step	P1249
+verdict	PASS_PRESEMANTIC_UNATTESTED_ISOLATION
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+prompt	00_nucleo/prompts/infra/export/svg.md
+prompt_sha256	a3145515c463b0d133e8b88b0f188c841ba226b8754e766e02e18dab4da6873d
+nucleus	00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml
+nucleus_file_sha256	f4b82bcf0dc6948c177742924e237844201f008864a4ebccac8e51e5aa5f48ac
+nucleus_effective_sha256	4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
+baseline	lab/typst-original/crates/typst-svg/src/text.rs
+baseline_sha256	d5ffcdc23ccc7f15822b67ef774779bf1a97bfb9c56e5ef0b71cb4b6c037b479
+contract	00_nucleo/diagnosticos/p1249-glyph-contract.tsv
+contract_sha256	548d6e0eb4e1be8b68eeec54abaff3d371ee55bbb78a87a3dd2a76decc5a7485
+oracles	00_nucleo/diagnosticos/p1249-glyph-oracles.tsv
+oracles_sha256	a2eb2b51f8a54e0a0720f61e8746a0724c0d3bddd96f9cb59887a2ab4663b764
+attacks	00_nucleo/diagnosticos/p1249-glyph-attacks.tsv
+attacks_sha256	a487a97826d27e856d68be3033d7d56231dbac3ce118e3bffad85edaed7bc6b9
+runner	lab/parity/matrix/p1249_preseal.py
+runner_sha256	17d7638f9c9f4a011e6b6a9ef6cf28806cc8d6c68e7995879dfcf2951c2cc2e9
+observables	resolved-font-identity; request-key-stability; outline-morphology; position-and-scale; y-axis-orientation; fill-and-alpha; assembly-multiple-pieces; transform-composition; advance-noninterference; collection-reordering; fontless-wrapper; determinism
+unknown_policy	absent conflicting missing invalid unsupported ambiguous or fontless carriers remain Unknown and never count as Preserved
+roles	intent and contract/oracles supplied by prior authorities; this authority authored attacks and runner and executed presemantic gate; candidate verifier remains future and separate
+read_allowlist	P1249 SVG L0 and glyph nucleus; frozen contract/oracles; existing P1249 diagnostics; ratified vanilla text.rs
+write_allowlist	p1249-glyph-attacks.tsv; p1249_preseal.py; manifesto; preseal; receipt; summary
+candidate_scope	03_infra candidate was neither read nor executed
+isolation_attestation	false; shared filesystem and inherited conversation prevent strong capability attestation
+reseal_reason	final mechanical Hash do Código refresh from 6f8b32d1 to 134fc7ef; P1249 normative text and all other protected inputs byte-identical

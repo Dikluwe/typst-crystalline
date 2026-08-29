@@ -1,0 +1,39 @@
+{
+  "step": "P1247",
+  "verdict": "PASS",
+  "claim": "P1247_FINAL_CERTIFIED",
+  "verified_at": "2026-08-28T12:08:52-03:00",
+  "head": "697eaf31e8ce6aaa4eef7d61d7808e377005c3c5",
+  "working_tree": "uncommitted; 62 tracked files changed; 2886 insertions; 203 deletions",
+  "manifest_sha256": "b841b692120463e93fe174e7ffb195fd67a3bcab7442277a1d17e2b529f20cd3",
+  "preseal_sha256": "09daeebebe7b810fbb2d4e34c90ac9039eeee62c3391d7b63a47d90faeec4352",
+  "implementation": {
+    "03_infra/src/export/svg.rs": "b345ac0bcd0dc62200ebda387c5f11ef145c39ba8ea05c3d3652a7cfcf6a7f6e",
+    "03_infra/src/export/mod.rs": "08bb8359d1a2c16a6cf723c625dad6fe5321121c8a14e3a64cf8349643f1ad83",
+    "03_infra/src/pipeline.rs": "602b4892bd1e023f7f53ca85ed2a0f356128b16fca4acce66015b0982f9bafc7"
+  },
+  "gates": {
+    "p1247_tests": { "passed": 4, "failed": 0, "exit": 0 },
+    "svg_suite": { "passed": 26, "failed": 0, "exit": 0 },
+    "workspace_build": { "exit": 0 },
+    "v15_v26": { "violations": 0, "exit": 0 },
+    "v5": {
+      "candidate_warnings": 0,
+      "external_warnings": 2,
+      "external_paths": [
+        "01_core/src/compiler/stdlib/visualize.rs",
+        "01_core/src/entities/tiling.rs"
+      ],
+      "exit": 0
+    },
+    "git_diff_check": { "exit": 0 }
+  },
+  "attacks": {
+    "valid": 17,
+    "rejected": 17,
+    "mutation_score": 1.0
+  },
+  "unknown_policy": "PASS: no dangling href, synthetic destination node, fabricated position, invented cross-page route, or implicit Preserved promotion",
+  "isolation": "executed without full isolation attestation; shared workspace and inherited context; only the three authorized candidate files were read",
+  "scope": "immutable page-local SVG destination context and frozen P1247 observable fragment only; public link expansion and cross-page routing excluded"
+}

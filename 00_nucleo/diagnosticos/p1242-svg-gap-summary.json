@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "p1241-svg-multispace-summary.json": "7e2c212354e9a48b06e20d840183fbb6c01c3771ca882313a0a3553a4f3012ca",
+    "p1241-tekt-certificado.tsv": "7c8b0ccfca5b33c45beeccd42e41f0921a525065c06cb6f5d2b1327056e576f9",
+    "p1243-tekt-preseal-receipt.tsv": "52122c7a0e3d9993e38c94ef4d524d0445b1274c26204f0cf61dd0b2dfb19ed9",
+    "typst-p1246-clip-preseal.md": "ae4868caeedce9be70638f153a52fe97b41884fc730b45866ce87f6f1ab5db87",
+    "typst-p1247-internal-links-gap.md": "c8556f72a6845b449120e1dd38b43a0ebdc9c3b549ca8e407c289ac9c1858c81",
+    "typst-p1248-image-preseal.md": "f3e946f662c6523f2a5886c9b9b32b915547c5221c37b7ef861f41cc6e210d9f",
+    "typst-p1249-glyph-contract-gap.md": "c211b4d3d5234ac66fb4a9f5b78c4f066fbd8ca0411a9453d97976fd6a2f0d99"
+  },
+  "head": "697eaf31e8ce6aaa4eef7d61d7808e377005c3c5",
+  "inventory_sha256": "d8771fe7089e18d0d0b2c20a4e1fdd4507ae4ad33411d17de284d092dc4ae6d0",
+  "measured_at": "2026-08-28T06:34:10-03:00",
+  "p1243_additional_svg_preserved": 0,
+  "pairs": 16,
+  "preserved": 2,
+  "unknown": 14,
+  "verdict": "INVENTORY_CLOSED_TILING_FIRST_DIAGNOSTIC",
+  "working_tree": "59 tracked files changed; 2247 insertions; 188 deletions"
+}

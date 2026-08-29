@@ -1,0 +1,13 @@
+id	mutation	expected_if_executed	status
+A01	dangling clip-path reference	Violated	NOT_EXECUTED
+A02	reference existing wrong-kind node	Violated	NOT_EXECUTED
+A03	drop ancestral clip in nesting	Violated	NOT_EXECUTED
+A04	apply group transform twice to clip	Violated	NOT_EXECUTED
+A05	omit group transform from clip basis	Violated	NOT_EXECUTED
+A06	swap Rect width and height	Violated	NOT_EXECUTED
+A07	collapse distinct rounded radii	Violated	NOT_EXECUTED
+A08	deduplicate clips with different geometry or basis	Violated	NOT_EXECUTED
+A09	launder clip through mask/filter/opacity	Violated	NOT_EXECUTED
+A10	promote even-odd-dependent path without carrier	Unknown	NOT_EXECUTED
+A11	remove clip entirely	Violated	NOT_EXECUTED
+A12	rename IDs while keeping graph closed	Preserved	NOT_EXECUTED

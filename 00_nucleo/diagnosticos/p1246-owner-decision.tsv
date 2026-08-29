@@ -1,0 +1,2 @@
+decision_date	owner_decision	authorized_scope	excluded_scope	implementation_gate
+2026-08-28	APPROVED	local geometric clip for representable Rect RoundedRect Ellipse and nonzero Path	alpha mask; unsupported even-odd carrier; raster substitution	segregated preseal before code

@@ -1,0 +1,9 @@
+boundary	carrier	classification	evidence
+glyph-position	FrameItem::Glyph.pos	REPRESENTED	position reaches SVG owner
+glyph-id	FrameItem::Glyph.glyph_id	REPRESENTED	id reaches SVG but is font-relative
+glyph-advance	FrameItem::Glyph.x_advance	REPRESENTED	advance reaches SVG
+glyph-size	FrameItem::Glyph.size	REPRESENTED	scale reaches SVG
+glyph-fill	FrameItem::Glyph.style.fill	REPRESENTED	fill already exists; prior diagnosis was wrong
+glyph-base	FrameItem::Glyph.base_char	REPRESENTED	base char reaches SVG
+resolved-font	FallbackFontMetrics::resolve_font_combo	TRANSPORT-GAP	pipeline resolves exact FontKey but exporter receives no per-glyph association
+fontless-text	export_svg wrapper	PRESERVED-SCOPE-OUT	L0 explicitly permits omission without resolved fonts

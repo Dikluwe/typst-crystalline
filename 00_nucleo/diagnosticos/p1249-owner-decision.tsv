@@ -1,0 +1,2 @@
+decision_date	owner_decision	engineering_refinement	authorized_scope	excluded_scope	implementation_gate
+2026-08-28	APPROVED	stable normalized GlyphFontRequest to complete FontKey mapping; no positional index or traversal identity	immutable L3 glyph-font context shared by pipeline and SVG	FrameItem expansion; fontless fallback; incidental glyph-id probing	segregated preseal before code

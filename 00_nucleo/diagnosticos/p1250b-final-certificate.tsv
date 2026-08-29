@@ -1,0 +1,24 @@
+field	value
+step	P1250B
+closes	P1250 after P1250A ratchet sanitation
+protocol	tekt-materializacao-segregada-v1; full protocol; shared-workspace limitation
+verdict	PASS_FRAGMENT
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T15:21:44-03:00
+working_tree	uncommitted shared tree; 82 files changed, 4760 insertions, 489 deletions; 425 status entries
+color_vanilla_probe	PASS; /usr/local/bin/typst pinned build; red.mix(blue, space: rgb)=#805b87; negate=#004b74; rotate=#87a100
+legacy_tuple_close	PASS; tuple close materializes Straight; P293/P294 reject Smooth mutation
+namespaced_close	PASS; curve.close() defaults Smooth; P513 checks CubicTo controls/end and rejects Straight mutation
+focused_tests	PASS; p744, p293, p294, p513
+workspace_tests	PASS; cargo test --workspace; log sha256 4c3bc2df1b3b981b37ac6a0cc6f5001c6d0eda8262d7438781dd84d1217649a7
+workspace_build	PASS; cargo build --workspace; log sha256 eb397ffb33d28032af25240d7cd7f4d6f57f0d4898a25a348ab4d02cc76c7fe9
+architecture	PASS; crystalline-lint --checks v1,v5,v15,v26 .; log sha256 91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac
+full_lint	PASS_WITH_RATIFIED_V16; exit 0; V16=202; log sha256 553cf44d6dfbf8ad84b4dbe1eb057ab8f0bd1fe63ff1b4156522ad377cba2478
+diff_check	PASS
+shapes_l0_sha256	f24f10c596c776da6c9e164c6f92aea4084ec611bc50c325d5c8378f538de698
+shapes_candidate_sha256	e7869c8625620a8e7248f38ac97cc833d918691bb5f272e2364502df64ec3239
+eval_tests_l0_sha256	6ab649ca98ece014eda4600a711a309ac9b1c08ab12178c4d728d2216b7464e5
+eval_tests_candidate_sha256	168b685396020d3447512976c3c13e22cb656d3bfa35d2a7c213631e554bdba3
+attacks	PASS; tuple Smooth, namespaced Straight, and P744 #805a88 mutations rejected
+attestation	process-segregated but strong isolation not attested because filesystem/context were shared
+scope	certifies only the four P1250B regressions and P1250 closure gates; no general equivalence claim

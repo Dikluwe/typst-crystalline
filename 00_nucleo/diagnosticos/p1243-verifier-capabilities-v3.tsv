@@ -1,0 +1,14 @@
+field	value
+role	P1243 v3 verifier only
+isolation_attestation	false
+strong_isolation_proved	false
+actual_read_capability	Broad filesystem read access existed; task discipline limited reads to v3 canonical inputs, current candidate/L0/vanilla sources, binaries, and verifier outputs.
+actual_write_capability	Managed environment exposed repository and /tmp writes, although role authority allowed only /tmp/p1243-verifier-v3 outputs. This was not enforced by a distinct OS principal.
+probe_subprocess_capability	bwrap made root read-only and exposed only /tmp/p1243-verifier-v3 as writable to compiler probes.
+shared_filesystem	The verifier shared repository and /tmp namespaces with prior authors and the previous P1243 verifier run; filesystem sharing prevents strong isolation attestation.
+inherited_context	The conversation included conclusions and artifact paths from the prior non-v3 verification. They were recorded as interference risk and were not used as v3 canonical evidence; v3 decisions were re-derived from protected v3 artifacts and probes.
+author_private_outputs	No private v3 author messages or outputs were supplied beyond the canonical protected artifacts, but this is a procedural observation rather than capability proof.
+network	No network was needed. Probe subprocesses ran under the ambient managed network restrictions; no network evidence contributes to the verdict.
+hash_limit	Hashes establish input identity and immutability, not independent authority.
+forbidden_writes_observed	none
+conclusion	contract sealed on evidence, with isolation_attestation=false

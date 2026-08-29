@@ -1,0 +1,30 @@
+field	value
+step	P1249
+verdict	PASS_PRESEMANTIC_UNATTESTED_ISOLATION
+measured_at	2026-08-28T14:05:07-03:00 and 2026-08-28T14:05:08-03:00
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+working_tree	uncommitted; 65 tracked/indexed paths and 323 untracked paths at provenance snapshot
+working_tree_diff_stat	65 tracked files; 4207 additions; 265 deletions
+working_tree_diff_stat_sha256	8da173e3e4a06920e0a79148a6434002aa5f4c66ad0cd639254e05069409e1b6
+working_tree_status_short_sha256	c4d2375df1392e00262f280f2395d6c1a17a71c8bd86d87d5812aff3ec8c7c5a
+observable_count	12
+oracle_count	21
+positive_cases	12
+negative_cases	4
+unknown_cases	5
+valid_mutations	15
+rejected_mutations	15
+mutation_score	1.0
+unknown_gate	PASS; all five opaque cases require explicit Unknown and fontless contract forbids promotion to Preserved
+determinism_gate	PASS; four internal orderings share canonical digest fcde70d9adea53143c80b172ab6dcf8c2bf7aef7871df3a93d9bb4afe34b1e4f
+external_runs	2 independent temporary output directories; both exited 0
+cross_run_comparison	PASS; normalized substance identical; SHA-256 9830245910ea505ff47578bfcbc57d5255f930e858ad4e90a05b92ad760ad658
+previous_prompt_sha256	fce8dc6f7cd2357c0e84590ff3fb4a427a122ec19318ca82f671746c7dc7805b
+current_prompt_sha256	a3145515c463b0d133e8b88b0f188c841ba226b8754e766e02e18dab4da6873d
+prompt_comparison	PASS; only Hash do Código changed from 6f8b32d1 to 134fc7ef; P1249 normative section unchanged
+protected_suite	contract nucleus oracles attacks runner baseline score Unknown policy and canonical digest unchanged
+candidate_witness_note	exact candidate-level witnesses remain outside protected presemantic artifacts; canonical attacks TSV remains byte-identical and candidate was not read
+candidate_executed	false
+productive_change	false
+isolation_limit	procedurally allowlisted but not technically sandbox-isolated from the shared repository; no strong isolation attestation
+scope	presemantic discriminator only; does not prove candidate implementation or general glyph parity

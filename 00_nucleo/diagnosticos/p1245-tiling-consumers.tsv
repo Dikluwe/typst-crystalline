@@ -1,0 +1,21 @@
+layer	file	role	change_if_option_1
+L1	01_core/src/entities/tiling.rs	public tiling value	public unresolved contract gains arbitrary Content, offset, angle, and auto relative semantics
+L1	01_core/src/compiler/stdlib/visualize.rs	public constructor	accept body Content and named offset/angle; preserve identity construction
+L1	01_core/src/compiler/eval/call_dispatch.rs	call dispatch	preserve type-call route to updated constructor
+L1	01_core/src/entities/value.rs	language value	retain Tiling identity and tracing for expanded value
+L1	01_core/src/entities/paint.rs	paint carrier	carry unresolved/resolved tiling without color fallback promotion
+L1	01_core/src/compiler/stdlib/shapes.rs	Paint conversion	preserve tiling as fill/stroke paint
+L1	01_core/src/compiler/stdlib/layout.rs	layout boundary	materialize arbitrary body into resolved tile frame
+L1	01_core/src/compiler/eval/repr.rs	representation	include non-default public fields semantically
+L1	01_core/src/compiler/eval/rules.rs	language rules	preserve equality and rule traversal for expanded value
+L1	01_core/src/compiler/eval/operators/error_formatting.rs	diagnostics	format updated construction errors
+L1	01_core/src/compiler/introspect/from_tags.rs	introspection	retain expanded Tiling value classification
+L1	01_core/src/compiler/stdlib/state.rs	state eligibility	retain expanded Tiling value policy
+L1	01_core/src/compiler/stdlib/transforms.rs	transform semantics	do not conflate item transform with tiling offset/angle
+L1	01_core/src/compiler/stdlib/mod.rs	stdlib registration	no ownership change; updated constructor remains registered
+L3	03_infra/src/export/svg.rs	SVG consumer	emit pattern from resolved frame, pitch, offset, angle, and relative basis
+L3	03_infra/src/export/stream.rs	stream consumer	preserve resolved tiling or explicit Unknown per target contract
+L3	03_infra/src/integration_tests.rs	integration coverage	prove language morphology through pipeline
+excluded	01_core/src/entities/mod.rs	module declaration	textual match only; no semantic consumer
+excluded	01_core/src/compiler/eval/mod.rs	module/import plumbing	textual match only; no distinct ownership change
+excluded	01_core/src/compiler/eval/tests.rs	test-only coverage	not a productive consumer; update only with independent tests

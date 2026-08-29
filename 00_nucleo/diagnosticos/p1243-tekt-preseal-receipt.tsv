@@ -1,0 +1,19 @@
+field	value
+verdict	PRESEAL_INVALIDATED_NEGATIVE_BOUNDARY_RETAINED
+protocol_status	historical v3 seal invalidated by protected-input drift
+baseline_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+vanilla_pin	a51e02804
+drifted_protected_inputs	4; P1242 step, P1242 inventory, entities tiling L0, stdlib tiling L0
+historical_cases	34
+historical_correct_classifications	34
+historical_observed_counts	19 Unknown; 10 CONTRACT-GAP; 3 PASS; 2 FAIL
+mutation_score	NOT_MEASURED; 34/34 is classification accuracy, not mutation score
+additional_svg_preserved	0
+shared_vanilla_constructor_parity	Unknown; vanilla rejected both current-only fixtures
+contract_gaps	Image Gradient arbitrary Content auto size relative parent stroke nonzero offset angle
+determinism	PASS; two auditor executions byte-identical
+productive_change	false
+l0_change	false
+p1244	close without code unless new bilateral evidence is materialized from current L0
+isolation_attestation	false; shared filesystem and audit-only execution
+limitation	EXECUTADO SEM ATESTACAO DE ISOLAMENTO

@@ -1,0 +1,9 @@
+field	value
+step	P1245
+confirmed_by	owner
+confirmed_in_conversation	2026-08-28
+entities_tiling_l0_sha256	cd982be9c5263f82bb50b701dd1f45eeae967a7641dc9577a6a478aeee69490f
+stdlib_tiling_l0_sha256	4f82c81d7683993c45699b8f55c53ea9f694faf53d0a390c842e28d89ecabbc4
+layout_tiling_l0_sha256	ef6797e5fe4d5dc9c1c7b1069067153c6813e8c22b60e803de5138f85af61cfd
+scope	owner authorization to produce and implement P1245/P1254; hashes computed and verified by the assistant because the owner explicitly delegated hash verification
+next_gate	revised segregated preseal and final certificate

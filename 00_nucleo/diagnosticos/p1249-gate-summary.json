@@ -1,0 +1,19 @@
+{
+  "boundaries_sha256": "29c31b3e9652c7b527d60732953f75a0bf4132b2d8108785d07bfe63eee8ecc6",
+  "candidate_executed": false,
+  "head": "697eaf31e8ce6aaa4eef7d61d7808e377005c3c5",
+  "measured_at": "2026-08-28T09:40:00-03:00",
+  "mutation_score": null,
+  "nucleus_effective_sha256": "4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c",
+  "nucleus_file_sha256": "f4b82bcf0dc6948c177742924e237844201f008864a4ebccac8e51e5aa5f48ac",
+  "options_sha256": "0d2f993e4bc5f8d0fb04d9eba46aeb610b573b6f9b1673b6e671b93ae3c4d9b2",
+  "owner_decision_sha256": "f071372c260f97682841b36f67abcc66c70df3d24f9b82bbcecc6e619bc635c8",
+  "pipeline_l0_sha256": "d679cb50ce99ac6dc9dc94d362ce4aa4a8eaf69806399916dd49b5ee4662f945",
+  "preserved_scope_outs": 1,
+  "productive_change": false,
+  "represented_fields": 6,
+  "svg_l0_sha256": "53e2f9c469a28836f2e7e7015ea2f1f0c16e1ab594b900bb629587a297d7c9c1",
+  "transport_gaps": 1,
+  "verdict": "L0_WRITTEN_ARCHITECTURE_APPROVED_AWAITING_SEGREGATED_PRESEAL",
+  "working_tree": "uncommitted working tree"
+}

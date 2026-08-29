@@ -1,0 +1,16 @@
+mutation	target	expected	witness
+M01-incidental-first-font	resolved-font-identity	Violated	With Font Alpha first and Font Beta explicitly associated, probe glyph_id 37 in collection order and render Alpha hollow triangle instead of the required Beta solid circle.
+M02-request-key-drops-variant	request-key-stability	Violated	Normalize normal and bold requests without variant, merging the upright hollow triangle and solid diamond into one resolved face.
+M03-request-key-uses-occurrence	request-key-stability	Violated	Add occurrence position or address to the key so two equal requests resolve inconsistently despite identical base_char, family, variant, variations and math state.
+M04-wrong-glyph-or-tofu	outline-morphology	Violated	Replace the selected asymmetric outline with a different glyph, tofu or base_char substitute, losing the enclosed hole and curved shoulder.
+M05-scale-applied-twice	position-and-scale	Violated	Apply size divided by units_per_em twice so the known 20/1000 landmark separation and page-space bounds shrink observably.
+M06-position-translated-twice	position-and-scale	Violated	Apply glyph position 31 47 twice, moving the anchor and contour away from the required page-space bounds.
+M07-y-inversion-omitted	y-axis-orientation	Violated	Omit the font-space Y inversion so the asymmetric notch appears below rather than above the baseline.
+M08-fill-alpha-forced-opaque	fill-and-alpha	Violated	Force red style.fill alpha 0.25 to opaque red, changing the composite sample over the blue reference background.
+M09-assembly-extender-dropped	assembly-multiple-pieces	Violated	Drop the middle extender from the three-piece assembly, leaving only two landmarks and a visible central gap.
+M10-ancestor-transform-reordered	transform-composition	Violated	Reverse the noncommuting local translation and ancestor 90-degree rotation, moving contour bounds and notch to the wrong quadrant.
+M11-advance-applied-again	advance-noninterference	Violated	Add x_advance 17 again during export so the independent following square moves from x=80 to x=97.
+M12-collection-index-identity	collection-reordering	Violated	Store font collection index instead of complete FontKey so reversing Alpha Beta to Beta Alpha changes the selected outline.
+M13-fontless-fallback-invented	fontless-wrapper	Violated	In the fontless wrapper synthesize base_char text, tofu or a system/network font outline and label the fabricated glyph Preserved instead of Unknown.
+M14-unknown-promoted	resolved-font-identity	Violated	When the request association is absent, conflicting or mapped font missing, choose an incidental face and promote the result from Unknown to Preserved.
+M15-order-dependent-cache	determinism	Violated	Cache by traversal order so repeated or reordered evaluation changes resolved font identity, contour digest or Unknown verdict.

@@ -1,0 +1,2 @@
+decision_date	owner_decision	authorized_scope	excluded_scope	implementation_gate
+2026-08-28	APPROVED	immutable page-local SVG destination context derived by pipeline and consumed by SVG exporter	public link target expansion; cross-page bundle or route policy	segregated contract/oracles/attacks and valid preseal before code

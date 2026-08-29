@@ -1,0 +1,38 @@
+{
+  "additional_svg_preserved": 0,
+  "drifted_protected_inputs": {
+    "predecessor_inventory_sha256": {
+      "current": "d8771fe7089e18d0d0b2c20a4e1fdd4507ae4ad33411d17de284d092dc4ae6d0",
+      "sealed": "ef857df98a7bd843fcb9879eed55e33e9fa83d942675fa4403fe1a854359adbc"
+    },
+    "predecessor_step_sha256": {
+      "current": "e70c27dda62ce958dfdc3b53ec2beb16b5a8dec62361bafd24730e9f6096cf47",
+      "sealed": "528b384aeed353d3628f0b9cd48c4047e551cad87368c53d6776fdbbb9f29dcb"
+    },
+    "tiling_l0_sha256": {
+      "current": "bbcfb5d0d4ae4499884ff36a17223b721b36c980fd69a2a9777b5ca20b8cc90b",
+      "sealed": "d76b758d3c68f25fcf827a0ad64ae611895f9f2f50b48f225367c2816c1d490c"
+    },
+    "tiling_stdlib_l0_sha256": {
+      "current": "3d701931af221907e6c44b474feca0e855acef2cd0b1b634e706aa9b8f13337d",
+      "sealed": "8087c29093d4607e7a213bea402d42c8bce1cecdd07ae390f80c5d8f83fe648d"
+    }
+  },
+  "head": "697eaf31e8ce6aaa4eef7d61d7808e377005c3c5",
+  "historical_classification_accuracy": {
+    "correct": 34,
+    "total": 34
+  },
+  "historical_observed_counts": {
+    "CONTRACT-GAP": 10,
+    "FAIL": 2,
+    "PASS": 3,
+    "Unknown": 19
+  },
+  "historical_results_sha256": "2835c20c6ceee405a855fea94dacfd1a4a13c7b678641bbfaa515655ab3418c7",
+  "isolation_attestation": false,
+  "measured_at": "2026-08-28T06:51:59-03:00",
+  "mutation_score": null,
+  "verdict": "PRESEAL_INVALIDATED_NEGATIVE_BOUNDARY_RETAINED",
+  "working_tree": "59 tracked files changed; 2247 insertions; 188 deletions"
+}

@@ -1,0 +1,47 @@
+field	value
+protocol	TEKT_SEGREGATED_FINAL_VERIFICATION_V2
+verdict	PASS
+attestation	executed under verifier-only authority; no frozen input code or test was edited
+scope	P1246 local geometric SVG clip fragment only; no general SVG equivalence claim
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+tree_state	working tree not committed; scoped diff stat is 1307 insertions and 24 deletions across L0 SVG and implementation SVG
+manifest_sha256	4dbe4a3a0fa4a1f47ec7173a2d8d903092ae48decfed975b40bbc62c6e749231
+preseal_sha256	5bb48b335e46a9eeaa52461c4c4c3c43e6f80be0efaf1b38554ffdbd8f9649b0
+implementation	03_infra/src/export/svg.rs
+implementation_sha256	bcac1772b052b3e8d00b2646db0128097108bf5852a65fc5b543dcb41633d37f
+frozen_hashes	PASS; prompt baseline contract oracles attacks owner decision capabilities manifesto preseal and gate match the preseal chain
+command_preseal_1	python3 lab/parity/matrix/p1246_preseal.py
+result_preseal_1	PASS PRESEAL score=1.0 violations=[]
+command_preseal_2	python3 lab/parity/matrix/p1246_preseal.py
+result_preseal_2	PASS PRESEAL byte-identical semantic output
+command_tests_p1246	cargo test -p typst-infra p1246_ --lib
+result_tests_p1246	PASS 4 passed 0 failed 873 filtered
+command_tests_svg	cargo test -p typst-infra export::svg::tests --lib
+result_tests_svg	PASS 23 passed 0 failed 854 filtered
+command_build	cargo build --workspace
+result_build	PASS with Rust compiler warnings
+command_lint_ownership	crystalline-lint --checks v15,v26 --fail-on warning .
+result_lint_ownership	PASS no violations
+command_lint_v5	crystalline-lint --checks v5 .
+result_lint_v5	PASS_FOR_P1246_WITH_THREE_UNRELATED_WARNINGS; SVG owner drift absent
+v5_warning_1	01_core/src/compiler/stdlib/visualize.rs L0 cf207ab8 code d6d7cb96
+v5_warning_2	01_core/src/entities/tiling.rs L0 75f3d923 code 5c8c3e31
+v5_warning_3	03_infra/src/pipeline.rs L0 35c87fd3 code c4da9e3f
+v5_p1246	RESOLVED; 03_infra/src/export/svg.rs header equals expected L0 hash 6621bd34
+command_diff_check	git diff --check
+result_diff_check	PASS
+audit_A01	PASS_STATIC; clip_mask None maps to no definition no reference and no fallback
+audit_A02	PASS_TEST_STATIC; Rect definition uses inner_width and inner_height
+audit_A03	PASS_TEST_STATIC; RoundedRect uses four named radii through ordered path construction
+audit_A04	PASS_TEST_STATIC; Ellipse derives independent axes from inner width and height
+audit_A05	PASS_TEST_STATIC; representable Path iterates all declared items in order and emits nonzero
+audit_A06	PASS_TEST_STATIC; nested groups retain distinct ancestor and descendant clip edges so SVG composes their intersection
+audit_A07	PASS_TEST_STATIC; clip geometry remains local while one group transform carries position matrix and children
+audit_A08	PASS_TEST_STATIC; monotonically allocated local IDs are defined once and referenced by the owning group
+audit_A09	PASS_STATIC; no semantic branch depends on ID spelling or defs ordering; no candidate metamorphic runtime fixture was present
+audit_A10	UNKNOWN_PRESERVED; even-odd intent has no carrier and candidate emits only an explicit nonzero rule; no equivalence claim is certified for even-odd-dependent input
+audit_A11	UNKNOWN_PRESERVED; alpha-mask semantics are absent from this geometric carrier and no mask filter opacity or raster substitute is emitted by the clip path
+audit_A12	PASS_STATIC; nonfinite negative-size line open-final or otherwise rejected geometry receives explicit data-crystalline-clip-fallback and is not called preserved
+mutation_scope_note	The 12/12 score belongs to the frozen discriminatory preseal. Candidate tests directly exercise four P1246 cases; remaining attack verdicts are static audit or preserved Unknown as labeled.
+blocking_reason	NONE_FOR_P1246; remaining V5 warnings are outside the P1246 owner and recorded separately
+required_next_authority	NONE_FOR_P1246

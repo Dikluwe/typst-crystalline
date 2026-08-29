@@ -1,0 +1,6 @@
+option	destination_transport	standalone_svg_policy	language_coverage	risk	decision
+inject-page-link-context	wiring derives page-local destinations from PagedDocument and injects immutable L3 context	same-page href-to-id closes; cross-page remains Unknown until caller supplies route	closes existing Ref/label edges without duplicating destination state	medium	APPROVED BY OWNER 2026-08-28; PRESEAL REQUIRED
+document-level-svg-bundle	SVG exporter consumes full PagedDocument and owns multi-page naming	can close cross-page routes only with a specified bundle convention	broader API and mixes standalone export with bundle policy	high	defer unless bundle target is explicitly chosen
+new-frame-destination-node	layout inserts destination marker FrameItems	standalone page can emit ids directly	duplicates existing PagedDocument registry and expands exhaustive public enum	high	rejected absent evidence registry is insufficient
+synthesize-href-only	derive fragment string from label without emitting target node	creates dangling internal links	no closed semantic graph	high	rejected
+expand-public-link-target	add label/location/page-position to public Link target and carry through eval/layout	requires destination context independently	closes language constructor surface but not SVG graph alone	high	SEPARATE ADR-0127 DECISION

@@ -1,0 +1,42 @@
+field	value
+step	P1249
+role	independent-final-verifier
+protocol	tekt-materializacao-segregada-v1; full protocol audit
+verdict	PASS_SEGREGATED_FRAGMENT_UNATTESTED_ISOLATION
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T14:07:34-03:00 through 2026-08-28T14:07:54-03:00
+working_tree	uncommitted shared working tree; 65 tracked status entries and 323 untracked entries at provenance snapshot
+write_authority	Only p1249-final-certificate.tsv and p1249-final-summary.json
+manifest_sha256	12300c0b6dcf54483f029c52f0c608f8f36bbccc928911e6f087f1b3a591f1c9
+preseal_sha256	497ba277a89906bf791fbf867b3544515fdd692c52bb3a1bd50434749ec59127
+prompt_sha256	a3145515c463b0d133e8b88b0f188c841ba226b8754e766e02e18dab4da6873d
+prompt_integrity	PASS; current mechanical resselo recorded and protected P1249 substance remains unchanged
+nucleus_file_sha256	f4b82bcf0dc6948c177742924e237844201f008864a4ebccac8e51e5aa5f48ac
+baseline_sha256	d5ffcdc23ccc7f15822b67ef774779bf1a97bfb9c56e5ef0b71cb4b6c037b479
+contract_sha256	548d6e0eb4e1be8b68eeec54abaff3d371ee55bbb78a87a3dd2a76decc5a7485
+oracles_sha256	a2eb2b51f8a54e0a0720f61e8746a0724c0d3bddd96f9cb59887a2ab4663b764
+attacks_sha256	a487a97826d27e856d68be3033d7d56231dbac3ce118e3bffad85edaed7bc6b9
+runner_sha256	17d7638f9c9f4a011e6b6a9ef6cf28806cc8d6c68e7995879dfcf2951c2cc2e9
+candidate_svg_sha256	134fc7ef00beb45a8e9319cd674eacf3a88f2ee02ae18e2313cafb7121d491b5
+candidate_pipeline_sha256	b975c6d60ad2874baa97c27e2124d0c49f6e67bb28595e7f2deb7cc22f1475a1
+candidate_exports_sha256	56d2484579e26715fa870b66cdbfb6aaca8aa88a674d1ab9b9efefda2490632c
+preseal_runner	PASS; 12 observables; 21 oracles; 15/15 declared mutations rejected; mutation_score 1.0
+p1249_tests	PASS; cargo test -p typst-infra p1249_ --lib; 5 passed, 0 failed
+svg_suite	PASS; cargo test -p typst-infra export::svg --lib; 41 passed, 0 failed
+workspace_build	PASS; cargo build --workspace
+architectural_focus	PASS; crystalline-lint --checks v5,v15,v26 .; zero violations
+architectural_full	PASS_WITH_DIAGNOSTICS; crystalline-lint .; exit 0; 256 warnings and 1004 infos
+diff_check	PASS; git diff --check
+source_identity_and_reordering	PASS; complete normalized identity selects the intended face across real colliding-font collection orders
+request_key_stability_M02	PASS; normal/bold requests and FontKeys remain distinct; dropping variant invalidates the three-definition witness
+outline_morphology_M04	PASS; candidate path equals the independently extracted expected glyph_id outline and differs from base_char outline in the same NewCMMath face
+position_scale_M05	PASS; candidate paths equal expected SvgGlyphPathBuilder outputs at exact factors 20/upem and 40/upem, rejecting double scale
+y_fill	PASS; one Y inversion, exact position and alpha fill are asserted
+assembly_recursion	PASS; three glyph pieces survive recursive export at independent positions
+transform_composition	PASS; noncommuting ancestor and local matrices compose once in the correct nesting
+x_advance_noninterference	PASS; independent landmark remains x=80 y=10
+unknown_policy	PASS; absent/conflicting/missing/fontless cases remain diagnostic Unknown without fabricated glyph/text
+determinism	PASS; repeated and reordered semantic output is stable
+semantic_refinement	PASS_FOR_SEALED_P1249_FRAGMENT; all previously identified live discriminator gaps M02/M04/M05 are closed
+isolation_limitation	Shared filesystem and inherited context prevent strong capability-isolation attestation; verdict therefore does not use fully-attested wording
+scope	Only the frozen P1249 SVG direct-glyph fragment, listed inputs and candidate hashes; no general SVG, Typst or whole-compiler equivalence

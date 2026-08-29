@@ -1,0 +1,54 @@
+{
+  "attestation": "process-constrained verifier authority; shared mutable filesystem and inherited context prevent strong isolation attestation",
+  "candidate": {
+    "corpora": 6,
+    "logical_family_minimum": 4,
+    "mutations_executed": 11,
+    "mutations_rejected": 11,
+    "reference_graph": "limited to concrete ID uniqueness and href/url closure; no typed graph isomorphism, defs reorder, or alpha-renaming at candidate level",
+    "l0": {
+      "declared_code_hash": "479c68aa",
+      "path": "00_nucleo/prompts/infra/export/p1250_svg_integrated.md",
+      "sha256": "6bda67470ef8699b6eb25132b1b61849c88dd96ccfaebb41336b8e873276c74f",
+      "sole_owner_verified": true
+    },
+    "lineage_prompt_hash": "478b85ee",
+    "test_sha256": "2c863c4a7151716ff4f2d5448f2041f1a5fff0c628e1b20e9d5c1dd77e9277e1",
+    "unknown": "cross-page fallback checked directly; full six-case opaque verdict vector not executed against candidate"
+  },
+  "consumer_hashes": {
+    "03_infra/src/export/mod.rs": "56d2484579e26715fa870b66cdbfb6aaca8aa88a674d1ab9b9efefda2490632c",
+    "03_infra/src/export/svg.rs": "134fc7ef00beb45a8e9319cd674eacf3a88f2ee02ae18e2313cafb7121d491b5",
+    "03_infra/src/pipeline.rs": "b975c6d60ad2874baa97c27e2124d0c49f6e67bb28595e7f2deb7cc22f1475a1"
+  },
+  "dependency_certificate_hashes_match": true,
+  "gates": {
+    "cargo_build_workspace": {"exit": 0, "verdict": "PASS"},
+    "cargo_test_p1250_svg_integrated": {"failed": 0, "passed": 1, "verdict": "PASS"},
+    "cargo_test_svg_suite": {"failed": 0, "passed": 41, "verdict": "PASS"},
+    "crystalline_lint_fail_on_warning": {"errors": 0, "exit": 1, "infos": 1004, "verdict": "FAIL", "warnings": 256},
+    "crystalline_lint_full": {"errors": 0, "exit": 0, "infos": 1004, "verdict": "PASS_WITH_WARNINGS", "warnings": 256},
+    "crystalline_lint_v5_v15_v26": {"exit": 0, "verdict": "PASS"},
+    "git_diff_check": {"exit": 0, "verdict": "PASS"},
+    "preseal_twice_byte_identical": {"sha256": "803a0bebf9e71e44e99b4d448ec466b11fdf5c6b7c6ab87cfafbc24b2d97d1ea", "verdict": "PASS"}
+  },
+  "head": "697eaf31e8ce6aaa4eef7d61d7808e377005c3c5",
+  "measured_at_end": "2026-08-28T14:40:29-03:00",
+  "measured_at_start": "2026-08-28T14:39:57-03:00",
+  "preseal": {
+    "negative": 6,
+    "opaque_unknown": 6,
+    "positive": 6,
+    "rejected_mutations": 11,
+    "semantic_digest": "019a8227e8b74bd180338b2ccaf9bcb36ded96495c96896f4b5a9163776d0a81",
+    "valid_mutations": 11
+  },
+  "primary_failure": "The sole literal blocker is crystalline-lint . --fail-on warning: it exited 1 with zero errors, 256 warnings and 1004 infos. V1 and ADR-0129 ownership are resolved; warnings are not excused as preexisting.",
+  "verdict": "FAIL_FINAL_GATE",
+  "working_tree": {
+    "diff_stat": "65 tracked files changed, 4207 insertions, 265 deletions",
+    "diff_stat_sha256": "8da173e3e4a06920e0a79148a6434002aa5f4c66ad0cd639254e05069409e1b6",
+    "initial_status_entries": 393,
+    "initial_status_short_sha256": "3bf50d862ff6c7db98514ccdb57f10dad69d01ec9c815fb217c6bc00ac1eaf2c"
+  }
+}

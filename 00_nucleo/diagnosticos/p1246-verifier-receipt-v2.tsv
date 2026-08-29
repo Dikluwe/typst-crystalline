@@ -1,0 +1,22 @@
+field	value
+role	verifier_publisher
+regime	segregado e atestado for declared read/write capabilities; shared filesystem remains an environmental limitation
+manifest_sha256	4dbe4a3a0fa4a1f47ec7173a2d8d903092ae48decfed975b40bbc62c6e749231
+preseal_sha256	5bb48b335e46a9eeaa52461c4c4c3c43e6f80be0efaf1b38554ffdbd8f9649b0
+gate_sha256	625b1131aebddddd72cdbf021028c60b2f1827980cecd67c6796872ddfb3d941
+final_gate_output_sha256	e8aeaffa74c5693383a569d12d3ff4884cde8ea1180c2a2be2f174a694f2d3e4
+command_1	python3 lab/parity/matrix/p1246_preseal.py
+command_1_result	PRESEAL; mutation_score=1.0; 12/12 rejected; reordering_invariant=true; violations=[]
+command_2	python3 lab/parity/matrix/p1246_preseal.py
+command_2_result	PRESEAL; byte-identical to command_1
+determinism_command_1	python3 lab/parity/matrix/p1246_preseal.py | sha256sum
+determinism_command_1_result	e8aeaffa74c5693383a569d12d3ff4884cde8ea1180c2a2be2f174a694f2d3e4
+determinism_command_2	python3 lab/parity/matrix/p1246_preseal.py | sha256sum
+determinism_command_2_result	e8aeaffa74c5693383a569d12d3ff4884cde8ea1180c2a2be2f174a694f2d3e4
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measurement_tree_state	working tree not committed; protected-input diff stat: 00_nucleo/prompts/infra/export/svg.md | 233 lines changed (232 insertions, 1 deletion)
+protected_inputs_modified_by_verifier	NONE
+candidate_implementation_read	NO
+verifier_refinement	An initial gate revision rejected O10 wording 'Unknown for every variant'; only the verifier parser was refined to accept an Unknown qualifier, then the final gate was executed twice successfully.
+verdict	PRESEALED
+limitation	This receipt proves discriminatory adequacy of the frozen fragment contract; it does not prove candidate implementation correctness or general SVG equivalence.

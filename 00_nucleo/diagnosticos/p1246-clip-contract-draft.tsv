@@ -1,0 +1,13 @@
+id	input	observable	expected	scope
+C01	group without clip_mask	no additional clipping	Preserved	positive
+C02	finite Rect clip	local rectangular region from inner dimensions	Preserved-candidate	positive-after-oracle
+C03	finite RoundedRect clip	four radii and local bounds	Preserved-candidate	positive-after-oracle
+C04	finite Ellipse clip	local elliptical region from inner dimensions	Preserved-candidate	positive-after-oracle
+C05	finite Path clip	local subpaths and curves with nonzero rule	Preserved-candidate	positive-after-oracle
+C06	nested clipped groups	intersection of ancestral and local regions	Preserved-candidate	positive-after-oracle
+C07	transformed clipped group	group transform applied once to clip and children	Preserved-candidate	positive-after-oracle
+C08	resolved local reference	clip edge reaches one matching clipPath definition	Preserved-candidate	graph
+C09	ID alpha-renaming or defs reorder	same resolved semantic graph	Preserved	mechanics-invariance
+C10	path requiring even-odd	fill-rule carrier absent	Unknown	opaque
+C11	alpha mask request	no alpha-mask carrier in clip_mask	CONTRACT-GAP	opaque
+C12	nonfinite or unrepresentable geometry	no false promotion	Unknown	opaque

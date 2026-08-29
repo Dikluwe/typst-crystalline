@@ -1,0 +1,33 @@
+field	value
+step	P1248
+verdict	PASS_PRESEMANTIC_UNATTESTED_ISOLATION
+preseal_created	true
+measured_at	2026-08-28T13:07:30-03:00 and 2026-08-28T13:07:31-03:00
+resealed_at	2026-08-28T13:15:20-03:00
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+working_tree	uncommitted; 65 tracked/indexed paths and 309 untracked paths at measurement
+working_tree_diff_stat	65 files changed; 3302 insertions; 248 deletions
+working_tree_diff_stat_sha256	92702780e8ef4e6d09751c30e917f927975f03c4fada39fff1ba30d2a3a3483d
+working_tree_status_short_sha256	e06b4e464de5d17b21f5445d02f5451cccc869631530d0a7ca34d993a3f1e3ca
+provenance_note	stat and status hashes refer to the pre-verdict snapshot at measured_at; output edits necessarily occur after that snapshot
+contract_observables	8/8 names present exactly once: raster-content; layout-box; aspect-ratio; orientation; cover-clip; embedded-svg; media-type; unknown-format
+oracle_inventory	13 rows: 7 semantic Preserved cases; 4 semantic Unknown cases; 2 deterministic meta cases
+positive_coverage	all 8 observables have an explicit preserved clause; executable positive cases directly cover raster-content layout-box aspect-ratio orientation cover-clip embedded-svg media-type, while unknown-format is canonically Unknown
+opaque_coverage	unknown-marker-no-image; opaque-svg-external-dependency; opaque-svg-ambiguous-root; opaque-svg-compressed all require explicit Unknown and forbid implicit promotion
+attack_inventory	13 mutations M01-M13; every declared expected verdict is Violated; every one of the 8 observables is targeted
+mutation_score	13/13 = 1.0 in the presemantic discriminator: every exact mutation ID has the canonical target, Violated verdict, required witness term groups and a nonempty target violation rule
+determinism_gate	four internal orderings produced one canonical representation and digest 67be7f8375dadf5ff96c9d9d8ab3738c4029e0e51bfa4aa7611a08381229f8c3
+runner_command	python3 lab/parity/matrix/p1248_preseal.py --root . --out <separate-temporary-directory> --head 697eaf31e8ce6aaa4eef7d61d7808e377005c3c5 --measured-at <run timestamp> --working-tree dirty
+runner_exit	two executions exited 0
+cross_run_comparison	substance equal after ignoring measured_at and out; normalized SHA-256 22f71d04b4689ab866d5045ef7c1d5df9a3e271752a11839b5b42224b0368ba8
+runner_sha256	fc47c5b4f1d301bfd5d1ebcbc31d935f2acaa90d9fd3198d285978d598bcccba
+previous_prompt_sha256	f8b8eb694fbbec288af89ab45246c15613adf7f3e2db6208868b3befe12c80e7
+current_prompt_sha256	ce61189cac0908f088fc38660a5c5b84f90e99a79c598636b1f4be5a6e74c07b
+prompt_comparison	PASS; only Hash do Código refresh observed since sealed snapshot; P1248 normative section unchanged
+current_code_hash_field	Hash do Código: 8ab353e6
+current_owner_header	@prompt 00_nucleo/prompts/infra/export/svg.md; @prompt-hash 4f9360af
+suite_preserved	contract oracles attacks runner canonical gate digest and mutation score unchanged
+gate_scope	presemantic only: validates frozen records and witness discrimination; does not execute mutations against candidate code and does not claim production parity
+candidate_access	03_infra/src/export/svg.rs and candidate implementation were not read or executed
+isolation_limit	verifier followed the read allowlist, but shared filesystem and inherited conversation mean capability isolation is not technically enforced; no strong isolation attestation claimed
+remaining_limit	implementation and final refinement gates must later execute independently against this frozen seal; strong isolation remains unattested in the shared workspace

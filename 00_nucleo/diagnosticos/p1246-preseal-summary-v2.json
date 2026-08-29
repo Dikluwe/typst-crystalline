@@ -1,0 +1,19 @@
+{
+  "attestation": "segregado e atestado for declared capabilities",
+  "baseline_file_sha256": "4c10ff4542102ea657e5756505fc8a395400a66dac0e94a4e982cacff1ae1144",
+  "contract_sha256": "bfe18bdac40a8c7eedfa75f9564bfe0ce1c14dc1b40873e7e3aff34ba708678b",
+  "final_gate_output_sha256": "e8aeaffa74c5693383a569d12d3ff4884cde8ea1180c2a2be2f174a694f2d3e4",
+  "manifest_sha256": "4dbe4a3a0fa4a1f47ec7173a2d8d903092ae48decfed975b40bbc62c6e749231",
+  "mutation_denominator": 12,
+  "mutation_rejected": 12,
+  "mutation_score": 1.0,
+  "opaque_unknown": 3,
+  "positive_preserved": 7,
+  "preseal_sha256": "5bb48b335e46a9eeaa52461c4c4c3c43e6f80be0efaf1b38554ffdbd8f9649b0",
+  "receipt_sha256": "78d74c1672ad45e35f35e6c58e4e381f7e8ea362df277fdf9d31c8f239da6bdc",
+  "reordering_invariant": true,
+  "repeatability": "two final executions byte-identical",
+  "scope": "P1246 local geometric SVG clip contract discrimination only",
+  "verdict": "PRESEALED",
+  "violations": []
+}

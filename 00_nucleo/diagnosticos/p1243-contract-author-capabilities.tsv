@@ -1,0 +1,21 @@
+kind	path_or_value	sha256	access_or_status	note
+role	autor-do-contrato	-	read allowlist; write two /tmp TSVs	No implementation judgment, oracle authorship, attack authorship, verification, or seal authority.
+context-inherited	none	-	none	Task states context inherited=none; conclusions outside the allowlist were not used.
+input	typst-passo-1243.md	3835ae6402bd9d9c941cd5d055036496389dee1764289bed788802520f3e35a7	read	Authorized tactical scope.
+input	typst-passo-1242.md	255b7dea1182a91d42a3a3149bc67aa4a311f1bcc3b5459c19652cefe8479a7f	read	Authorized predecessor.
+input	00_nucleo/diagnosticos/p1242-svg-gap-inventory.tsv	1002828b1867e6881eece37f7539cb2246ecdb545cfcfc3402dd67d6968da627	read	Authorized inventory.
+input	00_nucleo/prompts/entities/tiling.md	d76b758d3c68f25fcf827a0ad64ae611895f9f2f50b48f225367c2816c1d490c	read	Authoritative current entity contract.
+input	00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md	8087c29093d4607e7a213bea402d42c8bce1cecdd07ae390f80c5d8f83fe648d	read	Authoritative current constructor contract.
+input	00_nucleo/prompts/infra/export/svg.md	98616af62e17692c6bebbfab0ca85436819112bd9f124d1c1b13904743833b9e	read	Authoritative exporter contract.
+input	lab/typst-original/crates/typst-library/src/visualize/tiling.rs	b094544b837dbb0cd44399a03126a25dbc007326c303c5564068b352e23e38c4	read	Ratified baseline source supplied by task.
+input	lab/typst-original/crates/typst-svg/src/paint.rs	5e93b658be7e22b4beeb5ccf01075abd7ec22b9c412f91232474a4fb6da907af	read	Ratified baseline source supplied by task.
+input	00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md	e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d	read	Language-level parity authority.
+input	00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md	31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405	read	Measurement-before-decision authority.
+input	00_nucleo/adr/typst-adr-0121-proveniencia-medicao.md	00be2575c57efb572b7935ab0ae9da80d62e66c8739bffbb17994b2f7a50d5ef	read	Measurement provenance authority.
+input	00_nucleo/adr/typst-adr-0127-gate-l0-paragem-vs-fluxo.md	5e8581b5f9ebb0798d4213e59e39ee8dfcd4f41b34d4ca639b00b1f287699ad9	read	Public-contract gate authority.
+output	/tmp/p1243-contract-author/contract.tsv	90dfce95144fdd64fc94c246e5f0811a5c087678e6e79f336c9ac15edf389d36	write	Only contract artifact; hash recorded after materialization.
+output	/tmp/p1243-contract-author/capability.tsv	PENDING	write	Capability record; self-hash cannot be embedded without recursion and is reported externally.
+prohibited-read	01_core; 03_infra; existing P1243 artifacts; git diff; candidate implementation	-	not-read	No implementation-facing evidence admitted.
+prohibited-write	repository; prompts; production; tests; seals	-	not-written	Only the two authorized /tmp paths were written.
+violation	none	-	none	No known capability or allowlist violation.
+provenance	commit/worktree state	-	not-observed	Git state was explicitly prohibited; input content hashes above are the reproducible predecessor identifiers. No runtime numeric result is used to close parity.

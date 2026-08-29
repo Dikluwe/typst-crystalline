@@ -1,0 +1,26 @@
+field	value
+step	P1244
+verdict	CLOSED_NO_CODE_NEGATIVE_BOUNDARY_RETAINED_WITH_EXTERNAL_V5
+regime	diagnostic no-code closure; Tekt segregation not applicable
+predecessor	P1243 PRESEAL_INVALIDATED_NEGATIVE_BOUNDARY_RETAINED
+scope	zero additional SVG tiling cases proved Preserved
+unknown_policy	Unknown and CONTRACT-GAP remain non-positive; neither is promoted implicitly
+repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+repository_state	working tree not committed; 59 tracked files changed, 2247 insertions, 188 deletions
+measured_at	2026-08-28T07:12:09-03:00
+predecessor_receipt_sha256	03e6a4a187003225b8af9ec0c09c6237cd90bf71112c078154dc6b9352076319
+predecessor_summary_sha256	4ff1521e88e43c3bfcfcd5ad9ebf7d3c9d72c9ce9ae838e0fac95b27676b4a00
+l0_entity_sha256	bbcfb5d0d4ae4499884ff36a17223b721b36c980fd69a2a9777b5ca20b8cc90b
+l0_constructor_sha256	3d701931af221907e6c44b474feca0e855acef2cd0b1b634e706aa9b8f13337d
+l0_svg_sha256	98616af62e17692c6bebbfab0ca85436819112bd9f124d1c1b13904743833b9e
+entity_consumer_sha256	498c5273f032e27cb418fb87b2adea2c3d2280893fca2a8b36264495e325903b
+svg_consumer_sha256	c1593df66528176b8ce12efcabf9712056a88e31cea195e6611cecd10cbbb9f6
+mutation_score	NOT_MEASURED
+additional_svg_preserved	0
+determinism	PASS; two closure-auditor executions byte-identical
+owner_test	p1227_tiling_de_cor_emite_pattern_com_tamanho_e_spacing PASS 1/1
+focused_v15_v26	PASS; zero violations
+focused_v5	EXTERNAL_DRIFT; visualize.rs and tiling.rs
+diff_check	PASS
+production_change	none; fallback tiling-content-or-size preserved
+next_action	proceed to P1245; no P1244 implementation authorized

@@ -1,0 +1,16 @@
+record_type	name	path_or_value	sha256_or_value	notes
+protocol	regime	full	tekt-materializacao-segregada	Role restricted to oracle author; no candidate verdict or seal claimed.
+role	executor	/root/p1243_oracles	oracle-author-v3	No repository writes authorized.
+input	contract-v3	/tmp/p1243-contract-v3/contract.tsv	bc10515380938e2e6857afa2a524b14e46dc8df90a6b202b5d62771763831b86	Primary frozen contract; delegated hash matched.
+input	step	typst-passo-1243.md	1572f52722b1f484990b8fd48248386bfc21a459c7611657863c2c5ff7778966	Read-only semantic input.
+input	L0-entity	00_nucleo/prompts/entities/tiling.md	d76b758d3c68f25fcf827a0ad64ae611895f9f2f50b48f225367c2816c1d490c	Read-only semantic input.
+input	L0-constructor	00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md	8087c29093d4607e7a213bea402d42c8bce1cecdd07ae390f80c5d8f83fe648d	Read-only semantic input.
+input	L0-exporter	00_nucleo/prompts/infra/export/svg.md	98616af62e17692c6bebbfab0ca85436819112bd9f124d1c1b13904743833b9e	Read-only semantic input.
+capability	read-allowlist	contract v3, step, and three delegated L0 files	observed	No candidate code, attacks, prior verifier output, or prior filesystem oracle artifact was read in this turn.
+capability	write-allowlist	/tmp/p1243-oracle-v3/	observed	No repository file was written.
+capability	execution	none	none	Neither candidate nor fixtures were executed; executability is specified by frozen C03/C04 and constructor L0.
+capability	conversation	inherited context	prior oracle-author turn metadata present	This executor was reused and therefore did not have context inherited=none; no prior verifier output was present or consulted.
+limitation	isolation-attestation	false	context reuse	Filesystem read discipline was observed, but fresh-context isolation cannot be claimed for this v3 authorship.
+violation	forbidden-read	none	none	No prohibited candidate/attack/verifier artifact read.
+violation	forbidden-write	none	none	No write outside /tmp/p1243-oracle-v3/.
+violation	candidate-execution	none	none	Candidate was not executed or judged.

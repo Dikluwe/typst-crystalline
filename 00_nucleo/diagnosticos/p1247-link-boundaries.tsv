@@ -1,0 +1,9 @@
+boundary	current_carrier	measured_state	classification	next_owner
+internal-edge	FrameItem::Link target=LinkTarget::Destination(Label)	label identity reaches L3 distinctly	REPRESENTED	infra/export/svg
+destination-registry	PagedDocument.extracted_label_pages plus extracted_label_positions	label maps exist after layout but export_svg receives only Page	CONTRACT-GAP	wiring plus infra/export/svg interface
+same-page-svg-node	no SVG target node emitted	closed href-to-id graph cannot be formed	CONTRACT-GAP	infra/export/svg
+cross-page-svg-route	no bundle/page URL policy in standalone SVG	filename or external route cannot be invented	Unknown	wiring/bundle policy
+public-link-label	Content::Link/constructor accepts URL string only	label rejected before layout	CONTRACT-GAP	entities/elements/link plus stdlib constructor
+public-link-location	no public Location target carrier in LinkTarget	location cannot reach FrameItem	CONTRACT-GAP	public entity/eval/layout
+public-link-position	no page/x/y target carrier in LinkTarget	dictionary target cannot reach FrameItem	CONTRACT-GAP	public entity/eval/layout
+external-url	LinkTarget::Url and SVG xlink:href	URL reaches anchor and remains representable	Preserved-current	infra/export/svg

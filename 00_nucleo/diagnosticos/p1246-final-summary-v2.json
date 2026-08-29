@@ -1,0 +1,28 @@
+{
+  "architecture": {
+    "v15_v26": "PASS",
+    "v5": "PASS_FOR_P1246_WITH_THREE_UNRELATED_WARNINGS",
+    "v5_p1246": "RESOLVED: 03_infra/src/export/svg.rs header 6621bd34"
+  },
+  "attacks": {
+    "pass_static_or_tested": 10,
+    "unknown_preserved": ["A10", "A11"]
+  },
+  "build_workspace": "PASS_WITH_WARNINGS",
+  "diff_check": "PASS",
+  "frozen_hashes": "PASS",
+  "implementation_sha256": "bcac1772b052b3e8d00b2646db0128097108bf5852a65fc5b543dcb41633d37f",
+  "manifest_sha256": "4dbe4a3a0fa4a1f47ec7173a2d8d903092ae48decfed975b40bbc62c6e749231",
+  "preseal": {
+    "executions": 2,
+    "mutation_score": 1.0,
+    "result": "PASS"
+  },
+  "preseal_sha256": "5bb48b335e46a9eeaa52461c4c4c3c43e6f80be0efaf1b38554ffdbd8f9649b0",
+  "scope": "P1246 local geometric SVG clip fragment only",
+  "tests": {
+    "export_svg": "23 passed, 0 failed",
+    "p1246": "4 passed, 0 failed"
+  },
+  "verdict": "PASS"
+}

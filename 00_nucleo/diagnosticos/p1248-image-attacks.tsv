@@ -1,0 +1,14 @@
+mutation	target	expected	witness
+M01-mime-swapped	media-type	Violated	Carrier PNG 2x2 decodifica quadrantes vermelho verde azul branco mas recurso declara data:image/jpeg; o tipo declarado nao resolve aos bytes PNG representados
+M02-raster-alpha-lost	raster-content	Violated	PNG 2x2 tem pixel vermelho alpha 64 sobre fundo azul; mutante força alpha 255 e o pixel composto deixa de mostrar a mistura esperada
+M03-raster-payload-replaced	raster-content	Violated	GIF 3x1 exibe landmarks vermelho verde azul; mutante conserva caixa e MIME mas troca payload por GIF todo verde e perde dois landmarks visiveis
+M04-layout-box-rebased	layout-box	Violated	Imagem 2x2 resolvida em x=11 y=17 width=40 height=24; mutante emite x=0 y=0 width=2 height=2 e altera origem e extensao fisica observaveis
+M05-fit-recomputed	aspect-ratio	Violated	Carrier resolvido stretch 40x20 com landmarks nos quatro cantos; mutante aplica contain pela razao intrinseca 1:1 e cria margens laterais de 10 unidades
+M06-cover-clip-removed	cover-clip	Violated	Imagem cover 60x40 na pagina com clip_rect x=10 y=5 width=30 height=20; mutante remove o clip e deixa visiveis landmarks magenta fora da intersecao
+M07-cover-clip-wrong-base	cover-clip	Violated	Imagem em x=100 y=50 tem clip_rect de pagina x=110 y=55 width=20 height=10; mutante reaplica a translacao e recorta em x=210 y=105, removendo o landmark verde interno correto
+M08-orientation-ignored	orientation	Violated	JPEG assimetrico orientacao EXIF 6 tem landmark vermelho no canto superior direito apos rotacao unica; mutante ignora EXIF e o deixa no canto superior esquerdo
+M09-orientation-double	orientation	Violated	JPEG assimetrico orientacao EXIF 6 tem landmark azul no canto inferior esquerdo apos uma aplicacao; mutante aplica orientacao no payload e novamente no transform SVG, deslocando-o para canto diferente
+M10-embedded-svg-omitted	embedded-svg	Violated	SVG autossuficiente com retangulo vermelho e circulo azul alpha 0.5 dentro da caixa; mutante nao emite o recurso e ambos os landmarks desaparecem
+M11-embedded-svg-flattened-lossy	embedded-svg	Violated	SVG aninhado contem texto OK, retangulo vermelho e circulo azul alpha 0.5; mutante achata para placeholder opaco preto e perde texto, cores e alpha observaveis
+M12-unknown-promoted	unknown-format	Violated	Bytes 00 ff 00 7f sem assinatura suportada; mutante inventa image/png, emite image e classifica Preserved em vez de marcador diagnostico com veredito Unknown
+M13-unknown-silent-omission	unknown-format	Violated	Bytes ambiguos iniciados por comentario XML sem raiz SVG decidivel; mutante omite image e tambem omite data-crystalline-image-fallback="unknown-format", tornando o fallback silencioso

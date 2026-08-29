@@ -1,0 +1,6 @@
+option	contract_change	result	risk	decision
+l3-glyph-font-context	map normalized GlyphFontRequest to complete resolved FontKey in immutable SVG/pipeline context; no positional index or traversal identity	closes direct glyph outline without changing FrameItem and remains stable under font-list reordering	medium	APPROVED BY OWNER 2026-08-28; PRESEAL REQUIRED
+expand-frameitem-glyph	add resolved font identity to public FrameItem variant	closes identity at carrier but expands public exhaustive enum fields	high	rejected while L3 derivation exists
+probe-glyph-id	select first supplied font containing glyph_id	font-relative id collisions can select wrong outline	high	rejected
+render-base-char	shape or draw base_char instead of chosen variant/assembly	loses stretched mathematical morphology	high	rejected
+fontless-text-fallback	emit text without resolved font bytes	outline and font choice remain unpinned	high	separate preserved scope-out

@@ -1,0 +1,10 @@
+id	boundary	obligation	adjudication
+B01	public-construction	construct every admitted body and named argument through the public Typst tiling constructor	mere Rust construction or successful compilation is inadmissible
+B02	constructor-equivalence	validate each constructed tiling with two independent public observations	fewer than two observations makes the fixture Unknown
+B03	modelable-universe	admit only body geometry and fields carried end-to-end by the current public L1 contract	arbitrary Content angle and offset are CONTRACT-GAP
+B04	pattern-geometry	derive pattern width height viewBox and repeated cell geometry from measured body size and spacing	invented geometry or unproved auto size violates
+B05	coordinate-space	prove patternUnits and bbox behavior independently for every relative variant	mapping enum variants directly to SVG units is not proof
+B06	repetition-transform	measure implicit offset repetition and transform placement against vanilla	missing fields remain CONTRACT-GAP and must not be defaulted into equivalence
+B07	paint-role	prove the same tiling independently as fill and stroke	collapsing role to one boolean or one use site violates
+B08	body-paint	preserve supported body paint and alpha as separate observable channels	missing or inferred opacity violates
+B09	unknown-policy	use a body-specific fallback marker and keep every unproved class Unknown	generic fallback or successful serialization never promotes a class

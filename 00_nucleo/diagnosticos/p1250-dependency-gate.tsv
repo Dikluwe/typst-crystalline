@@ -1,0 +1,6 @@
+dependency	current_state	required_evidence	gate
+P1245	segregated preseal 1.0; implementation and final certificate PASS	valid preseal; implementation; final certificate	READY
+P1246	segregated preseal 1.0; implementation and final certificate PASS	valid preseal; implementation; final certificate	READY
+P1247	segregated preseal 1.0; implementation and final certificate PASS	valid preseal; implementation; final certificate	READY
+P1248	segregated preseal 1.0; implementation and final certificate PASS	valid preseal; implementation; final certificate	READY
+P1249	segregated preseal 1.0; implementation and final certificate PASS	valid preseal; implementation; final certificate	READY

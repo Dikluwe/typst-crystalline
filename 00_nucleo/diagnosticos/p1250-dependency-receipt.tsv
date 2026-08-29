@@ -1,0 +1,19 @@
+field	value
+step	P1250
+verdict	DEPENDENCY_STOP
+baseline_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+measured_at	2026-08-28T11:00:00-03:00
+working_tree	uncommitted working tree
+matrix_sha256	6e47b3d4f64a21420dc24ca3304205c75395f0858cf76c8c349d442f00558a66
+runner_sha256	242b736cfbc26bdb3ddc47626c7deb759321544caa422fea807c0762f29d9420
+step_sha256	a9df6569f067edd852be052b9951f3dc4cec922edf422ec185c3a96176a22800
+summary_sha256	e74365bde4c591fe69780e31295e33072e1c9142057b8e0bf79f2ada8c739c0d
+dependency_count	5
+blocked_dependencies	P1245;P1247;P1248;P1249
+ready_dependencies	P1246
+integrated_contract_started	false
+candidate_executed	false
+executed_mutations	0
+mutation_score	NOT_MEASURED
+isolation_attested	false; execution stopped before segregated roles began
+next_action	materialize remaining dependencies; P1246 is segregated and certified

@@ -1,0 +1,11 @@
+id	case	required_observation	status
+O01	None control	children remain visible without clip-path	NOT_EXECUTED
+O02	Rect	inside visible and outside clipped in local raster	NOT_EXECUTED
+O03	RoundedRect	corner exclusion and four radii preserved	NOT_EXECUTED
+O04	Ellipse	axis bounds and curved boundary preserved	NOT_EXECUTED
+O05	Path	curve/subpath region preserved under nonzero rule	NOT_EXECUTED
+O06	Transform	clip and children share one transformed basis	NOT_EXECUTED
+O07	Nesting	ancestral and child clips intersect	NOT_EXECUTED
+O08	Graph	all clip-path references resolve to clipPath nodes	NOT_EXECUTED
+O09	Mechanics	ID renaming and defs reorder preserve verdict	NOT_EXECUTED
+O10	Opaque	even-odd and alpha-mask cases remain non-positive	NOT_EXECUTED
