@@ -1,0 +1,52 @@
+measured_at=2026-08-29T14:08:44-03:00
+head=9aade8e53b93efc5a05f5bb3c5d98b67fc8296b5
+working_tree=uncommitted
+
+git status --short
+ M 00_nucleo/prompts/infra/export/gradients/adaptive.md
+ M 00_nucleo/prompts/infra/export/svg.md
+ M 03_infra/src/export/gradients/adaptive.rs
+ M 03_infra/src/export/svg.rs
+?? 00_nucleo/diagnosticos/p1278-attacks-executed.tsv
+?? 00_nucleo/diagnosticos/p1278-causal-baseline.tsv
+?? 00_nucleo/diagnosticos/p1278-corpus.tsv
+?? 00_nucleo/diagnosticos/p1278-determinism.tsv
+?? 00_nucleo/diagnosticos/p1278-discarded-attempts.tsv
+?? 00_nucleo/diagnosticos/p1278-evidence-manifest.tsv
+?? 00_nucleo/diagnosticos/p1278-execution-receipts.tsv
+?? 00_nucleo/diagnosticos/p1278-final-pairs.tsv
+?? 00_nucleo/diagnosticos/p1278-final-summary.json
+?? 00_nucleo/diagnosticos/p1278-focal-attacks.tsv
+?? 00_nucleo/diagnosticos/p1278-focal-commands.tsv
+?? 00_nucleo/diagnosticos/p1278-focal-pairs.tsv
+?? 00_nucleo/diagnosticos/p1278-focal-summary.json
+?? 00_nucleo/diagnosticos/p1278-focal.tsv
+?? 00_nucleo/diagnosticos/p1278-graph.tsv
+?? 00_nucleo/diagnosticos/p1278-input-manifest.tsv
+?? 00_nucleo/diagnosticos/p1278-interval-cost.tsv
+?? 00_nucleo/diagnosticos/p1278-invalid-domain.tsv
+?? 00_nucleo/diagnosticos/p1278-materialize.py
+?? 00_nucleo/diagnosticos/p1278-oracle-budgets.tsv
+?? 00_nucleo/diagnosticos/p1278-pairs.tsv
+?? 00_nucleo/diagnosticos/p1278-product-boundary.tsv
+?? 00_nucleo/diagnosticos/p1278-raster.tsv
+?? 00_nucleo/diagnosticos/p1278-results.tsv
+?? 00_nucleo/diagnosticos/p1278-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/p1278-summary.json
+?? 00_nucleo/diagnosticos/p1278-working-tree-snapshot.txt
+?? 00_nucleo/diagnosticos/typst-p1278-polar-refinement.md
+?? typst-passo-1278.md
+
+git diff HEAD --stat
+ .../prompts/infra/export/gradients/adaptive.md     |  35 ++++-
+ 00_nucleo/prompts/infra/export/svg.md              |  27 +++-
+ 03_infra/src/export/gradients/adaptive.rs          | 149 +++++++++++++++++----
+ 03_infra/src/export/svg.rs                         |  62 +++++++--
+ 4 files changed, 238 insertions(+), 35 deletions(-)
+
+P1278 executor inputs
+lab/parity/matrix/p1278_generalize.py	9aecd181618e8169aebc2487486ce976cac318d24e365a8dacfdf1fcdfc3793f
+lab/parity/matrix/p1278_focal.py	62707ade6bc7a3889823f694fa3eec9d189a2028070261b1f81cf93ff7f0453d
+lab/parity/matrix/p1278_probe/src/main.rs	6988d1bb495b9eb2d9af70d9046de6c250cf842159ee060774d41973bda99519
+lab/parity/matrix/p1278_probe/Cargo.toml	8ad448df560b05a78d20cff62e1b699ea736f93abd37f45bdbe5844ce09a3dc1
+lab/parity/matrix/p1278_probe/Cargo.lock	ddce4fa19d2b66da87c321e709dd29dd218cb972966873c184203a94618569e4

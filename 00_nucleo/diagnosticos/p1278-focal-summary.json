@@ -1,0 +1,26 @@
+{
+  "attestation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "binary_sha256": {
+    "candidate": "857021648e5bea56f042f380e0f4bb19a1317fedfbefb789c9a0fd7b47ebe473",
+    "vanilla": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "fixture_groups": 48,
+  "mutants": 6,
+  "mutants_rejected": 6,
+  "observations": 336,
+  "pair_verdicts": {
+    "linear/hsl": "Focal-Preserved",
+    "linear/hsv": "Focal-Preserved",
+    "linear/luma": "Focal-Preserved",
+    "linear/oklch": "Focal-Preserved",
+    "radial/hsl": "Focal-Preserved",
+    "radial/hsv": "Focal-Preserved",
+    "radial/luma": "Focal-Preserved",
+    "radial/oklch": "Focal-Preserved"
+  },
+  "preserved": 336,
+  "scope": "frozen P1277 focal language checks rerun after L3-only refinement",
+  "step": 1278,
+  "unknown": 0,
+  "violated": 0
+}

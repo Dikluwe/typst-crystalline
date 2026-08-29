@@ -1,0 +1,10 @@
+[package]
+name = "p1278-svg-polar-probe"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+typst-core = { path = "../../../../01_core" }

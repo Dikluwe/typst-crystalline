@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/adaptive.md
-//! @prompt-hash d3a5a275
+//! @prompt-hash e654a9eb
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -85,13 +85,17 @@ pub(crate) fn svg_adaptive_stops(gradient: &Gradient) -> Vec<GradientStop> {
     const THRESHOLD: f32 = 0.001;
     const MAX_SUBDIVISIONS: u64 = 64;
 
-    let (stops, anti_alias, p1262_oklab) = match gradient {
-        Gradient::Linear(value) => {
-            (&*value.stops, value.anti_alias, value.space == ColorSpace::Oklab)
-        }
-        Gradient::Radial(value) => {
-            (&*value.stops, value.anti_alias, value.space == ColorSpace::Oklab)
-        }
+    let (stops, anti_alias, clamped_srgb_error) = match gradient {
+        Gradient::Linear(value) => (
+            &*value.stops,
+            value.anti_alias,
+            matches!(value.space, ColorSpace::Oklab | ColorSpace::Oklch),
+        ),
+        Gradient::Radial(value) => (
+            &*value.stops,
+            value.anti_alias,
+            matches!(value.space, ColorSpace::Oklab | ColorSpace::Oklch),
+        ),
         Gradient::Conic(value) => {
             return value
                 .stops
@@ -130,12 +134,12 @@ pub(crate) fn svg_adaptive_stops(gradient: &Gradient) -> Vec<GradientStop> {
             loop {
                 let midpoint = t0 + dt * (position as f64 - 0.5) / subdivisions as f64;
                 let exact = sample(midpoint);
-                let approximate = if p1262_oklab {
+                let approximate = if clamped_srgb_error {
                     mix_clamped_srgb_half(previous, next)
                 } else {
                     previous.mix(next, 0.5, Some(ColorSpace::Srgb))
                 };
-                let error = if p1262_oklab {
+                let error = if clamped_srgb_error {
                     premultiplied_srgb_error(exact, approximate)
                 } else {
                     raw_premultiplied_srgb_error(exact, approximate)
@@ -206,7 +210,14 @@ fn sample_gradient_precise_for_svg(gradient: &Gradient, t: f64) -> Color {
         Gradient::Radial(value) => (&*value.stops, value.space),
         Gradient::Conic(value) => return value.sample(t as f32),
     };
-    if !matches!(space, ColorSpace::Oklab | ColorSpace::LinearRgb) {
+    if !matches!(
+        space,
+        ColorSpace::Oklab
+            | ColorSpace::LinearRgb
+            | ColorSpace::Oklch
+            | ColorSpace::Hsl
+            | ColorSpace::Hsv
+    ) {
         return match gradient {
             Gradient::Linear(value) => value.sample(t as f32),
             Gradient::Radial(value) => value.sample(t as f32),
@@ -234,24 +245,51 @@ fn sample_gradient_precise_for_svg(gradient: &Gradient, t: f64) -> Color {
     let left = right - 1;
     let local = (t - offsets[left]) / (offsets[right] - offsets[left]);
     let components = |color: Color| match (space, color.to_space(space)) {
-        (ColorSpace::Oklab, Color::Oklab { l, a, b, alpha }) => (l, a, b, alpha),
-        (ColorSpace::LinearRgb, Color::LinearRgb { r, g, b, a }) => (r, g, b, a),
+        (ColorSpace::Oklab, Color::Oklab { l, a, b, alpha }) => [l, a, b, alpha],
+        (ColorSpace::LinearRgb, Color::LinearRgb { r, g, b, a }) => [r, g, b, a],
+        (ColorSpace::Oklch, Color::Oklch { l, c, h, alpha }) => [l, c, h, alpha],
+        (ColorSpace::Hsl, Color::Hsl { h, s, l, a }) => [h, s, l, a],
+        (ColorSpace::Hsv, Color::Hsv { h, s, v, a }) => [h, s, v, a],
         _ => unreachable!("precise SVG sampler space mismatch"),
     };
-    let c0 = components(stops[left].color);
-    let c1 = components(stops[right].color);
+    let mut c0 = components(stops[left].color);
+    let mut c1 = components(stops[right].color);
     let w0 = (1.0 - local) as f32;
     let w1 = local as f32;
     let total = w0 + w1;
-    let mixed = (
-        (w0 * c0.0 + w1 * c1.0) / total,
-        (w0 * c0.1 + w1 * c1.1) / total,
-        (w0 * c0.2 + w1 * c1.2) / total,
-        (w0 * c0.3 + w1 * c1.3) / total,
-    );
+    if let Some(hue_index) = match space {
+        ColorSpace::Oklch => Some(2),
+        ColorSpace::Hsl | ColorSpace::Hsv => Some(0),
+        _ => None,
+    } {
+        if (c0[hue_index] - c1[hue_index]).abs() > 180.0 {
+            if c0[hue_index] < c1[hue_index] {
+                c0[hue_index] += 360.0;
+            } else {
+                c1[hue_index] += 360.0;
+            }
+        }
+    }
+    let mixed = [
+        (w0 * c0[0] + w1 * c1[0]) / total,
+        (w0 * c0[1] + w1 * c1[1]) / total,
+        (w0 * c0[2] + w1 * c1[2]) / total,
+        (w0 * c0[3] + w1 * c1[3]) / total,
+    ];
     match space {
-        ColorSpace::Oklab => Color::oklab(mixed.0, mixed.1, mixed.2, mixed.3),
-        ColorSpace::LinearRgb => Color::linear_rgb(mixed.0, mixed.1, mixed.2, mixed.3),
+        ColorSpace::Oklab => Color::oklab(mixed[0], mixed[1], mixed[2], mixed[3]),
+        ColorSpace::LinearRgb => {
+            Color::linear_rgb(mixed[0], mixed[1], mixed[2], mixed[3])
+        }
+        ColorSpace::Oklch => {
+            Color::oklch(mixed[0], mixed[1], mixed[2].rem_euclid(360.0), mixed[3])
+        }
+        ColorSpace::Hsl => {
+            Color::hsl(mixed[0].rem_euclid(360.0), mixed[1], mixed[2], mixed[3])
+        }
+        ColorSpace::Hsv => {
+            Color::hsv(mixed[0].rem_euclid(360.0), mixed[1], mixed[2], mixed[3])
+        }
         _ => unreachable!(),
     }
 }
@@ -362,6 +400,71 @@ mod p1257_tests {
             GradientStop::new(Color::rgb(0, 255, 0), Ratio(0.37)),
             GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
         ]
+    }
+
+    fn p1278_expected_polar_sample(space: ColorSpace, t: f64) -> Color {
+        let local = t / 0.37_f64;
+        let w0 = (1.0 - local) as f32;
+        let w1 = local as f32;
+        let total = w0 + w1;
+        let mix = |left: f32, right: f32| (w0 * left + w1 * right) / total;
+        match space {
+            ColorSpace::Oklch => Color::oklch(
+                mix(0.62, 0.71),
+                mix(0.19, 0.13),
+                mix(350.0, 370.0).rem_euclid(360.0),
+                mix(0.8, 0.6),
+            ),
+            ColorSpace::Hsl => Color::hsl(
+                mix(350.0, 370.0).rem_euclid(360.0),
+                mix(0.72, 0.48),
+                mix(0.31, 0.68),
+                mix(0.8, 0.6),
+            ),
+            ColorSpace::Hsv => Color::hsv(
+                mix(350.0, 370.0).rem_euclid(360.0),
+                mix(0.72, 0.48),
+                mix(0.31, 0.68),
+                mix(0.8, 0.6),
+            ),
+            _ => unreachable!(),
+        }
+    }
+
+    #[test]
+    fn p1278_sampler_polar_preserva_precisao_e_pesos_vanilla() {
+        let t = 0.123_456_789_012_3_f64;
+        for space in [ColorSpace::Oklch, ColorSpace::Hsl, ColorSpace::Hsv] {
+            let (first, second) = match space {
+                ColorSpace::Oklch => (
+                    Color::oklch(0.62, 0.19, 350.0, 0.8),
+                    Color::oklch(0.71, 0.13, 10.0, 0.6),
+                ),
+                ColorSpace::Hsl => (
+                    Color::hsl(350.0, 0.72, 0.31, 0.8),
+                    Color::hsl(10.0, 0.48, 0.68, 0.6),
+                ),
+                ColorSpace::Hsv => (
+                    Color::hsv(350.0, 0.72, 0.31, 0.8),
+                    Color::hsv(10.0, 0.48, 0.68, 0.6),
+                ),
+                _ => unreachable!(),
+            };
+            let gradient = Gradient::linear_with_space(
+                vec![
+                    GradientStop::new(first, Ratio(0.0)),
+                    GradientStop::new(second, Ratio(0.37)),
+                    GradientStop::new(second, Ratio(1.0)),
+                ],
+                Angle::deg(0.0),
+                space,
+            );
+            assert_eq!(
+                sample_gradient_precise_for_svg(&gradient, t),
+                p1278_expected_polar_sample(space, t),
+                "precisao divergente em {space:?}"
+            );
+        }
     }
 
     #[test]

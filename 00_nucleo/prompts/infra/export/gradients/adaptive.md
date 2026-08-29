@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/gradients/adaptive` — Adaptive N multispace
-Hash do Código: bb280524
+Hash do Código: 694c5d3d
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/gradients/adaptive.rs`
@@ -118,3 +118,36 @@ do vanilla sob o limiar e cap congelados; os oito envelopes `color_max` e
 `color_p95` ficam dentro do budget P1231/P1237 e alpha não regride. Comparação
 apenas após `u8`, sucesso automático por saturação, coerção do espaço Oklab,
 alargamento do budget ou do cap e alteração global de `Color` são proibidos.
+
+## P1278 — precisão e gamut dos espaços polares SVG
+
+Medição que precede a decisão: o certificado P1277 executou 144 fixtures
+Linear/Radial × Oklch/Hsl/Hsv. Grafo e custo fecharam 144/144, mas somente
+84/144 fecharam o envelope numérico. A fonte ratificada
+`typst-library/src/visualize/gradient.rs:905-964,1461-1485` conserva `t` e os
+offsets em `f64`, converte separadamente `(1-local)` e `local` para pesos
+`f32`, divide cada soma pelo total dos pesos e, nos espaços com hue, corrige a
+rota curta antes da soma. O caminho cristalino anterior reduzia `t` a `f32`
+antes de chamar `Gradient::sample` e usava a forma algébrica `a+(b-a)*t`.
+Essas mecânicas não são equivalentes nos limites congelados P1277.
+
+Decisão interna: `sample_gradient_precise_for_svg` passa a atender também
+Oklch, Hsl e Hsv. Ele resolve offsets em `f64`, calcula os dois pesos `f32`
+separadamente, usa `(w0*c0+w1*c1)/(w0+w1)` por componente e aplica a correção
+angular curta exatamente nos índices Oklch=2 e Hsl/Hsv=0 antes da soma. O
+resultado permanece no espaço nativo. A rota P1262 de conversão sRGB float
+limitada antes da premultiplicação também se aplica a Oklch, pois a mesma
+fonte vanilla converte todo `Color::to_rgb()` por `palette::FromColor` com
+clamp; Hsl/Hsv já produzem canais codificados no intervalo e conservam a
+mesma fronteira sem clamp adicional observável.
+
+Luma fica explicitamente fora deste refinamento: P1277 encontrou 32 fixtures
+com divergência pública de alpha já classificada, que densidade, precisão ou
+serialização de offsets não corrigem. CMYK continua `Unknown-ADR0097`. O
+limiar `0.001`, cap 64, bissecção, custo por intervalo, ordem, coincidência,
+right-continuity e algoritmo PDF P274 não mudam. O passo não promove nenhum
+paint; somente torna o adaptador diagnóstico capaz de nova adjudicação.
+
+Aceitação: os seis pares polares repetem as 24 famílias P1266 sem alargar
+budgets P1277, tolerância ou cap; execução inversa e repetida é determinística;
+qualquer par que não feche a conjunção permanece `Unknown`.

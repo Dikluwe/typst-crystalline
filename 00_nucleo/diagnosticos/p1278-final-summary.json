@@ -1,0 +1,22 @@
+{
+  "attestation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "determinism_pass": 384,
+  "focal_observations": 336,
+  "focal_preserved": 336,
+  "general_fixtures": 192,
+  "general_preserved": 148,
+  "general_violated": 44,
+  "head": "9aade8e53b93efc5a05f5bb3c5d98b67fc8296b5",
+  "invalid_rejected": 56,
+  "measured_at": "2026-08-29T14:08:44-03:00",
+  "mutants_rejected": 30,
+  "mutants_total": 30,
+  "polar_fixtures": 144,
+  "polar_preserved_delta": 51,
+  "polar_preserved_p1277": 83,
+  "polar_preserved_p1278": 134,
+  "polar_raster_pass": 144,
+  "productive_promotions_applied": 0,
+  "remaining_polar_unknown_fixtures": 10,
+  "verdict": "POLAR-REFINEMENT-PRESERVED-NOT-PROMOTED"
+}

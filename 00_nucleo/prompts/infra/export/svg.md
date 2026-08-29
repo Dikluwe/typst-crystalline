@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
-Hash do Código: dc4da342
+Hash do Código: adaad248
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
@@ -226,6 +226,31 @@ cor premultiplicada e alpha observados separadamente em ponto flutuante antes de
 qualquer quantização `u8`; as 24 fixtures P1237 não podem regredir; execução
 direta e inversa deve ser determinística; o custo incremental deve permanecer
 em zero stops e zero decisões; nenhum target é promovido por esta correção.
+
+#### P1278 — `Ratio::repr` completo nos espaços polares
+
+Medição antes da decisão: P1277 preservou a fronteira P1261 para
+Oklch/Hsl/Hsv e serializou offsets adaptativos anteriores ao último intervalo
+como `f32` decimal. A fonte ratificada `typst-svg/src/paint.rs:246-277` aplica
+`Ratio::repr` a todo stop original e intermediário independentemente do espaço.
+O contrafactual P1278 sobre os budgets selados melhorou Hsl de 14/24 para
+19/24 e Hsv de 13/24 para 18/24 por geometria, sem tocar em cor, alpha,
+subdivisão ou budget. Oklch isoladamente não fechou, demonstrando que a
+serialização é necessária, mas não suficiente sem o sampler preciso do owner
+adaptativo.
+
+Decisão: todo offset adaptativo Linear/Radial em Oklch, Hsl ou Hsv usa a mesma
+representação percentual de duas casas já consolidada para Oklab/LinearRgb,
+diretamente a partir do `f64`. Stops nativos sRGB conservam `fmt_num`. Luma e
+CMYK ficam fora deste passo. A mudança não altera cap, limiar, quantidade ou
+decisão de stops, geometria, alpha, ordem ou descontinuidades e não amplia
+`paint_is_svg_native`: os seis pares continuam fallback até gate ADR-0127
+posterior e explícito.
+
+Aceitação: os 144 casos polares P1277 são reexecutados contra os mesmos
+oráculos; bytes, IDs e contagem de stops não são gate, enquanto max/p95 de cor
+premultiplicada e alpha antes de `u8`, raster, grafo e determinismo continuam
+obrigatórios. Qualquer falha mantém o par `Unknown`.
 
 #### P1273 — promoção dos quatro pares certificados
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash 636c0c06
+//! @prompt-hash 6ccbec47
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -569,16 +569,32 @@ fn write_svg_gradient_stops(
             .iter()
             .map(|stop| stop.offset.expect("P1229 sampled stop has offset").0)
             .collect();
-        let repr_all_offsets = match gradient {
-            Gradient::Linear(value) => {
-                matches!(value.space, ColorSpace::Oklab | ColorSpace::LinearRgb)
-            }
-            Gradient::Radial(value) => {
-                matches!(value.space, ColorSpace::Oklab | ColorSpace::LinearRgb)
-            }
-            Gradient::Conic(_) => false,
-        };
+        let repr_all_offsets = adaptive_offsets_use_ratio_repr(gradient);
         write_adaptive_gradient_stops(xml, &sampled, &offsets, repr_all_offsets);
+    }
+}
+
+fn adaptive_offsets_use_ratio_repr(gradient: &Gradient) -> bool {
+    use typst_core::entities::color::ColorSpace;
+
+    match gradient {
+        Gradient::Linear(value) => matches!(
+            value.space,
+            ColorSpace::Oklab
+                | ColorSpace::LinearRgb
+                | ColorSpace::Oklch
+                | ColorSpace::Hsl
+                | ColorSpace::Hsv
+        ),
+        Gradient::Radial(value) => matches!(
+            value.space,
+            ColorSpace::Oklab
+                | ColorSpace::LinearRgb
+                | ColorSpace::Oklch
+                | ColorSpace::Hsl
+                | ColorSpace::Hsv
+        ),
+        Gradient::Conic(_) => false,
     }
 }
 
@@ -2185,6 +2201,32 @@ mod tests {
                 "offset cru sobreviveu em {kind}: {serialized}"
             );
         }
+    }
+
+    #[test]
+    fn p1278_offsets_adaptativos_polares_usam_ratio_repr_completo() {
+        use typst_core::entities::color::ColorSpace;
+        use typst_core::entities::gradient::{Gradient, GradientStop};
+        use typst_core::entities::layout_types::{Angle, Ratio};
+
+        let stops = || {
+            vec![
+                GradientStop::new(Color::rgb(255, 65, 54), Ratio(0.0)),
+                GradientStop::new(Color::rgb(46, 204, 64), Ratio(0.37)),
+                GradientStop::new(Color::rgb(0, 116, 217), Ratio(1.0)),
+            ]
+        };
+        for space in [ColorSpace::Oklch, ColorSpace::Hsl, ColorSpace::Hsv] {
+            let gradient = Gradient::linear_with_space(stops(), Angle::deg(25.0), space);
+            assert!(
+                adaptive_offsets_use_ratio_repr(&gradient),
+                "Linear/{space:?} deve serializar todos os offsets via Ratio::repr"
+            );
+        }
+
+        let luma =
+            Gradient::linear_with_space(stops(), Angle::deg(25.0), ColorSpace::Luma);
+        assert!(!adaptive_offsets_use_ratio_repr(&luma));
     }
 
     #[test]
