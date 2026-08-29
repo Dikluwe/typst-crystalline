@@ -1,0 +1,10 @@
+field	value
+attacks_sha256	ed3ea934f70d4ae891f22d3711e27667219d15dbac74c392a4e1c8b0d909376c
+discrimination_sha256	365716767d369ddef13e558f15f367858860ad4e0ca2edec3977c719c197d522
+seal_sha256	09f7341cd986e1bca1066c72133ecd3770e2ab1a388436aaa92634dbca7eee95
+receipt_sha256	b432659700bf7651c74dcef68403b25dbed2e9fa58f6e30962a652b7e15e87de
+negative_mutations	35
+rejected	35
+opaque_controls	1/1 Unknown correto
+score	1.0 SEALED
+coverage	semântica; grafo; direção; centro; aspect; seams; alpha; transforms; crop; erosão; fitting; resize; owner/ADR

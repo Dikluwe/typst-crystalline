@@ -1,0 +1,5 @@
+choice	decision	reason
+arc-representation	center plus transformed basis vectors plus oriented angles	preserves affine geometry without Bezier approximation
+zero-radius	line	SVG normative degeneration
+equal-endpoint	empty segment	avoid NaN and preserve SVG semantics
+product-fix	gated	FillRule and CloseMode require public entity/frame contract changes

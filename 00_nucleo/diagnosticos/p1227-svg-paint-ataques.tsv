@@ -1,0 +1,8 @@
+field	value
+canonical_spec	/tmp/p1227-isolation/attacks/attacks.tsv sha256 21263a26ae38737f223293b3e16167c38163f75f4bea0b6dc9ab398c4e4b092d
+canonical_cases	/tmp/p1227-isolation/attacks/cases.tsv sha256 8de8c24dd15b81b1a744e53502e47c16f4a56408e3bd2c10a806c73e1fd89e3b
+negative_mutants	26
+positive_controls	4
+opaque_controls	8
+mutation_score	1.0
+gate	PASS; 26/26; two deterministic seeds

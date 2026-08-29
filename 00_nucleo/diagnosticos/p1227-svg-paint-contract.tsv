@@ -1,0 +1,7 @@
+field	value
+contract	p1227-svg-paint-server-morphology-v1
+canonical_artifact	/tmp/p1227-isolation/contract/contract.tsv
+sha256	d2390d9ebc7f083efd135d8f33635981c3a082cb681c67197f15e7ac843fadda
+modeled	local linear radial pattern; units transforms spread ordered stops alpha application role href inheritance
+unknown	broken cycle external ambiguous conic-without-budget color-space-without-contract opaque-pattern unresolved-relative
+mechanics_excluded	literal IDs defs order whitespace XML prefixes and byte equality

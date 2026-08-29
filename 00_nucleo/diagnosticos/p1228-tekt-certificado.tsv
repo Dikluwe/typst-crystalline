@@ -1,0 +1,12 @@
+field	value
+verdict	ACCEPTED_WITH_CONTRACTUAL_UNKNOWN
+preserved	A-F,H; exact-fit geometry; coincident stops; alpha; sRGB native server
+unknown	G default/Oklab interpolation only
+violated	none in P1228 contracted fragment
+mutants	12/12 KILLED
+contract_sha256	009fb653d9258208a68fe4ca9c92f9964b6df17531a459c097197db2db80a5a8
+oracles_sha256	cfb00cf041cfa0d9365d244a464162227b79d42d6a7f001dcfffed5ef6cac06b
+attacks_sha256	41b852fc6fc74212771c15f74df10921a2fa64685a4c0bef7eebf62b4bb396d6
+verification_sha256	433551e3d234495fbedf053ea8629fdfbdcf5f6a02878c896e7b21d1dc1d7338
+verification_receipt_sha256	a659cc65f9d37c2fac699d95f46a464646c0f76153712d79d6cad6be1b63a5bc
+isolation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

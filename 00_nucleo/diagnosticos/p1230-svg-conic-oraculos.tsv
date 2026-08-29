@@ -1,0 +1,8 @@
+field	value
+oracle_receipt_sha256	df0570bc3147b64bdfec62331b6d77dd44873ef617abb3213cecfb7e44f2a221
+fixtures_sha256	0b2607425f838814c9243acaf1f5597ce9d99a110932a52795cc8706a3d6df51
+oracles_sha256	4ca6b3aa638e8c76849a56191af51c04fbf58d8b6ade8feacfcd7a7a2673fb5b
+budget_sha256	dd48c88a8f5b7a394445221d346a8618e7fe7adf24f356801dd6f9bd5f8e40d8
+protocol	21 fixtures; direta/inversa x2; grafo; raster 1x/2x/4x; 720 endpoints por execução
+vanilla_endpoints	zero divergências contra gradient.sample nos 361 limites angulares
+unknown	CMYK ADR-0097; layout externo

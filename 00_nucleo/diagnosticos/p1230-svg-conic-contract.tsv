@@ -1,0 +1,10 @@
+field	value
+manifest_sha256	e5c17549a417e4aa80f1ce25e4439116eb5299479b245658439e6ee8f377f77f
+contract_sha256	44acb9becc1ed5ebe7b309539cde578cb1ab54b08f9f0928f82ff6df3f1e48bb
+contract_receipt_sha256	98e9ca020138ada918906f3dbc697335a8a0b3e4bd5bcdf5c89af43e3adaae5c
+claim	Conic SVG vetorial local preserva grafo, centro, ângulo, sentido, aspect, stops, alpha, fill/stroke e transform
+budget_B01	max RGB <=4/255; p95 <=2/255; alpha <=2/255
+budget_B02	p95 RGBA <=4/255; fraction >16/255 <=0.5%
+mask	derivada do grafo/geometria local; sem crop por erro, erosão, fitting ou resize
+unknown	CMYK por ADR-0097; layout/grid/gutter/flow externos
+limitation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

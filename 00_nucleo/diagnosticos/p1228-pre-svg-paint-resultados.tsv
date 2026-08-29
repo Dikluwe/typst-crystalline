@@ -1,0 +1,9 @@
+observable	status	evidence	note
+transparentize	PRESERVED	vanilla e cristalino repr rgb("#ff413680")	não era a perda
+coincident-stops	PRESERVED	SVG sRGB contém offsets 0,0,1 em ordem	não era a perda
+alpha	PRESERVED	stop-opacity=0.501960784 separado de #ff4136	não era a perda
+exact-fit-shape	PRESERVED	teste p1228 RED→GREEN; SVG rect x=5 y=5 w=130 h=40	primeira perda fechada em layout/shape.rs
+default-space-interpolation	UNKNOWN	data-crystalline-fill-fallback=gradient-color-space	sem modelo Oklab selado
+srgb-native-server	PRESERVED	fill url(#p0) resolve e mantém três stops	IDs não são observáveis
+architecture	PASS	L0 atualizado antes do código; V15/V26 pré-resselo zero	sem mudança pública ou de fase
+isolation	NOT-ATTESTED	filesystem compartilhado	ensaio segregado por autoridade

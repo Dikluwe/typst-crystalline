@@ -1,0 +1,11 @@
+fixture	scope	result
+arc-radii-correction	harness-only	Preserved
+arc-antipodal-large-flag	harness-only	Preserved
+arc-sweep-change	harness-only	Violated
+arc-zero-radius	harness-only	Preserved as line
+arc-equal-endpoints	harness-only	Preserved as empty segment
+arc-relative	harness-only	Preserved
+arc-nested-transform	harness-only	Preserved
+arc-axis-rotation-change	harness-only	Violated
+arc-invalid-flag	harness-only	Unknown
+p1226-curve	public	Violated

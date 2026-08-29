@@ -1,0 +1,6 @@
+field	value
+attacks_sha256	3ede149288d5c8b3927158926b5a884b65832700e36ef5b808ce0133ed06f739
+mutants	18
+rejected	18
+score	1.0
+coverage	primeira/média cor; N fixo; alpha; coincidência; espaço; foco; URLs; IDs; PDF; Conic; isolamento; Unknown

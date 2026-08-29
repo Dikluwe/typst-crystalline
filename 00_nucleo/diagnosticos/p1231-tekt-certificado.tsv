@@ -1,0 +1,14 @@
+field	value
+verdict	REJECTED
+acceptance_certificate	none
+mutation_score	18/18=1.0
+nine_unknown_dispositions	PASS
+cmyk_unknown_adr0097	PASS
+exact_whitelist	PASS
+conic_control	PASS; delta zero
+r01_raster	FAIL; 19/30 fixtures
+r01_numeric	FAIL; 14/30 fixtures
+results_sha256	e9a4a0263ef21b4ac98f28305ba64d1627a9f4b7ba5c91b5df04d4b955549b69
+verdict_sha256	ea8a8cc03df2cbbf49c228135d5400e3330ae9250261bde37371c833aba6dd09
+rejection_record_sha256	aa2023f32bd718a40698acb4a5c0887b015f13d47a8d5d1a170e88ea588f69ea
+limitation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

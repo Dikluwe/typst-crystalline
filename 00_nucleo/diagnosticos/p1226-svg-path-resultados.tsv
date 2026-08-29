@@ -1,0 +1,7 @@
+case	vanilla	crystalline	verdict
+arc-harness	canonical endpoint arcs	canonical endpoint arcs	Preserved for sealed harness subset
+public-fill-rule	evenodd	evenodd	Preserved
+public-stroke	blue 2pt	blue 2pt	Preserved
+public-close	smooth cubic plus close	smooth cubic plus close	Preserved
+public-close-straight	line plus close	line plus close	Preserved
+public-basic-path	M/L/C/Q coordinates	M/L/C/Q coordinates	Preserved

@@ -1,0 +1,7 @@
+role	context	declared_write	capability_result
+C	fresh	/tmp/p1227-isolation/contract	allowlist metadata violation; not attestable
+O	fresh	/tmp/p1227-isolation/oracles	no declared violation
+A	fresh	/tmp/p1227-isolation/attacks	skill-read outside literal allowlist; not attestable
+V-gates	fresh	/tmp/p1227-isolation/verify	intermediate discovery violations; final gate no violation
+I	fresh	productive candidate only	no violation; stopped at ADR-0127
+global	shared filesystem	all workspace paths	ACL not enforceable; isolation attestation unavailable
