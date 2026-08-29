@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash 69409a7d
+//! @prompt-hash 636c0c06
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -304,8 +304,14 @@ fn paint_is_svg_native(paint: &Paint) -> bool {
 
     match paint {
         Paint::Solid(_) => true,
-        Paint::Gradient(Gradient::Linear(value)) => value.space == ColorSpace::Srgb,
-        Paint::Gradient(Gradient::Radial(value)) => value.space == ColorSpace::Srgb,
+        Paint::Gradient(Gradient::Linear(value)) => matches!(
+            value.space,
+            ColorSpace::Srgb | ColorSpace::Oklab | ColorSpace::LinearRgb
+        ),
+        Paint::Gradient(Gradient::Radial(value)) => matches!(
+            value.space,
+            ColorSpace::Srgb | ColorSpace::Oklab | ColorSpace::LinearRgb
+        ),
         Paint::Gradient(Gradient::Conic(value)) => matches!(
             value.space,
             ColorSpace::Srgb
@@ -2182,7 +2188,7 @@ mod tests {
     }
 
     #[test]
-    fn p1235_linear_oklab_regressa_a_unknown_explicito() {
+    fn p1274_linear_oklab_usa_servidor_adaptativo_nativo() {
         use typst_core::entities::gradient::{Gradient, GradientStop};
         use typst_core::entities::layout_types::{Angle, Ratio};
         let gradient = Gradient::linear(
@@ -2196,12 +2202,14 @@ mod tests {
             &p1227_page(vec![p1227_rect(Some(Paint::Gradient(gradient)), None)]),
             &SvgOptions::default(),
         );
-        assert!(svg.contains("data-crystalline-fill-fallback=\"gradient-color-space\""));
-        assert!(!svg.contains("<linearGradient"));
+        assert!(svg.contains("fill=\"url(#p0)\""));
+        assert!(svg.contains("<linearGradient id=\"p0\""));
+        assert!(!svg.contains("data-crystalline-fill-fallback"));
+        assert!(svg.matches("<stop ").count() > 2);
     }
 
     #[test]
-    fn p1235_linear_linear_rgb_regressa_a_unknown_explicito() {
+    fn p1274_linear_linear_rgb_usa_servidor_adaptativo_nativo() {
         use typst_core::entities::color::ColorSpace;
         use typst_core::entities::gradient::{Gradient, GradientStop};
         use typst_core::entities::layout_types::{Angle, Ratio};
@@ -2217,8 +2225,10 @@ mod tests {
             &p1227_page(vec![p1227_rect(Some(Paint::Gradient(gradient)), None)]),
             &SvgOptions::default(),
         );
-        assert!(svg.contains("data-crystalline-fill-fallback=\"gradient-color-space\""));
-        assert!(!svg.contains("<linearGradient"));
+        assert!(svg.contains("fill=\"url(#p0)\""));
+        assert!(svg.contains("<linearGradient id=\"p0\""));
+        assert!(!svg.contains("data-crystalline-fill-fallback"));
+        assert!(svg.matches("<stop ").count() > 2);
     }
 
     #[test]
@@ -2249,7 +2259,7 @@ mod tests {
     }
 
     #[test]
-    fn p1231_radial_oklab_permanece_unknown() {
+    fn p1274_radial_oklab_usa_servidor_adaptativo_nativo() {
         use typst_core::entities::axes::Axes;
         use typst_core::entities::gradient::{Gradient, GradientStop};
         use typst_core::entities::layout_types::Ratio;
@@ -2265,12 +2275,44 @@ mod tests {
             &p1227_page(vec![p1227_rect(Some(Paint::Gradient(gradient)), None)]),
             &SvgOptions::default(),
         );
-        assert!(svg.contains("data-crystalline-fill-fallback=\"gradient-color-space\""));
-        assert!(!svg.contains("<radialGradient"));
+        assert!(svg.contains("fill=\"url(#p0)\""));
+        assert!(svg.contains("<radialGradient id=\"p0\""));
+        assert!(!svg.contains("data-crystalline-fill-fallback"));
+        assert!(svg.matches("<stop ").count() > 2);
     }
 
     #[test]
-    fn p1231_nove_combinacoes_nao_seladas_permanecem_unknown() {
+    fn p1274_radial_linear_rgb_usa_servidor_adaptativo_em_stroke() {
+        use typst_core::entities::axes::Axes;
+        use typst_core::entities::color::ColorSpace;
+        use typst_core::entities::gradient::{Gradient, GradientStop};
+        use typst_core::entities::layout_types::Ratio;
+        let gradient = Gradient::radial_with_space(
+            vec![
+                GradientStop::new(Color::rgba(255, 0, 0, 128), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Ratio(0.5),
+            ColorSpace::LinearRgb,
+        );
+        let stroke = Stroke {
+            paint: Paint::Gradient(gradient),
+            thickness: 2.0,
+            ..Stroke::default()
+        };
+        let svg = export_svg(
+            &p1227_page(vec![p1227_rect(None, Some(stroke))]),
+            &SvgOptions::default(),
+        );
+        assert!(svg.contains("stroke=\"url(#p0)\""));
+        assert!(svg.contains("<radialGradient id=\"p0\""));
+        assert!(!svg.contains("data-crystalline-stroke-fallback"));
+        assert!(svg.matches("<stop ").count() > 2);
+    }
+
+    #[test]
+    fn p1274_sete_combinacoes_nao_certificadas_permanecem_unknown() {
         use typst_core::entities::axes::Axes;
         use typst_core::entities::color::ColorSpace;
         use typst_core::entities::gradient::{Gradient, GradientStop};
@@ -2283,10 +2325,8 @@ mod tests {
             ]
         };
         let cases = [
-            (false, ColorSpace::Oklab),
             (true, ColorSpace::Oklch),
             (false, ColorSpace::Oklch),
-            (false, ColorSpace::LinearRgb),
             (true, ColorSpace::Luma),
             (false, ColorSpace::Luma),
             (true, ColorSpace::Hsl),

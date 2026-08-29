@@ -1,0 +1,15 @@
+gate	command_or_basis	population	result	artifact
+owner-approval	P1273 owner confirmation on 2026-08-29	four named pairs	ADR-0127 gate closed	00_nucleo/prompts/infra/export/svg.md
+red	cargo test -p typst-infra p1274_ --offline -- --nocapture	5 focal tests	4 positive FAIL at url reference;1 negative PASS	03_infra/src/export/svg.rs
+green	cargo test -p typst-infra p1274_ --offline -- --nocapture	5 focal tests	5/5 PASS	03_infra/src/export/svg.rs
+targeted-mutants	three reversible patches plus same focal command	3 valid mutants	3/3 rejected;score 1.0	p1274-targeted-mutants.tsv
+candidate-build	cargo build --workspace --offline	workspace	PASS;candidate 522c0bde4dec1a8056a5aa5c2875af349b5e6fc249b2b8e054e0504294f776c8	target/debug/typst
+raw-envelope	python3 lab/parity/matrix/p1266_generalize.py with frozen P1266 inputs and output under /tmp/p1274-envelope.q1OLuu	96 fixtures	numeric/morphology emitted;historical fallback boundary changed as expected	/tmp/p1274-envelope.q1OLuu/raw
+p1274-adjudication	python3 /tmp/p1274-envelope.q1OLuu/p1274-adjudicator.py --controls-status Preserved	G01-G13 x 96	four pairs 24/24;route P1274	p1274-fixture-gates.tsv
+numeric	P1268 frozen budgets	384 metrics	384/384	p1274-numeric.tsv
+interval-cost	P1268 frozen per-interval formula	1224 intervals	1224/1224	p1274-interval-cost.tsv
+domain-and-determinism	live envelope	28 invalid;192 repeat/inverse	28/28;192/192	p1274-invalid-domain.tsv;p1274-determinism.tsv
+attacks-and-opacity	P1268 frozen suites	24 valid negatives;10 opaque	24/24 rejected;10/10 excluded	p1274-mutants.tsv;p1274-opaque.tsv
+productive-boundary	P1274 adjudication of raw product SVG	96 fixtures	96/96 native;zero fallback	p1274-product-boundary.tsv
+lineage	crystalline-lint --fix-hashes . then --checks v1,v5,v15,v26	one owner/consumer	PASS;prompt 636c0c06;code dc4da342	00_nucleo/prompts/infra/export/svg.md;03_infra/src/export/svg.rs
+repository-gates	cargo test --workspace --offline;cargo build --workspace --offline;cargo fmt --check;python3 -m py_compile;git diff --check;crystalline-lint .	repository	PASS;zero blocking violations;preexisting advisory lint findings retained	repository

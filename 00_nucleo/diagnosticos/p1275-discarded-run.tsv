@@ -1,0 +1,9 @@
+field	value
+run	/tmp/p1275-cert.74JOb3 first chain
+status	DISCARDED-BEFORE-CERTIFICATION
+cause	p1266 runner overwrote the file incorrectly classified as immutable preseal
+initial_file_sha256	aab1d65fa8b20a39acd2e1d65129e48dbee81616e7875d3f2de88f155f50e6d8
+overwritten_file_sha256	fc54bc390838d7979d8b0536b6f9e5fe9ff3475760b42375846e3b96471366d7
+remediation	separate immutable p1275-preseal.txt from run2/working-tree-snapshot.txt and repeat the full chain
+used_as_evidence	false
+valid_chain	/tmp/p1275-cert.74JOb3/run2

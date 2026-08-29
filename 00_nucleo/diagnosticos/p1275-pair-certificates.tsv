@@ -1,0 +1,5 @@
+pair	population	all_gates	numeric	productive_boundary	verdict
+linear/oklab	24/24	24/24	24/24	24/24 native;zero fallback	PROMOTED-PRESERVED
+radial/oklab	24/24	24/24	24/24	24/24 native;zero fallback	PROMOTED-PRESERVED
+linear/linear-rgb	24/24	24/24	24/24	24/24 native;zero fallback	PROMOTED-PRESERVED
+radial/linear-rgb	24/24	24/24	24/24	24/24 native;zero fallback	PROMOTED-PRESERVED

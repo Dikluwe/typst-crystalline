@@ -1,0 +1,11 @@
+case_id	expected	adjudicated	counts_as_success	mutation_denominator	runner_exit	materialized_state_equal	materialized_sha256	witness	status
+U01-provenance-ambiguous	Unknown	Unknown	false	excluded	0	true	7287135bc043f43a9fc519619fb7c8a25afe014d675b536bd8758a6bcd24a50a	origin and owner interval are absent	ExplicitOpacity
+U02-exact-right-probe-ambiguous	Unknown	Unknown	false	excluded	0	true	9d7c0d8ce000afe56e94753ee6af22333bf2c095ec9ee93f23f4a89eac22f21c	exact and epsilon-right probes are absent	ExplicitOpacity
+U03-budget-missing	Unknown	Unknown	false	excluded	0	true	51812d6b07a2e68d498bcf288381e48eb5e76a36bf982ced46f471f02eec3940	frozen metric limits are absent	ExplicitOpacity
+U04-graph-owner-ambiguous	Unknown	Unknown	false	excluded	0	true	9aa6a90b5a1fdc1f8adc1fad35abfc3e396e9e668856e6df4acaf4ac40d64eb8	duplicate target leaves owner ambiguous	ExplicitOpacity
+U05-raster-mask-ambiguous	Unknown	Unknown	false	excluded	0	true	8f689c988c885d784fd43b947ff437a070ece6a11e8065287b88aa79a00123ca	independent support mask is absent	ExplicitOpacity
+U06-mesh-budget-exhausted	Unknown	Unknown	false	excluded	0	true	40187a555b7c329d34ca05096208dbe38e9b57ec6b128a3e89f189131a0b1a42	mesh is partial after resource exhaustion	ExplicitOpacity
+U07-interval-trace-unattributed	Unknown	Unknown	false	excluded	0	true	dc2acdd3ed05db5a0ea4cf6aab143b2f48baa716aa0e95bb59828deb8a45b84f	R and interval-local costs are absent	ExplicitOpacity
+U08-s20-mask-ambiguous	Unknown	Unknown	false	excluded	0	true	626045d6a2c2c96c8cac2ea56243ce5958eab72088b14948fb4914467667ffd2	positive area lacks stroke morphology mask	ExplicitOpacity
+U09-s21-owner-ambiguous	Unknown	Unknown	false	excluded	0	true	f50a02427fe5f2461678c9b80bea90e5152f9367e214eeaddf26c6c30eaf0237	zero area lacks graph ownership and closure	ExplicitOpacity
+U10-parser-unavailable	Unknown	Unknown	false	excluded	0	true	a9c55cefda3dd97d4f9ead74374d25336af5477db0b301dd717f5603cf498d66	parser result is unavailable	ExplicitOpacity

@@ -1,0 +1,2 @@
+verdict	route	basis	fixtures	numeric_failed_metrics	numeric_failed_fixtures	invalid_rejected	determinism	mutation_score	opaque_cases	controls	classification_boundary
+Generalization-Preserved	P1275	all four pairs are 24/24 under G01-G13	96	0	0	28/28	192/192	24/24	10/10 excluded from success	Preserved	P1275 certifies exactly four approved promoted pairs; no general equivalence claim; no P1268 reseal
