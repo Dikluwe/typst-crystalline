@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: ffe3682c
+Hash do Código: 00184a57
 
 ## Módulo
 `01_core/src/entities/gradient.rs`
@@ -154,6 +154,15 @@ O caminho interno usado pela superfície de linguagem Linear preserva `t` e os
 offsets `Ratio` em `f64` até calcular o peso local; só então converte os dois
 pesos separadamente para `f32`. O método Rust histórico `sample(f32)` permanece
 inalterado para os consumidores existentes.
+
+**P1269-owner — offsets precisos compartilhados.** A resolução efetiva dos
+offsets Linear em `f64` é uma única operação interna compartilhada pelo
+sampling preciso e pela normalização de identidades públicas de fronteira. Ela
+preserva offsets explícitos e calcula auto-spacing sem carrier intermediário
+`f32`. O accessor `gradient.stops` e o método Rust histórico
+`effective_offsets() -> Vec<f32>` permanecem inalterados; apenas uma igualdade
+exata com um offset que esse accessor expõe pode mapear de volta para a
+fronteira canônica, inclusive em coincidências não diádicas de `sharp`.
 
 ---
 

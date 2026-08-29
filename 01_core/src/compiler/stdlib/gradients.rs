@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/gradients.md
-//! @prompt-hash 98969965
+//! @prompt-hash 7cfe6f5a
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -273,7 +273,15 @@ fn sample_gradient(gradient: &Gradient, value: &Value) -> SourceResult<Value> {
         }
     };
     Ok(Value::Color(match gradient {
-        Gradient::Linear(v) => v.sample_precise(t),
+        Gradient::Linear(v) => {
+            let t = v
+                .effective_offsets_precise()
+                .into_iter()
+                .zip(v.effective_offsets())
+                .find_map(|(precise, public)| (t == f64::from(public)).then_some(precise))
+                .unwrap_or(t);
+            v.sample_precise(t)
+        }
         Gradient::Radial(v) => v.sample(t as f32),
         Gradient::Conic(v) => v.sample(t as f32),
     }))

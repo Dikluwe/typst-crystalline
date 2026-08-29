@@ -1,0 +1,9 @@
+variant	preserved_metrics	violated_metrics	interpretation
+legacy-serialized	0	28	reproduces frozen P1269 failures
+offset-f64-serialized	16	12	isolates C1 and closes all 16 C1 metrics
+offset-f64-raw	20	8	not admissible as a fix; changes serialized observable and still leaves failures
+vanilla-meta-serialized	20	8	candidate exact sampling remains independently observable
+vanilla-svg	20	8	same survivors as vanilla metadata; reparsing is not their first cause
+offset-f64-serialized@vanilla-exact	20	8	isolates exact-sampling effects while retaining candidate public metadata
+vanilla-meta-serialized@vanilla-exact	28	0	candidate adaptive algorithm passes all frozen metrics under equivalent upstream inputs
+vanilla-svg@vanilla-exact	28	0	reproduces the frozen vanilla envelope exactly

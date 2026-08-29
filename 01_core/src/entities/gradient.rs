@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient.md
-//! @prompt-hash ba93b3c1
+//! @prompt-hash aac49e06
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -147,6 +147,57 @@ impl Linear {
         result
     }
 
+    /// Resolve os offsets no carrier preciso da superfície de linguagem.
+    ///
+    /// Mantém o método histórico `effective_offsets` em `f32` para os
+    /// consumidores Rust existentes, mas evita arredondar os `Ratio(f64)`
+    /// usados para reconhecer identidades de `gradient.stops` e pelo sampling
+    /// preciso.
+    pub(crate) fn effective_offsets_precise(&self) -> Vec<f64> {
+        let n = self.stops.len();
+        if n == 0 {
+            return Vec::new();
+        }
+        if n == 1 {
+            return vec![self.stops[0].offset.map(|ratio| ratio.0).unwrap_or(0.0)];
+        }
+
+        let mut offsets: Vec<Option<f64>> = self
+            .stops
+            .iter()
+            .map(|stop| stop.offset.map(|ratio| ratio.0))
+            .collect();
+        if offsets[0].is_none() {
+            offsets[0] = Some(0.0);
+        }
+        if offsets[n - 1].is_none() {
+            offsets[n - 1] = Some(1.0);
+        }
+
+        let mut resolved = vec![0.0; n];
+        let mut i = 0;
+        while i < n {
+            if let Some(value) = offsets[i] {
+                resolved[i] = value;
+                i += 1;
+                continue;
+            }
+            let mut j = i;
+            while j < n && offsets[j].is_none() {
+                j += 1;
+            }
+            let previous = resolved[i - 1];
+            let next = offsets[j].unwrap();
+            let gap = j - i + 1;
+            for k in 0..gap {
+                resolved[i + k] =
+                    previous + (next - previous) * (k + 1) as f64 / gap as f64;
+            }
+            i = j;
+        }
+        resolved
+    }
+
     /// Amostra a cor interpolada em parâmetro t ∈ [0, 1].
     ///
     /// **P270**: interpola no `self.space` via dispatcher
@@ -195,38 +246,7 @@ impl Linear {
         if n == 1 {
             return self.stops[0].color;
         }
-        let mut offsets: Vec<Option<f64>> = self
-            .stops
-            .iter()
-            .map(|stop| stop.offset.map(|ratio| ratio.0))
-            .collect();
-        if offsets[0].is_none() {
-            offsets[0] = Some(0.0);
-        }
-        if offsets[n - 1].is_none() {
-            offsets[n - 1] = Some(1.0);
-        }
-        let mut resolved = vec![0.0; n];
-        let mut i = 0;
-        while i < n {
-            if let Some(value) = offsets[i] {
-                resolved[i] = value;
-                i += 1;
-                continue;
-            }
-            let mut j = i;
-            while j < n && offsets[j].is_none() {
-                j += 1;
-            }
-            let previous = resolved[i - 1];
-            let next = offsets[j].unwrap();
-            let gap = j - i + 1;
-            for k in 0..gap {
-                resolved[i + k] =
-                    previous + (next - previous) * (k + 1) as f64 / gap as f64;
-            }
-            i = j;
-        }
+        let resolved = self.effective_offsets_precise();
         for i in 0..(n - 1) {
             let (o0, o1) = (resolved[i], resolved[i + 1]);
             if t >= o0 && t <= o1 {

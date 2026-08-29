@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 1e3b0fb1
+Hash do Código: a1de7182
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -32,6 +32,13 @@ endpoints vermelhos de `gradient.linear(..., space: luma)` e
 `gradient.radial(..., space: luma)` devem expor `54.02%`, como o vanilla
 ratificado. O teste continua a exigir alpha preservado segundo P1252 e não
 autoriza promoção SVG.
+
+P1269-owner fixa a fronteira estrutural de stops Linear coincidentes em
+offsets não diádicos: em Oklab e Linear RGB, `sample` e `samples` recebem a
+razão pública devolvida por `stops()`; a coincidência exata escolhe o primeiro
+stop daquele offset e um epsilon positivo escolhe o ramo à direita. O controle
+usa `sharp(3)` para exercer `1/3` e `2/3` sem depender da representação textual
+decimal.
 
 ## P1215
 

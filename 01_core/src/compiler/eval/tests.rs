@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash feddd109
+//! @prompt-hash db0d44fd
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -16776,6 +16776,33 @@ mod tests {
         let Value::Array(many) = m.scope().get("many").unwrap() else { panic!("many") };
         assert_eq!(many.len(), 3);
         assert_eq!(m.scope().get("parity"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p1269_linear_sample_coincidencia_publica() {
+        let m = p729_eval(
+            "#let check(space) = {\n\
+             \u{20} let g = gradient.linear(red, green, blue, space: space).sharp(3)\n\
+             \u{20} let s = g.stops()\n\
+             \u{20} let exact = (g.sample(s.at(1).at(1)) == s.at(1).at(0), g.sample(s.at(3).at(1)) == s.at(3).at(0))\n\
+             \u{20} let epsilon = 0.000001%\n\
+             \u{20} let right = (repr(g.sample(s.at(1).at(1) + epsilon)) == repr(s.at(2).at(0)), repr(g.sample(s.at(3).at(1) + epsilon)) == repr(s.at(4).at(0)))\n\
+             \u{20} let static = gradient.sample(g, s.at(1).at(1)) == s.at(1).at(0)\n\
+             \u{20} let many = g.samples(s.at(1).at(1), s.at(3).at(1)) == (s.at(1).at(0), s.at(3).at(0))\n\
+             \u{20} (exact, right, static, many)\n\
+             }\n\
+             #let oklab = check(color.oklab)\n\
+             #let linear_rgb = check(color.linear-rgb)",
+        )
+        .unwrap();
+        let expected = Value::Array(vec![
+            Value::Array(vec![Value::Bool(true); 2]),
+            Value::Array(vec![Value::Bool(true); 2]),
+            Value::Bool(true),
+            Value::Bool(true),
+        ]);
+        assert_eq!(m.scope().get("oklab"), Some(&expected));
+        assert_eq!(m.scope().get("linear_rgb"), Some(&expected));
     }
 
     #[test]

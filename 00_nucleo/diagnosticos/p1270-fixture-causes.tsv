@@ -1,0 +1,29 @@
+fixture_id	pair	metric	cluster	first_cause	first_checkpoint	owner	verdict
+S03-linear-linear-rgb	linear/linear-rgb	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S03-radial-linear-rgb	radial/linear-rgb	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S05-linear-linear-rgb	linear/linear-rgb	alpha_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S05-linear-oklab	linear/oklab	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S05-linear-oklab	linear/oklab	alpha_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S05-radial-linear-rgb	radial/linear-rgb	alpha_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S05-radial-oklab	radial/oklab	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S05-radial-oklab	radial/oklab	alpha_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S06-linear-linear-rgb	linear/linear-rgb	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S06-linear-oklab	linear/oklab	color_p95	C2	sRGB-to-Oklab conversion differs at source stop components	public-stop-component	01_core/src/entities/color.rs:533-540	PRODUCT-DIVERGENCE
+S06-radial-linear-rgb	radial/linear-rgb	color_max	C4	public Radial sample narrows t and effective offsets to f32	native-space-sampling	01_core/src/compiler/stdlib/gradients.rs:275-287; 01_core/src/entities/gradient.rs:640-717	PRODUCT-DIVERGENCE
+S06-radial-linear-rgb	radial/linear-rgb	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S06-radial-oklab	radial/oklab	color_max	C4	public Radial sample narrows t and effective offsets to f32	native-space-sampling	01_core/src/compiler/stdlib/gradients.rs:275-287; 01_core/src/entities/gradient.rs:640-717	PRODUCT-DIVERGENCE
+S06-radial-oklab	radial/oklab	color_p95	C2	sRGB-to-Oklab conversion differs at source stop components	public-stop-component	01_core/src/entities/color.rs:533-540	PRODUCT-DIVERGENCE
+S09-linear-oklab	linear/oklab	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S09-radial-oklab	radial/oklab	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S11-linear-linear-rgb	linear/linear-rgb	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S11-radial-linear-rgb	radial/linear-rgb	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S11-radial-oklab	radial/oklab	color_max	C4	public Radial sample narrows t and effective offsets to f32	native-space-sampling	01_core/src/compiler/stdlib/gradients.rs:275-287; 01_core/src/entities/gradient.rs:640-717	PRODUCT-DIVERGENCE
+S12-radial-oklab	radial/oklab	alpha_max	C4	public Radial sample narrows t and effective offsets to f32	native-space-sampling	01_core/src/compiler/stdlib/gradients.rs:275-287; 01_core/src/entities/gradient.rs:640-717	PRODUCT-DIVERGENCE
+S16-linear-linear-rgb	linear/linear-rgb	color_p95	C3	repeat consumes resolved f32 offset before f64 division	public-stop-offset	01_core/src/compiler/stdlib/gradients.rs:333-343,470-483	PRODUCT-DIVERGENCE
+S16-linear-oklab	linear/oklab	color_p95	C3	repeat consumes resolved f32 offset before f64 division	public-stop-offset	01_core/src/compiler/stdlib/gradients.rs:333-343,470-483	PRODUCT-DIVERGENCE
+S16-radial-linear-rgb	radial/linear-rgb	color_p95	C3	repeat consumes resolved f32 offset before f64 division	public-stop-offset	01_core/src/compiler/stdlib/gradients.rs:333-343,470-483	PRODUCT-DIVERGENCE
+S16-radial-oklab	radial/oklab	color_p95	C3	repeat consumes resolved f32 offset before f64 division	public-stop-offset	01_core/src/compiler/stdlib/gradients.rs:333-343,470-483	PRODUCT-DIVERGENCE
+S20-linear-linear-rgb	linear/linear-rgb	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S20-radial-linear-rgb	radial/linear-rgb	color_p95	C1	P1266 diagnostic probe parses the f64 source offset as f32	diagnostic-adapter-input	lab/parity/matrix/p1266_probe/src/main.rs:41-57	CONTRACT-ERROR
+S22-linear-oklab	linear/oklab	color_p95	C2	sRGB-to-Oklab conversion differs at source stop components	public-stop-component	01_core/src/entities/color.rs:533-540	PRODUCT-DIVERGENCE
+S22-radial-oklab	radial/oklab	color_p95	C2	sRGB-to-Oklab conversion differs at source stop components	public-stop-component	01_core/src/entities/color.rs:533-540	PRODUCT-DIVERGENCE

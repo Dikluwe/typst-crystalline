@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/gradients` — tipo `gradient`
-Hash do Código: 782640d3
+Hash do Código: 50c3caf3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/gradients.rs`
@@ -223,6 +223,14 @@ ratio ou angle; `samples` recebe zero ou mais ratios/angles posicionais.
 - **P1253:** no Linear, essa delegação preserva o `f64` público até o cálculo
   do peso local; conversão antecipada para `f32` é proibida porque altera os
   componentes observáveis nos pontos exatos da malha.
+- **P1269-owner:** no Linear, a razão efetiva já exposta por `stops()` é uma
+  identidade pública de fronteira: quando `sample` a recebe exatamente, ela é
+  normalizada para o offset canônico `Ratio(f64)` correspondente antes do
+  sampling preciso. Em stops coincidentes, isso seleciona o primeiro stop
+  daquele offset, exceto no offset zero, que seleciona o último stop zero;
+  qualquer epsilon positivo seleciona o ramo à direita. A correção preserva o
+  carrier público histórico de `stops()`, não autoriza arredondar argumentos
+  gerais de `sample` para `f32` e vale igualmente para `samples`.
 - `samples(..ts)` aplica `sample` a cada posição, preservando ordem; zero
   posições devolve array vazio.
 
@@ -231,6 +239,8 @@ ratio ou angle; `samples` recebe zero ou mais ratios/angles posicionais.
 - cobrir os onze fields estáticos e as onze formas de instância;
 - cobrir a matriz de ausências por variante e identidade de `kind`/`space`;
 - cobrir offsets automáticos resolvidos, ratio, angle, clamp e lista vazia;
+- cobrir coincidências Linear não diádicas pela razão devolvida por `stops()`,
+  incluindo `1/3`, `2/3` e epsilon à direita em Oklab e Linear RGB;
 - cobrir self errado, falta/excesso, named arg e posição de tipo inválido;
 - manter constructors e render existentes sem regressão.
 

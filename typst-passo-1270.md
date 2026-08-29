@@ -1,6 +1,6 @@
 # P1270 — decompor causalmente as divergências numéricas remanescentes
 
-**Estado:** PLANEADO
+**Estado:** EXECUTADO — 2026-08-29
 **Predecessor:** P1269, somente se houver falhas numéricas
 **Regime:** diagnóstico causal; nenhuma implementação
 
@@ -42,3 +42,19 @@ não população normativa até ser reproduzida pelo contrato v2.
 
 Sem causa reproduzível não há autorização para código. `Unknown` permanece
 bloqueante e não pode ser convertido em tolerância adicional.
+
+## Fecho executado
+
+Relatório: `00_nucleo/diagnosticos/typst-p1270-causal-decomposition.md`.
+
+- população reproduzida: 24 fixtures / 28 métricas;
+- C1: 16 métricas `CONTRACT-ERROR` no carrier f32 do probe P1266;
+- C2–C4: 12 métricas `PRODUCT-DIVERGENCE` em conversão Oklab, offsets de
+  `repeat` e sampling Radial;
+- `UNKNOWN`: zero;
+- baseline, budgets, L0 e código produtivo: inalterados pelo P1270.
+
+Ordem autorizável, sempre L0-first + RED→GREEN: reparar contrato C1, depois
+materializar C2, C3 e C4 separadamente. As tabelas de causas,
+contrafactuais, ataques e propostas L0 estão sob
+`00_nucleo/diagnosticos/p1270-*.tsv`.

@@ -1,0 +1,4 @@
+attack_id	candidate	command_or_evidence	expected_kill	observed	status
+A01-no-public-boundary-normalization	baseline 3bc6f5a6 plus test only	cargo test -p typst-core p1269_linear_sample_coincidencia_publica	new exact-coincidence regression fails	Oklab exact 0/2; static false; samples false; Linear RGB exact 0/2	Killed
+A02-replace-public-offset-carrier	first owner candidate exposing Linear offsets as precise f64	p1269-adjudicator.py --controls-status Preserved	sealed nonnumeric gates reject public-carrier drift	OWNER; Linear nonnumeric failures G04B,G08,G10 (and derived G12)	Killed
+A03-final-exact-identity-snap	final candidate preserving stops carrier and snapping only exact public identities	p1269-adjudicator.py --controls-status Preserved	all nonnumeric gates preserve; only frozen G05 remains	P1270; Numeric-Failures-Frozen; 24 fixtures and 28 metrics	Survived
