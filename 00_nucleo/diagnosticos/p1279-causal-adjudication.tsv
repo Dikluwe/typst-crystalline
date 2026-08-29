@@ -1,0 +1,9 @@
+pair	scope	p1278_valid	p1279_valid	valid_delta	population_stable	cause
+linear/oklch	polar	22/24	24/24	2	true	diagnostic-f64-transport
+radial/oklch	polar	22/24	24/24	2	true	diagnostic-f64-transport
+linear/hsl	polar	23/24	24/24	1	true	diagnostic-f64-transport
+radial/hsl	polar	23/24	24/24	1	true	diagnostic-f64-transport
+linear/hsv	polar	22/24	24/24	2	true	diagnostic-f64-transport
+radial/hsv	polar	22/24	24/24	2	true	diagnostic-f64-transport
+linear/luma	luma-negative-control	7/24	7/24	0	true	unchanged-control
+radial/luma	luma-negative-control	7/24	7/24	0	true	unchanged-control

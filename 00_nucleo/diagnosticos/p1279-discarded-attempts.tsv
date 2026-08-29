@@ -1,0 +1,3 @@
+attempt	class	result	used_for_verdict
+D01	discovery	numeric substring matches were not treated as an explicit P1279 spec	false
+D02	budget-rounding	P1278 p95 excess was not rounded into success; harness cause measured instead	false

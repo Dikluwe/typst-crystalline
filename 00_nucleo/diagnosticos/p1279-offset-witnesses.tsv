@@ -1,0 +1,6 @@
+fixture_id	pair	vanilla_stops	lossless_offset_diffs	lossless_color_diffs	lossless_count_equal	p15_offset_diffs	pre_eval_offset_diffs	f32_offset_diffs	status
+S06-linear-oklch	linear/oklch	786	0	0	true	0	1	3	Preserved
+S11-linear-hsv	linear/hsv	257	0	0	true	3	0	1	Preserved
+S16-linear-hsl	linear/hsl	118	0	0	true	9	0	9	Preserved
+S16-linear-hsv	linear/hsv	120	0	0	true	9	0	10	Preserved
+S16-linear-oklch	linear/oklch	170	0	0	true	9	0	10	Preserved

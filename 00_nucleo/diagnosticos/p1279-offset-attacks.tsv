@@ -1,0 +1,7 @@
+mutant_id	witness	status
+O01-f64-as-15-digits	30 offset mismatches across five stopsets	REJECTED
+O02-pre-evaluation-offsets	1 mismatches; S06 constructor is decisive	REJECTED
+O03-offsets-through-f32	33 offset mismatches across five stopsets	REJECTED
+O04-cardinality-only	all cardinalities equal while p15 still changes offsets	REJECTED
+O05-ignore-color	synthetic one-byte color mutation detected	REJECTED
+O06-promote-product	192/192 product groups retain fallback	REJECTED

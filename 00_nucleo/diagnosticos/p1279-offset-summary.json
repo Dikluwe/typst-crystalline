@@ -1,0 +1,10 @@
+{
+  "attestation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "f32_offset_diffs": 33,
+  "fixtures": 5,
+  "lossless_exact": 5,
+  "mutants": 6,
+  "mutants_rejected": 6,
+  "p15_offset_diffs": 30,
+  "pre_eval_offset_diffs": 1
+}

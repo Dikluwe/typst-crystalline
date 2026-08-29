@@ -1,0 +1,25 @@
+mutant_id	executed	witness	status
+M01-drop-one-pair	true	population becomes 168	REJECTED
+M02-linear-promotes-radial	true	Radial has independent receipts	REJECTED
+M03-one-space-promotes-another	true	Oklch/Hsl/Hsv/Luma each have 24 independent receipts per geometry	REJECTED
+M04-use-only-predecessor-fragment	true	generalization population is 192	REJECTED
+M05-ignore-color-p95	true	four-metric conjunction schema	REJECTED
+M06-ignore-alpha	true	alpha schema present on all fixtures	REJECTED
+M07-alpha-after-u8	true	floating alpha witness is not byte-valued	REJECTED
+M08-widen-budget	true	sealed budget digest guard	REJECTED
+M09-candidate-guided-mask	true	pre-candidate mask digest required	REJECTED
+M10-drop-degenerate	true	zero-area seed guard	REJECTED
+M11-positive-paint-zero-area	true	S20 preserves positive stroke support while S21 preserves zero fill support	REJECTED
+M12-reset-anti-alias-on-repeat	true	sharp-then-repeat state remains false	REJECTED
+M13-ignore-transform	true	asymmetric transform digests	REJECTED
+M14-double-transform	true	single copied vanilla transform graph	REJECTED
+M15-dedup-coincident	true	coincident source carriers retained	REJECTED
+M16-sort-invalid-offsets	true	decreasing offsets rejected	REJECTED
+M17-clamp-invalid-offsets	true	out-of-range offsets rejected	REJECTED
+M18-invalid-as-unknown	true	invalid domain never enters Unknown	REJECTED
+M19-unknown-as-success	true	success path has zero necessary Unknown	REJECTED
+M20-ignore-cost	true	per-original-interval cost receipt mandatory	REJECTED
+M21-raise-per-interval-cap	true	per-interval depth bound frozen at 64	REJECTED
+M22-order-sensitive	true	384 inverse/repeat receipts	REJECTED
+M23-promote-productively	true	productive fallback boundary unchanged	REJECTED
+M24-general-equivalence	true	certificate vocabulary is fragment-limited	REJECTED
