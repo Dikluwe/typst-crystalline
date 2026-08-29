@@ -1,0 +1,9 @@
+pair	family	predecessor_evidence	p1275_route	p1276_state	productive_promotion
+linear/oklch	polar	P1238 42/42 L1; SVG budget absent	FALLBACK-PRESERVED	FROZEN-NOT-ADJUDICATED	false
+radial/oklch	polar	P1238 42/42 L1; SVG budget absent	FALLBACK-PRESERVED	FROZEN-NOT-ADJUDICATED	false
+linear/hsl	polar	P1238 42/42 L1; SVG budget absent	FALLBACK-PRESERVED	FROZEN-NOT-ADJUDICATED	false
+radial/hsl	polar	P1238 42/42 L1; SVG budget absent	FALLBACK-PRESERVED	FROZEN-NOT-ADJUDICATED	false
+linear/hsv	polar	P1238 42/42 L1; SVG budget absent	FALLBACK-PRESERVED	FROZEN-NOT-ADJUDICATED	false
+radial/hsv	polar	P1238 42/42 L1; SVG budget absent	FALLBACK-PRESERVED	FROZEN-NOT-ADJUDICATED	false
+linear/luma	luma	P1239 L1 preserved; SVG budget absent	FALLBACK-PRESERVED	FROZEN-NOT-ADJUDICATED	false
+radial/luma	luma	P1239 L1 preserved; SVG budget absent	FALLBACK-PRESERVED	FROZEN-NOT-ADJUDICATED	false

@@ -1,0 +1,6 @@
+role	executor	read_allowlist	write_allowlist	candidate_read	attested_isolation
+intent-and-contract-author	/root	P1238;P1239;P1241;P1266-P1275;L0 SVG;consumer SVG	P1276 diagnostic artifacts	not-executed	false
+oracle-author	reserved-for-P1277	ratified vanilla;P1276 frozen pack	P1277 oracle artifacts	forbidden-before-oracle-seal	not-yet-run
+adversary	reserved-for-P1277	P1276 contract;vanilla baseline	P1277 semantic mutants	forbidden-before-attack-freeze	not-yet-run
+implementer	none-in-P1276	none	none	not-applicable	not-applicable
+verifier	reserved-for-P1277	sealed P1276/P1277 artifacts and candidate outputs	P1277 receipts only	after-seal	not-yet-run

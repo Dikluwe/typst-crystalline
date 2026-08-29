@@ -1,0 +1,7 @@
+case	classification	blocks	counts_as_success
+missing-oracle	Unknown	affected pair	false
+opaque-parser-or-SVG	Unknown	affected fixture and pair	false
+budget-exhausted	Unknown	affected metric and pair	false
+ambiguous-identity	Unknown	affected graph and pair	false
+invalid-domain	Rejected-by-domain	not admitted to valid population	false
+CMYK	Unknown-ADR0097	both CMYK pairs	false
