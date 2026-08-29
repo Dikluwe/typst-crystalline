@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/shape` — `ShapeElem`
-Hash do Código: f6f448d6
+Hash do Código: 5cfe8219
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/shape.rs`
 **Origem**: modelo D (ADR-0105), **Lote 11 P326** (por largura). Trait e glossário (§A.0): ver
@@ -18,8 +18,14 @@ pub struct ShapeElem {
     pub height: Option<Box<Value>>,
     pub fill:   Option<Color>,
     pub stroke: Option<Stroke>,
+    pub fill_rule: FillRule,             // default NonZero
 }
 ```
+
+**P1226:** `fill_rule` preserva a regra pública de preenchimento até o layout.
+Construtores sem argumento usam `FillRule::NonZero`; `curve` e `polygon`
+podem fornecer `EvenOdd`. Igualdade e hash incluem o campo. Esta adição é um
+contrato público e exige o gate ADR-0127 antes da materialização.
 
 `Content::Shape { kind, width, height, fill, stroke }` →
 `Content::Shape(Arc<ShapeElem>)`. Construtor ergonómico:
@@ -45,4 +51,4 @@ pub struct ShapeElem {
 
 ## `eq`
 
-`#[derive(PartialEq)]` compara os 5 campos (paridade `content.rs:1905`).
+`#[derive(PartialEq)]` compara todos os campos (paridade `content.rs:1905`).

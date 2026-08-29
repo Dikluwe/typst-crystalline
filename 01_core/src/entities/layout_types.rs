@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 6518cb22
+//! @prompt-hash b771743d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -432,8 +432,9 @@ pub enum FrameItem {
         kind: ShapeKind<Pt>,
         width: f64,
         height: f64,
-        fill: Option<Color>,
+        fill: Option<crate::entities::paint::Paint>,
         stroke: Option<Stroke>,
+        fill_rule: crate::entities::geometry::FillRule,
         /// **P273.6** — bbox do contentor imediato no momento do emit.
         /// `Some(rect)` quando shape foi emitida dentro de `Content::Block`
         /// com `width.is_some() && height.is_some()` (Decisão 3γ.2.γ).

@@ -1,5 +1,9 @@
 # Pipeline — L3 orquestração
-Hash do Código: 7e067213
+Hash do Código: b975c6d6
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
+- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -12,6 +16,46 @@ APIs alto-nível à L4 (04_wiring) e aos testes.
 
 Materializado no Passo 113 (ADR-0046) a partir de helpers
 test-only em `integration_tests.rs`.
+
+## P1247 — composição do contexto de destinos SVG
+
+**Gate ADR-0127:** arquitetura aprovada pelo dono em 2026-08-28. L0 pré-código;
+implementação condicionada a preseal segregado válido.
+
+Depois de obter o `PagedDocument`, o caminho de compilação SVG seleciona a
+página exportada e deriva um `SvgDestinationContext` somente das entradas de
+`extracted_label_pages` cuja página corresponda ao índice selecionado, usando a
+posição homóloga de `extracted_label_positions`. Ausência de posição não é
+inventada e exclui o destino do contexto.
+
+O pipeline passa esse contexto à variante explícita do exporter com ou sem
+fontes. Não move os mapas para `Page`, não cria novo `FrameItem`, não repete
+layout e não decide ortografia de IDs. O caminho atual exporta apenas a primeira
+página; links para outras páginas permanecem `Unknown`, sem fragmento pendente.
+
+Política futura de bundle, nomes de ficheiro ou rotas cross-page pertence ao
+caller de composição e exige L0 próprio. A expansão pública de `link()` para
+label/location/page-position é decisão separada.
+
+## P1249 — composição da identidade de fonte de glifo proposta
+
+**Gate ADR-0127:** arquitetura aprovada pelo dono em 2026-08-28. L0 pré-código;
+implementação condicionada a preseal segregado válido.
+
+No caminho SVG com fontes, a pipeline reutiliza a decisão já existente de
+`FallbackFontMetrics::resolve_font_combo(base_char, style)` para cada
+`FrameItem::Glyph`, associa um `GlyphFontRequest` normalizado ao `FontKey`
+completo efetivamente resolvido e entrega essa associação no contexto imutável
+do exporter. Não relê fonte, não repete layout e não altera
+`FrameItem::Glyph`.
+
+A chave distingue `base_char`, família solicitada, variante, variações e estado
+matemático relevante; é independente de índice, endereço, ordem de travessia e
+ocorrência. Entradas iguais têm resolução igual dentro da mesma compilação;
+conflito entre resultados para a mesma chave invalida a entrada e conserva
+`Unknown`. Ausência não escolhe índice zero por default. A coleta
+recursa em background, body, foreground, Group, Link e Semantic como já ocorre
+para fontes. O caminho sem fontes não constrói associação fictícia.
 
 ## Contrato
 

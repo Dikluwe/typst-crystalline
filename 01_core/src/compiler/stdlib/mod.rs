@@ -5618,7 +5618,7 @@ mod tests {
         let result =
             native_curve_close(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Curve(e)) = result {
-            assert!(matches!(e.segments[0], CurveSegment::Close));
+            assert!(matches!(e.segments[0], CurveSegment::Close(_)));
         } else {
             panic!("esperado Content::Curve");
         }
@@ -5662,10 +5662,16 @@ mod tests {
             native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             let ShapeKind::Path(items) = &e.kind else { panic!("esperado Path") };
-            assert_eq!(items.len(), 3);
+            assert_eq!(items.len(), 4);
             assert!(matches!(items[0], PathItem::MoveTo(_)));
             assert!(matches!(items[1], PathItem::LineTo(_)));
-            assert!(matches!(items[2], PathItem::ClosePath));
+            let PathItem::CubicTo(c1, c2, end) = items[2] else {
+                panic!("curve.close() default deve preservar fechamento smooth")
+            };
+            assert_eq!((c1.x.0, c1.y.0), (100.0, 0.0));
+            assert_eq!((c2.x.0, c2.y.0), (0.0, 0.0));
+            assert_eq!((end.x.0, end.y.0), (0.0, 0.0));
+            assert!(matches!(items[3], PathItem::ClosePath));
         } else {
             panic!("esperado Content::Shape");
         }
@@ -13750,5 +13756,32 @@ mod tests {
     #[test]
     fn p477_parse_color_desconhecida_retorna_none() {
         assert_eq!(parse_color(&Value::Str("ultraviolet".into())), None);
+    }
+
+    #[test]
+    fn p1250a_page_paper_posicional_exige_nome_e_body_separado() {
+        assert!(super::layout::is_positional_paper("a4", 2));
+        assert!(!super::layout::is_positional_paper("a4", 1));
+        assert!(!super::layout::is_positional_paper("not-paper", 2));
+    }
+
+    #[test]
+    fn p1250a_page_binding_aceita_so_alinhamento_horizontal_puro() {
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign};
+        let left = Align2D { h: Some(HAlign::Left), v: None };
+        let right = Align2D { h: Some(HAlign::Right), v: None };
+        let vertical = Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) };
+        assert!(super::layout::is_horizontal_page_binding(left, HAlign::Left));
+        assert!(super::layout::is_horizontal_page_binding(right, HAlign::Right));
+        assert!(!super::layout::is_horizontal_page_binding(vertical, HAlign::Left));
+        assert!(!super::layout::is_horizontal_page_binding(left, HAlign::Right));
+    }
+
+    #[test]
+    fn p1250a_stroke_miter_limit_distingue_finito_positivo() {
+        for invalid in [f64::NAN, f64::INFINITY, 0.0, -1.0] {
+            assert!(!super::layout::is_valid_miter_limit(invalid));
+        }
+        assert!(super::layout::is_valid_miter_limit(2.5));
     }
 }

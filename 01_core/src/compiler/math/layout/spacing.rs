@@ -401,8 +401,13 @@ pub(super) fn compute_gaps(
             };
             let gap = match class_gap {
                 Some(v) => v,
-                None if prev_is_spaced || is_spaced => text_space_pt,
-                None => 0.0,
+                None => {
+                    if prev_is_spaced || is_spaced {
+                        text_space_pt
+                    } else {
+                        0.0
+                    }
+                }
             };
             gaps.push(gap);
         }

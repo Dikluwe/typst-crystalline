@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: 211c7f10
+Hash do Código: ffe3682c
 
 ## Módulo
 `01_core/src/entities/gradient.rs`
@@ -137,6 +137,23 @@ pub use gradient::{Gradient, GradientStop, Linear};
 - ADR-0039 — TextStyle SR (preservado).
 - Vanilla `lab/typst-original/.../visualize/gradient.rs` (1366
   linhas; 3 variants).
+
+**P1253 — precisão Oklab compartilhada com `entities/color`.** A conversão
+sRGB linear → Oklab usada por `Gradient::sample` deve empregar exatamente as
+constantes completas de `palette 0.7.6::oklab::linear_srgb_to_oklab` pinadas no
+L0 `entities/color`. A duplicação privada neste consumer deve permanecer
+numericamente idêntica, inclusive na ordem `mul_add` da curva sRGB e na raiz
+cúbica bit-compatível com `libm::cbrtf`;
+constantes abreviadas e operações de gamma decompostas são proibidas. Endpoints e
+intermediários públicos devem coincidir com o vanilla antes de qualquer tuning
+do helper adaptativo L3.
+Na interpolação Oklab, os pesos são materializados separadamente como `f32` e
+cada canal usa `(w0*c0 + w1*c1)/(w0+w1)`, tal como `Color::mix_iter` do
+baseline; a forma algébrica `c0 + (c1-c0)*t` não é numericamente equivalente.
+O caminho interno usado pela superfície de linguagem Linear preserva `t` e os
+offsets `Ratio` em `f64` até calcular o peso local; só então converte os dois
+pesos separadamente para `f32`. O método Rust histórico `sample(f32)` permanece
+inalterado para os consumidores existentes.
 
 ---
 

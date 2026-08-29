@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/curve.md
-//! @prompt-hash f4cd0984
+//! @prompt-hash ff308913
 //! @layer L1
 //! @updated 2026-06-30
 //!
@@ -8,7 +8,7 @@
 //! arquivo da feature. Converte `CurveSegment` (com `Length`) para `PathItem`
 //! absoluto e emite um `FrameItem::Shape` equivalente.
 
-use crate::entities::elements::curve::{CurveElem, CurveSegment};
+use crate::entities::elements::curve::{CloseMode, CurveElem, CurveSegment};
 use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
 use crate::entities::layout_types::{Color, FrameItem, Point, Pt};
 use crate::entities::paint::Paint;
@@ -79,7 +79,40 @@ pub(super) fn path_items_from_curve(
                 ));
                 last_point = target;
             }
-            CurveSegment::Close => {
+            CurveSegment::Close(mode) => {
+                if *mode == CloseMode::Smooth {
+                    if let Some(move_index) =
+                        items.iter().rposition(|item| matches!(item, PathItem::MoveTo(_)))
+                    {
+                        let start = match items[move_index] {
+                            PathItem::MoveTo(point) => point,
+                            _ => unreachable!(),
+                        };
+                        let segments = &items[move_index + 1..];
+                        if !segments.is_empty() {
+                            let start_control = match segments.first() {
+                                Some(PathItem::CubicTo(c1, _, _)) => Point {
+                                    x: Pt(2.0 * start.x.0 - c1.x.0),
+                                    y: Pt(2.0 * start.y.0 - c1.y.0),
+                                },
+                                _ => start,
+                            };
+                            let last_control = match segments.last() {
+                                Some(PathItem::CubicTo(_, c2, end)) => Point {
+                                    x: Pt(2.0 * end.x.0 - c2.x.0),
+                                    y: Pt(2.0 * end.y.0 - c2.y.0),
+                                },
+                                _ => last_point,
+                            };
+                            items.push(PathItem::CubicTo(
+                                last_control,
+                                start_control,
+                                start,
+                            ));
+                            last_point = start;
+                        }
+                    }
+                }
                 items.push(PathItem::ClosePath);
             }
         }
@@ -127,6 +160,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         height,
         fill: None,
         stroke: Some(stroke),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: layouter.parent_bbox,
     });
 

@@ -84,6 +84,7 @@ mod columns;
 mod curve;
 mod heading;
 mod shape;
+mod tiling;
 mod title;
 mod transform;
 

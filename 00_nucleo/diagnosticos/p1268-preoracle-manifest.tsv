@@ -1,0 +1,20 @@
+field	value
+run	P1268 preseal authorship
+intent_manifest	00_nucleo/diagnosticos/p1268-intent-manifest.tsv sha256:0be16257edddfe0681c713646a2656135e570fba222d411e1772d74200ea9269
+contract_freeze	00_nucleo/diagnosticos/p1268-contract-freeze.tsv sha256:7d8064a939e653961a084088e40353342de401908e7a8dcd0ba229e07489579d
+contract	/tmp/p1268/refiner/contract-v3.tsv sha256:cb2aabaf36703bef3ef869f9a150ca8f38f5e596f1a8523c19016a283b024399
+unknown_policy	/tmp/p1268/refiner/unknown-v3.tsv sha256:2ab6446d8b50c803240f19bde92ff55e121bc0f4a9793f8faeaecd80979b5530
+observables	/tmp/p1268/refiner/observables-v3.tsv sha256:e32a8b201a6625156e0416303892c23ce441957e09ecbde0bb3f459d966e969c
+baseline	upstream/main a51e02804 ratified
+vanilla_binary	/usr/local/bin/typst sha256:7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
+vanilla_source	lab/typst-original/crates/typst-library/src/visualize/gradient.rs sha256:ed7a1be4e398fa47dff9ede8aa31c939514e341f9e47ac5099787d422f67967c
+population_matrix	00_nucleo/diagnosticos/p1266-generalization-matrix.tsv sha256:091d50354eb2b206d595c88a96b76eb8b9d8e8a881b2f0d3f5901edf9cce5406
+population_corpus	00_nucleo/diagnosticos/p1266-corpus.tsv sha256:54b5f0fdb0153321544a9d0e147867ea0473ecd9cedfc6d959e3c0a1c9522894
+fixture_root	lab/parity/matrix/fixtures/p1266;96 .typ sources whose hashes are pinned by population_corpus
+historical_oracles_reference	00_nucleo/diagnosticos/p1266-oracle-budgets.tsv sha256:b8153842849d7a5f74d1af0a006407d5e3ebebc1ece44c1456379ae396686b46
+historical_runner_reference	lab/parity/matrix/p1266_generalize.py sha256:47bcdc4086517107f7f54cccd526c5dfedaf8c8520b8264aa37d4a4837e63aa6
+oracle_order	vanilla-only execution and freeze before any candidate output;target/debug/typst forbidden
+required_oracles	sources,budgets,masks,landmarks,declared/effective stop identity,exact-point and epsilon-right,per-interval M/R/s_i/a_i/midpoint/boundary/total sampler limits,S20 stroke support,S21 zero fill
+required_attacks	alter original stop;move adaptive within and outside budget;lose discontinuity;truncate interval;unbounded expansion;erase S20 stroke;paint S21 fill;explicit opacity
+gate	positive Preserved;negative Violated with witness;explicit opaque Unknown;mutation_score=1.0;direct/inverse/repeat semantic equality;zero necessary Unknown
+status	PREORACLE-INPUTS-FROZEN;NO-SEAL

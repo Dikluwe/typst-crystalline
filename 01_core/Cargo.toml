@@ -37,4 +37,4 @@ syntect              = { workspace = true }  # P785a — syntax highlighting em 
 two-face             = { workspace = true }  # P785a — conjunto de sintaxes e temas para syntect
 lipsum               = { workspace = true }  # P805 — lorem byte-parity (Markov chain do vanilla, MIT)
 memmap2              = "0.9"                 # P937 — Font::Mmap em L1 (referência estável de bytes; criação apenas em L3)
-
+libm                 = "=0.2.11"             # P1253 — versão exata usada por palette no baseline

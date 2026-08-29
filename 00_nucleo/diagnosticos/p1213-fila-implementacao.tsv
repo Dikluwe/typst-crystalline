@@ -4,7 +4,7 @@ priority	cluster	state	red_evidence	dependency	gate	proposed_step
 3	ordering-comparables	RESOLVED	P1217: 58/58 A/B byte-idênticos; 4 compile probes region GREEN	ordering semantics	continuous-parity	closed by P1217
 4	unary-operators	RESOLVED	P1218: RED→GREEN; positive type matrix and verbatim invalid frontiers	unary semantics + error formatter	continuous-parity	closed by P1218
 5	decimal-int-arithmetic	RESOLVED	P1219: 22/22 A/B exact twice; 8/8 compile probes; 16/16 mutants rejected	arithmetic coercion	continuous-parity	closed by P1219
-6	svg-morphology	PARTIAL	P1222: ellipse/circle/rounded/transforms focal Preserved; rounded stroke radius RED→GREEN; general arc/path and paint servers remain partial	SVG analytic morphology harness	continuous-parity	extend sealed corpus to general A/S/Q/T paths and stroke-complex
+6	svg-morphology	PARTIAL	P1250: corpus integrado certificado; tiling, clip geométrico, links same-page, imagens suportadas e glifos com contexto preservados somente nos fragmentos P1245-P1249; paint multi-space amplo continua Unknown	paint multi-space não provado; links cross-page; imagens opacas/SVGZ; wrappers sem fontes; corpus bilateral amplo	continuous-parity	next gap: reduzir máximos/p95 do helper comum de stops sem usar P1250 para promover pares Unknown
 7	smartquote-config	MISSING	alternative and quotes probes	quote locale/dictionary	continuous-parity	implement alternative and quotes contracts
 8	line-nonzero-start	MISSING	line start probe returns scope-out	coordinate model	continuous-parity	implement nonzero start geometry
 9	color-mix-variadic	MISSING	three-color probe returns arity error	color mixing	continuous-parity	implement N-color weighted semantics
@@ -13,3 +13,4 @@ priority	cluster	state	red_evidence	dependency	gate	proposed_step
 12	rotate-origin	PARTIAL	repr loses origin; geometry harness pending	layout geometry probe	continuous-parity	measure then implement only if geometric RED
 13	png-refinement	PARTIAL	11 pixels differ with max channel delta 1	SVG/render adjudication	continuous-parity	define morphology-level raster oracle
 14	pdf-font-identity	PARTIAL	font family suffix differs	observable adjudication	continuous-parity	decide observable then fix if language/product relevant
+15	luma-alpha-conversion	RESOLVED-KNOWN-UPSTREAM-BUG	P1252: alpha 40% protegido; P1239: 42/42 pares públicos sem delta de luminância	SVG Luma remains Unknown fallback	continuous-parity	alpha preservado como correção upstream; luminância Linear/Radial fechada; SVG não promovido

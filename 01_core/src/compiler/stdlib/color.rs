@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/color.md
-//! @prompt-hash a2082a2c
+//! @prompt-hash d7d15154
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -107,7 +107,7 @@ const PREDEFINED_COLORS: &[(&str, Color)] = &[
     ("silver", Color::Luma { l: 221.0 / 255.0, a: 1.0 }),
     ("white", Color::Luma { l: 1.0, a: 1.0 }),
     ("navy", Color::Srgb { r: 0.0, g: 31.0 / 255.0, b: 63.0 / 255.0, a: 1.0 }),
-    ("blue", Color::Srgb { r: 0.0, g: 116.0 / 255.0, b: 217.0 / 255.0, a: 1.0 }),
+    ("blue", Color::Srgb { r: 0.0, g: 0.454902, b: 0.85098, a: 1.0 }),
     ("aqua", Color::Srgb { r: 127.0 / 255.0, g: 219.0 / 255.0, b: 1.0, a: 1.0 }),
     (
         "teal",
@@ -154,7 +154,7 @@ const PREDEFINED_COLORS: &[(&str, Color)] = &[
             a: 1.0,
         },
     ),
-    ("red", Color::Srgb { r: 1.0, g: 65.0 / 255.0, b: 54.0 / 255.0, a: 1.0 }),
+    ("red", Color::Srgb { r: 1.0, g: 0.254902, b: 0.211765, a: 1.0 }),
     ("orange", Color::Srgb { r: 1.0, g: 133.0 / 255.0, b: 27.0 / 255.0, a: 1.0 }),
     ("yellow", Color::Srgb { r: 1.0, g: 220.0 / 255.0, b: 0.0, a: 1.0 }),
     (

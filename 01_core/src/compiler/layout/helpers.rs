@@ -180,6 +180,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             height,
             fill,
             stroke,
+            fill_rule,
             parent_bbox_at_emit,
             ..
         } => FrameItem::Shape {
@@ -189,6 +190,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             height,
             fill,
             stroke,
+            fill_rule,
             parent_bbox_at_emit,
         },
         FrameItem::Group {

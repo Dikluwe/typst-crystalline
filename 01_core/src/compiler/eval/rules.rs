@@ -1297,20 +1297,26 @@ pub(super) fn eval_set_rule(
                                 Some(crate::entities::page_geometry::PageBinding::Auto)
                             }
                             Value::Align(a)
-                                if a.v.is_none()
-                                    && a.h
-                                        == Some(
-                                            crate::entities::layout_types::HAlign::Left,
-                                        ) =>
+                                if matches!(
+                                    (a.v, a.h),
+                                    (
+                                        None,
+                                        Some(crate::entities::layout_types::HAlign::Left)
+                                    )
+                                ) =>
                             {
                                 Some(crate::entities::page_geometry::PageBinding::Left)
                             }
                             Value::Align(a)
-                                if a.v.is_none()
-                                    && a.h
-                                        == Some(
-                                            crate::entities::layout_types::HAlign::Right,
-                                        ) =>
+                                if matches!(
+                                    (a.v, a.h),
+                                    (
+                                        None,
+                                        Some(
+                                            crate::entities::layout_types::HAlign::Right
+                                        )
+                                    )
+                                ) =>
                             {
                                 Some(crate::entities::page_geometry::PageBinding::Right)
                             }

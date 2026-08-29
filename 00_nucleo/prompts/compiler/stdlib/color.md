@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: 6056618f
+Hash do Código: 88be1393
 
 ## Módulo
 `01_core/src/compiler/stdlib/color.rs`
@@ -226,6 +226,12 @@ constructors/operadores. Não duplicar nomes ou canais em outro `match`.
 Esta é adição/correção de entradas em tabela para paridade, usando tipos e
 assinaturas existentes; não altera entidade pública, trait, default ou fase.
 Pelo ADR-0127 segue em fluxo contínuo: L0 primeiro, RED→GREEN e revalidação.
+
+**P1253 — precisão das constantes nomeadas.** As cores nomeadas preservam os
+literais `f32` ratificados pelo vanilla, inclusive `red =
+(1.0, 0.254902, 0.211765)` e `blue = (0.0, 0.454902, 0.85098)`. Reconstruí-las
+por divisão exata dos bytes hex produz a mesma morfologia `#RRGGBB`, mas não a
+mesma semântica numérica em conversões e sampling Oklab, portanto é proibido.
 
 ## P742 — métodos de instância + fields `rotate`/`components`/`space`
 

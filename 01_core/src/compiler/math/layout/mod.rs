@@ -207,6 +207,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             height,
             fill,
             stroke,
+            fill_rule,
             parent_bbox_at_emit,
         } => FrameItem::Shape {
             pos: Point {
@@ -218,6 +219,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             height,
             fill,
             stroke,
+            fill_rule,
             parent_bbox_at_emit,
         },
         FrameItem::Group {
@@ -562,8 +564,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     ) -> (Vec<FrameItem>, EquationExtent) {
         let transformed = apply_math_default(body);
         let (math_box, line_baselines) = match &transformed {
-            Content::MathSequence(nodes) if self.block && needs_grid_layout(nodes) => {
-                self.layout_grid_with_baselines(nodes, style)
+            Content::MathSequence(nodes) => {
+                if self.block && needs_grid_layout(nodes) {
+                    self.layout_grid_with_baselines(nodes, style)
+                } else {
+                    (self.layout_node(&transformed, style), vec![0.0])
+                }
             }
             _ => (self.layout_node(&transformed, style), vec![0.0]),
         };
@@ -1960,10 +1966,12 @@ fn apply_math_style(
         // outer vence (regra P311b.4); caso contrário outer vence.
         Content::MathStyled(m) => {
             let eff_kind = match (kind, m.kind) {
-                (Some(outer), Some(inner))
-                    if outer.is_size_variant() && !inner.is_size_variant() =>
-                {
-                    Some(inner)
+                (Some(outer), Some(inner)) => {
+                    if outer.is_size_variant() && !inner.is_size_variant() {
+                        Some(inner)
+                    } else {
+                        Some(outer)
+                    }
                 }
                 (outer, inner) => outer.or(inner),
             };

@@ -1,0 +1,21 @@
+field	value
+step	P1266
+verdict	FOUR_PAIRS_UNKNOWN_GENERALIZATION_FALLBACK_PRESERVED
+scope	96-fixture SVG Linear/Radial x Oklab/LinearRgb generalization envelope only; no general SVG equivalence claim
+manifest	00_nucleo/diagnosticos/p1266-manifest.tsv sha256:87539a7e6a6ef3dde52c677012190e214cfcb660d58edb3cb2d4f82320b7eafc
+baseline	upstream/main a51e02804 ratified
+head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
+tree	working tree uncommitted; p1266-working-tree-snapshot.txt sha256:e630350490df69b4a01c7f99fe29c1491da7c874a5097240e34de48547e1b72a
+linear_oklab	Unknown-generalization;graph=24/24;numeric=19/24;raster=24/24;cost=16/24;valid=5/24;invalid=6/6
+radial_oklab	Unknown-generalization;graph=24/24;numeric=17/24;raster=24/24;cost=16/24;valid=5/24;invalid=8/8
+linear_linear_rgb	Unknown-generalization;graph=24/24;numeric=18/24;raster=24/24;cost=14/24;valid=6/24;invalid=6/6
+radial_linear_rgb	Unknown-generalization;graph=24/24;numeric=18/24;raster=24/24;cost=14/24;valid=6/24;invalid=8/8
+aggregate	graph=96/96;raster=96/96;public_surface=22/96;numeric=72/96;cost=60/96;area_zero=92/96;full_conjunction=22/96
+cost	cap=64;pass=60/96;maximum emitted stops=774
+repeatability	direct/inverse/repeat receipts preserved=192/192
+invalid_domain	vanilla and candidate rejected=28/28
+mutation	24/24 rejected;score=1.0;Unknown excluded
+architecture	cargo build/test/fmt/diff PASS;6332 tests passed;V1/V5/V15/V26 PASS;full crystalline-lint PASS zero violations
+productive_writes	NONE; only diagnostic runner, probe, fixtures and receipts; default fallback unchanged
+productive_promotion	NONE; new explicit ADR-0127 owner decision required
+attestation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

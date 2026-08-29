@@ -257,6 +257,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         height,
                         fill,
                         stroke,
+                        fill_rule,
                         parent_bbox_at_emit,
                     } => FrameItem::Shape {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
@@ -265,6 +266,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         height,
                         fill,
                         stroke,
+                        fill_rule,
                         parent_bbox_at_emit,
                     },
                     FrameItem::Group {

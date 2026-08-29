@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import pathlib
 import re
 from decimal import Decimal
@@ -77,6 +78,64 @@ def translate(base: tuple[Decimal, ...], x: Decimal, y: Decimal) -> tuple[Decima
 def point(base, x, y):
     a, b, c, d, e, f = base
     return (str((a*x+c*y+e).normalize()), str((b*x+d*y+f).normalize()))
+
+
+def clean_float(value: float) -> str:
+    if abs(value) < 1e-14:
+        value = 0.0
+    return str(Decimal(format(value, ".15g")).normalize())
+
+
+def arc_geometry(start, values, relative, transform):
+    """Canonical SVG endpoint arc as transformed center/basis/angles."""
+    x1, y1 = (float(start[0]), float(start[1]))
+    rx, ry, rotation, large, sweep, raw_x2, raw_y2 = map(float, values)
+    x2 = raw_x2 + x1 if relative else raw_x2
+    y2 = raw_y2 + y1 if relative else raw_y2
+    endpoint = (Decimal(str(x2)), Decimal(str(y2)))
+    if x1 == x2 and y1 == y2:
+        return None, endpoint
+    rx, ry = abs(rx), abs(ry)
+    if rx == 0.0 or ry == 0.0:
+        return ("L",) + point(transform, *endpoint), endpoint
+    if large not in (0.0, 1.0) or sweep not in (0.0, 1.0):
+        raise ValueError("arc flags must be zero or one")
+
+    phi = math.radians(rotation % 360.0)
+    cos_phi, sin_phi = math.cos(phi), math.sin(phi)
+    dx, dy = (x1 - x2) / 2.0, (y1 - y2) / 2.0
+    x1p = cos_phi * dx + sin_phi * dy
+    y1p = -sin_phi * dx + cos_phi * dy
+    scale = x1p*x1p/(rx*rx) + y1p*y1p/(ry*ry)
+    if scale > 1.0:
+        factor = math.sqrt(scale)
+        rx *= factor
+        ry *= factor
+
+    numerator = max(0.0, rx*rx*ry*ry - rx*rx*y1p*y1p - ry*ry*x1p*x1p)
+    denominator = rx*rx*y1p*y1p + ry*ry*x1p*x1p
+    coefficient = 0.0 if denominator == 0.0 else math.sqrt(numerator / denominator)
+    if bool(large) == bool(sweep):
+        coefficient = -coefficient
+    cxp = coefficient * rx * y1p / ry
+    cyp = -coefficient * ry * x1p / rx
+    cx = cos_phi*cxp - sin_phi*cyp + (x1+x2)/2.0
+    cy = sin_phi*cxp + cos_phi*cyp + (y1+y2)/2.0
+
+    ux, uy = (x1p-cxp)/rx, (y1p-cyp)/ry
+    vx, vy = (-x1p-cxp)/rx, (-y1p-cyp)/ry
+    theta = math.atan2(uy, ux)
+    delta = math.atan2(ux*vy-uy*vx, ux*vx+uy*vy)
+    if not sweep and delta > 0.0:
+        delta -= 2.0*math.pi
+    elif sweep and delta < 0.0:
+        delta += 2.0*math.pi
+
+    a, b, c, d, _, _ = map(float, transform)
+    center = point(transform, Decimal(str(cx)), Decimal(str(cy)))
+    basis_u = (clean_float(a*rx*cos_phi+c*rx*sin_phi), clean_float(b*rx*cos_phi+d*rx*sin_phi))
+    basis_v = (clean_float(-a*ry*sin_phi+c*ry*cos_phi), clean_float(-b*ry*sin_phi+d*ry*cos_phi))
+    return (("A",) + center + basis_u + basis_v + (clean_float(theta), clean_float(delta))), endpoint
 
 
 def shape_paint(elem, geometry):
@@ -154,8 +213,11 @@ def canonical_path(tokens, transform):
             control = (2*x-last_quad[0], 2*y-last_quad[1]) if last_quad else (x, y); x, y = xy(values[0], values[1]); last_quad = control; last_cubic = None
             out.append(("Q",) + point(transform, *control) + point(transform, x, y))
         elif upper == "A":
-            x, y = xy(values[5], values[6]); last_cubic = last_quad = None
-            out.append(("A", str(values[0].normalize()), str(values[1].normalize()), str(values[2].normalize()), str(values[3].normalize()), str(values[4].normalize())) + point(transform, x, y))
+            arc, endpoint = arc_geometry((x, y), values, relative, transform)
+            x, y = endpoint
+            last_cubic = last_quad = None
+            if arc is not None:
+                out.append(arc)
         if upper not in ("C", "S", "Q", "T"):
             last_cubic = last_quad = None
     return tuple(out)

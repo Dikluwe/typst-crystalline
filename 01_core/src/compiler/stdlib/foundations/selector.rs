@@ -28,7 +28,12 @@ pub fn native_selector(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Str(s)] if s.len() >= 2 && s.starts_with('<') && s.ends_with('>') => {
+        [Value::Str(s)]
+            if matches!(
+                (s.len() >= 2, s.starts_with('<'), s.ends_with('>')),
+                (true, true, true)
+            ) =>
+        {
             Ok(Value::Selector(Selector::Label(Label(s[1..s.len() - 1].to_string()))))
         }
         [Value::Str(kind_str)] => ElementKind::from_name(kind_str.as_str())
@@ -209,7 +214,12 @@ pub(super) fn parse_selector_arg(
 ) -> SourceResult<Selector> {
     let msg = |s: String| Err(vec![SourceDiagnostic::error(Span::detached(), s)]);
     match items {
-        [Value::Str(s)] if s.len() >= 2 && s.starts_with('<') && s.ends_with('>') => {
+        [Value::Str(s)]
+            if matches!(
+                (s.len() >= 2, s.starts_with('<'), s.ends_with('>')),
+                (true, true, true)
+            ) =>
+        {
             Ok(Selector::Label(Label(s[1..s.len() - 1].to_string())))
         }
         [Value::Str(kind_str)] => ElementKind::from_name(kind_str.as_str())

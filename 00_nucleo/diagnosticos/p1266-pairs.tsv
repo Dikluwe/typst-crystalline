@@ -1,0 +1,5 @@
+pair	graph	numeric	raster	cost	valid	invalid_rejected	unknown	classification	productive_promotion
+linear/oklab	24/24	19/24	24/24	16/24	5/24	6/6	0	Unknown-generalization	false
+radial/oklab	24/24	17/24	24/24	16/24	5/24	8/8	0	Unknown-generalization	false
+linear/linear-rgb	24/24	18/24	24/24	14/24	6/24	6/6	0	Unknown-generalization	false
+radial/linear-rgb	24/24	18/24	24/24	14/24	6/24	8/8	0	Unknown-generalization	false

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/arithmetic` — aritmética, unários e lógica booleana
-Hash do Código: 825948df
+Hash do Código: 97c27aab
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/arithmetic.rs`
@@ -48,6 +48,7 @@ genérico do vanilla, `foundations/ops.rs:344-359`).
 | `Length * Int|Float`, `Length / Int|Float` (todas as ordens) | `Length`, escala uniforme, NaN → 0 por componente via `sanitize_length_nan`; inf propaga-se | `ops.rs:238-243,312-314`; `scalar.rs:30-32` |
 | `Length / Length` | `Float` — só se ambos `abs` zero (rácio de `em`) ou ambos `em` zero (rácio de `abs`); misto → `"cannot divide these two lengths"` | `length.rs:64-72` (`try_div`) |
 | `Length + Color` (ambas as ordens) | `Stroke` sólido com a espessura da parte absoluta | stroke syntax vanilla |
+| `Length + Gradient` (ambas as ordens) | `Stroke` com `Paint::Gradient` e a espessura da parte absoluta | P1229: necessário para gradient no papel stroke; medido nas fixtures S1–S8 do vanilla ratificado |
 | `Relative ± Relative`, `Relative ± Length` | `Relative` | `rel.rs` |
 | `Relative * Int|Float`, `Relative / Int|Float` | `Relative`, escala | `rel.rs` |
 | `Relative / Relative` | `Float` — `rel` ambos zero → rácio de `abs` (regra de `Length/Length`); `abs` ambos zero → `rel/rel`; misto → `"cannot divide these two relative lengths"` | `rel.rs:128-137` |
@@ -140,6 +141,8 @@ eval_binary_op(Mul, Length(1pt), Float(inf))    == Length(inf pt) // inf propaga
 eval_binary_op(Div, Relative(50%), Relative(25%)) == Float(2.0)
 eval_binary_op(Add, Ratio(50%), Length(1pt))    == Relative(50% + 1pt)
 eval_binary_op(Mul, Ratio(100%), Fraction(2fr)) == Fraction(2fr)
+eval_binary_op(Add, Length(4pt), Gradient(g)) == Stroke(paint: Gradient(g), thickness: 4pt)
+eval_binary_op(Add, Gradient(g), Length(4pt)) == Stroke(paint: Gradient(g), thickness: 4pt)
 
 // Angle/Fraction/Align/unários
 eval_binary_op(Sub, Angle(90deg), Angle(45deg)) == Angle(45deg)

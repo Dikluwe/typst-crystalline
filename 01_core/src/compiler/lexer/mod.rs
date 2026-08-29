@@ -13,6 +13,15 @@ use unicode_ident::{is_xid_continue, is_xid_start};
 
 pub mod scanner;
 
+/// Reconhece o shebang somente no byte inicial e só então consome `!`.
+/// A ordem preserva o curto-circuito: um `#!` fora do início não avança o scanner.
+fn starts_shebang(scanner: &mut Scanner<'_>, start: usize) -> bool {
+    if start != 0 {
+        return false;
+    }
+    scanner.eat_if('!')
+}
+
 // Lexers por modo extraídos (Passo 96.9, ADR-0037).
 mod code;
 mod markup;
@@ -119,7 +128,7 @@ impl Lexer<'_> {
         self.newline = false;
         let kind = match self.s.eat() {
             Some(c) if is_space(c, self.mode) => self.whitespace(start, c),
-            Some('#') if start == 0 && self.s.eat_if('!') => self.shebang(),
+            Some('#') if starts_shebang(&mut self.s, start) => self.shebang(),
             Some('/') if self.s.eat_if('/') => self.line_comment(),
             Some('/') if self.s.eat_if('*') => self.block_comment(),
             Some('*') if self.s.eat_if('/') => {

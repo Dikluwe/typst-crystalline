@@ -835,8 +835,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         kind: ShapeKind::Rect,
                         width: cell_w,
                         height: cell_h,
-                        fill: Some(*c),
+                        fill: Some(crate::entities::paint::Paint::Solid(*c)),
                         stroke: None,
+                        fill_rule: Default::default(),
                         parent_bbox_at_emit: None,
                     });
                 }
@@ -1209,6 +1210,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     height: 0.0,
                     fill: None,
                     stroke: Some(stroke.clone()),
+                    fill_rule: Default::default(),
                     parent_bbox_at_emit: None,
                 });
             }
@@ -1239,6 +1241,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     height: (y1 - y0).abs(),
                     fill: None,
                     stroke: Some(stroke.clone()),
+                    fill_rule: Default::default(),
                     parent_bbox_at_emit: None,
                 });
             }
@@ -1318,6 +1321,7 @@ fn emit_hsegment(items: &mut Vec<FrameItem>, x0: f64, x1: f64, y: f64, stroke: S
             height: 0.0,
             fill: None,
             stroke: Some(stroke),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         });
     }
@@ -1334,6 +1338,7 @@ fn emit_vsegment(items: &mut Vec<FrameItem>, x: f64, y0: f64, y1: f64, stroke: S
             height: (y1 - y0).abs(),
             fill: None,
             stroke: Some(stroke),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         });
     }
@@ -1394,6 +1399,9 @@ fn emit_row_borders(
     // ── Bordas horizontais (topo + fundo), fundidas dentro da linha ──
     let mut top_run: Option<(f64, f64, Stroke)> = None; // (x0, x1, stroke)
     let mut bottom_run: Option<(f64, f64, Stroke)> = None;
+    let can_extend_run = |same_stroke: bool, right: f64, next_left: f64| {
+        same_stroke && (right - next_left).abs() < 1e-6
+    };
     for &placed_idx in row_cells_sorted {
         let placed = &placed_cells[placed_idx];
         // Largura real (cobre colspan) directamente de `col_starts`/
@@ -1408,7 +1416,7 @@ fn emit_row_borders(
         let stroke = cell_effective_stroke(&placed.body, grid_stroke);
 
         match (&top_run, &stroke) {
-            (Some((rx0, rx1, rs)), Some(s)) if rs == s && (*rx1 - cx).abs() < 1e-6 => {
+            (Some((rx0, rx1, rs)), Some(s)) if can_extend_run(rs == s, *rx1, cx) => {
                 top_run = Some((*rx0, cx + cw, rs.clone()));
             }
             _ => {
@@ -1419,7 +1427,7 @@ fn emit_row_borders(
             }
         }
         match (&bottom_run, &stroke) {
-            (Some((rx0, rx1, rs)), Some(s)) if rs == s && (*rx1 - cx).abs() < 1e-6 => {
+            (Some((rx0, rx1, rs)), Some(s)) if can_extend_run(rs == s, *rx1, cx) => {
                 bottom_run = Some((*rx0, cx + cw, rs.clone()));
             }
             _ => {

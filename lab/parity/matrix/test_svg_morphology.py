@@ -89,6 +89,60 @@ class SvgMorphologyTests(unittest.TestCase):
         a, b = self.pair('<svg width="10pt" height="10pt"><rect x="1" width="1" height="1"/></svg>', '<svg width="10pt" height="10pt"><rect x="1.000001" width="1" height="1"/></svg>')
         self.assertEqual(compare(a, b)["verdict"], "Violated")
 
+    def test_p1226_arc_radii_correction_is_canonical(self):
+        a, b = self.pair(
+            '<svg width="20pt" height="20pt"><path d="M0 0 A 2 2 0 0 1 10 0"/></svg>',
+            '<svg width="20pt" height="20pt"><path d="M0 0 A 5 5 0 0 1 10 0"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Preserved")
+
+    def test_p1226_arc_large_flag_is_irrelevant_for_antipodes(self):
+        a, b = self.pair(
+            '<svg width="20pt" height="20pt"><path d="M0 0 A5 5 0 0 1 10 0"/></svg>',
+            '<svg width="20pt" height="20pt"><path d="M0 0 A5 5 0 1 1 10 0"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Preserved")
+
+    def test_p1226_arc_sweep_is_observable(self):
+        a, b = self.pair(
+            '<svg width="20pt" height="20pt"><path d="M0 0 A6 5 20 0 0 10 0"/></svg>',
+            '<svg width="20pt" height="20pt"><path d="M0 0 A6 5 20 0 1 10 0"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Violated")
+
+    def test_p1226_zero_radius_arc_equals_line(self):
+        a, b = self.pair(
+            '<svg width="20pt" height="20pt"><path d="M0 0 A0 5 20 1 1 10 0"/></svg>',
+            '<svg width="20pt" height="20pt"><path d="M0 0 L10 0"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Preserved")
+
+    def test_p1226_equal_endpoint_arc_is_empty(self):
+        a, b = self.pair(
+            '<svg width="20pt" height="20pt"><path d="M0 0 A5 5 0 1 1 0 0 L10 0"/></svg>',
+            '<svg width="20pt" height="20pt"><path d="M0 0 L10 0"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Preserved")
+
+    def test_p1226_relative_and_absolute_arc_are_equal(self):
+        a, b = self.pair(
+            '<svg width="20pt" height="20pt"><path d="M2 3 a6 5 20 0 1 10 0"/></svg>',
+            '<svg width="20pt" height="20pt"><path d="M2 3 A6 5 20 0 1 12 3"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Preserved")
+
+    def test_p1226_nested_transform_applies_to_arc_once(self):
+        a, b = self.pair(
+            '<svg width="30pt" height="30pt"><g transform="translate(2 3)"><g transform="matrix(2 0 0 2 0 0)"><path d="M0 0 A5 5 0 0 1 10 0"/></g></g></svg>',
+            '<svg width="30pt" height="30pt"><path d="M2 3 A10 10 0 0 1 22 3"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Preserved")
+
+    def test_p1226_arc_axis_rotation_is_observable(self):
+        a, b = self.pair(
+            '<svg width="20pt" height="20pt"><path d="M0 0 A6 4 10 0 1 10 0"/></svg>',
+            '<svg width="20pt" height="20pt"><path d="M0 0 A6 4 30 0 1 10 0"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Violated")
+
+    def test_p1226_invalid_arc_flag_is_unknown(self):
+        a, _ = self.pair(
+            '<svg width="20pt" height="20pt"><path d="M0 0 A6 4 10 2 1 10 0"/></svg>',
+            '<svg width="20pt" height="20pt"/>')
+        self.assertEqual(morphology(a)["state"], "Unknown")
+
 
 if __name__ == "__main__":
     unittest.main()

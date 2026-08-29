@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/arithmetic.md
-//! @prompt-hash 9d320d0c
+//! @prompt-hash a642f695
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -37,7 +37,9 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
             Value::Length(l) if l.is_zero() => return Err("cannot divide by zero".into()),
             // P818 — `is_zero()` do vanilla cobre também `Relative`, `Ratio`
             // e `Angle` (medido: `#(50% / 0%)` → "cannot divide by zero").
-            Value::Relative(r) if r.abs.is_zero() && r.rel == 0.0 => {
+            Value::Relative(r)
+                if matches!((r.abs.is_zero(), r.rel == 0.0), (true, true)) =>
+            {
                 return Err("cannot divide by zero".into())
             }
             Value::Ratio(r) if r.0 == 0.0 => return Err("cannot divide by zero".into()),
@@ -332,6 +334,17 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         | (BinOp::Add, Value::Color(c), Value::Length(l)) => {
             Ok(Value::Stroke(crate::entities::geometry::Stroke {
                 paint: crate::entities::paint::Paint::Solid(c),
+                thickness: l.abs.to_pt(),
+                overhang: false,
+                ..crate::entities::geometry::Stroke::default()
+            }))
+        }
+        // P1229 — o shorthand público de stroke aceita qualquer Paint. Esta
+        // fatia fecha Gradient nas duas ordens sem colapsar para primeira cor.
+        (BinOp::Add, Value::Length(l), Value::Gradient(g))
+        | (BinOp::Add, Value::Gradient(g), Value::Length(l)) => {
+            Ok(Value::Stroke(crate::entities::geometry::Stroke {
+                paint: crate::entities::paint::Paint::Gradient(g),
                 thickness: l.abs.to_pt(),
                 overhang: false,
                 ..crate::entities::geometry::Stroke::default()

@@ -536,7 +536,12 @@ pub use self::render::{
     render_document_to_png, render_page_to_png, render_page_to_png_with_fonts, FontKey,
     RenderOptions,
 };
-pub use self::svg::{export_svg, export_svg_with_fonts, SvgOptions};
+pub use self::svg::{
+    export_svg, export_svg_with_context, export_svg_with_fonts,
+    export_svg_with_fonts_and_context, export_svg_with_fonts_and_contexts,
+    GlyphFontIdentity, GlyphFontRequest, SvgDestinationContext, SvgGlyphFontContext,
+    SvgOptions,
+};
 
 /// Exporta uma página para PNG (texto sem fontes resolvidas é omitido).
 pub fn export_png(page: &Page, opts: &RenderOptions) -> Vec<u8> {

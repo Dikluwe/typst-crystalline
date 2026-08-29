@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/tiling` — padrão de azulejos (Tiling)
-Hash do Código: 8fb9a293
+Hash do Código: c6559d7a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/tiling.rs`
@@ -120,3 +120,47 @@ pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
 `type(tiling) == type` e `repr(type(tiling)) == "type"`, enquanto valores
 construídos continuam com `type_name() == "tiling"`. A representação interna
 da entidade e suas operações não mudam.
+
+## P1245 — contrato declarativo aprovado para conteúdo arbitrário
+
+**Gate ADR-0127 (histórico):** o dono confirmou esta mudança pública no P1245.
+O P1254 pré-selou contrato/oráculos/ataques e materializou o consumer de layout
+sem introduzir `ResolvedTiling` público. A decisão abaixo é vigente; os limites
+de stroke e targets não cobertos permanecem `Unknown` explícito.
+
+### Medição que precede a decisão
+
+O modelo anterior em `01_core/src/entities/tiling.rs:22-31,61-77` conserva
+somente corpo fechado Image/Gradient/Color, size, spacing e relative
+self/parent. O vanilla ratificado `a51e02804`, em
+`crates/typst-library/src/visualize/tiling.rs:59-76,99-185,278-376`, aceita
+conteúdo arbitrário, materializa-o em frame na fase de layout, resolve
+`size:auto`, conserva spacing/offset/angle/relative e aplica offset antes de
+angle. A obrigação é a semântica e morfologia da linguagem, não armazenar um
+`Frame` vanilla nem copiar sua mecânica Rust (ADR-0107).
+
+### Contrato público proposto
+
+- `Tiling` permanece entidade declarativa pura L1 e transporta o corpo como
+  `Content` fechado conforme ADR-0026; quando a recursão física exigir
+  indireção, ela usa `Arc<Content>` ou representação equivalente já permitida,
+  sem `dyn`, vtable ou estado global.
+- O contrato público conserva `size`, `spacing`, `offset`, `angle` e
+  `relative`. `offset` aceita os componentes relativos/absolutos necessários à
+  linguagem; `angle` é finito. Defaults: size auto, spacing zero, offset zero,
+  angle zero e relative auto.
+- `relative:auto` preserva a decisão contextual da linguagem: self para shapes
+  e parent para texto. `self` e `parent` continuam seleções explícitas.
+- A entidade não contém frame resolvido, não lê recursos, não executa layout e
+  não conhece exporters. Não existe novo tipo público `ResolvedTiling`.
+- A materialização resolvida é detalhe privado da fase de layout existente e
+  só pode alcançar targets pelo contrato normal do pipeline.
+- Fallback para primeira cor/preto pode continuar como diagnóstico `Unknown`,
+  mas nunca prova paridade do tiling nem substitui a morfologia repetida.
+
+### Compatibilidade
+
+Construções antigas de Color/Image continuam representáveis. Os defaults
+anteriores só são preservados quando equivalentes ao observável vanilla; em
+particular, `relative:auto` não pode ser colapsado fisicamente em `self` antes
+de conhecer o contexto de layout.

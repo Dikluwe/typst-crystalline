@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/curve` — `CurveElem`
-Hash do Código: ffffffff
+Hash do Código: 8648d2b1
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/curve.rs`
 **Origem**: Passo 513 (curve elements: move/line/cubic/quad/close). **Não-locatável**
@@ -21,8 +21,11 @@ pub enum CurveSegment {
     Line(CurvePoint),
     Cubic(CurvePoint, CurvePoint, CurvePoint), // control1, control2, end
     Quad(CurvePoint, CurvePoint),              // control, end
-    Close,
+    Close(CloseMode),
 }
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum CloseMode { #[default] Smooth, Straight }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CurvePoint {
@@ -37,7 +40,7 @@ Construtores ergonómicos:
 - `Content::curve_line(x, y)`
 - `Content::curve_cubic(c1x, c1y, c2x, c2y, ex, ey)`
 - `Content::curve_quad(cx, cy, ex, ey)`
-- `Content::curve_close()`
+- `Content::curve_close(mode)`; ausência pública resolve para `Smooth`
 
 ## `impl Element for CurveElem`
 
@@ -55,4 +58,7 @@ Implementar manualmente via `format!("{:?}", self)` para contornar `f64` em `Len
 
 ## Critério
 
-`plain_text` vazio; `map_*` terminal; segmentos preservam coordenadas.
+`plain_text` vazio; `map_*` terminal; segmentos preservam coordenadas e o modo
+de fechamento. **P1226:** o default vanilla é `Smooth`, que pode acrescentar
+uma cúbica de fechamento usando o controle oposto ao início; `Straight` fecha
+por segmento reto. A alteração do payload público exige gate ADR-0127.

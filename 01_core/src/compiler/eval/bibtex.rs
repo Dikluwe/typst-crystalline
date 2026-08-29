@@ -196,7 +196,8 @@ fn parse_value(src: &str, start: usize) -> Result<(String, usize), BibTeXError> 
     match src.as_bytes()[pos] {
         b'{' => parse_braced(src, pos),
         b'"' => parse_quoted(src, pos),
-        c if c.is_ascii_digit() || c == b'-' => parse_number(src, pos),
+        byte if byte.is_ascii_digit() => parse_number(src, pos),
+        b'-' => parse_number(src, pos),
         _ => Err(BibTeXError::new(format!("valor de campo inválido em posição {}", pos))),
     }
 }

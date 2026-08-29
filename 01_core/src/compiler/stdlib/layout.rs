@@ -22,6 +22,22 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
+pub(super) fn is_positional_paper(name: &str, positional_len: usize) -> bool {
+    positional_len >= 2
+        && crate::entities::page_geometry::Paper::from_name(name).is_some()
+}
+
+pub(super) fn is_horizontal_page_binding(
+    align: crate::entities::layout_types::Align2D,
+    horizontal: crate::entities::layout_types::HAlign,
+) -> bool {
+    align.v.is_none() && align.h == Some(horizontal)
+}
+
+pub(super) fn is_valid_miter_limit(value: f64) -> bool {
+    value.is_finite() && value > 0.0
+}
+
 // ── Align / Place (Passo 82) ────────────────────────────────────────────────
 
 /// `align(alignment, body)` → `Content::Align`.
@@ -483,9 +499,7 @@ pub fn native_page(
 
     let mut positional = args.items.as_slice();
     let positional_paper = match positional.first() {
-        Some(Value::Str(name))
-            if Paper::from_name(name).is_some() && positional.len() >= 2 =>
-        {
+        Some(Value::Str(name)) if is_positional_paper(name, positional.len()) => {
             positional = &positional[1..];
             Paper::from_name(name)
         }
@@ -662,13 +676,11 @@ pub fn native_page(
     };
     let binding = match args.named.get("binding") {
         Some(Value::Auto) => Some(PageBinding::Auto),
-        Some(Value::Align(align))
-            if align.v.is_none() && align.h == Some(HAlign::Left) =>
-        {
+        Some(Value::Align(align)) if is_horizontal_page_binding(*align, HAlign::Left) => {
             Some(PageBinding::Left)
         }
         Some(Value::Align(align))
-            if align.v.is_none() && align.h == Some(HAlign::Right) =>
+            if is_horizontal_page_binding(*align, HAlign::Right) =>
         {
             Some(PageBinding::Right)
         }
@@ -2342,7 +2354,7 @@ pub fn native_stroke(
         _ => LineJoin::Miter,
     };
     let miter_limit = match args.named.get("miter-limit") {
-        Some(Value::Float(value)) if value.is_finite() && *value > 0.0 => *value,
+        Some(Value::Float(value)) if is_valid_miter_limit(*value) => *value,
         Some(Value::Int(value)) if *value > 0 => *value as f64,
         Some(Value::Float(_) | Value::Int(_)) => {
             return Err(vec![SourceDiagnostic::error(

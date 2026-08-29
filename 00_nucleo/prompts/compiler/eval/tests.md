@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 7ba78af0
+Hash do Código: 1e3b0fb1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -16,6 +16,22 @@ morfologia e mensagens, não mecânica Rust incidental.
 ## Aceitação
 
 Regressões têm controles e proveniência do vanilla quando decidem paridade.
+
+P1250B retifica o oracle P744 depois de P1253: as constantes públicas
+nomeadas preservam literais `f32`, portanto `red.mix(blue, space: rgb)` expõe
+`#805b87` no vanilla ratificado. O valor `#805a88` pertence ao caso distinto
+construído por canais inteiros `rgb(255,65,54).mix(rgb(0,116,217), ...)`.
+
+P1252 protege pela superfície pública alpha em `luma(l, alpha: alpha)`,
+`luma(color)` e na normalização de stops Linear/Radial/Conic com
+`space: luma`. O teste exige alpha preservado nos três variants e não afirma
+paridade de luminância nem promoção SVG.
+
+P1239 fecha a luminância Luma na superfície pública: `luma(red)` e os
+endpoints vermelhos de `gradient.linear(..., space: luma)` e
+`gradient.radial(..., space: luma)` devem expor `54.02%`, como o vanilla
+ratificado. O teste continua a exigir alpha preservado segundo P1252 e não
+autoriza promoção SVG.
 
 ## P1215
 

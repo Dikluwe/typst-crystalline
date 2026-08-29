@@ -1201,15 +1201,23 @@ pub(crate) fn eval_expr(
                                 all_dict_spreads = false;
                                 result.extend(a);
                             }
-                            Value::Dict(_)
-                                if all_dict_spreads
+                            Value::Dict(dict) => {
+                                let all_remaining_are_dict_spreads = all_dict_spreads
                                     && remaining_are_dict_spreads(
                                         &items_vec[i + 1..],
                                         scopes,
                                         ctx,
                                         engine,
-                                    ) =>
-                            {
+                                    );
+                                if !all_remaining_are_dict_spreads {
+                                    return Err(vec![SourceDiagnostic::error(
+                                        spread.span(),
+                                        format!(
+                                            "cannot spread {} into array",
+                                            Value::Dict(dict).type_name()
+                                        ),
+                                    )]);
+                                }
                                 let full_text =
                                     arr.to_untyped().clone().into_text().to_string();
                                 let fixed = full_text.replacen('(', "(: ", 1);

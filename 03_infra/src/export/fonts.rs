@@ -23,6 +23,13 @@ use ttf_parser::Face;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
 use typst_core::entities::shaped_glyph::ShapedGlyph;
 
+fn is_pdf_font_name_char(c: char) -> bool {
+    if !c.is_ascii() {
+        return false;
+    }
+    c >= ' '
+}
+
 pub(super) fn escape_pdf_string(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
     for c in text.chars() {
@@ -30,7 +37,7 @@ pub(super) fn escape_pdf_string(text: &str) -> String {
             '(' => out.push_str("\\("),
             ')' => out.push_str("\\)"),
             '\\' => out.push_str("\\\\"),
-            c if c.is_ascii() && c >= ' ' => out.push(c),
+            c if is_pdf_font_name_char(c) => out.push(c),
             _ => out.push('?'),
         }
     }

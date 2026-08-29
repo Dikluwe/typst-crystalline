@@ -1951,7 +1951,14 @@ impl Content {
             }
             other => other,
         };
-        Self::Shape(Arc::new(ShapeElem { kind, width, height, fill, stroke }))
+        Self::Shape(Arc::new(ShapeElem {
+            kind,
+            width,
+            height,
+            fill,
+            stroke,
+            fill_rule: crate::entities::geometry::FillRule::NonZero,
+        }))
     }
 
     /// `hide(body)` — Passo 156C (ADR-0061 Fase 1).
@@ -2574,9 +2581,9 @@ impl Content {
     }
 
     /// `curve.close()`.
-    pub fn curve_close() -> Self {
+    pub fn curve_close(mode: crate::entities::elements::curve::CloseMode) -> Self {
         Self::Curve(Arc::new(crate::entities::elements::curve::CurveElem {
-            segments: vec![crate::entities::elements::curve::CurveSegment::Close],
+            segments: vec![crate::entities::elements::curve::CurveSegment::Close(mode)],
         }))
     }
 

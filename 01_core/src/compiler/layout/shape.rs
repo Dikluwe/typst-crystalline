@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/shape_block_behaviour.md
-//! @prompt-hash ab6731bd
+//! @prompt-hash 3c4b21a1
 //! @layer L1
 //! @updated 2026-07-15
 //!
@@ -15,6 +15,7 @@
 use crate::entities::elements::shape::ShapeElem;
 use crate::entities::geometry::ShapeKind;
 use crate::entities::layout_types::{FrameItem, Length, Point, Pt};
+use crate::entities::paint::Paint;
 
 use super::helpers::resolve_pt;
 use super::{resolve_shape_kind, FontMetrics, ImageSizer, Layouter};
@@ -91,12 +92,6 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
     }
 
-    if layouter.regions.current.cursor_y.0 + resolved_h
-        > layouter.regions.current.height - layouter.page_config.margin.bottom
-    {
-        layouter.new_page();
-    }
-
     // P748/P750 — no fluxo principal o cursor_y representa a baseline do
     // texto. O `pos.y` de `FrameItem::Shape` é a base da forma em
     // coordenadas do Layouter (Y crescente para cima a partir da base da
@@ -108,7 +103,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // outro bloco, ou quando é a primeira de uma Sequence sem texto antes,
     // mantém-se o modelo P767a: base da forma em `baseline − cap_height`
     // (topo da linha anterior, estendendo-se para cima).
-    let shape_base = if !in_main_flow {
+    let candidate_shape_base = if !in_main_flow {
         layouter.regions.current.cursor_y
     } else if layouter.block_chain_active {
         layouter.regions.current.cursor_y - cap_height
@@ -117,20 +112,60 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         layouter.regions.current.cursor_y - cap_height
     };
+    let page_bottom =
+        layouter.regions.current.height - layouter.page_config.margin.bottom;
+    let shape_base = if candidate_shape_base.0 + resolved_h > page_bottom {
+        layouter.new_page();
+        // A quebra descarta a baseline e o espaçamento do fluxo anterior. Na
+        // página fresca, a forma começa no topo da área útil, tal como uma
+        // forma isolada; isto também permite o exact-fit altura útil == forma.
+        layouter.regions.current.cursor_y - cap_height
+    } else {
+        candidate_shape_base
+    };
     let pos = Point {
         x: layouter.regions.current.cursor_x,
         y: shape_base,
     };
-    layouter.regions.current.current_items.push(FrameItem::Shape {
-        pos,
-        kind: resolve_shape_kind(kind, layouter.style.size),
-        width: resolved_w,
-        height: resolved_h,
-        fill: fill.as_ref().map(|p| p.to_color()),
-        stroke: stroke.clone(),
-        // P273.6 — populated by Layouter.parent_bbox (Block save/restore).
-        parent_bbox_at_emit: layouter.parent_bbox,
-    });
+    let resolved_kind = resolve_shape_kind(kind, layouter.style.size);
+    let materialized_tiling = match fill {
+        Some(Paint::Tiling(tiling)) => super::tiling::materialize_fill(
+            layouter,
+            tiling,
+            pos,
+            resolved_kind.clone(),
+            resolved_w,
+            resolved_h,
+        ),
+        _ => None,
+    };
+    if let Some(group) = materialized_tiling {
+        layouter.regions.current.current_items.push(group);
+        if stroke.is_some() {
+            layouter.regions.current.current_items.push(FrameItem::Shape {
+                pos,
+                kind: resolved_kind,
+                width: resolved_w,
+                height: resolved_h,
+                fill: None,
+                stroke: stroke.clone(),
+                fill_rule: e.fill_rule,
+                parent_bbox_at_emit: layouter.parent_bbox,
+            });
+        }
+    } else {
+        layouter.regions.current.current_items.push(FrameItem::Shape {
+            pos,
+            kind: resolved_kind,
+            width: resolved_w,
+            height: resolved_h,
+            fill: fill.clone(),
+            stroke: stroke.clone(),
+            // P273.6 — populated by Layouter.parent_bbox (Block save/restore).
+            fill_rule: e.fill_rule,
+            parent_bbox_at_emit: layouter.parent_bbox,
+        });
+    }
 
     // **P767c** — avanço do cursor conforme o tipo de ancoragem. Após
     // forma-a-seguir-a-texto, a próxima baseline fica no topo da forma +

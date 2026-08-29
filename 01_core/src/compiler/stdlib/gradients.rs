@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/gradients.md
-//! @prompt-hash 0b693784
+//! @prompt-hash 98969965
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -271,11 +271,11 @@ fn sample_gradient(gradient: &Gradient, value: &Value) -> SourceResult<Value> {
                 other.type_name()
             ))
         }
-    } as f32;
+    };
     Ok(Value::Color(match gradient {
-        Gradient::Linear(v) => v.sample(t),
-        Gradient::Radial(v) => v.sample(t),
-        Gradient::Conic(v) => v.sample(t),
+        Gradient::Linear(v) => v.sample_precise(t),
+        Gradient::Radial(v) => v.sample(t as f32),
+        Gradient::Conic(v) => v.sample(t as f32),
     }))
 }
 

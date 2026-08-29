@@ -1,0 +1,8 @@
+role	executor	environment	read_allowlist	write_allowlist	context_policy	status
+intent-author	human decision B + typst-passo-1266.md	repository	P1264 certificate;P1265 decision;current L0s	NONE	frozen intent only	ASSIGNED
+contract-author	/root planning authority	repository	intent;L0s;ratified baseline source	P1266 contract;matrix;Unknown policy	shared current task context	EXECUTED-NOT-ISOLATED
+oracle-author	/root	repository + vanilla-first causal phase	frozen intent;contract;vanilla a51e02804	oracle fixtures;budgets;masks	candidate phase started only after all vanilla oracles	EXECUTED-NOT-ISOLATED
+adversary	/root	repository	frozen intent;contract;vanilla baseline;candidate results	24 executable mutant receipts	shared current task context	EXECUTED-NOT-ISOLATED
+implementer	/root	lab-only probe	frozen intent;contract;current adaptive.rs	diagnostic adapter;no productive code	shared current task context	EXECUTED-NOT-ISOLATED
+testador-ab	/root	repository	frozen intent;public domain;candidate outputs	corpus and direct/inverse/repeat receipts	shared current task context	EXECUTED-NOT-ISOLATED
+verifier	/root	repository	manifest inputs;oracles;attacks;candidate outputs	report;certificate	verified own artifacts;cannot attest independence	EXECUTED-NOT-ISOLATED

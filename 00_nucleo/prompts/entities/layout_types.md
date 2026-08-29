@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: bb7c9df4
+Hash do Código: 66b28ef2
 
 ## P1140.20.2 — canvas e camadas
 
@@ -41,6 +41,28 @@ Nenhum alias escalar escolhe um lado silenciosamente.
 
 ## Propósito
 Tipos de dados de layout: coordenadas, frames, documento paginado.
+
+## P1227 — transporte de paint de formas até aos exporters
+
+### Medição anterior à decisão
+
+`01_core/src/entities/layout_types.rs:435` declara
+`FrameItem::Shape.fill: Option<Color>`, enquanto
+`01_core/src/compiler/layout/shape.rs:129` recebe `Paint` da forma mas chama
+`to_color()`. Assim, Gradient e Tiling perdem tipo, stops, geometria e repetição
+antes de L3. O stroke já transporta `Stroke.paint: Paint` sem esta perda.
+
+### Mudança de contrato aprovada
+
+Alterar `FrameItem::Shape.fill` de `Option<Color>` para `Option<Paint>`. Este
+campo é o contrato público L1→L3. O dono confirmou o gate ADR-0127 em
+2026-08-26. Todos os constructors, visitors e transforms preservam o valor sem
+o reduzir a cor; exporters sem suporte nativo podem aplicar o fallback próprio
+já especificado, mas recebem o `Paint` íntegro.
+
+Conic continua transportado, mas o SVG não pode alegar equivalência nativa sem
+orçamento de erro selado. Espaços de cor sem conversão morfológica modelada
+também não podem ser promovidos silenciosamente a equivalência.
 
 ## P1140.5-A — grupo semântico de fórmula
 
@@ -576,3 +598,11 @@ a função original. Logo `EcoString` no snapshot perde semântica.
 desativado. `Page` também conserva o span de origem necessário para erro de
 callback e o número lógico corrente selado; estes campos públicos exatos serão
 materializados somente após o gate. Geometria e ordem de páginas não mudam.
+# P1226 — `FrameItem::Shape.fill_rule`
+
+Medição pública: o frame cristalino perde `curve(fill-rule: "even-odd")`
+antes do export SVG. Adicionar `fill_rule: FillRule` ao variant público
+`FrameItem::Shape`. Layout propaga o valor de `ShapeElem`; todos os emissores
+existentes que não expõem regra usam `NonZero`. Exportadores consomem o campo,
+sem derivá-lo da orientação dos segmentos. Esta mudança de contrato público
+fica bloqueada pelo gate ADR-0127 até confirmação humana.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash 37d2f585
+//! @prompt-hash d1034e3f
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -308,7 +308,7 @@ fn linear_to_srgb(c: f32) -> f32 {
     if c <= 0.0031308 {
         12.92 * c
     } else {
-        1.055 * c.powf(1.0 / 2.4) - 0.055
+        libm::fmaf(libm::powf(c, (1.0_f64 / 2.4) as f32), 1.055, -0.055)
     }
 }
 
@@ -390,22 +390,30 @@ fn srgb_to_linear_p476(c: f32) -> f32 {
     if c <= 0.04045 {
         c / 12.92
     } else {
-        ((c + 0.055) / 1.055).powf(2.4)
+        libm::powf(
+            libm::fmaf(c, (1.0_f64 / 1.055) as f32, (0.055_f64 / 1.055) as f32),
+            2.4,
+        )
     }
+}
+
+/// Cube root bit-compatible with the `libm::cbrtf` used by palette 0.7.6.
+fn palette_cbrtf_p1253(x: f32) -> f32 {
+    libm::cbrtf(x)
 }
 
 /// linear sRGB → Oklab. Duplicado de `gradient::linear_rgb_to_oklab` (P270).
 fn linear_rgb_to_oklab_p476(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
-    let l = 0.412_221_46 * r + 0.536_332_55 * g + 0.051_445_995 * b;
-    let m = 0.211_903_5 * r + 0.680_699_56 * g + 0.107_396_96 * b;
-    let s = 0.088_302_46 * r + 0.281_718_85 * g + 0.629_978_71 * b;
-    let l_ = l.cbrt();
-    let m_ = m.cbrt();
-    let s_ = s.cbrt();
+    let l = 0.412_221_470_8 * r + 0.536_332_536_3 * g + 0.051_445_992_9 * b;
+    let m = 0.211_903_498_2 * r + 0.680_699_545_1 * g + 0.107_396_956_6 * b;
+    let s = 0.088_302_461_9 * r + 0.281_718_837_6 * g + 0.629_978_700_5 * b;
+    let l_ = palette_cbrtf_p1253(l);
+    let m_ = palette_cbrtf_p1253(m);
+    let s_ = palette_cbrtf_p1253(s);
     (
-        0.210_454_26 * l_ + 0.793_617_8 * m_ - 0.004_072_047 * s_,
-        1.977_998_5 * l_ - 2.428_592_2 * m_ + 0.450_593_7 * s_,
-        0.025_904_037 * l_ + 0.782_771_77 * m_ - 0.808_675_77 * s_,
+        0.210_454_255_3 * l_ + 0.793_617_785_0 * m_ - 0.004_072_046_8 * s_,
+        1.977_998_495_1 * l_ - 2.428_592_205_0 * m_ + 0.450_593_709_9 * s_,
+        0.025_904_037_1 * l_ + 0.782_771_766_2 * m_ - 0.808_675_766_0 * s_,
     )
 }
 
@@ -495,9 +503,11 @@ fn hue_hexcone_p742(r: f32, g: f32, b: f32, max: f32, d: f32) -> f32 {
 /// **P742** — sRGB → Luma (palette: luminância linear Rec.709 re-codificada
 /// com a curva sRGB).
 fn srgb_to_luma_p742(r: f32, g: f32, b: f32) -> f32 {
-    let y = 0.2126 * srgb_to_linear_p476(r)
-        + 0.7152 * srgb_to_linear_p476(g)
-        + 0.0722 * srgb_to_linear_p476(b);
+    // P1239: linha Y da matriz sRGB de palette 0.7.6. Os coeficientes
+    // abreviados alteram o observável de vermelho de 54.02% para 54.01%.
+    let y = 0.2126729 * srgb_to_linear_p476(r)
+        + 0.7151522 * srgb_to_linear_p476(g)
+        + 0.0721750 * srgb_to_linear_p476(b);
     linear_to_srgb(y)
 }
 
@@ -1265,6 +1275,37 @@ mod tests {
     #[test]
     fn p742_to_space_identidade_mesmo_espaco() {
         assert_eq!(VANILLA_RED.to_space(ColorSpace::Srgb), VANILLA_RED);
+    }
+
+    #[test]
+    fn p1252_to_space_luma_preserva_alpha_known_upstream_bug() {
+        let source = Color::srgb_f32(1.0, 0.254902, 0.211765, 0.4);
+        let Color::Luma { l, a } = source.to_space(ColorSpace::Luma) else {
+            panic!("to_space(Luma) deve produzir Luma");
+        };
+        assert_eq!(a.to_bits(), 0.4_f32.to_bits());
+        assert!(
+            (l - 0.5402).abs() < 0.00005,
+            "P1239 fecha luminância sem reverter alpha: {l}"
+        );
+    }
+
+    #[test]
+    fn p1239_luma_red_usa_matriz_srgb_palette() {
+        let Color::Luma { l, a } = VANILLA_RED.to_space(ColorSpace::Luma) else {
+            panic!("red.to_space(Luma) deve produzir Luma");
+        };
+        assert!((l - 0.5402).abs() < 0.00005, "witness RED P1239: {l}");
+        assert_eq!(a, 1.0);
+    }
+
+    #[test]
+    fn p1253_oklab_red_usa_constantes_completas_palette() {
+        let (l, a, b, alpha) = to_oklab_p476(VANILLA_RED);
+        assert!((l - 0.6595).abs() < 0.00005, "L público arredondado: {l}");
+        assert_eq!(a.to_bits(), 0.19973529875278473_f32.to_bits());
+        assert_eq!(b.to_bits(), 0.10818812251091003_f32.to_bits());
+        assert_eq!(alpha.to_bits(), 1.0_f32.to_bits());
     }
 
     #[test]

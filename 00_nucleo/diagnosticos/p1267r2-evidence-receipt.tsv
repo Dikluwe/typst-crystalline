@@ -1,0 +1,35 @@
+record_type	key	value	sha256	access_or_verification
+protocol	regime	protocolo completo; fase restrita de análise independente de evidência	-	Nenhuma autoria de contrato completo, implementação, ataque ou veredito
+protocol	role	ANALISTA_INDEPENDENTE_DE_EVIDENCIA	-	Autoridade apenas sobre derivation.tsv e receipt.tsv
+protocol	context_inherited	none	-	Declarado pelo despacho do papel; nenhuma conclusão herdada
+protocol	read_capability	allowlist de conteúdo abaixo mais instruções procedurais obrigatórias da skill	-	Não equivale a isolamento de filesystem
+protocol	write_capability	/tmp/p1267r2/evidence/derivation.tsv;/tmp/p1267r2/evidence/receipt.tsv	-	Únicas escritas; ambas feitas com apply_patch
+protocol	attestation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO DE FILESYSTEM	-	Não se alega sandbox/worktree/process isolation; independência descrita por contexto, entradas e capacidade de escrita
+provenance	measurement_time_utc	2026-08-29T00:32:35Z	-	Instante antes da materialização das saídas
+provenance	repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5	-	git rev-parse HEAD
+provenance	baseline_ratified	upstream/main a51e02804	-	00_nucleo/diagnosticos/p1266-final-certificate.tsv:6
+provenance	allowed_input_tree_state	M adaptive.md; M svg.md; M 03_infra adaptive.rs; P1266 diagnostics and typst-passo-1267.md untracked	-	git status --short limitado exatamente aos paths-fonte permitidos; hashes abaixo são a identidade canónica usada
+input_procedural	/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md	full	33a32f7bc439de3fe3aa530bd65518e512a93f40152c91b2ace0789de34a3a56	Lido integralmente antes da análise
+input_procedural	/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md	full	f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417	Referência exigida pela skill; lida integralmente
+input_procedural	/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md	full	bf218259b4454974bf8889ce319e04c0c7ec668b9a542d0eb3b4d0492a623963	Referência exigida pela skill; lida integralmente
+input_source	/repos/Antigravity/typst-crystalline/typst-passo-1267.md	full	5f1848ad4fd2502e028b2f8ec52d9b859a9d791431911984698ec9c8cb047f69	Conteúdo integral com numeração de linhas
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-final-certificate.tsv	full	dce8aabec0d6bbf8b714d75f8cfc22e38f83539d04f1c8d034110c8dfa1067ec	Conteúdo integral com numeração de linhas; hash coincide com manifesto P1267
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-generalization-matrix.tsv	full	091d50354eb2b206d595c88a96b76eb8b9d8e8a881b2f0d3f5901edf9cce5406	Conteúdo integral com numeração de linhas
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-results.tsv	full	f9d8a8641f6487682fce8eacdf4d1d5b3b4c8326fdbce46d26179a3c74bdeda8	Conteúdo integral lido; agregado mecanicamente sobre 96 linhas; S20/S21 verificados em file:line
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-cost.tsv	full	dc10bff135b228b521376b39e4266c1656f6b650a72576253404a85ca74c93ad	Conteúdo integral com numeração de linhas e agregado mecanicamente
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/typst-p1266-svg-generalization.md	full	defe67629ef5aab1e00efbbc792e200052f0e3bb6464113cebdd08400b90aa5f	Conteúdo integral com numeração de linhas
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/adaptive.md	full	4e2e19b5af1aab3c33596166fbcef647df1aceed1739bab395d432126f46d737	Conteúdo integral com numeração de linhas
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/svg.md	full	41c5d785d9e4ecdb184fd5e6344dd7422d874e826e3bdeac2ddb2d6617530d29	Conteúdo integral com numeração de linhas
+input_source	/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/gradient.rs	selected:880-970,1380-1485 plus symbol search	ed7a1be4e398fa47dff9ede8aa31c939514e341f9e47ac5099787d422f67967c	Somente regiões necessárias ao algoritmo, domínio dos offsets e right-continuity; hash é do ficheiro integral
+input_source	/repos/Antigravity/typst-crystalline/03_infra/src/export/gradients/adaptive.rs	full	dd2c3a696c63ded7df7a5b56c5103f3d70b404bf7bf50d021d0d592530e2b331	Conteúdo integral coberto por ranges sobrepostos e symbol search
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md	full	e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d	Conteúdo integral com numeração de linhas
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md	full	31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405	Conteúdo integral com numeração de linhas
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0121-proveniencia-medicao.md	full	00be2575c57efb572b7935ab0ae9da80d62e66c8739bffbb17994b2f7a50d5ef	Conteúdo integral com numeração de linhas
+measurement	P1266_RESULT_COUNTS	rows=96;public_violated=74;numeric_violated=24;cost_violated=36;zero_area_violated=4;graph_preserved=96;raster_preserved=96;status_violated_without_public=0	f9d8a8641f6487682fce8eacdf4d1d5b3b4c8326fdbce46d26179a3c74bdeda8	awk -F TAB sobre colunas nomeadas de p1266-results.tsv; classificação sucede à medição
+measurement	P1266_COST_BOUND_CHECK	rows=96;sum_effective=904;sum_emitted=11188;sum_conservative_bound=51808;legacy_cap64_failures=36;derived_bound_failures=0;max=S06-linear-linear-rgb,m=32,E=774,introduced=742,bound=1985	dc10bff135b228b521376b39e4266c1656f6b650a72576253404a85ca74c93ad	Para cada linha b=64*m-63; verificação conservadora não substitui trace interval-local
+derivation	G10_PROOF_BASIS	Refinamento forma árvore binária de profundidade<=6; para s folhas: internal=s-1,nodes=2s-1; boundary samples=2s-2	-	Derivado de vanilla gradient.rs:918-964 e produto adaptive.rs:127-159; fórmulas completas em derivation.tsv
+policy	unknown	Qualquer identidade de stop sem proveniência original/adaptive, qualquer validação candidata sem trace interval-local, ou qualquer caso sem oráculo de região pintada permanece UNKNOWN	-	Unknown nunca convertido em Preserved por default
+declaration	prohibited_content	NÃO LIDO: qualquer p1267-* ou typst-p1267-* existente; outputs de autor do contrato; outputs de verificador; qualquer patch futuro de produto	-	typst-passo-1267.md é a entrada expressamente permitida e não pertence aos padrões proibidos declarados
+declaration	repository_mutation	NENHUMA	-	Nenhum ficheiro do repositório alterado; apenas os dois outputs /tmp autorizados
+output	/tmp/p1267r2/evidence/derivation.tsv	full	14601fbefb87b50bc69482ed8f62c1446842f32293ccf3ffe3afab0efb83fa5c	sha256 do ficheiro final antes da criação deste recibo
+output	/tmp/p1267r2/evidence/receipt.tsv	canonical-content-excluding-this-row	ac97a53c44900344ef3a203b80453b991edd8b2936008b672ba3fa63461752eb	Autohash canónico evita autorreferência impossível; verificar removendo esta linha completa e calculando sha256 dos bytes restantes

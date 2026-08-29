@@ -335,6 +335,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     height,
                     fill,
                     stroke,
+                    fill_rule,
                     parent_bbox_at_emit,
                 } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
@@ -346,6 +347,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         height,
                         fill,
                         stroke,
+                        fill_rule,
                         parent_bbox_at_emit,
                     });
                     if extent_x > self.regions.current.cursor_x {

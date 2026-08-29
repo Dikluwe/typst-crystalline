@@ -433,8 +433,10 @@ fn eval_math_expr(
                 // "dot.double"`, caindo no mesmo `match` hardcoded abaixo
                 // que `hat`/`tilde`/`dot`.
                 Expr::FieldAccess(access)
-                    if matches!(access.target(), Expr::MathIdent(t) if t.get() == "dot")
-                        && access.field().as_str() == "double" =>
+                    if matches!(
+                        (access.target(), access.field().as_str()),
+                        (Expr::MathIdent(t), "double") if t.get() == "dot"
+                    ) =>
                 {
                     "dot.double".to_string()
                 }

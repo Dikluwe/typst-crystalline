@@ -1262,7 +1262,7 @@ fn p449_highlight_default_emite_shape_amarelo_antes_do_texto() {
             FrameItem::Text { text, .. },
         ) = (&window[0], &window[1])
         {
-            if *fill == yellow && text.as_str() == "x" {
+            if fill.to_color() == yellow && text.as_str() == "x" {
                 found = true;
                 break;
             }
@@ -1285,7 +1285,7 @@ fn p449_highlight_fill_custom_emite_shape_correspondente() {
                 kind: ShapeKind::Rect,
                 fill: Some(c),
                 ..
-            } if *c == Color::rgb(255, 0, 0)
+            } if c.to_color() == Color::rgb(255, 0, 0)
         )
     });
     assert!(found, "esperado rect vermelho de highlight");
@@ -1301,6 +1301,26 @@ fn p449_highlight_fill_none_nao_emite_shape() {
         .iter()
         .any(|i| matches!(i, FrameItem::Shape { kind: ShapeKind::Rect, .. }));
     assert!(!has_shape, "fill: none não deve emitir shape de highlight");
+}
+
+#[test]
+fn p1228_forma_isolada_exact_fit_permanece_na_primeira_pagina() {
+    let doc = layout_test(
+        "#set page(width: 140pt, height: 50pt, margin: 5pt)\n\
+         #rect(width: 130pt, height: 40pt, fill: red)",
+    );
+
+    let shape = doc.pages[0]
+        .items
+        .iter()
+        .find_map(|item| match item {
+            FrameItem::Shape { pos, width, height, .. } => Some((*pos, *width, *height)),
+            _ => None,
+        })
+        .expect("a forma exact-fit deve ser emitida na primeira página, sem página vazia inicial");
+    assert!((shape.0.x.val() - 5.0).abs() < 1e-6);
+    assert!((shape.1 - 130.0).abs() < 1e-6);
+    assert!((shape.2 - 40.0).abs() < 1e-6);
 }
 
 #[test]
@@ -1708,9 +1728,7 @@ fn layout_enum_tight_false_adiciona_espaco() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
-            FrameItem::Text { text, pos, .. }
-                if text.as_str() == "1." || text.as_str() == "2." =>
-            {
+            FrameItem::Text { text, pos, .. } if matches!(text.as_str(), "1." | "2.") => {
                 Some(pos.y.val())
             }
             _ => None,
@@ -1744,9 +1762,7 @@ fn layout_enum_tight_default_preserva_gap_natural() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
-            FrameItem::Text { text, pos, .. }
-                if text.as_str() == "1." || text.as_str() == "2." =>
-            {
+            FrameItem::Text { text, pos, .. } if matches!(text.as_str(), "1." | "2.") => {
                 Some(pos.y.val())
             }
             _ => None,
@@ -1963,7 +1979,7 @@ fn layout_terms_parbreak_separa_grupos() {
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
             FrameItem::Text { text, pos, .. }
-                if text.as_str() == "API" || text.as_str() == "CLI" =>
+                if matches!(text.as_str(), "API" | "CLI") =>
             {
                 Some(pos.y.val())
             }
@@ -1996,7 +2012,7 @@ fn layout_terms_sem_parbreak_continua_grupo() {
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
             FrameItem::Text { text, pos, .. }
-                if text.as_str() == "API" || text.as_str() == "CLI" =>
+                if matches!(text.as_str(), "API" | "CLI") =>
             {
                 Some(pos.y.val())
             }
@@ -2023,13 +2039,14 @@ fn layout_lista_para_enum_nao_adiciona_espaco_extra() {
         Content::enum_item(None, Content::text("second")),
     ]);
     let doc = layout(&content);
+    let is_list_or_enum_marker = |text: &str| text == "•" || text.ends_with('.');
     let ys: Vec<f64> = doc
         .pages
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
             FrameItem::Text { text, pos, .. }
-                if text.as_str() == "•" || text.as_str().ends_with('.') =>
+                if is_list_or_enum_marker(text.as_str()) =>
             {
                 Some(pos.y.val())
             }
@@ -8635,7 +8652,7 @@ mod tests_show_rule_integration {
         for p in &doc.pages {
             for item in &p.items {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if *c == Color::rgb(0, 255, 0) {
+                    if c.to_color() == Color::rgb(0, 255, 0) {
                         found_green = true;
                     }
                 }
@@ -9340,7 +9357,7 @@ mod tests_show_rule_integration {
         for page in doc.pages.iter() {
             for item in page.items.iter() {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if *c == Color::rgb(200, 50, 50) {
+                    if c.to_color() == Color::rgb(200, 50, 50) {
                         found_shape_with_fill = true;
                     }
                 }
@@ -9554,7 +9571,7 @@ mod tests_show_rule_integration {
         for page in doc.pages.iter() {
             for item in page.items.iter() {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if *c == Color::rgb(70, 140, 210) {
+                    if c.to_color() == Color::rgb(70, 140, 210) {
                         found_shape_with_fill = true;
                     }
                 }
@@ -9755,7 +9772,7 @@ mod tests_show_rule_integration {
         for page in doc.pages.iter() {
             for item in page.items.iter() {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if *c == Color::rgb(100, 200, 50) {
+                    if c.to_color() == Color::rgb(100, 200, 50) {
                         found_shape = true;
                     }
                 }
@@ -10125,7 +10142,7 @@ mod tests_show_rule_integration {
             for item in page.items.iter() {
                 match item {
                     FrameItem::Shape { fill: Some(c), .. }
-                        if *c == Color::rgb(220, 220, 50) =>
+                        if c.to_color() == Color::rgb(220, 220, 50) =>
                     {
                         found_fill = true
                     }
@@ -10285,7 +10302,7 @@ mod tests_show_rule_integration {
             for item in page.items.iter() {
                 match item {
                     FrameItem::Shape { fill: Some(c), .. }
-                        if *c == Color::rgb(150, 50, 200) =>
+                        if c.to_color() == Color::rgb(150, 50, 200) =>
                     {
                         found_fill = true
                     }
@@ -11544,7 +11561,7 @@ mod tests_show_rule_integration {
         for page in doc.pages.iter() {
             for item in page.items.iter() {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if *c == Color::rgb(100, 100, 50) {
+                    if c.to_color() == Color::rgb(100, 100, 50) {
                         fill_shapes += 1;
                     }
                 }
@@ -12457,7 +12474,9 @@ mod tests_show_rule_integration {
                     ..
                 } = item
                 {
-                    if (*width - 100.0).abs() < 0.01 && *c == Color::rgb(0, 200, 0) {
+                    if (*width - 100.0).abs() < 0.01
+                        && c.to_color() == Color::rgb(0, 200, 0)
+                    {
                         found_wide = true;
                     }
                 }
@@ -12511,7 +12530,9 @@ mod tests_show_rule_integration {
                     ..
                 } = item
                 {
-                    if (*height - 70.0).abs() < 0.01 && *c == Color::rgb(0, 0, 200) {
+                    if (*height - 70.0).abs() < 0.01
+                        && c.to_color() == Color::rgb(0, 0, 200)
+                    {
                         found_tall = true;
                     }
                 }
@@ -12890,7 +12911,9 @@ mod tests_show_rule_integration {
                     ..
                 } = item
                 {
-                    if *c == Color::rgb(123, 45, 67) && (*width - 100.0).abs() < 0.01 {
+                    if c.to_color() == Color::rgb(123, 45, 67)
+                        && (*width - 100.0).abs() < 0.01
+                    {
                         found = true;
                     }
                 }
@@ -12949,7 +12972,7 @@ mod tests_show_rule_integration {
                     ..
                 } = item
                 {
-                    if *c == Color::rgb(11, 22, 33)
+                    if c.to_color() == Color::rgb(11, 22, 33)
                         && (*width - 50.0).abs() < 0.01
                         && (*height - 25.0).abs() < 0.01
                     {
@@ -19629,11 +19652,14 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
     // bottom_edge + leading — não hand-calculada a partir de constantes
     // assumidas, mas derivada do style real do item produzido).
     let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
+    // rationale: FixedMetrics define o fallback de leading como 0.65em.
     let leading = style
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
+        // rationale: FixedMetrics define o fallback de leading como 0.65em.
         .unwrap_or_else(|| style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
+    // rationale: a página possui uma margem simétrica em cada extremidade vertical.
     let expected_page_height = 2.0 * margin + content_h;
     assert!(
         (page.height - expected_page_height).abs() < 0.01,
@@ -19766,9 +19792,11 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
 
     // Altura final da página = margin + tall_height + altura('short') + margin.
     let (top, bottom) = FixedMetrics.text_edges(short_style.size, short_style);
+    // rationale: FixedMetrics define o fallback de leading como 0.65em.
     let leading = short_style
         .leading
         .map(|l| l.resolve_pt(short_style.size.val()))
+        // rationale: FixedMetrics define o fallback de leading como 0.65em.
         .unwrap_or_else(|| short_style.size.val() * 0.65);
     let short_content_h = top.val() - bottom.val();
     let expected_page_height = cursor_after_tall + short_content_h + margin;
@@ -19894,9 +19922,11 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
         })
         .unwrap();
     let (top, bottom) = FixedMetrics.text_edges(placed_style.size, &placed_style);
+    // rationale: FixedMetrics define o fallback de leading como 0.65em.
     let leading = placed_style
         .leading
         .map(|l| l.resolve_pt(placed_style.size.val()))
+        // rationale: FixedMetrics define o fallback de leading como 0.65em.
         .unwrap_or_else(|| placed_style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
     let expected_base_y = page.height - margin - content_h;
@@ -19992,6 +20022,7 @@ fn p904_grid_fr_row_sob_height_auto_nao_produz_infinito_degenera_a_zero() {
 
     // Paridade vanilla: fr degenera a 0 — altura final = 2*margin + linhas
     // fixas (28.35 + 28.35), sem contribuição nenhuma da linha 1fr.
+    // rationale: a página possui uma margem simétrica em cada extremidade vertical.
     let expected_height = 2.0 * margin + 28.35 + 28.35;
     assert!(
         (page.height - expected_height).abs() < 0.5,
@@ -20309,9 +20340,11 @@ fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
         .expect("item 'nestedplaced' não encontrado");
 
     let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
+    // rationale: FixedMetrics define o fallback de leading como 0.65em.
     let leading = style
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
+        // rationale: FixedMetrics define o fallback de leading como 0.65em.
         .unwrap_or_else(|| style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
     let expected_y = page.height - margin - content_h + dy;
@@ -20424,9 +20457,11 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
         .expect("item 'doublenested' não encontrado");
 
     let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
+    // rationale: FixedMetrics define o fallback de leading como 0.65em.
     let leading = style
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
+        // rationale: FixedMetrics define o fallback de leading como 0.65em.
         .unwrap_or_else(|| style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
     let expected_y = page.height - margin - content_h + dy;
@@ -20557,9 +20592,11 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
         .expect("item 'transformedplaced' não encontrado");
 
     let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
+    // rationale: FixedMetrics define o fallback de leading como 0.65em.
     let leading = style
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
+        // rationale: FixedMetrics define o fallback de leading como 0.65em.
         .unwrap_or_else(|| style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
     let expected_y = page.height - margin - content_h + dy;
@@ -20793,12 +20830,13 @@ mod p945_tests {
 
     /// (texto, y da baseline, size) dos items de texto de dígitos (células).
     fn cell_texts(items: &[FrameItem]) -> Vec<(String, f64, f64)> {
+        let is_single_ascii_digit =
+            |text: &str| text.len() == 1 && text.chars().next().unwrap().is_ascii_digit();
         frame_items_recursive(items)
             .into_iter()
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, style, .. }
-                    if text.as_str().len() == 1
-                        && text.as_str().chars().next().unwrap().is_ascii_digit() =>
+                    if is_single_ascii_digit(text.as_str()) =>
                 {
                     Some((text.as_str().to_string(), pos.y.val(), style.size.val()))
                 }
@@ -20886,12 +20924,13 @@ mod p945_tests {
         let page = doc.pages.first().expect("deve produzir 1 página");
 
         #[allow(deprecated)]
+        let is_single_ascii_digit =
+            |text: &str| text.len() == 1 && text.chars().next().unwrap().is_ascii_digit();
         let cell_styles: Vec<&TextStyle> = frame_items_recursive(&page.items)
             .into_iter()
             .filter_map(|item| match item {
                 FrameItem::Text { text, style, .. }
-                    if text.as_str().len() == 1
-                        && text.as_str().chars().next().unwrap().is_ascii_digit() =>
+                    if is_single_ascii_digit(text.as_str()) =>
                 {
                     Some(style)
                 }
@@ -21995,5 +22034,110 @@ mod p997_tests {
             .expect("bloco preenchido deve emitir shape");
         assert!((width - 60.0).abs() < 0.01, "largura inesperada: {width}");
         assert!((x - 82.0).abs() < 0.01, "origem RTL esperada em 82pt, obtida {x}");
+    }
+}
+// ── P1245/P1254 — tiling declarativo materializado uma vez no layout ──────
+#[cfg(test)]
+mod p1254_tiling_layout {
+    use super::*;
+    use crate::entities::geometry::ShapeKind;
+    use crate::entities::layout_types::{FrameItem, Length, Pt, Size};
+    use crate::entities::paint::Paint;
+    use crate::entities::tiling::{Tiling, TilingBody};
+    use crate::entities::value::Value;
+    use std::sync::Arc;
+
+    fn tiled_shape(width: f64, height: f64, cell: f64) -> Content {
+        let body = Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(2.0)))),
+            Some(Box::new(Value::Length(Length::pt(2.0)))),
+            Some(Paint::Solid(crate::entities::color::Color::rgb(255, 0, 0))),
+            None,
+        );
+        let mut tiling = Tiling::new(TilingBody::Content(Arc::new(body)));
+        tiling.size = Some(Size { width: Pt(cell), height: Pt(cell) });
+        tiling.spacing = Some(Size { width: Pt(1.0), height: Pt(1.0) });
+        Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(width)))),
+            Some(Box::new(Value::Length(Length::pt(height)))),
+            Some(Paint::Tiling(tiling)),
+            None,
+        )
+    }
+
+    fn repetition_signature(content: &Content) -> Vec<usize> {
+        let doc = layout(content);
+        let mut signature = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Group { items, .. } => Some(items.len()),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        signature.sort_unstable();
+        signature
+    }
+
+    #[test]
+    fn p1254_content_tiling_vira_grupos_repetidos_e_recortados() {
+        let body = Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(2.0)))),
+            Some(Box::new(Value::Length(Length::pt(2.0)))),
+            Some(Paint::Solid(crate::entities::color::Color::rgb(255, 0, 0))),
+            None,
+        );
+        let mut tiling = Tiling::new(TilingBody::Content(Arc::new(body)));
+        tiling.size = Some(Size { width: Pt(4.0), height: Pt(5.0) });
+        tiling.spacing = Some(Size { width: Pt(1.0), height: Pt(2.0) });
+        let content = Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(12.0)))),
+            Some(Box::new(Value::Length(Length::pt(13.0)))),
+            Some(Paint::Tiling(tiling)),
+            None,
+        );
+
+        let doc = layout(&content);
+        let outer = doc
+            .pages
+            .iter()
+            .flat_map(|page| &page.items)
+            .find_map(|item| match item {
+                FrameItem::Group { clip_mask: Some(ShapeKind::Rect), items, .. } => {
+                    Some(items)
+                }
+                _ => None,
+            })
+            .expect("tiling fill deve virar grupo recortado");
+        let FrameItem::Group { items: cells, .. } = &outer[0] else {
+            panic!("esperado grupo privado de placement")
+        };
+        assert!(cells.len() > 1, "pitch deve produzir repetição morfológica");
+        assert!(cells.iter().all(|cell| matches!(
+            cell,
+            FrameItem::Group { clip_mask: Some(ShapeKind::Rect), .. }
+        )));
+    }
+
+    #[test]
+    fn p1254_layout_real_e_deterministico_em_ordem_direta_e_inversa() {
+        let a = tiled_shape(12.0, 13.0, 4.0);
+        let b = tiled_shape(17.0, 9.0, 3.0);
+        let run = |fixtures: [&Content; 2]| {
+            let mut result =
+                fixtures.into_iter().map(repetition_signature).collect::<Vec<_>>();
+            result.sort();
+            result
+        };
+        let d1 = run([&a, &b]);
+        let d2 = run([&a, &b]);
+        let r1 = run([&b, &a]);
+        let r2 = run([&b, &a]);
+        assert_eq!(d1, d2);
+        assert_eq!(d1, r1);
+        assert_eq!(r1, r2);
     }
 }

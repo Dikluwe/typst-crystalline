@@ -1,19 +1,22 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/shapes.md
-//! @prompt-hash daa7b87e
+//! @prompt-hash 2b236727
 //! @layer L1
 //! @updated 2026-06-24
 //!
 //! Funções nativas de formas geométricas (rect, square, ellipse, circle, line, polygon).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
+use std::sync::Arc;
+
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::corners::Corners;
-use crate::entities::elements::curve::{CurvePoint, CurveSegment};
+use crate::entities::elements::curve::{CloseMode, CurvePoint, CurveSegment};
+use crate::entities::elements::shape::ShapeElem;
 use crate::entities::file_id::FileId;
-use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
+use crate::entities::geometry::{FillRule, PathItem, ShapeKind, Stroke};
 use crate::entities::layout_types::{Color, Length, Point, Pt};
 use crate::entities::paint::Paint;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -381,6 +384,8 @@ pub fn native_line(
     // end: (1cm, 1cm))` compila no vanilla com `length` ignorado). Sem
     // `end`: `dx = cos(angle)·length`, `dy = sin(angle)·length`
     // (vanilla `layout_line`); default `length: 30pt`, `angle: 0deg`.
+    let has_polar_extent =
+        args.named.contains_key("length") || args.named.contains_key("angle");
     let (dx, dy) = match args.named.get("end") {
         Some(end_v) => {
             if args.named.contains_key("dx") || args.named.contains_key("dy") {
@@ -419,7 +424,7 @@ pub fn native_line(
             // vanilla: "only respected if end is none", medido em P804).
             (ex - sx, ey - sy)
         }
-        None if args.named.contains_key("length") || args.named.contains_key("angle") => {
+        None if has_polar_extent => {
             // ── P804 — caminho `length`/`angle` (sem `end`) ──────────────
             if args.named.contains_key("dx") || args.named.contains_key("dy") {
                 return Err(vec![SourceDiagnostic::error(
@@ -659,13 +664,22 @@ pub fn native_polygon(
     path_items.push(PathItem::ClosePath);
 
     let fill = args.named.get("fill").and_then(parse_paint);
-    let parsed_stroke: Option<Stroke> =
-        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
-            paint: Paint::Solid(c),
-            thickness: 1.0,
-            overhang: false,
-            ..Stroke::default()
-        });
+    let fill_rule = match args.named.get("fill-rule") {
+        None => FillRule::NonZero,
+        Some(Value::Str(value)) if value.as_str() == "non-zero" => FillRule::NonZero,
+        Some(Value::Str(value)) if value.as_str() == "even-odd" => FillRule::EvenOdd,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("polygon(fill-rule): valor inesperado {}", other.type_name()),
+            )]);
+        }
+    };
+    let parsed_stroke = args
+        .named
+        .get("stroke")
+        .map(|value| parse_shape_stroke(value, "polygon"))
+        .transpose()?;
 
     // P732 — fallback determinístico (paridade vanilla `Smart::Auto`,
     // lab/typst-original/crates/typst-layout/src/shapes.rs:336-339),
@@ -692,13 +706,14 @@ pub fn native_polygon(
     let height =
         if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
-    Ok(Value::Content(Content::shape(
-        ShapeKind::Path(path_items),
+    Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
+        kind: ShapeKind::Path(path_items),
         width,
         height,
         fill,
         stroke,
-    )))
+        fill_rule,
+    }))))
 }
 
 // ── Passo 293-294 — `curve(...)` constructor stdlib ─────────────────────
@@ -726,6 +741,39 @@ pub fn native_polygon(
 /// vanilla para coordenadas puramente absolutas; `em` é scope-out deste
 /// passo (pode ser adicionado quando `CurveElem` passar a transportar
 /// font-size ou quando `native_curve` for convertido para layout-time).
+fn close_path(path_items: &mut Vec<PathItem>, last_point: &mut Point, mode: CloseMode) {
+    let Some(move_index) = path_items
+        .iter()
+        .rposition(|item| matches!(item, PathItem::MoveTo(_)))
+    else {
+        return;
+    };
+    let PathItem::MoveTo(start) = path_items[move_index] else { unreachable!() };
+    let segments = &path_items[move_index + 1..];
+    if segments.is_empty() {
+        return;
+    }
+    if mode == CloseMode::Smooth {
+        let start_control = match segments.first() {
+            Some(PathItem::CubicTo(c1, _, _)) => Point {
+                x: Pt(2.0 * start.x.0 - c1.x.0),
+                y: Pt(2.0 * start.y.0 - c1.y.0),
+            },
+            _ => start,
+        };
+        let last_control = match segments.last() {
+            Some(PathItem::CubicTo(_, c2, end)) => Point {
+                x: Pt(2.0 * end.x.0 - c2.x.0),
+                y: Pt(2.0 * end.y.0 - c2.y.0),
+            },
+            _ => *last_point,
+        };
+        path_items.push(PathItem::CubicTo(last_control, start_control, start));
+    }
+    path_items.push(PathItem::ClosePath);
+    *last_point = start;
+}
+
 fn curve_segments_to_path_items(
     segments: &[CurveSegment],
     last_point: &mut Point,
@@ -771,8 +819,8 @@ fn curve_segments_to_path_items(
                 ));
                 *last_point = target;
             }
-            CurveSegment::Close => {
-                path_items.push(PathItem::ClosePath);
+            CurveSegment::Close(mode) => {
+                close_path(path_items, last_point, *mode);
             }
         }
     }
@@ -813,7 +861,11 @@ pub fn native_curve(
         // → `expected content, found {type}` (vanilla medido:
         // `#curve((0pt, 0pt))` → "expected content, found array").
         let arr = match val {
-            Value::Array(a) if !a.is_empty() && matches!(a[0], Value::Str(_)) => a,
+            Value::Array(a)
+                if matches!((a.is_empty(), a.first()), (false, Some(Value::Str(_)))) =>
+            {
+                a
+            }
             _ => {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
@@ -896,8 +948,9 @@ pub fn native_curve(
                 last_point = end;
             }
             "close" => {
-                path_items.push(PathItem::ClosePath);
-                // `close` não move last_point (paridade vanilla).
+                // O tuple legado P293 representa apenas `ClosePath`; o
+                // default Smooth de P1226 pertence a `curve.close()`.
+                close_path(&mut path_items, &mut last_point, CloseMode::Straight);
             }
             // P294 H1' (descoberta empírica A.0.0 N=2): paridade vanilla
             // — converte quadratic→cubic em construct-time, sem variant
@@ -953,13 +1006,22 @@ pub fn native_curve(
     }
 
     let fill = args.named.get("fill").and_then(parse_paint);
-    let parsed_stroke: Option<Stroke> =
-        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
-            paint: Paint::Solid(c),
-            thickness: 1.0,
-            overhang: false,
-            ..Stroke::default()
-        });
+    let fill_rule = match args.named.get("fill-rule") {
+        None => FillRule::NonZero,
+        Some(Value::Str(value)) if value.as_str() == "non-zero" => FillRule::NonZero,
+        Some(Value::Str(value)) if value.as_str() == "even-odd" => FillRule::EvenOdd,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("curve(fill-rule): valor inesperado {}", other.type_name()),
+            )]);
+        }
+    };
+    let parsed_stroke = args
+        .named
+        .get("stroke")
+        .map(|value| parse_shape_stroke(value, "curve"))
+        .transpose()?;
 
     // P727 — fallback determinístico (paridade vanilla `Smart::Auto`,
     // lab/typst-original/crates/typst-layout/src/shapes.rs:126-129):
@@ -984,13 +1046,14 @@ pub fn native_curve(
     let height =
         if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
-    Ok(Value::Content(Content::shape(
-        ShapeKind::Path(path_items),
+    Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
+        kind: ShapeKind::Path(path_items),
         width,
         height,
         fill,
         stroke,
-    )))
+        fill_rule,
+    }))))
 }
 
 /// `curve.move(point)` → `Content::Curve` com segmento `Move`.
@@ -1077,7 +1140,18 @@ pub fn native_curve_close(
             "curve.close() não aceita argumentos".to_string(),
         )]);
     }
-    Ok(Value::Content(Content::curve_close()))
+    let mode = match args.named.get("mode") {
+        None => CloseMode::Smooth,
+        Some(Value::Str(value)) if value.as_str() == "smooth" => CloseMode::Smooth,
+        Some(Value::Str(value)) if value.as_str() == "straight" => CloseMode::Straight,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("curve.close(mode): valor inesperado {}", other.type_name()),
+            )]);
+        }
+    };
+    Ok(Value::Content(Content::curve_close(mode)))
 }
 
 #[cfg(test)]

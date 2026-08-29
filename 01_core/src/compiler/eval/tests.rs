@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 54796a0d
+//! @prompt-hash feddd109
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -11429,6 +11429,22 @@ mod tests {
         assert!(matches!(eval_let(&world, "y"), Some(Value::Stroke(_))));
     }
 
+    #[test]
+    fn p1229_length_plus_gradient_cria_stroke_rico() {
+        let world = MockWorld::new(
+            "#let g = gradient.linear(red, blue)\n\
+             #let x = 4pt + g\n\
+             #let y = g + 4pt",
+        );
+        for name in ["x", "y"] {
+            let Value::Stroke(stroke) = eval_let(&world, name).expect("binding") else {
+                panic!("{name} deve ser stroke");
+            };
+            assert!((stroke.thickness - 4.0).abs() < 1e-6);
+            assert!(matches!(stroke.paint, crate::entities::paint::Paint::Gradient(_)));
+        }
+    }
+
     // ── P497 — validação formal dos gaps D4/D5 (já implementados em P492) ───
 
     #[test]
@@ -14708,7 +14724,7 @@ mod tests {
              #let c = red.rotate(90deg, space: oklch).to-hex()",
         )
         .unwrap();
-        assert_eq!(m.scope().get("a"), Some(&Value::Str("#805a88".into())));
+        assert_eq!(m.scope().get("a"), Some(&Value::Str("#805b87".into())));
         assert_eq!(m.scope().get("b"), Some(&Value::Str("#004b74".into())));
         assert_eq!(m.scope().get("c"), Some(&Value::Str("#87a100".into())));
     }
@@ -16800,6 +16816,42 @@ mod tests {
             panic!("repeat radial")
         };
         assert!(repeated.anti_alias);
+    }
+
+    #[test]
+    fn p1252_luma_e_tres_gradients_preservam_alpha_publicamente() {
+        let m = p729_eval(
+            "#let source = rgb(100%, 25.49%, 21.18%, 40%)\n\
+             #let direct = luma(54.02%, alpha: 40%)\n\
+             #let converted = luma(source)\n\
+             #let l = gradient.linear(source, blue, space: luma)\n\
+             #let r = gradient.radial(source, blue, space: luma)\n\
+             #let c = gradient.conic(source, blue, space: luma)\n\
+             #let alpha = (direct.components().at(1), converted.components().at(1), l.stops().at(0).at(0).components().at(1), r.stops().at(0).at(0).components().at(1), c.stops().at(0).at(0).components().at(1))",
+        )
+        .unwrap();
+        let Some(Value::Array(alpha)) = m.scope().get("alpha") else {
+            panic!("alpha deve ser array");
+        };
+        assert_eq!(alpha.len(), 5);
+        for value in alpha {
+            let Value::Ratio(value) = value else { panic!("alpha deve ser ratio") };
+            assert!((value.0 - 0.4).abs() < 1e-6, "alpha divergente: {}", value.0);
+        }
+    }
+
+    #[test]
+    fn p1239_linear_e_radial_luma_expoem_luminancia_vanilla() {
+        let m = p729_eval(
+            "#let source = red.transparentize(60%)\n\
+             #let direct = repr(luma(source).components().at(0))\n\
+             #let linear = repr(gradient.linear(source, blue, space: luma).stops().at(0).at(0).components().at(0))\n\
+             #let radial = repr(gradient.radial(source, blue, space: luma).stops().at(0).at(0).components().at(0))",
+        )
+        .unwrap();
+        for name in ["direct", "linear", "radial"] {
+            assert_eq!(m.scope().get(name), Some(&Value::Str("54.02%".into())), "{name}");
+        }
     }
 
     #[test]

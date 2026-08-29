@@ -140,6 +140,7 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             height,
             fill,
             stroke,
+            fill_rule,
             parent_bbox_at_emit,
         } => FrameItem::Shape {
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
@@ -148,6 +149,7 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             height,
             fill,
             stroke,
+            fill_rule,
             parent_bbox_at_emit,
         },
         FrameItem::Group {
@@ -203,6 +205,7 @@ mod tests {
             height: h,
             fill: None,
             stroke: None,
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }
     }

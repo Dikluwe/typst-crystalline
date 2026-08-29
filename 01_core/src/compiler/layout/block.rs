@@ -326,11 +326,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 kind: shape_kind,
                 width: outer_w,
                 height: outer_h,
-                fill: *fill,
+                fill: fill.map(crate::entities::paint::Paint::Solid),
                 stroke: stroke.clone(),
                 // P273.6 — Block's own shape; gradient relative=parent
                 // resolve para contentor outer (saved_parent_bbox foi
                 // restaurado em parent_bbox antes desta emissão).
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: layouter.parent_bbox,
             },
         );

@@ -2616,6 +2616,11 @@ fn escape_pdf_uri(uri: &str) -> String {
     escape_pdf_literal(uri)
 }
 
+/// ISO 32000-1 §7.3.4.2: bytes de controlo requerem escape octal.
+fn is_pdf_literal_control(byte: u8) -> bool {
+    byte.is_ascii_control()
+}
+
 /// **P536** — escapa uma string literal PDF (operando `(...)`).
 fn escape_pdf_literal(s: &str) -> String {
     let mut out = String::with_capacity(s.len() + 2);
@@ -2625,7 +2630,9 @@ fn escape_pdf_literal(s: &str) -> String {
             b'(' => out.push_str("\\("),
             b')' => out.push_str("\\)"),
             b'\\' => out.push_str("\\\\"),
-            0x00..=0x1f | 0x7f => out.push_str(&format!("\\{:03o}", b)),
+            byte if is_pdf_literal_control(byte) => {
+                out.push_str(&format!("\\{:03o}", byte));
+            }
             _ => out.push(b as char),
         }
     }
@@ -2686,4 +2693,20 @@ fn collect_links(items: &[FrameItem], out: &mut Vec<(LinkTarget, Point, Size)>) 
     }
     let mut collector = LinkCollector(out);
     walk_frame_items(&mut collector, items);
+}
+
+#[cfg(test)]
+mod boundary_tests {
+    use super::{escape_pdf_literal, is_pdf_literal_control};
+
+    #[test]
+    fn p1250a_pdf_literal_control_preserva_fronteiras_normativas() {
+        assert!(is_pdf_literal_control(0x00));
+        assert!(is_pdf_literal_control(0x1f));
+        assert!(!is_pdf_literal_control(0x20));
+        assert!(!is_pdf_literal_control(0x7e));
+        assert!(is_pdf_literal_control(0x7f));
+        assert!(!is_pdf_literal_control(0x80));
+        assert_eq!(escape_pdf_literal("\u{1f} \u{7f}"), "(\\037 \\177)");
+    }
 }

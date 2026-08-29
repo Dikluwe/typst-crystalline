@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/gradients` — tipo `gradient`
-Hash do Código: bfa9e9b7
+Hash do Código: 782640d3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/gradients.rs`
@@ -42,6 +42,13 @@ O named argument `space` aceita `"oklab"`, `"oklch"`, `"srgb"`, `"luma"`,
 `"linear-rgb"`, `"hsl"`, `"hsv"`, `"cmyk"`. Default `"oklab"` (paridade vanilla).
 A interpolação usa o dispatcher `interpolate_in_space` definido em
 `entities/gradient.rs`.
+
+**P1252 — normalização Luma com alpha preservado.** Os constructors Linear,
+Radial e Conic convertem cada stop para o mixing space por `Color::to_space`.
+Quando `space: luma`, a normalização deve preservar o alpha da origem nos três
+variants. O vanilla ratificado perde esse alpha para stops não-Luma; o
+cristalino classifica a preservação como `Known-Upstream-Bug`. Esta escolha não
+fecha o delta de luminância e não autoriza promoção SVG.
 
 ### `relative`
 
@@ -213,6 +220,9 @@ ratio ou angle; `samples` recebe zero ou mais ratios/angles posicionais.
   Linear/Conic → `none`.
 - `sample(t)` converte ratio diretamente e angle para fração de volta
   (`radianos / 2π`), delega no sampling da variante e preserva clamp `[0, 1]`.
+- **P1253:** no Linear, essa delegação preserva o `f64` público até o cálculo
+  do peso local; conversão antecipada para `f32` é proibida porque altera os
+  componentes observáveis nos pontos exatos da malha.
 - `samples(..ts)` aplica `sample` a cada posição, preservando ordem; zero
   posições devolve array vazio.
 

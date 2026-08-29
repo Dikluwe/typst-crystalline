@@ -1349,6 +1349,7 @@ fn draw_item_top(
             fill,
             stroke,
             parent_bbox_at_emit,
+            ..
         } => {
             // Inverter eixo Y: layout tem Y crescente para baixo; PDF crescente para cima.
             let pdf_y = page_height - pos.y.val() - height;
@@ -1357,7 +1358,7 @@ fn draw_item_top(
 
             // Cor de preenchimento (rg — RGB para fills).
             if let Some(c) = fill {
-                let (r, g, b, _) = c.to_rgba_f32();
+                let (r, g, b, _) = c.to_color().to_rgba_f32();
                 ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
             }
 
@@ -1755,11 +1756,12 @@ pub(super) fn draw_item_local(
             fill,
             stroke,
             parent_bbox_at_emit,
+            ..
         } => {
             let local_y = pos.y.0;
             ops.push_str("q\n");
             if let Some(c) = fill {
-                let (r, g, b, _) = c.to_rgba_f32();
+                let (r, g, b, _) = c.to_color().to_rgba_f32();
                 ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
             }
             if let Some(s) = stroke {

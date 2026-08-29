@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/curve.md
-//! @prompt-hash 4f9ae279
+//! @prompt-hash f79c649c
 //! @layer L1
 //! @updated 2026-06-30
 //!
@@ -25,7 +25,14 @@ pub enum CurveSegment {
     /// Curva quadrática de Bézier (control, end).
     Quad(CurvePoint, CurvePoint),
     /// Fechar o path.
-    Close,
+    Close(CloseMode),
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub enum CloseMode {
+    #[default]
+    Smooth,
+    Straight,
 }
 
 /// Ponto 2D com coordenadas em `Length`.

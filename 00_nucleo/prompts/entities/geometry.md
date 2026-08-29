@@ -1,5 +1,5 @@
 # Prompt L0 — geometry
-Hash do Código: 723ac493
+Hash do Código: 9475ace5
 
 ## Módulo
 `01_core/src/entities/geometry.rs`
@@ -429,3 +429,11 @@ não de mecânica Rust (ADR-0107).
 `stroke` torna-se `Value::Type(Type::Stroke)` chamável. O valor construído
 continua `Value::Stroke(Stroke)` com a mesma estrutura geométrica; nenhum campo
 da entidade, igualdade ou comportamento de render é alterado.
+# P1226 — regras de preenchimento de paths
+
+Medição pública anterior à decisão: uma `curve` com `fill-rule: "even-odd"`
+compila no vanilla ratificado e o SVG conserva `fill-rule="evenodd"`; o
+cristalino aceita a chamada, mas emite `nonzero`. A geometria deve possuir o
+enum público fechado `FillRule { NonZero, EvenOdd }`, com `NonZero` por
+defeito. O valor é semântico: determina a região preenchida em paths com
+subpaths sobrepostos. Não inferir a regra a partir de winding ou do SVG.

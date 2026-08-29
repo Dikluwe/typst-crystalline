@@ -189,8 +189,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 kind: shape_kind,
                 width: width.0 + 2.0 * extent_pt,
                 height: line_height.0,
-                fill: Some(fill),
+                fill: Some(crate::entities::paint::Paint::Solid(fill)),
                 stroke: None,
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             });
         }
@@ -1083,6 +1084,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     height,
                     fill,
                     stroke,
+                    fill_rule,
                     parent_bbox_at_emit,
                 } => FrameItem::Shape {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
@@ -1091,6 +1093,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     height,
                     fill,
                     stroke,
+                    fill_rule,
                     parent_bbox_at_emit,
                 },
                 FrameItem::Group {
@@ -1256,8 +1259,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     kind: ShapeKind::Rect,
                     width: tail.width,
                     height: tail_h,
-                    fill: Some(c),
+                    fill: Some(crate::entities::paint::Paint::Solid(c)),
                     stroke: None,
+                    fill_rule: Default::default(),
                     parent_bbox_at_emit: None,
                 });
             }
@@ -1306,6 +1310,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     height: tail_h,
                     fill: None,
                     stroke: Some(s),
+                    fill_rule: Default::default(),
                     parent_bbox_at_emit: None,
                 });
             }

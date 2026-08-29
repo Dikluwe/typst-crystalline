@@ -29,7 +29,9 @@ mod linear;
 mod radial;
 mod relative;
 
-pub(super) use self::adaptive::{adaptive_n_for_stops, perceptual_distance_in_space};
+pub(super) use self::adaptive::{
+    adaptive_n_for_stops, perceptual_distance_in_space, svg_adaptive_stops,
+};
 pub(super) use self::cmyk::{
     multispace_sample_stops_linear_cmyk, multispace_sample_stops_radial_cmyk, rgb_to_cmyk,
 };

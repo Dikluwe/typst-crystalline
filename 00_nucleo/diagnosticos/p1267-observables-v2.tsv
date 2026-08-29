@@ -1,0 +1,23 @@
+observable	origin	level	mandatory_v2	reason	failure_witness
+original-stop-effective-offset	user declaration plus language offset resolution	morphology	yes	Changes placement of a declared color/discontinuity.	One original stop resolves at a language-distinct position.
+original-stop-order	user declaration	morphology	yes	Order determines gradient progression and coincident-stop side.	Sort or reorder changes the sampled side or progression.
+original-stop-coincidence	user declaration	morphology	yes	Coincidence represents discontinuity structure.	Dedup or separation changes right-continuity.
+right-continuity-at-original-stop	language sampling	semantics	yes	Determines the color immediately to the right of a discontinuity.	Epsilon-right sample selects the wrong declared color.
+original-stop-color	user declaration	morphology	yes	Declared color is content of the gradient.	Original-stop color changes.
+original-stop-alpha	user declaration	morphology	yes	Declared transparency affects painted content.	Original-stop alpha changes.
+adaptive-monotone-order	exporter approximation	morphology-by-effect	yes	Reordering can fold or reverse reconstructed curve support.	Adaptive sequence is nonmonotone inside an original interval.
+adaptive-source-interval	exporter approximation	morphology-by-effect	yes	An introduced sample may not cross an original boundary or discontinuity.	Adaptive sample lies outside the interval that generated it.
+adaptive-curve-support	exporter approximation	semantics	yes	Introduced samples must approximate the intended gradient curve.	Reconstruction departs from sealed curve support.
+chromatic-envelope	rendered language effect	semantics	yes	Bounds visible color divergence independent of carrier.	G05 color max or p95 exceeds its sealed limit.
+alpha-envelope	rendered language effect	semantics	yes	Bounds visible transparency divergence independently.	G05 alpha max or p95 exceeds its sealed limit.
+adaptive-f32-versus-f64	internal carrier	mechanics	no	Data representation is free if mandatory language observables hold.	Becomes relevant only through an offset,continuity,support or envelope violation.
+adaptive-stop-count	algorithm output	mechanics	no	Literal count is not language parity;it is observed separately for bounded cost.	Becomes a cost violation only if G10 bounds are exceeded.
+adaptive-offset-spelling	SVG serialization	mechanics	no	Decimal versus percent spelling is free when reparsed language effects match.	Becomes relevant only if reparsing changes a mandatory observable.
+adaptive-offset-literal-equality	algorithm output	mechanics	no	Exact equality to vanilla sampling positions is not required by itself.	Becomes relevant only if movement crosses support boundaries or breaches an envelope.
+svg-id-spelling	serialization	mechanics	no	Local identifier orthography is not language content.	Relevant only when reference resolution or graph ownership fails.
+byte-equality	serialization	mechanics	no	ADR-0107 excludes bytes as the parity target.	Relevant only where bytes encode a separately named observable.
+per-interval-depth-and-work	resource safety	operational observable	yes	Mechanics is itself observable here because bounded termination is the contract.	One interval exceeds depth,segments,introduced-stop or decision bound.
+aggregate-emitted-bound	resource safety	operational observable	yes	Derived finite bound proves no hidden global expansion.	For n original stops and p increasing intervals, emitted count exceeds n+63p.
+degenerate-stroke-painted-support	rendered language effect	morphology	yes	Stroke width can create positive area around a zero-width centerline.	S20 support is erased or differs from the sealed stroke envelope.
+zero-area-fill-painted-support	rendered language effect	morphology	yes	A fill over zero geometric area must not create positive paint.	S21 emits positive-area paint.
+graph-closure	SVG paint graph	semantics	yes	A dangling server cannot render the intended paint.	Unresolved URL or ambiguous node ownership.

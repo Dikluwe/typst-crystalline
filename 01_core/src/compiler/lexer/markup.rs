@@ -375,7 +375,11 @@ impl Lexer<'_> {
                 Some('/') if !s.at(['/', '*']) => {}
                 Some('-') if !s.at(['-', '?']) => {}
                 Some('.') if !s.at("..") => {}
-                Some('h') if !s.at("ttp://") && !s.at("ttps://") => {}
+                Some('h')
+                    if !matches!(
+                        (s.at("ttp://"), s.at("ttps://")),
+                        (true, _) | (_, true)
+                    ) => {}
                 Some('@') if !s.at(is_valid_in_label_literal) => {}
                 _ => break,
             }

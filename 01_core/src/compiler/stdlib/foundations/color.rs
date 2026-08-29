@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/color.md
-//! @prompt-hash e284f2c8
+//! @prompt-hash 323f9005
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -10,7 +10,7 @@
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
-use crate::entities::layout_types::{Color, Length};
+use crate::entities::layout_types::{Color, ColorSpace, Length};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -84,7 +84,12 @@ fn as_u8(v: &Value) -> SourceResult<u8> {
             Span::detached(),
             "number must be between 0 and 255".to_string(),
         )]),
-        Value::Relative(r) if r.abs.is_zero() && (0.0..=1.0).contains(&r.rel) => {
+        Value::Relative(r)
+            if matches!(
+                (r.abs.is_zero(), (0.0..=1.0).contains(&r.rel)),
+                (true, true)
+            ) =>
+        {
             Ok((r.rel * 255.0).round() as u8)
         }
         Value::Relative(r) if r.abs.is_zero() => Err(vec![SourceDiagnostic::error(
@@ -107,7 +112,7 @@ fn as_u8(v: &Value) -> SourceResult<u8> {
     }
 }
 
-/// `luma(l)` → Color::Luma (paridade vanilla D65Gray pós-P257).
+/// `luma()`, `luma(l, alpha: alpha)` ou `luma(color)` → Color::Luma.
 ///
 /// **P257 (ADR-0083 PROPOSTO)** — refactor: constrói `Color::Luma`
 /// dedicado (em vez de `Color::Srgb` cinzento). Aceita Int [0, 255]
@@ -121,22 +126,43 @@ fn as_u8(v: &Value) -> SourceResult<u8> {
 /// ausência do argumento devolve **branco**, não erro — replica
 /// `args.expect(...).unwrap_or(Component(Ratio::one()))` do vanilla,
 /// medido directamente (`luma("bad")`, `luma(300)`, `luma(150%)`,
-/// `luma()` → todos `luma(100%)` no vanilla). ADR-0107: comportamento
+/// `luma()` → todos `luma(100%)` no vanilla). P1252 completa a forma
+/// `luma(l, alpha: alpha)` e a conversão `luma(color)`; nesta última, o cristalino
+/// preserva alpha como correção `Known-Upstream-Bug`.
+/// ADR-0107: comportamento
 /// observável da língua, não mecânica — paridade exige replicar, não
-/// substituir por erro. 2+ argumentos continua a ser erro estrutural
-/// (`alpha` não suportado — `Color::Luma` do cristalino não tem esse campo).
+/// substituir por erro.
 pub fn native_luma(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
+    let alpha = match args.named.get("alpha") {
+        Some(value) => Some(component_to_ratio(value).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                "luma(lightness, alpha: alpha): alpha inválido",
+            )]
+        })?),
+        None => None,
+    };
+    for key in args.named.keys() {
+        if key.as_str() != "alpha" {
+            return err(format!("luma(): argumento nomeado inesperado '{}'", key));
+        }
+    }
     match args.items.as_slice() {
-        [] => Ok(Value::Color(Color::luma(1.0))),
-        [v] => Ok(Value::Color(Color::luma(component_to_ratio(v).unwrap_or(1.0)))),
+        [] if alpha.is_none() => Ok(Value::Color(Color::luma(1.0))),
+        [Value::Color(color)] if alpha.is_none() => {
+            Ok(Value::Color((*color).to_space(ColorSpace::Luma)))
+        }
+        [v] => Ok(Value::Color(Color::Luma {
+            l: component_to_ratio(v).unwrap_or(1.0),
+            a: alpha.unwrap_or(1.0),
+        })),
         _ => err(format!(
-            "luma() requer 0 ou 1 argumento, recebeu {} args",
+            "luma() requer 0 ou 1 argumento posicional, recebeu {} args",
             args.items.len()
         )),
     }
@@ -153,7 +179,10 @@ fn component_to_ratio(v: &Value) -> Option<f32> {
         // Só conta como componente de cor se não tiver parte absoluta
         // (`50% + 1pt` não é um componente válido, cai no fallback).
         Value::Relative(rel)
-            if rel.abs == Length::ZERO && (0.0..=1.0).contains(&rel.rel) =>
+            if matches!(
+                (rel.abs == Length::ZERO, (0.0..=1.0).contains(&rel.rel)),
+                (true, true)
+            ) =>
         {
             Some(rel.rel as f32)
         }
@@ -547,6 +576,29 @@ mod tests_p705_luma_ratio {
     }
 
     #[test]
+    fn p1252_luma_lightness_alpha_preserva_alpha_publico() {
+        let mut args = Args::positional(vec![Value::Ratio(Ratio(0.5))]);
+        args.named.insert("alpha".into(), Value::Ratio(Ratio(0.4)));
+        assert_eq!(
+            native_luma(&mut ctx(), &args, &NullWorld::default(), tfid()).unwrap(),
+            Value::Color(Color::Luma { l: 0.5, a: 0.4 })
+        );
+    }
+
+    #[test]
+    fn p1252_luma_color_preserva_alpha_known_upstream_bug() {
+        let source = Color::srgb_f32(1.0, 0.254902, 0.211765, 0.4);
+        let Value::Color(Color::Luma { l, a }) = luma(vec![Value::Color(source)]) else {
+            panic!("luma(color) deve produzir Color::Luma");
+        };
+        assert_eq!(a.to_bits(), 0.4_f32.to_bits());
+        assert!(
+            (l - 0.5402).abs() < 0.00005,
+            "P1239 fecha luminância separadamente: {l}"
+        );
+    }
+
+    #[test]
     fn ratio_valido_mapeia_diretamente() {
         assert_eq!(luma(vec![Value::Ratio(Ratio(0.5))]), Value::Color(Color::luma(0.5)));
         assert_eq!(luma(vec![Value::Ratio(Ratio(0.0))]), Value::Color(Color::luma(0.0)));
@@ -616,7 +668,7 @@ mod tests_p705_luma_ratio {
         )
         .unwrap_err();
         assert!(
-            e[0].message.contains("requer 0 ou 1 argumento"),
+            e[0].message.contains("requer 0 ou 1 argumento posicional"),
             "msg: {}",
             e[0].message
         );

@@ -34,6 +34,8 @@ package-lock.json
 /result
 .direnv/
 lab/krilla-reference/
+lab/parity/
+/parity/
 
 # Temporary files and outputs
 # Passos de sonda criam scratch dirs por número (temp_p581, temp_p763h, ...) —

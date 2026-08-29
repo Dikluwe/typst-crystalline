@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: 99c91d52
+Hash do Código: fd6dffa5
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -240,6 +240,39 @@ impl Color {
     pub fn components(self, include_alpha: bool) -> Vec<ColorComponent>;
 ```
 
+**P1252 — alpha em conversão para Luma.** `to_space(ColorSpace::Luma)`
+preserva o alpha da cor de origem. O vanilla ratificado `a51e02804` perde-o
+quando a origem não é Luma porque usa `Luma::from_color`, mas devolve o próprio
+valor no caso já-Luma. A preservação cristalina é `Known-Upstream-Bug`,
+protegida normativamente e não usada para perdoar o delta separado de
+luminância nem para promover qualquer par SVG.
+
+**P1239 — coeficientes Luma do `palette 0.7.6`.** A conversão sRGB → Luma
+lineariza os canais pela curva sRGB, aplica exatamente a linha Y da matriz
+sRGB usada pelo baseline (`0.2126729`, `0.7151522`, `0.0721750`) e recodifica
+pela curva sRGB. Os coeficientes abreviados `0.2126/0.7152/0.0722` são
+proibidos porque mudam o observável público de vermelho de `54.02%` para
+`54.01%`. Esta correção de fórmula é independente da decisão de alpha P1252.
+
+**P1253 — precisão da matriz sRGB linear → Oklab.** A conversão usada por
+`to_space(Oklab)`, `mix` e `to_oklch` replica as constantes `f32` completas de
+`palette 0.7.6/src/oklab.rs::linear_srgb_to_oklab`: primeira matriz
+`0.4122214708/0.5363325363/0.0514459929`,
+`0.2119034982/0.6806995451/0.1073969566`,
+`0.0883024619/0.2817188376/0.6299787005`; segunda matriz
+`0.2104542553/0.7936177850/-0.0040720468`,
+`1.9779984951/-2.4285922050/0.4505937099` e
+`0.0259040371/0.7827717662/-0.8086757660`. Versões decimais truncadas são
+proibidas porque alteram os componentes públicos e a subdivisão SVG. A curva
+sRGB adjacente replica a ordem numérica do `palette`: decode usa
+`c.mul_add(1/1.055, 0.055/1.055).powf(2.4)` e encode usa
+`powf(1/2.4).mul_add(1.055, -0.055)`; decompor essas operações introduz ULPs
+observáveis e também é proibido. A raiz cúbica deve ser bit-compatível com
+`libm::cbrtf`, usado pela configuração `no_std` de `palette 0.7.6`; a raiz
+intrínseca de `std` não é substituto numericamente equivalente.
+`libm 0.2.11` é dependência pura autorizada em L1 somente para `powf`, `fmaf`
+e `cbrtf`, sem expor tipos externos em contratos.
+
 > **Fonte da afirmação sobre CMYK (P1031)** — o scope-out ADR-0083 estava correcto e agora
 > tem `file:line`. O vanilla **usa mesmo um perfil ICC**, não uma fórmula:
 > `crates/typst-library/src/visualize/color.rs:30-38`, citação literal:
@@ -313,7 +346,11 @@ alpha; as restantes omitem o alpha quando `include_alpha == false`):
   - `Color::rgb(255, 65, 54).negate(Some(ColorSpace::Oklab)).to_hex()` → `"#004b74"`.
   - `Color::rgb(255, 65, 54).rotate(90.0, Some(ColorSpace::Oklch)).to_hex()` → `"#87a100"`.
   - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Oklab)).to_hex()` → `"#a37095"`.
-  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Srgb)).to_hex()` → `"#805a88"` (paridade exata vanilla confirmada no P1076).
+  - As cores construídas por canais inteiros
+    `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5,
+    Some(ColorSpace::Srgb)).to_hex()` → `"#805a88"`.
+  - As constantes públicas nomeadas P1253 preservam os literais `f32` do
+    vanilla: `red.mix(blue, space: rgb).to-hex()` → `"#805b87"`.
   - `Color::rgba(255, 65, 54, 128).transparentize(0.5).to_hex()` → `"#ff413640"`.
   - `Color::rgba(255, 65, 54, 128).opacify(0.5).to_hex()` → `"#ff4136c0"`.
   - `Color::rgb(255, 65, 54).to_hex()` → `"#ff4136"`.
@@ -364,6 +401,14 @@ alpha; as restantes omitem o alpha quando `include_alpha == false`):
 > de peso da linguagem `c.mix((d, 50%), space: rgb)` — erro
 > `color.mix: argumento 'col2' deve ser Color, recebeu array`, enquanto o vanilla devolve
 > `#aa526c`. Registada no relatório do P1031.
+
+> **Retificação P1250B após P1253.** Medição direta em 2026-08-28 com o
+> vanilla ratificado `/usr/local/bin/typst` (build pinado `a51e02804`) e as
+> constantes públicas nomeadas produziu: `red.mix(blue, space: rgb)` →
+> `#805b87`, `red.negate(space: oklab)` → `#004b74` e
+> `red.rotate(90deg, space: oklch)` → `#87a100`. A medição histórica acima
+> usa constructors por canais inteiros e permanece válida para esses inputs;
+> ela não é oracle para os literais nomeados de precisão ratificada em P1253.
 
 ## Constantes de cor nomeadas em `parse_color` (P477)
 

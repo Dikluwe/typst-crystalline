@@ -2173,16 +2173,14 @@ mod integration {
         // Os items da linha 0 incluem o FrameItem::Group (move + rect) e texto
         // da célula (0,1). A linha 1 (onde estão os rects 100 e 80) deve estar
         // visualmente abaixo.
+        let is_second_row_height =
+            |height: f64| (height - 50.0).abs() < 0.1 || (height - 30.0).abs() < 0.1;
         let first_row_y_max: f64 = items
             .iter()
             .filter_map(|it| match it {
                 // Excluir shapes da linha 1 (100×50 e 80×30) — procuramos só
                 // items da linha 0.
-                FrameItem::Shape { height, .. }
-                    if (*height - 50.0).abs() < 0.1 || (*height - 30.0).abs() < 0.1 =>
-                {
-                    None
-                }
+                FrameItem::Shape { height, .. } if is_second_row_height(*height) => None,
                 other => Some(frame_item_pos(other).y.0),
             })
             .fold(f64::NEG_INFINITY, f64::max);
@@ -5075,7 +5073,7 @@ mod integration {
                     glyph_id,
                     x_advance,
                     ..
-                } if *base_char == '[' || *base_char == ']' => {
+                } if matches!(*base_char, '[' | ']') => {
                     Some((*base_char, *glyph_id, x_advance.0))
                 }
                 _ => None,

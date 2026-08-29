@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient.md
-//! @prompt-hash 151ff283
+//! @prompt-hash ba93b3c1
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -185,6 +185,80 @@ impl Linear {
             self.stops[n - 1].color
         }
     }
+
+    pub(crate) fn sample_precise(&self, t: f64) -> Color {
+        let t = t.clamp(0.0, 1.0);
+        let n = self.stops.len();
+        if n == 0 {
+            return Color::rgb(0, 0, 0);
+        }
+        if n == 1 {
+            return self.stops[0].color;
+        }
+        let mut offsets: Vec<Option<f64>> = self
+            .stops
+            .iter()
+            .map(|stop| stop.offset.map(|ratio| ratio.0))
+            .collect();
+        if offsets[0].is_none() {
+            offsets[0] = Some(0.0);
+        }
+        if offsets[n - 1].is_none() {
+            offsets[n - 1] = Some(1.0);
+        }
+        let mut resolved = vec![0.0; n];
+        let mut i = 0;
+        while i < n {
+            if let Some(value) = offsets[i] {
+                resolved[i] = value;
+                i += 1;
+                continue;
+            }
+            let mut j = i;
+            while j < n && offsets[j].is_none() {
+                j += 1;
+            }
+            let previous = resolved[i - 1];
+            let next = offsets[j].unwrap();
+            let gap = j - i + 1;
+            for k in 0..gap {
+                resolved[i + k] =
+                    previous + (next - previous) * (k + 1) as f64 / gap as f64;
+            }
+            i = j;
+        }
+        for i in 0..(n - 1) {
+            let (o0, o1) = (resolved[i], resolved[i + 1]);
+            if t >= o0 && t <= o1 {
+                let local = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
+                if self.space == ColorSpace::Oklab {
+                    let (l0, a0, b0, alpha0) =
+                        color_to_oklab_with_alpha(self.stops[i].color);
+                    let (l1, a1, b1, alpha1) =
+                        color_to_oklab_with_alpha(self.stops[i + 1].color);
+                    let (w0, w1) = ((1.0 - local) as f32, local as f32);
+                    let total = w0 + w1;
+                    return Color::oklab(
+                        (w0 * l0 + w1 * l1) / total,
+                        (w0 * a0 + w1 * a1) / total,
+                        (w0 * b0 + w1 * b1) / total,
+                        (w0 * alpha0 + w1 * alpha1) / total,
+                    );
+                }
+                return interpolate_in_space(
+                    self.stops[i].color,
+                    self.stops[i + 1].color,
+                    local as f32,
+                    self.space,
+                );
+            }
+        }
+        if t <= resolved[0] {
+            self.stops[0].color
+        } else {
+            self.stops[n - 1].color
+        }
+    }
 }
 
 /// Interpolação linear em Oklab.
@@ -196,11 +270,14 @@ fn interpolate_oklab(c0: Color, c1: Color, t: f32) -> Color {
     let t = t.clamp(0.0, 1.0);
     let (l0, a0, b0, alpha0) = color_to_oklab_with_alpha(c0);
     let (l1, a1, b1, alpha1) = color_to_oklab_with_alpha(c1);
+    let w0 = (1.0_f64 - t as f64) as f32;
+    let w1 = t;
+    let total = w0 + w1;
     Color::oklab(
-        l0 + (l1 - l0) * t,
-        a0 + (a1 - a0) * t,
-        b0 + (b1 - b0) * t,
-        alpha0 + (alpha1 - alpha0) * t,
+        (w0 * l0 + w1 * l1) / total,
+        (w0 * a0 + w1 * a1) / total,
+        (w0 * b0 + w1 * b1) / total,
+        (w0 * alpha0 + w1 * alpha1) / total,
     )
 }
 
@@ -237,23 +314,31 @@ fn srgb_to_linear(c: f32) -> f32 {
     if c <= 0.04045 {
         c / 12.92
     } else {
-        ((c + 0.055) / 1.055).powf(2.4)
+        libm::powf(
+            libm::fmaf(c, (1.0_f64 / 1.055) as f32, (0.055_f64 / 1.055) as f32),
+            2.4,
+        )
     }
+}
+
+/// Cube root bit-compatible with the `libm::cbrtf` used by palette 0.7.6.
+fn palette_cbrtf_p1253(x: f32) -> f32 {
+    libm::cbrtf(x)
 }
 
 /// linear sRGB → Oklab (paridade ICC; constantes da publicação Björn Ottosson 2020).
 fn linear_rgb_to_oklab(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
-    let l = 0.412_221_46 * r + 0.536_332_55 * g + 0.051_445_995 * b;
-    let m = 0.211_903_5 * r + 0.680_699_56 * g + 0.107_396_96 * b;
-    let s = 0.088_302_46 * r + 0.281_718_85 * g + 0.629_978_71 * b;
+    let l = 0.412_221_470_8 * r + 0.536_332_536_3 * g + 0.051_445_992_9 * b;
+    let m = 0.211_903_498_2 * r + 0.680_699_545_1 * g + 0.107_396_956_6 * b;
+    let s = 0.088_302_461_9 * r + 0.281_718_837_6 * g + 0.629_978_700_5 * b;
 
-    let l_ = l.cbrt();
-    let m_ = m.cbrt();
-    let s_ = s.cbrt();
+    let l_ = palette_cbrtf_p1253(l);
+    let m_ = palette_cbrtf_p1253(m);
+    let s_ = palette_cbrtf_p1253(s);
 
-    let l_lab = 0.210_454_26 * l_ + 0.793_617_8 * m_ - 0.004_072_047 * s_;
-    let a_lab = 1.977_998_5 * l_ - 2.428_592_2 * m_ + 0.450_593_7 * s_;
-    let b_lab = 0.025_904_037 * l_ + 0.782_771_77 * m_ - 0.808_675_77 * s_;
+    let l_lab = 0.210_454_255_3 * l_ + 0.793_617_785_0 * m_ - 0.004_072_046_8 * s_;
+    let a_lab = 1.977_998_495_1 * l_ - 2.428_592_205_0 * m_ + 0.450_593_709_9 * s_;
+    let b_lab = 0.025_904_037_1 * l_ + 0.782_771_766_2 * m_ - 0.808_675_766_0 * s_;
 
     (l_lab, a_lab, b_lab)
 }
@@ -308,7 +393,10 @@ fn srgb_to_linear_local(c: f32) -> f32 {
     if c <= 0.04045 {
         c / 12.92
     } else {
-        ((c + 0.055) / 1.055).powf(2.4)
+        libm::powf(
+            libm::fmaf(c, (1.0_f64 / 1.055) as f32, (0.055_f64 / 1.055) as f32),
+            2.4,
+        )
     }
 }
 
@@ -1755,6 +1843,28 @@ mod tests {
         let (r1, _, b1, _) = c1.to_rgba_f32();
         assert!(r0 > 0.9, "sample(0.0).r ≈ 1.0; got {}", r0);
         assert!(r1 < 0.1 && b1 > 0.9, "sample(1.0) ≈ blue; got r={}, b={}", r1, b1);
+    }
+
+    #[test]
+    fn p1253_linear_oklab_endpoint_components_palette() {
+        let red = Color::Srgb { r: 1.0, g: 0.254902, b: 0.211765, a: 1.0 };
+        let gradient = Linear {
+            stops: Arc::from([
+                GradientStop::new(red, Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            angle: Angle::rad(0.0),
+            space: ColorSpace::Oklab,
+            relative: None,
+            anti_alias: true,
+        };
+        let Color::Oklab { l, a, b, alpha } = gradient.sample(0.0) else {
+            panic!("sample Oklab deve devolver Color::Oklab");
+        };
+        assert!((l - 0.6595).abs() < 0.00005, "L público arredondado: {l}");
+        assert_eq!(a.to_bits(), 0.19973529875278473_f32.to_bits());
+        assert_eq!(b.to_bits(), 0.10818812251091003_f32.to_bits());
+        assert_eq!(alpha.to_bits(), 1.0_f32.to_bits());
     }
 
     #[test]

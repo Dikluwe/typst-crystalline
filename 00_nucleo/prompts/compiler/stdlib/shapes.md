@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: f965dd91
+Hash do Código: 91e1828b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/shapes.rs`
@@ -253,9 +253,9 @@ polygon((0pt,0pt), "x") -> Err "coordenada inválida"
 
 ---
 
-### `native_curve(seg1, seg2, ...; fill?, stroke?)`
+### `native_curve(seg1, seg2, ...; fill?, fill-rule?, stroke?)`
 
-**Assinatura**: `curve(..segments: Array, fill: Paint?, stroke: Color?) -> Content`
+**Assinatura**: `curve(..segments: Array, fill: Paint?, fill-rule: Str?, stroke: Stroke?) -> Content`
 
 **Argumentos**:
 - `segments`: variádicos posicionais, cada segmento é um array cujo primeiro
@@ -265,13 +265,18 @@ polygon((0pt,0pt), "x") -> Err "coordenada inválida"
   - `("cubic", [c1x, c1y], [c2x, c2y], [ex, ey])` → `CubicTo`.
   - `("quadratic", [cx, cy], [ex, ey])` → convertido para `CubicTo` via
     fórmula q→c paridade vanilla (`C1 = (P0 + 2C)/3`, `C2 = (P2 + 2C)/3`).
-  - `("close",)` → `ClosePath`.
+  - `("close",)` → `ClosePath` reto. O default `Smooth` de P1226 aplica-se
+    somente ao constructor namespaced `curve.close()`; não altera a sintaxe
+    tuple legada P293/P294.
   Desde o Passo 513, um segmento posicional pode também ser
   `Value::Content(Content::Curve(e))` (produzido pelos constructores
   `curve.move`/`curve.line`/`curve.cubic`/`curve.quad`/`curve.close` —
   ver §"Namespace `curve`" abaixo); os seus
   segmentos são concatenados ao path final.
-- `fill`, `stroke`: opcionais. **Fallback determinístico** (paridade vanilla
+- `fill-rule`: `"non-zero"` por defeito ou `"even-odd"`; é preservado em
+  `ShapeElem` e no frame, não descartado durante eval.
+- `fill`, `stroke`: opcionais. `stroke` reutiliza `parse_shape_stroke`,
+  preservando paint, espessura, cap, join, dash e miter. **Fallback determinístico** (paridade vanilla
   `Smart::Auto`, `lab/typst-original/crates/typst-layout/src/shapes.rs:126-129`,
   corrigido no Passo 727): se nem `fill` nem `stroke` forem fornecidos,
   aplica stroke preta de 1pt; se `fill` for fornecido sem `stroke`, a curva
@@ -285,8 +290,10 @@ cria `Content::Shape { kind: Path, ... }`.
 materializados em L1); desde o Passo 513 aceita também `Content::Curve`
 como segmento posicional.
 
-**Limitações / scope-outs**:
-- `stroke` sólido 1pt.
+**P1226 — fechamento:** `curve.close()` produz `CloseMode::Smooth` por defeito;
+`curve.close(mode: "straight")` preserva o modo reto. O fechamento suave usa o
+último controle e o controle oposto ao início conforme a morfologia vanilla;
+não pode colapsar antecipadamente em `ClosePath` reto.
 
 **Testes canónicos**:
 ```

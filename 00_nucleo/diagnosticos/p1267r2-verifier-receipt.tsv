@@ -1,0 +1,51 @@
+record_type	key	value	sha256	verification
+protocol	regime	protocolo completo; fase restrita de verificação independente	-	Verificador não escreve artefatos julgados,não sela contrato e não promove produto
+protocol	role	VERIFICADOR_INDEPENDENTE_P1267_R2	-	Autoridade somente sobre verdict.tsv e receipt.tsv
+protocol	context_inherited	none	-	Despacho explícito sem contexto herdado; nenhuma conclusão R1 recebida
+protocol	attestation	CONVERSATIONAL_NONINHERITANCE_ATTESTED;FILESYSTEM_CAPABILITY_ISOLATION_NOT_ATTESTED	-	fork_turns=none sustenta não-herança conversacional; filesystem compartilhado e allowlists processuais impedem alegação de isolamento de capacidades
+provenance	measurement_time_utc	2026-08-29T00:42:55Z	-	Instante após materialização do verdict e antes deste receipt
+provenance	repository_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5	-	Coincide com input manifest
+provenance	allowed_input_tree_state	working tree não commitado; diff HEAD --stat limitado aos sources permitidos: adaptive.md 73 linhas delta;svg.md 358 linhas delta;adaptive.rs 613 linhas delta;total 1041 inserções e 3 remoções	-	Identidade canónica é dada pelos hashes individuais abaixo; nenhum diff de patch futuro foi lido
+input_control	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1267r2-input-manifest.tsv	full	a833d24c1e0e2a0ca08e8c61d6a22e984a07461d0bb79b6e3ed836502fe3ab90	Hash coincide com despacho
+input_control	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1267r2-role-capabilities.tsv	full	169a67f593b3facbd5db583798fc051cd16a60c8ecf41128d1b2f1261af6470a	Hash coincide com manifesto
+input_control	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1267r2-artifact-freeze.tsv	full	e2014b0b1e0d29d48f74e1885803a20fdfc328b9b5e225f1d435f9d420370b93	Hash coincide com despacho
+input_frozen	/tmp/p1267r2/author/contract-v2.tsv	full	0ba5d409aa2784184c2604282abb85715e7c6edd00d151f07474c9fefaeb4ce8	Hash coincide com freeze antes e depois do julgamento
+input_frozen	/tmp/p1267r2/author/delta.tsv	full	0dd1a1513f709024ae1ab9fab95545d5489ddf437e835af586ec30af57787edc	Hash coincide com freeze antes e depois do julgamento
+input_frozen	/tmp/p1267r2/author/unknown-v2.tsv	full	afee37521719a849d359f0c1caeab132de532319a3c1dfa74af539e3be3deb76	Hash coincide com freeze antes e depois do julgamento
+input_frozen	/tmp/p1267r2/author/observables.tsv	full	6690eeae86985c65f39d132dd43cb615c267815340dc1c180fbe03c4bc27bb2e	Hash coincide com freeze antes e depois do julgamento
+input_frozen	/tmp/p1267r2/author/decisions.tsv	full	e3bff81420eaca854e3ae62ceb3a6c1ee3caf58d8b8138166bcf8cf3a1b97846	Hash coincide com freeze antes e depois do julgamento
+input_frozen	/tmp/p1267r2/author/receipt.tsv	full	0e4330d62dbbf5dd964c1a41fcf44590e0277a654fb40ffc6275ea3d8cd1aa11	Hash coincide com freeze antes e depois do julgamento
+input_frozen	/tmp/p1267r2/evidence/derivation.tsv	full	14601fbefb87b50bc69482ed8f62c1446842f32293ccf3ffe3afab0efb83fa5c	Hash coincide com freeze antes e depois do julgamento
+input_frozen	/tmp/p1267r2/evidence/receipt.tsv	full	d7e5eb4212e34a3b6dcac6f77cc4ca9dbea43756402fa310105e90fd03affc89	Hash coincide com freeze; autohash canónico ac97a53c44900344ef3a203b80453b991edd8b2936008b672ba3fa63461752eb também reproduzido removendo a última linha
+input_procedural	/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md	full	33a32f7bc439de3fe3aa530bd65518e512a93f40152c91b2ace0789de34a3a56	Lido integralmente antes da verificação
+input_procedural	/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md	full	f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417	Referência exigida; lida integralmente
+input_procedural	/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md	full	bf218259b4454974bf8889ce319e04c0c7ec668b9a542d0eb3b4d0492a623963	Referência exigida; lida integralmente
+input_source	/repos/Antigravity/typst-crystalline/typst-passo-1267.md	full	5f1848ad4fd2502e028b2f8ec52d9b859a9d791431911984698ec9c8cb047f69	Único input P1267 permitido
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-final-certificate.tsv	full	dce8aabec0d6bbf8b714d75f8cfc22e38f83539d04f1c8d034110c8dfa1067ec	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-generalization-contract.tsv	full	954d65fc8d5a04250efa93544ef74c64d4c8c8a9c47d81f81279d55738e4d0f9	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-unknown-policy.tsv	full	79a578f43e49372df20afc5995ee7402150ef44af516a4e5293ba6030450e18b	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-generalization-matrix.tsv	full	091d50354eb2b206d595c88a96b76eb8b9d8e8a881b2f0d3f5901edf9cce5406	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-results.tsv	full	f9d8a8641f6487682fce8eacdf4d1d5b3b4c8326fdbce46d26179a3c74bdeda8	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1266-cost.tsv	full	dc10bff135b228b521376b39e4266c1656f6b650a72576253404a85ca74c93ad	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/typst-p1266-svg-generalization.md	full	defe67629ef5aab1e00efbbc792e200052f0e3bb6464113cebdd08400b90aa5f	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/svg.md	relevant sections plus hash integral	41c5d785d9e4ecdb184fd5e6344dd7422d874e826e3bdeac2ddb2d6617530d29	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/adaptive.md	full	4e2e19b5af1aab3c33596166fbcef647df1aceed1739bab395d432126f46d737	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md	full	e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md	full	31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0121-proveniencia-medicao.md	full	00be2575c57efb572b7935ab0ae9da80d62e66c8739bffbb17994b2f7a50d5ef	Hash coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/gradient.rs	selected:880-980,1380-1495 plus symbol search	ed7a1be4e398fa47dff9ede8aa31c939514e341f9e47ac5099787d422f67967c	Hash integral coincide com manifesto
+input_source	/repos/Antigravity/typst-crystalline/03_infra/src/export/gradients/adaptive.rs	full	dd2c3a696c63ded7df7a5b56c5103f3d70b404bf7bf50d021d0d592530e2b331	Hash coincide com manifesto
+measurement	P1266_RESULT_COUNTS	rows=96;public_violated=74;numeric_violated=24;cost_violated=36;zero_area_violated=4;graph_preserved=96;raster_preserved=96;violated_without_public=0	f9d8a8641f6487682fce8eacdf4d1d5b3b4c8326fdbce46d26179a3c74bdeda8	awk -F TAB por nomes do header
+measurement	P1266_COST_COUNTS	rows=96;sum_logical=904;sum_effective=1320;sum_E=11188;sum_bound_logical=51808;sum_bound_effective=78432;global_gt64=36;effective_derived_failures=0;max=S06-linear-linear-rgb,effective_M=32,E=774,bound=1985	dc10bff135b228b521376b39e4266c1656f6b650a72576253404a85ca74c93ad	awk -F TAB por logical_stops,effective_public_stops,emitted_stops
+measurement	G10_WORST_CASE	depth=6;segments=64;adaptive_interiors=63;midpoint_decisions=127;boundary_sampler_calls=126;total_sampler_calls=253	-	Simulação determinística do estado n/i das linhas adaptive.rs:127-159 com refinamento máximo
+measurement	G04_COINCIDENT_POINT	internal exact point reaches first equal stop;epsilon-right uses last equal stop;t=0 exact uses special last-zero rule	-	Derivação direta de gradient.rs:1461-1484; precisa de probe no P1268 para selo
+declaration	prohibited_existing_r1	NÃO LIDO: qualquer p1267-* ou typst-p1267-* R1 existente; typst-passo-1267.md foi o único P1267 permitido	-	Nenhuma busca/listagem desses artefatos foi executada
+declaration	future_product_patch	NÃO LIDO	-	Somente o current_interval_source pinado pelo manifesto foi lido; nenhum diff de patch candidato/futuro foi aberto
+declaration	comparator_output	NÃO LIDO	-	Nenhum path/output do comparador foi aberto ou pesquisado
+declaration	judged_artifact_writes	NENHUMA	-	Hashes author/evidence permanecem iguais ao freeze após o julgamento
+declaration	repository_writes	NENHUMA	-	Únicas escritas foram feitas via apply_patch em /tmp/p1267r2/verifier/verdict.tsv e receipt.tsv
+policy	unknown	Unknown nunca sucede,nunca vira Preserved por default e fica fora do numerador; P1266 é história imutável	-	Verificado em unknown-v2,G12,G14,D02,D05,D07,D10,D11
+policy	seal	NÃO EMITIDO;P1268 CONTINUA NECESSÁRIO	-	Contrato candidato requer refinamentos V05,V07,V08,V09 e depois oráculos/ataques/gate discriminatório independentes
+verdict	overall	R2-CANDIDATE-UNSEALED-REFINEMENT-REQUIRED	-	Readjudicação conceitual sustentada; nenhum veredito de produto,equivalência geral,promoção ou alteração de fallback
+output	/tmp/p1267r2/verifier/verdict.tsv	full	a9ced04fecaab28a04e2af0dfabdc7af9b7b2712ddc24143021accd590f74842	sha256 após criação via apply_patch; 19 linhas,6 colunas constantes
+output	/tmp/p1267r2/verifier/receipt.tsv	canonical-content-excluding-this-row	05d48a70115595149ca88c398269dc26c5bcd3b92610df5ffaa349228fdc5000	Autohash canónico; reproduzir removendo esta linha completa e calculando sha256 dos bytes restantes

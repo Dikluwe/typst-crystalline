@@ -82,8 +82,12 @@ pub(crate) fn place_cells(
     let mut auto: Vec<(usize, &Content)> = Vec::new();
     for (idx, c) in cells.iter().enumerate() {
         match c {
-            Content::GridCell(e) if e.x.is_some() || e.y.is_some() => {
-                explicit.push((idx, c));
+            Content::GridCell(e) => {
+                if e.x.is_some() || e.y.is_some() {
+                    explicit.push((idx, c));
+                } else {
+                    auto.push((idx, c));
+                }
             }
             _ => auto.push((idx, c)),
         }

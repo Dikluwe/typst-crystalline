@@ -44,6 +44,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     });
     layouter.regions.current.cursor_y += spacing;

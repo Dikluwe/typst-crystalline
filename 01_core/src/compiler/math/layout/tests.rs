@@ -1282,6 +1282,7 @@ fn p905_frac_denominador_tem_gap_abaixo_da_linha_nao_sobrepoe() {
     let constants = crate::entities::math_constants::MathConstants::fallback();
     let sub_size = style.size.val() * constants.script_percent_scale_down;
     // FixedMetrics: ascent = 0.8*size, descent = 0.4*size, para qualquer char.
+    // rationale: 0.8 é a razão de ascent declarada pela fixture FixedMetrics.
     let leaf_ascent = sub_size * 0.8;
 
     let math_box = ml.layout_frac(
@@ -1335,6 +1336,7 @@ fn p905_sqrt_de_fraccao_com_variaveis_nao_produz_saida_malformada() {
     let style = default_style();
     let constants = crate::entities::math_constants::MathConstants::fallback();
     let sub_size = style.size.val() * constants.script_percent_scale_down;
+    // rationale: 0.8 é a razão de ascent declarada pela fixture FixedMetrics.
     let leaf_ascent = sub_size * 0.8;
 
     let root = Content::math_root(
@@ -1350,12 +1352,11 @@ fn p905_sqrt_de_fraccao_com_variaveis_nao_produz_saida_malformada() {
     // de assumir posição por ordenação — o próprio símbolo √ também emite
     // um FrameItem::Text (glifo), que pode ter y mais extremo que o
     // numerador/denominador.
+    let is_denominator_y = |text: &str| text == "y" || text.contains('𝑦');
     let den_y = items
         .iter()
         .find_map(|i| match i {
-            FrameItem::Text { pos, text, .. }
-                if text.as_str() == "y" || text.contains('𝑦') =>
-            {
+            FrameItem::Text { pos, text, .. } if is_denominator_y(text.as_str()) => {
                 Some(pos.y.val())
             }
             _ => None,
@@ -4425,8 +4426,10 @@ fn axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero() {
     let ml = MathLayouter::new(&FixedMetrics, true, &style);
     let rows =
         vec![vec![Content::MathIdent("a".into())], vec![Content::MathIdent("b".into())]];
+    // rationale: layout_cases usa o espaçamento horizontal de 0.5em do estilo exterior.
     let col_gap = style.size * 0.5;
     // **P923b** — `layout_cases` usa `row_gap = 0.2em` do estilo exterior.
+    // rationale: 0.2em é o espaçamento vertical produtivo espelhado pelo oráculo.
     let row_gap = style.size * 0.2;
     // **P923** — `layout_cases` layouta os ramos em estilo de denominador;
     // o grid de referência pré-offset tem de usar o mesmo estilo.
@@ -4491,8 +4494,10 @@ fn axis_bug_matrix_conteudo_centra_no_axis_height_nao_a_zero() {
         vec![Content::MathIdent("a".into()), Content::MathIdent("b".into())],
         vec![Content::MathIdent("c".into()), Content::MathIdent("d".into())],
     ];
+    // rationale: layout_matrix usa o espaçamento horizontal de 0.5em do estilo exterior.
     let col_gap = style.size * 0.5;
     // **P923b** — `layout_matrix` usa `row_gap = 0.2em` do estilo exterior.
+    // rationale: 0.2em é o espaçamento vertical produtivo espelhado pelo oráculo.
     let row_gap = style.size * 0.2;
     // **P923** — `layout_matrix` layouta as células em estilo de denominador;
     // o grid de referência pré-offset tem de usar o mesmo estilo.
@@ -8205,6 +8210,7 @@ mod p990_tests {
         let den_box = ml.layout_node(&den, &den_style);
         let line_width = num_box.width.max(den_box.width);
         let padding = 0.1 * style.size.val();
+        // rationale: a fração aplica o mesmo padding nos dois lados da linha.
         let expected_width = line_width + 2.0 * padding;
 
         let frac_box = ml.layout_frac(&num, &den, &style);

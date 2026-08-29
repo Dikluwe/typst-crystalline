@@ -40,6 +40,10 @@ pub(crate) fn collapse_trivial_tj(content: &str) -> String {
 /// Tenta colapsar o array que começa em `bytes[start]` (`[`). Devolve
 /// `(replacement, end)` onde `end` é o índice logo após `TJ`, ou `None`
 /// se o array não é um TJ trivial.
+fn starts_pdf_integer(byte: u8) -> bool {
+    byte.is_ascii_digit() || byte == b'-'
+}
+
 fn try_collapse(bytes: &[u8], start: usize) -> Option<(String, usize)> {
     let mut i = start + 1;
     let mut hex_parts: Vec<String> = Vec::new();
@@ -63,7 +67,7 @@ fn try_collapse(bytes: &[u8], start: usize) -> Option<(String, usize)> {
                 saw_any = true;
                 i = end + 1;
             }
-            b'0'..=b'9' | b'-' => {
+            byte if starts_pdf_integer(byte) => {
                 let start_n = i;
                 if bytes[i] == b'-' {
                     i += 1;
@@ -145,5 +149,14 @@ mod tests {
         assert_eq!(collapse_trivial_tj("[ ] TJ"), "[ ] TJ");
         assert_eq!(collapse_trivial_tj("[ <0041 "), "[ <0041 ");
         assert_eq!(collapse_trivial_tj("[ 5 ] TJ"), "[ 5 ] TJ");
+    }
+
+    #[test]
+    fn p1250a_inicio_de_inteiro_pdf_preserva_fronteiras_lexicas() {
+        assert!(!starts_pdf_integer(b'/'));
+        assert!(starts_pdf_integer(b'0'));
+        assert!(starts_pdf_integer(b'9'));
+        assert!(!starts_pdf_integer(b':'));
+        assert!(starts_pdf_integer(b'-'));
     }
 }

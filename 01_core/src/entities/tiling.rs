@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/tiling.md
-//! @prompt-hash 5c8c3e31
+//! @prompt-hash d34fef77
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -12,10 +12,14 @@
 //! `TilingBody::Gradient` é placeholder — o tipo `Gradient` existe, mas o
 //! consumer real de Tiling+Gradient fica para passo futuro.
 
+use crate::entities::axes::Axes;
 use crate::entities::color::Color;
+use crate::entities::content::Content;
 use crate::entities::elements::image::ImageElem;
 use crate::entities::gradient::Gradient;
-use crate::entities::layout_types::Size;
+use crate::entities::layout_types::{Angle, Length, Size};
+use crate::entities::rel::Rel;
+use std::sync::Arc;
 
 /// Padrão de azulejos — fill pattern para shapes, boxes e strokes.
 #[derive(Debug, Clone, PartialEq)]
@@ -28,6 +32,10 @@ pub struct Tiling {
     pub relative: TilingRelative,
     /// Gap entre repetições. `None` ↔ zero.
     pub spacing: Option<Size>,
+    /// Deslocamento relativo/absoluto resolvido contra o pitch no layout.
+    pub offset: Axes<Rel<Length>>,
+    /// Rotação horária aplicada depois do offset.
+    pub angle: Angle,
 }
 
 impl Tiling {
@@ -36,8 +44,10 @@ impl Tiling {
         Self {
             body,
             size: None,
-            relative: TilingRelative::Itself,
+            relative: TilingRelative::Auto,
             spacing: None,
+            offset: Axes::new(Rel::zero(), Rel::zero()),
+            angle: Angle::rad(0.0),
         }
     }
 
@@ -52,6 +62,7 @@ impl Tiling {
             TilingBody::Color(c) => *c,
             TilingBody::Gradient(g) => g.first_stop_color(),
             TilingBody::Image(_) => Color::rgb(0, 0, 0),
+            TilingBody::Content(_) => Color::rgb(0, 0, 0),
         }
     }
 }
@@ -59,6 +70,8 @@ impl Tiling {
 /// Corpo de um padrão de azulejos.
 #[derive(Debug, Clone, PartialEq)]
 pub enum TilingBody {
+    /// Conteúdo declarativo arbitrário; layoutado somente na fase de layout.
+    Content(Arc<Content>),
     /// Imagem embebida.
     Image(ImageElem),
     /// Gradient (placeholder consumer — P396+).
@@ -70,8 +83,10 @@ pub enum TilingBody {
 /// Referência espacial do padrão.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum TilingRelative {
-    /// Relativo ao objeto preenchido (default).
+    /// Decisão contextual: self para shapes, parent para texto.
     #[default]
+    Auto,
+    /// Relativo ao objeto preenchido.
     Itself,
     /// Relativo ao pai / página.
     Parent,
@@ -103,7 +118,7 @@ mod tests {
         assert_eq!(t.body, TilingBody::Color(red()));
         assert!(t.size.is_none());
         assert!(t.spacing.is_none());
-        assert_eq!(t.relative, TilingRelative::Itself);
+        assert_eq!(t.relative, TilingRelative::Auto);
     }
 
     #[test]
@@ -130,9 +145,9 @@ mod tests {
     }
 
     #[test]
-    fn tiling_relative_default_is_self() {
+    fn tiling_relative_default_is_auto() {
         let t = Tiling::new(TilingBody::Color(red()));
-        assert!(matches!(t.relative, TilingRelative::Itself));
+        assert!(matches!(t.relative, TilingRelative::Auto));
     }
 
     #[test]

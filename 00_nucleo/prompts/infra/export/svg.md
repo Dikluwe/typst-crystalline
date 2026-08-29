@@ -1,5 +1,9 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
-Hash do Código: 7914fbb0
+Hash do Código: 7bb5c1bf
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
+- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
 
 ## P1140.20.2 — canvas SVG
 
@@ -81,6 +85,185 @@ pub fn export_svg_with_fonts(
 
 ## Critérios de verificação
 
+### P1227 — paint servers morfológicos
+
+Medição: `03_infra/src/export/svg.rs:459` converte fill somente por
+`color_to_css`, e `write_stroke_attrs` chama `stroke.paint.to_color()`; portanto
+linear, radial e tiling são hoje achatados numa cor. Depois da aprovação do
+contrato `FrameItem::Shape.fill: Option<Paint>`, o exporter deve:
+
+- recolher paints de fill e stroke, atribuir IDs locais determinísticos e emitir
+  `<defs>`; igualdade morfológica pode reutilizar uma definição, sem fazer da
+  identidade/ortografia do ID um observável;
+- emitir Gradient Linear como `<linearGradient>` e Radial como
+  `<radialGradient>`, com `gradientUnits="objectBoundingBox"`, coordenadas
+  derivadas dos campos da entidade, focal radial independente e stops na ordem
+  efetiva, sem ordenar, deduplicar ou colapsar stops coincidentes;
+- preservar alpha como `stop-opacity`, separado da cor, e aplicar o servidor
+  ao papel correto por `fill="url(#...)"` ou `stroke="url(#...)"`;
+- emitir Tiling modelável como `<pattern>`, preservando tamanho, spacing,
+  relative e corpo suportado. Corpo opaco/imagem sem geometria/tamanho
+  resolvível não deve ser falsamente declarado equivalente;
+- manter Gradient Conic fora da alegação morfológica SVG nativa: sem modelo de
+  erro geométrico/cromático selado, não aproximar nem chamar pattern equivalente;
+- não converter espaços de cor não modelados para obter igualdade aparente.
+
+Quando um paint permanece fora da alegação (`Conic`, espaço de interpolação
+não modelado ou tiling opaco), o exportador conserva o fallback de primeira cor
+pré-P1227 para não apagar a geometria e anota a operação com
+`data-crystalline-fill-fallback` ou `data-crystalline-stroke-fallback`. Essa
+anotação é diagnóstica: a lente deve classificar o paint como `Unknown`, nunca
+como servidor morfologicamente preservado.
+
+Os testes públicos do owner devem cobrir linear em fill, radial em fill com
+focal point, gradient em stroke, reutilização determinística e tiling de cor.
+Conic e conversões de espaço não modeladas permanecem explicitamente fora da
+alegação, nunca reduzidas silenciosamente a solid.
+
+### P1229 — Linear/Radial multi-space por stops adaptativos
+
+Retificação P1235: o contrato expandido não fechou os 30 controles e P1234
+não selou causa mecânica. Por isso Linear/Oklab, Linear/LinearRgb e
+Radial/Hsv regressam a `Unknown` com fallback explícito
+`gradient-color-space`; nenhuma das nove candidatas P1231 é promovida. Somente
+os controles Linear/Radial sRGB reutilizam a geometria nativa dos servidores
+P1227 neste contrato. Para cada par de
+stops originais, o exportador preserva a primeira extremidade e insere os stops
+produzidos pelo owner `export/gradients/adaptive.rs`; a última extremidade é
+emitida uma vez ao final.
+
+Intervalos coincidentes não são subdivididos, deduplicados ou reordenados. Cada
+cor emitida conserva alpha, serializado separadamente como `stop-opacity`.
+Uma combinação Linear/Radial deixa de receber `gradient-color-space` somente
+quando satisfaz um envelope selado vigente. As três promoções invalidadas,
+CMYK Linear/Radial e tiling opaco continuam fallback explicitamente `Unknown`.
+CMYK não pode ser promovido enquanto a
+conversão ICC registrada no L0 de cor permanecer fora de escopo. Conic segue o
+contrato vetorial P1230.
+
+IDs, bytes e contagem exata de stops não são paridade. São obrigatórios:
+referência local resolvida, variante e geometria corretas, papel fill/stroke,
+offsets originais, ordem, descontinuidades, alpha e erro dentro do orçamento.
+
+#### P1261 — representação localizada do último intervalo adaptativo
+
+Medição que precede a decisão: `export/gradients/adaptive.rs:84-147` produz,
+para os quatro witnesses `two-wide-stroke` Linear/Radial × Oklab/LinearRgb,
+o mesmo número de stops, as mesmas cores do penúltimo stop e o mesmo endpoint
+final que o vanilla ratificado. O penúltimo offset pré-serialização é
+`0.984375` e o endpoint `1.0`. A primeira divergência aparece somente em
+`export/svg.rs:542-583`: `write_gradient_stops` passa o offset por `fmt_num` e
+emite `0.984375`, enquanto
+`lab/typst-original/crates/typst-svg/src/paint.rs:251-281` passa cada offset
+intermediário por `Ratio::repr`; `typst-library/src/layout/ratio.rs:135-138`
+usa precisão de duas casas percentuais e emite `98.44%` (numericamente
+`0.9844`). A simulação congelada P1261 manteve os outros 20 fixtures
+byte-idênticos e reduziu os quatro máximos de `0.009071938982` para
+`0.008998699509` em Oklab e de `0.020785701027` para `0.020706225661` em
+LinearRgb, dentro dos envelopes P1237.
+
+Decisão: somente o último intervalo dos stops adaptativos Linear/Radial usa a
+representação percentual de duas casas do `Ratio::repr` ratificado: o último
+stop intermediário e o endpoint terminal. Os stops nativos, `fmt_num`, os
+intervalos adaptativos anteriores, as cores, alpha, cap 64 e decisão de
+subdivisão permanecem inalterados. O endpoint terminal continua emitido uma
+única vez, na ordem original e com cor exata. Linear e Radial compartilham o
+mesmo helper de escrita; fill/stroke não participam da decisão.
+
+O teste focal `p1261_endpoint_near_serializa_penultimo_offset_com_repr_vanilla`
+congela os quatro casos, o penúltimo stop pré-serialização, a representação
+serializada e a unicidade/cor do endpoint. A revalidação numérica usa os
+quatro `worst_t` P1260 e exige os envelopes P1237 sem regressão dos demais
+máximos, p95, alpha ou quantidade/cap de stops.
+
+#### P1262 — `Ratio::repr` para todo offset adaptativo
+
+Medição que precede a decisão: depois de igualar no owner adaptativo os
+clamps e a precisão Oklab do vanilla, os oito stopsets interiores saturados
+Linear/Radial passaram a ter as mesmas contagens e cores do baseline. A
+fronteira restante era SVG: `typst-svg/src/paint.rs:251-281` aplica
+`Ratio::repr` a **cada** offset intermediário, enquanto a regra localizada do
+P1261 o aplicava apenas aos dois últimos stops. Nos witnesses interiores, essa
+diferença de posição reparsada ainda excedia os budgets congelados, embora o
+sample público, a quantização de cor e alpha coincidissem.
+
+Decisão: todo stop Oklab produzido por `svg_adaptive_stops` em Linear/Radial
+serializa o offset com a representação percentual de duas casas do
+`Ratio::repr` ratificado. A ordem aritmética é parte da fronteira medida:
+primeiro `offset * 100` e depois o arredondamento dessa percentagem a duas
+casas, pela regra standard de afastamento de zero do vanilla. Assim, os
+valores binários efetivos reproduzem simultaneamente `13.87%`, `32.38%`,
+`60.62%` e `76.38%`; não se pode colapsar as duas multiplicações numa só nem
+converter previamente o offset a `f32`. Esta regra generaliza e substitui a localidade do
+P1261 somente para Oklab. LinearRgb conserva a regra localizada do último
+intervalo P1261: a varredura de 24 fixtures mostrou que generalizá-la neste
+passo reabriria os dois `alpha-first` já preservados, que pertencem ao cluster
+seguinte. Stops nativos sRGB continuam no writer histórico `fmt_num`. Cores,
+`stop-opacity`, ordem, descontinuidades, endpoint único, cap 64 e decisões de
+subdivisão não mudam. A aceitação é o envelope de linguagem P1231/P1237 e
+não igualdade textual nem contagem, ainda que estas possam coincidir.
+
+#### P1263 — `Ratio::repr` completo também para LinearRgb adaptativo
+
+Medição: a reconstrução com a ordem aritmética exata consolidada no P1262
+refuta a limitação provisória então registada para LinearRgb. Nos gradientes
+Linear e Radial, serializar por `Ratio::repr` todos os offsets adaptativos
+LinearRgb fecha os quatro alvos interiores não saturados de cor e os seis de
+alpha, preserva os controlos `alpha-first` e mantém os quatro pares elegíveis
+com `6/6` no decalque P1237. Os gradientes `alpha-mid` e `alpha-last` continuam
+com, respetivamente, 36 e 40 stops: não existe deficit causal de refinamento.
+
+Decisão: todo offset produzido pela amostragem adaptativa de gradientes Linear
+ou Radial em Oklab ou LinearRgb é serializado diretamente a partir do `f64`
+normalizado por `Ratio::repr`, sem conversão intermédia para `f32`. Stops nativos
+sRGB continuam no writer histórico `fmt_num`. A mudança não acrescenta stops nem
+decisões adaptativas e não altera limiar, cap, cores, alpha, ordem, coincidência
+ou continuidade à direita; `adaptive.rs`, o PDF P274 e `Color` permanecem fora
+do âmbito.
+
+Aceitação: os dez alvos P1260 devem fechar simultaneamente `max` e `p95`, com
+cor premultiplicada e alpha observados separadamente em ponto flutuante antes de
+qualquer quantização `u8`; as 24 fixtures P1237 não podem regredir; execução
+direta e inversa deve ser determinística; o custo incremental deve permanecer
+em zero stops e zero decisões; nenhum target é promovido por esta correção.
+
+### P1230 — Conic vetorial por pattern de cunhas
+
+Conic aprovado no SVG permanece paint vetorial. O exportador materializa um
+`pattern` local composto por cunhas angulares; cada cunha referencia um
+`linearGradient` local de duas extremidades amostradas no espaço declarado.
+O grafo `paint -> pattern -> path -> linearGradient -> stops` deve fechar sem
+URL pendente, imagem raster ou fallback solid disfarçado.
+
+A geometria preserva centro, ângulo inicial, progressão horária e correção
+recíproca do aspect ratio da caixa pintada. Fill e stroke podem reutilizar uma
+definição somente quando paint e aspect ratio forem morfologicamente iguais;
+transformações do item são aplicadas uma vez pelo grafo SVG existente.
+
+O número `360` observado no vanilla é heurística mecânica, não obrigação.
+A implementação pode usar outra cardinalidade, mas cada combinação promovida
+deve passar o contrato P1230: no interior angular, erro máximo RGB sRGB
+codificado premultiplicado `<= 4/255`, p95 `<= 2/255` e alpha máximo
+`<= 2/255`; na máscara local completa, p95 RGBA premultiplicado `<= 4/255` e
+no máximo `0.5%` dos pixels podem exceder `16/255`. A máscara e a sua caixa
+devem ser derivadas e publicadas a partir do grafo e da geometria local
+declarada antes da comparação; incluem costuras, fronteiras e stroke e não
+podem ser ajustadas por crop de cor/erro, erosão, fitting ou realinhamento do
+conteúdo. Fronteiras coincidentes e a costura `0/1` preservam o lado medido
+pelo vanilla, nunca uma média implícita.
+
+Posicionamento produzido por layout, grid, flow e gutters fora dessa geometria
+local permanece `Unknown` deste owner. Uma fixture isolada ou a sua máscara
+local que falhe o budget viola o paint; somente excesso demonstravelmente
+exclusivo fora da máscara pode permanecer `Unknown` de integração externa.
+
+sRGB, Oklab, LinearRgb e Hsv só são promovidos individualmente quando grafo,
+geometria e budget passarem. CMYK permanece fallback `conic-gradient`
+explicitamente `Unknown` por ADR-0097; nenhum perfil ICC, download ou crate
+externa é incorporado por este owner. Espaços não selados também permanecem
+`Unknown`. O helper PDF `export/gradients/conic.rs` não é alterado nem
+compartilhado por arrasto.
+
 ### P1224 — stroke complexo preservado no SVG
 
 Quando `FrameItem::Shape` carrega `Stroke`, o exportador preserva tardiamente
@@ -97,6 +280,14 @@ Critério focal: cap round, join bevel, miter 2, dash `[3pt, LineWidth]`, phase
 `-0.5pt`, thickness `2pt` e paint com alpha devem aparecer separadamente e na
 ordem declarada no SVG.
 
+### P1226 — fill rule de paths
+
+Medição pública: o vanilla emite `fill-rule="evenodd"` para
+`curve(fill-rule: "even-odd")`; o cristalino anterior ao contrato emitia o
+default `nonzero`. O exportador deve consumir `FrameItem::Shape.fill_rule` e
+emitir `evenodd` ou `nonzero` sem inferência pelo winding. Atributo omitido só
+quando semanticamente igual ao default SVG e ao valor transportado.
+
 - Documento "Hello" produz SVG parseável com texto renderizado como paths de glifo.
 - Documento com formas produz elementos SVG correspondentes.
 - Documento com imagem produz `<image>` base64.
@@ -106,8 +297,173 @@ ordem declarada no SVG.
 - `rect(radius: 4pt, stroke: 2pt + blue)` emite centro de stroke com raio 3pt,
   fill e stroke separados, mantendo raio exterior 4pt.
 
+### P1248 — imagens web, SVG embutido e fallback observável
+
+Medição anterior à decisão: `FrameItem::Image` já entrega a este owner bytes,
+posição, dimensões resolvidas, `clip_rect` de cover e orientação EXIF. Em
+`03_infra/src/export/svg.rs`, o braço de imagem consumia apenas posição,
+bytes, largura, altura e orientação (esta última ignorada); `render_image`
+embutia PNG/JPEG/GIF/WebP, fixava `preserveAspectRatio="none"` e retornava sem
+nó para formato `Unknown`. A referência ratificada prepara formatos web,
+incluindo `ImageKind::Svg`, e emite data URL; o layout já decide fit/box antes
+do exporter. Logo a obrigação é preservar a morfologia visual e os carriers
+resolvidos, não copiar `WebImage`, bytes base64 ou estrutura Rust.
+
+Decisão interna de paridade (fluxo contínuo ADR-0127):
+
+- PNG, JPEG, GIF e WebP continuam embutidos com MIME coerente, data URL e
+  caixa física exata. Alpha permanece nos bytes originais; não recodificar.
+- Bytes cujo primeiro elemento XML significativo é `<svg` são embutidos como
+  `image/svg+xml`. A identificação é local a L3 e conservadora: BOM UTF-8,
+  whitespace, declaração XML e comentários iniciais podem ser ignorados;
+  qualquer construção ambígua, comprimida ou sem raiz SVG fica `Unknown`.
+  Este owner não altera o enum público `ImageFormat` nem promete parser SVG.
+- O SVG aninhado permanece um recurso de imagem; não se reescrevem IDs,
+  scripts, texto, formas ou alpha internos. A preservação alegada limita-se a
+  um SVG finito e autossuficiente demonstrado por landmarks visuais.
+- `clip_rect` finito emite clip local no espaço da página e recorta cover sem
+  assar novamente posição ou orientação. Carrier ausente/malformado é
+  `Unknown`, nunca ausência silenciosamente equivalente.
+- Orientação EXIF 1–8 é aplicada exatamente uma vez por transformação SVG
+  sobre a caixa já resolvida pelo layout. A ortografia da matriz não é
+  observável; marcadores assimétricos discriminam ignorar e aplicar duas vezes.
+- Formato desconhecido em `FrameItem::Image` emite um marcador diagnóstico
+  não visual `data-crystalline-image-fallback="unknown-format"`; não emite
+  `<image>`, não inventa MIME e permanece `Unknown`.
+- Fit/aspect ratio não é redescoberto no exporter: as dimensões e posição do
+  carrier já representam stretch/contain/cover; `preserveAspectRatio="none"`
+  apenas aplica essa transformação resolvida. O exporter não recalcula layout.
+
+Testes do owner cobrem os quatro MIME raster, alpha conservado no payload,
+caixa/posição, cover clip, orientação assimétrica, SVG aninhado vermelho/azul
+com alpha, desconhecido marcado e repetição determinística. Aceitação é
+morfologia/semântica; igualdade byte/base64 serve somente para provar
+determinismo do mesmo input, nunca paridade com o vanilla.
+
 ## P1140.5-A — SVG visualmente transparente
 
 SVG recursa nos filhos de `FrameItem::Semantic` sem desenhar `alt`. Expor
 acessibilidade SVG requer medição própria; nesta fase o contrato é preservar o
 render e não transformar a descrição de PDF em `<text>` ou tooltip inventado.
+
+## P1246 — clip geométrico local proposto
+
+**Gate ADR-0127:** arquitetura aprovada pelo dono em 2026-08-28. L0 pré-código;
+implementação somente após preseal segregado válido.
+
+### Medição que precede a proposta
+
+`FrameItem::Group` transporta `pos`, `matrix`, `clip_mask: Option<ShapeKind<Pt>>`,
+`inner_width`, `inner_height` e filhos. O exporter SVG recebe `clip_mask` em
+`render_group`, mas atualmente o ignora. A referência ratificada cria uma
+definição `clipPath`, referencia-a no grupo e aplica a geometria no espaço do
+grupo. A obrigação é o recorte observável, não a ortografia do ID, a ordem de
+`defs` ou a estrutura Rust da deduplicação.
+
+### Contrato proposto
+
+- Quando `clip_mask` é `None`, o grupo mantém exatamente a semântica atual sem
+  recorte adicional.
+- Para `Rect`, `RoundedRect`, `Ellipse` e `Path` com geometria finita e
+  representável, emitir um `clipPath` local e uma referência resolvida no grupo
+  dono. `Rect`/`Ellipse` usam `inner_width` e `inner_height`; `RoundedRect`
+  conserva os quatro raios; `Path` conserva subpaths e curvas no espaço local.
+- A transformação e a posição do grupo são aplicadas uma única vez. O clip e
+  os filhos compartilham a mesma base local; não assar novamente a transformação
+  na geometria do clip.
+- Grupos aninhados compõem clips por interseção sem perder o clip ancestral.
+- IDs são locais, resolvidos e determinísticos. Renomear IDs ou reordenar
+  definições sem alterar o grafo é mecânica. Deduplicação só é permitida quando
+  geometria e base espacial observável forem equivalentes.
+- O contrato atual não transporta fill-rule no `clip_mask`; paths cuja região
+  dependa de even-odd permanecem `Unknown` até existir carrier legítimo. Uma
+  linha aberta sem área não é promovida como clip preservado.
+- Máscara alpha, `mask`, `filter`, `opacity` ou rasterização não substituem
+  clip geométrico e permanecem fora desta alegação.
+- Falha de representação, geometria não finita ou informação ausente conserva
+  `Unknown`/`CONTRACT-GAP`; nunca remove silenciosamente o conteúdo nem promove
+  ausência de clip a equivalência.
+
+### Verificação exigida após confirmação
+
+Contrato e oráculos independentes devem cobrir rect, rounded rect, ellipse,
+path, transform, nesting, referência pendente, chave de deduplicação e casos
+opacos. Somente mutações semanticamente negativas executadas entram no mutation
+score. Nenhum score ou preseal é declarado por esta proposta documental.
+
+## P1247 — destinos internos SVG na página corrente
+
+**Gate ADR-0127:** arquitetura aprovada pelo dono em 2026-08-28. L0 pré-código;
+implementação somente após contrato/oráculos/ataques segregados e preseal válido.
+
+### Medição anterior à decisão
+
+`FrameItem::Link` já transporta `LinkTarget::Destination(Label)` até L3, e
+`PagedDocument` já conserva `extracted_label_pages` e
+`extracted_label_positions`. A API page-only do exporter não recebe esses
+mapas; por isso o consumer atual conhece a aresta, mas não consegue materializar
+o nó de destino nem fechar a referência.
+
+### Contrato do owner SVG
+
+- Preservar `export_svg` e `export_svg_with_fonts` como wrappers compatíveis que
+  usam contexto vazio. Adicionar variantes explícitas que recebem
+  `&SvgDestinationContext`; não alterar silenciosamente callers unitários.
+- `SvgDestinationContext` é dado L3 imutável e page-local: associa `Label` a
+  posição e identidade SVG local. Não executa layout, não consulta filesystem e
+  não conhece nomes de ficheiro.
+- Para um destino presente, emitir exatamente um nó local identificável na
+  posição medida e ligar `<a>` a ele. IDs podem ser renomeados, desde que o grafo
+  permaneça fechado, determinístico e sem colisões.
+- Para destino ausente ou pertencente a outra página sem rota fornecida, manter
+  os filhos visuais e classificar o link como `Unknown`; não emitir fragmento
+  pendente nem fabricar posição.
+- URL externa permanece preservada e não depende do contexto interno.
+- Escaping, nesting e transform preservam o conteúdo e a área clicável. Bytes,
+  uso de `href` versus `xlink:href` e ortografia do ID são mecânica quando o
+  grafo semântico é equivalente.
+
+Cross-page e bundle permanecem fora deste owner até o caller fornecer uma rota
+explícita. A expansão pública de `link()` para label, location ou page/x/y é
+outro contrato e não é autorizada por P1247.
+
+## P1249 — glifos matemáticos diretos SVG proposto
+
+**Gate ADR-0127:** arquitetura aprovada pelo dono em 2026-08-28. L0 pré-código;
+implementação exige posterior preseal segregado válido.
+
+### Medição anterior à proposta
+
+`FrameItem::Glyph` já transporta `pos`, `glyph_id`, `x_advance`, `size`,
+`style` e `base_char`; `style.fill` já contém o paint. A pipeline resolve a
+fonte efetiva com `FallbackFontMetrics::resolve_font_combo(base_char, style)` e
+inclui o `FontKey` correspondente. O exporter recebe os bytes selecionados, mas
+não a associação exata entre o glifo direto e a fonte resolvida. Como
+`glyph_id` é relativo à face, sondar a primeira fonte que contém o número não
+preserva identidade.
+
+### Contrato proposto do owner SVG
+
+- Estender o contexto explícito do exporter com uma associação imutável entre
+  `GlyphFontRequest` normalizado e o `FontKey` completo resolvido pela pipeline.
+  A chave inclui `base_char`, família solicitada, variante, variações e estado
+  matemático relevante à resolução; não usa índice posicional, endereço, ordem
+  de travessia ou identidade da ocorrência. Não alterar o variant público L1.
+- Quando a associação e os bytes existirem, extrair o outline do `glyph_id` na
+  face exata, aplicar escala `size / units_per_em`, posição e inversão Y uma
+  única vez, e preservar `style.fill`.
+- Reutilização em `GlyphDefs` inclui a identidade da fonte e o `glyph_id`; ids
+  XML e ordem de `defs` são mecânica se a morfologia permanecer igual.
+- O exporter confirma que o `FontKey` retornado existe na coleção fornecida e
+  usa a posição encontrada somente localmente; reordenar a coleção não muda a
+  fonte escolhida.
+- Associação ausente, ambígua, face inválida, `units_per_em = 0` ou outline
+  inexistente permanece `Unknown` e não produz glifo falso.
+- `x_advance` é geometria de layout já consumida pelo posicionamento externo;
+  o exporter não refaz shaping nem altera o cursor.
+- Os wrappers sem fontes preservam o scope-out vigente. P1249 não autoriza
+  fallback `<text>`, fonte do sistema, rede ou síntese a partir de `base_char`.
+
+Contrato e ataques posteriores devem cobrir variante simples, assembly com
+várias peças, duas fontes com o mesmo `glyph_id`, fill/alpha, transform, fonte
+ausente e wrapper fontless.

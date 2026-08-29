@@ -756,8 +756,11 @@ mod tests {
                 kind: ShapeKind::Rect,
                 width: 10.0,
                 height: 10.0,
-                fill: Some(Color::rgb(0, 0, 0)),
+                fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(
+                    0, 0, 0,
+                ))),
                 stroke: None,
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             },
             text_item(200.0, 100.0, "الطاولة"),

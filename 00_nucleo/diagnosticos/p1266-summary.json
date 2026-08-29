@@ -1,0 +1,30 @@
+{
+  "adapter": "lab-only diagnostic adapter using current adaptive.rs; product fallback measured separately",
+  "attestation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "baseline": "upstream/main a51e02804 ratified",
+  "cost_pass": 60,
+  "determinism_pass": 192,
+  "determinism_receipts": 192,
+  "fixtures": 96,
+  "fixtures_per_pair": 24,
+  "graph_pass": 96,
+  "head": "697eaf31e8ce6aaa4eef7d61d7808e377005c3c5",
+  "invalid_probes": 28,
+  "invalid_rejected": 28,
+  "measured_at": "2026-08-28T20:37:34-03:00",
+  "mutants": 24,
+  "mutants_rejected": 24,
+  "mutation_score": 1.0,
+  "numeric_pass": 72,
+  "pair_verdicts": {
+    "linear/linear-rgb": "Unknown-generalization",
+    "linear/oklab": "Unknown-generalization",
+    "radial/linear-rgb": "Unknown-generalization",
+    "radial/oklab": "Unknown-generalization"
+  },
+  "preserved": 22,
+  "productive_promotions_applied": 0,
+  "raster_pass": 96,
+  "scope": "96-fixture P1266 Linear/Radial x Oklab/LinearRgb generalization envelope only",
+  "violated": 74
+}

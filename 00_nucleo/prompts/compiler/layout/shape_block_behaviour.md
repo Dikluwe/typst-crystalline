@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/shape_block_behaviour` — `Content::Shape` como bloco que quebra parágrafo
-Hash do Código: 563c3a3d
+Hash do Código: af64b3ce
 
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/shape.rs` (com impacto no dispatch de `Content::Shape` em `compiler/layout/mod.rs`)
@@ -12,6 +12,33 @@ Hash do Código: 563c3a3d
 ## Propósito
 
 Este prompt altera o **comportamento observável** de `Content::Shape` no cristalino para que coincida com o Typst vanilla: as primitivas de desenho (`rect`, `square`, `ellipse`, `circle`, `line`, `polygon`, `curve`) são elementos de **bloco** que **quebram o parágrafo corrente** antes e depois de si. Não se trata de alterar a geometria nem o exportador — apenas o posicionamento relativo a texto e outros conteúdos no fluxo do documento.
+
+## P1227 — preservação de fill Paint
+
+Medição: `01_core/src/compiler/layout/shape.rs:129` executa
+`fill.as_ref().map(|p| p.to_color())`; isto colapsa `Paint::Gradient` e
+`Paint::Tiling` na primeira cor antes da fronteira de exportação. Após a
+aprovação da mudança pública proposta em `entities/layout_types.md`, o layout
+deve copiar/clonar o `Paint` para `FrameItem::Shape.fill` sem sampling, fallback
+ou normalização. O dono confirmou a mudança pública em 2026-08-26. A fase
+permanece layout; somente a informação já calculada é transportada. O
+comportamento de bloco especificado neste prompt não muda.
+
+## P1228 — forma isolada que ocupa exatamente a área útil
+
+Medição em working tree não commitada sobre `697eaf31e8ce6aaa4eef7d61d7808e377005c3c5`,
+em 2026-08-26: `#set page(width: 140pt, height: 50pt, margin: 5pt)` seguido de
+`#rect(width: 130pt, height: 40pt, fill: red)` produz somente o fundo no
+cristalino, enquanto a mesma forma com `height: 20pt` é emitida. Trocar a cor
+sólida por gradient, alpha ou stops coincidentes não altera essa fronteira.
+
+Uma forma isolada cuja largura e altura são exatamente as dimensões da área
+útil deve permanecer na página corrente, com canto superior esquerdo na
+margem. O teste de overflow deve considerar a caixa real da forma e as margens;
+a baseline tipográfica inicial e o espaçamento reservado para conteúdo
+subsequente não podem provocar uma página nova antes dessa primeira forma.
+Esta obrigação vale para qualquer `Paint` e não autoriza tratamento especial de
+gradient, reconhecimento textual da fixture nem mudança no exportador.
 
 Base de evidência (P763h):
 - Em `lab/typst-original/crates/typst-layout/src/engine.rs:765-803`, todas as primitivas de desenho do vanilla são realizadas como `BlockElem::single_layouter`.

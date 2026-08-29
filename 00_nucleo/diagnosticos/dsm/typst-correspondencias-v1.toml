@@ -106,8 +106,84 @@ evidencias = [
   "00_nucleo/diagnosticos/p1222-svg-analytic-ataques.tsv",
   "00_nucleo/diagnosticos/p1222-svg-analytic-resultados.tsv",
   "00_nucleo/diagnosticos/typst-p1222-svg-analytic-and-extension.md",
+  "00_nucleo/diagnosticos/p1226-svg-path-contract.tsv",
+  "00_nucleo/diagnosticos/p1226-svg-path-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1226-svg-path-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1226-svg-general-paths.md",
 ]
-nota = "Alegação limitada a rect/line/ellipse/circle/rounded rect focal, transforms matriciais, fill sólido e Stroke rico. Path versus elementos analíticos é normalizado. Paths gerais com arcos, paint servers e stroke-complex permanecem parciais/Unknown."
+nota = "Alegação limitada a rect/line/ellipse/circle/rounded rect, transforms matriciais, fill sólido, Stroke rico e curves públicas M/L/C/Q com fechamento smooth/straight e fill-rule. Arcos endpoint são normalizados no harness; como a API pública focal não os emite, permanecem harness-only. Paint servers e vocabulário opaco continuam parciais/Unknown."
+
+[[correspondencia]]
+id = "svg-paint-servers"
+antes = ["typst_svg::SVGRenderer::render_paint"]
+depois = [
+  "typst_core::entities::layout_types::FrameItem::Shape",
+  "typst_infra::export::svg::PaintDefs",
+]
+relacao = "divisao"
+alegacao = "parcial"
+evidencias = [
+  "00_nucleo/diagnosticos/p1227-svg-paint-contract.tsv",
+  "00_nucleo/diagnosticos/p1227-svg-paint-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1227-svg-paint-ataques.tsv",
+  "00_nucleo/diagnosticos/p1227-svg-paint-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1227-svg-paint-servers.md",
+  "00_nucleo/diagnosticos/p1228-pre-svg-paint-sondas.tsv",
+  "00_nucleo/diagnosticos/p1228-pre-svg-paint-ataques.tsv",
+  "00_nucleo/diagnosticos/p1228-pre-svg-paint-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1228-pre-svg-paint-loss.md",
+  "00_nucleo/diagnosticos/p1228-tekt-manifesto.tsv",
+  "00_nucleo/diagnosticos/p1228-tekt-certificado.tsv",
+  "00_nucleo/diagnosticos/p1229-svg-multispace-contract.tsv",
+  "00_nucleo/diagnosticos/p1229-svg-multispace-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1229-svg-multispace-ataques.tsv",
+  "00_nucleo/diagnosticos/p1229-svg-multispace-resultados.tsv",
+  "00_nucleo/diagnosticos/p1229-svg-multispace-error-budget.tsv",
+  "00_nucleo/diagnosticos/typst-p1229-svg-multispace.md",
+  "00_nucleo/diagnosticos/p1229-tekt-manifesto.tsv",
+  "00_nucleo/diagnosticos/p1229-tekt-certificado.tsv",
+  "00_nucleo/diagnosticos/p1230-svg-conic-contract.tsv",
+  "00_nucleo/diagnosticos/p1230-svg-conic-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1230-svg-conic-error-budget.tsv",
+  "00_nucleo/diagnosticos/p1230-svg-conic-ataques.tsv",
+  "00_nucleo/diagnosticos/p1230-svg-conic-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1230-svg-conic.md",
+  "00_nucleo/diagnosticos/p1230-tekt-manifesto.tsv",
+  "00_nucleo/diagnosticos/p1230-tekt-certificado.tsv",
+  "00_nucleo/diagnosticos/p1237-oklab-linear-rgb-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1237-oklab-linear-rgb.md",
+  "00_nucleo/diagnosticos/p1246-final-certificate-v2.tsv",
+  "00_nucleo/diagnosticos/p1247-final-certificate.tsv",
+  "00_nucleo/diagnosticos/p1248-final-certificate.tsv",
+  "00_nucleo/diagnosticos/p1249-final-certificate.tsv",
+  "00_nucleo/diagnosticos/p1250b-final-certificate.tsv",
+]
+nota = "Preserved para solid, Linear/Radial sRGB, tiling de cor com tamanho resolvido e Conic sRGB/Oklab/LinearRgb/Hsv. P1235 reverteu Linear/Oklab, Linear/LinearRgb e Radial/Hsv para Unknown-fallback; Radial/Oklab e Radial/LinearRgb também permanecem Unknown-fallback. P1245-P1250 certificam fragmentos produtivos adicionais de tiling com Content, clip geométrico, links same-page, imagens suportadas/SVG aninhado autossuficiente e glifos diretos com contexto de fonte; isso não promove paint multi-space, cross-page, formatos opacos/SVGZ ou wrappers sem fontes. P1252 não promove Luma nem qualquer outro par multi-space."
+
+[[correspondencia]]
+id = "color-luma-alpha-conversion"
+antes = [
+  "typst_library::visualize::color::ProcessColor::to_luma",
+  "typst_library::visualize::gradient::process_stops",
+]
+depois = [
+  "typst_core::entities::color::Color::to_space",
+  "typst_core::compiler::stdlib::foundations::color::native_luma",
+  "typst_core::compiler::stdlib::gradients",
+]
+relacao = "divisao"
+alegacao = "parcial"
+evidencias = [
+  "00_nucleo/diagnosticos/p1252-luma-alpha-contract.tsv",
+  "00_nucleo/diagnosticos/p1252-luma-alpha-ataques.tsv",
+  "00_nucleo/diagnosticos/p1252-luma-alpha-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1252-luma-alpha.md",
+  "00_nucleo/diagnosticos/p1239-luma-contract.tsv",
+  "00_nucleo/diagnosticos/p1239-luma-ataques.tsv",
+  "00_nucleo/diagnosticos/p1239-luma-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1239-luma.md",
+]
+nota = "P1252 classifica a perda de alpha não-Luma → Luma do vanilla ratificado como Known-Upstream-Bug e preserva alpha em luma(color) e nos stops Linear/Radial/Conic. P1239 fecha a luminância no fragmento público Linear/Radial P1236 com a matriz exata de palette 0.7.6: 42/42 pares sem delta. A alegação continua parcial e nenhuma whitelist SVG foi promovida."
 
 [[correspondencia]]
 id = "syntax-binop-split"

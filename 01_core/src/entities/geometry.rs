@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/geometry.md
-//! @prompt-hash 33b949c9
+//! @prompt-hash 77f1f320
 //! @layer L1
 //! @updated 2026-04-20
 
@@ -41,6 +41,13 @@ pub struct StrokeFields {
     pub join: bool,
     pub dash: bool,
     pub miter_limit: bool,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub enum FillRule {
+    #[default]
+    NonZero,
+    EvenOdd,
 }
 
 /// Segmento de um caminho vectorial.

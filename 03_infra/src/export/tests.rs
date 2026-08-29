@@ -1260,8 +1260,9 @@ fn export_path_com_cubicto_emite_operador_c() {
             kind: ShapeKind::Path(path),
             width: 20.0,
             height: 20.0,
-            fill: Some(Color::rgb(255, 0, 0)),
+            fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(255, 0, 0))),
             stroke: None,
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -1285,8 +1286,9 @@ fn export_group_com_clip_mask_emite_w_n_na_ordem_correcta() {
         kind: ShapeKind::Rect,
         width: 50.0,
         height: 50.0,
-        fill: Some(Color::rgb(0, 0, 255)),
+        fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(0, 0, 255))),
         stroke: None,
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
 
@@ -1459,8 +1461,11 @@ fn p263_export_pdf_gradient_in_stroke_emits_shading() {
             kind: ShapeKind::Rect,
             width: 50.0,
             height: 30.0,
-            fill: Some(Color::rgb(255, 255, 255)),
+            fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(
+                255, 255, 255,
+            ))),
             stroke: Some(stroke),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -1514,6 +1519,7 @@ fn p263_export_pdf_gradient_solid_preserva_rg_emit() {
             height: 30.0,
             fill: None,
             stroke: Some(stroke),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -1563,6 +1569,7 @@ fn p263_export_pdf_gradient_dedup_arc_ptr() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }
     };
@@ -1712,8 +1719,11 @@ fn p265_export_pdf_radial_emits_shading_type_3() {
             kind: ShapeKind::Rect,
             width: 50.0,
             height: 30.0,
-            fill: Some(Color::rgb(255, 255, 255)),
+            fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(
+                255, 255, 255,
+            ))),
             stroke: Some(stroke),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -1785,6 +1795,7 @@ fn p265_export_pdf_radial_dedup_arc_ptr() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }
     };
@@ -1868,6 +1879,7 @@ fn p265_export_pdf_linear_e_radial_coexistem() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             },
             FrameItem::Shape {
@@ -1882,6 +1894,7 @@ fn p265_export_pdf_linear_e_radial_coexistem() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             },
         ],
@@ -1979,6 +1992,7 @@ fn mk_radial_focal_doc(
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -2049,6 +2063,7 @@ fn p269_export_pdf_radial_focal_default_preserva_p265() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -2105,6 +2120,7 @@ fn p269_export_pdf_radial_focal_dedup_arc_ptr() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }
     };
@@ -2215,6 +2231,7 @@ fn p269_export_pdf_regression_p265_cluster_3_variants_pos_focal() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let page = Page {
@@ -2312,6 +2329,7 @@ fn p269_pdf_bytes_radial_focal_default_reproduzivel() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -2396,6 +2414,7 @@ fn p269_pdf_bytes_dedup_focal_reproduzivel() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         };
         let page = Page {
@@ -2475,6 +2494,7 @@ fn p269_pdf_bytes_cluster_3_variants_pos_focal_reproduzivel() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         };
         let page = Page {
@@ -2840,6 +2860,7 @@ fn p270_1_export_pdf_linear_oklab_bytes_paridade_p263() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -2893,6 +2914,7 @@ fn p270_1_export_pdf_linear_hsl_bytes_differem_de_oklab() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -2951,6 +2973,7 @@ fn p270_1_export_pdf_radial_hsv_renderiza() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -3004,6 +3027,7 @@ fn p270_1_export_pdf_conic_oklch_renderiza() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -3075,6 +3099,7 @@ fn p270_1_export_pdf_cluster_3_variants_multispace_coexistem() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let page = Page {
@@ -3137,6 +3162,7 @@ fn p270_1_pdf_bytes_oklab_default_reproduziveis() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -3187,6 +3213,7 @@ fn p270_1_pdf_bytes_hsl_reproduziveis() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -3237,6 +3264,7 @@ fn p270_1_pdf_bytes_oklch_hue_wrap_reproduziveis() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -3363,6 +3391,7 @@ fn p270_2_export_pdf_linear_cmyk_shading_devicecmyk() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -3425,6 +3454,7 @@ fn p270_2_export_pdf_radial_cmyk_shading_devicecmyk() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -3476,6 +3506,7 @@ fn p270_2_export_pdf_linear_oklab_preserva_devicergb() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -3540,6 +3571,7 @@ fn p270_2_export_pdf_conic_cmyk_fallback_devicergb() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -3616,6 +3648,7 @@ fn p270_2_export_pdf_cluster_3_variants_cmyk_coexistem() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let page = Page {
@@ -3690,6 +3723,7 @@ fn p270_2_pdf_bytes_linear_cmyk_reproduziveis() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -3743,6 +3777,7 @@ fn p270_2_pdf_bytes_radial_cmyk_reproduziveis() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -4024,6 +4059,7 @@ fn p272_export_pdf_conic_rgb_shading_type_6_unified() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -4085,6 +4121,7 @@ fn p272_export_pdf_conic_oklab_devicergb() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -4178,6 +4215,7 @@ fn p272_export_pdf_cluster_3_variants_unified_strategy() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let page = Page {
@@ -4247,6 +4285,7 @@ fn p272_pdf_bytes_conic_rgb_unified_reproduziveis() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -4407,6 +4446,7 @@ fn p270_4_export_pdf_conic_cmyk_shading_devicecmyk() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -4469,6 +4509,7 @@ fn p270_4_export_pdf_conic_oklab_preserva_p268_gouraud() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -4528,6 +4569,7 @@ fn p270_4_export_pdf_conic_cmyk_decode_array_6_pares() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -4602,6 +4644,7 @@ fn p270_4_export_pdf_cluster_24_24_absoluto() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let page = Page {
@@ -4679,6 +4722,7 @@ fn p270_4_pdf_bytes_conic_cmyk_reproduziveis() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -4731,6 +4775,7 @@ fn p270_4_pdf_bytes_default_oklab_preserved_p268() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -4799,6 +4844,7 @@ fn p270_4_export_pdf_conic_cmyk_resolve_bug_4422_dictionary() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -5000,6 +5046,7 @@ fn p273_export_pdf_linear_relative_none_preserva_p272() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -5056,6 +5103,7 @@ fn p273_export_pdf_conic_relative_none_preserva_p272_coons() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -5124,6 +5172,7 @@ fn p273_export_pdf_cluster_3_variants_relative_coexistem() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let page = Page {
@@ -5400,6 +5449,7 @@ fn p274_export_pdf_linear_low_contrast_reproduzivel() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -5449,6 +5499,7 @@ fn p274_export_pdf_linear_high_contrast_uses_higher_n() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -5507,6 +5558,7 @@ fn p274_cmyk_preserved_p270_2() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -5578,6 +5630,7 @@ fn p273_5_linear_relative_parent_top_level_emit_works() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -5635,6 +5688,7 @@ fn p273_5_radial_relative_parent_emit_works() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -5690,6 +5744,7 @@ fn p273_5_relative_self_preserva_p272_p273_bit_exact() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -5749,6 +5804,7 @@ fn p273_5_relative_parent_identity_3_gamma_1() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -5805,6 +5861,7 @@ fn p273_5_linear_relative_parent_reproduzivel() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };
@@ -5879,6 +5936,7 @@ fn p274_conic_preserved_p272_unchanged() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -5906,6 +5964,7 @@ fn p273_6_frame_item_shape_has_parent_bbox_at_emit_field() {
         height: 50.0,
         fill: None,
         stroke: None,
+        fill_rule: Default::default(),
         parent_bbox_at_emit: Some(Rect {
             x: Pt(0.0),
             y: Pt(0.0),
@@ -5982,6 +6041,7 @@ fn p273_6_gradient_object_carries_parent_bbox() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: parent_bbox,
         }],
     };
@@ -6034,6 +6094,7 @@ fn p273_6_shape_outside_block_no_parent_bbox() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         }],
     };
@@ -6091,6 +6152,7 @@ fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: parent_bbox,
             }],
         };
@@ -6168,6 +6230,7 @@ fn p273_6_relative_self_preserved_with_parent_bbox() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: parent_bbox,
             }],
         };
@@ -6262,6 +6325,7 @@ fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: parent_bbox,
             }],
         };
@@ -6334,6 +6398,7 @@ fn p273_7_relative_self_preserved_with_parent_bbox_boxed() {
                     overhang: false,
                     ..Stroke::default()
                 }),
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: parent_bbox,
             }],
         };
@@ -6421,6 +6486,7 @@ fn p273_10_gradient_inside_group_registered_and_uses_group_bbox() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
@@ -6500,6 +6566,7 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: Some(block_bbox),
     };
     let doc_a = PagedDocument::new(vec![Page {
@@ -6528,6 +6595,7 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: Some(block_bbox),
     };
     let group = FrameItem::Group {
@@ -6620,6 +6688,7 @@ fn p273_10_nested_groups_innermost_wins() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let inner_group = FrameItem::Group {
@@ -6698,6 +6767,7 @@ fn p273_10_gradient_relative_self_inside_group_unchanged() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
@@ -6770,6 +6840,7 @@ fn p273_10_shape_outside_group_unchanged() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: Some(Rect {
                 x: Pt(10.0),
                 y: Pt(20.0),
@@ -6824,6 +6895,7 @@ fn p273_10_radial_inside_group_mirrors_linear() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
@@ -6919,6 +6991,7 @@ fn p273_12_same_arc_same_bbox_dedup_to_single_pattern() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: same_bbox,
     };
     let page = Page {
@@ -6976,6 +7049,7 @@ fn p273_12_same_arc_different_bbox_creates_two_patterns() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: Some(bbox),
     };
     let bbox_a = Rect {
@@ -7045,6 +7119,7 @@ fn p273_12_arc_with_bbox_none_unchanged() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let page = Page {
@@ -7100,6 +7175,7 @@ fn p273_12_three_contexts_three_patterns() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: Some(bbox),
     };
     let bbox1 = Rect { x: Pt(0.0), y: Pt(0.0), w: Pt(100.0), h: Pt(50.0) };
@@ -7159,6 +7235,7 @@ fn p273_12_observable_diff_pdf_bytes() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: Some(bbox),
     };
     let bbox_small = Rect {
@@ -7270,6 +7347,7 @@ fn p273_13_gradient_inside_group_emits_real_pattern() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
@@ -7339,6 +7417,7 @@ fn p273_13_gradient_relative_parent_inside_group_uses_group_bbox() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
@@ -7410,6 +7489,7 @@ fn p273_13_radial_inside_group_mirrors_linear() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
@@ -7479,6 +7559,7 @@ fn p273_13_nested_groups_inner_group_bbox_wins() {
             overhang: false,
             ..Stroke::default()
         }),
+        fill_rule: Default::default(),
         parent_bbox_at_emit: None,
     };
     let inner_group = FrameItem::Group {
@@ -7562,6 +7643,7 @@ fn p273_13_shape_outside_group_unchanged() {
                 overhang: false,
                 ..Stroke::default()
             }),
+            fill_rule: Default::default(),
             parent_bbox_at_emit: Some(Rect {
                 x: Pt(10.0),
                 y: Pt(20.0),

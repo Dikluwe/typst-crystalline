@@ -337,8 +337,9 @@ impl<'a> Route<'a> {
     /// actual não contribui com `id` nem com `len` — optimização de cache
     /// do `comemo`.
     pub fn track(&self) -> Tracked<'_, Self> {
+        let contributes_no_local_state = self.id.is_none() && self.len == 0;
         match self.outer {
-            Some(outer) if self.id.is_none() && self.len == 0 => outer,
+            Some(outer) if contributes_no_local_state => outer,
             _ => Track::track(self),
         }
     }

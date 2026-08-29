@@ -219,7 +219,7 @@ fn render_item(
                 kind,
                 *width,
                 *height,
-                *fill,
+                fill.as_ref().map(|paint| paint.to_color()),
                 stroke.as_ref(),
             );
         }
@@ -679,8 +679,11 @@ mod tests {
                 kind: ShapeKind::Rect,
                 width: 80.0,
                 height: 80.0,
-                fill: Some(Color::rgb(255, 0, 0)),
+                fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(
+                    255, 0, 0,
+                ))),
                 stroke: None,
+                fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             }],
         };

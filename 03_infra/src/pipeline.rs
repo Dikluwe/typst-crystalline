@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash c4da9e3f
+//! @prompt-hash 35c87fd3
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -59,8 +59,9 @@ use crate::export::{
     export_pdf_multifont_and_timings_and_document_id_and_tags,
     export_pdf_with_document_id_and_tags,
     export_pdf_with_font_and_timings_and_document_id_and_tags, export_png,
-    export_png_with_fonts, export_svg, export_svg_with_fonts, FontKey, PdfTags,
-    StreamMode,
+    export_png_with_fonts, export_svg_with_context, export_svg_with_fonts_and_contexts,
+    FontKey, GlyphFontRequest, PdfTags, StreamMode, SvgDestinationContext,
+    SvgGlyphFontContext,
 };
 use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
@@ -1257,13 +1258,21 @@ pub fn compile_to_svg_string_with_timings_full_error(
                 foreground: vec![],
                 items: vec![],
             });
+            let destinations = svg_destination_context_for_page(&doc, 1);
+            let glyph_fonts = svg_glyph_font_context_for_page(&page, world);
             let svg = if fonts.is_empty() {
-                export_svg(&page, &crate::export::SvgOptions::default())
+                export_svg_with_context(
+                    &page,
+                    &crate::export::SvgOptions::default(),
+                    &destinations,
+                )
             } else {
-                export_svg_with_fonts(
+                export_svg_with_fonts_and_contexts(
                     &page,
                     &crate::export::SvgOptions::default(),
                     &fonts,
+                    &destinations,
+                    &glyph_fonts,
                 )
             };
             timings.render_ms = duration_ms(Instant::now().duration_since(t_render));
@@ -1285,6 +1294,55 @@ pub fn compile_to_svg_string_with_timings_full_error(
         }
     };
     (result, warnings, timings)
+}
+
+fn svg_destination_context_for_page(
+    doc: &PagedDocument,
+    selected_page_number: usize,
+) -> SvgDestinationContext {
+    SvgDestinationContext::from_destinations(
+        doc.extracted_label_pages
+            .iter()
+            .filter(|(_, page)| **page == selected_page_number)
+            .filter_map(|(label, _)| {
+                doc.extracted_label_positions
+                    .get(label)
+                    .copied()
+                    .map(|point| (label.clone(), point))
+            }),
+    )
+}
+
+fn svg_glyph_font_context_for_page(
+    page: &Page,
+    world: &dyn World,
+) -> SvgGlyphFontContext {
+    fn collect(
+        items: &[FrameItem],
+        metrics: &FallbackFontMetrics<'_>,
+        out: &mut Vec<(GlyphFontRequest, (FontList, FontVariant, FontVariations))>,
+    ) {
+        for item in items {
+            match item {
+                FrameItem::Glyph { style, base_char, .. } => {
+                    if let Some(identity) = metrics.resolve_font_combo(*base_char, style)
+                    {
+                        out.push((GlyphFontRequest::new(*base_char, style), identity));
+                    }
+                }
+                FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. }
+                | FrameItem::Semantic { items, .. } => collect(items, metrics, out),
+                _ => {}
+            }
+        }
+    }
+    let metrics = FallbackFontMetrics::new(world);
+    let mut resolved = Vec::new();
+    collect(&page.background, &metrics, &mut resolved);
+    collect(&page.items, &metrics, &mut resolved);
+    collect(&page.foreground, &metrics, &mut resolved);
+    SvgGlyphFontContext::from_resolutions(resolved)
 }
 
 fn duration_ms(d: std::time::Duration) -> f64 {
@@ -1497,6 +1555,29 @@ mod tests {
     use typst_core::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
+
+    #[test]
+    fn p1247_contexto_svg_filtra_pagina_e_posicao_homologa() {
+        use typst_core::entities::label::Label;
+        use typst_core::entities::layout_types::{Point, Pt};
+
+        let mut doc = PagedDocument::new(vec![]);
+        let p0 = Label("p0".to_string());
+        let p1 = Label("p1".to_string());
+        let sem_posicao = Label("sem-posicao".to_string());
+        doc.extracted_label_pages.insert(p0.clone(), 1);
+        doc.extracted_label_pages.insert(p1.clone(), 2);
+        doc.extracted_label_pages.insert(sem_posicao.clone(), 1);
+        doc.extracted_label_positions
+            .insert(p0.clone(), Point { x: Pt(8.0), y: Pt(9.0) });
+        doc.extracted_label_positions
+            .insert(p1.clone(), Point { x: Pt(80.0), y: Pt(90.0) });
+
+        let context = svg_destination_context_for_page(&doc, 1);
+        assert!(context.id_for(&p0).is_some());
+        assert!(context.id_for(&p1).is_none());
+        assert!(context.id_for(&sem_posicao).is_none());
+    }
 
     // MockWorld mínimo para smoke test — source única.
     struct MockWorld {

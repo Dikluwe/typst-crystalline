@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/shape.md
-//! @prompt-hash 6cdbc2b8
+//! @prompt-hash 0d1c4297
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
-use crate::entities::geometry::{ShapeKind, Stroke};
+use crate::entities::geometry::{FillRule, ShapeKind, Stroke};
 use crate::entities::paint::Paint;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
@@ -25,6 +25,7 @@ pub struct ShapeElem {
     pub height: Option<Box<Value>>,
     pub fill: Option<Paint>,
     pub stroke: Option<Stroke>,
+    pub fill_rule: FillRule,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Value` (width/height)
@@ -70,6 +71,7 @@ mod tests {
             height: None,
             fill: None,
             stroke: None,
+            fill_rule: FillRule::NonZero,
         }
     }
 
@@ -99,7 +101,8 @@ mod tests {
                 width: None,
                 height: None,
                 fill: None,
-                stroke: None
+                stroke: None,
+                fill_rule: FillRule::NonZero,
             }
         );
     }
@@ -118,6 +121,7 @@ mod tests {
             height: None,
             fill: None,
             stroke: None,
+            fill_rule: FillRule::NonZero,
         };
         assert_ne!(h(&ex()), h(&outro));
     }

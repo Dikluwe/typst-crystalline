@@ -14,7 +14,15 @@ use crate::entities::math_class::MathClass;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::{SyntaxError, SyntaxNode};
 
+use super::scanner::Scanner;
 use super::{is_id_continue, is_id_start, is_math_id_continue, is_math_id_start, Lexer};
+
+fn starts_multigrapheme_math_identifier(c: char, scanner: &Scanner<'_>) -> bool {
+    if !is_math_id_start(c) {
+        return false;
+    }
+    scanner.at(is_math_id_continue)
+}
 
 /// Math.
 impl Lexer<'_> {
@@ -96,7 +104,7 @@ impl Lexer<'_> {
             }
 
             // Identifiers.
-            c if is_math_id_start(c) && self.s.at(is_math_id_continue) => {
+            c if starts_multigrapheme_math_identifier(c, &self.s) => {
                 self.s.eat_while(is_math_id_continue);
                 let (last_index, _) =
                     self.s.from(start).grapheme_indices(true).next_back().unwrap();

@@ -1,0 +1,14 @@
+case	classification	counts_as_success	mutation_numerator	effect
+valid-fixture-missing-source	Unknown	false	excluded	blocks affected pair and invalidates population completeness
+svg-server-missing-or-ambiguous	Unknown	false	excluded	blocks affected pair; never substitutes fallback equivalence
+oracle-unavailable	Unknown	false	excluded	blocks affected pair and requires rerun
+budget-missing-or-drifted	Unknown	false	excluded	invalidates seal from budget-author phase
+raster-mask-ambiguous	Unknown	false	excluded	blocks affected pair for raster-dependent fixture
+mesh-budget-exhausted	Unknown	false	excluded	blocks affected pair; cannot be converted to pass
+zero-area-not-provable	Unknown	false	excluded	blocks affected pair until geometry identity is resolved
+unsupported-control-space	Unknown-control	false	excluded	proves fallback policy only; outside four promotion denominators
+invalid-public-input	Rejected-by-domain	false	not-a-mutant	must be rejected; never classified Unknown or Preserved
+valid-positive	Preserved	true	n/a	all applicable contract observables pass
+valid-negative	Violated	false	n/a	one or more observable obligations fail
+executed-negative-mutant	REJECTED	false	included	counts only when executable and demonstrably killed
+non-executable-proposal	NOT-COUNTED	false	excluded	cannot contribute to mutation score

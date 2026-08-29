@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/tiling` — constructor `tiling(...)`
-Hash do Código: 04da143a
+Hash do Código: e641265e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/visualize.rs`
@@ -92,3 +92,46 @@ não de mecânica Rust (ADR-0107).
 O binding global `tiling` passa a `Value::Type(Type::Tiling)`. A chamada
 delega ao mesmo `native_tiling`, preservando corpo, size, spacing, relative e
 resultado. Nenhuma lógica de render ou entidade muda neste lote.
+
+## P1245 — construtor declarativo completo proposto
+
+**Gate ADR-0127 (histórico):** o dono confirmou a mudança pública no P1245.
+O contrato observável foi pré-selado e materializado no P1254. Esta decisão é
+vigente; qualquer ampliação para stroke ou outro target exige evidência própria
+e não pode ser inferida do sucesso focal de fill SVG.
+
+### Medição que precede a decisão
+
+O construtor anterior em `01_core/src/compiler/stdlib/visualize.rs:27-113`
+aceita Color/Image/path, rejeita Gradient e não analisa offset ou angle. O
+vanilla ratificado `a51e02804`, em
+`crates/typst-library/src/visualize/tiling.rs:99-185,250-315`, recebe Content,
+valida size/spacing/offset/angle e deixa a produção do frame dependente do
+layout. Esta superfície é linguagem pública (ADR-0107).
+
+### Contrato do construtor
+
+- O argumento posicional obrigatório é `Content` arbitrário. Valores já
+  convertíveis a Content seguem a conversão pública normal; não se cria uma
+  whitelist paralela Color/Image/Gradient no construtor.
+- Named args: `size`, `spacing`, `offset`, `angle` e `relative`, com defaults
+  auto, zero, zero, zero e auto, respetivamente.
+- `size:auto` permanece não resolvido durante eval. `spacing` deve ser finito e
+  obedecer às restrições absolutas da linguagem. `offset` deve ser finito,
+  rejeitar componente font-relative proibido e preservar percentuais para
+  resolução contra o pitch. `angle` deve ser finito.
+- `relative` aceita auto, self e parent. O construtor não decide o auto sem
+  contexto de layout.
+- `tiling(t) == t` permanece identidade quando não há overrides incompatíveis.
+- Eval apenas valida e constrói a entidade declarativa. Não materializa frame,
+  não rasteriza, não resolve `size:auto` e não importa lógica de exporter.
+- Erros são observáveis e devem manter distinção entre tipo inválido, valor não
+  finito e unidade proibida; a redação exata só é obrigação quando medida como
+  superfície pública.
+
+### Fronteira de fase
+
+A fase de layout existente é a única autoridade para materializar o Content da
+célula, derivar size auto, resolver percentuais e aplicar offset antes de angle.
+Qualquer estrutura resolvida é privada dessa fase. Exporters recebem somente a
+saída normal do layout e não repetem avaliação ou layout do corpo.
