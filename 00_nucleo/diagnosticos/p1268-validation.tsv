@@ -1,0 +1,9 @@
+check	result	evidence	note
+manifest_hash_closure	PASS	52/52 pinned artifacts rehashed;0 mismatches	before validation artifact insertion
+tsv_shape	PASS	all p1268-*.tsv rows have the header column count	zero malformed rows
+materialization_identity	PASS	35/35 source-destination SHA-256 identities	p1268-materialization-receipt.tsv
+product_l0_test_diff	PASS	git diff --name-only HEAD over 00_nucleo/prompts,01_core,02_shell,03_infra,04_wiring,lab/parity is empty	P1268 outputs are diagnostics only
+cargo_build	PASS	exit=0 at HEAD 7df0e3174d0d651189c9281c81c4508e3c691478	existing compiler warnings remain
+crystalline_lint	PASS	exit=0 at HEAD 7df0e3174d0d651189c9281c81c4508e3c691478	reported existing warning/info diagnostics including V16,V19,V20;no P1268 product or L0 change
+preseal	PASS	sha256:365d1d30847fb93423305c4c3bd259da2a0f2140f0e4435771ec2b8916e432c2	preseal only;final seal not issued
+attestation_boundary	PASS	filesystem isolation not technically attested	segregation processual stated without overclaim

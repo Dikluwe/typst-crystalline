@@ -1,0 +1,59 @@
+measured_at=2026-08-29T07:14:59-03:00
+head=7df0e3174d0d651189c9281c81c4508e3c691478
+working_tree=uncommitted
+
+git status --short
+?? 00_nucleo/diagnosticos/p1268-adversary-attack-runner.py
+?? 00_nucleo/diagnosticos/p1268-adversary-attacks.tsv
+?? 00_nucleo/diagnosticos/p1268-adversary-mutation-schema.tsv
+?? 00_nucleo/diagnosticos/p1268-adversary-opaque-cases.tsv
+?? 00_nucleo/diagnosticos/p1268-adversary-receipt.tsv
+?? 00_nucleo/diagnosticos/p1268-attempt1-no-preseal.tsv
+?? 00_nucleo/diagnosticos/p1268-attempt2-invalid.tsv
+?? 00_nucleo/diagnosticos/p1268-author-contract-v3.tsv
+?? 00_nucleo/diagnosticos/p1268-author-corrections.tsv
+?? 00_nucleo/diagnosticos/p1268-author-observables-v3.tsv
+?? 00_nucleo/diagnosticos/p1268-author-receipt.tsv
+?? 00_nucleo/diagnosticos/p1268-author-unknown-v3.tsv
+?? 00_nucleo/diagnosticos/p1268-closure-receipt.tsv
+?? 00_nucleo/diagnosticos/p1268-final-manifest.tsv
+?? 00_nucleo/diagnosticos/p1268-head-drift.tsv
+?? 00_nucleo/diagnosticos/p1268-materialization-receipt.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-attempt1-invalid.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-budgets.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-coincidence.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-degenerates.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-determinism.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-interval-cost.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-landmarks.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-masks-manifest.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-opaque.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-positive.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-receipt.tsv
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-runner.py
+?? 00_nucleo/diagnosticos/p1268-oracle-v3-sources.tsv
+?? 00_nucleo/diagnosticos/p1268-preoracle-manifest-v2.tsv
+?? 00_nucleo/diagnosticos/p1268-preoracle-manifest-v3.tsv
+?? 00_nucleo/diagnosticos/p1268-preseal.tsv
+?? 00_nucleo/diagnosticos/p1268-role-capabilities-v2.tsv
+?? 00_nucleo/diagnosticos/p1268-role-capabilities-v3.tsv
+?? 00_nucleo/diagnosticos/p1268-suite-freeze-v3.tsv
+?? 00_nucleo/diagnosticos/p1268-suite-freeze.tsv
+?? 00_nucleo/diagnosticos/p1268-validation.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-capability-gates.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-commands.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-content-reads.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-finalize.py
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-fixture-closure.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-hash-audit.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-mask-closure.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-materialization-closure.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-mutation-verdicts.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-opaque-verdicts.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-receipt.tsv
+?? 00_nucleo/diagnosticos/p1268-verifier-v3-technical-gates.tsv
+?? 00_nucleo/diagnosticos/p1269-preexecution-manifest.tsv
+?? 00_nucleo/diagnosticos/p1269-role-capabilities.tsv
+?? 00_nucleo/diagnosticos/typst-p1268-preseal-report.md
+
+git diff HEAD --stat

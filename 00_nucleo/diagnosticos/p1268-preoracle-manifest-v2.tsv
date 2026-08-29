@@ -1,0 +1,27 @@
+field	value
+run	P1268 capability-closure restart
+cause	Attempt1 technical gates passed but no preseal due oracle write-root mismatch.
+attempt1_record	00_nucleo/diagnosticos/p1268-attempt1-no-preseal.tsv sha256:63cb6cfd2ae3429974132b8f818f873f3f14a970ce1ce8d409376aff2b275054
+role_capabilities_v2	00_nucleo/diagnosticos/p1268-role-capabilities-v2.tsv sha256:366e812246a5be53b64c4a1347ba4bcf438bb42f8729cde5558fda60fd324dce
+contract_freeze	00_nucleo/diagnosticos/p1268-contract-freeze.tsv sha256:7d8064a939e653961a084088e40353342de401908e7a8dcd0ba229e07489579d
+contract	/tmp/p1268/refiner/contract-v3.tsv sha256:cb2aabaf36703bef3ef869f9a150ca8f38f5e596f1a8523c19016a283b024399
+unknown_policy	/tmp/p1268/refiner/unknown-v3.tsv sha256:2ab6446d8b50c803240f19bde92ff55e121bc0f4a9793f8faeaecd80979b5530
+observables	/tmp/p1268/refiner/observables-v3.tsv sha256:e32a8b201a6625156e0416303892c23ce441957e09ecbde0bb3f459d966e969c
+oracle_runner_template	/tmp/p1268/oracle_clean/runner.py sha256:522611321055458b5a0be3fc4462f0fd1dfa27bc3e8fe00decf77b5a4d423145
+template_permission	Read runner.py only from oracle_clean;all data outputs and receipt in that tree remain forbidden.
+required_mechanical_changes	OUT=/tmp/p1268/oracle_v2;PREORACLE=p1268-preoracle-manifest-v2.tsv;runner guards/recorded commands updated to the V2 paths and hashes;oracle semantics unchanged.
+baseline	upstream/main a51e02804 ratified
+vanilla_binary	/usr/local/bin/typst sha256:7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
+vanilla_source	lab/typst-original/crates/typst-library/src/visualize/gradient.rs sha256:ed7a1be4e398fa47dff9ede8aa31c939514e341f9e47ac5099787d422f67967c
+population_matrix	00_nucleo/diagnosticos/p1266-generalization-matrix.tsv sha256:091d50354eb2b206d595c88a96b76eb8b9d8e8a881b2f0d3f5901edf9cce5406
+population_corpus	00_nucleo/diagnosticos/p1266-corpus.tsv sha256:54b5f0fdb0153321544a9d0e147867ea0473ecd9cedfc6d959e3c0a1c9522894
+fixture_root	lab/parity/matrix/fixtures/p1266;96 sources pinned by corpus
+historical_budgets_postfreeze	00_nucleo/diagnosticos/p1266-oracle-budgets.tsv sha256:b8153842849d7a5f74d1af0a006407d5e3ebebc1ece44c1456379ae396686b46
+adversary_attacks	/tmp/p1268/adversary/attacks.tsv sha256:86393124a5209ab8376224a1a84a22d3275220a0869c4ce8bab530df35e3af8b
+adversary_opaque	/tmp/p1268/adversary/opaque-cases.tsv sha256:f7e48b49ec4c4ec930fe497389118e826d7f03af676816170ab4c9cfd83b0bc5
+adversary_schema	/tmp/p1268/adversary/mutation-schema.tsv sha256:82f3a77f8a720fa2d29ef37a0062ec8459606a568cc590aba69e52ac6f092109
+adversary_runner	/tmp/p1268/adversary/attack_runner.py sha256:f290e57f38db6604087225e0d4038a29a6f43dfafbd86c877d6409115dcd62a9
+adversary_receipt	/tmp/p1268/adversary/receipt.tsv sha256:56cf0cff1acf2eb72b2515108c493982dc10b0a66a628213aec15c3275cde66e
+oracle_write_root	/tmp/p1268/oracle_v2/* exactly
+verifier_write_root	/tmp/p1268/verifier_v2/* exactly
+status	V2-CAPABILITIES-FROZEN;ORACLE-REEXECUTION-REQUIRED;NO-SEAL

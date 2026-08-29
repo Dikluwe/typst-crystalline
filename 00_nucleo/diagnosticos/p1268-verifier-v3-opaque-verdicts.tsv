@@ -1,0 +1,11 @@
+case_id	expected	adjudicated	counts_as_success	mutation_denominator	witness	resolution_required
+U01-provenance-ambiguous	Unknown	Unknown	false	excluded	origin and owner interval are absent	publish origin labels and owning G04A intervals
+U02-exact-right-probe-ambiguous	Unknown	Unknown	false	excluded	exact and epsilon-right probes are absent	publish separate exact-t and epsilon-right witnesses
+U03-budget-missing	Unknown	Unknown	false	excluded	frozen metric limits are absent	restore frozen per-fixture budget identity
+U04-graph-owner-ambiguous	Unknown	Unknown	false	excluded	duplicate target leaves owner ambiguous	resolve graph ownership and target identity
+U05-raster-mask-ambiguous	Unknown	Unknown	false	excluded	independent support mask is absent	derive mask from graph and geometry independently
+U06-mesh-budget-exhausted	Unknown	Unknown	false	excluded	mesh is partial after resource exhaustion	rerun within published bound or narrow scope
+U07-interval-trace-unattributed	Unknown	Unknown	false	excluded	R and interval-local costs are absent	publish complete interval-local trace
+U08-s20-mask-ambiguous	Unknown	Unknown	false	excluded	positive area lacks stroke morphology mask	publish independent baseline and candidate stroke masks
+U09-s21-owner-ambiguous	Unknown	Unknown	false	excluded	zero area lacks graph ownership and closure	prove zero fill plus graph ownership and geometry
+U10-parser-unavailable	Unknown	Unknown	false	excluded	parser result is unavailable	restore parser and compare rejection semantics

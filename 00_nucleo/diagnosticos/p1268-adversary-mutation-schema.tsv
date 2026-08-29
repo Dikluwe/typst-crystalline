@@ -1,0 +1,22 @@
+field	value
+schema_id	p1268-adversary-mutation-schema-v1
+encoding	UTF-8 TSV; one header row; JSON cells are canonical compact JSON with sorted-key output supplied by the runner
+suite_attacks	attacks.tsv columns attack_id,kind,selector_json,before_json,operation_json,after_json,expected,clause,expected_witness,validity,mutation_score
+suite_opaque	opaque-cases.tsv columns case_id,selector_json,canonical_state_json,deterministic_operation_json,expected,clause,expected_witness,validity,mutation_score,resolution_required
+canonical_root	A JSON object is one canonical record; a JSON array or ordinary TSV table is a population of records; a two-column field/value TSV is one canonical record
+typed_tsv_cells	Runner parses a TSV cell as JSON when valid JSON; otherwise it remains a string; writer emits dict/list/bool/null/number as canonical JSON
+selector	selector_json is an object of JSON Pointer -> exact value or a shorthand object whose keys are top-level fields; exactly one record must match for apply
+operation_set	replace,remove,add; paths are RFC 6901 JSON Pointers; replace/remove require the declared before value; add requires the target not exist
+operation_order	Operations execute left-to-right on a deep copy; any failed precondition aborts without emitting output
+before_after	materialize reconstructs before_json, applies operation_json, and requires exact equality with after_json; apply requires only operation preconditions on the selected caller-supplied record
+expected_classes	Preserved,Violated,Unknown are declarations frozen before candidate access; the runner never computes, judges, selects, kills, or promotes a result
+positive_control	A06 is a valid Preserved control and is excluded from mutation_score; it tests that mechanical adaptive-stop movement inside the owner interval is not rejected when the frozen language envelope remains satisfied
+negative_validity	valid-negative rows are executable semantic negatives and are eligible for the mutation numerator only after an independent verifier executes and adjudicates them
+opaque_validity	explicit-opaque rows must remain Unknown and are excluded from mutation_score; Unknown never counts as success or rejection
+determinism	A24 and A25 encode semantic order and repeat divergence as deterministic record mutations; their application is reproducible even though the represented product behavior is non-deterministic
+forbidden_dependency	No operation, selector, expected witness, or limit is derived from target/debug/typst, a current candidate, oracle outputs, verifier outputs, P1267-R1, or a future product patch
+limits	Per eligible G04A interval: subdivisions<=64,a_i<=63,d_i<=127,b_i<=126,q_i=d_i+b_i<=253; M=count(effective_public_stops); E=M+sum(a_i)<=M+63R
+identity	G04A includes declarative,auto,sharp,and repeat-derived effective_public_stops entering SVG adaptation; logical color-stop cardinality is recorded separately and cannot substitute for M
+coincidence	At t=0 exact selects the last zero-offset stop; at internal/terminal exact coincidence it selects the first stop at that offset; epsilon-right at r<1 begins from the last coincident G04A stop
+score_policy	mutation_score numerator and denominator are not calculated by this adversary; only an independent verifier may count executed valid mutants and require score 1.0
+output_policy	Runner writes only a caller-selected output path; this authored delivery does not execute it on candidate or oracle artefacts

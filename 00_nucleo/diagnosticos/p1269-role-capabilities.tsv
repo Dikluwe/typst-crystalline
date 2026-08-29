@@ -1,0 +1,7 @@
+role	executor	context_inheritance	content_read_capability	metadata_capability	write_allowlist	forbidden_writes	attestation
+intent-freezer	/root	current task	P1269 step;P1268 sealed chain;P1266 frozen population and historical harness	repository status and hashes	00_nucleo/diagnosticos/p1269-*.tsv	P1268 protected artifacts;product;L0;corpus;budgets	causal freeze recorded before candidate execution
+candidate-builder	/root deterministic build	current task	workspace sources and manifests	build metadata	target/ and lab/parity/matrix/p1266_probe/target/	product source;L0;P1268/P1266 protected inputs	build output is not isolation
+candidate-executor	/root diagnostic harness	current task	frozen manifests;candidate binary;probe;temporary corpus copy	command exits and hashes	/tmp/p1269/*	product;L0;frozen corpus;budgets;contract;oracles;attacks	EXECUTADO-SEM-ATESTACAO-DE-ISOLAMENTO
+adjudicator	/root deterministic postprocessor	current task	frozen P1268 contract/oracles/attacks;candidate receipts	artifact hashes	/tmp/p1269/adjudication/*	product;L0;frozen inputs;candidate correction	causal segregation only;not independent authority
+materializer	/root	current task	frozen temporary outputs and adjudication	repository status	00_nucleo/diagnosticos/p1269-*	semantic edits to frozen outputs;product;L0	byte-identity audit
+limitation	shared-filesystem	current task	technical read capability is not revoked	filesystem shared	as above	false isolation claim	segregation processual without filesystem isolation

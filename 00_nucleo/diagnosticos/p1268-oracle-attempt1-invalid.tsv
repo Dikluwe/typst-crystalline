@@ -1,0 +1,8 @@
+field	value
+attempt	P1268 oracle-author attempt 1
+status	INVALIDATED-INPUT-ALLOWLIST-BREACH
+declared_breach	Read 00_nucleo/diagnosticos/p1266-cost.tsv and p1266-determinism.tsv outside the oracle allowlist.
+causal_risk	Those artifacts contain historical candidate-derived observations and can bias an oracle that must be vanilla-first.
+action	Attempt interrupted;no output from /tmp/p1268/oracle is included in any freeze,score,verdict or seal.
+replacement	Clean restart /tmp/p1268/oracle_clean with fork_turns=none and explicit prohibition of candidate-history receipts.
+attestation	Incident self-reported by the role and preserved by orchestrator;shared filesystem capability was not denied.

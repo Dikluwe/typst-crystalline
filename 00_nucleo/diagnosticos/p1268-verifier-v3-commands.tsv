@@ -1,0 +1,19 @@
+command_id	command	purpose	status
+C001	sed skill and required references	read full skill instructions	PASS
+C002	rg --files 00_nucleo/adr and rg materialization terms	ADR discovery and authorized content scan	PASS
+C003	sha256sum and sed V3 manifests freezes capabilities drift	frozen control validation	PASS
+C004	find authorized /tmp/p1268 trees	filename metadata enumeration	PASS
+C005	sha256sum frozen refiner oracle adversary authoritative artifacts	independent hash audit	PASS
+C006	sed frozen contract unknown observables corrections receipt	contract audit	PASS
+C007	sed oracle runner and TSV outputs in bounded chunks	oracle semantic audit	PASS
+C008	sed adversary runner attacks opaque schema receipt	adversary audit	PASS
+C009	git rev-parse HEAD; git status --short; protected sha256sum	HEAD provenance audit	PASS
+C010	python read-only population cost mask coincidence degenerates determinism audit	deep gate revalidation	PASS
+C011	python read-only binary direct inverse repeat equality	determinism revalidation	PASS
+C012	sed authoritative adaptive L0 svg L0 and ratified gradient source sections	normative source adjudication	PASS
+C013	python attack_runner.py materialize 25 attacks under verifier_v3	frozen attack execution	PASS
+C014	python attack_runner.py --opaque materialize 10 cases under verifier_v3	opaque execution	PASS
+C015	python compare 35 materializations with frozen declared states	runner reproduction	PASS
+C016	apply_patch verifier mutation opaque technical capability TSVs	verifier-only evidence write	PASS
+C017	awk constant-column validation	TSV schema gate	PASS
+C018	python3 /tmp/p1268/verifier_v3/finalize_verification.py	final hash closure and conditional preseal	PASS

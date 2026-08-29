@@ -1,0 +1,19 @@
+gate	command_or_basis	result	status
+workspace_build	cargo build --workspace	exit 0; preexisting compiler warnings only	Preserved
+workspace_tests	cargo test --workspace	exit 0; zero failed; three doc tests ignored	Preserved
+root_format	cargo fmt --all -- --check	exit 0	Preserved
+probe_format	cargo fmt --manifest-path lab/parity/matrix/p1266_probe/Cargo.toml -- --check	exit 0	Preserved
+python_syntax	python3 -m py_compile lab/parity/matrix/p1266_generalize.py /tmp/p1269/adjudication/postprocess.py	exit 0	Preserved
+diff_check	git diff --check	exit 0	Preserved
+tekt_focus	crystalline-lint --checks v1,v5,v15,v26 .	zero violations	Preserved
+full_lint	crystalline-lint .	exit 0; zero violations; preexisting informational V16-V20	Preserved
+p1264_certificate	sha256 d8a5eee14e6cf75c9001a77b780583c1e072552a9e862206d8041fe885b80a89	matches P1266 protected identity	Preserved
+p1264_manifest	sha256 df47eae1e2f47516ad42ed94307318c479c9c867023b3d18cb3908e6ded18377	matches certificate identity	Preserved
+svg_l0	sha256 41c5d785d9e4ecdb184fd5e6344dd7422d874e826e3bdeac2ddb2d6617530d29	matches frozen P1266 control	Preserved
+svg_product	sha256 ffd9b7095fc52b1aab222003be2018431885ea1bdb301ab9403a35bbbc0d3165	matches frozen P1266 control	Preserved
+adaptive_l0	sha256 4e2e19b5af1aab3c33596166fbcef647df1aceed1739bab395d432126f46d737	matches frozen P1266 control	Preserved
+adaptive_product	sha256 dd2c3a696c63ded7df7a5b56c5103f3d70b404bf7bf50d021d0d592530e2b331	matches frozen P1266 control	Preserved
+candidate_binary	sha256 408f1240d049273039ab42068e95785fe9d7b5d89fe117815316e5d95cf21f68	matches P1269 preexecution freeze after all controls	Preserved
+candidate_probe	sha256 09c08a9d1c435664a031fb47e95f321ebcfb1ab4e6b4cd9427273aa396a076f0	matches P1269 preexecution freeze after all controls	Preserved
+vanilla_binary	sha256 7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8	matches P1269 preexecution freeze	Preserved
+provenance	HEAD 7df0e3174d0d651189c9281c81c4508e3c691478; measured 2026-08-29T07:38:26-03:00; git-status sha256 5baffb640e341683b5d733eeb420d90b11c0731070bb2c5384a7030b226104df	working tree non-committed; exact pre-run snapshot separately frozen	Recorded

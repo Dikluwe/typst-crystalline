@@ -1,0 +1,26 @@
+attack_id	validity	expected	adjudicated	clause	witness	runner_execution	mutation_denominator	killed
+A01-original-offset	valid-negative	Violated	Violated	G04A;O01	g1 offset changed from 0.5 to 0.51	PASS	included	true
+A02-original-color	valid-negative	Violated	Violated	G04A;O03	g0 encoded-sRGB color changed from 1.0 to 0.95 red	PASS	included	true
+A03-original-alpha	valid-negative	Violated	Violated	G04A;O03	g0 alpha changed from 0.4 to 0.5	PASS	included	true
+A04-swap-exact-epsilon	valid-negative	Violated	Violated	G04A;G04B;O02;O05	exact internal and epsilon-right structural selections are swapped	PASS	included	true
+A05-epsilon-uses-exact	valid-negative	Violated	Violated	G04B;O05	epsilon-right incorrectly selects first coincident stop	PASS	included	true
+A06-adaptive-inside-envelope-control	valid-positive-control	Preserved	Preserved	G04B;G05;O04;O05	adaptive stop remains strictly inside owner interval and metrics remain below frozen limits	PASS	excluded	not-applicable
+A07-adaptive-outside-budget	valid-negative	Violated	Violated	G04B;G05;O05	color_max and color_p95 exceed frozen limits	PASS	included	true
+A08-drop-discontinuity	valid-negative	Violated	Violated	G04A;G04B;O02	coincident multiplicity falls from two to one	PASS	included	true
+A09-reorder-discontinuity	valid-negative	Violated	Violated	G04A;O02	coincident stop order and structural branches change	PASS	included	true
+A10-truncate-interval	valid-negative	Violated	Violated	G04B;O05	positive-width interval has an uncovered terminal segment	PASS	included	true
+A11-subdivisions-65	valid-negative	Violated	Violated	G10;O06;O08	subdivisions 65 exceeds limit 64	PASS	included	true
+A12-interiors-64	valid-negative	Violated	Violated	G10;O06;O07	a_i 64 exceeds 63 and E exceeds M plus 63R	PASS	included	true
+A13-midpoints-128	valid-negative	Violated	Violated	G10;O06;O08	d_i 128 exceeds limit 127	PASS	included	true
+A14-boundaries-127	valid-negative	Violated	Violated	G10;O06;O08	b_i 127 exceeds limit 126	PASS	included	true
+A15-sampler-254	valid-negative	Violated	Violated	G10;O06;O08	q_i 254 exceeds 253 and differs from d_i plus b_i	PASS	included	true
+A16-logical-used-as-M	valid-negative	Violated	Violated	G10;G10H;O07;O07H	M 2 differs from effective_public_stops 3	PASS	included	true
+A17-affine-expansion-overrun	valid-negative	Violated	Violated	G10;O07	E 130 differs from M plus sum a_i 129 and exceeds M plus 63R	PASS	included	true
+A18-erase-s20-stroke	valid-negative	Violated	Violated	G06;G07A;O09	S20 positive stroke support is erased	PASS	included	true
+A19-paint-s21-fill	valid-negative	Violated	Violated	G07B;O10	S21 zero-height fill gains positive-area paint	PASS	included	true
+A20-break-url	valid-negative	Violated	Violated	G03;O11	paint URL points to a missing local target	PASS	included	true
+A21-break-graph-role	valid-negative	Violated	Violated	G03;G07A;O11	server role changes and graph closure is lost	PASS	included	true
+A22-break-geometry	valid-negative	Violated	Violated	G03;G09;O11	radial focal changes and transform count doubles	PASS	included	true
+A23-unknown-promoted	valid-negative	Violated	Violated	G12;G14;O12;unknown-policy	Unknown is converted to success without resolving opacity	PASS	included	true
+A24-order-dependent	valid-negative	Violated	Violated	G12;G13;O12	direct and inverse semantic digests and stop order differ	PASS	included	true
+A25-repeat-dependent	valid-negative	Violated	Violated	G10;G12;G13;O08;O12	repeat changes semantic digest and emitted count	PASS	included	true

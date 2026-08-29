@@ -1,0 +1,11 @@
+subject	capability	observed	required	status	breach
+oracle-v3	read scope	frozen V3 allowlist recorded	frozen V3 allowlist	PASS	false
+oracle-v3	write scope	491 pre-receipt files below /tmp/p1268/oracle_v3	/tmp/p1268/oracle_v3 exactly	PASS	false
+oracle-v3	typst executable	/usr/local/bin/typst sha256 7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8	vanilla ratified only	PASS	false
+oracle-v3	forbidden dependency	candidate and other oracle outputs absent by receipt and guards	absent	PASS	false
+verifier-v3	read scope	V3 manifests;contract;oracle_v3;adversary;authoritative pins;ADRs	verifier-v3 allowlist	PASS	false
+verifier-v3	write scope	/tmp/p1268/verifier_v3 only	/tmp/p1268/verifier_v3 exactly	PASS	false
+verifier-v3	forbidden content	other oracle attempts;target/debug/typst;candidate;future product;P1267-R1 product content not inspected	absent	PASS	false
+verifier-v3	judged-path writes	none	zero	PASS	false
+verifier-v3	context inheritance	none recorded for isolated verifier-v3	none	PASS	false
+protocol	filesystem isolation	not technically attested	claim limitation honestly	PASS	false
