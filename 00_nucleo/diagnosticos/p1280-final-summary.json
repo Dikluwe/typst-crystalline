@@ -1,0 +1,20 @@
+{
+  "attestation": "EXECUTADO SEM ATESTA\u00c7\u00c3O DE ISOLAMENTO",
+  "determinism_pass": 384,
+  "determinism_total": 384,
+  "head": "ad93af9e80213fc410ffeda1f4916b031b088474",
+  "invalid_rejected": 56,
+  "invalid_total": 56,
+  "luma_fallback": 48,
+  "luma_total": 48,
+  "measured_at": "2026-08-29T21:35:26-03:00",
+  "p1279_mutants_inherited": 30,
+  "p1280_mutants_rejected": 36,
+  "p1280_mutants_total": 36,
+  "polar_native": 144,
+  "polar_total": 144,
+  "product_fixtures": 192,
+  "productive_promotions_applied": 6,
+  "unchanged_unknown_pairs": 2,
+  "verdict": "POLAR-PRODUCTIVELY-PRESERVED"
+}

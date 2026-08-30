@@ -1,0 +1,5 @@
+role	artifact	write_scope	isolation
+intent-owner	L0 + passo	specification	shared-checkout
+contract-author	contract/policy/preseal attacks	diagnostics only	logical-order-only
+implementer	svg.rs predicate	consumer after seal	not isolated
+verifier	postseal receipts/certificate	diagnostics after candidate	not isolated

@@ -1,0 +1,12 @@
+{
+  "attestation": "EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO",
+  "baseline": "upstream/main a51e02804 ratified",
+  "head": "ad93af9e80213fc410ffeda1f4916b031b088474",
+  "measured_at": "2026-08-29T21:24:55-03:00",
+  "mutants_rejected": 18,
+  "mutants_total": 18,
+  "mutation_score": 1.0,
+  "policy_pairs_promoted": 6,
+  "preseal": "ACCEPTED-FOR-IMPLEMENTATION",
+  "scope": "Linear/Radial x Oklch/Hsl/Hsv productive route only"
+}

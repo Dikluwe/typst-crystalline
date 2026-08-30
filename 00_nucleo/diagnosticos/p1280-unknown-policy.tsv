@@ -1,0 +1,5 @@
+case	classification	counts_as_success
+Linear/Radial Luma	Unknown-generalization	false
+Linear/Radial CMYK	Unknown-ADR0097	false
+unresolved-or-opaque-SVG	Unknown	false
+outside-P1280-fragment	Unknown	false

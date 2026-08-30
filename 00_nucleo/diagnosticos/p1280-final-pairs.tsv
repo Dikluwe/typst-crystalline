@@ -1,0 +1,9 @@
+pair	p1279_language_classification	p1280_expected_route	p1280_product	p1280_sealed_route_evidence	p1280_invalid_rejected	p1280_determinism	productive_promotion	final_classification
+linear/oklch	Generalization-Preserved	native-adaptive	24/24	24/24	6/6	48/48	true	Productively-Preserved
+radial/oklch	Generalization-Preserved	native-adaptive	24/24	24/24	8/8	48/48	true	Productively-Preserved
+linear/hsl	Generalization-Preserved	native-adaptive	24/24	24/24	6/6	48/48	true	Productively-Preserved
+radial/hsl	Generalization-Preserved	native-adaptive	24/24	24/24	8/8	48/48	true	Productively-Preserved
+linear/hsv	Generalization-Preserved	native-adaptive	24/24	24/24	6/6	48/48	true	Productively-Preserved
+radial/hsv	Generalization-Preserved	native-adaptive	24/24	24/24	8/8	48/48	true	Productively-Preserved
+linear/luma	Unknown-generalization	fallback	24/24	24/24	6/6	48/48	false	Unknown-generalization
+radial/luma	Unknown-generalization	fallback	24/24	24/24	8/8	48/48	false	Unknown-generalization

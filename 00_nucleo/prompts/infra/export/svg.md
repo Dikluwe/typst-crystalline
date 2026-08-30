@@ -252,6 +252,55 @@ oráculos; bytes, IDs e contagem de stops não são gate, enquanto max/p95 de co
 premultiplicada e alpha antes de `u8`, raster, grafo e determinismo continuam
 obrigatórios. Qualquer falha mantém o par `Unknown`.
 
+#### P1280 — promoção dos seis pares polares certificados
+
+**Gate ADR-0127: L0 confirmado explicitamente pelo dono em 2026-08-29.** A
+mudança é comportamento por defeito: substitui fallback sólido por servidor
+SVG adaptativo somente em Linear/Radial × Oklch/Hsl/Hsv.
+
+Medição anterior à proposta: o certificado P1279 foi commitado em
+`ad93af9e80213fc410ffeda1f4916b031b088474`. O certificado
+`00_nucleo/diagnosticos/typst-p1279-offset-identity-certificate.md` tem SHA-256
+`be1e16cfb002c70b8d7af83421e7027f2abdb32324a1e8ff94ace7152ee1e3ed`; o
+resumo final tem SHA-256
+`c0628bc0e2723e664c587a6b5077c8c9a59bea70d2ffe93909a44efdb5b5c80a` e o
+manifesto de evidência tem SHA-256
+`8f44e3ac8da2b9f75ee075f0656a7917f8039c39734e1cef12951ca21916c1a3`.
+Sobre a população congelada P1276/P1277, cada um dos seis pares fechou grafo,
+envelope numérico, raster e custo em 24/24, totalizando 144/144; os 42/42
+inválidos polares foram rejeitados. O transporte lossless do harness eliminou
+os 10 falsos negativos de P1278 sem alterar código produtivo, budget, limiar ou
+cap. O predicate atual ainda admite Linear/Radial apenas em sRGB, Oklab e
+LinearRgb, portanto os 144 casos polares preservam fallback e nenhuma promoção
+foi aplicada.
+
+Decisão aprovada: `paint_is_svg_native` admite
+Oklch, Hsl e Hsv individualmente para Gradient Linear e Radial. Esses seis
+pares reutilizam sem alteração a geometria existente e os stops de
+`svg_adaptive_stops`, incluindo o sampler preciso P1278 e a serialização
+`Ratio::repr` completa. sRGB, Oklab e LinearRgb conservam as rotas vigentes.
+Luma e CMYK permanecem `Unknown` com fallback explícito
+`gradient-color-space`; Conic, Tiling, algoritmo PDF, limiar `0.001`, cap 64,
+budgets, ordem, descontinuidades, alpha, IDs e política de `Unknown` não mudam.
+
+Esta decisão substitui somente a proibição P1273/P1278 de
+promover Oklch/Hsl/Hsv em Linear/Radial. A proibição de promover Luma, CMYK ou
+pares não certificados permanece normativa. O certificado cobre apenas este
+fragmento e não prova equivalência SVG geral.
+
+Plano RED→GREEN pós-confirmação: antes do predicate, testes do owner exigem,
+para os seis pares, referência local resolvida, variante Linear/Radial correta,
+ausência do marcador de fallback, stops/offsets/ordem/descontinuidades/alpha e
+papéis fill/stroke preservados; com o predicate atual devem falhar. Depois,
+amplia-se somente os dois braços Linear/Radial do predicate. Testes negativos
+exigem que Luma e CMYK continuem fallback e que nenhum wildcard promova Conic
+ou Tiling. A matriz completa é readjudicada com 144/144 polares nativos, 48/48
+Luma ainda fallback, 56/56 inválidos rejeitados e 384/384 recibos
+determinísticos; numeric/raster/grafo/custo polares permanecem 144/144 sem
+alargar nenhum envelope. Ataques devem discriminar subpromoção, sobrepromoção,
+referência pendente, solid disfarçado, bypass do sampler, mudança de budget e
+aceitação por bytes/IDs; `mutation_score` exigido é `1.0`.
+
 #### P1273 — promoção dos quatro pares certificados
 
 **Gate ADR-0127:** proposta L0 confirmada explicitamente pelo dono em

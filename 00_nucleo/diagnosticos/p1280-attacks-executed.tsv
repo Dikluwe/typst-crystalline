@@ -1,0 +1,19 @@
+mutant_id	executed	witness	status
+A01-drop-fixture	true	192 product receipts	REJECTED
+A02-drop-linear	true	72 Linear polar receipts	REJECTED
+A03-drop-radial	true	72 Radial polar receipts	REJECTED
+A-space-oklch	true	48 independent oklch receipts	REJECTED
+A-space-hsl	true	48 independent hsl receipts	REJECTED
+A-space-hsv	true	48 independent hsv receipts	REJECTED
+A07-retain-fallback	true	144 polar routes have zero fallback	REJECTED
+A08-missing-variant	true	144 polar routes have native variants	REJECTED
+A09-pending-reference	true	144 polar graphs resolved	REJECTED
+A10-raster-disguise	true	144 polar routes remain vector	REJECTED
+A11-solid-disguise	true	144 polar paints reference servers	REJECTED
+A12-bypass-adaptive	true	144 product routes bind the immutable P1279 adaptive certificate	REJECTED
+A13-promote-luma	true	48 Luma controls retain fallback	REJECTED
+A14-drop-invalid	true	56 invalid probes rejected	REJECTED
+A15-order-sensitive	true	384 inverse/repeat receipts	REJECTED
+A16-fill-only	true	fill and stroke appear independently	REJECTED
+A17-unknown-as-success	true	Luma remains outside success	REJECTED
+A18-general-equivalence	true	verdict remains limited to eight measured pairs	REJECTED

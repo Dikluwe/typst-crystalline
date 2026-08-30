@@ -1,0 +1,11 @@
+pair	expected_route	productive_promotion
+linear/oklch	native-adaptive	true
+linear/hsl	native-adaptive	true
+linear/hsv	native-adaptive	true
+linear/luma	fallback	false
+linear/cmyk	fallback	false
+radial/oklch	native-adaptive	true
+radial/hsl	native-adaptive	true
+radial/hsv	native-adaptive	true
+radial/luma	fallback	false
+radial/cmyk	fallback	false

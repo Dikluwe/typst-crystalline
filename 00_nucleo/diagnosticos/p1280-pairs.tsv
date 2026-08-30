@@ -1,0 +1,9 @@
+pair	expected_route	product	sealed_route_evidence	invalid_rejected	determinism	productive_promotion	classification
+linear/oklch	native-adaptive	24/24	24/24	6/6	48/48	true	Productively-Preserved
+radial/oklch	native-adaptive	24/24	24/24	8/8	48/48	true	Productively-Preserved
+linear/hsl	native-adaptive	24/24	24/24	6/6	48/48	true	Productively-Preserved
+radial/hsl	native-adaptive	24/24	24/24	8/8	48/48	true	Productively-Preserved
+linear/hsv	native-adaptive	24/24	24/24	6/6	48/48	true	Productively-Preserved
+radial/hsv	native-adaptive	24/24	24/24	8/8	48/48	true	Productively-Preserved
+linear/luma	fallback	24/24	24/24	6/6	48/48	false	Unknown-generalization
+radial/luma	fallback	24/24	24/24	8/8	48/48	false	Unknown-generalization

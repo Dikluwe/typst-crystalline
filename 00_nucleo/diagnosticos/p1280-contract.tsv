@@ -1,0 +1,15 @@
+claim	observable	requirement
+C01	allowlist	exactly Linear/Radial x Oklch/Hsl/Hsv
+C02	graph	resolved local native gradient with correct variant
+C03	fill	fill references the native server
+C04	stroke	stroke references the native server
+C05	fallback	no gradient-color-space fallback on polar pairs
+C06	adaptive	svg_adaptive_stops remains on the productive route
+C07	carriers	offsets order discontinuities and alpha preserved
+C08	luma	Linear/Radial Luma retain explicit fallback
+C09	cmyk	Linear/Radial CMYK retain explicit fallback
+C10	scope	Conic Tiling and unlisted pairs do not move
+C11	invalid	56/56 frozen invalid probes remain rejected
+C12	determinism	384/384 inverse/repeat receipts agree
+C13	budgets	threshold cap and sealed numeric budgets unchanged
+C14	claim	fragment verdict never becomes general SVG equivalence

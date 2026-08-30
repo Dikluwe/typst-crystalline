@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash 6ccbec47
+//! @prompt-hash bc81b63a
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -306,11 +306,21 @@ fn paint_is_svg_native(paint: &Paint) -> bool {
         Paint::Solid(_) => true,
         Paint::Gradient(Gradient::Linear(value)) => matches!(
             value.space,
-            ColorSpace::Srgb | ColorSpace::Oklab | ColorSpace::LinearRgb
+            ColorSpace::Srgb
+                | ColorSpace::Oklab
+                | ColorSpace::Oklch
+                | ColorSpace::LinearRgb
+                | ColorSpace::Hsl
+                | ColorSpace::Hsv
         ),
         Paint::Gradient(Gradient::Radial(value)) => matches!(
             value.space,
-            ColorSpace::Srgb | ColorSpace::Oklab | ColorSpace::LinearRgb
+            ColorSpace::Srgb
+                | ColorSpace::Oklab
+                | ColorSpace::Oklch
+                | ColorSpace::LinearRgb
+                | ColorSpace::Hsl
+                | ColorSpace::Hsv
         ),
         Paint::Gradient(Gradient::Conic(value)) => matches!(
             value.space,
@@ -2274,30 +2284,79 @@ mod tests {
     }
 
     #[test]
-    fn p1235_radial_hsv_regressa_a_unknown_explicito() {
+    fn p1280_seis_pares_polares_usam_servidor_adaptativo_em_fill_e_stroke() {
         use typst_core::entities::axes::Axes;
         use typst_core::entities::color::ColorSpace;
         use typst_core::entities::gradient::{Gradient, GradientStop};
-        use typst_core::entities::layout_types::Ratio;
-        let mut gradient = Gradient::radial_with_focal(
+        use typst_core::entities::layout_types::{Angle, Ratio};
+
+        let stops = || {
             vec![
                 GradientStop::new(Color::rgba(255, 0, 0, 128), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 255, 0), Ratio(0.37)),
                 GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
-            ],
-            Axes::new(Ratio(0.4), Ratio(0.6)),
-            Ratio(0.7),
-            Axes::new(Ratio(0.2), Ratio(0.3)),
-            Ratio(0.1),
-        );
-        if let Gradient::Radial(value) = &mut gradient {
-            std::sync::Arc::make_mut(value).space = ColorSpace::Hsv;
+            ]
+        };
+        for space in [ColorSpace::Oklch, ColorSpace::Hsl, ColorSpace::Hsv] {
+            let gradients = [
+                (
+                    "linear",
+                    "linearGradient",
+                    Gradient::linear_with_space(stops(), Angle::deg(25.0), space),
+                ),
+                (
+                    "radial",
+                    "radialGradient",
+                    Gradient::radial_with_space(
+                        stops(),
+                        Axes::new(Ratio(0.4), Ratio(0.6)),
+                        Ratio(0.7),
+                        space,
+                    ),
+                ),
+            ];
+            for (kind, variant, gradient) in gradients {
+                let fill_svg = export_svg(
+                    &p1227_page(vec![p1227_rect(
+                        Some(Paint::Gradient(gradient.clone())),
+                        None,
+                    )]),
+                    &SvgOptions::default(),
+                );
+                assert!(fill_svg.contains("fill=\"url(#p0)\""), "{kind}/{space:?}");
+                assert!(
+                    fill_svg.contains(&format!("<{variant} id=\"p0\"")),
+                    "{kind}/{space:?}: {fill_svg}"
+                );
+                assert!(
+                    !fill_svg.contains("data-crystalline-fill-fallback"),
+                    "{kind}/{space:?}"
+                );
+                assert!(fill_svg.matches("<stop ").count() > 3, "{kind}/{space:?}");
+                assert!(fill_svg.contains("stop-opacity"), "{kind}/{space:?}");
+
+                let stroke = Stroke {
+                    paint: Paint::Gradient(gradient),
+                    thickness: 2.0,
+                    ..Stroke::default()
+                };
+                let stroke_svg = export_svg(
+                    &p1227_page(vec![p1227_rect(None, Some(stroke))]),
+                    &SvgOptions::default(),
+                );
+                assert!(stroke_svg.contains("stroke=\"url(#p0)\""), "{kind}/{space:?}");
+                assert!(
+                    stroke_svg.contains(&format!("<{variant} id=\"p0\"")),
+                    "{kind}/{space:?}: {stroke_svg}"
+                );
+                assert!(
+                    !stroke_svg.contains("data-crystalline-stroke-fallback"),
+                    "{kind}/{space:?}"
+                );
+                assert!(stroke_svg.matches("<stop ").count() > 3, "{kind}/{space:?}");
+                assert!(stroke_svg.contains("stop-opacity"), "{kind}/{space:?}");
+            }
         }
-        let svg = export_svg(
-            &p1227_page(vec![p1227_rect(Some(Paint::Gradient(gradient)), None)]),
-            &SvgOptions::default(),
-        );
-        assert!(svg.contains("data-crystalline-fill-fallback=\"gradient-color-space\""));
-        assert!(!svg.contains("<radialGradient"));
     }
 
     #[test]
@@ -2354,7 +2413,7 @@ mod tests {
     }
 
     #[test]
-    fn p1274_sete_combinacoes_nao_certificadas_permanecem_unknown() {
+    fn p1280_luma_linear_radial_permanece_unknown() {
         use typst_core::entities::axes::Axes;
         use typst_core::entities::color::ColorSpace;
         use typst_core::entities::gradient::{Gradient, GradientStop};
@@ -2366,16 +2425,8 @@ mod tests {
                 GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
             ]
         };
-        let cases = [
-            (true, ColorSpace::Oklch),
-            (false, ColorSpace::Oklch),
-            (true, ColorSpace::Luma),
-            (false, ColorSpace::Luma),
-            (true, ColorSpace::Hsl),
-            (false, ColorSpace::Hsl),
-            (true, ColorSpace::Hsv),
-        ];
-        for (linear, space) in cases {
+        for linear in [true, false] {
+            let space = ColorSpace::Luma;
             let gradient = if linear {
                 Gradient::linear_with_space(stops(), Angle::deg(25.0), space)
             } else {
