@@ -1,0 +1,5 @@
+#set page(width: 360pt, height: 300pt, margin: 0pt, fill: none)
+#let g = gradient.radial((red.transparentize(100%), 0%), (rgb(46, 204, 64), 2.22222222222222%), (blue.transparentize(70%), 8.88888888888889%), (yellow, 20%), (rgb(255, 0, 255).transparentize(35%), 24.4444444444444%), (red.transparentize(100%), 33.3333333333333%), (rgb(46, 204, 64), 35.5555555555556%), (blue.transparentize(70%), 42.2222222222222%), (yellow, 53.3333333333333%), (rgb(255, 0, 255).transparentize(35%), 57.7777777777778%), (red.transparentize(100%), 66.6666666666667%), (rgb(46, 204, 64), 68.8888888888889%), (blue.transparentize(70%), 75.5555555555556%), (yellow, 86.6666666666667%), (rgb(255, 0, 255).transparentize(35%), 91.1111111111111%), (red.transparentize(100%), 100%), space: color.oklab, center: (50%, 50%), radius: 0.1%, focal-center: (50%, 50%), focal-radius: 0%)
+#let body = rect(width: 220pt, height: 80pt, fill: g)
+#let transformed = scale(x: -100%, y: 100%, body)
+#align(center + horizon, transformed)

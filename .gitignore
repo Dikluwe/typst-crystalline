@@ -1,6 +1,7 @@
 # General
 .vscode
 .idea
+.codex/
 _things
 desktop.ini
 .DS_Store
@@ -16,14 +17,13 @@ tarpaulin-report.html
 
 # Rust
 /target
+**/target/
 /target-original/
-lab/target/
-lab/typst-original/target/
-lab/surface-inventory/target/
 **/*.rs.bk
 
 # Python
 **/__pycache__/
+.venv/
 
 # Node
 node_modules
@@ -34,8 +34,10 @@ package-lock.json
 /result
 .direnv/
 lab/krilla-reference/
-lab/parity/
 /parity/
+
+# Parity scratch outputs (sources and fixtures remain visible to Git)
+/lab/parity/matrix/fixtures/p1240/
 
 # Temporary files and outputs
 # Passos de sonda criam scratch dirs por número (temp_p581, temp_p763h, ...) —
@@ -43,6 +45,7 @@ lab/parity/
 /temp_p*/
 /test_output.txt
 /perf.data
+/dependencias.txt
 /temp/
 /.typ
 00_nucleo/diagnosticos/p916-work/

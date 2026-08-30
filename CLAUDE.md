@@ -9,7 +9,7 @@ Para decisões arquiteturais específicas: **ler os ADRs em `00_nucleo/adr/`**.
 
 Para evitar a corrupção da arquitetura por escrita de código não especificado, é obrigatório distinguir estas três entidades:
 
-- **Passo de Execução** (ex: `typst-passo-59.md` na raiz): documento tático, logístico e temporário, usado para coordenar tarefas imediatas, depurar erros ou planear a sessão entre o humano e a IA. **Não é o L0.**
+- **Passo de Execução** (ex: `00_nucleo/materialization/typst-passo-59.md`): documento tático, logístico e temporário, usado para coordenar tarefas imediatas, depurar erros ou planear a sessão entre o humano e a IA. **Não é o L0.**
 - **Prompt L0** (ex: `00_nucleo/prompts/compiler/layout.md`): especificação arquitetural pura, perene e definitiva do sistema. **Este é o L0 — a única fonte da verdade que legitima o código.**
 - **Núcleo Tekt** (ex: `00_nucleo/prompts/_nuclei/path-identity.toml`): conjunto declarativo de invariantes compartilhados por dois ou mais Prompts L0. Não legitima código diretamente, não possui `Hash do Código` e nunca é alvo de `@prompt`.
 
@@ -83,7 +83,7 @@ O código original do compilador está em `lab/typst-original/` (quarentena). A 
 | `context/` | Materialização sequencial — **não ler sem path explícito**. | `context/passo-146.md` |
 | `diagnosticos/` | Análises, inventários, varreduras, métricas e documentos de estado. | `diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` |
 | `debt-anexos/` | Anexos técnicos de débito arquitetural. | `debt-anexos/DEBT-001.md` |
-| `materialization/` | Rascunhos de materialização — **não ler sem path explícito**. | `materialization/passo-423.md` |
+| `materialization/` | Passos de execução e rascunhos de materialização — **não ler sem path explícito**. | `materialization/typst-passo-423.md` |
 | `prompts/` | **Prompts L0 vinculados a código L1–L4**. Especificações arquiteturais puras e perenes que legitimam código. | `prompts/compiler/layout.md` |
 | `prompts/_nuclei/` | **Núcleos Tekt TOML**. Claims normativas compartilhadas por prompts; não materializam nem legitimam código diretamente. | `prompts/_nuclei/path-identity.toml` |
 
