@@ -79,7 +79,7 @@ Aceitação: `$ x $` preserva folha `MathIdent("x")`; `$ 2 $` preserva
 `MathText("2")`; `$ x^2 $` mantém base e expoente distintos e a suíte de
 layout/math permanece verde.
 
-## P1291.vec-gate — identidade e argumentos no syntax evaluator (RASCUNHO PARA SELO)
+## P1292.vec — sintaxe e chamada convergem no constructor canónico
 
 ### Medição anterior à decisão
 
@@ -92,20 +92,23 @@ O vanilla ratificado declara `VecElem` próprio em
 delimiter aceita par, símbolo/string unitário inferível ou `none`, e named
 desconhecido é erro.
 
-### Decisão proposta
+### Decisão
 
 O braço sintático `vec` e a função pública `math.vec` convergem no mesmo
-constructor `Content::math_vec`. A style chain fornece defaults/set rules;
-argumentos explícitos prevalecem. Default: delimitadores `(` e `)`, alinhamento
-`center`, gap `0.2em`. Cada positional é avaliado uma vez e preservado como um
-filho do vetor, inclusive zero ou um filho. `&` dentro do filho permanece
-conteúdo de alinhamento da célula, sem transformar vec em matrix.
+constructor `Content::math_vec`; para a mesma lista/named produzem a mesma
+identidade e morfologia, nunca `MathMatrix`. A style chain fornece defaults/set
+rules; argumentos explícitos prevalecem e marcam presença. Default:
+delimitadores `(` e `)`, alinhamento `center`, gap `0.2em`. Cada positional é
+avaliado uma vez e preservado como um filho, inclusive zero ou um. `&` dentro
+do filho permanece conteúdo de alinhamento da célula, sem criar linha extra.
 
-Named desconhecido e casts inválidos propagam as mensagens medidas no
-diagnóstico P1291; não há descarte silencioso. `Start`/`End` são preservados no
-payload mesmo enquanto direção de escrita ainda resolve para esquerda/direita.
-O percentual de `gap` é transportado integralmente; sua resolução aguarda
-`P1291.vec-region-gap` no owner `compiler/math/layout/_comum.md`.
+Named desconhecido e casts inválidos propagam as mensagens medidas no recibo
+P1292; não há descarte silencioso. `delim` aceita array, `none`, symbol ou
+string e normaliza para o par tipado; `align` aceita somente alinhamento
+horizontal; `gap` aceita relative length. `Start`/`End` são preservados no
+payload mesmo enquanto a direção de escrita resolve geometricamente para
+esquerda/direita. O percentual de `gap` é transportado integralmente; sua
+resolução pertence a `P1292.vec-region-gap` no owner de layout.
 
 Owners canónicos: `entities/elements/math_vec.md`, `entities/content.md`,
 `compiler/stdlib/structural/math.md` e `compiler/math/layout/vec.md`.

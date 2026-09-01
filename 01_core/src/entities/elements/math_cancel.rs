@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_cancel.md
-//! @prompt-hash 8e440aef
+//! @prompt-hash 112fd354
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -25,6 +25,20 @@ pub enum MathCancelAngle {
     Func(Func),
 }
 
+/// Presença morfológica dos argumentos nomeados de `math.cancel`.
+///
+/// Os bits não alteram a geometria. Eles distinguem omissão de um valor
+/// explicitamente igual ao default para identidade e `repr`.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub struct MathCancelExplicit {
+    pub length: bool,
+    pub inverted: bool,
+    pub cross: bool,
+    pub angle: bool,
+    pub stroke: bool,
+    pub background: bool,
+}
+
 /// Linha de cancelamento sobre conteúdo matemático — vanilla `CancelElem`
 /// minimal (P296). Layouter emite `FrameItem::Line` diagonal sobre o bbox.
 #[derive(Debug, Clone)]
@@ -37,6 +51,7 @@ pub struct MathCancelElem {
     pub stroke: Option<Stroke>,
     pub background: bool,
     pub span: Span,
+    pub explicit: MathCancelExplicit,
 }
 
 impl PartialEq for MathCancelElem {
@@ -48,6 +63,7 @@ impl PartialEq for MathCancelElem {
             && self.angle == other.angle
             && self.stroke == other.stroke
             && self.background == other.background
+            && self.explicit == other.explicit
     }
 }
 
@@ -81,6 +97,7 @@ impl std::hash::Hash for MathCancelElem {
         // equal values necessarily hash alike, while unequal strokes may collide.
         self.stroke.is_some().hash(state);
         self.background.hash(state);
+        self.explicit.hash(state);
     }
 }
 
@@ -102,6 +119,7 @@ impl Element for MathCancelElem {
             stroke: self.stroke.clone(),
             background: self.background,
             span: self.span,
+            explicit: self.explicit,
         })))
     }
 
@@ -128,6 +146,7 @@ mod tests {
             stroke: None,
             background: false,
             span: Span::detached(),
+            explicit: MathCancelExplicit::default(),
         }
     }
 

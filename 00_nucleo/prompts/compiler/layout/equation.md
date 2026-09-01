@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `compiler/layout/equation` — Layout de Equações**
-Hash do Código: 9211dc66
+Hash do Código: 5683f846
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
@@ -318,6 +318,227 @@ bloco (`Some(ext.descent)`) e reposto a 0.0 nos mesmos pontos onde
 texto e reset, `sub_frame.rs` — save/restore). Sem efeito quando o conteúdo
 anterior não é equação de bloco (campo 0 → comportamento P813 inalterado,
 guardado pelos testes P813 existentes).
+
+## P1292 amendment-2 — extensão vertical da equação inline (REFUTADA)
+
+### Medição anterior à decisão
+
+Em 2026-09-01, sobre HEAD `0eb39f8ecb48930515f2cadb6a378450855b5a72`
+e working tree P1292 não commitada, a fixture bilateral
+`#set page(width:auto,height:auto,margin:0pt) $underline(x)$` provou que a
+linha inferior já é emitida nos dois SVGs, mas a raiz vanilla mede
+`6.292pt × 7.513pt` e a candidata `6.292pt × 7.238pt`. A linha candidata fica
+fora da altura declarada (`y=8.943pt`), logo o RED não é ausência da regra nem
+constante MATH: é a linha de parágrafo ignorar a extensão da equação inline.
+
+O owner produtivo já chama uma única vez
+`MathLayouter::layout_equation_measured` e recebe, dos mesmos items,
+`EquationExtent { width, ascent, descent, ... }`
+(`01_core/src/compiler/layout/equation.rs:128-145`). Depois integra os items
+na baseline corrente, mas não chama o mecanismo canônico
+`note_inline_extent`; caixas/transformações inline já o usam em
+`compiler/layout/boxed.rs` e `compiler/layout/transform.rs`. A fonte vanilla
+ratificada constrói o frame math inline com ascent/descent
+(`typst-layout/src/math/mod.rs:49-101`, SHA-256
+`88b33ef6eb23deae0e6956c7c59bdbc57604ae1d39a0c6171233f426d87b146b`)
+e o finalizador de linha agrega `frame.baseline()` e
+`frame.height()-frame.baseline()` (`typst-layout/src/inline/line.rs:559-633`,
+SHA-256
+`9da32eee7a101a8e60b70f787d480a78ab4652127bcce02b74a85ad80cf6a54e`).
+
+### Decisão histórica v3 — REVOGADA por amendment-3
+
+A chamada abaixo não é contrato vigente. A implementação literal no SHA-256
+`5683f8469819678652041847f464cf1151d525cb68a0313b1b87722b7cf4e66a`
+provou que `EquationExtent` é a caixa matemática anterior à normalização de
+parágrafo: entregar o seu descent cru infla a linha. Preserva-se esta secção
+somente como história causal da refutação.
+
+Depois de obter `extent` e antes de fechar a linha, somente quando
+`block == false`, `layout_equation` chama exatamente uma vez:
+
+```rust
+self.note_inline_extent(extent.ascent, extent.descent);
+```
+
+O par vem do `EquationExtent` já calculado no mesmo run que produziu
+`math_items`. É proibido reinspecionar `FrameItem`, repetir
+`measure_equation_items`, relayoutar a fórmula ou derivar a extensão do SVG.
+`note_inline_extent` continua sendo o único owner da agregação max por linha e
+`flush_line` continua sendo o único owner do deslocamento final da baseline.
+Equação de bloco não registra extensão inline e preserva P813/P952.
+
+Classificação ADR-0107/0108: a altura/baseline visível da linha é semântica;
+reusar `EquationExtent` e `note_inline_extent` é mecânica cristalina. A
+inferência causal seria refutada se a chamada com o par já medido não mudasse
+a raiz auto para a altura vanilla, se movesse a baseline matemática em relação
+ao texto, ou se alterasse uma equação de bloco. Qualquer necessidade de varrer
+items novamente refuta este refinamento e exige novo contrato, não duplicação.
+
+### Aceitação que refutou a regra
+
+- underline inline conserva exatamente uma linha e raiz auto
+  `6.292pt × 7.513pt` no corpus/fonte ratificados;
+- text/script/cramped continuam a usar suas extensões MATH reais, sem recorte;
+- texto antes/depois e math mantêm a mesma baseline P800;
+- equação de bloco e seus espaçamentos/números permanecem invariantes;
+- teste unitário pode controlar `line_inline_ascent/descent`, mas o oráculo
+  black-box pertence exclusivamente a `wiring/tests/p1292_contract.md`.
+
+## P1292 amendment-3 — frame inline normalizado antes do agregador
+
+### Medição anterior à decisão
+
+Medição bilateral em 2026-09-01T00:57:33-03:00, vanilla ratificado
+`a51e02804` (`/usr/local/bin/typst` SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`)
+e candidato `target/debug/typst` SHA-256
+`f047eee722fcad1c7c3afe9fe4d7b144a92b6c263eb4442bec5797b4c30b52f8`,
+sobre HEAD `0eb39f8ecb48930515f2cadb6a378450855b5a72` e working tree P1292 não
+commitada:
+
+| Fixture page-auto, margem zero | Vanilla | candidato com extent cru |
+|---|---:|---:|
+| `$x$` | `6.292 × 7.513pt` | `6.292 × 7.359pt` |
+| `$underline(x)$` | `6.292 × 7.513pt` | `6.292 × 9.735pt` |
+| `A $underline(x)$ B` | `25.905 × 7.513pt` | `25.905 × 9.735pt` |
+| `$ underline(x) $` (Display/bloco) | `6.292 × 7.359pt` | `6.292 × 7.359pt` |
+| `$x_(underline(y))$` (Script) | `11.4356 × 8.459pt` | `10.8196 × 13.189pt` |
+| `$1 / underline(y)$` (Cramped) | `6.7276 × 9.537pt` | `5.70075 × 16.4758pt` |
+
+Na linha mista, texto anterior, math e texto posterior conservam a mesma
+baseline em cada renderer: `y=7.513pt` vanilla e `y=7.238pt` candidato. O
+descent cru não move essa baseline, mas numa fixture de duas linhas move a
+segunda baseline candidata de `21.747pt` (controle `$x$`) para `24.123pt`
+(`underline`); no vanilla ambos terminam em `21.901pt`. Em Cramped, o extent
+cru também desloca a baseline da linha para `9.4468pt`, contra `7.513pt` no
+vanilla.
+
+A fonte upstream mede antes de decidir:
+
+- `typst-layout/src/math/mod.rs:49-101`, SHA-256
+  `88b33ef6eb23deae0e6956c7c59bdbc57604ae1d39a0c6171233f426d87b146b`,
+  não entrega o frame math cru ao parágrafo. Para cada frame inline calcula
+  `slack = par.leading × 0.7`, resolve os text edges e usa
+  `ascent = max(top_edge, frame.ascent - slack)` e
+  `descent = max(bottom_edge, frame.descent - slack)` antes de redimensionar;
+- `typst-library/src/math/ir/resolve.rs:24-35`, SHA-256
+  `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112`,
+  confirma que `bounds` é estilo local dos fragmentos math, não substitui os
+  edges externos usados na normalização do frame de equação;
+- no cristalino, `cursor.rs` SHA-256
+  `120f04f65f53aa431f49b31288481466f4ac6bcae86815b82fc13db1ba17e932`
+  já é o owner canônico da agregação max e do deslocamento único da linha.
+  A divergência estava no par entregue por `equation.rs`, não no agregador.
+
+Com fonte `NewCMMath-Book.otf` pinada, o cap-height é 683/1000 em a 11pt,
+isto é, `7.513pt`; leading default `0.65em` dá slack `5.005pt`. Aplicar a
+fórmula medida aos extents já existentes explica todos os eixos verticais:
+Text engole `2.497pt` de descent; Script conserva somente `0.946pt`; Cramped
+normaliza a baseline para `7.513pt` e conserva `2.024pt`, total `9.537pt`.
+Esses números demonstram a fórmula, mas não podem ser assados no código.
+
+### Decisão v4 vigente
+
+Somente para `block == false`, o único `EquationExtent` retornado pelo mesmo
+`layout_equation_measured` é convertido numa caixa de parágrafo antes de
+chamar o agregador:
+
+```text
+slack = effective_par_leading_pt(math_style) * 0.7
+edge_ascent = resolve_top_edge_for_frame(math_style, extent.ascent)
+edge_descent = resolve_bottom_edge_for_frame(math_style, extent.descent)
+inline_ascent = max(edge_ascent, extent.ascent - slack)
+inline_descent = max(edge_descent, extent.descent - slack, 0)
+note_inline_extent(inline_ascent, inline_descent)
+```
+
+`effective_par_leading_pt` usa o leading lexical explícito ou o default
+canônico do parágrafo (`0.65em`) no tamanho efetivo; `0.7` é o fator medido do
+upstream, não uma constante de fixture. Edges métricos/comprimentos seguem a
+semântica já tipada de `TextStyle`; quando o edge é `bounds`, o bound do frame
+é o próprio `extent.ascent`/`extent.descent`. O bottom é convertido à
+magnitude positiva que `note_inline_extent` espera.
+
+A normalização ocorre uma vez, antes da integração/flush. Continua proibido
+varrer `FrameItem`, medir glyphs novamente, relayoutar, derivar SVG, mudar
+`note_inline_extent`/`flush_line` ou assar `7.513`, `0.946` ou `2.024`. O ramo
+block não chama este caminho: Display já é bilateralmente correto e P813/P952
+continua usando o extent math cru para sua semântica de bloco.
+
+### Inferência, refutadores e aceitação
+
+Inferência ADR-0107/0108: a normalização do frame é mecânica upstream; altura,
+baseline e avanço entre linhas são seus observáveis de linguagem. Ela é
+refutada se qualquer fixture acima não atingir o valor vanilla; se texto e
+math divergirem de baseline; se Display mudar; se `par.leading` lexical não
+governar o slack; ou se a solução exigir segunda inspeção/layout. Nesse caso,
+parar no owner correspondente — nunca ajustar fator ou valor à fixture.
+
+Aceitação v4 mantém integralmente os resultados verticais públicos B já
+selados: Text `7.513`, Display `7.359`, Script `8.459` e Cramped `9.537pt`;
+linha mista compartilha baseline e não altera o avanço da linha seguinte
+quando o underbar cabe no slack. Os valores de largura whole-wrapper escritos
+na tabela de medição acima são baseline histórica, não atribuição causal ao
+underline; a comparação horizontal discriminatória vigente é refinada pelo
+amendment-4 abaixo. Largura/italic correction pertencem ao owner
+`compiler/math/layout/underline.md` e não podem alimentar a altura do frame
+inline.
+
+## P1292 amendment-4 — comparação horizontal discriminatória de B
+
+### Medição anterior à decisão
+
+Em 2026-09-01T01:16:05-03:00, após a normalização v4 tornar alturas/linhas
+bilaterais, foram compilados pares idênticos com e sem underline:
+
+| Par page-auto | Vanilla base → underline | candidato base → underline |
+|---|---:|---:|
+| Text `$x$` / `$underline(x)$` | `6.292→6.292`; `7.513→7.513` | `6.292→6.292`; `7.513→7.513` |
+| Display `$ x $` / `$ underline(x) $` | `6.292→6.292`; `4.983→7.359` | `6.292→6.292`; `4.983→7.359` |
+| Script `$x_(y)$` / `$x_(underline(y))$` | `11.4356→11.4356`; `7.513→8.459` | `10.8196→10.8196`; `7.513→8.459` |
+| Cramped `$1/y$` / `$1/underline(y)$` | `6.7276→6.7276`; `7.8738→9.537` | `5.70075→5.70075`; `7.8738→9.537` |
+
+Os deltas de largura introduzidos pelo underline são `0` nos quatro estilos.
+Nos wrappers Script/Cramped, a diferença absoluta entre renderers já existe
+no controle sem underline e é numericamente idêntica com underline:
+`0.616pt` em attach e `1.02685pt` em fraction. Portanto whole-root width não
+discrimina MathUnderline.
+
+A geometria interna discrimina: a regra do `y` em Script e Cramped mede
+`4.4583pt` bilateralmente; a fraction bar mede `4.5276pt` bilateralmente. No
+isolado, `$f$` e `$underline(f)$` conservam frame/root `6.38pt`, enquanto a
+regra mede `5.39pt` bilateralmente, testemunhando o termo
+`−italics_correction=0.99pt`. Para `x`, frame e regra medem `6.292pt`.
+
+### Decisão v5 vigente
+
+A comparação horizontal B usa pares dentro do mesmo renderer:
+
+1. `width(underline(body)) - width(body) == 0` para body isolado e para o
+   mesmo body sob Text/Display/Script/Cramped;
+2. a regra começa na origem do body e mede
+   `max(0, body.width - italics_correction(body))`, incluindo o witness `f`;
+3. wrapper externo preserva seu próprio width ao trocar body por
+   `underline(body)`, mas o valor absoluto do whole-wrapper não é exigência B.
+
+Continuam exatos os observáveis verticais Text/Display/Script/Cramped e a
+baseline/avanço de linha do amendment-3. Surface, erros, repr, identidade,
+classe, estilo, regra/espessura/cor e morfologia permanecem inalterados.
+
+O resíduo whole-wrapper é preexistente e fora do lote P1292: pertence a
+attach/fraction e talvez ao cálculo de largura do wrapper, não a equation,
+underline, cursor ou auto-page. Este contrato não cria owner, dívida executável
+nem autorização de escrita para compensá-lo; um passo futuro deve medi-lo sob
+seus próprios L0s antes de qualquer alteração.
+
+Inferência ADR-0107/0108: igualdade do delta e da regra demonstra preservação
+da linguagem do elemento sem exigir igualdade mecânica/absoluta do wrapper.
+Refutam B: delta não zero, regra diferente da fórmula/vanilla, frame/root do
+body mudar, qualquer altura/baseline regredir, ou o resíduo desaparecer apenas
+quando underline é removido. Não refuta B a mesma diferença absoluta presente
+bilateralmente no par base/underline; ela é scope-out explícito, nunca
+`Preserved` geral nem autorização de adaptar wrapper.
 
 
 ## P967 — cursor após equação inline inclui o espaçamento interno de classe (extent, não soma de advances)

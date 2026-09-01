@@ -11,7 +11,7 @@ elemento), a semântica não muda.
 Este `_comum.md` define **o trait, as regras partilhadas, o glossário e o estado
 misto**. Cada prompt fino de elemento cita-o na linha de cabeçalho.
 
-## P1291 — novos módulos math no índice (RASCUNHO PARA SELO)
+## P1292 — novos módulos no índice (GATE ADR-0127)
 
 ### Medição anterior à decisão
 
@@ -20,11 +20,13 @@ O índice produtivo `01_core/src/entities/elements/mod.rs` declara
 ou vetor. O vanilla ratificado mantém `UnderlineElem` math distinto do
 `UnderlineElem` textual e `VecElem` distinto de `MatrixElem`.
 
-### Decisão proposta
+### Decisão
 
-Depois do selo ADR-0127, o índice declara `math_underline` e `math_vec`, cada
+Depois do selo ADR-0127, o índice declara `math_underline`, `math_vec` e
+`flush`, cada
 qual com um único consumer e prompt proprietário:
-`entities/elements/math_underline.md` e `entities/elements/math_vec.md`.
+`entities/elements/math_underline.md`, `entities/elements/math_vec.md` e
+`entities/elements/flush.md`.
 `math_cancel` continua sob `entities/elements/math_cancel.md`. Não haverá
 re-export que fusione identidades, módulo genérico compartilhado nem owner
 duplicado. As regras comuns do trait `Element` continuam neste arquivo; os

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout.md
-//! @prompt-hash d185de1d
+//! @prompt-hash 6e784ef0
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-09-01
 //!
 //! Funções nativas de layout (align, place, grid, page).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
@@ -149,8 +149,9 @@ pub fn native_place(
         None => false,
     };
 
-    // P223 — extract `clearance` (default None). Reuso extract_length (N=8 → 9).
-    // Validar não-negativo (paridade pattern P156I Stack.spacing).
+    // P1292-D v10 — o default permanece relativo até ao layout, onde é
+    // resolvido contra o estilo efectivo da ocorrência. Valores explícitos,
+    // inclusive zero, continuam soberanos.
     let clearance = match args.named.get("clearance") {
         Some(val) => {
             let len = extract_length(val).ok_or_else(|| {
@@ -170,7 +171,7 @@ pub fn native_place(
             }
             Some(len)
         }
-        None => None,
+        None => Some(Length::em(1.5)),
     };
 
     // P223 — DEBT-37 §"Divergência" restaurada (Decisão 3 Opção α):
@@ -194,6 +195,32 @@ pub fn native_place(
         })?;
 
     Ok(Value::Content(Content::place(alignment, dx, dy, scope, float, clearance, body)))
+}
+
+/// `place.flush()` → sentinela que realiza os floats já pendentes.
+pub fn native_flush(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    validate_flush_args(args)?;
+    Ok(Value::Content(Content::flush()))
+}
+
+fn validate_flush_args(args: &Args) -> SourceResult<()> {
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+
+    if let Some(name) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+
+    Ok(())
 }
 
 /// Helper Passo 84.5: extrai alinhamento do primeiro argumento posicional
@@ -2535,4 +2562,23 @@ pub fn native_pagebreak(
         args.named.contains_key("weak"),
         to,
     )))
+}
+
+#[cfg(test)]
+mod p1292_flush_tests {
+    use super::*;
+
+    #[test]
+    fn p1292_d_zero_args_is_the_only_valid_shape() {
+        assert!(validate_flush_args(&Args::positional(vec![])).is_ok());
+
+        let positional =
+            validate_flush_args(&Args::positional(vec![Value::Int(1)])).unwrap_err();
+        assert_eq!(positional[0].message, "unexpected argument");
+
+        let mut named = Args::positional(vec![]);
+        named.named.insert("extra".into(), Value::Bool(true));
+        let named = validate_flush_args(&named).unwrap_err();
+        assert_eq!(named[0].message, "unexpected argument: extra");
+    }
 }

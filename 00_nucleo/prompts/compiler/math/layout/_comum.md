@@ -14,18 +14,18 @@ MathStyled, critérios gerais); os prompts finos por submódulo citam-no.
 **Ficheiro proprietário:** `01_core/src/compiler/math/layout/mod.rs`.
 Os testes possuem owner separado em `math/layout/tests.md`.
 
-## P1291 — despacho de cancel/underline/vec e gates de contexto (RASCUNHO PARA SELO)
+## P1292 — despacho de cancel/underline/vec e contexto de região (GATE ADR-0127)
 
 ### Medição anterior à decisão
 
-O `MathLayouter` atual recebe métricas, constantes, bloco e estilo; não recebe
-`Engine` nem tamanho de região. O despacho existente envia `MathCancel` a
-`cancel.rs`, trata underline textual inline e envia o syntax sugar `vec` já
-degradado a matrix. Na fonte vanilla, a callback de `cancel.angle` é invocada
-após medir o corpo, e o percentual de `vec.gap` resolve contra o eixo vertical
-da região.
+P1291 já entregou ao `MathLayouter` o contexto passivo e o transcript puro de
+cancel, sem `Engine`/`World`. O despacho existente envia `MathCancel` a
+`cancel.rs`; ainda não possui identidades próprias de underline/vec e degrada a
+sintaxe `vec` a matrix. O recibo P1292 confirma que `vec.gap` percentual usa o
+eixo vertical da região efetiva e que, em `height:auto`, somente a parcela
+relativa colapsa a zero.
 
-### Decisão proposta
+### Decisão
 
 O match permanece estático, exaustivo e magro (ADR-0109):
 
@@ -39,20 +39,15 @@ registry. Helpers puramente mecânicos de grelha/delimitador podem continuar no
 módulo comum ou ser reutilizados por descendência de módulo, sem tornar matrix
 o consumer proprietário da semântica de vec.
 
-Dois requisitos não podem ser falsificados pela interface atual:
-
-1. `P1291.cancel-angle-runtime`: transportar o resultado de uma callback que
-   recebe o ângulo default conhecido apenas após medir o body.
-2. `P1291.vec-region-gap`: disponibilizar a altura da região para resolver a
-   parcela percentual de `Rel<Length>`.
-
-Ambos são mudanças de fase/contexto e exigem L0 específico e nova confirmação
-antes de código. Até lá, não é permitido executar `Func` no layouter, usar
-altura zero, resolver percentual contra `em` nem ignorar esses valores. Os
-owners finos são `compiler/math/layout/cancel.md`,
+O runtime `P1291.cancel-angle-runtime` permanece integral e não é
+reimplementado. P1292 usa o `region_height` passivo já transportado para
+resolver `vec`: finito usa `rel * height + abs`; não-finito usa somente `abs`.
+É proibido executar `Func` no layouter, usar `em`/grade/font-size como base
+percentual ou propagar infinito ao resultado. Os owners finos são
+`compiler/math/layout/cancel.md`,
 `compiler/math/layout/underline.md` e `compiler/math/layout/vec.md`.
 
-### P1291 — contexto puro e transcript selado (PROPOSTA; GATE ADR-0127)
+### P1291 preservado por P1292 — contexto puro e transcript selado
 
 #### Medição anterior à decisão
 
@@ -67,7 +62,7 @@ resolve o gap relativo contra `ctx.region.size`
 pré-avaliar a função sem geometria nem usar `em` para a percentagem reproduz a
 linguagem.
 
-#### Decisão pública proposta
+#### Contrato vigente
 
 `MathLayouter` recebe contexto passivo obrigatório:
 
@@ -101,20 +96,19 @@ executada em L1 layout. `cross=true` consulta/registra duas vezes porque o
 vanilla chama a função uma vez por linha; não há memoização semântica inventada.
 
 `layout_vec` resolve `gap.rel * region_height +
-gap.abs.resolve_pt(style.size)`; a altura vem de
-`Regions::effective().height`, portanto respeita célula/coluna ativa além da
-página raiz. Não existe constructor com altura zero, `em` substituto ou base
-deduzida da própria grade.
+gap.abs.resolve_pt(style.size)` quando a altura é finita. Quando
+`Regions::effective().height` não é finita, a parcela relativa colapsa a zero
+e a absoluta sobrevive, conforme a medição P1292. Não existe constructor sem
+região, `em` substituto, base deduzida da própria grade ou infinito exportável.
 
 O `match` continua estático e os módulos finos continuam owners da geometria.
 Não há registry/vtable para despacho de elementos nem reentrada layout→eval.
 O resultado da passagem é julgado na pipeline; mismatch, callback inválida ou
 não convergência viram diagnóstico antes da exportação.
 
-Esta proposta altera interface pública L1 e a fase eval↔layout. A instrução
-humana “faça as correções para fechar” autoriza preparar o contrato, mas o
-código continua bloqueado até o selo explícito deste desenho e dos prompts
-proprietários relacionados `compiler/layout.md` e `infra/pipeline.md`.
+O transcript de cancel foi selado/materializado em P1291. As novas identidades
+e o contrato de vec P1292 continuam bloqueados até o novo selo explícito dos
+prompts proprietários; não há nova mudança de fase em P1292.
 
 ## Propósito
 Recebe `Content::Equation` e produz `Frame`s com `FrameItem::Text` posicionados.

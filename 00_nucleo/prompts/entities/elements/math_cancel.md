@@ -1,16 +1,20 @@
 # Prompt L0 — `entities/elements/math_cancel` — `MathCancelElem`
-Hash do Código: e3993092
+Hash do Código: 2bb6fdd1
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_cancel.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
 partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
-P317). O contrato minimal P296 é ampliado por P1291 após autorização humana
-para redigir o L0; a materialização continua proibida até o novo selo deste
-prompt e dos prompts proprietários relacionados citados em §P1291.
+P317). P1291 materializou o payload completo e a realização de callback. P1292
+não cria outro elemento nem outro runtime: fecha a exposição canónica em
+`math.cancel` e a presença morfológica dos argumentos.
 
 ---
 
-## Struct
+## Histórico P317 — payload minimal body-only (REVOGADO por P1291)
+
+O bloco seguinte registra a forma materializada originalmente em P317 para
+explicar a linhagem. Ele não é contrato vigente e não autoriza reintroduzir um
+segundo `MathCancelElem` body-only:
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -22,7 +26,7 @@ pub struct MathCancelElem {
 `Content::MathCancel { body }` → `Content::MathCancel(Arc<MathCancelElem>)`.
 Construtor ergonómico: `Content::math_cancel(body: Content)`.
 
-## `impl Element for MathCancelElem`
+### `impl Element` histórico
 
 | método | comportamento (idêntico ao braço atual) |
 |---|---|
@@ -33,21 +37,22 @@ Construtor ergonómico: `Content::math_cancel(body: Content)`.
 | `get_field` | default `None` |
 | `element_kind`/`to_payload` | default `None` (não-locatável) |
 
-## `eq` estrutural
+### `eq` estrutural histórico
 
 `#[derive(PartialEq)]` compara `body` (paridade `content.rs:1833`).
 
-## Critério
+### Critério preservado do payload histórico
 
 `plain_text` transparente ao body; `map_content` recurse o body; `map_text`
 terminal; igualdade estrutural.
 
-## P1291.cancel-gate — payload público completo (RASCUNHO PARA SELO)
+## P1292 — payload completo já materializado e exposição canónica
 
 ### Medição anterior à decisão
 
-- O consumer cristalino em `01_core/src/entities/elements/math_cancel.rs:18-21`
-  transporta somente `body`.
+- Antes de P1291, o consumer cristalino em
+  `01_core/src/entities/elements/math_cancel.rs:18-21` transportava somente
+  `body`; essa medição é histórica e foi superada pela materialização full.
 - O vanilla ratificado `a51e02804`, em
   `lab/typst-original/crates/typst-library/src/math/cancel.rs:18-115`, declara
   `body`, `length`, `inverted`, `cross`, `angle`, `stroke` e `background`;
@@ -58,9 +63,10 @@ terminal; igualdade estrutural.
   distinção entre default omitido e explícito continuam sob P1290; estes dados
   legitimam o transporte sem transferir ownership de `repr.rs`.
 
-### Decisão pública proposta
+### Contrato vigente e delta de exposição P1292
 
-Substituir o payload minimal por:
+O payload minimal histórico acima foi substituído em P1291. A única forma
+vigente, completada em P1292 com presença morfológica, é:
 
 ```rust
 pub enum MathCancelAngle {
@@ -78,6 +84,8 @@ pub struct MathCancelElem {
     pub stroke: Option<Stroke>,
     pub background: bool,
     pub span: Span,
+    // Metadado de presença, sem efeito geométrico: um bit para cada named.
+    pub explicit: MathCancelExplicit,
 }
 ```
 
@@ -90,9 +98,14 @@ Um `Stroke` explícito preserva todos os seus campos. `cross` prevalece sobre
 argumentos/set rules.
 
 `span` preserva o local da chamada para erro tardio da callback, mas não é
-campo da linguagem: igualdade e hash estruturais ignoram `span` e comparam os
-sete campos públicos observáveis. O construtor compatível usa
-`Span::detached()`; `native_math_cancel` usa `Args::span`.
+campo da linguagem. `MathCancelExplicit` conserva, separadamente para
+`length`, `inverted`, `cross`, `angle`, `stroke` e `background`, se a chave
+apareceu na chamada/set-rule. Os bits não mudam layout, mas participam da
+morfologia e da identidade observável: um valor explicitamente igual ao
+default continua no `repr`. O construtor compatível usa `Span::detached()` e
+nenhum bit; a nativa usa `Args::span` e marca exatamente as chaves presentes.
+Igualdade/hash ignoram `span`, incluem os sete valores de linguagem e os bits
+de presença.
 
 Como `Rel<Length>`, `Angle` e `Stroke` contêm escalares de ponto flutuante, o
 hash estrutural deve usar a convenção canónica já vigente para esses tipos; não
@@ -100,20 +113,19 @@ se autoriza converter grandezas em strings nem eliminar campos para obter
 `derive(Hash)`.
 
 O construtor compatível `Content::math_cancel(body)` permanece e inicializa os
-defaults. Um construtor completo tipado, de ownership de
-`entities/content.md`, transporta os sete valores. `plain_text` e os walkers
+defaults como omitidos. O construtor completo tipado, de ownership de
+`entities/content.md`, transporta os sete valores, `span` e presença sem
+reexecutar ou reinterpretar callback. `plain_text` e os walkers
 continuam transparentes/recursivos somente em `body`; igualdade e hash incluem
 todos os campos.
 
-### Incompletude deliberada nomeada
+### Runtime preservado
 
-`MathCancelAngle::Func` é dado legítimo neste payload, mas sua execução depende
-do ângulo default calculado depois do primeiro layout do corpo. O layouter atual
-não possui `Engine` e não pode executar `Func`. O subpasso
-`P1291.cancel-angle-runtime` usa o transcript puro definido em
-`compiler/math/layout/callbacks.md` e a realização entre passagens de
-`infra/pipeline.md`. É proibido executar a callback no módulo de entidade ou de
-layout, ignorá-la ou tratá-la como `Auto` no documento final.
+`MathCancelAngle::Func` continua a usar o transcript puro já materializado em
+P1291, definido em `compiler/math/layout/callbacks.md` e realizado entre
+passagens por `infra/pipeline.md`. P1292 não reimplementa esse caminho. É
+proibido executar a callback na entidade/stdlib/layout, ignorá-la ou tratá-la
+como `Auto` no documento exportável.
 
 Prompts proprietários relacionados: `entities/content.md`,
 `compiler/stdlib/structural/math.md`, `compiler/math/layout/cancel.md` e

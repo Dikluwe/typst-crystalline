@@ -24,6 +24,110 @@ Empty, texto, parágrafos, paginação, páginas auto, dispatch e composição f
 são cobertos pela suíte de layout. Mudança pública/default/fase para no gate
 ADR-0127.
 
+## P1292 — dispatch de `Flush` em forma B
+
+### Medição anterior à decisão
+
+O dispatcher não possui `Content::Flush`; floats são drenados somente em
+fronteiras existentes. O recibo P1292 demonstra que o marcador deve realizar
+o prefixo de floats no ponto exato antes do conteúdo seguinte, sem antecipar
+floats posteriores.
+
+### Decisão
+
+Declarar o módulo descendente `flush` e adicionar ao match exaustivo somente
+`Content::Flush(e) => flush::layout(self, e)`. Toda decisão de efeito vive no
+owner `compiler/layout/flush.md`; este hub não absorve o corpo, não altera o
+owner de `place` e não introduz despacho dinâmico. O arm não é incluído no
+fallback matemático nem tratado como Empty.
+
+## P1292 amendment-10 — checkpoint atômico do sufixo de flow
+
+### Medição anterior à decisão
+
+O contrato v10 estabilizou três páginas e o anchor do float-prefixo, mas uma
+ocorrência de Place não-float dentro do Block posterior ao marker ficou na
+página 2 enquanto a linha que a continha migrou para p3. Um reproducer
+black-box independente obteve no candidato `AFTER_MARKER` em p2 e
+`AFTER_FLOW` em p3; no vanilla ratificado ambos aparecem em p3, exatamente uma
+vez. A migração somente de `current_line` deixa escapar efeitos que já foram
+anexados a `current_items` antes da decisão final de fitting.
+
+Isto refuta checkpoint restrito a texto/linha e refuta um caso especial em
+Block: o efeito escapado é Place não-float, mas a unidade causal é todo o
+sufixo de layout produzido depois da fronteira, qualquer que seja o tipo do
+child.
+
+### Decisão — transação regional do Layouter
+
+Este owner define o checkpoint interno e não-público do estado mutável do
+Layouter. Depois de o prefixo do marker estar realizado e suas reservas
+estabilizadas, o Cursor estabelece uma fronteira de retomada antes de qualquer
+efeito do flow posterior. Todo efeito regional posterior pertence a uma única
+transação de sufixo até a linha/unidade de flow ser aceita.
+
+O checkpoint captura, por valor lógico ou por comprimentos de cauda, todo
+estado capaz de tornar esse sufixo visível ou afetar fitting: posição e região
+correntes; buffers e métricas da linha; cauda de `current_items`; cauda de
+items/frame da página ou sub-frame ativo; extensões inline e geometria
+pendente; fronteiras de floats/deferred locais criados no sufixo; e o ponto de
+replay por ocorrência. Novos buffers regionais futuros entram na mesma
+transação por obrigação, não podem escapar por terem sido atualizados antes de
+`current_line` estabilizar.
+
+Estado anterior à fronteira não é clonado, migrado nem desfeito. Páginas e
+items já confirmados, prefix floats realizados, suas reservas top/bottom e
+todo conteúdo anterior permanecem imutáveis. A transação registra somente a
+cauda posterior; floats criados depois do marker continuam sufixo e nunca são
+promovidos ao prefixo.
+
+Se a unidade posterior cabe, commit torna a cauda definitiva. Se a região
+efetiva a rejeita, rollback remove atomicamente toda a cauda pós-fronteira,
+restaura cursor/métricas/buffers ao checkpoint, avança pela regra normal e
+reexecuta as mesmas ocorrências na nova região. `current_line` e
+`current_items` nunca são migrados separadamente. Cada ocorrência produz no
+máximo um efeito confirmado; replay não duplica Place, texto, float posterior,
+tag, link ou item diferido.
+
+O Layouter oferece a transação; `compiler/layout/cursor.md` decide
+commit/rollback/avanço; `compiler/layout/place.md` continua dono de fitting e
+reservas; `compiler/layout/flush.md` continua dono apenas da sentinela. O
+checkpoint não examina o conteúdo futuro, não prevê altura/tipo, não cria fase
+ou passagem e não altera API pública.
+
+### Refutadores e aceitação
+
+Refutam: snapshot apenas de linha; truncar `current_line` sem a cauda de
+`current_items`; recompor o documento/prefixo integral; mover items anteriores;
+duplicar efeitos; inspecionar o próximo Content; especializar Block; ou deixar
+um Place não-float pós-marker na região rejeitada.
+
+No caso focal, PREFLOW permanece p1; FLOAT_BEFORE permanece p2; AFTER_MARKER,
+AFTER_FLOW e FLOAT_AFTER aparecem exatamente uma vez em p3. No-floats,
+no-flush, nested, clearance explícito e prefix identity preservam os resultados
+selados.
+
+### Amendment-11 — limite do checkpoint face ao flow ordinário
+
+Medição bilateral posterior mostrou que o controle sem Flush e o controle sem
+float já divergiam do vanilla do mesmo modo: faltava o gap Block→flow de
+`1.2em` e Place não-float ancorava no topo. Portanto o checkpoint não adquire
+autoria sobre essas fórmulas ordinárias.
+
+Este owner continua dono somente da capacidade transacional e dos campos
+privados necessários para capturar/restaurar a cauda. Qualquer estado de
+origem de replay só pode existir durante uma transação de marker realmente
+rejeitada e deve restaurar exatamente a semântica ordinária fornecida pelos
+owners Block e Place. Fora dessa causalidade, o Layouter não traduz
+`current_items` por crescimento de cauda, não procura items “novos” e não
+redefine baseline/gap de flow.
+
+O fluxo sem marker e o fluxo sem float são controles obrigatórios: não entram
+na transação e devem resultar exclusivamente das fórmulas dos owners
+`compiler/layout/block.md` e `compiler/layout/place.md`. Um reparo que os torna
+verdes por ajuste em Cursor viola ownership mesmo que preserve o vetor
+transacional.
+
 ## P1286 — dispatch PDF condicionado ao gate
 
 ### Medição anterior à decisão
@@ -52,7 +156,7 @@ eval→layout→export. Os dois ficheiros futuros de feature só recebem Prompt 
 proprietário 1:1 após a confirmação; este owner não os legitima. O gate é
 obrigatório pelos tipos públicos já listados, não por mudança de fase.
 
-## P1291 — passagem pura de requests math (PROPOSTO; GATE ADR-0127)
+## P1291 — passagem pura de requests math (VIGENTE; PRESERVADA POR P1292)
 
 ### Medição anterior à decisão
 
@@ -62,7 +166,7 @@ O caller de math em `01_core/src/compiler/layout/equation.rs:107-120` constrói
 capacidade de executar `Func`. Os precedentes P240/P241/P1159 mantêm o
 Layouter puro e realizam callbacks na pipeline entre passagens.
 
-### Decisão proposta
+### Contrato vigente
 
 Adicionar uma entry point explícita de passagem que recebe
 `&SealedMathCallbacks` e devolve `MathLayoutPassOutcome`. O `Layouter` cria um
@@ -94,6 +198,7 @@ da tentativa candidata. Se essa candidata possui pendências, devolve apenas
 `Pending`; caso contrário pode devolver `Complete`. Esse ciclo de callbacks é
 ortogonal a `compiler::introspect::run_fixpoint` e não é fundido a ele.
 
-A assinatura nova e a ligação de fase exigem selo ADR-0127 antes de código.
-Contrato detalhado: `compiler/math/layout/callbacks.md`; implementação da
-capacidade: `infra/pipeline.md`.
+O selo/runtime P1291 já foi materializado. P1292 preserva integralmente esta
+ligação e não cria nova fase. Contrato detalhado:
+`compiler/math/layout/callbacks.md`; implementação da capacidade:
+`infra/pipeline.md`.

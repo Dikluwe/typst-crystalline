@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash ae9c33ea
+//! @prompt-hash b04bd360
 //! @layer L1
-//! @updated 2026-04-22
+//! @updated 2026-09-01
 //!
 //! Avaliação de expressões matemáticas. Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio).
@@ -1064,38 +1064,61 @@ fn eval_math_expr(
                     }
                 }
 
-                // vec(...) — vector coluna (Passo 55): cada arg torna-se uma linha de uma célula.
-                // Os args são planos (sem `;`), por isso não há Arrays intermediários.
+                // `vec` converge com `math.vec`: identidade própria, children
+                // variádicos e os mesmos casts/named do construtor público.
                 "vec" => {
                     let mut delim = ('(', ')');
-                    // **P1030** — idem `mat`: chain antes do argumento explícito.
-                    if let Some(val) = engine.styles.custom("math.vec.delim") {
-                        if let Some(d) = parse_delim_val(val) {
-                            delim = d;
+                    let mut align = crate::entities::layout_types::HAlign::Center;
+                    let mut gap = crate::entities::rel::Rel {
+                        rel: 0.0,
+                        abs: crate::entities::layout_types::Length::em(0.2),
+                    };
+                    let mut explicit =
+                        crate::entities::elements::math_vec::MathVecExplicit::default();
+                    for name in ["delim", "align", "gap"] {
+                        let key = format!("math.vec.{name}");
+                        if let Some(value) = engine.styles.custom(&key) {
+                            apply_syntax_vec_option(
+                                &mut delim,
+                                &mut align,
+                                &mut gap,
+                                &mut explicit,
+                                name,
+                                value,
+                                call.span(),
+                                false,
+                            )?;
                         }
                     }
-                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
+
+                    let mut children = Vec::new();
                     for arg in call.args().items() {
                         match arg {
-                            Arg::Pos(e) => pos_args.push(e),
-                            Arg::Named(n) if n.name().as_str() == "delim" => {
-                                if let Ok(val) =
-                                    eval_math_arg_value(scopes, ctx, engine, n.expr())
-                                {
-                                    if let Some(d) = parse_delim_val(&val) {
-                                        delim = d;
-                                    }
-                                }
+                            Arg::Pos(expr) => {
+                                children.push(eval_math_expr(scopes, ctx, engine, expr)?);
                             }
-                            _ => {}
+                            Arg::Named(named) => {
+                                let value = eval_math_arg_value(
+                                    scopes,
+                                    ctx,
+                                    engine,
+                                    named.expr(),
+                                )?;
+                                apply_syntax_vec_option(
+                                    &mut delim,
+                                    &mut align,
+                                    &mut gap,
+                                    &mut explicit,
+                                    named.name().as_str(),
+                                    &value,
+                                    call.span(),
+                                    true,
+                                )?;
+                            }
+                            Arg::Spread(_) => {}
                         }
                     }
-                    let mut rows: Vec<Vec<Content>> = Vec::new();
-                    for expr in pos_args {
-                        let cell = eval_math_expr(scopes, ctx, engine, expr)?;
-                        rows.push(vec![cell]);
-                    }
-                    Ok(Content::math_matrix(rows, delim))
+                    Ok(Content::math_vec_full(children, delim, align, gap, explicit))
                 }
 
                 // cases(...) — função por ramos (Passo 55): args separados por vírgula.
@@ -1353,7 +1376,21 @@ fn eval_math_expr(
                     // (ex.: `bb(x)`, `bold(x + y)`). Antes do fallback P302/P303,
                     // tentar resolver o nome no scope global; se for uma `Func`,
                     // avaliar os args como conteúdo math e aplicar.
-                    let maybe_func = scopes.get(&name).cloned();
+                    // P1292-B — `underline` has two distinct public identities:
+                    // the global binding is the textual decoration, whereas a
+                    // bare call in math syntax is sugar for `math.underline`.
+                    // Resolve only this collision through the math module; code
+                    // mode continues to see the global textual function.
+                    let maybe_func = if name == "underline" {
+                        match scopes.get("math") {
+                            Some(Value::Module(module)) => {
+                                module.scope().get("underline").cloned()
+                            }
+                            _ => None,
+                        }
+                    } else {
+                        scopes.get(&name).cloned()
+                    };
                     if let Some(Value::Func(func)) = maybe_func {
                         let mut items = Vec::new();
                         let mut named: IndexMap<EcoString, Value, FxBuildHasher> =
@@ -1569,6 +1606,7 @@ fn lr_delim_char(item: &Content, classes: &[MathClass]) -> Option<char> {
 fn parse_delim_val(val: &Value) -> Option<(char, char)> {
     match val {
         Value::Str(s) => Some(parse_delim_str(s.as_str())),
+        Value::Symbol(s) => Some(parse_delim_str(s.value.as_str())),
         Value::None => Some(('\0', '\0')),
         Value::Array(arr) => {
             let left = arr.get(0).and_then(parse_delim_char).unwrap_or('\0');
@@ -1582,9 +1620,85 @@ fn parse_delim_val(val: &Value) -> Option<(char, char)> {
 fn parse_delim_char(val: &Value) -> Option<char> {
     match val {
         Value::Str(s) => s.chars().next(),
+        Value::Symbol(s) => s.value.chars().next(),
         Value::None => Some('\0'),
         _ => None, // neutro: N16[β] — projecção de delim-char: tipos não-texto retornam None (\0 default)
     }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn apply_syntax_vec_option(
+    delim: &mut (char, char),
+    align: &mut crate::entities::layout_types::HAlign,
+    gap: &mut crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+    presence: &mut crate::entities::elements::math_vec::MathVecExplicit,
+    name: &str,
+    value: &Value,
+    span: Span,
+    explicit: bool,
+) -> SourceResult<()> {
+    let type_name = |value: &Value| match value.type_name() {
+        "int" => "integer",
+        "str" => "string",
+        "bool" => "boolean",
+        other => other,
+    };
+    match name {
+        "delim" => {
+            *delim = parse_delim_val(value).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "expected array, none, symbol, or string, found {}",
+                        type_name(value)
+                    ),
+                )]
+            })?;
+            presence.delim |= explicit;
+        }
+        "align" => {
+            let Value::Align(value) = value else {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!("expected alignment, found {}", type_name(value)),
+                )]);
+            };
+            let Some(horizontal) = value.h.filter(|_| value.v.is_none()) else {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "expected horizontal alignment".to_string(),
+                )]);
+            };
+            *align = horizontal;
+            presence.align |= explicit;
+        }
+        "gap" => {
+            *gap = match value {
+                Value::Relative(value) => *value,
+                Value::Ratio(value) => crate::entities::rel::Rel {
+                    rel: value.get(),
+                    abs: crate::entities::layout_types::Length::ZERO,
+                },
+                Value::Length(value) => {
+                    crate::entities::rel::Rel { rel: 0.0, abs: *value }
+                }
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!("expected relative length, found {}", type_name(other)),
+                    )])
+                }
+            };
+            presence.gap |= explicit;
+        }
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                span,
+                format!("unexpected argument: {other}"),
+            )])
+        }
+    }
+    Ok(())
 }
 
 fn parse_delim_str(s: &str) -> (char, char) {

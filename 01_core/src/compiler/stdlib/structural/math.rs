@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 075d617e
+//! @prompt-hash 1adfc1e0
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -16,7 +16,8 @@ use ecow::EcoString;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
-use crate::entities::elements::math_cancel::MathCancelAngle;
+use crate::entities::elements::math_cancel::{MathCancelAngle, MathCancelExplicit};
+use crate::entities::elements::math_vec::MathVecExplicit;
 use crate::entities::layout_types::{Align2D, HAlign, Length};
 use crate::entities::rel::Rel;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -308,79 +309,98 @@ pub fn native_cancel(
     let mut angle = MathCancelAngle::Auto;
     let mut stroke = None;
     let mut background = false;
+    let mut explicit = MathCancelExplicit::default();
     for (name, value) in &args.named {
         match name.as_str() {
-            "length" => match value {
-                Value::Relative(value) => length = *value,
-                Value::Length(value) => length = Rel { rel: 0.0, abs: *value },
-                other => {
-                    return Err(vec![SourceDiagnostic::error(
-                        args.span,
-                        format!(
-                            "expected relative length, found {}",
-                            vanilla_type_name_class(other)
-                        ),
-                    )])
+            "length" => {
+                explicit.length = true;
+                match value {
+                    Value::Relative(value) => length = *value,
+                    Value::Length(value) => length = Rel { rel: 0.0, abs: *value },
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            args.span,
+                            format!(
+                                "expected relative length, found {}",
+                                vanilla_type_name_class(other)
+                            ),
+                        )])
+                    }
                 }
-            },
-            "inverted" => match value {
-                Value::Bool(value) => inverted = *value,
-                other => {
-                    return Err(vec![SourceDiagnostic::error(
-                        args.span,
-                        format!(
-                            "expected boolean, found {}",
-                            vanilla_type_name_class(other)
-                        ),
-                    )])
+            }
+            "inverted" => {
+                explicit.inverted = true;
+                match value {
+                    Value::Bool(value) => inverted = *value,
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            args.span,
+                            format!(
+                                "expected boolean, found {}",
+                                vanilla_type_name_class(other)
+                            ),
+                        )])
+                    }
                 }
-            },
-            "cross" => match value {
-                Value::Bool(value) => cross = *value,
-                other => {
-                    return Err(vec![SourceDiagnostic::error(
-                        args.span,
-                        format!(
-                            "expected boolean, found {}",
-                            vanilla_type_name_class(other)
-                        ),
-                    )])
+            }
+            "cross" => {
+                explicit.cross = true;
+                match value {
+                    Value::Bool(value) => cross = *value,
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            args.span,
+                            format!(
+                                "expected boolean, found {}",
+                                vanilla_type_name_class(other)
+                            ),
+                        )])
+                    }
                 }
-            },
-            "angle" => match value {
-                Value::Auto => angle = MathCancelAngle::Auto,
-                Value::Angle(value) => angle = MathCancelAngle::Angle(*value),
-                Value::Func(value) => angle = MathCancelAngle::Func(value.clone()),
-                other => {
-                    return Err(vec![SourceDiagnostic::error(
-                        args.span,
-                        format!(
-                            "expected angle, function, or auto, found {}",
-                            vanilla_type_name_class(other)
-                        ),
-                    )])
+            }
+            "angle" => {
+                explicit.angle = true;
+                match value {
+                    Value::Auto => angle = MathCancelAngle::Auto,
+                    Value::Angle(value) => angle = MathCancelAngle::Angle(*value),
+                    Value::Func(value) => angle = MathCancelAngle::Func(value.clone()),
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            args.span,
+                            format!(
+                                "expected angle, function, or auto, found {}",
+                                vanilla_type_name_class(other)
+                            ),
+                        )])
+                    }
                 }
-            },
-            "stroke" => match value {
-                Value::None => stroke = None,
-                other => {
-                    stroke = Some(crate::compiler::stdlib::layout::extract_stroke(
-                        other, "cancel", "stroke",
-                    )?);
+            }
+            "stroke" => {
+                explicit.stroke = true;
+                match value {
+                    Value::None => stroke = None,
+                    other => {
+                        stroke = Some(crate::compiler::stdlib::layout::extract_stroke(
+                            other, "cancel", "stroke",
+                        )?);
+                    }
                 }
-            },
-            "background" => match value {
-                Value::Bool(value) => background = *value,
-                other => {
-                    return Err(vec![SourceDiagnostic::error(
-                        args.span,
-                        format!(
-                            "expected boolean, found {}",
-                            vanilla_type_name_class(other)
-                        ),
-                    )])
+            }
+            "background" => {
+                explicit.background = true;
+                match value {
+                    Value::Bool(value) => background = *value,
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            args.span,
+                            format!(
+                                "expected boolean, found {}",
+                                vanilla_type_name_class(other)
+                            ),
+                        )])
+                    }
                 }
-            },
+            }
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
@@ -391,8 +411,239 @@ pub fn native_cancel(
     }
 
     Ok(Value::Content(Content::math_cancel_full(
-        body, length, inverted, cross, angle, stroke, background, args.span,
+        body, length, inverted, cross, angle, stroke, background, args.span, explicit,
     )))
+}
+
+/// `math.underline(body)` — construtor body-only do elemento matemático.
+pub fn native_math_underline(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let body = match args.items.as_slice() {
+        [Value::Content(body)] => body.clone(),
+        [Value::Str(text)] => Content::text(text.as_str()),
+        [other] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected content, found {}", vanilla_type_name_class(other)),
+            )])
+        }
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: body".to_string(),
+            )])
+        }
+        _ => return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]),
+    };
+
+    if let Some(name) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+
+    Ok(Value::Content(Content::math_underline(body)))
+}
+
+/// Valores cascatiáveis do construtor canónico de `math.vec`.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct MathVecOptions {
+    pub delim: (char, char),
+    pub align: HAlign,
+    pub gap: Rel<Length>,
+    pub explicit: MathVecExplicit,
+}
+
+impl Default for MathVecOptions {
+    fn default() -> Self {
+        Self {
+            delim: ('(', ')'),
+            align: HAlign::Center,
+            gap: Rel { rel: 0.0, abs: Length::em(0.2) },
+            explicit: MathVecExplicit::default(),
+        }
+    }
+}
+
+fn vec_delim_char(value: &Value) -> Option<char> {
+    match value {
+        Value::None => Some('\0'),
+        Value::Str(text) => text.chars().next(),
+        Value::Symbol(symbol) => symbol.value.chars().next(),
+        _ => None,
+    }
+}
+
+fn vec_delim_string(text: &str) -> (char, char) {
+    match text {
+        "(" | ")" => ('(', ')'),
+        "[" | "]" => ('[', ']'),
+        "{" | "}" => ('{', '}'),
+        "|" => ('|', '|'),
+        "||" | "|||" => ('‖', '‖'),
+        "⌊" | "floor" => ('⌊', '⌋'),
+        "⌈" | "ceil" => ('⌈', '⌉'),
+        "<" | ">" | "chevron" => ('⟨', '⟩'),
+        "" | "none" => ('\0', '\0'),
+        other => {
+            let mut chars = other.chars();
+            let left = chars.next().unwrap_or('\0');
+            (left, chars.next().unwrap_or(left))
+        }
+    }
+}
+
+pub(crate) fn math_vec_delim(value: &Value, span: Span) -> SourceResult<(char, char)> {
+    match value {
+        Value::None => Ok(('\0', '\0')),
+        Value::Str(text) => Ok(vec_delim_string(text.as_str())),
+        Value::Symbol(symbol) => Ok(vec_delim_string(symbol.value.as_str())),
+        Value::Array(values) => {
+            let left = values.first().and_then(vec_delim_char).unwrap_or('\0');
+            let right = values.get(1).and_then(vec_delim_char).unwrap_or(left);
+            Ok((left, right))
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected array, none, symbol, or string, found {}",
+                vanilla_type_name_class(other)
+            ),
+        )]),
+    }
+}
+
+/// Aplica um named de `math.vec`; set rules usam `explicit = false`.
+pub(crate) fn apply_math_vec_option(
+    options: &mut MathVecOptions,
+    name: &str,
+    value: &Value,
+    span: Span,
+    explicit: bool,
+) -> SourceResult<()> {
+    match name {
+        "delim" => {
+            options.delim = math_vec_delim(value, span)?;
+            options.explicit.delim |= explicit;
+        }
+        "align" => {
+            let Value::Align(align) = value else {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "expected alignment, found {}",
+                        vanilla_type_name_class(value)
+                    ),
+                )]);
+            };
+            let Some(horizontal) = align.h.filter(|_| align.v.is_none()) else {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "expected horizontal alignment".to_string(),
+                )]);
+            };
+            options.align = horizontal;
+            options.explicit.align |= explicit;
+        }
+        "gap" => {
+            options.gap = match value {
+                Value::Relative(gap) => *gap,
+                Value::Ratio(gap) => Rel { rel: gap.get(), abs: Length::ZERO },
+                Value::Length(gap) => Rel { rel: 0.0, abs: *gap },
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!(
+                            "expected relative length, found {}",
+                            vanilla_type_name_class(other)
+                        ),
+                    )])
+                }
+            };
+            options.explicit.gap |= explicit;
+        }
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                span,
+                format!("unexpected argument: {other}"),
+            )])
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn math_vec_content(
+    children: Vec<Content>,
+    options: MathVecOptions,
+) -> Content {
+    Content::math_vec_full(
+        children,
+        options.delim,
+        options.align,
+        options.gap,
+        options.explicit,
+    )
+}
+
+/// `math.vec(..children, delim:, align:, gap:)`.
+pub fn native_math_vec(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let mut children = Vec::with_capacity(args.items.len());
+    for value in &args.items {
+        let child = match value {
+            Value::Content(content) | Value::LocatedContent(content, _) => {
+                content.clone()
+            }
+            Value::Str(text) => Content::text(text.as_str()),
+            Value::Symbol(symbol) => Content::MathText(symbol.value.clone()),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("expected content, found {}", vanilla_type_name_class(other)),
+                )])
+            }
+        };
+        children.push(child);
+    }
+
+    let mut options = MathVecOptions::default();
+    for (name, value) in &args.named {
+        apply_math_vec_option(&mut options, name, value, args.span, true)?;
+    }
+    Ok(Value::Content(math_vec_content(children, options)))
+}
+
+#[cfg(test)]
+mod p1292_c_vec_tests {
+    use super::*;
+    use crate::entities::layout_types::Ratio;
+
+    #[test]
+    fn pure_ratio_gap_converte_zero_e_dez_porcento() {
+        for (percent, expected) in [(0.0, 0.0), (10.0, 0.1)] {
+            let mut options = MathVecOptions::default();
+            apply_math_vec_option(
+                &mut options,
+                "gap",
+                &Value::Ratio(Ratio::from_percent(percent)),
+                Span::detached(),
+                true,
+            )
+            .expect("ratio puro deve converter para relative length");
+            assert_eq!(options.gap.rel, expected);
+            assert!(options.gap.abs.is_zero());
+            assert!(options.explicit.gap);
+        }
+    }
 }
 
 // ── P772y — `math.class(class, body)` ────────────────────────────────────
@@ -749,6 +1000,26 @@ pub fn make_math_module() -> Value {
     dict.insert(
         "sqrt".into(),
         Value::Func(crate::entities::func::Func::native("math.sqrt", native_math_sqrt)),
+    );
+
+    // P1292-A — a função canónica existente também é membro de `math`.
+    // O binding precede o espelho sym→math, que nunca o sobrescreve.
+    dict.insert(
+        "cancel".into(),
+        Value::Func(crate::entities::func::Func::native("math.cancel", native_cancel)),
+    );
+
+    dict.insert(
+        "underline".into(),
+        Value::Func(crate::entities::func::Func::native(
+            "math.underline",
+            native_math_underline,
+        )),
+    );
+
+    dict.insert(
+        "vec".into(),
+        Value::Func(crate::entities::func::Func::native("math.vec", native_math_vec)),
     );
 
     // P795 — dif e Dif operadores em modo math (expostos no modulo math)

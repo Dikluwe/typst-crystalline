@@ -84,3 +84,38 @@ O registo raiz reexporta em `pub(crate)` somente
 `float_type_field`, `is_float_instance_method` e `dispatch_float_method` do
 owner `foundations/float`. O hub não contém lookup, fórmula ou validação e não
 amplia a API Rust externa.
+
+## P1292 — reexport interno mínimo de `native_flush`
+
+### Medição anterior à decisão
+
+No baseline SHA-256
+`02d53b1588b008c295e2dcab0adc0e6ad2e8604d9972c5fa0b2503d340826f3f`,
+`01_core/src/compiler/stdlib/mod.rs` declara `layout` como submódulo privado e
+constitui a fachada já consumida por `compiler/eval/mod.rs`. A lista de
+reexports de layout expõe as demais nativas necessárias ao registo, mas ainda
+omite `native_flush`. A implementação/construção de `native_flush` já pertence
+ao owner dedicado `compiler/stdlib/layout.md`, SHA-256
+`6ff688ec12444582ec9ec87bb7b432019ff568882fbb1c66170eb47367e62dc4`;
+movê-la para o hub violaria a atomização e o ownership 1:1.
+
+### Decisão
+
+O registo raiz reexporta somente dentro da crate:
+
+```rust
+pub(crate) use crate::compiler::stdlib::layout::native_flush;
+```
+
+O reexport é uma ligação de fachada, não um segundo owner. `native_flush`
+continua definida e legitimada exclusivamente por `stdlib/layout.md`; este
+prompt legitima apenas a linha de reexport em `stdlib/mod.rs`. O hub não cria
+wrapper, lookup, cast, validação ou branch, não torna o módulo `layout`
+público, não usa wildcard e não promove a função à API Rust externa.
+
+A superfície Typst `place.flush`, seus argumentos/erros e a construção de
+`Content::Flush` permanecem nos owners P1292 já selados. Esta correção só
+permite que o consumer da fachada alcance a função dedicada; não altera
+vetores A-D, default, fase de pipeline ou compatibilidade. Qualquer necessidade
+de lógica no hub, `pub use` externo, mudança em `layout.rs` ou segundo caminho
+de implementação refuta este amendment e exige novo owner/escopo.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 82030adc
+//! @prompt-hash 6058051a
 //! @layer L1
-//! @updated 2026-07-16
+//! @updated 2026-09-01
 //!
 //! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`
 //! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando
@@ -1528,6 +1528,7 @@ fn make_stdlib_with_features(
         native_enum,
         native_eval,
         native_figure,
+        native_flush,
         native_footnote,
         native_frak,
         native_grid,
@@ -1833,7 +1834,18 @@ fn make_stdlib_with_features(
     // Passo 156F (ADR-0061 Fase 1, sub-passo 4): skew via matriz unificada.
     scope.define("skew", Value::Func(Func::native("skew", native_skew)));
     scope.define("align", Value::Func(Func::native("align", native_align)));
-    scope.define("place", Value::Func(Func::native("place", native_place)));
+    {
+        let mut place_namespace = Scope::new();
+        place_namespace.define("flush", Value::Func(Func::native("flush", native_flush)));
+        scope.define(
+            "place",
+            Value::Func(Func::native_with_namespace(
+                "place",
+                native_place,
+                Arc::new(place_namespace),
+            )),
+        );
+    }
     // P723 — `assert` ganha namespace com eq/ne (bloqueio real do cetz;
     // a premissa do passo apontava `curve`, refutada pela sonda — o
     // namespace de curve existe desde P513).
@@ -2167,6 +2179,29 @@ fn make_stdlib_with_features(
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod p1292_d_tests {
+    use super::*;
+    use crate::entities::args::Args;
+
+    #[test]
+    fn p1292_d_place_and_with_share_the_flush_namespace() {
+        let stdlib = make_stdlib(&SysInputs::default());
+        let Value::Func(place) = stdlib.get("place").unwrap() else {
+            panic!("place must remain callable");
+        };
+        assert_eq!(place.name(), Some("place"));
+
+        let namespace = place.namespace().expect("place namespace");
+        let Value::Func(flush) = namespace.get("flush").unwrap() else {
+            panic!("place.flush must be callable");
+        };
+        assert_eq!(flush.name(), Some("flush"));
+
+        let with = place.clone().with(Args::positional(Vec::new()));
+        assert!(with.namespace().unwrap().get("flush").is_some());
+    }
+}
 #[cfg(test)]
 pub(crate) use crate::compiler::eval::tests::eval_for_test;
 // Re-export para o módulo de tests (que usa `use super::*;`).

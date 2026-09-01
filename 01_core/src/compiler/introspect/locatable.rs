@@ -153,6 +153,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::SetPage { .. }
         | Content::Align(_)
         | Content::Place(_)
+        | Content::Flush(_)
         | Content::Styled(_, _)
         | Content::Strong(_)
         | Content::Emph(_)
@@ -201,6 +202,8 @@ pub fn is_locatable(content: &Content) -> bool {
         // MathFrac/MathRoot/MathDelimited; math structural inerte).
         | Content::MathAccent(_)
         | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathVec(_)
         // P772y — Math class override não-locatable (paralelo P296/P298).
         | Content::MathClassOverride(_)
         // P992 — Math limits override não-locatable (limits()/scripts()).

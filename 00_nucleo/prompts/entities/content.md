@@ -2835,52 +2835,61 @@ desativação e preservar Func até o fixpoint.
 Clone, igualdade, hash, repr e walks tratam Numbering como dado fechado; a
 morfologia pública de `SetPage`/`PageRun` continua content.
 
-## P1291 — identidades públicas de math cancel/underline/vec (RASCUNHO PARA SELO)
+## P1292 — identidades públicas de math e `place.flush` (GATE ADR-0127)
 
 ### Medição anterior à decisão
 
-`Content` já possui `MathCancel`, mas seu elemento transporta somente `body`;
-não possui identidade matemática para underline nem vetor. Em
-`01_core/src/compiler/eval/math.rs:1030-1062`, `vec` é atualmente degradado a
-`MathMatrix`. No vanilla ratificado, `CancelElem`, `UnderlineElem` matemático e
-`VecElem` são três identidades distintas; o probe
-`math.underline == underline` devolve `false`.
+`Content::MathCancel` e seu runtime completo já estão materializados por
+P1291. O enum ainda não possui identidade matemática para underline/vetor nem
+sentinela de flush; `vec` é degradado a `MathMatrix`. No vanilla ratificado,
+`CancelElem`, `UnderlineElem` matemático, `VecElem` e `FlushElem` são
+identidades distintas; `math.underline == underline` devolve `false`, e
+`repr(place.flush())` devolve `flush()`.
 
-### Decisão pública proposta
+### Decisão pública
 
-Preservar `Content::MathCancel(Arc<MathCancelElem>)` com o payload ampliado no
-owner `entities/elements/math_cancel.md` e adicionar:
+Preservar `Content::MathCancel(Arc<MathCancelElem>)` e seu transcript sem criar
+segundo elemento/runtime, completando somente metadado de presença necessário
+à exposição morfológica. Adicionar:
 
 ```rust
 Content::MathUnderline(Arc<MathUnderlineElem>)
 Content::MathVec(Arc<MathVecElem>)
+Content::Flush(Arc<FlushElem>)
 ```
 
 Construtores públicos:
 
-- `math_cancel(body)` permanece compatível e aplica os defaults; o construtor
-  tipado completo transporta todos os campos de cancel.
+- `math_cancel(body)` permanece compatível e aplica defaults omitidos; o
+  construtor completo transporta valores, span e presença sem reimplementar
+  callback.
 - `math_underline(body)` cria exclusivamente `MathUnderlineElem`, nunca o
   `UnderlineElem` textual.
-- `math_vec(children, delim, align, gap)` preserva filhos variádicos e os três
-  parâmetros próprios, nunca converte em `MathMatrixElem`.
+- `math_vec(children, delim, align, gap, explicit)` preserva filhos variádicos,
+  os três parâmetros e a presença dos named, nunca converte em `MathMatrixElem`.
+- `flush()` cria exclusivamente a sentinela zero-field; não normaliza para
+  `Empty`.
 
-Nos matches exaustivos, os três são math estruturais não-locatáveis.
+Nos matches exaustivos, os três math são estruturais não-locatáveis; `Flush`
+é sentinela estrutural também não-locatável e não vazia.
 `plain_text` de cancel/underline delega ao body; o vetor concatena o plain text
 dos filhos na ordem. `map_content` recursa nos bodies/filhos preservando todos
 os demais campos; `map_text` é terminal, conforme os demais nós math
 estruturais. Igualdade e hash são estruturais sobre campos da linguagem; o
 `span` interno de `MathCancelElem` é preservado pelos walkers e ignorado por
 igualdade/hash. `materialize_time`, `walk`,
-layout genérico e defaults matemáticos devem ganhar braços explícitos; nenhum
-wildcard pode esconder a nova variante.
+layout genérico e defaults matemáticos devem ganhar braços explícitos; `Flush`
+tem walkers terminais e `plain_text` vazio. Nenhum wildcard pode esconder
+variante nova.
 
 Prompts proprietários relacionados: `entities/elements/math_cancel.md`,
 `entities/elements/math_underline.md`, `entities/elements/math_vec.md`,
+`entities/elements/flush.md`,
 `entities/elements/_comum.md`, `compiler/math/layout/cancel.md`,
 `compiler/math/layout/underline.md`, `compiler/math/layout/vec.md` e
-`compiler/math/layout/_comum.md`.
+`compiler/math/layout/_comum.md`, além de `compiler/layout/flush.md`.
 
-Esta alteração cria variantes e construtores públicos; permanece proibida até
-o selo humano ADR-0127. Os dois novos prompts de elemento ficam deliberadamente
-sem consumer durante esta pausa e, portanto, não recebem crédito de lint/V15.
+Esta alteração cria variantes/construtores públicos; permanece proibida até
+o selo humano ADR-0127. Os seis prompts de novos consumers (entidade/layout
+para underline, vec e flush) ficam
+deliberadamente sem consumer e sem `Hash do Código` durante esta pausa.

@@ -74,9 +74,12 @@ pub(super) fn compute_gaps(
 | `MathClassOverride(e)` | `e.class` (override explícito, `math.class(...)`) |
 | `MathLimitsOverride(e)` | **recurse em `e.body`** (P992 — `limits()`/`scripts()` não afectam classe/espaçamento, paridade vanilla `resolve_limits`/`resolve_scripts`: resolvem o `body` normalmente, só sobrescrevem `set_limits`; **diferente** de `MathClassOverride`, que força a classe) |
 | `MathDelimited(_)` | `(Opening, Closing)` — sempre assimétrico (paralelo `MathItem::lclass/rclass`, vanilla, caso Fenced) |
+| `MathUnderline(e)` | **herda as duas bordas de `e.body`**; a regra acrescentada não muda a classe matemática do body |
+| `MathVec(e)` | `Opening` na esquerda e `Closing` na direita quando o delimitador correspondente existe; `Normal` em cada borda ausente |
+| `Flush(_)` | `(Normal, Normal)` — sentinela neutra, sem átomo matemático próprio |
 | `MathOp(_)` | **`Large`** (P907 Parte B — `min`/`max`/`lim`/`sin`/etc; paridade `resolve_op`, vanilla, `item.set_class(MathClass::Large)` incondicional, independente da flag `limits`) |
 | `MathAttach(e)` | **recurse em `e.base`** (P907 Parte B — paridade `ScriptsItem::create`, vanilla, doc "inherits its math class from the base"; necessário para `min_(x)` continuar `Large`) |
-| outros (Frac/Root/Matrix/Cases/Accent/Cancel/Underover) | `Normal` (paridade `unwrap_or(MathClass::Normal)`, vanilla — nenhum destes define `class` explícito; `Accent` também herda de `base` no vanilla — `AccentItem::create` tem a mesma doc de `ScriptsItem` — mas fora do achado confirmado por P907, que só cobriu o caso concreto de `min`/`max`; candidato a passo dedicado, ver secção P907 abaixo) |
+| outros (Frac/Root/Matrix/Cases/Accent/Cancel/Underover) | `Normal` (paridade `unwrap_or(MathClass::Normal)`, vanilla — nenhum destes define `class` explícito; `Accent` também herda de `base` no vanilla — `AccentItem::create` tem a mesma doc de `ScriptsItem` — mas fora do achado confirmado por P907, que só cobriu o caso concreto de `min`/`max`; candidato a passo dedicado, ver secção P907 abaixo). `MathMatrix` é refinado pela regra de borda P1135 e não autoriza degradar `MathVec` a matrix. |
 
 Simplificação registada: um nó `MathIdent`/`MathText` multi-carácter usa
 **só o primeiro carácter** para classificar o nó inteiro (o layout do
@@ -372,3 +375,51 @@ zero; nas outras fronteiras e quando terminal conserva a largura completa. O esp
 semântico é acrescentado uma única vez por `compute_gaps`; por isso
 `"Res"(f)` encosta à abertura e `p "prime"` conserva um espaço e o centro sob
 `∏`. A escolha é estrutural e usa métricas ativas, não o conteúdo `"Res"`.
+
+## P1292 amendment-1 — classes das novas identidades B/C/D
+
+### Medição anterior à decisão
+
+No cristalino anterior ao amendment, `base_math_class` incluía toda variante
+não reconhecida no fallback `Normal` e `node_math_class` só refinava
+`MathDelimited`, wrappers/sequências e `MathMatrix`
+(`01_core/src/compiler/math/layout/spacing.rs:29-175,184-221`). Isso faria o
+underline matemático perder a classe de seu body e faria o vec delimitado
+perder as classes laterais. Os L0s P1292 já fixam que `MathUnderline` conserva
+as propriedades matemáticas relevantes do body
+(`compiler/math/layout/underline.md`) e que `MathVec` conserva delimitadores
+opcionais sem se converter em matrix (`entities/elements/math_vec.md` e
+`compiler/math/layout/vec.md`). `Flush` não produz item visual nem identidade
+de introspecção (`entities/elements/flush.md`).
+
+Na fonte vanilla ratificada `a51e02804`, `resolve_underline` cria um
+`LineItem` a partir do body (`math/ir/resolve.rs:1253-1261`) e
+`LineItem::create` copia `base.raw_class()` (`math/ir/item.rs:834-856`). Para
+vec, `resolve_vec` chama `resolve_delimiters` com os delimitadores opcionais
+(`math/ir/resolve.rs:1002-1025,1164-1189`); `MathItem::lclass/rclass` expõe
+`Opening`/`Closing` somente quando a borda correspondente de `FencedItem`
+existe (`math/ir/item.rs:118-145`). O vanilla declara `FlushElem` sem payload e
+o coletor o converte em marcador de fluxo, não em item matemático
+(`layout/place.rs:179-213`; `typst-layout/src/flow/collect.rs:79-91`).
+
+### Decisão
+
+- `node_math_class(MathUnderline(e))` devolve exatamente
+  `node_math_class(&e.body)`: conserva `lclass` e `rclass`, inclusive a
+  assimetria de um body delimitado; a linha inferior não cria classe própria.
+- `node_math_class(MathVec(e))` devolve `Opening` na borda esquerda quando há
+  delimitador esquerdo e `Closing` na direita quando há delimitador direito;
+  cada delimitador ausente produz `Normal` somente em sua borda. Não se usa a
+  classe dos filhos como substituto da borda ausente.
+- `node_math_class(Flush(_))` devolve `(Normal, Normal)`. É a classificação
+  neutra exigida pela exaustividade; não cria átomo, não promove vizinhos e não
+  autoriza o owner de spacing a realizar o flush.
+
+Classificação ADR-0107/0108: herança e bordas são semântica de espaçamento da
+linguagem; a forma do `match` é mecânica livre. A neutralidade de `Flush` é
+inferência a partir de sua ausência de item e efeito exclusivamente no fluxo.
+Ela seria refutada se inserir `place.flush()` entre dois átomos matemáticos sem
+floats mudasse o espaçamento visível. A herança de underline seria refutada se
+um body de classe explícita perdesse essa classe; a regra de vec seria refutada
+se uma borda ausente assumisse `Opening`/`Closing` ou uma borda presente não a
+expusesse.

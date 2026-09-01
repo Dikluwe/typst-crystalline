@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash 35260452
+//! @prompt-hash a05df3f7
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -334,7 +334,10 @@ fn has_any_text(content: &Content) -> bool {
         | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathRoot(_)
         | Content::MathDelimited(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
-        | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathClassOverride(_)
+        | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathUnderline(_)
+        | Content::MathVec(_)
+        | Content::Flush(_)
+        | Content::MathClassOverride(_)
         | Content::MathLimitsOverride(_)
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
         | Content::SmartQuote(_) | Content::Dynamic(_) | Content::PdfAttach(_)
@@ -412,7 +415,10 @@ where
         | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathRoot(_)
         | Content::MathDelimited(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
-        | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathClassOverride(_)
+        | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathUnderline(_)
+        | Content::MathVec(_)
+        | Content::Flush(_)
+        | Content::MathClassOverride(_)
         | Content::MathLimitsOverride(_)
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
         | Content::SmartQuote(_) | Content::Dynamic(_) | Content::PdfAttach(_)

@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/cancel` — `MathCancel`
-Hash do Código: b804d54b
+Hash do Código: 81399128
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
@@ -12,6 +12,12 @@ movido. Núcleo partilhado: ver `math/layout/_comum.md`.
 
 ---
 
+## Histórico P296 — heurística minimal (REVOGADA por P1291)
+
+O bloco abaixo preserva a origem do handler, mas não é contrato vigente. Os
+scope-outs de `inverted`/`cross`/`angle`/`stroke` foram fechados pelo contrato
+full P1291 preservado em P1292.
+
 `MathCancel` — layout do `body` seguido de uma linha diagonal sobre a bbox. Heurística minimal
 per ADR-0054 graded:
 - Diagonal default (canto inferior-esquerdo `(0, h)` → canto superior-direito `(width, 0)`;
@@ -22,7 +28,7 @@ per ADR-0054 graded:
 `ascent`/`descent`/`width` do `MathBox` resultante são os do `body` — a linha não afecta as
 métricas de caixa (é um item adicional sobreposto, não expande a caixa).
 
-**Critério**: `MathCancel { body }` → `MathBox` com os items do `body` mais um `FrameItem::Line`
+**Critério histórico revogado**: `MathCancel { body }` → `MathBox` com os items do `body` mais um `FrameItem::Line`
 diagonal de `(0, h)` a `(width, 0)`, sem alterar `width`/`ascent`/`descent` do `body`.
 
 ## P986 — a linha usa a convenção baseline-relativa (quarto caso da família)
@@ -77,7 +83,7 @@ coordenadas do PDF nem constantes em pt.
 O contrato P986 de canto a canto fica assim especializado: ele descreve a
 parcela de `100%`; o default público acrescenta `0.3em` simetricamente.
 
-## P1291.cancel-gate — consumo dos campos públicos (RASCUNHO PARA SELO)
+## P1292 — consumo já materializado; sem segundo runtime
 
 ### Medição anterior à decisão
 
@@ -87,7 +93,7 @@ vanilla ratificado mede primeiro a caixa, resolve o ângulo e o comprimento e
 insere a linha atrás ou à frente em
 `lab/typst-original/crates/typst-layout/src/math/cancel.rs:14-147`.
 
-### Decisão proposta
+### Contrato preservado
 
 `layout_cancel` recebe `&MathCancelElem`, não uma lista paralela de escalares.
 O corpo é disposto uma vez para obter `width`, `ascent` e `descent`. O
@@ -115,3 +121,8 @@ fallback final `Func => Auto` seria divergência de linguagem.
 O despacho estático e exaustivo continua no owner
 `compiler/math/layout/_comum.md`; este arquivo permanece a unidade dona de toda
 a geometria de cancel conforme ADR-0109.
+
+P1292 apenas expõe este mesmo elemento por `math.cancel` e completa sua
+morfologia. Os bits de presença de argumentos são ignorados geometricamente;
+nenhum segundo `MathCancelElem`, callback store, algoritmo de linha ou caminho
+de fallback é autorizado.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash f2edd989
+//! @prompt-hash fba34d63
 //! @layer L1
-//! @updated 2026-07-14
+//! @updated 2026-09-01
 //!
 //! Gestão do cursor do Layouter: largura de palavra, layout de palavra,
 //! `flush_line`, `new_page`, número de página actual.
@@ -25,6 +25,44 @@ use super::metrics::FontMetrics;
 // flush_pending_floats + emit_deferred_float.
 use super::helpers::{item_pos, translate_frame_item};
 use super::DeferredFloat;
+
+/// Origem física vertical do frame local devolvido por `layout_sub_frame`.
+///
+/// A baseline inicial não coincide necessariamente com o top-edge semântico:
+/// com as métricas ratificadas, o sub-frame começa 2.596pt abaixo da origem
+/// física. A translação diferida precisa compensar apenas esse offset medido,
+/// não o ascender integral.
+fn deferred_frame_origin_y<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> f64 {
+    fn item_origin<M: FontMetrics>(item: &FrameItem, metrics: &M) -> Option<f64> {
+        match item {
+            FrameItem::Text { pos, style, .. }
+            | FrameItem::TextShaped { pos, style, .. } => {
+                let (top, _) = metrics.text_edges(style.size, style);
+                Some(pos.y.0 - top.0)
+            }
+            FrameItem::Glyph { pos, size, style, .. } => {
+                let (top, _) = metrics.text_edges(*size, style);
+                Some(pos.y.0 - top.0)
+            }
+            FrameItem::Line { start, end, thickness, .. } => {
+                Some(start.y.0.min(end.y.0) - thickness / 2.0)
+            }
+            FrameItem::Shape { pos, .. }
+            | FrameItem::Group { pos, .. }
+            | FrameItem::Image { pos, .. } => Some(pos.y.0),
+            FrameItem::Link { items, .. } | FrameItem::Semantic { items, .. } => items
+                .iter()
+                .filter_map(|child| item_origin(child, metrics))
+                .reduce(f64::min),
+        }
+    }
+
+    items
+        .iter()
+        .filter_map(|item| item_origin(item, metrics))
+        .reduce(f64::min)
+        .unwrap_or(0.0)
+}
 
 fn justify_frame_item<M: super::FontMetrics>(
     item: FrameItem,
@@ -436,22 +474,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // chamam flush_line por segurança antes do seu próprio push.
         let had_items = !self.regions.current.current_line.is_empty();
 
-        // P286 — hook decorações wrap-aware. Se o collector está activo
-        // (consumer Underline/Strike/Overline o ligou) e há items na
-        // linha que vai ser drenada, regista o segmento `(line_start_x,
-        // cursor_x, cursor_y)` antes do advance. Backward-compat
-        // estricta: collector None → nenhum overhead.
-        if had_items {
-            self.prev_line_baseline = self.regions.current.cursor_y.0;
-            if let Some(coll) = self.decoration_lines_collector.as_mut() {
-                coll.push(super::DecoSegment {
-                    start_x: self.regions.current.line_start_x,
-                    end_x: self.regions.current.cursor_x,
-                    baseline_y: self.regions.current.cursor_y,
-                });
-            }
-        }
-
         // Determinar o tamanho máximo de fonte presente nos items da linha e
         // o estilo do item que o possui (clonado para não manter borrow da
         // current_line durante o drain). Se a linha não tiver items de texto,
@@ -520,6 +542,63 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.line_inline_ascent = 0.0;
         self.line_inline_descent = 0.0;
 
+        // P1292-D v10 — uma inserção bottom reduz a geometria efectiva
+        // antes de o próximo child estabilizar. Se a tinta da linha corrente
+        // não cabe nessa região, migra a linha ainda não comitada pelo
+        // caminho normal de avanço; não é preciso conhecer seu Content.
+        let mut effective_line_committed = false;
+        if had_items
+            && self.page_config.height.is_finite()
+            && self.regions.current.height + f64::EPSILON < self.page_config.height
+        {
+            let assumed = if self.line_assumed_ascent > 0.0 {
+                self.line_assumed_ascent
+            } else {
+                self.metrics.text_edges(max_font_size, &max_style).0 .0
+            };
+            let extra_ascent = (inline_ascent - assumed).max(0.0);
+            let (_, bottom) = self.metrics.text_edges(max_font_size, &max_style);
+            let ink_bottom = self.regions.current.cursor_y.0
+                + extra_ascent
+                + (-bottom.0).max(inline_descent);
+            if ink_bottom > self.page_bottom_limit()
+                && (!self.regions.current.current_items.is_empty()
+                    || !self.pages.is_empty())
+            {
+                // P1292-D v11 — a unidade posterior ao marker foi rejeitada
+                // pela geometria efectiva. `new_page` pode materializar
+                // buffers durante este ensaio, mas o owner Layouter possui o
+                // snapshot completo e o Cursor fará rollback antes do avanço
+                // definitivo. Pagebreaks por outros motivos não marcam isto.
+                if self.flow_suffix_transaction_active {
+                    self.flow_suffix_transaction_rejected = true;
+                } else {
+                    let old_baseline = self.regions.current.cursor_y.0;
+                    self.new_page();
+                    let delta = self.regions.current.cursor_y.0 - old_baseline;
+                    self.shift_current_line_y(delta);
+                }
+            } else {
+                // A tinta cabe; o avanço para a baseline seguinte pode
+                // ultrapassar a reserva sem expulsar retroactivamente esta
+                // linha. Um próximo child fará o progresso normal.
+                effective_line_committed = true;
+            }
+        }
+
+        // P286 — regista a linha somente depois da eventual migração,
+        // para que baseline e collector pertençam à região estabilizada.
+        if had_items {
+            self.prev_line_baseline = self.regions.current.cursor_y.0;
+            if let Some(coll) = self.decoration_lines_collector.as_mut() {
+                coll.push(super::DecoSegment {
+                    start_x: self.regions.current.line_start_x,
+                    end_x: self.regions.current.cursor_x,
+                    baseline_y: self.regions.current.cursor_y,
+                });
+            }
+        }
+
         // **P1120** — a baseline desta linha foi fixada quando a linha
         // anterior fechou (ou por `ensure_initial_baseline`), assumindo o
         // ascent do texto. Se um item inline pede mais ascent (caixa mais
@@ -586,12 +665,30 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
         self.regions.current.cursor_x = self.regions.current.line_start_x;
 
-        if self.regions.current.cursor_y.0 > self.page_bottom_limit() {
-            self.new_page();
+        if had_items
+            && self.regions.current.cursor_y.0 > self.page_bottom_limit()
+            && !effective_line_committed
+        {
+            if self.flow_suffix_transaction_active {
+                self.flow_suffix_transaction_rejected = true;
+            } else {
+                self.new_page();
+            }
         }
     }
 
     pub(super) fn new_page(&mut self) {
+        // Uma transição ordinária aceita a unidade corrente antes de fechar a
+        // região. Uma tentativa já rejeitada não pode materializar páginas:
+        // o owner Cursor fará rollback da cauda e só então avançará.
+        if self.flow_suffix_transaction_active {
+            if self.flow_suffix_transaction_rejected {
+                return;
+            }
+            self.flow_suffix_transaction_active = false;
+            self.flow_suffix_checkpoint = None;
+            self.flow_suffix_replay.clear();
+        }
         // Uma transição normal materializa novamente a página corrente. O
         // page-run marca explicitamente sua página pós-boundary depois desta
         // chamada, distinguindo-a de `pagebreak()` público.
@@ -636,7 +733,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // P245 (M9d / M7+4) — flush floats pendentes na página actual
         // antes da transição. Top floats emit no topo, bottom no fundo.
-        self.flush_pending_floats();
+        self.flush_fitting_pending_floats();
 
         // P304 (P295.1) — flush footnote bodies pendentes no rodapé
         // antes de saving a Page. Items posicionados em Y absoluto
@@ -795,6 +892,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             );
         self.regions.current.cursor_x = Pt(self.page_config.margin.left);
         self.regions.current.line_start_x = Pt(self.page_config.margin.left);
+        self.regions.current.height = self.page_config.height;
         // **P761/P762** — quando a baseline inicial ainda está pendente,
         // `ensure_initial_baseline()` adicionará o offset do `top-edge`. Só
         // pre-posicionamos a baseline quando o offset já foi fixado.
@@ -804,7 +902,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
             Pt(self.page_config.margin.top) + top
         };
-        // P245 — reset reservas na nova página.
+        // P245/P1292-D — a nova região ainda não incorporou inserções;
+        // o owner Place reconstruirá as reservas ao admitir a fila.
         self.cursor_y_top_reserve = 0.0;
         self.cursor_y_bottom_reserve = 0.0;
         // P813 — o avanço do último flush pertence à página fechada.
@@ -917,79 +1016,130 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.current_line.clear();
     }
 
-    /// **P245 (M9d / M7+4)** — flush dos floats pendentes na página
-    /// actual. Top floats stack do topo; bottom stack do fundo;
-    /// alignment.x aplica-se horizontalmente. `floats_pending.clear()`
-    /// após emissão.
-    pub(super) fn flush_pending_floats(&mut self) {
-        if self.floats_pending.is_empty() {
-            return;
-        }
-        use crate::entities::layout_types::{Align2D, FrameItem, HAlign, Point, VAlign};
-        let margin = self.page_config.margin;
-        let page_w = self.regions.current.width;
-        let page_h = self.regions.current.height;
-        let avail_w = page_w - margin.horizontal();
-        let area_top = margin.top;
-        let area_bot = page_h - margin.bottom;
+    /// Realiza o prefixo que cabe na região activa e conserva o restante para
+    /// a região seguinte. A primeira ocorrência numa região vazia progride
+    /// mesmo se for maior que ela; essa combinação permanece `Unknown`, mas
+    /// nunca cria loop sem progresso.
+    fn flush_fitting_pending_floats(&mut self) -> usize {
+        super::place::admit_fitting_floats(self)
+    }
 
-        let floats: Vec<DeferredFloat> = std::mem::take(&mut self.floats_pending);
+    /// P1292-D v11 — compõe a primeira unidade posterior ao marker como uma
+    /// transação regional. A tentativa inicial usa o caminho de layout
+    /// ordinário e não conhece o variant do conteúdo. Se `flush_line`
+    /// detectar overflow causado pela área reduzida, restaura todo o estado
+    /// visível, fecha a região contendo apenas o prefixo confirmado e repete
+    /// exactamente a mesma ocorrência na região seguinte.
+    pub(super) fn layout_flow_suffix_transaction(
+        &mut self,
+        content: &crate::entities::content::Content,
+    ) {
+        self.flow_suffix_replay.push(content.clone());
+        self.flow_suffix_dispatch_depth += 1;
+        self.layout_content_once(content);
+        self.flow_suffix_dispatch_depth -= 1;
 
-        // **P867** — com `height: auto`, não há fundo fixo; floats bottom
-        // perdem o referencial e decaem para top. Com `width: auto`, o
-        // alinhamento horizontal não tem referencial e decai para left.
-        let height_auto = !page_h.is_finite();
-        let width_auto = !page_w.is_finite();
-
-        // Separar top floats (alignment.v == Top) vs outros (default
-        // bottom paridade vanilla).
-        let (mut top_floats, mut bot_floats): (Vec<_>, Vec<_>) = floats
-            .into_iter()
-            .partition(|f| matches!(f.alignment.v, Some(VAlign::Top)));
-
-        // **P867** — com `height: auto`, não há fundo fixo; floats bottom
-        // perdem o referencial e decaem para top.
-        if height_auto {
-            top_floats.append(&mut bot_floats);
-        }
-
-        // Stack top floats do topo para baixo (cursor_y_top start area_top).
-        let mut y_top_cursor = area_top;
-        for f in top_floats.drain(..) {
-            let f_y = y_top_cursor;
-            let avail = if width_auto { f.body_width } else { avail_w };
-            self.emit_deferred_float(&f, f_y, margin.left, avail);
-            y_top_cursor += f.body_height + f.clearance;
-        }
-
-        // Stack bottom floats do fundo para cima (cursor_y_bot start area_bot).
-        // Clearance afasta float do fundo (e do float seguinte stack-up).
-        // **P867** — bot_floats só é processado quando `height` é finito.
-        if !height_auto {
-            let mut y_bot_cursor = area_bot;
-            for f in bot_floats {
-                y_bot_cursor -= f.clearance + f.body_height;
-                let f_y = y_bot_cursor;
-                self.emit_deferred_float(&f, f_y, margin.left, avail_w);
+        // O Block posterior pode terminar sem rejeição imediata. A decisão
+        // só se torna observável quando uma inserção diferida do próprio
+        // sufixo aparece. Place calcula o prefixo admissível sem o realizar;
+        // se alguma ocorrência nova não cabe, a unidade inteira é rejeitada.
+        let checkpoint_float_len = self
+            .flow_suffix_checkpoint
+            .as_ref()
+            .map(|checkpoint| checkpoint.floats_pending_len)
+            .unwrap_or(0);
+        if self.floats_pending.len() > checkpoint_float_len {
+            let fitting = super::place::fitting_float_prefix_len(self);
+            if fitting < self.floats_pending.len() {
+                self.flow_suffix_transaction_rejected = true;
             }
         }
 
-        let _ = Align2D { h: None::<HAlign>, v: None::<VAlign> }; // marker import use
-        let _ = FrameItem::Group {
-            pos: Point { x: Pt(0.0), y: Pt(0.0) },
-            matrix: crate::entities::layout_types::TransformMatrix::identity(),
-            clip_mask: None,
-            inner_width: 0.0,
-            inner_height: 0.0,
-            items: Vec::new(),
-        }; // marker
+        let rejected = self.flow_suffix_transaction_rejected;
+        if !rejected {
+            // Uma ocorrência diferida nova que cabe torna a fronteira
+            // estável. Sem inserção nova, uma ocorrência de lookahead é
+            // suficiente para decidir a unidade de flow sem manter estado
+            // especulativo através de fronteiras documentais arbitrárias.
+            if self.floats_pending.len() > checkpoint_float_len
+                || self.flow_suffix_replay.len() >= 2
+            {
+                self.flow_suffix_transaction_active = false;
+                self.flow_suffix_checkpoint = None;
+                self.flow_suffix_replay.clear();
+            }
+            return;
+        }
+
+        let checkpoint = self
+            .flow_suffix_checkpoint
+            .take()
+            .expect("transação de sufixo activa deve possuir checkpoint");
+        let replay = std::mem::take(&mut self.flow_suffix_replay);
+        self.flow_suffix_transaction_active = false;
+        self.flow_suffix_transaction_rejected = false;
+        self.restore_flow_suffix_checkpoint(checkpoint);
+        self.new_page();
+        self.flow_suffix_dispatch_depth = 1;
+        for occurrence in &replay {
+            self.layout_content_once(occurrence);
+        }
+        self.flow_suffix_dispatch_depth = 0;
+    }
+
+    /// P1292-D v9 — mantém o marcador logicamente activo até que todas as
+    /// ocorrências que já existiam no seu ponto tenham sido realizadas. O
+    /// tail é separado durante a operação, logo uma ocorrência posterior não
+    /// pode receber crédito retroactivo.
+    pub(super) fn finish_float_prefix_at_marker(&mut self, prefix_boundary: usize) {
+        let boundary = prefix_boundary.min(self.floats_pending.len());
+        if boundary == 0 {
+            return;
+        }
+
+        let mut tail = self.floats_pending.split_off(boundary);
+        while !self.floats_pending.is_empty() {
+            self.flush_fitting_pending_floats();
+            if self.floats_pending.is_empty() {
+                break;
+            }
+
+            // O prefixo que não cabe termina a região pelo mesmo caminho
+            // paginado já usado por overflow. `new_page` não chama
+            // `flush_line` e o buffer continua activo na região seguinte.
+            self.new_page();
+        }
+
+        self.floats_pending.append(&mut tail);
+        // A fronteira só é armada depois de o prefixo e suas reservas terem
+        // estabilizado. O próximo `layout_content` é a unidade causal do
+        // sufixo; floats criados após este retorno não entram no boundary.
+        if !self.flow_suffix_transaction_active {
+            self.flow_suffix_checkpoint_pending = true;
+        }
+    }
+
+    /// Drena o buffer ao fechar o documento, mas continua a usar a mesma
+    /// distribuição por região. Cada transição conserva o sufixo que não
+    /// coube; nenhuma ocorrência é descartada ou emitida duas vezes.
+    pub(super) fn flush_pending_floats(&mut self) {
+        let mut remaining_regions = self.floats_pending.len() + 1;
+        while !self.floats_pending.is_empty() && remaining_regions > 0 {
+            self.flush_fitting_pending_floats();
+            if self.floats_pending.is_empty() {
+                break;
+            }
+
+            self.new_page();
+            remaining_regions -= 1;
+        }
     }
 
     /// **P245 (M9d / M7+4)** — emite um `DeferredFloat` na posição
     /// final calculada. Aplica `alignment.x` para posicionamento
     /// horizontal dentro da largura útil da página. Translada items
     /// locais (origem 0,0 + ascender) para coordenadas finais.
-    fn emit_deferred_float(
+    pub(super) fn translate_deferred_float(
         &mut self,
         f: &DeferredFloat,
         target_y: f64,
@@ -997,20 +1147,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         avail_w: f64,
     ) {
         use crate::entities::layout_types::{FrameItem, HAlign, Point};
-        // `layout_sub_frame` posicionou items com ascender
-        // offset (cursor_y = ascender inicial). Para alinhar shapes ao
-        // target_y final exacto (não baseline), subtrair ascender do
-        // offset de translação — paridade pattern `layout_place`
-        // (placement.rs).
-        let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
-        // **P908** — cópia LÓGICA (pré-ascender) de `target_y`, para
-        // rebasear `origin_y`/`applied_y` das entradas órfãs (quantidades
-        // sem ascender embutido — mesma distinção física-vs-lógica de
-        // `layout_align`/`layout_place`, `00_nucleo/prompts/compiler/
-        // layout.md` §P908). O `target_y` abaixo (pós-subtracção) só é
-        // correcto para os `FrameItem`s reais, cujo `pos.y` já é baseline.
+        // P1292-D v10 — alinhar a origem física local ao target calculado por
+        // Place. `layout_sub_frame` inicia na baseline e pode deixar um offset
+        // positivo entre o zero local e o top-edge semântico. Compensar esse
+        // offset medido (2.596pt no vetor selado), não o ascender integral
+        // refutado, que deslocava a tinta para 10.166pt.
         let target_y_logical = target_y;
-        let target_y = target_y - ascender.0;
+        let target_y = target_y - deferred_frame_origin_y(&f.body_items, &self.metrics);
         // Calcular X conforme alignment.x.
         let x_offset = match f.alignment.h {
             // rationale: P1064 Classe 1A — centragem horizontal de container ((avail_w - body_w) / 2.0)

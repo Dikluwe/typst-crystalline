@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 152b636b
+//! @prompt-hash 15e8d4f5
 //! @layer L1
-//! @updated 2026-07-23
+//! @updated 2026-09-01
 
 pub mod counters;
 pub mod figure;
@@ -91,6 +91,7 @@ mod transform;
 // Atomização visuais/decorações (ADR-0109, P378): mesma forma B.
 // (Image/Figure completam-se nos seus próprios arquivos image.rs/figure.rs.)
 mod decorations;
+mod flush;
 mod place;
 
 // Atomização Fatia 1/2 (ADR-0109, P380): fluxo de bloco e estrutura.
@@ -587,6 +588,138 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// P1140.19 — a página corrente nasceu da boundary final de um page-run.
     /// `finish` não a materializa enquanto continuar vazia.
     pub(super) page_run_boundary_empty: bool,
+    /// P1292-D v11 — `place.flush()` arma exactamente a próxima unidade de
+    /// flow para composição transaccional contra a região reduzida pelos
+    /// floats que acabou de realizar. O Cursor consome esta sentinela.
+    pub(super) flow_suffix_checkpoint_pending: bool,
+    /// Verdade somente durante a primeira composição especulativa da unidade
+    /// pós-marker. Permite ao overflow normal comunicar rejeição sem conhecer
+    /// o variant de `Content` que está em curso.
+    pub(super) flow_suffix_transaction_active: bool,
+    /// Resultado causal da tentativa especulativa. O Cursor restaura o
+    /// checkpoint e faz replay apenas quando o overflow ocorreu contra a
+    /// geometria reduzida; pagebreaks explícitos não activam este estado.
+    pub(super) flow_suffix_transaction_rejected: bool,
+    /// Snapshot persistente enquanto a decisão de fitting do sufixo ainda
+    /// não é observável. Não é exposto fora do owner Layouter.
+    pub(super) flow_suffix_checkpoint: Option<FlowSuffixCheckpoint>,
+    /// Ocorrências já compostas depois da fronteira. São clones lógicos do
+    /// Content imutável (Arc-backed) e permitem replay sem reler o futuro.
+    pub(super) flow_suffix_replay: Vec<Content>,
+    /// Profundidade da ocorrência top-level actualmente especulada. Chamadas
+    /// descendentes pertencem à mesma ocorrência e não entram duas vezes no
+    /// replay-log.
+    pub(super) flow_suffix_dispatch_depth: usize,
+}
+
+/// P1292-D v11 — checkpoint lógico do estado mutável capaz de tornar visível
+/// uma cauda pós-marker ou de alterar seu fitting. Buffers que podem conter o
+/// prefixo confirmado são representados somente pelos seus comprimentos; a
+/// restauração trunca a cauda e nunca copia ou recompõe o prefixo.
+pub(super) struct FlowSuffixCheckpoint {
+    style: TextStyle,
+    chain: StyleChain,
+    page_config: PageConfig,
+    pages_len: usize,
+    current_region: RegionTailCheckpoint,
+    cell_region: Option<RegionTailCheckpoint>,
+    justify_opportunities_len: usize,
+    initial_baseline_pending: bool,
+    figure_progress: std::collections::HashMap<String, usize>,
+    is_height_unconstrained: bool,
+    is_sub_frame: bool,
+    cell_origin_x: Option<f64>,
+    cell_origin_y: Option<f64>,
+    parent_bbox: Option<crate::entities::layout_types::Rect>,
+    cell_align: Option<crate::entities::layout_types::Align2D>,
+    current_location: Option<Location>,
+    runtime: crate::entities::layouter_runtime_state::LayouterRuntimeState,
+    floats_pending_len: usize,
+    cursor_y_top_reserve: f64,
+    cursor_y_bottom_reserve: f64,
+    enum_counter: Option<u32>,
+    prev_block_below_pending: f64,
+    block_chain_active: bool,
+    prev_margin_is_parbreak: bool,
+    prev_line_baseline: f64,
+    last_flush_advance: f64,
+    prev_block_equation_descent: f64,
+    last_equation_descent: f64,
+    last_block_descent_y: Option<f64>,
+    line_inline_ascent: f64,
+    line_inline_descent: f64,
+    line_assumed_ascent: f64,
+    last_sub_frame_bottom: Option<f64>,
+    last_sub_frame_width: f64,
+    pending_cell_tails_len: usize,
+    pending_footnote_bodies_len: usize,
+    decoration_lines_len: Option<usize>,
+    smartquote_double_open: bool,
+    smartquote_single_open: bool,
+    attachments_len: usize,
+    artifact_marker_id: u64,
+    bib_render_cache: Option<crate::compiler::layout::bib_csl::BibRenderCache>,
+    smallcaps: bool,
+    last_cited_key: Option<String>,
+    previously_cited_keys: std::collections::HashSet<String>,
+    last_was_loose_item: bool,
+    last_seen_item_group: Option<ItemGroup>,
+    parbreak_since_last_item: bool,
+    column_mode: bool,
+    column_origin_x: f64,
+    column_width: f64,
+    page_columns: Option<usize>,
+    current_column: usize,
+    column_page_items_len: usize,
+    column_page_item_lens: Vec<usize>,
+    column_x_offsets_len: usize,
+    pending_page_numbering_len: usize,
+    pending_equation_centering_len: usize,
+    pending_equation_numbering_len: usize,
+    pending_align_centering_len: usize,
+    pending_align_v_centering_len: usize,
+    layout_warnings_len: usize,
+    layout_errors_len: usize,
+    page_run_boundary_empty: bool,
+}
+
+/// Geometria e fronteiras de cauda de uma região já existente. Os `FrameItem`
+/// anteriores ficam no próprio buffer vivo e são preservados por `truncate`.
+struct RegionTailCheckpoint {
+    cursor_x: Pt,
+    cursor_y: Pt,
+    line_start_x: Pt,
+    current_items_len: usize,
+    current_line_len: usize,
+    pending_fr_len: usize,
+    width: f64,
+    height: f64,
+}
+
+impl RegionTailCheckpoint {
+    fn capture(region: &crate::entities::region::Region) -> Self {
+        Self {
+            cursor_x: region.cursor_x,
+            cursor_y: region.cursor_y,
+            line_start_x: region.line_start_x,
+            current_items_len: region.current_items.len(),
+            current_line_len: region.current_line.len(),
+            pending_fr_len: region.pending_fr.len(),
+            width: region.width,
+            height: region.height,
+        }
+    }
+
+    fn restore(self, region: &mut crate::entities::region::Region) {
+        region.cursor_x = self.cursor_x;
+        region.cursor_y = self.cursor_y;
+        region.line_start_x = self.line_start_x;
+        region.current_items.truncate(self.current_items_len);
+        region.current_line.truncate(self.current_line_len);
+        region.pending_fr.truncate(self.pending_fr_len);
+        region.width = self.width;
+        region.height = self.height;
+    }
 }
 
 /// **P908** — entrada de `pending_align_centering` (eixo X):
@@ -854,7 +987,197 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // **P644** — erros de layout inicializados vazios.
             layout_errors: Vec::new(),
             page_run_boundary_empty: false,
+            flow_suffix_checkpoint_pending: false,
+            flow_suffix_transaction_active: false,
+            flow_suffix_transaction_rejected: false,
+            flow_suffix_checkpoint: None,
+            flow_suffix_replay: Vec::new(),
+            flow_suffix_dispatch_depth: 0,
         }
+    }
+
+    /// Captura estado lógico e comprimentos de cauda na fronteira pós-marker.
+    /// Campos de capacidade imutável (`metrics`, `sizer`, `introspector` e
+    /// callbacks) não participam; prefixos de buffers permanecem no estado
+    /// vivo e não são copiados.
+    pub(super) fn capture_flow_suffix_checkpoint(&self) -> FlowSuffixCheckpoint {
+        FlowSuffixCheckpoint {
+            style: self.style.clone(),
+            chain: self.chain.clone(),
+            page_config: self.page_config.clone(),
+            pages_len: self.pages.len(),
+            current_region: RegionTailCheckpoint::capture(&self.regions.current),
+            cell_region: self.regions.cell.as_ref().map(RegionTailCheckpoint::capture),
+            justify_opportunities_len: self.justify_opportunities.len(),
+            initial_baseline_pending: self.initial_baseline_pending,
+            figure_progress: self.figure_progress.clone(),
+            is_height_unconstrained: self.is_height_unconstrained,
+            is_sub_frame: self.is_sub_frame,
+            cell_origin_x: self.cell_origin_x,
+            cell_origin_y: self.cell_origin_y,
+            parent_bbox: self.parent_bbox,
+            cell_align: self.cell_align,
+            current_location: self.current_location,
+            runtime: self.runtime.clone(),
+            floats_pending_len: self.floats_pending.len(),
+            cursor_y_top_reserve: self.cursor_y_top_reserve,
+            cursor_y_bottom_reserve: self.cursor_y_bottom_reserve,
+            enum_counter: self.enum_counter,
+            prev_block_below_pending: self.prev_block_below_pending,
+            block_chain_active: self.block_chain_active,
+            prev_margin_is_parbreak: self.prev_margin_is_parbreak,
+            prev_line_baseline: self.prev_line_baseline,
+            last_flush_advance: self.last_flush_advance,
+            prev_block_equation_descent: self.prev_block_equation_descent,
+            last_equation_descent: self.last_equation_descent,
+            last_block_descent_y: self.last_block_descent_y,
+            line_inline_ascent: self.line_inline_ascent,
+            line_inline_descent: self.line_inline_descent,
+            line_assumed_ascent: self.line_assumed_ascent,
+            last_sub_frame_bottom: self.last_sub_frame_bottom,
+            last_sub_frame_width: self.last_sub_frame_width,
+            pending_cell_tails_len: self.pending_cell_tails.len(),
+            pending_footnote_bodies_len: self.pending_footnote_bodies.len(),
+            decoration_lines_len: self.decoration_lines_collector.as_ref().map(Vec::len),
+            smartquote_double_open: self.smartquote_double_open,
+            smartquote_single_open: self.smartquote_single_open,
+            attachments_len: self.attachments.len(),
+            artifact_marker_id: self.artifact_marker_id,
+            bib_render_cache: self.bib_render_cache.clone(),
+            smallcaps: self.smallcaps,
+            last_cited_key: self.last_cited_key.clone(),
+            previously_cited_keys: self.previously_cited_keys.clone(),
+            last_was_loose_item: self.last_was_loose_item,
+            last_seen_item_group: self.last_seen_item_group,
+            parbreak_since_last_item: self.parbreak_since_last_item,
+            column_mode: self.column_mode,
+            column_origin_x: self.column_origin_x,
+            column_width: self.column_width,
+            page_columns: self.page_columns,
+            current_column: self.current_column,
+            column_page_items_len: self.column_page_items.len(),
+            column_page_item_lens: self.column_page_items.iter().map(Vec::len).collect(),
+            column_x_offsets_len: self.column_x_offsets.len(),
+            pending_page_numbering_len: self.pending_page_numbering.len(),
+            pending_equation_centering_len: self.pending_equation_centering.len(),
+            pending_equation_numbering_len: self.pending_equation_numbering.len(),
+            pending_align_centering_len: self.pending_align_centering.len(),
+            pending_align_v_centering_len: self.pending_align_v_centering.len(),
+            layout_warnings_len: self.layout_warnings.len(),
+            layout_errors_len: self.layout_errors.len(),
+            page_run_boundary_empty: self.page_run_boundary_empty,
+        }
+    }
+
+    /// Restaura atomicamente a fronteira. `Locator` é reconstruído a partir
+    /// da última Location confirmada porque ele não é clonável por design;
+    /// assim o replay consome as mesmas ocorrências sem saltos no contador.
+    pub(super) fn restore_flow_suffix_checkpoint(
+        &mut self,
+        checkpoint: FlowSuffixCheckpoint,
+    ) {
+        self.style = checkpoint.style;
+        self.chain = checkpoint.chain;
+        self.page_config = checkpoint.page_config;
+        self.pages.truncate(checkpoint.pages_len);
+        checkpoint.current_region.restore(&mut self.regions.current);
+        match (checkpoint.cell_region, self.regions.cell.as_mut()) {
+            (Some(region_checkpoint), Some(region)) => region_checkpoint.restore(region),
+            (None, _) => self.regions.cell = None,
+            (Some(_), None) => {
+                debug_assert!(false, "região de célula saiu durante transação rejeitada");
+            }
+        }
+        self.justify_opportunities
+            .truncate(checkpoint.justify_opportunities_len);
+        self.initial_baseline_pending = checkpoint.initial_baseline_pending;
+        self.figure_progress = checkpoint.figure_progress;
+        self.is_height_unconstrained = checkpoint.is_height_unconstrained;
+        self.is_sub_frame = checkpoint.is_sub_frame;
+        self.cell_origin_x = checkpoint.cell_origin_x;
+        self.cell_origin_y = checkpoint.cell_origin_y;
+        self.parent_bbox = checkpoint.parent_bbox;
+        self.cell_align = checkpoint.cell_align;
+        self.current_location = checkpoint.current_location;
+        self.locator = Locator::new();
+        if let Some(location) = checkpoint.current_location {
+            for _ in 0..=location.as_u128() {
+                let _ = self.locator.next();
+            }
+        }
+        self.runtime = checkpoint.runtime;
+        self.floats_pending.truncate(checkpoint.floats_pending_len);
+        self.cursor_y_top_reserve = checkpoint.cursor_y_top_reserve;
+        self.cursor_y_bottom_reserve = checkpoint.cursor_y_bottom_reserve;
+        self.enum_counter = checkpoint.enum_counter;
+        self.prev_block_below_pending = checkpoint.prev_block_below_pending;
+        self.block_chain_active = checkpoint.block_chain_active;
+        self.prev_margin_is_parbreak = checkpoint.prev_margin_is_parbreak;
+        self.prev_line_baseline = checkpoint.prev_line_baseline;
+        self.last_flush_advance = checkpoint.last_flush_advance;
+        self.prev_block_equation_descent = checkpoint.prev_block_equation_descent;
+        self.last_equation_descent = checkpoint.last_equation_descent;
+        self.last_block_descent_y = checkpoint.last_block_descent_y;
+        self.line_inline_ascent = checkpoint.line_inline_ascent;
+        self.line_inline_descent = checkpoint.line_inline_descent;
+        self.line_assumed_ascent = checkpoint.line_assumed_ascent;
+        self.last_sub_frame_bottom = checkpoint.last_sub_frame_bottom;
+        self.last_sub_frame_width = checkpoint.last_sub_frame_width;
+        self.pending_cell_tails.truncate(checkpoint.pending_cell_tails_len);
+        self.pending_footnote_bodies
+            .truncate(checkpoint.pending_footnote_bodies_len);
+        match (checkpoint.decoration_lines_len, self.decoration_lines_collector.as_mut())
+        {
+            (Some(len), Some(lines)) => lines.truncate(len),
+            (None, _) => self.decoration_lines_collector = None,
+            (Some(_), None) => {
+                debug_assert!(false, "collector saiu durante transação rejeitada");
+            }
+        }
+        self.smartquote_double_open = checkpoint.smartquote_double_open;
+        self.smartquote_single_open = checkpoint.smartquote_single_open;
+        self.attachments.truncate(checkpoint.attachments_len);
+        self.artifact_marker_id = checkpoint.artifact_marker_id;
+        self.bib_render_cache = checkpoint.bib_render_cache;
+        self.smallcaps = checkpoint.smallcaps;
+        self.last_cited_key = checkpoint.last_cited_key;
+        self.previously_cited_keys = checkpoint.previously_cited_keys;
+        self.last_was_loose_item = checkpoint.last_was_loose_item;
+        self.last_seen_item_group = checkpoint.last_seen_item_group;
+        self.parbreak_since_last_item = checkpoint.parbreak_since_last_item;
+        self.column_mode = checkpoint.column_mode;
+        self.column_origin_x = checkpoint.column_origin_x;
+        self.column_width = checkpoint.column_width;
+        self.page_columns = checkpoint.page_columns;
+        self.current_column = checkpoint.current_column;
+        self.column_page_items.truncate(checkpoint.column_page_items_len);
+        for (items, len) in self
+            .column_page_items
+            .iter_mut()
+            .zip(checkpoint.column_page_item_lens)
+        {
+            items.truncate(len);
+        }
+        self.column_x_offsets.truncate(checkpoint.column_x_offsets_len);
+        self.pending_page_numbering
+            .truncate(checkpoint.pending_page_numbering_len);
+        self.pending_equation_centering
+            .truncate(checkpoint.pending_equation_centering_len);
+        self.pending_equation_numbering
+            .truncate(checkpoint.pending_equation_numbering_len);
+        self.pending_align_centering
+            .truncate(checkpoint.pending_align_centering_len);
+        self.pending_align_v_centering
+            .truncate(checkpoint.pending_align_v_centering_len);
+        self.layout_warnings.truncate(checkpoint.layout_warnings_len);
+        self.layout_errors.truncate(checkpoint.layout_errors_len);
+        self.page_run_boundary_empty = checkpoint.page_run_boundary_empty;
+        self.flow_suffix_checkpoint_pending = false;
+        self.flow_suffix_transaction_active = false;
+        self.flow_suffix_transaction_rejected = false;
+        self.flow_suffix_checkpoint = None;
+        self.flow_suffix_replay.clear();
+        self.flow_suffix_dispatch_depth = 0;
     }
 
     /// Largura disponível para conteúdo (exclui margens dos dois lados).
@@ -1176,6 +1499,26 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 
     pub fn layout_content(&mut self, content: &Content) {
+        if self.flow_suffix_checkpoint_pending {
+            self.flow_suffix_checkpoint_pending = false;
+            self.flow_suffix_transaction_active = true;
+            self.flow_suffix_transaction_rejected = false;
+            self.flow_suffix_checkpoint = Some(self.capture_flow_suffix_checkpoint());
+            self.flow_suffix_replay.clear();
+        }
+
+        if self.flow_suffix_transaction_active && self.flow_suffix_dispatch_depth == 0 {
+            self.layout_flow_suffix_transaction(content);
+        } else {
+            self.layout_content_once(content);
+        }
+    }
+
+    /// Executa uma ocorrência sem reabrir a sentinela transaccional. O
+    /// Cursor usa esta entrada no primeiro ensaio e no replay da mesma
+    /// ocorrência; descendants continuam a chamar `layout_content` e, como a
+    /// sentinela já foi consumida, integram a mesma unidade atómica.
+    pub(super) fn layout_content_once(&mut self, content: &Content) {
         // P185C: gating Locator atómico no topo, antes do match.
         // Avança em sincronia com walk de introspect; current_location
         // fica disponível para consumers location-aware (P187/P188).
@@ -1383,6 +1726,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::MathCases(_)
             | Content::MathAccent(_)
             | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathVec(_)
             | Content::MathClassOverride(_)
             | Content::MathLimitsOverride(_)
             | Content::MathUnderover(_)
@@ -1524,6 +1869,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // literal (body in-place via cursor).
             // Atomizado (ADR-0109, P378) → layout/place.rs.
             Content::Place(e) => place::layout(self, e),
+            Content::Flush(e) => flush::layout(self, e),
 
             // Passo 100 (ADR-0039): `Content::Styled` activa push/pop na
             // `chain` interna. A vista achatada `self.style` é

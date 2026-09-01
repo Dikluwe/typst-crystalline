@@ -1,0 +1,331 @@
+{
+  "schema": "tekt-adversarial-receipt/v1",
+  "step": 1292,
+  "role": "attacker",
+  "executor": "/root/atacante_p1292",
+  "regime": "full-segregated-materialization",
+  "attestation": "executed-with-capability-segregation-on-shared-filesystem; no technical filesystem isolation claimed",
+  "started_at": "2026-09-01T11:54:36-03:00",
+  "plan_sealed_at": "2026-09-01T11:55:39-03:00",
+  "finished_at": "2026-09-01T12:14:15-03:00",
+  "receipt_materialized_at": "2026-09-01T12:16:53-03:00",
+  "head": "0eb39f8ecb48930515f2cadb6a378450855b5a72",
+  "inputs": {
+    "plan": {
+      "path": "00_nucleo/diagnosticos/p1292-adversarial-plan.md",
+      "sha256": "ccbaab3421a8d4bc4f7ca047ecdfc21a874c7f80fd4ad84ac5795503e294298f"
+    },
+    "contract_seal": {
+      "path": "00_nucleo/diagnosticos/p1292-contract-seal.json",
+      "sha256": "d1a04bcc9351d8f63e77c35ee8bfddf581691bf44484c35b9c4975173edaae8f"
+    },
+    "protected_oracle": {
+      "path": "04_wiring/tests/p1292_contract.rs",
+      "sha256_before": "fa8f8770ea188a6bfe4e3415a6e053356d38e945dc950be8b864424b24b983aa",
+      "sha256_after": "fa8f8770ea188a6bfe4e3415a6e053356d38e945dc950be8b864424b24b983aa"
+    },
+    "manifest_sha256_at_start": "29ecb0b85c9431f55b001a7707c4b92b1146ca36c174cbb94729d89cf75461ba",
+    "vanilla_commit": "a51e02804",
+    "vanilla_binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "working_tree_status_sha256_at_start": "5da3e880819c0d0b1921b45d599e29206f7c334b9cbb33fa24337ef6dcfa4bc6",
+    "working_tree_diff_stat_sha256": "c7c5468427160ec4c28adde8b7fcbce9b16bb474a67218e52c635f116368facc"
+  },
+  "environment": {
+    "mutation_workspace": "/tmp/p1292-adversarial-work",
+    "mutation_snapshot_commit": "4a1f73c7dd42c6713c33d2294f74785fb691d160",
+    "cargo_target_dir": "/repos/Antigravity/typst-crystalline/target",
+    "integrated_write_allowlist": [
+      "00_nucleo/diagnosticos/p1292-adversarial-plan.md",
+      "00_nucleo/diagnosticos/p1292-adversarial-receipt.json"
+    ],
+    "mutation_write_root": "/tmp/p1292-adversarial-work"
+  },
+  "policy": {
+    "valid_mutation_target_score": 1.0,
+    "unknown_is_success": false,
+    "build_failure_is_kill": false,
+    "timeout_is_kill": false,
+    "equivalent_mutants_excluded": 0
+  },
+  "mutations": [
+    {
+      "id": "A1",
+      "lot": "A",
+      "change": "math.cancel bound to textual native_strike instead of the canonical MathCancel constructor",
+      "test": "p1292_a_cancel_surface_repr_and_errors",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_a_cancel_surface_repr_and_errors -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "repr(math.cancel([x])) produced strike[[x]] instead of cancel(body: [x])",
+      "status": "killed"
+    },
+    {
+      "id": "A2",
+      "lot": "A",
+      "change": "explicit cancel stroke accepted but ignored by layout",
+      "test": "ad-hoc SVG stroke fixture in /tmp",
+      "command": "target/debug/typst compile p1292-a2.typ /tmp/p1292-a2-mutant.svg; sha256sum baseline mutant; cmp -s baseline mutant",
+      "exit_code": 1,
+      "witness": "baseline SVG feb8ed837250a8a1d0f4113f229a8e1550062c6fa9b23bc8628de87b46022a6f differed from mutant b51a9e9190853497bb04897e4064e498c3d9e24fa4d3178ce26f4e3dc5ec83bf",
+      "status": "killed"
+    },
+    {
+      "id": "A3",
+      "lot": "A",
+      "change": "default cancel length changed from 100% + 0.3em to 50% + 0.3em",
+      "test": "ad-hoc default SVG fixture in /tmp",
+      "command": "target/debug/typst compile p1292-a3.typ /tmp/p1292-a3-mutant.svg; sha256sum baseline mutant; cmp -s baseline mutant",
+      "exit_code": 1,
+      "witness": "baseline SVG 560c07269ce132e63f193bca3c7eac87f8903ff88a66001ed88cde8686ee3cdc differed from mutant ba69fda64d38a3907f8efd2596c36db5d069890cf180770cd73d1ac86f2fae98",
+      "status": "killed"
+    },
+    {
+      "id": "A4",
+      "lot": "A",
+      "change": "both cross callback requests reuse line id 0",
+      "test": "p1291_identity_preorder_e_cross_duas_chamadas",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-core p1291_identity_preorder_e_cross_duas_chamadas -- --nocapture",
+      "exit_code": 101,
+      "witness": "callback request line ids were [0, 0], expected [0, 1]",
+      "status": "killed"
+    },
+    {
+      "id": "A5",
+      "lot": "A",
+      "change": "cancel callback request uses Span::detached()",
+      "test": "p1292_a_cancel_callback_cross_context_span_and_background",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_a_cancel_callback_cross_context_span_and_background -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "callback diagnostic lost source location 4:",
+      "status": "killed"
+    },
+    {
+      "id": "B1",
+      "lot": "B",
+      "change": "math.underline bound to textual underline",
+      "test": "p1292_b_math_underline_surface_identity_and_errors",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_b_math_underline_surface_identity_and_errors -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "repr became underline[[x]] instead of underline(body: [x])",
+      "status": "killed"
+    },
+    {
+      "id": "B2",
+      "lot": "B",
+      "change": "underbar gap fixed to 1pt",
+      "test": "p1292_b_math_underline_math_constants_styles_and_italic_correction",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_b_math_underline_math_constants_styles_and_italic_correction -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "display inline extent was 7.039, expected 7.359",
+      "status": "killed"
+    },
+    {
+      "id": "B3",
+      "lot": "B",
+      "change": "underbar thickness fixed to 1pt instead of MATH constant",
+      "test": "p1292_b_math_underline_math_constants_styles_and_italic_correction",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_b_math_underline_math_constants_styles_and_italic_correction -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "display inline extent was 7.831, expected 7.359",
+      "status": "killed"
+    },
+    {
+      "id": "B4",
+      "lot": "B",
+      "change": "missing underline body becomes Content::Empty",
+      "test": "p1292_b_math_underline_surface_identity_and_errors",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_b_math_underline_surface_identity_and_errors -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "repr(math.underline()) unexpectedly succeeded",
+      "status": "killed"
+    },
+    {
+      "id": "B5",
+      "lot": "B",
+      "change": "MathUnderline dispatcher bypasses underline::layout and lays out only body",
+      "test": "p1292_b_math_underline_math_constants_styles_and_italic_correction",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_b_math_underline_math_constants_styles_and_italic_correction -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "underline emitted zero rules, expected one",
+      "status": "killed"
+    },
+    {
+      "id": "C1",
+      "lot": "C",
+      "change": "math syntax vec constructs MathMatrix rows",
+      "test": "p1292_c_vec_gap_finite_auto_absolute_and_mixed",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_c_vec_gap_finite_auto_absolute_and_mixed -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "syntax repr was matrix instead of vec(children: ([a], [b]))",
+      "status": "killed"
+    },
+    {
+      "id": "C2",
+      "lot": "C",
+      "change": "math.vec rejects zero children",
+      "test": "p1292_c_vec_cardinality_defaults_repr_and_errors",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_c_vec_cardinality_defaults_repr_and_errors -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "repr(math.vec()) failed with requires at least one child",
+      "status": "killed"
+    },
+    {
+      "id": "C3",
+      "lot": "C",
+      "change": "qualified math.vec accepts align but stores Center",
+      "test": "p1292_c_vec_cardinality_defaults_repr_and_errors",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_c_vec_cardinality_defaults_repr_and_errors -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "explicit repr contained align: center, expected align: left",
+      "status": "killed"
+    },
+    {
+      "id": "C4",
+      "lot": "C",
+      "change": "relative vec gap resolves against widest row instead of effective region height",
+      "test": "p1292_c_vec_gap_finite_auto_absolute_and_mixed",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_c_vec_gap_finite_auto_absolute_and_mixed -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "finite-ten baseline delta was 8.2467, expected 17.6692",
+      "status": "killed"
+    },
+    {
+      "id": "C5",
+      "lot": "C",
+      "change": "infinite region height participates directly in relative gap",
+      "test": "p1292_c_vec_gap_finite_auto_absolute_and_mixed",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_c_vec_gap_finite_auto_absolute_and_mixed -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "auto-zero child baseline delta became NaN",
+      "status": "killed"
+    },
+    {
+      "id": "C6",
+      "lot": "C",
+      "change": "syntax vec reverses children while qualified function preserves order",
+      "test": "p1292_c_vec_gap_finite_auto_absolute_and_mixed",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_c_vec_gap_finite_auto_absolute_and_mixed -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "syntax repr was vec(children: ([b], [a])) instead of ([a], [b])",
+      "status": "killed"
+    },
+    {
+      "id": "D1",
+      "lot": "D",
+      "change": "place.flush returns Content::Empty",
+      "test": "p1292_d_place_flush_namespace_repr_and_errors",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_d_place_flush_namespace_repr_and_errors -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "repr(place.flush()) was [] instead of flush()",
+      "status": "killed"
+    },
+    {
+      "id": "D2",
+      "lot": "D",
+      "change": "flush marker is a no-op; only document finish drains floats",
+      "test": "p1292_d_flush_prefix_suffix_clearance_nested_and_noop",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_d_flush_prefix_suffix_clearance_nested_and_noop -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "prefix/suffix document had 1 page instead of 3",
+      "status": "killed"
+    },
+    {
+      "id": "D3",
+      "lot": "D",
+      "change": "flush marker opens a new region immediately, assigning posterior flow/floats to a future boundary before they exist",
+      "test": "p1292_d_flush_prefix_suffix_clearance_nested_and_noop",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_d_flush_prefix_suffix_clearance_nested_and_noop -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "mixed/control path had 3 pages instead of 2",
+      "status": "killed"
+    },
+    {
+      "id": "D4",
+      "lot": "D",
+      "change": "top/bottom partition predicate inverted",
+      "test": "p1292_d_flush_prefix_suffix_clearance_nested_and_noop",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_d_flush_prefix_suffix_clearance_nested_and_noop -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "FLOAT_BEFORE yMin was -2.596 instead of 17.404",
+      "status": "killed"
+    },
+    {
+      "id": "D5",
+      "lot": "D",
+      "change": "first admitted float is drained and discarded",
+      "test": "p1292_d_flush_prefix_suffix_clearance_nested_and_noop",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_d_flush_prefix_suffix_clearance_nested_and_noop -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "prefix/suffix page count was 2 instead of 3 after dropping FLOAT_BEFORE",
+      "status": "killed"
+    },
+    {
+      "id": "D6",
+      "lot": "D",
+      "change": "Func::With no longer delegates namespace",
+      "test": "p1292_d_place_flush_namespace_repr_and_errors",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_d_place_flush_namespace_repr_and_errors -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "place.with(dx: 1pt).flush failed with cannot access fields on type function",
+      "status": "killed"
+    },
+    {
+      "id": "D7",
+      "lot": "D",
+      "change": "flush argument validator returns Ok without inspecting arguments",
+      "test": "p1292_d_place_flush_namespace_repr_and_errors",
+      "command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract p1292_d_place_flush_namespace_repr_and_errors -- --exact --nocapture",
+      "exit_code": 101,
+      "witness": "invalid positional/named flush call unexpectedly succeeded",
+      "status": "killed"
+    }
+  ],
+  "calibration_attempts_not_in_denominator": [
+    "A1 private module path caused a compile error; corrected to the public re-export before the semantic execution.",
+    "C3 syntax-only subtest did not exercise the qualified constructor; the sealed surface repr subtest then discriminated the same mutant.",
+    "C4 first draft lacked a local rows type annotation and was corrected before semantic execution.",
+    "D3 two pilot formulations did not change the sealed observable and were rejected as ineffective attack constructions before the valid D3 mutant was admitted."
+  ],
+  "score": {
+    "A": { "valid": 5, "killed": 5, "survived": 0, "unknown": 0, "mutation_score": 1.0 },
+    "B": { "valid": 5, "killed": 5, "survived": 0, "unknown": 0, "mutation_score": 1.0 },
+    "C": { "valid": 6, "killed": 6, "survived": 0, "unknown": 0, "mutation_score": 1.0 },
+    "D": { "valid": 7, "killed": 7, "survived": 0, "unknown": 0, "mutation_score": 1.0 },
+    "aggregate": { "valid": 23, "killed": 23, "survived": 0, "unknown": 0, "mutation_score": 1.0 }
+  },
+  "restoration": {
+    "command": "git restore -- .; delete the two ad-hoc /tmp fixtures; git status --short; git diff --exit-code",
+    "temporary_tree_status": "clean",
+    "temporary_git_diff_exit_code": 0,
+    "verified_at": "2026-09-01T12:13:47-03:00",
+    "post_restore_oracle_command": "CARGO_TARGET_DIR=/repos/Antigravity/typst-crystalline/target cargo test -q -p typst-wiring --test p1292_contract -- --nocapture",
+    "post_restore_oracle_result": "11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out",
+    "post_restore_oracle_exit_code": 0,
+    "post_restore_oracle_duration_seconds": 6.27
+  },
+  "integrated_preservation": {
+    "checked_at": "2026-09-01T12:14:15-03:00",
+    "protected_oracle_sha256": "fa8f8770ea188a6bfe4e3415a6e053356d38e945dc950be8b864424b24b983aa",
+    "product_hashes_match_plan": true,
+    "focal_hashes": {
+      "01_core/src/compiler/stdlib/structural/math.rs": "6b58286a0e99ae4acd7e2a32156c4da7ad091fdcec163ff6c14ed7c71060f241",
+      "01_core/src/compiler/math/layout/cancel.rs": "6e6035ce00f113eaffd0613baf4d3164d033aaa4001eaa84c20f319568df0611",
+      "01_core/src/compiler/math/layout/underline.rs": "203370f9bd940a3f61cf79fd3f12149ae75ee26d383e7eafb836bc73ac3700d9",
+      "01_core/src/compiler/math/layout/vec.rs": "d1368de3e887cdd26fd1ee6277054bdf68bac20b8b0e7ee2915b4b8f554ec98e",
+      "01_core/src/compiler/eval/math.rs": "e5dde4dfdeec1a07744129b0f5cd59e883f0a2eadca8c29c34a2d7c2b0904a87",
+      "01_core/src/compiler/eval/mod.rs": "f774abf709988864c2b0ae462f52427215fad599cbe8189453f577ce22422c75",
+      "01_core/src/compiler/stdlib/layout.rs": "495b7865ddabc2a557ed48ab152ffa07f304fc84cf5562135abdee64f6b47aa2",
+      "01_core/src/compiler/layout/flush.rs": "54b2d5e97e1d009151efbae116db6058356dcf96cf73fa151e48891acbb5a105",
+      "01_core/src/compiler/layout/cursor.rs": "55f3ee8c7287e22f5a9f93cbd263d8483be8fa9b1c3fd00a3f45711679e3709f",
+      "01_core/src/compiler/layout/mod.rs": "9d4aa8e56a4e9157cbab345ddd40cfaae73c4c4c60f7fac85741b4c79e05069d",
+      "01_core/src/compiler/layout/place.rs": "1bbdc72ee23d7d0d6b79fd1efee7866bf2d5efcadcb0b71957ccad8e05e98a24",
+      "01_core/src/compiler/layout/block.rs": "635135faa7160030e73e39eff692f47d654023752a4a189f98e2bb980a3d1857",
+      "01_core/src/entities/func.rs": "0287c1e122c15af282e98162d3f38f8bcd7e5747d5529b08d5186fc0bc8e80b9"
+    }
+  },
+  "attack_gate": "passed",
+  "whole_step_verdict": null,
+  "limitations": [
+    "The filesystem was shared; independence is supported by role/capability segregation and pre/post hashes, not by a technical isolation boundary.",
+    "This receipt attests only the 23 sealed P1292 mutation obligations and does not claim global Typst equivalence or close the whole step."
+  ]
+}

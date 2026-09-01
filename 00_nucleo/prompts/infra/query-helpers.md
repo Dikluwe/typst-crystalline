@@ -226,6 +226,7 @@ Novos testes:
 | 2026-05-12 | P480: alias `math.equation` em `parse_selector` | `query_helpers.rs`, `query-helpers.md` |
 | 2026-06-29 | P494: expansão de selectores para `list`, `enum`, `par`, `link`, `raw`, `quote`, `footnote`; contagem por análise do `Content` para kinds sem container locatable em L1 | `query_helpers.rs`, `query-helpers.md`, `element_kind.rs`, `element_kind.md`, `foundations.rs` |
 | 2026-08-10 | P992: `Content::MathLimitsOverride` (`limits()`/`scripts()`) — braço novo nas duas listas de variantes terminais sem texto próprio, mesmo tratamento de `MathAccent`/`MathCancel`/`MathClassOverride`/`MathOp` | `query_helpers.rs`, `query-helpers.md` |
+| 2026-08-31 | P1292 amendment-1: `MathUnderline`, `MathVec` e `Flush` são terminais neutros em `has_any_text`/`count_variant` | `query_helpers.rs`, `query-helpers.md` |
 
 ## P1137-I-001 — promoção de resultados locatáveis para a CLI
 
@@ -319,3 +320,42 @@ testemunhas não-heading obrigatórias; labels para esses kinds preservam o mesm
 elemento; zero matches devolve vetor vazio; selector não locatável ou inválido
 continua diagnóstico. Serialização e `--field` pertencem exclusivamente ao
 owner L2 `shell/cli.md`.
+
+## P1292 amendment-1 — neutralidade dos helpers para B/C/D
+
+### Medição anterior à decisão
+
+Os walkers puros atuais descem somente nos contentores enumerados e devolvem
+`false`/`0` para a família math terminal (`MathSequence`, `MathFrac`,
+`MathMatrix`, `MathCases`, `MathAccent`, `MathCancel`, overrides, underover,
+op e styled) em `03_infra/src/query_helpers.rs:274-346,349-424`.
+`MathUnderline`, `MathVec` e `Flush` ainda não estavam representáveis no
+`match`. Seus L0s P1292 os definem como não-locatáveis; B/C são terminais math
+para introspecção e D é sentinela de fluxo sem texto
+(`entities/elements/math_underline.md`, `entities/elements/math_vec.md`,
+`entities/elements/flush.md`; `compiler/introspect.md`, amendment-1).
+
+No vanilla ratificado `a51e02804`, underline/vec são resolvidos dentro do IR
+math (`math/ir/resolve.rs:198-211,1002-1025,1253-1261`) e `FlushElem` vira
+`Child::Flush` no coletor, sem body (`layout/place.rs:179-213`;
+`typst-layout/src/flow/collect.rs:79-91`). Não existe nessa medição conteúdo
+textual próprio nem identidade locatável que estes helpers L3 devam inventar.
+
+### Decisão
+
+Nos braços terminais de `has_any_text`, `Content::MathUnderline(_)`,
+`Content::MathVec(_)` e `Content::Flush(_)` devolvem `false`. Nos braços
+terminais de `count_variant`, devolvem `0`, sem descer no body/children e sem
+transformar a sentinela em variante consultável. O pre-check genérico que
+retorna `1` quando o próprio `predicate(content)` é verdadeiro permanece
+inalterado; nenhum selector aproximado suportado por
+`count_element_in_content` tem B/C/D como predicate ou `ElementKind`.
+
+Classificação ADR-0107/0108: `false`/`0` significa ausência de match textual ou
+de elemento aproximado na superfície de query; a travessia Rust é mecânica.
+A terminalidade é inferência compatível com os L0s P1292 e o tratamento
+vanilla como IR math/sentinela de fluxo. Seria refutada se B/C/D ganhassem
+`ElementKind` locatável neste owner, se a linguagem passasse a selecionar o
+texto interno de um elemento math por este helper aproximado, ou se flush
+adquirisse body/texto. Até essa refutação, recursão que conte filhos internos
+seria um falso positivo de query.

@@ -47,7 +47,9 @@ mod tests {
     use super::*;
     use std::sync::Arc;
     use typst_core::entities::content::Content;
-    use typst_core::entities::elements::math_cancel::{MathCancelAngle, MathCancelElem};
+    use typst_core::entities::elements::math_cancel::{
+        MathCancelAngle, MathCancelElem, MathCancelExplicit,
+    };
     use typst_core::entities::func::Func;
     use typst_core::entities::layout_types::{Angle, Length};
     use typst_core::entities::rel::Rel;
@@ -99,6 +101,7 @@ mod tests {
             stroke: None,
             background: false,
             span: Span::detached(),
+            explicit: MathCancelExplicit::default(),
         }));
         let content = Content::equation(cancel, false);
 

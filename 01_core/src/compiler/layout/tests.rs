@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash ffb7898d
+//! @prompt-hash 9eaf493c
 //! @layer L1
-//! @updated 2026-07-14
+//! @updated 2026-09-01
 //!
 //! Testes de layout — extraídos de `layout/mod.rs` no Passo 96.7
 //! conforme ADR-0037.
@@ -11987,55 +11987,217 @@ mod tests_show_rule_integration {
         assert!(found, "P245 — float:false preserva path P84.5+P84.6");
     }
 
-    #[test]
-    fn p245_place_float_com_clearance_adiciona_espaco_y() {
-        // Float bottom + clearance 10pt. Esperado: rect emitido com offset
-        // adicional de clearance no eixo Y face ao baseline sem clearance.
-        use crate::entities::layout_types::{
-            Align2D, HAlign, Length, PlaceScope, VAlign,
-        };
-        let make_doc = |clearance: Option<Length>| {
-            let p = Content::place(
-                Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) },
-                0.0,
-                0.0,
-                PlaceScope::Parent,
-                true,
-                clearance,
-                Content::shape(
-                    crate::entities::geometry::ShapeKind::Rect,
-                    Some(Box::new(crate::entities::value::Value::Length(Length::pt(
-                        30.0,
-                    )))),
-                    Some(Box::new(crate::entities::value::Value::Length(Length::pt(
-                        20.0,
-                    )))),
-                    None,
-                    None,
-                ),
-            );
-            layout(&p)
-        };
-        let doc_no_clear = make_doc(None);
-        let doc_with_clear = make_doc(Some(Length::pt(10.0)));
-        // Find shape Y em cada.
-        let get_y = |doc: &crate::entities::layout_types::PagedDocument| -> f64 {
-            for page in doc.pages.iter() {
-                for item in page.items.iter() {
-                    if let FrameItem::Shape { pos, .. } = item {
-                        return pos.y.0;
+    fn p1292_token_occurrences(
+        doc: &crate::entities::layout_types::PagedDocument,
+        token: &str,
+    ) -> Vec<(usize, f64, f64)> {
+        fn text_fragments<'a>(
+            items: &'a [FrameItem],
+            x_offset: f64,
+            y_offset: f64,
+            out: &mut Vec<(&'a str, f64, f64)>,
+        ) {
+            for item in items {
+                match item {
+                    FrameItem::Text { pos, text, .. }
+                    | FrameItem::TextShaped { pos, text, .. } => out.push((
+                        text.as_str(),
+                        x_offset + pos.x.val(),
+                        y_offset + pos.y.val(),
+                    )),
+                    FrameItem::Group { pos, items, .. } => text_fragments(
+                        items,
+                        x_offset + pos.x.val(),
+                        y_offset + pos.y.val(),
+                        out,
+                    ),
+                    FrameItem::Semantic { items, .. } => {
+                        text_fragments(items, x_offset, y_offset, out)
                     }
+                    FrameItem::Link { pos, items, .. } => text_fragments(
+                        items,
+                        x_offset + pos.x.val(),
+                        y_offset + pos.y.val(),
+                        out,
+                    ),
+                    _ => {}
                 }
             }
-            -1.0
+        }
+
+        let mut occurrences = Vec::new();
+        for (page, frame) in doc.pages.iter().enumerate() {
+            let mut fragments = Vec::new();
+            text_fragments(&frame.background, 0.0, 0.0, &mut fragments);
+            text_fragments(&frame.items, 0.0, 0.0, &mut fragments);
+            text_fragments(&frame.foreground, 0.0, 0.0, &mut fragments);
+            let exact = fragments
+                .iter()
+                .filter_map(|(text, x, y)| (text == &token).then_some((page + 1, *x, *y)))
+                .collect::<Vec<_>>();
+            if exact.is_empty() {
+                let joined =
+                    fragments.iter().map(|(text, _, _)| *text).collect::<String>();
+                for (match_start, _) in joined.match_indices(token) {
+                    let mut fragment_start = 0;
+                    let (_, x, y) = fragments
+                        .iter()
+                        .find(|(text, _, _)| {
+                            let contains_start =
+                                match_start < fragment_start + text.len();
+                            if !contains_start {
+                                fragment_start += text.len();
+                            }
+                            contains_start
+                        })
+                        .copied()
+                        .expect("token reconstruído deve pertencer a uma folha textual");
+                    occurrences.push((page + 1, x, y));
+                }
+            } else {
+                occurrences.extend(exact);
+            }
+        }
+        occurrences
+    }
+
+    fn p1292_unique_token(
+        doc: &crate::entities::layout_types::PagedDocument,
+        token: &str,
+    ) -> (usize, f64, f64) {
+        let occurrences = p1292_token_occurrences(doc, token);
+        assert_eq!(occurrences.len(), 1, "{token} deve aparecer exatamente uma vez");
+        occurrences[0]
+    }
+
+    fn p1292_assert_y(token: &str, actual: f64, expected: f64) {
+        assert!(
+            (actual - expected).abs() <= 0.002,
+            "{token} y esperado {expected:.3}±0.002pt, obtido {actual:.6}pt"
+        );
+    }
+
+    #[test]
+    fn p1292_block_default_12em_transporta_origem_do_flow_seguinte() {
+        let doc = layout_test(
+            "#set page(width:100pt,height:100pt,margin:0pt)\n\
+             #block(height:30pt)[BEFORE]\n\
+             #block(height:10pt)[AFTER_FLOW]",
+        );
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        assert_eq!(doc.pages.len(), 1, "controle ordinário deve permanecer em p1");
+
+        let before = p1292_unique_token(&doc, "BEFORE");
+        let after_flow = p1292_unique_token(&doc, "AFTER_FLOW");
+        assert_eq!(before.0, 1);
+        assert_eq!(after_flow.0, 1);
+        // O bbox bilateral selado do default é 40.604pt. Neste unit test
+        // FixedMetrics transporta o fim físico integral do frame (30pt) e
+        // soma o default relativo 1.2em = 13.2pt.
+        p1292_assert_y("Block 30pt + gap default 1.2em", after_flow.2 - before.2, 43.2);
+    }
+
+    #[test]
+    fn p1292_place_nao_float_usa_origem_da_linha_pendente_sem_flush() {
+        let doc = layout_test(
+            "#set page(width:100pt,height:100pt,margin:0pt)\n\
+             #block(height:30pt,below:1.2em)[#place([PREFLOW])]\n\
+             #block(height:10pt)[AFTER_FLOW #place([AFTER_MARKER])]",
+        );
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+
+        let after_flow = p1292_unique_token(&doc, "AFTER_FLOW");
+        let after_marker = p1292_unique_token(&doc, "AFTER_MARKER");
+        assert_eq!(after_marker.0, 1, "Place ordinário deve permanecer em p1");
+        let (top_edge, _) = FixedMetrics.text_edges(Pt(11.0), &TextStyle::default());
+        // O bbox bilateral selado é 47.842pt. Sob FixedMetrics, a mesma
+        // obrigação baseline+top-edge é expressa pela diferença abaixo.
+        p1292_assert_y(
+            "Place baseline + top-edge sob FixedMetrics",
+            after_marker.2 - after_flow.2,
+            top_edge.val(),
+        );
+    }
+
+    #[test]
+    fn p1292_bottom_float_anchor_fisico_independente_do_clearance() {
+        let make_doc = |clearance: &str| {
+            layout_test(&format!(
+                "#set page(width:100pt,height:100pt,margin:0pt)\n\
+                 #place(bottom,float:true,clearance:{clearance})[ANCHOR]"
+            ))
         };
-        let y_no = get_y(&doc_no_clear);
-        let y_with = get_y(&doc_with_clear);
-        assert!(y_no > 0.0 && y_with > 0.0, "P245 — ambas docs emit shape");
-        // Com clearance, float bottom desloca-se para cima (afastado do fundo).
-        assert!(y_with < y_no,
-            "P245 — clearance Bottom afasta float do fundo; sem clearance y={:.1}, com y={:.1}",
-            y_no, y_with);
+        let zero = make_doc("0pt");
+        let twenty = make_doc("20pt");
+        assert!(zero.layout_errors.is_empty(), "{:?}", zero.layout_errors);
+        assert!(twenty.layout_errors.is_empty(), "{:?}", twenty.layout_errors);
+        assert_eq!(zero.pages.len(), 1);
+        assert_eq!(twenty.pages.len(), 1);
+        let anchor_zero = p1292_unique_token(&zero, "ANCHOR");
+        let anchor_twenty = p1292_unique_token(&twenty, "ANCHOR");
+        assert_eq!(anchor_zero.0, 1);
+        assert_eq!(anchor_twenty.0, 1);
+        assert!(
+            (anchor_zero.1 - anchor_twenty.1).abs() < 0.001
+                && (anchor_zero.2 - anchor_twenty.2).abs() < 0.001,
+            "clearance reserva flow sem mover anchor físico: 0pt={anchor_zero:?}, 20pt={anchor_twenty:?}"
+        );
+    }
+
+    #[test]
+    fn p1292_bottom_float_clearance_altera_reserva_e_fitting() {
+        let make_doc = |clearance: &str| {
+            layout_test(&format!(
+                "#set page(width:100pt,height:100pt,margin:0pt)\n\
+                 #block(height:80pt)[ADJACENT]\n\
+                 #place(bottom,float:true,clearance:{clearance})[FLOAT]"
+            ))
+        };
+        let zero = make_doc("0pt");
+        let twenty = make_doc("20pt");
+        assert!(zero.layout_errors.is_empty(), "{:?}", zero.layout_errors);
+        assert!(twenty.layout_errors.is_empty(), "{:?}", twenty.layout_errors);
+        assert_eq!(zero.pages.len(), 1, "clearance 0pt deve caber na página 1");
+        assert_eq!(twenty.pages.len(), 2, "clearance 20pt deve mover float para p2");
+        assert_eq!(p1292_unique_token(&zero, "ADJACENT").0, 1);
+        assert_eq!(p1292_unique_token(&twenty, "ADJACENT").0, 1);
+        let float_zero = p1292_unique_token(&zero, "FLOAT");
+        let float_twenty = p1292_unique_token(&twenty, "FLOAT");
+        assert_eq!(float_zero.0, 1);
+        assert_eq!(float_twenty.0, 2);
+        assert!(
+            (float_zero.1 - float_twenty.1).abs() < 0.001
+                && (float_zero.2 - float_twenty.2).abs() < 0.001,
+            "fitting muda a página sem alterar anchor local: 0pt={float_zero:?}, 20pt={float_twenty:?}"
+        );
+    }
+
+    #[test]
+    fn p1292_flush_checkpoint_atomico_move_todo_o_sufixo() {
+        let doc = layout_test(
+            "#set page(width:100pt,height:100pt,margin:0pt)\n\
+             #block(height:30pt)[#place([PREFLOW])]\n\
+             #place(bottom,float:true,block(width:100pt,height:80pt)[#place([FLOAT_BEFORE])])\n\
+             #place.flush()\n\
+             #block(height:10pt)[AFTER_FLOW #place([AFTER_MARKER])]\n\
+             #place(bottom,float:true,block(width:100pt,height:10pt)[#place([FLOAT_AFTER])])",
+        );
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        assert_eq!(doc.pages.len(), 3, "checkpoint deve estabilizar em três páginas");
+        let preflow = p1292_unique_token(&doc, "PREFLOW");
+        let float_before = p1292_unique_token(&doc, "FLOAT_BEFORE");
+        let after_marker = p1292_unique_token(&doc, "AFTER_MARKER");
+        let after_flow = p1292_unique_token(&doc, "AFTER_FLOW");
+        let float_after = p1292_unique_token(&doc, "FLOAT_AFTER");
+        assert_eq!(preflow.0, 1, "PREFLOW ficou na página errada");
+        assert_eq!(float_before.0, 2, "FLOAT_BEFORE ficou na página errada");
+        assert_eq!(after_flow.0, 3, "AFTER_FLOW ficou na página errada");
+        assert_eq!(float_after.0, 3, "FLOAT_AFTER ficou na página errada");
+        assert_eq!(after_marker.0, 3, "AFTER_MARKER ficou na página errada");
+        // O oráculo black-box protegido congela os bboxes ratificados:
+        // FLOAT_BEFORE=17.404pt, AFTER_MARKER=4.642pt e FLOAT_AFTER=87.404pt.
+        // Este owner test-only independente congela aqui a atomicidade por
+        // página/cardinalidade sem confundir bboxes reais com FixedMetrics.
     }
 
     #[test]

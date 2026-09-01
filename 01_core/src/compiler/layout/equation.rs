@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/equation.md
-//! @prompt-hash 1f49e377
+//! @prompt-hash 04a90b1b
 //! @layer L1
-//! @updated 2026-08-01
+//! @updated 2026-09-01
 //!
 //! Braço `Content::Equation` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037. P456: numeração de bloco formatada pelo
@@ -25,7 +25,7 @@ use crate::entities::{
     image_sizer::ImageSizer,
     layout_types::{
         Align2D, FrameItem, HAlign, MathSize, Point, Pt, SemanticKind, SemanticPlacement,
-        TextStyle, VAlign,
+        TextEdge, TextStyle, VAlign,
     },
     selector::Selector,
 };
@@ -148,6 +148,37 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.block_chain_active = saved_chain;
         self.prev_block_below_pending = saved_below;
         self.prev_block_equation_descent = saved_prev_descent;
+
+        // P1292 amendment-3 — the raw math extent is normalized to the
+        // paragraph frame before it reaches the canonical line aggregator.
+        // Bounds edges are the frame's own bounds; all other edges retain the
+        // typed TextStyle/FontMetrics resolution. Block equations keep using
+        // the unmodified raw extent below.
+        if !block {
+            let ext = extent.as_ref().expect("equation extent is always measured");
+            let leading = math_style
+                .leading
+                .as_ref()
+                .map(|length| length.resolve_pt(math_style.size.val()))
+                .unwrap_or(math_style.size.val() * super::vanilla_defaults::PAR_LEADING);
+            let slack = leading * 0.7;
+            let (top_edge, bottom_edge) =
+                self.metrics.text_edges(math_style.size, &math_style);
+            let top_is_bounds = matches!(
+                math_style.top_edge.as_ref(),
+                Some(TextEdge::Metric(name)) if name.as_str() == "bounds"
+            );
+            let bottom_is_bounds = matches!(
+                math_style.bottom_edge.as_ref(),
+                Some(TextEdge::Metric(name)) if name.as_str() == "bounds"
+            );
+            let edge_ascent = if top_is_bounds { ext.ascent } else { top_edge.0 };
+            let edge_descent =
+                if bottom_is_bounds { ext.descent } else { -bottom_edge.0 };
+            let inline_ascent = edge_ascent.max(ext.ascent - slack);
+            let inline_descent = edge_descent.max(ext.descent - slack).max(0.0);
+            self.note_inline_extent(inline_ascent, inline_descent);
+        }
 
         // **P896** — `Some(largura_da_equação)` quando a centragem teve de
         // ser adiada (`width: auto`, valor ainda infinito neste ponto).

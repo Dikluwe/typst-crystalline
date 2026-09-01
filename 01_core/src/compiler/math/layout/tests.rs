@@ -9137,6 +9137,7 @@ fn p1291_cancel_with_flags(
         stroke: None,
         background: false,
         span: crate::entities::span::Span::detached(),
+        explicit: crate::entities::elements::math_cancel::MathCancelExplicit::default(),
     }))
 }
 
@@ -9354,4 +9355,101 @@ fn p1291_request_preserva_chain_lexical_e_style_math_efetivo() {
     assert!(collapsed.custom.iter().any(|(key, value)| {
         key.as_str() == "p1291.probe" && value == &Value::Str("lexical".into())
     }));
+}
+
+#[test]
+fn p1292_c_vec_gap_percentual_usa_altura_finita_da_regiao() {
+    use super::callbacks::MathCallbackPassState;
+    use crate::entities::elements::math_vec::MathVecExplicit;
+    use crate::entities::layout_types::{HAlign, Length};
+    use crate::entities::location::Location;
+    use crate::entities::rel::Rel;
+    use crate::entities::style_chain::StyleChain;
+
+    let style = TextStyle::regular(Pt(10.0));
+    let chain = StyleChain::default_chain();
+    let pass = MathCallbackPassState::new(None);
+    let vec = Content::math_vec_full(
+        vec![Content::MathIdent("x".into()), Content::MathIdent("y".into())],
+        ('\0', '\0'),
+        HAlign::Center,
+        Rel { rel: 0.1, abs: Length::em(1.0) },
+        MathVecExplicit::default(),
+    );
+    let finite = MathLayouter::new_with_context(
+        &FixedMetrics,
+        false,
+        &style,
+        Location::from_raw(0x1292c1),
+        Pt(200.0),
+        &chain,
+        &pass,
+    )
+    .layout_node(&vec, &style);
+    let auto = MathLayouter::new_with_context(
+        &FixedMetrics,
+        false,
+        &style,
+        Location::from_raw(0x1292c2),
+        Pt(f64::INFINITY),
+        &chain,
+        &pass,
+    )
+    .layout_node(&vec, &style);
+
+    assert!(
+        ((finite.ascent + finite.descent) - (auto.ascent + auto.descent) - 20.0).abs()
+            < 1e-9
+    );
+}
+
+#[test]
+fn p1292_c_vec_auto_preserva_gap_absoluto_e_zero_children_zero_box() {
+    use super::callbacks::MathCallbackPassState;
+    use crate::entities::elements::math_vec::MathVecExplicit;
+    use crate::entities::layout_types::{HAlign, Length};
+    use crate::entities::location::Location;
+    use crate::entities::rel::Rel;
+    use crate::entities::style_chain::StyleChain;
+
+    let style = TextStyle::regular(Pt(10.0));
+    let chain = StyleChain::default_chain();
+    let pass = MathCallbackPassState::new(None);
+    let layouter = MathLayouter::new_with_context(
+        &FixedMetrics,
+        false,
+        &style,
+        Location::from_raw(0x1292c3),
+        Pt(f64::INFINITY),
+        &chain,
+        &pass,
+    );
+    let mixed = Content::math_vec_full(
+        vec![Content::MathIdent("x".into()), Content::MathIdent("y".into())],
+        ('\0', '\0'),
+        HAlign::Center,
+        Rel { rel: 0.1, abs: Length::em(1.0) },
+        MathVecExplicit::default(),
+    );
+    let absolute = Content::math_vec_full(
+        vec![Content::MathIdent("x".into()), Content::MathIdent("y".into())],
+        ('\0', '\0'),
+        HAlign::Center,
+        Rel { rel: 0.0, abs: Length::em(1.0) },
+        MathVecExplicit::default(),
+    );
+    let mixed_box = layouter.layout_node(&mixed, &style);
+    let absolute_box = layouter.layout_node(&absolute, &style);
+    assert!(
+        ((mixed_box.ascent + mixed_box.descent)
+            - (absolute_box.ascent + absolute_box.descent))
+            .abs()
+            < 1e-9
+    );
+
+    let empty = layouter.layout_node(&Content::math_vec(vec![]), &style);
+    assert_eq!(
+        (empty.width, empty.ascent, empty.descent, empty.items.len()),
+        (0.0, 0.0, 0.0, 0)
+    );
 }

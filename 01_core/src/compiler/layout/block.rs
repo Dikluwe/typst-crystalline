@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/block.md
-//! @prompt-hash 0cb1e5fe
+//! @prompt-hash 9d21742e
 //! @layer L1
-//! @updated 2026-06-18
+//! @updated 2026-09-01
 //!
 //! Atomização (ADR-0109, P376): o layout de `Block` movido do monólito
 //! `layout_content` para o arquivo da feature. Content-preserving — a lógica
@@ -143,6 +143,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // 4. Aplica inset left (e width se especificado).
     let saved_line_start = layouter.regions.current.line_start_x;
     let saved_width = layouter.regions.current.width;
+    let saved_height = layouter.regions.current.height;
     let is_rtl = layouter.chain.custom("text.dir").and_then(|value| match value {
         Value::Dir(dir) => Some(*dir),
         _ => None,
@@ -166,6 +167,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let line_start_pt = layouter.regions.current.line_start_x.0;
         // Width efectiva = line_start + w_pt (ponto onde wrap deve ocorrer).
         layouter.regions.current.width = (line_start_pt + w_pt).max(0.0);
+    }
+    // P1292 v12 — uma altura explícita também é a região efetiva dos
+    // descendentes durante o body. Como o Block preserva coordenadas
+    // absolutas no Layouter, o limite local é expresso a partir de `start_y`;
+    // o outset superior fica fora da altura interna declarada. O limite
+    // externo é restaurado logo após o body, como já ocorre com a largura.
+    if let Some(h) = height {
+        let h_pt = h.resolve_pt(font);
+        layouter.regions.current.height = saved_height.min(start_y + outset_top + h_pt);
     }
 
     // P242 (M9d / M7+5) — clip=true emite FrameItem::Group com
@@ -255,6 +265,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P273.6 — restore parent_bbox (LIFO).
         layouter.parent_bbox = saved_parent_bbox;
     }
+
+    // Descendentes do Block não podem fazer a região explícita vazar para o
+    // flow exterior.
+    layouter.regions.current.height = saved_height;
 
     // 6. Aplica inset bottom.
     layouter.regions.current.cursor_y += Pt(inset_bottom);
@@ -348,13 +362,19 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let has_explicit_margin = below.is_some() || spacing.is_some();
     let below_pt = if has_explicit_margin {
         below.or(*spacing).map(|l| l.resolve_pt(font)).unwrap_or(0.0)
-    } else if is_geometric_container {
-        0.0
     } else {
         font * super::vanilla_defaults::PAR_SPACING
     };
 
-    if has_explicit_margin || !is_geometric_container {
+    if is_geometric_container {
+        // P1292 v12 — o fim físico do frame é a fronteira lógica para a
+        // unidade seguinte. O gap permanece pendente e colapsa pela mesma
+        // regra de `above`/`below`; não é somado pelo Cursor nem pelo replay.
+        let frame_end = layouter.regions.current.cursor_y.0;
+        layouter.prev_line_baseline = frame_end;
+        layouter.prev_block_below_pending = below_pt;
+        layouter.block_chain_active = true;
+    } else {
         let leading_pt = layouter
             .style
             .leading
@@ -365,9 +385,6 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             Pt((layouter.regions.current.cursor_y.0 + extra_below).max(0.0));
         layouter.prev_block_below_pending = below_pt;
         layouter.block_chain_active = true;
-    } else {
-        layouter.prev_block_below_pending = 0.0;
-        layouter.block_chain_active = false;
     }
     layouter.prev_margin_is_parbreak = false;
 }

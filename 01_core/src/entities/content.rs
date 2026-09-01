@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 8676a7e4
+//! @prompt-hash 25d896e3
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -35,6 +35,7 @@ use crate::entities::world_types::Datetime;
 // Modelo D (ADR-0105, lote piloto P316): variantes delegadas a módulos.
 use crate::entities::elements::divider::DividerElem;
 use crate::entities::elements::emph::EmphElem;
+use crate::entities::elements::flush::FlushElem;
 use crate::entities::elements::heading::HeadingElem;
 use crate::entities::elements::label::LabelElem;
 use crate::entities::elements::math_styled::MathStyledElem;
@@ -46,7 +47,9 @@ use crate::entities::elements::Element;
 use crate::entities::elements::math_accent::MathAccentElem;
 use crate::entities::elements::math_align_point::MathAlignPointElem;
 use crate::entities::elements::math_attach::MathAttachElem;
-use crate::entities::elements::math_cancel::{MathCancelAngle, MathCancelElem};
+use crate::entities::elements::math_cancel::{
+    MathCancelAngle, MathCancelElem, MathCancelExplicit,
+};
 use crate::entities::elements::math_cases::MathCasesElem;
 use crate::entities::elements::math_class_override::MathClassOverrideElem;
 use crate::entities::elements::math_delimited::MathDelimitedElem;
@@ -55,7 +58,9 @@ use crate::entities::elements::math_limits_override::MathLimitsOverrideElem;
 use crate::entities::elements::math_matrix::MathMatrixElem;
 use crate::entities::elements::math_op::MathOpElem;
 use crate::entities::elements::math_root::MathRootElem;
+use crate::entities::elements::math_underline::MathUnderlineElem;
 use crate::entities::elements::math_underover::MathUnderoverElem;
+use crate::entities::elements::math_vec::{MathVecElem, MathVecExplicit};
 // Lote 3 P318 — família lista/termos (5 variantes).
 use crate::entities::elements::enum_item::EnumItemElem;
 use crate::entities::elements::link::LinkElem;
@@ -289,6 +294,12 @@ pub enum Content {
     /// classificação corrigida `ausente` → `implementado`.
     /// **Modelo D (Lote 2 P317)**: `entities::elements::math_cancel::MathCancelElem`.
     MathCancel(Arc<MathCancelElem>),
+
+    /// Underline matemático body-only, distinto da decoração textual.
+    MathUnderline(Arc<MathUnderlineElem>),
+
+    /// Vetor matemático variádico, identidade distinta de matriz.
+    MathVec(Arc<MathVecElem>),
 
     // ── P772y — `MathClassOverride` (`math.class(class, body)`) ─────────
     /// Força a `MathClass` de um símbolo/expressão — override do valor
@@ -578,6 +589,9 @@ pub enum Content {
     /// (não-locatável, contentor — recurse body; 6 campos cosméticos:
     /// alignment/dx/dy/scope/float/clearance, P223 ADR-0054 graded).
     Place(Arc<PlaceElem>),
+
+    /// Sentinela de fluxo que realiza os floats pendentes no ponto corrente.
+    Flush(Arc<FlushElem>),
 
     /// Conteúdo estilizado — aplica um delta `Styles` ao corpo (Passo 99,
     /// ADR-0038).
@@ -1212,6 +1226,8 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathCases(_) => write!(f, "math.cases"),
         Content::MathAccent(a) => write!(f, "math.accent({:?})", a),
         Content::MathCancel(c) => write!(f, "math.cancel({:?})", c),
+        Content::MathUnderline(u) => write!(f, "math.underline({:?})", u),
+        Content::MathVec(v) => write!(f, "math.vec({:?})", v),
         Content::MathClassOverride(c) => write!(f, "math.class({:?})", c),
         Content::MathLimitsOverride(o) => write!(f, "math.limits({:?})", o),
         Content::MathUnderover(u) => write!(f, "math.underover({:?})", u),
@@ -1236,6 +1252,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::SetPage { .. } => write!(f, "set.page"),
         Content::Align(a) => write!(f, "align({:?})", a),
         Content::Place(p) => write!(f, "place({:?})", p),
+        Content::Flush(_) => write!(f, "place.flush"),
         Content::Styled(child, styles) => {
             write!(f, "styled({:?}, {:?})", child, styles)
         }
@@ -1331,6 +1348,8 @@ impl Content {
             Self::MathCases(_) => "math.cases",
             Self::MathAccent(_) => "math.accent",
             Self::MathCancel(_) => "math.cancel",
+            Self::MathUnderline(_) => "math.underline",
+            Self::MathVec(_) => "math.vec",
             Self::MathClassOverride(_) => "math.class",
             Self::MathLimitsOverride(_) => "math.limits",
             Self::MathUnderover(_) => "math.underover",
@@ -1355,6 +1374,7 @@ impl Content {
             Self::SetPage { .. } => "set.page",
             Self::Align(_) => "align",
             Self::Place(_) => "place",
+            Self::Flush(_) => "flush",
             Self::Divider(_) => "divider",
             Self::Terms(_) => "terms",
             Self::TermItem(_) => "term.item",
@@ -1656,6 +1676,7 @@ impl Content {
             None,
             false,
             crate::entities::span::Span::detached(),
+            MathCancelExplicit::default(),
         )
     }
 
@@ -1669,6 +1690,7 @@ impl Content {
         stroke: Option<crate::entities::geometry::Stroke>,
         background: bool,
         span: crate::entities::span::Span,
+        explicit: MathCancelExplicit,
     ) -> Self {
         Self::MathCancel(Arc::new(MathCancelElem {
             body,
@@ -1679,8 +1701,40 @@ impl Content {
             stroke,
             background,
             span,
+            explicit,
         }))
     }
+
+    /// Construtor canónico do underline matemático.
+    pub fn math_underline(body: Content) -> Self {
+        Self::MathUnderline(Arc::new(MathUnderlineElem { body }))
+    }
+
+    /// Construtor de conveniência de `MathVec`, com named omitidos.
+    pub fn math_vec(children: Vec<Content>) -> Self {
+        Self::math_vec_full(
+            children,
+            ('(', ')'),
+            crate::entities::layout_types::HAlign::Center,
+            crate::entities::rel::Rel {
+                rel: 0.0,
+                abs: crate::entities::layout_types::Length::em(0.2),
+            },
+            MathVecExplicit::default(),
+        )
+    }
+
+    /// Construtor canónico de `MathVec`.
+    pub fn math_vec_full(
+        children: Vec<Content>,
+        delim: (char, char),
+        align: crate::entities::layout_types::HAlign,
+        gap: crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+        explicit: MathVecExplicit,
+    ) -> Self {
+        Self::MathVec(Arc::new(MathVecElem { children, delim, align, gap, explicit }))
+    }
+
     /// Construtor de `MathClassOverride` — `math.class(class, body)`.
     pub fn math_class_override(
         class: crate::entities::math_class::MathClass,
@@ -2373,6 +2427,11 @@ impl Content {
         }))
     }
 
+    /// Constrói uma sentinela `place.flush()` sem campos.
+    pub fn flush() -> Self {
+        Self::Flush(Arc::new(FlushElem))
+    }
+
     /// `repeat(body, gap, justify)` — Passo 156J (ADR-0061 Fase 3
     /// sub-passo 1). **Primeira Fase 3**. Default `justify == true`
     /// (paridade vanilla); algoritmo dinâmico de quantidade-para-encher
@@ -2797,6 +2856,8 @@ impl Content {
             | Self::MathCases(_)
             | Self::MathAccent(_)
             | Self::MathCancel(_)
+            | Self::MathUnderline(_)
+            | Self::MathVec(_)
             | Self::MathClassOverride(_)
             | Self::MathLimitsOverride(_)
             | Self::MathUnderover(_)
@@ -2819,6 +2880,7 @@ impl Content {
             | Self::SetPage { .. }
             | Self::Align(_)
             | Self::Place(_)
+            | Self::Flush(_)
             | Self::Divider(_)
             | Self::Terms(_)
             | Self::TermItem(_)
@@ -3116,6 +3178,8 @@ impl Content {
             Self::MathCases(e) => e.plain_text(),
             Self::MathAccent(e) => e.plain_text(),
             Self::MathCancel(e) => e.plain_text(),
+            Self::MathUnderline(e) => e.plain_text(),
+            Self::MathVec(e) => e.plain_text(),
             Self::MathClassOverride(e) => e.plain_text(),
             Self::MathLimitsOverride(e) => e.plain_text(),
             Self::MathUnderover(e) => e.plain_text(),
@@ -3169,6 +3233,7 @@ impl Content {
             Self::SetPage { .. } => String::new(),
             Self::Align(e) => e.plain_text(),
             Self::Place(e) => e.plain_text(),
+            Self::Flush(e) => e.plain_text(),
             Self::Styled(body, _) => body.plain_text(),
             // Passo 154B: Divider é structural sem texto; Terms concatena
             // pares por linha; TermItem produz "term: description".
@@ -3254,6 +3319,8 @@ impl PartialEq for Content {
             (Self::MathCases(a), Self::MathCases(b)) => a == b,
             (Self::MathAccent(a), Self::MathAccent(b)) => a == b,
             (Self::MathCancel(a), Self::MathCancel(b)) => a == b,
+            (Self::MathUnderline(a), Self::MathUnderline(b)) => a == b,
+            (Self::MathVec(a), Self::MathVec(b)) => a == b,
             (Self::MathClassOverride(a), Self::MathClassOverride(b)) => a == b,
             (Self::MathLimitsOverride(a), Self::MathLimitsOverride(b)) => a == b,
             (Self::MathUnderover(a), Self::MathUnderover(b)) => a == b,
@@ -3374,6 +3441,7 @@ impl PartialEq for Content {
             (Self::Align(a), Self::Align(b)) => a == b,
             // Modelo D (Lote 9 P324): Place delega ao `Arc<…Elem>`.
             (Self::Place(a), Self::Place(b)) => a == b,
+            (Self::Flush(a), Self::Flush(b)) => a == b,
             (Self::Styled(ba, sa), Self::Styled(bb, sb)) => ba == bb && sa == sb,
             // Passo 154B — terms + divider.
             (Self::Divider(a), Self::Divider(b)) => a == b,
@@ -3575,6 +3643,8 @@ impl Content {
             Content::MathCases(e)     => e.map_content(transform)?,
             Content::MathAccent(e)    => e.map_content(transform)?,
             Content::MathCancel(e)    => e.map_content(transform)?,
+            Content::MathUnderline(e) => e.map_content(transform)?,
+            Content::MathVec(e) => e.map_content(transform)?,
             Content::MathClassOverride(e) => e.map_content(transform)?,
             Content::MathLimitsOverride(e) => e.map_content(transform)?,
             Content::MathUnderover(e) => e.map_content(transform)?,
@@ -3703,6 +3773,7 @@ impl Content {
             Content::Align(e) => e.map_content(transform)?,
             // Modelo D (Lote 9 P324): Place container delega ao elemento.
             Content::Place(e) => e.map_content(transform)?,
+            Content::Flush(e) => e.map_content(transform)?,
             Content::Styled(body, styles) => Content::Styled(
                 Box::new(body.map_content(transform)?),
                 styles.clone(),
@@ -3902,6 +3973,8 @@ impl Content {
             | Content::MathCases(_)
             | Content::MathAccent(_)
             | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathVec(_)
             | Content::MathClassOverride(_)
             | Content::MathLimitsOverride(_)
             | Content::MathUnderover(_)
@@ -3962,6 +4035,7 @@ impl Content {
             Content::Align(e) => e.map_text(transform),
             // Modelo D (Lote 9 P324): Place container delega ao elemento.
             Content::Place(e) => e.map_text(transform),
+            Content::Flush(e) => e.map_text(transform),
             Content::Styled(body, styles) => Content::Styled(
                 Box::new(body.map_text(transform)),
                 styles.clone(),

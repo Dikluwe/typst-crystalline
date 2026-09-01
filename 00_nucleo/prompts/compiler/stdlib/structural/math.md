@@ -62,80 +62,68 @@ valor default, `repr`, aliases, modifiers, variants e clusters Unicode integrais
 `math.registered`, herdado de `sym.registered`, permanece extensão cristalina
 individualizada, sem crédito de paridade e sem remoção automática.
 
-### P1291 — bindings próprios ausentes e fecho parcial segregado
+### P1291 preservado — cinco bindings próprios já materializados
 
-**Medição anterior à decisão (2026-08-31T10:37:16-03:00, vanilla
-`a51e02804`):** `math.bb`, `math.cancel`, `math.frak`, `math.inline`,
-`math.scripts`, `math.serif`, `math.underline` e `math.vec` são funções com
-nome público curto. A matriz reproduzível, assinaturas, erros e ownership
-ficam em `00_nucleo/diagnosticos/p1291-manifest.json` e
-`p1291-matriz.md`; baseline `HEAD 53d21c5a602f4045a769a0ab0c935baa5ecd3b88`,
-árvore não commitada registrada por lista exata.
-
-Nesta fatia contínua, `make_math_module` registra explicitamente cinco
-bindings, antes do espelho `sym → math`:
-
-| binding | unidade semântica reutilizada | contrato |
-|---|---|---|
-| `math.bb` | `math_style::native_bb` | um `Content`, sem named; `MathStyled(DoubleStruck)` |
-| `math.frak` | `math_style::native_frak` | um `Content`, sem named; `MathStyled(Fraktur)` |
-| `math.inline` | `math_style::native_inline` | um `Content`; `cramped: bool = false`; `MathStyled(Inline)` |
-| `math.scripts` | adapter privado que delega a `Content::math_limits_override` | um `Content`, sem named; `limits=false`, `inline=true` |
-| `math.serif` | `math_style::native_serif` | um `Content`, sem named; `MathStyled(Plain)` |
-
-Os quatro styles são as mesmas funções já donas da semântica no scope global,
-não wrappers nem cópias. `scripts` apenas adapta o ABI de função ao constructor
-existente do owner `MathLimitsOverrideElem`; ausência de body produz `missing
-argument: body`, um único valor não-`Content` produz `expected content, found
-<tipo vanilla>` (`int → integer`, `str → string`, `bool → boolean`), excesso
-produz `unexpected argument` e named desconhecido produz
-`unexpected argument: <nome>`. O wrapper deve continuar a alterar a política de
-attachments no layout; uma sequência comum não satisfaz o contrato.
-
-O scope continua fechado: nenhum outro binding global é copiado. Cada função
-mantém o nome público curto, e o espelho posterior de símbolos nunca a
-sobrescreve.
-
-**Incompletude deliberada e gate ADR-0127:** três membros ficam fora desta
-fatia e permanecem ausentes até confirmação humana, sem crédito parcial:
-
-- `math.cancel` requer transportar `length`, `inverted`, `cross`, `angle`,
-  `stroke` e `background` e seus efeitos; o `MathCancelElem` público atual tem
-  somente `body`. Subpasso reservado: `P1291.cancel-gate`.
-- `math.underline` é elemento matemático distinto do `UnderlineElem` textual no
-  vanilla (`math.underline == underline` é falso); alias a
-  `text::native_underline` é proibido. Subpasso reservado:
-  `P1291.underline-gate`.
-- `math.vec` é elemento vetorial com identidade, `delim`, `align`, `gap` e
-  filhos variádicos; o `MathMatrixElem` atual não transporta alinhamento nem a
-  identidade vetorial. Subpasso reservado: `P1291.vec-gate`.
-
-Cada um desses resíduos muda contrato Rust público, identidade de elemento ou
-transporte entre eval e layout. Por isso não pode ser resolvido como simples
-entrada da tabela neste lote contínuo.
-
-### P1291 — contratos públicos autorizados para redação (RASCUNHO PARA SELO)
-
-**Autorização de processo:** em 2026-08-31 o humano confirmou a redação dos L0
-dos três gates acima. Essa confirmação não é o selo dos conteúdos abaixo e não
-autoriza testes ou implementação.
-
-Após o selo, `make_math_module` registra também, antes do espelho de símbolos:
+Antes do espelho `sym → math`, `make_math_module` registra estes cinco
+bindings, que permanecem normativos em P1292:
 
 | binding | assinatura de linguagem | identidade emitida |
 |---|---|---|
-| `math.cancel` | `cancel(body, length: 100% + 0.3em, inverted: false, cross: false, angle: auto, stroke: default, background: false)` | `Content::MathCancel` completo |
+| `math.bb` | `bb(body)` — um `Content`, sem named | `Content::MathStyled(DoubleStruck)` pela mesma nativa global |
+| `math.frak` | `frak(body)` — um `Content`, sem named | `Content::MathStyled(Fraktur)` pela mesma nativa global |
+| `math.inline` | `inline(body, cramped: false)` | `Content::MathStyled(Inline)` pela mesma nativa global |
+| `math.scripts` | `scripts(body)` — um `Content`, sem named | `Content::MathLimitsOverride { limits:false, inline:true }` |
+| `math.serif` | `serif(body)` — um `Content`, sem named | `Content::MathStyled(Plain)` pela mesma nativa global |
+
+`bb`, `frak`, `inline` e `serif` reutilizam as mesmas funções já donas da
+semântica no scope global; não são wrappers ou cópias. `scripts` é somente o
+adapter privado do ABI para o constructor existente de
+`MathLimitsOverrideElem`; uma `Sequence` comum não satisfaz sua política de
+attachments.
+
+Para os bindings body-only, ausência produz `missing argument: body`, valor
+não-`Content` produz `expected content, found <tipo vanilla>`, excesso produz
+`unexpected argument` e named desconhecido produz
+`unexpected argument: <nome>`. `inline` aplica as mesmas regras ao body e aceita
+somente `cramped: bool`; tipo inválido ou outro named é erro, nunca ignorado.
+
+O scope continua fechado: nenhum outro binding global é copiado. Os cinco
+mantêm nome público curto e são registrados antes do espelho, que nunca
+sobrepõe binding math existente.
+
+### P1292 — exposição canónica de cancel/underline/vec (GATE ADR-0127)
+
+**Medição anterior à decisão:** o recibo fresco P1292 confirma que os três
+bindings são funções próprias do módulo `math`. Cancel já possui payload e
+runtime P1291, mas ainda não está exposto nesse namespace; underline/vec ainda
+não possuem consumers próprios. `make_math_module` deve registrar, antes do
+espelho de símbolos:
+
+| binding | assinatura de linguagem | identidade emitida |
+|---|---|---|
+| `math.cancel` | `cancel(body, length: 100% + 0.3em, inverted: false, cross: false, angle: auto, stroke: auto, background: false)` | `Content::MathCancel` já materializado |
 | `math.underline` | `underline(body)` | `Content::MathUnderline` |
 | `math.vec` | `vec(..children, delim: "(", align: center, gap: 0.2em)` | `Content::MathVec` |
 
-O `cancel` valida exatamente os domínios `content`, `relative length`,
-`boolean`, `angle|function|auto`, `stroke` e `boolean`; set rules usam o mesmo
-canal tipado, com explícitos prevalecendo. A callback de angle é transportada,
-nunca executada nesta unidade. `underline` aceita um único body e é identidade
-math distinta do underline textual. `vec` aceita filhos variádicos e os named
-`delim`, `align` horizontal e `gap`; zero filhos é válido. As mensagens exatas
-de falta, excesso, named desconhecido e cast são as registradas em
-`00_nucleo/diagnosticos/p1291-matriz.md`.
+`cancel` valida `content`, `relative length`, `boolean`,
+`angle|function|auto`, `stroke` e `boolean`; `none`/`auto` não são strokes
+explícitos. A nativa apenas valida/cascateia e transporta para o mesmo
+`MathCancelElem`; nunca mede body, executa callback ou cria segundo runtime.
+Cada named presente marca seu bit morfológico, inclusive quando igual ao
+default. `underline` aceita um único body, sem named, e é identidade math
+distinta do underline textual. `vec` aceita filhos variádicos e os named
+`delim`, `align` horizontal e `gap`; zero filhos é válido; named presentes
+marcam os bits do payload.
+
+Erros medidos e obrigatórios: falta de body em cancel/underline →
+`missing argument: body`; named desconhecido →
+`unexpected argument: <nome>`; `cancel.length` inteiro →
+`expected relative length, found integer`; `cancel.angle` inteiro →
+`expected angle, function, or auto, found integer`; `vec.gap` inteiro →
+`expected relative length, found integer`; `vec.align` inteiro →
+`expected alignment, found integer`; `vec.delim` inteiro →
+`expected array, none, symbol, or string, found integer`. Nenhum argumento
+reconhecido ou desconhecido é ignorado.
 
 Os owners dos payloads são `entities/elements/math_cancel.md`,
 `entities/elements/math_underline.md` e `entities/elements/math_vec.md`; o enum
@@ -144,20 +132,10 @@ Os owners dos payloads são `entities/elements/math_cancel.md`,
 `compiler/math/layout/vec.md`. Este módulo somente faz cast, cascata de estilos
 e construção.
 
-Incompletudes nomeadas continuam obrigatórias: `P1291.cancel-angle-runtime` e
-`P1291.vec-region-gap`, ambas descritas em `compiler/math/layout/_comum.md`.
-Não se concede crédito integral aos três bindings enquanto esses observáveis
-não tiverem bridge de pipeline selado e testes RED→GREEN.
-
-**Bridge proposta após pedido de fecho:** `native_math_cancel` continua apenas
-a validar/cascatear e transportar `MathCancelAngle::Func` e o span da chamada;
-é proibido medir o body ou executar a callback nesta unidade. O layout produz
-requests puras segundo `compiler/math/layout/callbacks.md`; a pipeline as
-realiza entre passagens segundo `infra/pipeline.md`. `math.vec` transporta
-`Rel<Length>` integral, e a base percentual pertence ao contexto de
-`compiler/math/layout/_comum.md`. Assim o constructor não duplica layout nem
-assa a região observada no momento da chamada. Esta divisão permanece proposta
-até o mesmo selo ADR-0127.
+O runtime de callback de cancel permanece o selado em P1291. `math.vec`
+transporta `Rel<Length>` integral; a base percentual e a política
+`height:auto` pertencem aos owners de layout. Esta unidade não duplica layout
+nem assa região.
 
 ### P1140.3-A — `math.sqrt` função, não símbolo
 

@@ -1,7 +1,7 @@
 # Prompt L0 — `compiler/math/layout/vec` — vetor coluna
 
-**Estado:** RASCUNHO NORMATIVO NO GATE ADR-0127 — sem consumer e sem Hash do
-Código até selo humano.
+**Estado:** CONTRATO P1292 AGUARDA SELO ADR-0127 — sem consumer e sem
+`Hash do Código` até a materialização posterior ao gate humano.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
@@ -20,7 +20,7 @@ O table layout usa estilo denominador, centralização no eixo e delimitadores
 esticados (`lab/typst-original/crates/typst-layout/src/math/table.rs:16-191`).
 O cristalino atual reutiliza `MathMatrix` e perde identidade/alinhamento/gap.
 
-## Decisão proposta
+## Decisão P1292
 
 Uma free function `vec::layout(layouter, elem, style)`:
 
@@ -38,35 +38,32 @@ vec: a função e decisões de vetor permanecem neste arquivo (ADR-0109). `&`
 dentro de um filho pode subdividir/alinha-lo conforme a semântica matemática
 vigente, sem criar linhas extras.
 
-### P1291.vec-region-gap — contexto selado no mesmo gate
+### P1292.vec-region-gap — região efetiva, inclusive `height:auto`
 
 A parcela percentual de `Rel<Length>` resolve contra a altura disponível da
 região. O caller `compiler/layout/equation.rs` passa
 `Regions::effective().height` como `Pt` obrigatório ao `MathLayouter`; este
-owner resolve `gap.rel * region_height + gap.abs.resolve_pt(style.size)`.
+owner resolve, para altura finita,
+`gap.rel * region_height + gap.abs.resolve_pt(style.size)`; a regra não-finita
+medida fica no parágrafo seguinte.
 Altura da grade, tamanho da fonte e zero não são substitutos. Callers de teste
 fornecem região explícita, e o caminho produtivo não possui constructor que
 omita a base percentual.
 
-**Altura não-finita medida antes da decisão:** em
-`2026-08-31T15:11:48-03:00`, vanilla ratificado binário SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`
-compilou com sucesso `page(height: auto)` + `vec(1, 2, gap: #10%)`; a fonte
-vanilla aplica `Rel::relative_to(ctx.region.size)` sem clamp ou erro prévio
-(`typst-layout/src/math/table.rs:24-34`, SHA-256
-`77e1f383e1b252af5331803c9e88ba64d079f1528183083896b9d9f7501e7e04`;
-`typst-library/src/layout/rel.rs:112-113`, SHA-256
-`2c9b969e8fa9d8f007b87f4af7d959f2a65590e5c7bc595b69ca5f6c8bab3aa5`).
-Portanto altura efetiva infinita é dado legítimo: o cristalino conserva o valor e a aritmética relativa, sem
-substituir zero, altura final da página ou font-size e sem introduzir erro que
-o vanilla não produz. O resultado final auto-page deve coincidir em morfologia
-e geometria; valores não-finitos não podem vazar para o exporter se o processo
-de finalização da região não os conservar no vanilla.
+**Altura não-finita medida antes da decisão:** o recibo fresco P1292 mediu
+`height:auto` bilateralmente. `gap:10%` produziu a mesma geometria que `0%`;
+`gap:1em` continuou ativo; `10% + 1em` produziu a mesma geometria que a parcela
+absoluta. Logo, quando `Regions::effective().height` não é finita, este owner
+resolve a parcela relativa como zero e preserva `gap.abs.resolve_pt(style.size)`.
+Não propaga infinito, não usa altura final da página, fonte ou grade como base
+substituta e não descarta a parcela absoluta. Em região finita, usa a equação
+normal contra a altura efetiva.
 
 Testes discriminatórios usam simultaneamente altura de página, altura da
 região efetiva, altura da grade e font-size distintos e alteram somente a
 região efetiva para provar a base escolhida. Um caso bilateral adicional usa
-`page(height: auto)` e gap percentual para guardar a política não-finita.
+`page(height: auto)` e gap percentual, absoluto e misto para guardar a política
+não-finita.
 
 ## Aceitação linguística
 

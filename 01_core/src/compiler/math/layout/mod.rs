@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 90f20f34
+//! @prompt-hash 27d922bd
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -33,7 +33,9 @@ mod op;
 mod root;
 mod spacing;
 mod stretchy;
+mod underline;
 mod underover;
+mod vec;
 
 /// Caixa tipográfica de um nó matemático.
 /// Todas as medidas são em pontos, relativas à baseline da equação.
@@ -374,6 +376,8 @@ pub(super) enum GridAlign {
     Center,
     /// `MathCases` (`cases`): todas as colunas alinhadas à esquerda.
     Left,
+    /// Vetores com alinhamento horizontal à direita.
+    Right,
 }
 
 // Regra 3 (ADR-0037): os campos `pub(super)` abaixo são lidos por quase
@@ -701,6 +705,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.cancel_occurrence.set(occurrence + 1);
                 self.layout_cancel_elem(e, style, occurrence)
             }
+
+            Content::MathUnderline(e) => underline::layout(self, e, style),
+            Content::MathVec(e) => vec::layout(self, e, style),
 
             // P772y — `math.class(class, body)`: override de classe afecta
             // apenas espaçamento (spacing.rs); o layout do body é normal.
@@ -1600,6 +1607,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                         }
                         GridAlign::Center => cursor_x + (col_w - cell_box.width) / 2.0,
                         GridAlign::Left => cursor_x,
+                        GridAlign::Right => cursor_x + (col_w - cell_box.width),
                     };
                     let dy = baseline_offset;
                     for item in cell_box.items.clone() {
@@ -1999,6 +2007,15 @@ fn apply_math_default(body: &Content) -> Content {
             e.stroke.clone(),
             e.background,
             e.span,
+            e.explicit,
+        ),
+        Content::MathUnderline(e) => Content::math_underline(apply_math_default(&e.body)),
+        Content::MathVec(e) => Content::math_vec_full(
+            e.children.iter().map(apply_math_default).collect(),
+            e.delim,
+            e.align,
+            e.gap,
+            e.explicit,
         ),
         Content::Strike(e) => {
             Content::strike(apply_math_default(&e.body), e.stroke, e.offset, e.extent)
@@ -2165,6 +2182,19 @@ fn apply_math_style(
             e.open,
             apply_math_style(&e.body, kind, bold, italic),
             e.close,
+        ),
+        Content::MathUnderline(e) => {
+            Content::math_underline(apply_math_style(&e.body, kind, bold, italic))
+        }
+        Content::MathVec(e) => Content::math_vec_full(
+            e.children
+                .iter()
+                .map(|child| apply_math_style(child, kind, bold, italic))
+                .collect(),
+            e.delim,
+            e.align,
+            e.gap,
+            e.explicit,
         ),
         // `MathOp` (operadores texto) passa-through — variant não aplica.
         // Operadores como "sin"/"lim" mantêm aparência normal mesmo dentro

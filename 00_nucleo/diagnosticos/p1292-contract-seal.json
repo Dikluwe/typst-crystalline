@@ -1,0 +1,520 @@
+{
+  "tekt": 1,
+  "kind": "segregated-observable-contract",
+  "step": 1292,
+  "seal_metadata": {
+    "hash_algorithm": "sha256",
+    "contract_hash_scope": "UTF-8 bytes of json.dumps($.contract, ensure_ascii=False, sort_keys=True, separators=(',', ':'))",
+    "contract_sha256": "0715876251f1ae4c19b5bbd881b4f8af3f331378d3f83ca573d56ec7f8fd46df"
+  },
+  "contract": {
+    "version": 14,
+    "phase": "amendment-13-whitespace-only-reseal-after-precommit-normalization",
+    "regime": "full-segregated-without-technical-isolation-attestation",
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1292-manifest.json",
+      "sha256": "c3dbc43554474f81a8ce6b9b92557470eeb34cc76b33f6c1509f9e4195abe31f"
+    },
+    "human_gate": {
+      "confirmed": true,
+      "confirmed_at": "2026-08-31T22:44:56-03:00",
+      "scope": "P1292 lots A-B-C-D under the frozen pre-gate L0 receipt",
+      "pre_gate_receipt_sha256": "c0c9ded039181be699ad387f1e89368fd56a72c976ba5d0859f528769ef91966",
+      "amendment_9_confirmation": {
+        "confirmed": true,
+        "confirmed_at": "2026-09-01T08:46:11-03:00",
+        "user_words": "Autorizo",
+        "scope": "place(clearance omitted) becomes relative 1.5em and the measured internal region recomposition/float placement mechanism is completed"
+      }
+    },
+    "baseline": {
+      "head": "0eb39f8ecb48930515f2cadb6a378450855b5a72",
+      "vanilla_revision": "a51e02804",
+      "vanilla_binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "candidate_binary_sha256": "fe6b740b1f044bccc9cdca651a4cc971349bef90dce11626987fe5a916fbfd8f",
+      "measurement_receipt_sha256": "dd8009cac21d3ccadd061ef9ea4ce1a83a8f9eda75264a9c90f54b7dad2bb929"
+    },
+    "l0_inputs": [
+      {"path":"00_nucleo/prompts/entities/elements/math_cancel.md","sha256":"320008c4e4915de15c8e85338943ea6383d833bb8d09f5cb8083ac94dd6a0d38"},
+      {"path":"00_nucleo/prompts/compiler/math/layout/cancel.md","sha256":"9bf37e4d2f8a5e6517564ace60c99cb76a9899e12399812d1c2e955b148b82cd"},
+      {"path":"00_nucleo/prompts/entities/elements/math_underline.md","sha256":"27b6cc393f0ccb97358971ff7c20ae335f01e1f360635bc46ae8b3993f180ca7"},
+      {"path":"00_nucleo/prompts/compiler/math/layout/underline.md","sha256":"659aabb6046579629095c4739f1f074c80a9d4b2bde0028bd05b5b2935f0ac52"},
+      {"path":"00_nucleo/prompts/entities/elements/math_vec.md","sha256":"72f2ba668f201d0fb0edf7d2d6bd8f5f85aab156b883a8e644b427f7cd2d1afa"},
+      {"path":"00_nucleo/prompts/compiler/math/layout/vec.md","sha256":"772331ee68ec1069b57e80dd6674ef60d62fcd8db83d7d3fae15a18b7b82b764"},
+      {"path":"00_nucleo/prompts/compiler/stdlib/structural/math.md","sha256":"087e24d091d9ab8a191374d5a1ac8c47f8e01a7e2283602f73cc0028cb53e236"},
+      {"path":"00_nucleo/prompts/compiler/eval/math.md","sha256":"f40e487b4462da0b90bb31236f5c4ce3279b7b6cfa01f38bc8f6b4f80d23f8e8"},
+      {"path":"00_nucleo/prompts/compiler/math/layout/_comum.md","sha256":"903788030729e81faa7cf08622a673454f29301cfb99b8fa7c2adf317db31746"},
+      {"path":"00_nucleo/prompts/entities/content.md","sha256":"48212970feaf1e46db64e31eaeba606e0dcbc283bba2c86a28dd679c3f51e7e9"},
+      {"path":"00_nucleo/prompts/entities/elements/_comum.md","sha256":"07982785a86c500f204e8ed15dafa801105067f2c98ca90e6c6f33765583a0c3"},
+      {"path":"00_nucleo/prompts/compiler/eval/repr.md","sha256":"8f4f3f874b2c08d8e05278763ea795fe8d125ccb67509ce93ec4f5cfda53880d"},
+      {"path":"00_nucleo/prompts/compiler/stdlib/_comum.md","sha256":"3d009e06bd08828518297aed8a9b3e5bc580b32a6bcbad65a4b4554aa94f1d1e"},
+      {"path":"00_nucleo/prompts/compiler/stdlib/layout.md","sha256":"fd12e67bf884c36ed249ad8c20ce250bb129726baa0d4c9244ecedf6aff54dfa"},
+      {"path":"00_nucleo/prompts/compiler/eval.md","sha256":"36aad0a2e4588aec7a9029745f67a0a9a7dd0fa8bae4c2bf5576b09e6ef13b2b"},
+      {"path":"00_nucleo/prompts/compiler/layout.md","sha256":"8b3248416ede53bcb836b219cab4de53129f597a154959a19c1d22d26a09e835"},
+      {"path":"00_nucleo/prompts/entities/elements/flush.md","sha256":"75967e0915aa211ef297c7f88059c3ce675c892de450930137760605df223c37"},
+      {"path":"00_nucleo/prompts/compiler/layout/flush.md","sha256":"c105f59a3e6f3013ba76db514ec982c25826c8cd64f2b0e8b13a04815899ca1a"},
+      {"path":"00_nucleo/prompts/compiler/layout/cursor.md","sha256":"c1fafbee057737ed44bdd7ac5bc2473537f8fa79aa47b76c662f0ff6a5806bd4"},
+      {"path":"00_nucleo/prompts/compiler/layout/place.md","sha256":"53631639a6f417d449b9f2742fbbb75161ff9486481cef4e9344fdbf785814f6"},
+      {"path":"00_nucleo/prompts/compiler/layout/block.md","sha256":"4d0158cdf9b53f080373457209c23162ef6f09df35cb0703519a2f156af01f02"},
+      {"path":"00_nucleo/prompts/compiler/layout/tests.md","sha256":"deee32e8fadf311c9a8686004e27b098230b7ef348a4d8b09dd91f9f72d4f157"},
+      {"path":"00_nucleo/prompts/compiler/math/layout/spacing.md","sha256":"33f370600d7b22bf7c205e4844498e5d9851a855daa2b18d43d7a26c2f88cb39"},
+      {"path":"00_nucleo/prompts/compiler/introspect.md","sha256":"6d794502e69e1643c258889302e8adcfd35769193ad0b08acd3808cc972f794f"},
+      {"path":"00_nucleo/prompts/infra/query-helpers.md","sha256":"ceb77f9accd160a90bae7f335d561beef5ddec19b1c43ba416f9a6b6114883a4"},
+      {"path":"00_nucleo/prompts/compiler/layout/equation.md","sha256":"8a557ebeb62cef433b30d7f1db66acb7ed27526e72770ceb2bd0a12514117387"},
+      {"path":"00_nucleo/prompts/wiring/tests/p1292_contract.md","sha256":"41dd2e0ed56814baf94acf565d1fa59eb64f1f11b9d11cd1ea4937a998f2d0a1"}
+    ],
+    "vanilla_sources": [
+      {"lots":["A"],"path":"lab/typst-original/crates/typst-library/src/math/cancel.rs","lines":"18-115","sha256":"8d65b3de16638375a26f2eae56d8898f86be2c6578661a1e52d59406158a1250"},
+      {"lots":["A"],"path":"lab/typst-original/crates/typst-layout/src/math/cancel.rs","lines":"14-147","sha256":"c73cc39e4649317bed975a812b52e591b464139e93ecba102a45b3510d03798e"},
+      {"lots":["B"],"path":"lab/typst-original/crates/typst-library/src/math/underover.rs","lines":"4-14","sha256":"49fe33135766b83c16d27f84c51bd8f867cd5f3f790b075242e8043661a7e298"},
+      {"lots":["B"],"path":"lab/typst-original/crates/typst-layout/src/math/line.rs","lines":"11-80","sha256":"d71623f47d8d3d9d9b5435820e5ca05399563642a4a48627f76ce0c8ed997b34"},
+      {"lots":["C"],"path":"lab/typst-original/crates/typst-library/src/math/matrix.rs","lines":"33-67","sha256":"fb6ed72f7fac4bb5489170059b9aa0f919beb0b1a23bf4e862d4cff52905120f"},
+      {"lots":["C"],"path":"lab/typst-original/crates/typst-library/src/math/ir/resolve.rs","lines":"1002-1025","sha256":"115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112"},
+      {"lots":["C"],"path":"lab/typst-original/crates/typst-layout/src/math/table.rs","lines":"25-34","sha256":"77e1f383e1b252af5331803c9e88ba64d079f1528183083896b9d9f7501e7e04"},
+      {"lots":["C"],"path":"lab/typst-original/crates/typst-library/src/layout/measure.rs","lines":"70-85","sha256":"4b0ab977b50853c04a8122793dd6f715b6a4fc215e37d7590aea96838ee3690d"},
+      {"lots":["D"],"path":"lab/typst-original/crates/typst-library/src/layout/place.rs","lines":"139-144,195-213","sha256":"ec64092c3f09428aa5d5c2e43a35849cfa2e062947d8d662066a4cdfc3541579"},
+      {"lots":["D"],"path":"lab/typst-original/crates/typst-layout/src/flow/distribute.rs","lines":"430-484,487-521,608-662","sha256":"36f0732a6004d189024da6dfade8767f9f53ad0cacc346211d0b2d3cf3c9b09b"},
+      {"lots":["B","C"],"path":"lab/typst-original/crates/typst-library/src/math/ir/item.rs","lines":"118-145,570-603,834-856","sha256":"273dbf55cb714ad7e40aa13c4648293260eee8d2818001952fbf21f9a4180b3a"},
+      {"lots":["B","C"],"path":"lab/typst-original/crates/typst-library/src/math/ir/resolve.rs","lines":"198-211,1002-1025,1164-1189,1253-1261","sha256":"115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112"},
+      {"lots":["D"],"path":"lab/typst-original/crates/typst-layout/src/flow/collect.rs","lines":"79-91,232-331","sha256":"0baa7e20f1b2e1bfb5d7901ce24f90073fd53648281f4b41c25b090d43318b11"},
+      {"lots":["D"],"path":"lab/typst-original/crates/typst-library/src/layout/container.rs","lines":"347-360","sha256":"56f673258670f56ba73807d47db316bb14d48b82114c1d9b4ce50aa62a8c220a"},
+      {"lots":["D"],"path":"lab/typst-original/crates/typst-layout/src/flow/compose.rs","lines":"82-106,200-234,298-377,737-785","sha256":"e00079990a80fcfed929375aaa13c7d5a74d43f6e502f038a67213c8cfe23dce"},
+      {"lots":["B"],"path":"lab/typst-original/crates/typst-layout/src/math/mod.rs","lines":"49-101","sha256":"88b33ef6eb23deae0e6956c7c59bdbc57604ae1d39a0c6171233f426d87b146b"},
+      {"lots":["B"],"path":"lab/typst-original/crates/typst-layout/src/inline/line.rs","lines":"559-633","sha256":"9da32eee7a101a8e60b70f787d480a78ab4652127bcce02b74a85ad80cf6a54e"}
+    ],
+    "comparison_policy": {
+      "authority": "Typst language semantics, syntax and morphology under ADR-0107/0108",
+      "exact": ["public repr strings", "directly decoded JSON booleans for identity", "function/member names and kinds", "public diagnostic messages where measured", "argument presence and ordering", "content identity and child cardinality/order"],
+      "semantic_geometry": ["relative positions, dimensions and ordering caused by language constructs", "MATH-constant-derived geometry", "finite versus auto-region behavior", "float prefix realization at the marker"],
+      "transport_v7": {
+        "B": "compile paired page-auto SVGs with/without underline; compare body/wrapper width delta, normalized vertical dimensions and visible rule geometry; absolute Script/Cramped whole-wrapper width is excluded as a pre-existing control residue; identity is JSON Bool(false), never repr(bool)",
+        "C": "decode exact repr pairs for syntax and qualified MathVec plus compile the same two-child MathVec directly in real finite-height and page-auto regions; direct MathIdent/MathText leaves project as canonical content morphology while visible child baseline deltas cover 0%, 10%, 1em and 10%+1em; never metadata, query or named measure",
+        "D": "compile multipage PDF via CLI and read unique visible zero-flow tokens with pdftotext -bbox; compare page, bbox tolerance, uniqueness, causal order, Block-to-flow spacing, ordinary non-float Place origin, float anchoring, clearance-reserved flow resumption and atomic migration of every post-marker effect"
+      },
+      "transport_controls": ["B paired base/underline Text, Display, Script and Cramped roots plus isolated x/f rule widths; delta is the horizontal discriminator", "C repr syntax/qualified pairs cover identifiers, numbers, resolved multigrapheme symbols, quoted text, grouped math-body and markup; every finite SVG root has height 100pt, every auto SVG has finite root height, exactly two child baselines are extracted, and 0%/1em controls prove base and surviving absolute component", "D explicit three-page control must yield three page elements and every token exactly once; omitted clearance equals relative 1.5em at 10pt and 20pt, while explicit 0pt/5pt remain sovereign; isolated bottom anchor is invariant under 0pt/20pt while a separate 80pt-adjacent-flow control proves fitting; nested post-marker Place and its containing flow migrate atomically; paired no-flush and no-float controls freeze ordinary Block 1.2em spacing and non-float Place origin independently of replay"],
+      "not_comparison_targets": ["Rust data layout", "FrameItem iteration order unless visible", "algorithmic pass count", "byte-identical PDF/SVG", "PDF IDs/timestamps/compression/operator order", "SVG defs/glyph IDs", "Debug output"]
+    },
+    "unknown_policy": {
+      "rule": "Unknown is never Preserved and cannot close a required vector; a newly observed ambiguity invalidates the affected sub-seal before implementation or oracle adaptation.",
+      "known_unknowns": [
+        "writing-direction-aware Start/End geometry beyond the explicitly sealed temporary Start-to-Left and End-to-Right mapping",
+        "repr wrapping thresholds for non-ASCII forms not measured by P1292",
+        "float/container combinations outside the explicit D vectors and the active-Layouter isolation rule"
+      ],
+      "excluded_mechanics_are_not_unknown": true
+    },
+    "capabilities": {
+      "contract_author_allow_write": [
+        "00_nucleo/prompts/compiler/layout.md",
+        "00_nucleo/prompts/compiler/layout/cursor.md",
+        "00_nucleo/prompts/compiler/layout/block.md",
+        "00_nucleo/prompts/compiler/layout/place.md",
+        "00_nucleo/prompts/compiler/layout/tests.md",
+        "00_nucleo/diagnosticos/p1292-d-no-flush-amendment-11.md",
+        "00_nucleo/diagnosticos/p1292-lineage-reseal-amendment-12.md",
+        "00_nucleo/diagnosticos/p1292-whitespace-precommit-amendment-13.md",
+        "00_nucleo/diagnosticos/p1292-contract-seal.json",
+        "00_nucleo/diagnosticos/p1292-contract-receipt.md"
+      ],
+      "contract_author_exclusions": ["all other 00_nucleo/prompts/** including compiler/layout/flush.md", "00_nucleo/diagnosticos/p1292-pre-gate-l0-receipt.md", "01_core/** including productive layout and tests.rs", "02_shell/**", "03_infra/**", "04_wiring/** including the protected oracle", "tests", "attacks", "verdict"],
+      "oracle_author_rule": "A later manifest update must give an explicit test/fixture allowlist before first write; this seal itself grants no filesystem write capability.",
+      "oracle_author_must_not_write": ["00_nucleo/prompts/**", "p1292-contract-seal.json", "productive code", "attacks", "verdict"],
+      "implementation_rule": "Implementation receives this sealed contract only after RED; it must not edit L0, seal, or protected oracles. Integration is serial A-B-C-D."
+    },
+    "amendments": [
+      {
+        "id": "p1292-l0-dependency-amendment-1",
+        "authorized_manifest_sha256": "0a4894f3088ff5d124d346ce677292db24c2241ecce26d657880b33db752d931",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-l0-dependency-amendment-1.md",
+        "receipt_sha256": "05f6d4bda1fd5a962c17aa530d7f15c5eff0409a9fe209744b385542ca0907b5",
+        "bridge": {
+          "predecessor_contract_sha256": "18a987cedb0808cab4473a5f578b1cd336e1830595cb694cd9d31cfbd1fa0554",
+          "predecessor_seal_file_sha256": "7359b85cda7cdaf85f12eeabb2725ee04452676b2448ffebaa32b8a4a635edbe",
+          "pre_gate_receipt_sha256": "c0c9ded039181be699ad387f1e89368fd56a72c976ba5d0859f528769ef91966",
+          "public_lots_a_d_sha256": "c2caa85f8258ef2bc6d983256029e0ac2c5690456415af568fede473cc9813bb",
+          "public_vectors_and_acceptance_outcomes_changed": false
+        },
+        "dependency_classification": {
+          "B_math_underline": "inherits body lclass/rclass; terminal and non-locatable in introspection; false/0 in approximate query walkers",
+          "C_math_vec": "Opening/Closing at present delimiter edges and Normal at absent edges; terminal and non-locatable in introspection; false/0 in approximate query walkers",
+          "D_flush": "Normal/Normal neutral classifier; terminal sentinel without introspection effect; false/0 in approximate query walkers"
+        },
+        "inference_refutation_policy": "Terminality and Flush neutrality are inferred from sealed P1292 L0s plus vanilla Mathy/flow-sentinel measurements; any new locatability, counter/label/query effect, internal math-text query semantics, or visible no-float spacing change invalidates this amendment before productive adaptation."
+      },
+      {
+        "id": "p1292-l0-oracle-amendment-2",
+        "authorized_manifest_sha256": "488c0cdd466bba36dab5e662943ea1d11dd40f173abcf4f827860a5b8b28af5e",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-l0-oracle-amendment-2.md",
+        "receipt_sha256": "1fd5b932943640a3948beb4181767da2eeb8bfde302a40d499a8f2b16d04d86c",
+        "bridge": {
+          "predecessor_contract_sha256": "3c7334f5143c2e62d6512a5dd824575da0cf28fdae40d5939646f1a3dcb27022",
+          "predecessor_seal_file_sha256": "abff3035a2ed2ee5c560b906139b610eb503308c5ef60dc157f5ac46e00ee602",
+          "predecessor_contract_receipt_sha256": "52c0525459ed7ed43a7bb7f9646fa1a20957fbb1bdc7f748290ee19e5967cb30",
+          "pre_gate_receipt_sha256": "c0c9ded039181be699ad387f1e89368fd56a72c976ba5d0859f528769ef91966",
+          "predecessor_public_lots_a_d_sha256": "c2caa85f8258ef2bc6d983256029e0ac2c5690456415af568fede473cc9813bb",
+          "public_vectors_and_acceptance_outcomes_changed": false,
+          "comparison_transport_changed": true
+        },
+        "equation_inline_extent": "reuse the single EquationExtent from layout_equation_measured and call note_inline_extent(ascent, descent) exactly once for inline equations; no FrameItem reinspection or relayout",
+        "oracle_transport_v3": "B direct bool plus page-auto SVG; C contextual measure materialized as colored SVG shape; D CLI multipage PDF plus pdftotext -bbox visible tokens",
+        "inference_refutation_policy": "Transport is accepted only after bilateral controls execute context/pages and the candidate reaches the intended missing feature; loss of a shape/page/token or geometry changed by the marker invalidates the affected vector instead of relaxing its expected result."
+      },
+      {
+        "id": "p1292-l0-inline-extent-amendment-3",
+        "authorized_manifest_sha256": "eeae48cdd86b4ea1025f4023936745233e1d6ecc52076234489b84414eb95b32",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-l0-inline-extent-amendment-3.md",
+        "receipt_sha256": "47656b9d645a75c8ec6f53bdd63b1c06ad269f16eb11e9313fbbd5e99f4c3060",
+        "bridge": {
+          "predecessor_contract_sha256": "f72392739e4f9ebf73dcaf769710e27f767c945a5970eb2f58a1c3b3822d612e",
+          "predecessor_seal_file_sha256": "0cfcd2e18719efd280bc73b51315f0d8da69e9bed1fc18cbb7a0fb7ff2dc9fb3",
+          "predecessor_contract_receipt_sha256": "ffde65ffd16eeaa2d2d4b1b24f5aefd62b8a4ac394bc41c833e2c6f093d694ba",
+          "predecessor_public_lots_a_d_sha256": "21a7135267f81e8727681f4eefdf3fcc28cda3485c0e6f75ffe61304d79b2567",
+          "predecessor_comparison_policy_sha256": "dc7f7885cd426aca64d5423a55061e2dff0452c21e19edab9180964e9ade5925",
+          "public_vectors_and_acceptance_outcomes_changed": false,
+          "refuted_mechanism_only": "raw EquationExtent passed directly to note_inline_extent"
+        },
+        "inline_extent_v4": "for inline only, slack=effective paragraph leading * 0.7; normalize raw EquationExtent by external text edges/frame bounds; then call note_inline_extent once; block raw extent remains unchanged",
+        "underline_width_v4": "MathBox width remains body width; rule width=max(0, body width - italic correction); negative correction may overhang without resizing the frame",
+        "inference_refutation_policy": "Text/display/script/cramped, mixed baselines, following-line advance and italic-rule width must match ratified vanilla; any need for fixture constants, FrameItem rescan, relayout or cursor-owner change invalidates this amendment."
+      },
+      {
+        "id": "p1292-b-wrapper-width-amendment-4",
+        "authorized_manifest_sha256": "537020ac9ab9c7c3864a0dd838a413ff1367e1a1b0ae03da09b6a7b09874588f",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-b-wrapper-width-amendment-4.md",
+        "receipt_sha256": "fbda5f854fcf30df07f0f103901fb958a3c02cf403dceca62231e9b0f67c05a2",
+        "bridge": {
+          "predecessor_contract_sha256": "ac95d6003126b4b3ebc8b0128e5cbca3ac95c05d88f2f0f6ceab930d6fa598b2",
+          "predecessor_seal_file_sha256": "876a870be1e98474f959c69db13eff926391fafc3fb19f17a3e4425d6200a86a",
+          "predecessor_contract_receipt_sha256": "a71c4440d9b9c552db617c3e5081efc68db035de131ddb13d6dd42ce9f33320e",
+          "predecessor_public_lots_a_d_sha256": "14ae87c45cdc3c1a01813702039e849deecfbcdd2cd649d27b0d36da27f141a1",
+          "predecessor_comparison_policy_sha256": "4ae63b34df2388100658ceec3dcfa3e3c2113e412f771b2496a6101902a1fb46",
+          "public_surface_errors_morphology_and_vertical_outcomes_changed": false,
+          "comparison_refined": "absolute whole-wrapper width replaced by paired body/frame delta and rule width"
+        },
+        "paired_width_rule": "within each renderer and style, underline(body) preserves the width of body/wrapper; isolated rule width is max(0, body width - italic correction)",
+        "preexisting_scope_out": "absolute Script attach and Cramped fraction whole-root width gaps are identical with and without underline; no cursor/attach/fraction/auto-page/wrapper change is authorized by P1292",
+        "inference_refutation_policy": "Nonzero underline-induced width delta, wrong rule width, changed isolated frame, or vertical regression violates B; the same absolute wrapper gap present in both base and underline controls is outside B, not a general Preserved result."
+      },
+      {
+        "id": "p1292-c-region-transport-amendment-5",
+        "authorized_manifest_sha256": "23e12e76e401399e9d65977166d4f87006df7da05b83f8fd8f0abe6d48ab508f",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-c-region-transport-amendment-5.md",
+        "receipt_sha256": "f9b266fa286524cd326de63024e068d42bf478a218336080b27770d5b79531f7",
+        "bridge": {
+          "predecessor_contract_sha256": "5f5b4ab885529a213497d274705c66e0d62e3195e2bcfdf02fb98209a5edb7fc",
+          "predecessor_seal_file_sha256": "42029c04946e45a36c39825720e71f32fde192aa1e93e8f2a408470c56c8fd7d",
+          "predecessor_contract_receipt_sha256": "8effd8de7651c50fbd91a4dafd50e9e69fc9c01bc014c5aded1a038ae6bff695",
+          "predecessor_public_lots_a_d_sha256": "199115fb2d93872b76a2f37cceab6382ee915f60c3eb828fd66d56d704fdbc60",
+          "predecessor_comparison_policy_sha256": "4d20beae612d8e9d027fd0b732d87617b7a02b93298b761e36867b2340529175",
+          "public_vectors_and_acceptance_outcomes_changed": false,
+          "comparison_transport_changed": "C named-measure transport replaced by direct page-region child-baseline deltas"
+        },
+        "region_transport_v6": "compile two unique MathVec children in page height 100pt and height:auto; compare baseline deltas for 0%, 10%, 1em and 10%+1em; finite percentage contributes 10pt, auto percentage contributes zero, absolute 1em survives",
+        "preexisting_scope_out": "candidate named width/height rejection in measure belongs to ADR-0054 and is not authorized or evaluated by P1292",
+        "inference_refutation_policy": "Missing/duplicate child markers, finite root not 100pt, non-finite auto output, loss of 1em, or nonzero percentage contribution under auto invalidates C; it never authorizes measure, page, equation or a new owner."
+      },
+      {
+        "id": "p1292-c-syntax-repr-amendment-6",
+        "authorized_manifest_sha256": "46ca2b443742ebe563449f1c4656b4e7a833fbac8c747bfbad85e4f55add5751",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-c-syntax-repr-amendment-6.md",
+        "receipt_sha256": "764d2282d0d5067375b7c32796fe7ef2e3db70f81da18c2ea6dfe87cbade357a",
+        "bridge": {
+          "predecessor_contract_sha256": "c5eb479c218354af0910c17eaf24447122b8d91775d70c3031950c426ff27f3b",
+          "predecessor_seal_file_sha256": "28b5eec0abb668408b68672a0b8230628f08393022d9602827a4b04e540e5410",
+          "predecessor_contract_receipt_sha256": "7f3086cbcd5127b593d91b71de76133f68c3ac3ab3cbdf416957ccfa9c168f22",
+          "predecessor_public_lots_a_d_sha256": "17bd062c9b8a185b47b242c2ef11bc4f89a5570d0766f988e30482ed67bf2f35",
+          "predecessor_comparison_policy_sha256": "bf3b06f4413f4021a138bd3bbdd489c15583fee29d5b7b3784703c5a0624f28a",
+          "public_vectors_and_acceptance_outcomes_changed": false,
+          "comparison_refined": "C syntax leaf repr projects direct MathIdent/MathText through canonical content morphology without changing stored children or layout"
+        },
+        "syntax_repr_v7": "only direct MathVec children that are MathIdent or MathText use canonical textual-content morphology [text]; Text, markup and structured variants retain their own repr; no recursive projection",
+        "preexisting_scope_out": "generic MathLr internal repr differences remain with their own owner; no Equation, wrapper, renderer, entity or eval change is authorized",
+        "inference_refutation_policy": "Any layout/equality/hash/span/traversal change, double wrapping, noncanonical escaping, projection inside a structured child, or failure of the measured syntax-qualified leaf pairs invalidates C. Unmeasured structured variants remain Unknown."
+      },
+      {
+        "id": "p1292-d-stdlib-facade-amendment-7",
+        "authorized_manifest_sha256": "30f5ba462a11a554f060cd58b4e600a07ccb4a2abb16bcd890dbd38a5d81a2d6",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-d-stdlib-facade-amendment-7.md",
+        "receipt_sha256": "5734492f92dafb7cd4002452e9c1765dc534aa7c03067f70afe6fef1b1bf67fb",
+        "bridge": {
+          "predecessor_contract_sha256": "415d8abb1cd5df02fcc08fd2ea90c2d423b67751ef0a09818fb8cc511b225244",
+          "predecessor_seal_file_sha256": "dc59cefb3aa50cbf38d38b4452aacdddf3b5eeb5a1484d9281206cdc17c65bcc",
+          "predecessor_contract_receipt_sha256": "7356a11333c952a419dfcffa5bffb8f23dbfd3c9c3313438b6379ea8adf57c43",
+          "predecessor_public_lots_a_d_sha256": "2b6dc9a13308bdc11ccd189c643f05245bd9bfc9f23a1ee13e1765db9e5e70c0",
+          "predecessor_comparison_policy_sha256": "f781e9e72e565e781014e4755cbe4bc91b357a3934b390cce27136febbe05a48",
+          "public_vectors_and_acceptance_outcomes_changed": false,
+          "lots_and_comparison_changed": false,
+          "ownership_graph_changed": "22 to 23 L0 owners by adding the existing stdlib facade owner"
+        },
+        "facade_wiring_v8": "compiler/stdlib/mod.rs reexports native_flush from its private layout submodule as pub(crate) only; implementation remains exclusively in compiler/stdlib/layout.rs",
+        "ownership_v8": "compiler/stdlib/_comum.md owns only the facade reexport in stdlib/mod.rs; compiler/stdlib/layout.md owns native_flush construction in layout.rs",
+        "inference_refutation_policy": "Logic or validation in the hub, external pub visibility, wildcard reexport, direct consumer access to the private submodule, a second implementation, or any D language-surface change invalidates this amendment."
+      },
+      {
+        "id": "p1292-d-flush-pagination-amendment-8",
+        "authorized_manifest_sha256": "f81636bbdeb3a3730a86678c8513e04724a6be763f21a98a0d0a459aef3f6978",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-d-flush-pagination-amendment-8.md",
+        "receipt_sha256": "83d89c0e2f6b9b0af3c9793668d06232950327a3176a483c77ce65b04adf1eab",
+        "bridge": {
+          "predecessor_contract_sha256": "d11d47b51063a09157cf47f5b52f92fc50d0bd81e2c45f6b25b8a1c8f75c828b",
+          "predecessor_seal_file_sha256": "5c8c229db061fec8a97c9f049e28f70d85e47d9dc76eb64998f4b09c354a3e6a",
+          "predecessor_contract_receipt_sha256": "9204cb2e35784f19f5d086f66c792a73a21cc6cc6c4f70987fe462ca5f0bfdba",
+          "predecessor_public_lots_a_d_sha256": "2b6dc9a13308bdc11ccd189c643f05245bd9bfc9f23a1ee13e1765db9e5e70c0",
+          "predecessor_comparison_policy_sha256": "f781e9e72e565e781014e4755cbe4bc91b357a3934b390cce27136febbe05a48",
+          "public_vectors_and_acceptance_outcomes_changed": false,
+          "lots_and_comparison_changed": false,
+          "ownership_graph_changed": "23 to 24 L0 owners by adding the existing cursor distributor owner"
+        },
+        "refuted_mechanism": "flush::layout directly calling flush_pending_floats drains the whole prefix into the current page and yields one page instead of the sealed three",
+        "sentinel_policy_v9": "flush.rs captures the occurrence boundary and calls only finish_float_prefix_at_marker; it contains no distribution, direct drain, flush_line, item or unconditional page break",
+        "cursor_hook_v9": "the existing paginated distributor finishes/advances the active region while any captured-prefix occurrence remains pending, realizes only the eligible prefix per region, preserves the remainder, then resumes later flow",
+        "phase_classification": "existing paginated layout phase and cursor owner; no eval/layout phase move or public contract change",
+        "inference_refutation_policy": "Direct full drain, unconditional new_page, local distribution in flush.rs, line flush, item emission, suffix anticipation, top/bottom or clearance drift, outer-Layouter access, or relaxation of the frozen page/position vectors invalidates D. Oversized/unmeasured combinations remain Unknown."
+      },
+      {
+        "id": "p1292-d-flow-resumption-amendment-9",
+        "authorized_manifest_sha256": "48545a4d9ba62a148f9161aca43dbfd93a6618c1816e480d245a1ad554d2e243",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-d-flow-resumption-amendment-9.md",
+        "receipt_sha256": "92e83d0afb8d323823b0815eca62e6a8653d354e782284149651a38fa91d487e",
+        "bridge": {
+          "predecessor_contract_sha256": "19f3d722586ff4afff29ae694200bfb46f781f0976be2ff72aac1ecbd6ec298e",
+          "predecessor_seal_file_sha256": "0d32030bacc9d6c4d0288cb1ee4af32538cc74c4e72ec437f0203ee62bde7849",
+          "predecessor_contract_receipt_sha256": "8c5f058660e32b2cd0b0a1108df02b131b8854f010d2c85f14151474df154d29",
+          "predecessor_public_lots_a_d_sha256": "2b6dc9a13308bdc11ccd189c643f05245bd9bfc9f23a1ee13e1765db9e5e70c0",
+          "predecessor_comparison_policy_sha256": "f781e9e72e565e781014e4755cbe4bc91b357a3934b390cce27136febbe05a48",
+          "human_gate_required_and_confirmed": true,
+          "public_change": "omitted place clearance is now explicitly relative 1.5em; explicit values remain sovereign",
+          "a_b_c_outcomes_changed": false,
+          "d_causal_outcomes_changed": false,
+          "lots_and_comparison_text_changed": true,
+          "ownership_graph_changed": "24 to 25 L0 owners by adding the existing Place renderer owner"
+        },
+        "human_gate": {
+          "confirmed_at": "2026-09-01T08:46:11-03:00",
+          "user_words": "Autorizo",
+          "scope": "change omitted place clearance to relative 1.5em and complete internal recomposition/placement"
+        },
+        "clearance_default_v10": "stdlib constructs omitted clearance as relative 1.5em; layout resolves it against the occurrence style; explicit 0pt, 5pt and 1.5em are preserved",
+        "place_owner_v10": "Place owns float fitting, effective-region reservations, top/bottom anchoring and the internal recomposition request; admitted insertions reserve clearance adjacent to future flow",
+        "cursor_owner_v10": "Cursor checkpoints and idempotently recomposes the active region after insertion reservations change; Flush is consumed and following flow resumes only on stable effective geometry, without inspecting the next child",
+        "sentinel_owner_v10": "Flush owns only the immutable occurrence boundary and waits for stable recomposition; it never fits, positions, distributes, replays or forces a page",
+        "block_classification": "unchanged; the same failure with plain text and an unbreakable Block refutes a Block-specific repair",
+        "phase_classification": "existing paginated layout phase; no new pass, public API or eval-layout move",
+        "inference_refutation_policy": "Baked pt clearance, omitted-equals-zero, direct cursor emission, no reservation relayout, bottom anchored to used cursor, replay duplication, next-child inspection, forced post-marker break, suffix anticipation or any frozen D page/position drift invalidates this amendment."
+      },
+      {
+        "id": "p1292-d-checkpoint-amendment-10",
+        "authorized_manifest_sha256": "1f606660721641d536c26c063377963164ad77f0cbb15880a77f98865955057f",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-d-checkpoint-amendment-10.md",
+        "receipt_sha256": "8aac16ad279e22495ed3ce805462a2ed36a44d30cef6df4b62a16b85f52c512f",
+        "bridge": {
+          "predecessor_contract_sha256": "3b1ead87735df2e4e7c72a84c899a45c61f45067bf75f808812e9a4f9056bd69",
+          "predecessor_seal_file_sha256": "f798bfc18ebdcd4b9bcc684f3b95d398fbb37b072f6e8ea89e0fb7676647d630",
+          "predecessor_contract_receipt_sha256": "b79af4ec4c9a5bdc59a34b28168dfb5f78c93666f8b0cbc54557bc44df96baa7",
+          "predecessor_public_lots_a_d_sha256": "e096a694f5c6fad1fb5623ec2e3544ddc878fd407befde14bcf296459b87360f",
+          "predecessor_comparison_policy_sha256": "513120408189be25876812533c2860a262edc9fd3e4f00c7db67add2464d0875",
+          "new_human_gate_required": false,
+          "public_surface_defaults_or_phase_changed": false,
+          "a_b_c_outcomes_changed": false,
+          "d_outcomes_refined": "all post-marker effects migrate atomically; bottom anchor and clearance fitting are tested separately",
+          "lots_and_comparison_text_changed": true,
+          "ownership_graph_changed": "25 to 26 L0 owners by adding the existing layout tests owner"
+        },
+        "layouter_checkpoint_v11": "after prefix reservations stabilize, Layouter checkpoints every region-local effect boundary for the post-marker suffix: cursor/region, line buffers and metrics, current_items tail, active frame/items tail, pending geometry, suffix deferred/floats and occurrence replay point",
+        "cursor_transaction_v11": "Cursor commits the whole suffix if accepted or atomically rolls it back and replays it after normal region advance; current_line and current_items can never migrate separately",
+        "preserved_prefix_v11": "confirmed pages, prior items, realized prefix floats and their reservations are outside rollback; later floats remain suffix and are never anticipated",
+        "p245_refutation_v11": "bottom clearance does not move the physical bottom anchor; isolated 0pt and 20pt both yield yMin 90.166, while a separate 80pt-flow control moves the float from p1 to p2 only at 20pt",
+        "owner_classification": "compiler/layout.md owns the atomic Layouter snapshot; cursor owns commit/rollback/replay; place and flush v10 remain unchanged; compiler/layout/tests.md owns the refuted P245 replacement and new checkpoint regression",
+        "phase_classification": "existing paginated layout phase; no new pass, public API, default, compatibility change or Block owner",
+        "inference_refutation_policy": "Line-only snapshot, current_items leakage, rollback of prefix state, effect duplication, next-content inspection, Block specialization, bottom clearance moving its frame, or fitting tests conflated with anchor position invalidates this amendment."
+      },
+      {
+        "id": "p1292-d-no-flush-amendment-11",
+        "authorized_manifest_sha256": "d4b5908c44ac4ef536e474efb67969e89ae52ed6a2431ea86614060c5c032839",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-d-no-flush-amendment-11.md",
+        "receipt_sha256": "7f5ce09fbaf6ac871d1e4fb4acab4bf60ffd2722cfeb21f3da2a600d337d72cf",
+        "bridge": {
+          "predecessor_contract_sha256": "671fd53142624d9cceaa28d4ebaf5676eb07f4bfa5d3432d1fd2e030ad29d9f2",
+          "predecessor_seal_file_sha256": "256f5cbee59ae11c7bf2a1150865a95694753a1dfd24197de837a4f464f52daa",
+          "predecessor_contract_receipt_sha256": "4cd26f7bd20a4e343f4f59231584454202975d0da9fea9c7eb85a173af7e6148",
+          "predecessor_public_lots_a_d_sha256": "867b5fe0e61e3bb69a4e54aec4a98710c4acb12c2de03b2f5098d9c890aa79e0",
+          "predecessor_comparison_policy_sha256": "cbcac2aa1efe454a20e9542515211f7fabba4048ee2824cec3d2c2ff37207c01",
+          "new_human_gate_required": false,
+          "public_surface_defaults_or_phase_changed": false,
+          "a_b_c_outcomes_changed": false,
+          "d_outcomes_refined": "ordinary no-flush/no-float controls now freeze Block spacing and non-float Place origin independently of replay",
+          "lots_and_comparison_text_changed": true,
+          "ownership_graph_changed": "26 to 27 L0 owners by adding the existing Block renderer owner"
+        },
+        "measured_controls_v12": "without Flush and without any float, candidate AFTER_FLOW 27.404 / AFTER_MARKER -9.834 while ratified vanilla yields 40.604 / 47.842; the two controls coincide within each renderer",
+        "block_owner_v12": "Block preserves its physical end plus effective below spacing as the next ordinary flow origin; default 1.2em remains relative and explicit spacing/collapse remain sovereign",
+        "place_owner_v12": "non-float Place without vertical alignment anchors at the current flow origin, including pending-line baseline plus semantic top edge, never the physical top merely because the line is uncommitted",
+        "cursor_limit_v12": "Layouter/Cursor own only atomic transaction mechanics; no generic current_items-tail translation, Block gap, Place formula or fixture constant outside a genuinely rejected marker transaction",
+        "flush_classification_v12": "unchanged; causal controls prove the residue exists without the sentinel",
+        "phase_classification": "internal formula/ownership parity correction in the existing layout phase; no public API, product default, compatibility or pipeline-phase change",
+        "inference_refutation_policy": "A no-Block fixture retaining the 13.2pt delta, explicit block spacing not changing AFTER_FLOW, ordinary Place still top-anchored, a repair that only works during replay, or any drift of the already bilateral three-page transaction vector invalidates this amendment."
+      },
+      {
+        "id": "p1292-lineage-reseal-amendment-12",
+        "authorized_manifest_sha256": "1d9841747760d1dcb48522fe3108a4670c8096cb64aad436fe877e71e2f7c044",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-lineage-reseal-amendment-12.md",
+        "receipt_sha256": "6a18472b8423e0cc7d1cedc219420972d947b1d37347e72e4170afcb890c70f9",
+        "bridge": {
+          "predecessor_contract_sha256": "493f5c58ce956b5a142cbf5016db4bbd7e4dc776aaff86749be7ebd156c2e5ef",
+          "predecessor_seal_file_sha256": "d1a04bcc9351d8f63e77c35ee8bfddf581691bf44484c35b9c4975173edaae8f",
+          "predecessor_contract_receipt_sha256": "8ea9dfe983d00c6939d29736443b3cdbaacb7f9c970e46fe62b9a85daa2009a8",
+          "predecessor_public_lots_a_d_sha256": "edeb8a195e15263dbfbc71de9d242657e79f9dd65e94c97e990b066e03f119bf",
+          "predecessor_comparison_policy_sha256": "71eb4eafff8d88233aaa3df6b2666a651db75ebcdfd0fe2d470dc6620d190a46",
+          "new_human_gate_required": false,
+          "public_surface_defaults_or_phase_changed": false,
+          "public_vectors_or_acceptance_changed": false,
+          "lots_and_comparison_text_changed": false,
+          "ownership_graph_changed": false,
+          "l0_bytes_changed": "exactly two Hash do Código lines after canonical repair"
+        },
+        "byte_equivalence_proof": "Replacing only cancel.md Hash do Código 81399128 with b804d54b reconstructs exact v12 SHA 84b2c852...; replacing only math_cancel.md 2bb6fdd1 with e3993092 reconstructs exact v12 SHA cc164630...; therefore all normative body bytes are unchanged",
+        "current_l0_hashes": {
+          "00_nucleo/prompts/compiler/math/layout/cancel.md": "9bf37e4d2f8a5e6517564ace60c99cb76a9899e12399812d1c2e955b148b82cd",
+          "00_nucleo/prompts/entities/elements/math_cancel.md": "320008c4e4915de15c8e85338943ea6383d833bb8d09f5cb8083ac94dd6a0d38"
+        },
+        "p1030_test_only_causality": "Final verification found a legacy observer that recognized MathMatrix but not the already owner-correct MathVec; only eval/tests.rs changed, expectations were preserved, P1030 7/7, P1292 core 17/17 and workspace including protected oracle 11/11 are GREEN, Unknown=0",
+        "p1030_receipt_sha256": "edabc574c2b8748e7b114230348aac3312b4acb66e70e5c587b04b6ca2ca5a61",
+        "protected_oracle_sha256": "fa8f8770ea188a6bfe4e3415a6e053356d38e945dc950be8b864424b24b983aa",
+        "phase_classification": "lineage metadata repair plus test-only observer correction; no public API, product default, pipeline phase, compatibility or normative acceptance change",
+        "inference_refutation_policy": "Any reconstructed byte mismatch outside Hash do Código, any changed lots/comparison hash, V5/V15/V26 failure, changed protected oracle bytes, relaxed P1030 expectation or public behavior delta invalidates this lineage-only reseal."
+      },
+      {
+        "id": "p1292-whitespace-precommit-amendment-13",
+        "authorized_manifest_sha256": "c3dbc43554474f81a8ce6b9b92557470eeb34cc76b33f6c1509f9e4195abe31f",
+        "receipt_path": "00_nucleo/diagnosticos/p1292-whitespace-precommit-amendment-13.md",
+        "receipt_sha256": "a5787306b4a13fb99f60d2c0c63fb54164ef1713ff1c9c5237aec2c7c30619a0",
+        "bridge": {
+          "predecessor_contract_sha256": "61387d1be09b46740094112dbc2adea4f1df1491b4ca18fab1d4b90f9fc60010",
+          "predecessor_seal_file_sha256": "bff65c3e83f5dc84bcc8eaad03eb4463e7f0dd2bef3a1f194470f51a56496db4",
+          "predecessor_contract_receipt_sha256": "7e780f05710975df53a9650c8940f008e91f11b73fa0a28475a74af17167d799",
+          "predecessor_public_lots_a_d_sha256": "edeb8a195e15263dbfbc71de9d242657e79f9dd65e94c97e990b066e03f119bf",
+          "predecessor_comparison_policy_sha256": "71eb4eafff8d88233aaa3df6b2666a651db75ebcdfd0fe2d470dc6620d190a46",
+          "new_human_gate_required": false,
+          "public_surface_defaults_or_phase_changed": false,
+          "public_vectors_or_acceptance_changed": false,
+          "lots_and_comparison_text_changed": false,
+          "ownership_graph_changed": false,
+          "l0_bytes_changed": "entities/elements/flush.md lost exactly one blank EOF line"
+        },
+        "byte_equivalence_proof": "The current 1867-byte flush.md ends with one LF; appending exactly one LF yields the exact 1868-byte v13 SHA 7e1290bd..., proving every current byte and all normative text are unchanged",
+        "current_l0_hash": {
+          "00_nucleo/prompts/entities/elements/flush.md": "75967e0915aa211ef297c7f88059c3ce675c892de450930137760605df223c37"
+        },
+        "protected_set_result": "26 other L0 inputs are byte-identical to v13; only the EOF-normalized Flush entity owner changed",
+        "consumer_lineage_repair": "Initial v14 V5 correctly rejected flush.rs @prompt-hash 7e1290bd; coordinator changed only that header to 75967e09, yielding raw consumer SHA 0208c6b3d86f3f64b7c84051dead1e5487b8d02ccf92dbf902257cafccc3cad1 before final gates",
+        "phase_classification": "whitespace-only L0 identity repair after pre-commit normalization; no public API, product default, pipeline phase, compatibility or normative acceptance change",
+        "inference_refutation_policy": "Any additional L0 mismatch, any difference beyond the single terminal LF, changed lots/comparison hash or V5/V15/V26 failure invalidates this whitespace-only reseal."
+      }
+    ],
+    "lots": {
+      "A": {
+        "name": "math.cancel exposure without a second runtime",
+        "positive": [
+          {"id":"A-P1","input":"type(math.cancel), repr(math.cancel)","expect":"function named cancel"},
+          {"id":"A-P2","input":"repr(math.cancel([x]))","expect":"cancel(body: [x])"},
+          {"id":"A-P3","input":"repr with length:80%+1em,inverted:true,cross:true,angle:45deg,stroke:red+1pt,background:true","expect":"all named in body,length,inverted,cross,angle,stroke,background order"},
+          {"id":"A-P4","input":"angle closure returning 0deg and contextual closure","expect":"Func transported; callback realized after body measurement with lexical style snapshot and no layout-to-eval reentry"},
+          {"id":"A-P5","input":"cross:true with callback","expect":"two independent callback calls/requests with same positive default and line identities 0 and 1"}
+        ],
+        "negative": [
+          {"id":"A-N1","input":"math.cancel()","expect_error":"missing argument: body"},
+          {"id":"A-N2","input":"math.cancel([x], nope:1)","expect_error":"unexpected argument: nope"},
+          {"id":"A-N3","input":"math.cancel([x], length:1)","expect_error":"expected relative length, found integer"},
+          {"id":"A-N4","input":"math.cancel([x], angle:1)","expect_error":"expected angle, function, or auto, found integer"},
+          {"id":"A-N5","input":"callback error","expect":"original error and call span propagated; no provisional document export"}
+        ],
+        "boundary": [
+          {"id":"A-B1","input":"explicit defaults inverted:false and angle:auto","expect":"repr preserves both explicit fields"},
+          {"id":"A-B2","input":"background true versus false","expect":"line behind versus in front without changing body box dimensions"},
+          {"id":"A-B3","input":"legacy Content::math_cancel(body)","expect":"same defaults with all named-presence bits omitted and detached span"}
+        ],
+        "comparison":"Exact morphology/errors plus semantic line geometry; reuse the single P1291 payload/transcript."
+      },
+      "B": {
+        "name": "distinct mathematical underline",
+        "positive": [
+          {"id":"B-P1","input":"type(math.underline), repr(math.underline([x]))","expect":"function named underline; underline(body: [x])"},
+          {"id":"B-P2","input":"math.underline([x]) == underline([x]) identity probe","expect":"distinct element/function identity; measured function equality remains false"},
+          {"id":"B-P3","input":"display/text/script/cramped style matrix","expect":"body style preserved and rule geometry derived from underbar MATH constants"}
+        ],
+        "negative": [
+          {"id":"B-N1","input":"math.underline()","expect_error":"missing argument: body"},
+          {"id":"B-N2","input":"math.underline(1)","expect_error":"expected content, found integer"},
+          {"id":"B-N3","input":"extra positional or named","expect":"unexpected argument / unexpected argument: <name>"}
+        ],
+        "boundary": [
+          {"id":"B-B1","input":"body with negative italic correction","expect":"width/rule handling follows measured math morphology without text-decoration identity"},
+          {"id":"B-B2","input":"font with fallback MATH constants","expect":"same formulas, no baked pt constants"}
+        ],
+        "comparison":"Exact identity/repr/errors and semantic geometry from underbar_vertical_gap, underbar_rule_thickness and underbar_extra_descender.",
+        "transport":"Identity is decoded directly as JSON boolean. Vertical geometry remains exact in page-auto Text/Display/Script/Cramped and mixed baselines. Horizontal B compares paired base/underline width delta=0 and isolated x/f rule width=body width minus italic correction. Absolute Script/Cramped whole-root width is a pre-existing wrapper scope-out proven by identical gaps in controls; repr is not a boolean transport."
+      },
+      "C": {
+        "name": "math.vec identity, canonical construction and effective-region gap",
+        "positive": [
+          {"id":"C-P1","input":"math.vec(), math.vec([a]), math.vec([a],[b])","expect":"vec identity with children (), ([a],), ([a],[b]) preserving cardinality/order"},
+          {"id":"C-P2","input":"delim:[, align:left, gap:1em","expect":"repr fields delim:(\"[\",\"]\"), align:left, gap:0%+1em before children"},
+          {"id":"C-P3","input":"math syntax vec and math.vec call with same arguments","expect":"same canonical Content::MathVec morphology"},
+          {"id":"C-P4","input":"finite height 100pt, gap 0% versus 10%","expect":"measured dimensions 15.79x7.7pt versus 23.53x22.88pt"}
+        ],
+        "negative": [
+          {"id":"C-N1","input":"unknown named","expect_error":"unexpected argument: nope"},
+          {"id":"C-N2","input":"gap:1","expect_error":"expected relative length, found integer"},
+          {"id":"C-N3","input":"align:1","expect_error":"expected alignment, found integer"},
+          {"id":"C-N4","input":"delim:1","expect_error":"expected array, none, symbol, or string, found integer"}
+        ],
+        "boundary": [
+          {"id":"C-B1","input":"height:auto, gap:10%","expect":"same geometry as 0%; relative component collapses to zero"},
+          {"id":"C-B2","input":"height:auto, gap:1em","expect":"absolute component survives; measured 23.53x22.88pt"},
+          {"id":"C-B3","input":"height:auto, gap:10%+1em","expect":"same geometry as absolute-only; no infinity exported"},
+          {"id":"C-B4","input":"explicit defaults align:center and gap:0.2em","expect":"repr preserves explicit fields"},
+          {"id":"C-B5","input":"delim:none and singleton children","expect":"delim:(none,none) and singleton tuple comma"}
+        ],
+        "comparison":"Exact morphology/errors/content identity; direct syntax MathIdent/MathText children use canonical textual-content morphology without changing stored/rendered identity; geometry is compared at the language level against effective region, never grid/font/page substitutes.",
+        "repr_projection":"Within MathVec.children only, a direct MathIdent or MathText leaf formats as canonical textual content [text]. Text, markup and structured children keep their own repr; projection is non-recursive and never changes entity/layout/equality.",
+        "transport":"Compile the two-child vec directly in page height 100pt and height:auto; extract the two unique visible child baselines from SVG and compare deltas for 0%, 10%, 1em and 10%+1em. Finite 10% contributes 10pt; auto collapses percentage while preserving 1em. No metadata, query or named measure."
+      },
+      "D": {
+        "name": "place.flush namespace and prefix-only float realization",
+        "positive": [
+          {"id":"D-P1","input":"type(place), type(place.flush), repr(place.flush)","expect":"place remains function; member is function named flush"},
+          {"id":"D-P2","input":"repr(place.flush())","expect":"flush()"},
+          {"id":"D-P3","input":"place.with(dx:1pt).flush and call","expect":"same flush member/call; place pre-bound args do not flow into flush"},
+          {"id":"D-P4","input":"no floats pending","expect":"no item, cursor advance or page break from marker"},
+          {"id":"D-P5","input":"top, bottom and mixed pending floats","expect":"existing order, alignment, clearance and pagination semantics preserved while realizing the current prefix against a recomposed effective region"},
+          {"id":"D-P6","input":"place float with clearance omitted at 10pt and 20pt styles","expect":"same language value as relative 1.5em: 15pt and 30pt effective separation; never baked 16.5pt"},
+          {"id":"D-P7","input":"post-marker flow contains text plus nested non-float Place and a later float","expect":"all post-marker effects migrate/commit atomically by occurrence; no current_items escape and no suffix anticipation"},
+          {"id":"D-P8","input":"Block 30pt followed by Block text with nested non-float Place, independently with no float and with a prior float but no Flush","expect":"ordinary Block below spacing and Place flow-relative origin are identical across controls: AFTER_FLOW yMin 40.604pt and AFTER_MARKER 47.842pt on page 1"}
+        ],
+        "negative": [
+          {"id":"D-N1","input":"place.flush([x])","expect_error":"unexpected argument"},
+          {"id":"D-N2","input":"place.flush(nope:1)","expect_error":"unexpected argument: nope"},
+          {"id":"D-N3","input":"implementation as Empty/no-op","expect":"contract violation because pending prefix is not realized"}
+        ],
+        "boundary": [
+          {"id":"D-B1","input":"30pt content + bottom 80pt float + flush + after","expect":"float page2 y20pt; after page3 y7.24pt"},
+          {"id":"D-B2","input":"same without flush","expect":"control: AFTER_FLOW page1 yMin 40.604pt and AFTER_MARKER page1 yMin 47.842pt; prior float does not alter ordinary control positions"},
+          {"id":"D-B3","input":"float before marker and float after marker","expect":"before page2 y20pt; after content page3 y7.24pt; later float page3 y90pt"},
+          {"id":"D-B4","input":"nested/sub-frame active Layouter","expect":"only active buffer drained; no outer-state leakage"},
+          {"id":"D-B5","input":"page boundary and nonzero clearance","expect":"prefix respects existing page/clearance rules; marker itself adds none"},
+          {"id":"D-B6","input":"explicit clearance 0pt, 5pt and 1.5em","expect":"explicit value is sovereign; 0pt can leave following flow in the float page while default 1.5em can move it to the next page"},
+          {"id":"D-B7","input":"isolated bottom anchor under 0pt/20pt plus separate 80pt-adjacent-flow fitting control","expect":"anchor remains yMin 90.166; 0pt keeps float p1 and 20pt moves float p2 without moving its physical anchor"},
+          {"id":"D-B8","input":"same Block/Place control with explicit block.spacing or below in relative and absolute units","expect":"AFTER_FLOW follows the declared effective spacing and AFTER_MARKER follows current flow origin; no baked 13.2pt or replay-only correction"}
+        ],
+        "comparison":"Exact surface/repr/errors plus causal page/position/order invariants; only floats preceding the marker are eligible. Omitted clearance is exact relative 1.5em at the occurrence style, while explicit values remain sovereign. Every effect after the stabilized marker boundary is atomic by occurrence, including nested non-float Place already materialized as an item. Ordinary Block-to-flow spacing and non-float Place origin must also hold without marker, float or replay.",
+        "transport":"CLI multipage PDF plus pdftotext -bbox; unique visible zero-flow tokens freeze page, y, presence and causal order. Paired omitted/1.5em/0pt controls at 10pt and 20pt prove relative-unit preservation. Isolated anchor and adjacent-flow controls separate physical position from fitting; AFTER_MARKER/AFTER_FLOW/FLOAT_AFTER prove atomic suffix migration. Paired no-flush and no-float controls plus explicit Block spacing variation discriminate ordinary owner formulas from transaction mechanics. PDF bytes and private pipeline state are excluded."
+      }
+    },
+    "handoff": {
+      "next_role": "final verifier consumes the whitespace-only v14 seal and rechecks all protected inputs before certification/commit",
+      "received_inputs": ["this v14 seal and its file SHA-256", "27 current L0 hashes", "amendment-13 single-LF byte-equivalence proof and v13 predecessor bridge", "unchanged lots/comparison hashes", "previous P1030/oracle/adversarial evidence"],
+      "required_output": "verification receipt that rechecks canonical JSON, 27/27 L0, V5/V15/V26, unchanged lots/comparison and all already-required final gates without editing sealed inputs",
+      "stop_conditions": ["any L0/seal hash drift", "any flush.md delta beyond the proved terminal LF", "lots or comparison hash changes", "required vector becomes Unknown", "protected oracle byte drift", "V5/V15/V26 failure", "public behavior, pipeline phase, API or default changes"]
+    }
+  }
+}

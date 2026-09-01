@@ -19,6 +19,97 @@ medição específica. Symbols multi-codepoint preservam todos os scalar values,
 incluindo variation selectors e ZWJ, sem conversão para `char`, normalização ou
 substituição pelo nome canônico.
 
+## P1292 — morfologia de cancel/underline/vec/flush
+
+### Medição anterior à decisão
+
+O recibo vanilla P1292 mediu defaults e formas explícitas. Medição adicional
+no mesmo binário pinado confirmou que um named explicitamente igual ao default
+permanece no `repr`: por exemplo `inverted:false`, `angle:auto`,
+`align:center` e `gap:0.2em`. Logo comparar apenas valor com default perderia
+morfologia; os owners de entidade transportam bits de presença.
+
+### Decisão
+
+- `MathCancel` usa `cancel(body: <body>)`. Acrescenta somente named presentes,
+  nesta ordem: `length`, `inverted`, `cross`, `angle`, `stroke`, `background`.
+  A forma longa usa o formatter multiline vigente. Callback usa sua `repr`
+  pública, nunca `Debug`; stroke usa o formatter canônico de `Stroke`.
+- `MathUnderline` usa exatamente `underline(body: <body>)`.
+- `MathVec` imprime named presentes em ordem `delim`, `align`, `gap` e sempre
+  termina com `children: <tupla>`. Vazio é `()`, singleton conserva vírgula.
+  Delimiter é par `(<left>, <right>)`, usando `none` para o sentinel ausente;
+  gap usa forma integral de relative length (`0% + 1em`).
+- `Flush` usa exatamente `flush()`.
+
+Defaults omitidos não são materializados. Defaults explicitamente escritos
+são preservados pelos bits. Spans, flags mecânicas de layout e nomes Rust não
+aparecem. Esta é morfologia de linguagem (ADR-0107); mensagem de erro permanece
+observável no owner construtor (ADR-0108).
+
+### Amendment-6 — projeção morfológica dos filhos sintáticos de `MathVec`
+
+#### Medição anterior à decisão
+
+Em `2026-09-01T02:15:43-03:00`, no vanilla ratificado
+`/usr/local/bin/typst` SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`,
+os pares sintaxe/chamada qualificada mediram:
+
+- `$vec(a,b)$.body` e `math.vec([a],[b])` →
+  `vec(children: ([a], [b]))`;
+- `$vec(1,23)$.body` e `math.vec([1],[23])` →
+  `vec(children: ([1], [23]))`;
+- `$vec("foo","bar")$.body` e `math.vec([foo],[bar])` →
+  `vec(children: ([foo], [bar]))`;
+- `$vec(alpha,beta)$.body` e `math.vec([α],[β])` →
+  `vec(children: ([α], [β]))`;
+- os grupos `$vec((a+b),(c))$.body` e
+  `math.vec($(a+b)$.body,$(c)$.body)` conservam igualmente a morfologia
+  estruturada `lr(body: ...)` de cada filho;
+- `$vec(#strong[a],#emph[b])$.body` e
+  `math.vec(strong[a],emph[b])` conservam
+  `strong(body: [a])` e `emph(body: [b])`, sem wrapper textual adicional.
+
+No candidato medido, texto quoted e markup já convergem, mas folhas sintáticas
+diretas ainda aparecem como `a`, `"1"` e `"α"`; substituir a folha armazenada
+por `Text` corrige o `repr` à custa de regressão no render matemático já
+bilateral. Logo a diferença é de projeção pública neste owner, não de entidade,
+eval ou layout. Um identificador multigrapheme não ligado como `foo` é erro de
+scope na linguagem; o caso medido usa texto quoted. `alpha`/`beta` cobrem o
+identificador multigrapheme resolvido para símbolo.
+
+#### Decisão estreita
+
+Somente ao formatar os itens diretos do campo `MathVec.children`, uma folha
+`Content::MathIdent` ou `Content::MathText` projeta a sua sequência visível
+pelo formatter canônico de conteúdo textual e, portanto, usa morfologia
+`[<texto>]`. A projeção usa o escaping de conteúdo vigente; não concatena
+colchetes crus. O valor continua armazenado como a mesma variante matemática:
+igualdade, hash, span, traversal, classificação, estilo e layout não mudam.
+
+Todas as demais variantes-filho usam sua `repr` própria sem projeção nem
+recursão especial. `Content::Text` já produz `[texto]`; markup permanece
+`strong(...)`/`emph(...)`; grupos e demais estruturas continuam pertencendo
+ao formatter da respectiva variante. A regra não se aplica a tuples genéricas,
+`Equation`, outros elementos matemáticos ou folhas aninhadas dentro de um
+filho estruturado. Não cria campo, wrapper, provenance bit nem branch no
+renderer.
+
+Esta decisão preserva os resultados públicos A-D: apenas torna a morfologia
+do filho-folha sintático de vec idêntica à chamada qualificada, sem alterar
+children, named, presença, cardinalidade ou ordem. A divergência candidata já
+existente na forma interna de um grupo `MathLr` não autoriza ampliar P1292; se
+um vetor exigir igualdade vanilla exata desse filho estruturado, deve parar no
+owner genérico correspondente, não ser mascarado por brackets neste branch.
+
+Refutam o amendment: qualquer mudança de SVG/frame/classificação; mudança da
+igualdade/hash do elemento; double-wrap de `Text`/markup; brackets crus que não
+sigam escaping; projeção recursiva de grupo; ou diferença entre sintaxe e
+chamada qualificada para as folhas medidas. Casos de conteúdo não medidos e
+qualquer variante estruturada cujo formatter próprio divergir permanecem
+`Unknown`, nunca sucesso implícito.
+
 ## Medição P1290 — arrays/tuplas e `MathOp` (precede a decisão)
 
 Baseline medida em árvore não commitada, `HEAD`

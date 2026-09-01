@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/cancel.md
-//! @prompt-hash aef83f0a
+//! @prompt-hash 95a40caa
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -10,7 +10,7 @@
 
 use crate::compiler::layout::FontMetrics;
 use crate::entities::{
-    elements::math_cancel::{MathCancelAngle, MathCancelElem},
+    elements::math_cancel::{MathCancelAngle, MathCancelElem, MathCancelExplicit},
     layout_types::{Angle, FrameItem, Point, Pt, TextStyle},
 };
 
@@ -33,6 +33,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             stroke: None,
             background: false,
             span: crate::entities::span::Span::detached(),
+            explicit: MathCancelExplicit::default(),
         };
         self.layout_cancel_elem(&elem, style, 0)
     }

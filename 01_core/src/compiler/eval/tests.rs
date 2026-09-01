@@ -548,16 +548,17 @@ mod tests {
     // "" para `Expr::FieldAccess`), emitindo `set: target '' ainda não
     // suportado` e ignorando os parâmetros em silêncio.
 
-    /// Delimitador da primeira `MathMatrix` da árvore (`vec` também constrói
-    /// `MathMatrix`, com uma coluna).
-    fn find_matrix_delim(c: &Content) -> Option<(char, char)> {
+    /// Delimitador da primeira matriz ou vector matemático da árvore.
+    /// `mat` e `vec` preservam identidades distintas desde P1292.
+    fn find_matrix_or_vec_delim(c: &Content) -> Option<(char, char)> {
         match c {
             Content::MathMatrix(e) => Some(e.delim),
+            Content::MathVec(e) => Some(e.delim),
             Content::Sequence(items) | Content::MathSequence(items) => {
-                items.iter().find_map(find_matrix_delim)
+                items.iter().find_map(find_matrix_or_vec_delim)
             }
-            Content::Styled(b, _) => find_matrix_delim(b),
-            Content::Equation(e) => find_matrix_delim(&e.body),
+            Content::Styled(b, _) => find_matrix_or_vec_delim(b),
+            Content::Equation(e) => find_matrix_or_vec_delim(&e.body),
             _ => None,
         }
     }
@@ -579,7 +580,7 @@ mod tests {
         let world = MockWorld::new(src);
         let source = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &source).unwrap();
-        find_matrix_delim(module.content().expect("módulo deve ter content"))
+        find_matrix_or_vec_delim(module.content().expect("módulo deve ter content"))
     }
 
     #[test]

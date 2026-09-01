@@ -82,6 +82,28 @@ emitir o leaf vigente. O fragmento P1286 exige igualdade morfológica dos pares
 medidos entre `#set`/markup e chamada direta, sem alegar unificação do stack
 contextual do vanilla.
 
+## P1292 — namespace de `place.flush` preservado por `.with`
+
+### Medição anterior à decisão
+
+No baseline, o scope base registra `place` com `Func::native` e field access
+falha. No vanilla ratificado, `place.flush` é função nomeada `flush`, e
+`place.with(dx: 1pt).flush` resolve o mesmo membro e continua chamável.
+`Func::With` cristalino já delega `scope()` à função interior.
+
+### Decisão
+
+O scope base constrói um namespace fechado de `place` com exatamente o membro
+`flush`, ligado a `compiler/stdlib/layout.md::native_flush`, e registra `place`
+por `Func::native_with_namespace`. A função principal continua a mesma
+`native_place`; não vira Module, não perde chamabilidade e não copia argumentos
+pré-ligados para `flush`. A delegação vigente de `Func::With::scope()` é
+preservada, não duplicada neste owner.
+
+Aceitação: `repr(place.flush) == "flush"`,
+`repr(place.with(dx: 1pt).flush) == "flush"` e ambas as chamadas constroem a
+mesma `Content::Flush`. Named alheio ao namespace não é inventado.
+
 ## P1288 — filtragem uniforme de bindings por feature (PROPOSTO; gate ADR-0127)
 
 ### Medição anterior à decisão

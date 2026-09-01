@@ -1433,3 +1433,48 @@ realizado em slots paralelos do `PageStore`, preservando também o Numbering
 cru. Falha de callback aborta o fixpoint com o span original. A iteração
 seguinte usa as vistas; convergência compara semântica selada, não identidade
 de frames ou bytes.
+
+## P1292 amendment-1 — terminais exaustivos B/C/D
+
+### Medição anterior à decisão
+
+Antes deste amendment, as listas exaustivas de `materialize_time`,
+`classify_unreferencable_body` e `walk` já tratavam `MathMatrix`, `MathCases`,
+`MathAccent`, `MathCancel`, `MathClassOverride`, `MathLimitsOverride`,
+`MathUnderover`, `MathOp` e `MathStyled` como terminais math
+(`01_core/src/compiler/introspect.rs:568-596,1151-1174,1687-1713`), mas ainda
+não podiam nomear `MathUnderline`, `MathVec` e `Flush`. Os L0s P1292 declaram
+`MathUnderline` e `MathVec` elementos math estruturais não-locatáveis, e
+`Flush` sentinela não-locatável sem texto ou item visual
+(`entities/elements/math_underline.md`, `entities/elements/math_vec.md`,
+`entities/elements/flush.md`).
+
+Na fonte vanilla ratificada `a51e02804`, underline e vec são declarados
+`Mathy` e resolvidos internamente no IR matemático
+(`math/underover.rs:4-14`; `math/matrix.rs:18-68`;
+`math/ir/resolve.rs:198-211`); `FlushElem` é zero-field e o coletor de fluxo o
+transforma em `Child::Flush` (`layout/place.rs:179-213`;
+`typst-layout/src/flow/collect.rs:79-91`). Essas medições sustentam a fronteira
+terminal; não exigem copiar a mecânica de IR vanilla.
+
+### Decisão
+
+- `materialize_time` clona `MathUnderline` e `MathVec` diretamente, como os
+  demais terminais math, sem descer em body/children; clona `Flush` diretamente
+  como sentinela terminal. Nenhum deles materializa counter display.
+- `classify_unreferencable_body` classifica B/C/D diretamente como
+  `UnreferencableKind::Text`, sem descida. Isso é somente a classe da mensagem
+  para um label não referenciável; não os torna texto, locatáveis ou queryable.
+- `walk` trata `MathUnderline` e `MathVec` como terminais math sem emissão de
+  tags, Locations, labels ou efeitos em counters/state. `Flush` é terminal sem
+  recursão, Location, tag ou efeito; seu efeito de floats pertence somente a
+  `compiler/layout/flush.md` e não ocorre na introspecção.
+
+Classificação ADR-0107/0108: a ausência de identidade locatável e de efeitos
+observáveis de introspecção é semântica; clonar ou agrupar braços de `match` é
+mecânica. A terminalidade é inferida conjuntamente dos L0s P1292, das
+declarações vanilla e do precedente math já materializado. Seria refutada se
+um destes elementos adquirisse contrato público locatável, se labels/counters
+internos de um body math válido devessem emitir tags, ou se `place.flush()`
+alterasse counters, labels ou resultados de query. Uma refutação exige novo
+L0 antes do código; não autoriza descida silenciosa neste owner.

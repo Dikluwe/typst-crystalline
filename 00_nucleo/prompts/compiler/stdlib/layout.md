@@ -94,6 +94,50 @@ place(center, [x], scope: "parent") -> Err "scope \"parent\" requer float: true"
 place(center, [x], clearance: -1pt) -> Err "valor negativo"
 ```
 
+#### P1292 amendment-9 — default vigente de `clearance`
+
+**Gate ADR-0127 confirmado:** o humano autorizou esta mudança de comportamento
+por defeito em `2026-09-01T08:46:11-03:00`, registrada no manifest SHA-256
+`48545a4d9ba62a148f9161aca43dbfd93a6618c1816e480d245a1ad554d2e243`.
+
+**Medição anterior à proposta:** em páginas 100pt × 100pt, o vanilla
+ratificado com `clearance` omitido produziu exatamente a mesma paginação e as
+mesmas posições visíveis que `clearance: 1.5em`; `clearance: 0pt` alterou a
+paginação prefix/suffix de três para duas páginas. No candidato medido, a
+omissão coincidiu com `0pt`, não com `1.5em`. A fonte ratificada confirma em
+`crates/typst-library/src/layout/place.rs:139-144` o default de `1.5em`.
+
+**Contrato vigente:** omitir `clearance` em `place` constrói o mesmo valor de
+linguagem que `clearance: 1.5em`; valor explícito continua soberano e
+`clearance: 0pt` continua válido. O default permanece `Length` relativo em
+`em`: a nativa não o converte para um número fixo em pt nem o resolve na fase
+eval. O layout resolve `1.5em` contra o estilo efetivo da ocorrência.
+
+O controle ratificado a 10pt mediu deslocamento adicional de 15pt entre float
+top e flow para omitido/`1.5em`, contra zero para `0pt`; a 20pt mediu 30pt.
+Isto refuta assar os 16.5pt observados no estilo default de 11pt.
+
+A mudança limita-se ao default da nativa/entidade construída. Fitting,
+reserva, alinhamento e paginação pertencem a `compiler/layout/place.md` e ao
+distribuidor paginado; o cursor não inspeciona conteúdo posterior.
+
+---
+
+### P1292 — `native_flush()` no namespace de `place`
+
+**Medição anterior à decisão:** no vanilla ratificado,
+`repr(place.flush()) == "flush()"`; posicional produz `unexpected argument` e
+named desconhecido produz `unexpected argument: <nome>`. O membro continua
+acessível por `place.with(dx: 1pt).flush`; a aplicação parcial de `place` não
+pré-liga argumentos em `flush`.
+
+`native_flush` aceita exatamente zero posicionais e zero named e devolve
+`Value::Content(Content::flush())`. Ela não consulta `dx`, `dy`, `alignment`,
+`scope`, `float` ou `clearance`, não executa layout e não drena floats. A
+função construtora pertence a este owner; a entidade pertence a
+`entities/elements/flush.md`, o namespace a `compiler/eval.md` e o efeito a
+`compiler/layout/flush.md`.
+
 ---
 
 ### `native_grid(columns?, rows?, ...cells)`

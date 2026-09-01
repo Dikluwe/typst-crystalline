@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash e5f65dba
+//! @prompt-hash b59f05dc
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -582,6 +582,9 @@ fn materialize_time(
         // (paralelo MathFrac/MathRoot; sem CounterDisplay no body).
         | Content::MathAccent(_)
         | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathVec(_)
+        | Content::Flush(_)
         // P772y — Math class override terminal (paralelo P296/P298).
         | Content::MathClassOverride(_)
         // P992 — Math limits override terminal (limits()/scripts()).
@@ -1164,6 +1167,9 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::MathCases(_)
         | Content::MathAccent(_)
         | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathVec(_)
+        | Content::Flush(_)
         | Content::MathClassOverride(_)
         | Content::MathLimitsOverride(_)
         | Content::MathUnderover(_)
@@ -1702,6 +1708,9 @@ pub(crate) fn walk(
         // tags introspecção).
         | Content::MathAccent(_)
         | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathVec(_)
+        | Content::Flush(_)
         // P772y — Math class override terminal em walk (paralelo P296/P298).
         | Content::MathClassOverride(_)
         // P992 — Math limits override terminal em walk (limits()/scripts()).

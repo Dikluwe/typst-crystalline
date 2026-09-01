@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash 47aef04d
+//! @prompt-hash b8c29979
 //! @layer L1
-//! @updated 2026-06-22
+//! @updated 2026-09-01
 
 //! Stdlib nativa mínima — Passo 17.
 //!
@@ -127,9 +127,9 @@ pub use crate::compiler::stdlib::text::{
 // P387 (ADR-0111) — data import.
 pub use crate::compiler::stdlib::layout::{
     extract_measure_body, native_align, native_block, native_box, native_colbreak,
-    native_columns, native_grid, native_h, native_hide, native_layout, native_linebreak,
-    native_measure, native_pad, native_page, native_pagebreak, native_place,
-    native_repeat, native_stack, native_stroke, native_v,
+    native_columns, native_flush, native_grid, native_h, native_hide, native_layout,
+    native_linebreak, native_measure, native_pad, native_page, native_pagebreak,
+    native_place, native_repeat, native_stack, native_stroke, native_v,
 };
 pub use crate::compiler::stdlib::loading::{
     native_cbor, native_cbor_encode, native_csv, native_json, native_read, native_toml,

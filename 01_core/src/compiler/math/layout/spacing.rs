@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/spacing.md
-//! @prompt-hash accb4a0b
+//! @prompt-hash 5d8c4acb
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -46,6 +46,7 @@ fn base_math_class(content: &Content) -> MathClass {
         // **P992** — `limits()`/`scripts()` não afectam classe/espaçamento
         // (transparente, ao contrário de `MathClassOverride`).
         Content::MathLimitsOverride(e) => base_math_class(&e.body),
+        Content::MathUnderline(e) => base_math_class(&e.body),
         // **P907 Parte B** — `Content::MathOp` (`min`/`max`/`lim`/`sin`/etc,
         // via `make_math_module`) é sempre `MathClass::Large` no vanilla
         // (`math/ir/resolve.rs::resolve_op`, `item.set_class(MathClass::
@@ -108,6 +109,7 @@ fn base_math_class(content: &Content) -> MathClass {
         | Content::MathAlignPoint(_)
         | Content::Linebreak(_)
         | Content::MathMatrix(_)
+        | Content::MathVec(_)
         | Content::MathCases(_)
         | Content::MathAccent(_)
         | Content::MathCancel(_)
@@ -129,6 +131,7 @@ fn base_math_class(content: &Content) -> MathClass {
         | Content::SetPage { .. }
         | Content::Align(_)
         | Content::Place(_)
+        | Content::Flush(_)
         | Content::Styled(_, _)
         | Content::Divider(_)
         | Content::Terms(_)
@@ -215,6 +218,11 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
             if e.delim.0 != '\0' { MathClass::Opening } else { MathClass::Normal },
             if e.delim.1 != '\0' { MathClass::Closing } else { MathClass::Normal },
         ),
+        Content::MathVec(e) => (
+            if e.delim.0 != '\0' { MathClass::Opening } else { MathClass::Normal },
+            if e.delim.1 != '\0' { MathClass::Closing } else { MathClass::Normal },
+        ),
+        Content::MathUnderline(e) => node_math_class(&e.body),
         other => {
             let class = base_math_class(other);
             (class, class)

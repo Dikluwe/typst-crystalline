@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 52efe145
+//! @prompt-hash 643e33d3
 //! @layer L1
-//! @updated 2026-06-23
+//! @updated 2026-09-01
 //!
 //! P421 — `repr()` exaustivo para `Value`, `Content` e `Selector`.
 //!
@@ -630,7 +630,98 @@ pub fn repr_content(c: &Content) -> String {
         Content::MathAccent(a) => {
             format!("accent({}, {})", repr_content(&a.base), repr_content(&a.accent))
         }
-        Content::MathCancel(c) => format!("cancel({})", repr_content(&c.body)),
+        Content::MathCancel(c) => {
+            let mut fields = vec![format!("body: {}", repr_content(&c.body))];
+            if c.explicit.length {
+                fields.push(format!("length: {}", repr_relative(&c.length)));
+            }
+            if c.explicit.inverted {
+                fields.push(format!("inverted: {}", c.inverted));
+            }
+            if c.explicit.cross {
+                fields.push(format!("cross: {}", c.cross));
+            }
+            if c.explicit.angle {
+                let angle = match &c.angle {
+                    crate::entities::elements::math_cancel::MathCancelAngle::Auto => {
+                        "auto".to_string()
+                    }
+                    crate::entities::elements::math_cancel::MathCancelAngle::Angle(
+                        value,
+                    ) => repr_angle(*value),
+                    crate::entities::elements::math_cancel::MathCancelAngle::Func(
+                        value,
+                    ) => repr_value(&Value::Func(value.clone())),
+                };
+                fields.push(format!("angle: {angle}"));
+            }
+            if c.explicit.stroke {
+                let stroke =
+                    c.stroke.as_ref().map_or_else(|| "none".to_string(), repr_stroke);
+                fields.push(format!("stroke: {stroke}"));
+            }
+            if c.explicit.background {
+                fields.push(format!("background: {}", c.background));
+            }
+            format!("cancel{}", pretty_array_like(&fields, false))
+        }
+        Content::MathUnderline(u) => {
+            format!("underline(body: {})", repr_content(&u.body))
+        }
+        Content::MathVec(v) => {
+            let mut fields = Vec::new();
+            if v.explicit.delim {
+                let repr_delim = |value: char| {
+                    if value == '\0' {
+                        "none".to_string()
+                    } else {
+                        format!("\"{}\"", value.escape_default())
+                    }
+                };
+                fields.push(format!(
+                    "delim: ({}, {})",
+                    repr_delim(v.delim.0),
+                    repr_delim(v.delim.1)
+                ));
+            }
+            if v.explicit.align {
+                let align = match v.align {
+                    HAlign::Left => "left",
+                    HAlign::Center => "center",
+                    HAlign::Right => "right",
+                    HAlign::Start => "start",
+                    HAlign::End => "end",
+                };
+                fields.push(format!("align: {align}"));
+            }
+            if v.explicit.gap {
+                fields.push(format!(
+                    "gap: {} + {}",
+                    format_float_with_unit(v.gap.rel * 100.0, "%"),
+                    repr_length(&v.gap.abs)
+                ));
+            }
+            let children = v
+                .children
+                .iter()
+                .map(|child| match child {
+                    // P1292-C v7: uma folha math direta continua armazenada
+                    // como math (logo layout/igualdade não mudam), mas sua
+                    // projeção pública é a de Content textual `[x]`.
+                    Content::MathIdent(text) | Content::MathText(text) => {
+                        repr_content(&Content::Text(text.clone()))
+                    }
+                    // Estruturas e markup conservam o formatter próprio; a
+                    // projeção estreita não recursa nos seus descendentes.
+                    other => repr_content(other),
+                })
+                .collect::<Vec<_>>();
+            fields.push(format!(
+                "children: {}",
+                pretty_array_like(&children, children.len() == 1)
+            ));
+            format!("vec{}", pretty_array_like(&fields, false))
+        }
         Content::MathClassOverride(c) => format!(
             "class(\"{}\", {})",
             crate::entities::math_class::math_class_name(c.class),
@@ -680,6 +771,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::GridVLine(_) => "grid.vline".to_string(),
         Content::Align(a) => format!("align({:?})[...]", a.alignment),
         Content::Place(p) => format!("place({:?})[...]", p.scope),
+        Content::Flush(_) => "flush()".to_string(),
         Content::Styled(child, styles) => {
             if let Content::Equation(e) = child.as_ref() {
                 let numbering = styles
@@ -1742,5 +1834,39 @@ mod tests {
             repr_content(&op),
             "op(\n  text: sequence([a], [ ], [#], [ ], [*]),\n  limits: false,\n)"
         );
+    }
+
+    #[test]
+    fn p1292_c_v7_math_vec_projeta_folhas_math_diretas_como_content() {
+        let vec = Content::math_vec(vec![
+            Content::MathIdent("a".into()),
+            Content::MathText("23".into()),
+            Content::MathText("α".into()),
+        ]);
+
+        assert_eq!(repr_content(&vec), "vec(children: ([a], [23], [α]))");
+    }
+
+    #[test]
+    fn p1292_c_v7_math_vec_nao_recursa_nem_duplica_markup() {
+        let structured = Content::math_frac(
+            Content::MathIdent("a".into()),
+            Content::MathText("1".into()),
+        );
+        let vec = Content::math_vec(vec![
+            structured,
+            Content::strong(Content::text("b")),
+            Content::text("quoted"),
+        ]);
+
+        assert_eq!(
+            repr_content(&vec),
+            "vec(children: ((a)/(\"1\"), strong(body: [b]), [quoted]))"
+        );
+    }
+
+    #[test]
+    fn p1292_d_flush_repr_is_the_zero_field_constructor() {
+        assert_eq!(repr_content(&Content::flush()), "flush()");
     }
 }
