@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 4f8013a0
+//! @prompt-hash dca284d3
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -221,6 +221,41 @@ fn eval_math_arg_value(
 ) -> SourceResult<Value> {
     match expr {
         Expr::Str(s) => Ok(Value::Str(EcoString::from(s.get()?))),
+        // The math parser keeps an argument expression in a synthetic `Math`
+        // wrapper. Peel that wrapper only when its sole child is executable;
+        // every ordinary math body keeps the existing Content path.
+        Expr::Math(math) => {
+            let text = math.to_untyped().clone().into_text();
+            let reparsed = crate::compiler::parse::parse_anchored(
+                text.as_str(),
+                crate::entities::syntax_mode::SyntaxMode::Code,
+                math.span(),
+            );
+            let mut code_exprs = reparsed.children().filter_map(Expr::from_untyped);
+            let first = code_exprs.next();
+            let second = code_exprs.next();
+            drop(code_exprs);
+            match (first, second) {
+                (
+                    Some(
+                        inner @ (Expr::Str(_)
+                        | Expr::Int(_)
+                        | Expr::Float(_)
+                        | Expr::Bool(_)
+                        | Expr::Numeric(_)
+                        | Expr::None(_)
+                        | Expr::Parenthesized(_)
+                        | Expr::CodeBlock(_)
+                        | Expr::Array(_)
+                        | Expr::Dict(_)
+                        | Expr::Closure(_)
+                        | Expr::Contextual(_)),
+                    ),
+                    None,
+                ) => eval_expr(inner, scopes, ctx, engine),
+                _ => Ok(Value::Content(eval_math_content(scopes, ctx, engine, math)?)),
+            }
+        }
         // **P825 (sub-A)** — literais escalares avaliam em modo código
         // (paridade vanilla: após `#`, os args são código — `class(3, x)`
         // reporta `found integer`, não `found content`). Só afecta
@@ -234,7 +269,9 @@ fn eval_math_arg_value(
         | Expr::Parenthesized(_)
         | Expr::CodeBlock(_)
         | Expr::Array(_)
-        | Expr::Dict(_) => eval_expr(expr, scopes, ctx, engine),
+        | Expr::Dict(_)
+        | Expr::Closure(_)
+        | Expr::Contextual(_) => eval_expr(expr, scopes, ctx, engine),
         other => {
             // **P994** — um ident que resolve no scope para um valor
             // NÃO-Content (ex.: `center` → `Alignment` em

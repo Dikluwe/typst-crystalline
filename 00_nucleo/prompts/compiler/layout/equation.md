@@ -1,6 +1,9 @@
 :warning: **Prompt L0 — `compiler/layout/equation` — Layout de Equações**
 Hash do Código: 9211dc66
 
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
+
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
 
@@ -389,3 +392,41 @@ apenas items visuais diretamente; `alt` não tem fronteira durável.
 `FrameItem::Semantic { kind: Formula, placement, alt, items }`, sem relayout.
 Inline/block determina placement; numbering visual permanece descendente do
 mesmo grupo. O wrapper não altera bounds, cursor, baseline ou plain text.
+
+## P1291 — contexto puro da passagem math (RASCUNHO PARA SELO)
+
+### Medição anterior à decisão
+
+Este owner é o caller real de `MathLayouter`. A equação já é locatável e este
+ponto possui simultaneamente sua `Location` corrente, a `StyleChain` léxica e
+`Regions::effective()`, mas hoje descarta a altura da região ao construir o
+motor math. Não possui nem deve receber `Engine`.
+
+### Decisão proposta
+
+Ao construir `MathLayouter`, passa:
+
+- a `Location` corrente da equação, base estável da identidade das requests;
+- `Regions::effective().height` como base de percentagem de `vec.gap`;
+- a `StyleChain` léxica da posição, para o snapshot de contexto de requests de
+  `cancel.angle`;
+- o estado puro de transcript criado pelo entrypoint de `compiler/layout.md`.
+
+O `TextStyle` math efetivo continua a governar geometria/fonte e é combinado
+com a chain somente para formar o snapshot da request. O `MathLayouter` cria
+um `Cell<usize>` local iniciado em zero para cada equação. O braço de despacho
+reserva e incrementa o occurrence exatamente uma vez na entrada de todo
+`MathCancelElem`, antes de descer no body, independentemente de seu ângulo ser
+Auto, explícito ou Func; `cross` distingue as linhas por `line=0|1` sem novo
+occurrence.
+
+Este módulo não executa `Func`, não converte erro de callback e não decide
+convergência. Equações sem callbacks usam o mesmo caminho, com transcript
+vazio. Um `Layouter` isolado construído diretamente por testes ou helpers
+legados, fora da entry point produtiva, pode instalar localmente esse
+transcript vazio ao entrar na equação; ele serve apenas à compatibilidade de
+layout sem callbacks e é descartado com a chamada. A pipeline produtiva nunca
+usa esse fallback: injeta o estado da tentativa, resolve todo `Pending` em L3
+e só então permite que o documento alcance numbering/export. A mudança de
+assinatura fica no mesmo gate ADR-0127 de
+`compiler/math/layout/callbacks.md`.

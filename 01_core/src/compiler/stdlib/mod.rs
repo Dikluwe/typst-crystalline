@@ -264,7 +264,7 @@ mod tests {
     use crate::entities::engine::Engine;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
-    use crate::entities::layout_types::{Color, Length};
+    use crate::entities::layout_types::{Angle, Color, Length};
     use crate::entities::show::{RuleId, ShowRule};
     use crate::entities::sink::Sink;
     use crate::entities::source::Source;
@@ -12311,16 +12311,31 @@ mod tests {
     }
 
     #[test]
-    fn p296_native_cancel_named_arg_rejeitado() {
+    fn p1291_native_cancel_named_angle_cross_e_desconhecido() {
         use super::native_cancel;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Str("x".into())]);
-        args.named.insert("inverted".into(), Value::Bool(true));
-        let r = native_cancel(&mut ctx, &args, &null_world(), test_file_id());
+        args.named.insert("angle".into(), Value::Angle(Angle::deg(17.0)));
+        args.named.insert("cross".into(), Value::Bool(true));
+        let r = native_cancel(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let Value::Content(Content::MathCancel(cancel)) = r else {
+            panic!("esperava Content::MathCancel");
+        };
+        assert!(cancel.cross, "cross nomeado deve ser preservado");
         assert!(
-            r.is_err(),
-            "inverted/cross/length/angle/stroke cosméticos scope-out P296"
+            matches!(
+                &cancel.angle,
+                crate::entities::elements::math_cancel::MathCancelAngle::Angle(angle)
+                    if (angle.to_deg() - 17.0).abs() < 1e-9
+            ),
+            "angle nomeado deve ser preservado"
         );
+
+        let mut unknown = p(vec![Value::Str("x".into())]);
+        unknown.named.insert("nope".into(), Value::Bool(true));
+        let error = native_cancel(&mut ctx, &unknown, &null_world(), test_file_id())
+            .expect_err("named desconhecido deve continuar rejeitado");
+        assert!(format!("{error:?}").contains("unexpected argument: nope"));
     }
 
     #[test]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 35c87fd3
+//! @prompt-hash 52adb33c
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -42,7 +42,10 @@ use typst_core::compiler::eval::{
     EvalContext, EvalTarget,
 };
 use typst_core::compiler::introspect::introspect_with_introspector;
-use typst_core::compiler::layout::layout_with_introspector_and_metrics;
+use typst_core::compiler::layout::layout_with_introspector_and_metrics_and_math_callbacks;
+use typst_core::compiler::math::layout::callbacks::{
+    MathCancelResolution, MathLayoutPassOutcome, SealedMathCallbacks,
+};
 use typst_core::compiler::scopes::Scopes;
 use typst_core::compiler::stdlib::value_to_content;
 use typst_core::entities::module::Module;
@@ -625,13 +628,16 @@ fn compile_to_paged_document_full_error(
 
     let intr_for_positions = intr.clone();
     let mut layout_intr = intr;
-    let mut doc = layout_with_introspector_and_metrics(
+    let (mut doc, callback_warnings) = match layout_with_realized_math_callbacks(
         &content,
         layout_intr.clone(),
-        FallbackFontMetrics::new(world),
-        ImageSizeImageSizer,
-        11.0,
-    );
+        world,
+        source,
+    ) {
+        Ok(pair) => pair,
+        Err(errors) => return (Err(errors), warnings),
+    };
+    warnings.extend(callback_warnings);
     // P1159: callbacks são executados somente aqui, onde existe Engine. O
     // layouter recebe apenas vistas Content seladas da passagem anterior.
     for _ in 0..5 {
@@ -676,13 +682,16 @@ fn compile_to_paged_document_full_error(
         expanded_intr.inject_pages(store);
         content = expanded;
         layout_intr = expanded_intr;
-        let next = layout_with_introspector_and_metrics(
+        let (next, callback_warnings) = match layout_with_realized_math_callbacks(
             &content,
             layout_intr.clone(),
-            FallbackFontMetrics::new(world),
-            ImageSizeImageSizer,
-            11.0,
-        );
+            world,
+            source,
+        ) {
+            Ok(pair) => pair,
+            Err(errors) => return (Err(errors), warnings),
+        };
+        warnings.extend(callback_warnings);
         let converged = next.pages.len() == previous_pages;
         doc = next;
         if converged {
@@ -736,6 +745,125 @@ fn compile_to_paged_document_full_error(
     }
 
     (Ok(doc), warnings)
+}
+
+/// Runs the pure L1 transcript until a complete document is produced. Every
+/// provisional document is consumed by `Pending` and therefore cannot reach
+/// numbering, shaping, or export.
+fn layout_with_realized_math_callbacks(
+    content: &Content,
+    introspector: typst_core::entities::introspector::TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+) -> SourceResult<(PagedDocument, Vec<SourceDiagnostic>)> {
+    let mut store: Option<SealedMathCallbacks> = None;
+    let mut warnings = Vec::new();
+    for _ in 0..8 {
+        match layout_with_introspector_and_metrics_and_math_callbacks(
+            content,
+            introspector.clone(),
+            FallbackFontMetrics::new(world),
+            ImageSizeImageSizer,
+            11.0,
+            store.as_ref(),
+        ) {
+            MathLayoutPassOutcome::Complete(document) => return Ok((document, warnings)),
+            MathLayoutPassOutcome::Pending(requests) => {
+                if requests.is_empty() {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "layout did not converge before math callback realization",
+                    )]);
+                }
+                let (realized, pass_warnings) =
+                    realize_math_cancel_requests(world, source, requests)?;
+                warnings.extend(pass_warnings);
+                store = Some(realized);
+            }
+        }
+    }
+    Err(vec![SourceDiagnostic::error(
+        Span::detached(),
+        "math layout callbacks did not converge",
+    )])
+}
+
+fn realize_math_cancel_requests(
+    world: &dyn World,
+    source: &Source,
+    requests: Vec<typst_core::compiler::math::layout::callbacks::MathCancelRequest>,
+) -> SourceResult<(SealedMathCallbacks, Vec<SourceDiagnostic>)> {
+    let font_metrics = FallbackFontMetrics::new(world);
+    let mut ctx = EvalContext::new();
+    let mut scopes = Scopes::new(None);
+    let mut styles = StyleChain::default_chain();
+    let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+    let mut active_guards = Vec::new();
+    let mut sink = TypstSink::new();
+    let route = Route::root().with_id(source.id());
+    let mut resolutions = Vec::with_capacity(requests.len());
+    {
+        let mut tracked_sink = sink.track_mut();
+        let mut local_sink = TrackedMut::reborrow_mut(&mut tracked_sink);
+        let mut engine = Engine {
+            world,
+            font_metrics: &font_metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut show_rules,
+            active_guards: &mut active_guards,
+            current_file: source.id(),
+            sink: &mut local_sink,
+        };
+        for request in requests {
+            *engine.styles = request.styles.clone();
+            let mut value = apply_func(
+                request.func.clone(),
+                Args::positional(vec![Value::Angle(request.default)]),
+                &mut scopes,
+                &mut ctx,
+                &mut engine,
+            )
+            .map_err(|mut diagnostics| {
+                for diagnostic in &mut diagnostics {
+                    diagnostic.span = request.span;
+                }
+                diagnostics
+            })?;
+            // A contextual callback is represented by the existing delayed
+            // ContextBlock carrier. At this L3 boundary its captured closure
+            // can be evaluated against the request's sealed style snapshot.
+            if let Value::Content(Content::ContextBlock(contextual)) = value {
+                value = apply_func(
+                    contextual.closure.clone(),
+                    Args::positional(Vec::new()),
+                    &mut scopes,
+                    &mut ctx,
+                    &mut engine,
+                )
+                .map_err(|mut diagnostics| {
+                    for diagnostic in &mut diagnostics {
+                        diagnostic.span = request.span;
+                    }
+                    diagnostics
+                })?;
+            }
+            let Value::Angle(angle) = value else {
+                let found = match value.type_name() {
+                    "int" => "integer",
+                    "str" => "string",
+                    "bool" => "boolean",
+                    other => other,
+                };
+                return Err(vec![SourceDiagnostic::error(
+                    request.span,
+                    format!("expected angle, found {found}"),
+                )]);
+            };
+            resolutions.push(MathCancelResolution { request, angle });
+        }
+    }
+    Ok((SealedMathCallbacks::new(resolutions), sink.into_diagnostics()))
 }
 
 /// Realiza as vistas binária (margem) e unária (referência) de cada página.

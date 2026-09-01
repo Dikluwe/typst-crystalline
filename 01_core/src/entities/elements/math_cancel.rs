@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_cancel.md
-//! @prompt-hash cb73432c
+//! @prompt-hash 8e440aef
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -11,13 +11,77 @@ use std::sync::Arc;
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
+use crate::entities::func::Func;
+use crate::entities::geometry::Stroke;
+use crate::entities::layout_types::{Angle, Length};
+use crate::entities::rel::Rel;
 use crate::entities::source_result::SourceResult;
+use crate::entities::span::Span;
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum MathCancelAngle {
+    Auto,
+    Angle(Angle),
+    Func(Func),
+}
 
 /// Linha de cancelamento sobre conteúdo matemático — vanilla `CancelElem`
 /// minimal (P296). Layouter emite `FrameItem::Line` diagonal sobre o bbox.
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone)]
 pub struct MathCancelElem {
     pub body: Content,
+    pub length: Rel<Length>,
+    pub inverted: bool,
+    pub cross: bool,
+    pub angle: MathCancelAngle,
+    pub stroke: Option<Stroke>,
+    pub background: bool,
+    pub span: Span,
+}
+
+impl PartialEq for MathCancelElem {
+    fn eq(&self, other: &Self) -> bool {
+        self.body == other.body
+            && self.length == other.length
+            && self.inverted == other.inverted
+            && self.cross == other.cross
+            && self.angle == other.angle
+            && self.stroke == other.stroke
+            && self.background == other.background
+    }
+}
+
+impl std::hash::Hash for MathCancelElem {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        fn bits(value: f64) -> u64 {
+            if value == 0.0 {
+                0
+            } else {
+                value.to_bits()
+            }
+        }
+        self.body.hash(state);
+        bits(self.length.rel).hash(state);
+        bits(self.length.abs.abs.0).hash(state);
+        bits(self.length.abs.em).hash(state);
+        self.inverted.hash(state);
+        self.cross.hash(state);
+        match &self.angle {
+            MathCancelAngle::Auto => 0_u8.hash(state),
+            MathCancelAngle::Angle(angle) => {
+                1_u8.hash(state);
+                bits(angle.to_rad()).hash(state);
+            }
+            MathCancelAngle::Func(func) => {
+                2_u8.hash(state);
+                func.hash(state);
+            }
+        }
+        // Stroke payload may contain non-Hash paints. Presence participates;
+        // equal values necessarily hash alike, while unequal strokes may collide.
+        self.stroke.is_some().hash(state);
+        self.background.hash(state);
+    }
 }
 
 impl Element for MathCancelElem {
@@ -31,6 +95,13 @@ impl Element for MathCancelElem {
     {
         Ok(Content::MathCancel(Arc::new(MathCancelElem {
             body: self.body.map_content(transform)?,
+            length: self.length,
+            inverted: self.inverted,
+            cross: self.cross,
+            angle: self.angle.clone(),
+            stroke: self.stroke.clone(),
+            background: self.background,
+            span: self.span,
         })))
     }
 
@@ -48,7 +119,16 @@ mod tests {
     use super::*;
 
     fn ex() -> MathCancelElem {
-        MathCancelElem { body: Content::text("xy") }
+        MathCancelElem {
+            body: Content::text("xy"),
+            length: Rel::from_percent(100.0) + Length::em(0.3),
+            inverted: false,
+            cross: false,
+            angle: MathCancelAngle::Auto,
+            stroke: None,
+            background: false,
+            span: Span::detached(),
+        }
     }
 
     #[test]

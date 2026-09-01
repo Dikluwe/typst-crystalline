@@ -75,7 +75,7 @@ Cada função registada em `make_root_scope` (`eval/mod.rs`) como
 ```typst
 $ bb(x) $       → MathStyled { kind:Some(DoubleStruck), body:MathIdent("x"), ... }
 $ bold(x + y) $ → MathStyled { kind:None, bold:Some(true), ... }
-$ bb(cal(x)) $  → outer Bb wraps inner Cal; P311b.4 outer-wins
+$ bb(cal(x)) $  → inner Cal prevalece sobre Bb no mesmo eixo de glyph
 $ display(x) $  → MathStyled { kind:Some(Display), cramped:Some(false), ... }
 ```
 
@@ -104,6 +104,27 @@ $ display(x) $  → MathStyled { kind:Some(Display), cramped:Some(false), ... }
 - `inline(Content)` → `cramped: Some(false)` (default) ·
   `inline(Content, cramped: true)` → `cramped: Some(true)`.
 
+### P1291 — diagnósticos públicos vanilla
+
+**Medição bilateral anterior à decisão (2026-08-31, vanilla ratificado
+`a51e02804`):** o comportamento anterior ainda emitia mensagens históricas em
+português para excesso, named desconhecido e `cramped` inválido. Mensagens de
+erro são observáveis da língua (ADR-0107/0108), logo o helper comum deve emitir:
+
+| caso | mensagem |
+|---|---|
+| body ausente | `missing argument: body` |
+| mais de um posicional | `unexpected argument` |
+| body não convertível | `expected content, found <tipo vanilla>` |
+| named desconhecido | `unexpected argument: <nome>` |
+| `cramped` não booleano | `expected boolean, found <tipo vanilla>` |
+
+Os nomes longos incluem pelo menos `int → integer`, `str → string` e `bool →
+boolean`; os restantes usam o nome público vigente. `Str` continua convertível
+para conteúdo matemático, como já especificado. A correção pertence ao helper
+único e vale igualmente para a função global e o mesmo function pointer exposto
+sob `math`; não criar wrappers por namespace.
+
 ### Helper interno
 
 ```rust
@@ -122,6 +143,12 @@ o named arg `cramped`; as restantes rejeitam named args.
 
 ### Composição e Não-objectivos
 
-Composição (outer-wins) resolve no `MathLayouter` (P311b.4 — ver
-`math/layout/_comum.md`), não nas funções nativas (estas só wrap).
+Composição resolve no `MathLayouter` (P311b.4 — ver
+`math/layout/_comum.md`), não nas funções nativas (estas só wrap). **P1291
+corrige a precedência:** medição bilateral no vanilla ratificado em
+2026-08-31 mostrou que o setter mais interno vence no mesmo eixo:
+`serif(bb(ABC))` é byte-idêntico a `bb(ABC)`, enquanto
+`bb(serif(ABC))` é byte-idêntico a `serif(ABC)`. Propriedades ortogonais
+continuam a compor; um wrapper de tamanho como `inline` não apaga a variante
+de glyph exterior/interior e o seu `cramped` continua local ao subtree.
 Não-objectivos: Greek+dígitos completos (Latin priorizado).

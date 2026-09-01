@@ -4526,7 +4526,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let doc = crate::shaper::shape_document(&world, doc);
         let doc = crate::shaper::shape_document(&world, doc);
         let page = &doc.pages[0];
@@ -4631,7 +4632,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let doc = crate::shaper::shape_document(&world, doc);
         let page = &doc.pages[0];
         let first_row_y = frame_items_recursive(&page.items)
@@ -4666,7 +4668,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let doc = crate::shaper::shape_document(&world, doc);
         let page = &doc.pages[0];
         let line_count = frame_items_recursive(&page.items)
@@ -4711,7 +4714,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let doc = crate::shaper::shape_document(&world, doc);
         let page = &doc.pages[0];
         assert!(
@@ -4768,7 +4772,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let doc = crate::shaper::shape_document(&world, doc);
         assert_eq!(doc.pages.len(), 1);
         assert!(
@@ -4809,7 +4814,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let doc = crate::shaper::shape_document(&world, doc);
         assert_eq!(doc.pages.len(), 1);
         assert!(
@@ -4836,6 +4842,7 @@ mod integration {
                 crate::image_sizer::ImageSizeImageSizer,
                 11.0,
             )
+            .expect("test layout without math callbacks")
             .pages[0]
                 .height
         }
@@ -4867,7 +4874,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let doc = crate::shaper::shape_document(&world, doc);
         let a_ys: Vec<f64> = frame_items_recursive(&doc.pages[0].items)
             .into_iter()
@@ -4901,7 +4909,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let doc = crate::shaper::shape_document(&world, doc);
         assert!(
             (doc.pages[0].height - 236.71011).abs() < 0.001,
@@ -4926,7 +4935,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let page = &doc.pages[0];
         let mut braces = frame_items_recursive(&page.items).into_iter().filter_map(
             |item| match item {
@@ -4966,7 +4976,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let mut runs: Vec<(f64, f64, f64)> = frame_items_recursive(&doc.pages[0].items)
             .into_iter()
             .filter_map(|item| match item {
@@ -5017,7 +5028,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         for (ch, expected_x) in [('⎵', 94.81457), ('⎴', 94.81457)] {
             let x = frame_items_recursive(&doc.pages[0].items)
                 .into_iter()
@@ -5064,7 +5076,8 @@ mod integration {
             metrics,
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
-        );
+        )
+        .expect("test layout without math callbacks");
         let brackets: Vec<_> = frame_items_recursive(&doc.pages[0].items)
             .into_iter()
             .filter_map(|item| match item {
@@ -5120,7 +5133,8 @@ mod integration {
                 metrics,
                 crate::image_sizer::ImageSizeImageSizer,
                 11.0,
-            );
+            )
+            .expect("test layout without math callbacks");
             let mut out = Vec::new();
             for page in &doc.pages {
                 for i in frame_items_recursive(&page.items) {
@@ -5199,7 +5213,8 @@ mod integration {
                 metrics,
                 crate::image_sizer::ImageSizeImageSizer,
                 11.0,
-            );
+            )
+            .expect("test layout without math callbacks");
             let mut out = Vec::new();
             for page in &doc.pages {
                 for i in frame_items_recursive(&page.items) {
@@ -5240,7 +5255,8 @@ mod integration {
                 metrics,
                 crate::image_sizer::ImageSizeImageSizer,
                 11.0,
-            );
+            )
+            .expect("test layout without math callbacks");
             let doc = crate::layout_bidi::reorder_bidi_document(
                 doc,
                 &crate::font_metrics::FallbackFontMetrics::new(&world),
@@ -5349,7 +5365,8 @@ mod integration {
                 metrics,
                 crate::image_sizer::ImageSizeImageSizer,
                 11.0,
-            );
+            )
+            .expect("test layout without math callbacks");
             let doc = crate::shaper::shape_document(&world, doc);
             let mut out = Vec::new();
             for page in &doc.pages {
@@ -5393,7 +5410,8 @@ mod integration {
                 metrics,
                 crate::image_sizer::ImageSizeImageSizer,
                 11.0,
-            );
+            )
+            .expect("test layout without math callbacks");
             let doc = crate::shaper::shape_document(&world, doc);
             let mut out = Vec::new();
             for page in &doc.pages {

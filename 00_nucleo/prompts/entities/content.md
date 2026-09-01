@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 21f9a700
+Hash do Código: af401ae2
 
 ## P1166 — variante de nó HTML explícito
 
@@ -2780,3 +2780,53 @@ desativação e preservar Func até o fixpoint.
 `Some(None)` desativa; `Some(Some(_))` instala. `Content` não aplica callback.
 Clone, igualdade, hash, repr e walks tratam Numbering como dado fechado; a
 morfologia pública de `SetPage`/`PageRun` continua content.
+
+## P1291 — identidades públicas de math cancel/underline/vec (RASCUNHO PARA SELO)
+
+### Medição anterior à decisão
+
+`Content` já possui `MathCancel`, mas seu elemento transporta somente `body`;
+não possui identidade matemática para underline nem vetor. Em
+`01_core/src/compiler/eval/math.rs:1030-1062`, `vec` é atualmente degradado a
+`MathMatrix`. No vanilla ratificado, `CancelElem`, `UnderlineElem` matemático e
+`VecElem` são três identidades distintas; o probe
+`math.underline == underline` devolve `false`.
+
+### Decisão pública proposta
+
+Preservar `Content::MathCancel(Arc<MathCancelElem>)` com o payload ampliado no
+owner `entities/elements/math_cancel.md` e adicionar:
+
+```rust
+Content::MathUnderline(Arc<MathUnderlineElem>)
+Content::MathVec(Arc<MathVecElem>)
+```
+
+Construtores públicos:
+
+- `math_cancel(body)` permanece compatível e aplica os defaults; o construtor
+  tipado completo transporta todos os campos de cancel.
+- `math_underline(body)` cria exclusivamente `MathUnderlineElem`, nunca o
+  `UnderlineElem` textual.
+- `math_vec(children, delim, align, gap)` preserva filhos variádicos e os três
+  parâmetros próprios, nunca converte em `MathMatrixElem`.
+
+Nos matches exaustivos, os três são math estruturais não-locatáveis.
+`plain_text` de cancel/underline delega ao body; o vetor concatena o plain text
+dos filhos na ordem. `map_content` recursa nos bodies/filhos preservando todos
+os demais campos; `map_text` é terminal, conforme os demais nós math
+estruturais. Igualdade e hash são estruturais sobre campos da linguagem; o
+`span` interno de `MathCancelElem` é preservado pelos walkers e ignorado por
+igualdade/hash. `materialize_time`, `walk`,
+layout genérico e defaults matemáticos devem ganhar braços explícitos; nenhum
+wildcard pode esconder a nova variante.
+
+Prompts proprietários relacionados: `entities/elements/math_cancel.md`,
+`entities/elements/math_underline.md`, `entities/elements/math_vec.md`,
+`entities/elements/_comum.md`, `compiler/math/layout/cancel.md`,
+`compiler/math/layout/underline.md`, `compiler/math/layout/vec.md` e
+`compiler/math/layout/_comum.md`.
+
+Esta alteração cria variantes e construtores públicos; permanece proibida até
+o selo humano ADR-0127. Os dois novos prompts de elemento ficam deliberadamente
+sem consumer durante esta pausa e, portanto, não recebem crédito de lint/V15.

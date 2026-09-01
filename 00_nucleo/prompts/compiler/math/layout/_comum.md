@@ -1,7 +1,8 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 2898d168
+Hash do Código: 7082689c
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
 
 ## Módulo
@@ -12,6 +13,108 @@ que é partilhado (struct, interface, despacho, baseline, primes, handler
 MathStyled, critérios gerais); os prompts finos por submódulo citam-no.
 **Ficheiro proprietário:** `01_core/src/compiler/math/layout/mod.rs`.
 Os testes possuem owner separado em `math/layout/tests.md`.
+
+## P1291 — despacho de cancel/underline/vec e gates de contexto (RASCUNHO PARA SELO)
+
+### Medição anterior à decisão
+
+O `MathLayouter` atual recebe métricas, constantes, bloco e estilo; não recebe
+`Engine` nem tamanho de região. O despacho existente envia `MathCancel` a
+`cancel.rs`, trata underline textual inline e envia o syntax sugar `vec` já
+degradado a matrix. Na fonte vanilla, a callback de `cancel.angle` é invocada
+após medir o corpo, e o percentual de `vec.gap` resolve contra o eixo vertical
+da região.
+
+### Decisão proposta
+
+O match permanece estático, exaustivo e magro (ADR-0109):
+
+- `Content::MathCancel(e)` delega a `cancel::layout(self, e, style)`;
+- `Content::MathUnderline(e)` delega a `underline::layout(self, e, style)`;
+- `Content::MathVec(e)` delega a `vec::layout(self, e, style)`.
+
+Os módulos `cancel`, `underline` e `vec` são as unidades donas da geometria;
+não se move lógica de render para entities e não se introduz `dyn`, vtable ou
+registry. Helpers puramente mecânicos de grelha/delimitador podem continuar no
+módulo comum ou ser reutilizados por descendência de módulo, sem tornar matrix
+o consumer proprietário da semântica de vec.
+
+Dois requisitos não podem ser falsificados pela interface atual:
+
+1. `P1291.cancel-angle-runtime`: transportar o resultado de uma callback que
+   recebe o ângulo default conhecido apenas após medir o body.
+2. `P1291.vec-region-gap`: disponibilizar a altura da região para resolver a
+   parcela percentual de `Rel<Length>`.
+
+Ambos são mudanças de fase/contexto e exigem L0 específico e nova confirmação
+antes de código. Até lá, não é permitido executar `Func` no layouter, usar
+altura zero, resolver percentual contra `em` nem ignorar esses valores. Os
+owners finos são `compiler/math/layout/cancel.md`,
+`compiler/math/layout/underline.md` e `compiler/math/layout/vec.md`.
+
+### P1291 — contexto puro e transcript selado (PROPOSTA; GATE ADR-0127)
+
+#### Medição anterior à decisão
+
+`MathLayouter` possui apenas `metrics`, `constants` e `block`
+(`01_core/src/compiler/math/layout/mod.rs:383-399`). O caller produtivo
+`compiler/layout/equation.rs:107-120` conhece `Layouter.regions`, mas hoje
+descarta essa grandeza ao construir o layouter math. A fonte vanilla executa a
+callback de cancel somente depois de obter `body_size`
+(`lab/typst-original/crates/typst-layout/src/math/cancel.rs:22-41,92-103`) e
+resolve o gap relativo contra `ctx.region.size`
+(`lab/typst-original/crates/typst-layout/src/math/table.rs:24-34`). Logo nem
+pré-avaliar a função sem geometria nem usar `em` para a percentagem reproduz a
+linguagem.
+
+#### Decisão pública proposta
+
+`MathLayouter` recebe contexto passivo obrigatório:
+
+```text
+equation_location: Location
+region_height: Pt
+style_chain: &StyleChain
+callback_pass: &MathCallbackPassState
+```
+
+Não recebe trait de execução, `Engine`, `World` nem sink L3. O estado definido
+no consumer proprietário de `compiler/math/layout/callbacks.md` contém somente
+uma store selada opcional e um `RefCell<Vec<MathCancelRequest>>` local à
+tentativa concreta. A referência compartilhada é deliberada: a mutação interior
+é estritamente local, sem `static`, `thread_local`, estado global ou `Arc`.
+Cada `MathLayouter` contém seu próprio `Cell<usize>` de occurrence, iniciado em
+zero para a equação. A assinatura contextual substitui o fallback sem região
+no caminho produtivo; callsites de teste fornecem região explícita.
+
+No braço estático `Content::MathCancel`, o occurrence é reservado e
+incrementado exatamente uma vez **antes** de delegar a `cancel::layout`, logo
+antes de qualquer descida no body. Auto, Angle e Func consomem occurrence;
+`cross` reutiliza o reservado e distingue somente `line=0|1`. O estado de
+passagem e os counters são novos para cada tentativa concreta de
+`Layouter::new` e morrem quando essa tentativa é rejeitada.
+
+`layout_cancel` mede o body, calcula o default e consulta/registra uma request
+pura. Se ainda não existir resolução correspondente, desenha default apenas na
+passagem provisória, que o caller fica proibido de exportar. A função nunca é
+executada em L1 layout. `cross=true` consulta/registra duas vezes porque o
+vanilla chama a função uma vez por linha; não há memoização semântica inventada.
+
+`layout_vec` resolve `gap.rel * region_height +
+gap.abs.resolve_pt(style.size)`; a altura vem de
+`Regions::effective().height`, portanto respeita célula/coluna ativa além da
+página raiz. Não existe constructor com altura zero, `em` substituto ou base
+deduzida da própria grade.
+
+O `match` continua estático e os módulos finos continuam owners da geometria.
+Não há registry/vtable para despacho de elementos nem reentrada layout→eval.
+O resultado da passagem é julgado na pipeline; mismatch, callback inválida ou
+não convergência viram diagnóstico antes da exportação.
+
+Esta proposta altera interface pública L1 e a fase eval↔layout. A instrução
+humana “faça as correções para fechar” autoriza preparar o contrato, mas o
+código continua bloqueado até o selo explícito deste desenho e dos prompts
+proprietários relacionados `compiler/layout.md` e `infra/pipeline.md`.
 
 ## Propósito
 Recebe `Content::Equation` e produz `Frame`s com `FrameItem::Text` posicionados.
@@ -238,7 +341,8 @@ Handler dedicado em `layout_node` arm `Content::MathStyled` resolve variant glyp
 + flags. Algoritmo:
 
 1. **Pré-transformação recursiva** do body via `apply_math_style` (função livre
-   no fim do módulo). Composição **outer-wins** via `Option::or`.
+   no fim do módulo). No mesmo eixo, o setter **mais interno vence**; os eixos
+   de glyph, tamanho, bold, italic e cramped permanecem ortogonais.
 2. **Substituição char-by-char** em `MathIdent`/`MathText`: `map_glyph(c,
    kind.unwrap_or(Plain), bold.unwrap_or(false), italic.unwrap_or(false))`.
 3. **Propagação para containers** (MathFrac/MathAttach/MathRoot/MathDelimited/
@@ -250,13 +354,18 @@ Handler dedicado em `layout_node` arm `Content::MathStyled` resolve variant glyp
 6. **Supressão de auto-itálico**: quando wraps aplicados (kind/bold/italic
    Some), `math_style.italic = false` no descent.
 
-**Composição (paridade vanilla)**: `bb(cal(x))` → outer Bb → 𝕩 ·
-`bold(bb(x))` → kind Bb preserved, bold flag · `upright(italic(x))` → outer
-upright · `script(sscript(x))` → outer-wins via `Option::or`, **NÃO**
-multiplicativo (refuta diagnóstico P311a §3.5).
+**Composição (paridade vanilla, corrigida por P1291):** medição SVG bilateral
+em 2026-08-31, vanilla ratificado `a51e02804`, refutou a antiga regra
+outer-wins: `serif(bb(ABC))` coincide byte-a-byte com `bb(ABC)` e
+`bb(serif(ABC))` coincide com `serif(ABC)`. Assim, `bb(cal(x))` preserva Cal,
+`upright(italic(x))` preserva italic e `bold(bb(x))` combina bold com o glyph
+Bb porque são eixos diferentes. Wrappers de tamanho são preservados durante a
+transformação de glyph, para `bb(inline(x))` continuar inline sem perder Bb;
+dois setters do mesmo eixo não são multiplicados.
 
-**8 unit tests P311b.4**: `bb_substitutes_chars`, `bold_italic_orthogonal`,
-`bb_cal_outer_wins`, `upright_italic_outer_wins`, `bold_preserves_inner_bb`,
+**8 unit tests P311b.4 + guardas P1291**: `bb_substitutes_chars`,
+`bold_italic_orthogonal`, `bb_cal_inner_wins`, `upright_italic_inner_wins`,
+`bold_preserves_inner_bb`,
 `recurses_through_mathfrac`, `size_variant_passthrough_glyph`,
 `math_op_passthrough`.
 
@@ -287,8 +396,8 @@ display/script/sscript, regressão medida em P812-A). `apply_math_default`:
 **Composição por eixos ortogonais (P812, paridade vanilla)**: em
 `apply_math_style`, tamanho e glifo são eixos independentes — outer
 size-variant + inner glyph-variant → o glyph do inner prevalece
-(`script(bb(R))` → ℝ a 0.7×); ambos size-variants → outer vence (regra
-P311b.4); variants de tamanho (Display/Inline/Script/SScript) não têm
+(`script(bb(R))` → ℝ a 0.7×); no mesmo eixo o setter mais interno vence;
+variants de tamanho (Display/Inline/Script/SScript) não têm
 mapping de glifo próprio e tratam-se como `Plain` no eixo glifo — o
 itálico por defeito atravessa wrappers de tamanho (`$script(x)$` → 𝑥,
 medido). `bold(x)` compõe para **bold-italic** (U+1D499, medido no

@@ -1,0 +1,51 @@
+{
+  "protocol": "tekt-materializacao-segregada-v1",
+  "step": "P1291.cancel-angle-runtime",
+  "kind": "legacy_oracle_reseal_after_integral_suite_failure",
+  "sealed_at": "2026-08-31T18:00:59-03:00",
+  "repository_head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+  "predecessor": {
+    "path": "00_nucleo/diagnosticos/p1291-callback-runtime-test-reseal-v4.json",
+    "sha256": "35cb3316a08cf8fce6474fd357dd5313e35ea9f113d8fa2187769291135706d8"
+  },
+  "authorization": {
+    "role": "Testador A",
+    "adr_0127": "continuous test-oracle correction after an internal parity change; no public contract, default behavior, pipeline phase or compatibility change",
+    "write_scope": [
+      "01_core/src/compiler/stdlib/mod.rs::tests::p296_native_cancel_named_arg_rejeitado",
+      "00_nucleo/diagnosticos/p1291-callback-runtime-test-reseal-v5.json"
+    ]
+  },
+  "measurement": {
+    "command": "cargo test -p typst-core p296_native_cancel_named_arg_rejeitado -- --nocapture",
+    "exit_status": 101,
+    "selected_tests": 1,
+    "failure": "the legacy oracle required inverted/cross/length/angle/stroke to be rejected even though P1291 now authorizes the cancel named-argument surface"
+  },
+  "changed_test": {
+    "path": "01_core/src/compiler/stdlib/mod.rs",
+    "old_file_sha256": "b41dae9f49d4386acd112daa37b62b9eac553bdbb5ed024766f0569a82399fd3",
+    "new_file_sha256": "02d53b1588b008c295e2dcab0adc0e6ad2e8604d9972c5fa0b2503d340826f3f",
+    "old_name": "p296_native_cancel_named_arg_rejeitado",
+    "new_name": "p1291_native_cancel_named_angle_cross_e_desconhecido",
+    "new_block_sha256": "c1751cf7d3387994999fc43e25f030dad6f38df955d05bc8467ad97fe9dbe2b1",
+    "obligation": "angle and cross are accepted and preserved; an actually unknown named argument remains rejected with unexpected argument: nope",
+    "production_code_changed": false
+  },
+  "verification": {
+    "command": "cargo test -p typst-core p1291_native_cancel_named_angle_cross_e_desconhecido -- --nocapture",
+    "exit_status": 0,
+    "selected_tests": 1,
+    "passed": 1
+  },
+  "unchanged_protected_artifacts": {
+    "01_core/src/compiler/math/layout/tests.rs": "54aa5b5017803bb829e56d0ff632f359c6824574d5eb84e9f2f17351ac4e991a",
+    "04_wiring/tests/p1291_callback_runtime.rs": "527eee47b1f2d6f60943ef8d25688fd21d9c94d8fbbcf2fd7ebc791efb01f018",
+    "01_core/src/compiler/math/layout/callbacks.rs::cfg_test_block": "1ee542bde60ae273b2bdd57b9c54c3cd4b251aa779afc624ec5609869ebc786a"
+  },
+  "scope_exclusions": [
+    "P1291.vec",
+    "P1291.underline"
+  ],
+  "attestation_limitation": "executed_without_technical_isolation_attestation; the file already contained shared-tree changes before this test-only patch"
+}

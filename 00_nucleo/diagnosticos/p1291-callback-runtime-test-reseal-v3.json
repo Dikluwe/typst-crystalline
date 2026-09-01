@@ -1,0 +1,25 @@
+{
+  "protocol": "tekt-materializacao-segregada-v1",
+  "step": "P1291.cancel-angle-runtime",
+  "kind": "protected_test_and_lineage_reseal",
+  "sealed_at": "2026-08-31T17:31:40-03:00",
+  "predecessor": {
+    "path": "00_nucleo/diagnosticos/p1291-callback-runtime-seal-amendment-3.json",
+    "sha256": "30ad068e8c002fad7b00a6fc8ef245b899c403c44ad3b9c1693b8c26d0853b5e"
+  },
+  "protected_tests": {
+    "01_core/src/compiler/math/layout/tests.rs": "54aa5b5017803bb829e56d0ff632f359c6824574d5eb84e9f2f17351ac4e991a",
+    "04_wiring/tests/p1291_callback_runtime.rs": "613997cb501fe3d8ce7e547101a08032a3ad6d9eacc236dd976f34ee04d40d69",
+    "01_core/src/compiler/math/layout/callbacks.rs::cfg_test_block": "1ee542bde60ae273b2bdd57b9c54c3cd4b251aa779afc624ec5609869ebc786a"
+  },
+  "test_owner_prompt": {
+    "path": "00_nucleo/prompts/wiring/tests/p1291_callback_runtime.md",
+    "raw_sha256": "e7f184370677072c85d74da1a52f879173a9e63659bda4f5b15a845c725c4a61"
+  },
+  "lineage_receipt": {
+    "path": "00_nucleo/diagnosticos/p1291-callback-runtime-test-lineage-receipt.md",
+    "sha256": "a235b4cd34f6d161a3445de278ad4136be1d1ce1c4cf16bf24c964fefdb557c2"
+  },
+  "remaining_implementation_gate": "callbacks.rs production header and effective prompt hashes; implementer may not alter the protected cfg(test) block",
+  "attestation_limitation": "executed_without_technical_isolation_attestation"
+}

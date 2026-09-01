@@ -9,6 +9,7 @@
 
 use super::*;
 use crate::compiler::layout::{FixedMetrics, FontMetrics};
+use crate::entities::layout_types::{Angle, PagedDocument};
 use std::sync::Arc;
 
 fn default_style() -> TextStyle {
@@ -1610,8 +1611,8 @@ fn p311b5_cal_L_emite_script_L() {
 }
 
 #[test]
-fn p311b5_bb_cal_x_outer_wins() {
-    // bb(cal(x)) — outer Bb deve ganhar.
+fn p311b5_bb_cal_x_inner_wins() {
+    // P1291: bb(cal(x)) preserva o setter mais interno no eixo de glyph.
     let inner = Content::math_styled(
         Some(MathStyleKind::Chancery),
         None,
@@ -1623,15 +1624,20 @@ fn p311b5_bb_cal_x_outer_wins() {
         Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, inner, None);
     let items = layout_equation_items(&outer);
     assert!(
-        items_contain_text(&items, '\u{1D569}'),
-        "bb(cal(x)) → outer Bb deve ganhar; esperava 𝕩 U+1D569: {:?}",
+        items_contain_text(&items, '\u{1D4CD}'),
+        "bb(cal(x)) → inner Cal deve ganhar; esperava 𝓍 U+1D4CD: {:?}",
+        items
+    );
+    assert!(
+        !items_contain_text(&items, '\u{1D569}'),
+        "bb(cal(x)) não deve emitir o glyph DoubleStruck exterior 𝕩: {:?}",
         items
     );
 }
 
 #[test]
-fn p311b5_upright_italic_x_outer_wins() {
-    // upright(italic(x)) — outer upright (italic=Some(false)) deve ganhar.
+fn p311b5_upright_italic_x_inner_wins() {
+    // P1291: upright(italic(x)) preserva o setter mais interno no eixo italic.
     let inner = Content::math_styled(
         None,
         None,
@@ -1641,17 +1647,14 @@ fn p311b5_upright_italic_x_outer_wins() {
     );
     let outer = Content::math_styled(None, None, Some(false), inner, None);
     let items = layout_equation_items(&outer);
-    // upright wins → 'x' literal (não italic codepoint). P809: com o default
-    // de itálico por codepoint, este teste é o controlo que prova que o
-    // estilo explícito prevalece sobre o default.
     assert!(
-        items_contain_text(&items, 'x'),
-        "upright(italic(x)) → upright deve ganhar; esperava 'x' literal: {:?}",
+        items_contain_text(&items, '\u{1D465}'),
+        "upright(italic(x)) → inner italic deve ganhar; esperava 𝑥 U+1D465: {:?}",
         items
     );
     assert!(
-        !items_contain_text(&items, '\u{1D465}'),
-        "upright(italic(x)) → NÃO deve haver 𝑥 U+1D465: {:?}",
+        !items_contain_text(&items, 'x'),
+        "upright(italic(x)) não deve emitir o x upright exterior: {:?}",
         items
     );
 }
@@ -8999,4 +9002,356 @@ fn p1132t_normalizacao_preserva_markup_e_abre_sequencia_tecnica() {
     assert!(matches!(out[1], Content::HSpace(_)));
     assert!(matches!(out[2], Content::MathText(_)));
     assert!(matches!(out[3], Content::MathDelimited(_)));
+}
+
+// ── P1291.cancel-angle-runtime — contrato independente selado ───────────────
+
+fn p1291_angle_zero_native(
+    _ctx: &mut crate::compiler::eval::EvalContext,
+    _args: &crate::entities::args::Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: crate::entities::file_id::FileId,
+) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+    Ok(crate::entities::value::Value::Angle(Angle::deg(0.0)))
+}
+
+fn p1291_angle_ninety_native(
+    _ctx: &mut crate::compiler::eval::EvalContext,
+    _args: &crate::entities::args::Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: crate::entities::file_id::FileId,
+) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+    Ok(crate::entities::value::Value::Angle(Angle::deg(90.0)))
+}
+
+fn p1291_request(
+    equation: u128,
+    occurrence: usize,
+    line: u8,
+    default_deg: f64,
+) -> super::callbacks::MathCancelRequest {
+    super::callbacks::MathCancelRequest {
+        id: super::callbacks::MathCancelRequestId {
+            equation: crate::entities::location::Location::from_raw(equation),
+            occurrence,
+            line,
+        },
+        func: crate::entities::func::Func::native(
+            "p1291-angle-zero",
+            p1291_angle_zero_native,
+        ),
+        default: Angle::deg(default_deg),
+        span: crate::entities::span::Span::detached(),
+        styles: crate::entities::style_chain::StyleChain::default_chain(),
+    }
+}
+
+fn p1291_resolution(
+    request: super::callbacks::MathCancelRequest,
+    angle_deg: f64,
+) -> super::callbacks::MathCancelResolution {
+    super::callbacks::MathCancelResolution { request, angle: Angle::deg(angle_deg) }
+}
+
+#[test]
+fn p1291_pending_nao_transporta_paged_document() {
+    use super::callbacks::{MathCallbackPassState, MathLayoutPassOutcome};
+
+    let pass = MathCallbackPassState::new(None);
+    let request = p1291_request(11, 0, 0, 35.0);
+    assert!(pass.resolve_or_record(request.clone()).is_none());
+
+    let outcome = pass.finish(PagedDocument::new(vec![]));
+    let pending = match outcome {
+        MathLayoutPassOutcome::Pending(requests) => requests,
+        MathLayoutPassOutcome::Complete(_) => {
+            panic!("uma request sem resolucao nao pode fornecer PagedDocument")
+        }
+    };
+    assert_eq!(pending.len(), 1);
+    assert_eq!(pending[0].id, request.id);
+}
+
+#[test]
+fn p1291_store_parcial_ou_stale_nunca_completa() {
+    use super::callbacks::{
+        MathCallbackPassState, MathLayoutPassOutcome, SealedMathCallbacks,
+    };
+
+    let first = p1291_request(22, 0, 0, 35.0);
+    let second = p1291_request(22, 1, 0, 40.0);
+
+    let partial_store =
+        SealedMathCallbacks::new(vec![p1291_resolution(first.clone(), 5.0)]);
+    let partial = MathCallbackPassState::new(Some(&partial_store));
+    let resolved = partial
+        .resolve_or_record(first.clone())
+        .expect("a resolucao integralmente correspondente deve ser consumida");
+    assert!((resolved.to_deg() - 5.0).abs() < 1e-9);
+    assert!(partial.resolve_or_record(second.clone()).is_none());
+    match partial.finish(PagedDocument::new(vec![])) {
+        MathLayoutPassOutcome::Pending(requests) => {
+            assert_eq!(requests.len(), 2, "Pending devolve o transcript completo");
+            assert_eq!(requests[0].id, first.id);
+            assert_eq!(requests[1].id, second.id);
+        }
+        MathLayoutPassOutcome::Complete(_) => panic!("store parcial foi aceita"),
+    }
+
+    let extra = p1291_request(22, 2, 0, 45.0);
+    let stale_store = SealedMathCallbacks::new(vec![
+        p1291_resolution(first.clone(), 5.0),
+        p1291_resolution(extra, 10.0),
+    ]);
+    let stale = MathCallbackPassState::new(Some(&stale_store));
+    assert!(stale.resolve_or_record(first).is_some());
+    assert!(matches!(
+        stale.finish(PagedDocument::new(vec![])),
+        MathLayoutPassOutcome::Pending(_)
+    ));
+}
+
+fn p1291_cancel_with(
+    body: Content,
+    func: crate::entities::func::Func,
+    cross: bool,
+) -> Content {
+    p1291_cancel_with_flags(body, func, cross, false)
+}
+
+fn p1291_cancel_with_flags(
+    body: Content,
+    func: crate::entities::func::Func,
+    cross: bool,
+    inverted: bool,
+) -> Content {
+    use crate::entities::elements::math_cancel::{MathCancelAngle, MathCancelElem};
+    use crate::entities::rel::Rel;
+
+    Content::MathCancel(Arc::new(MathCancelElem {
+        body,
+        length: Rel::<Length>::from_percent(100.0) + Length::em(0.3),
+        inverted,
+        cross,
+        angle: MathCancelAngle::Func(func),
+        stroke: None,
+        background: false,
+        span: crate::entities::span::Span::detached(),
+    }))
+}
+
+#[test]
+fn p1291_store_mesmo_id_mas_func_default_ou_style_diferente_e_stale() {
+    use super::callbacks::{
+        MathCallbackPassState, MathLayoutPassOutcome, SealedMathCallbacks,
+    };
+    use crate::entities::func::Func;
+    use crate::entities::style::Styles;
+    use crate::entities::style_chain::StyleChain;
+    use crate::entities::value::Value;
+
+    let base = p1291_request(0x1291_20, 3, 0, 35.0);
+    let mut different_func = base.clone();
+    different_func.func = Func::native("p1291-angle-ninety", p1291_angle_ninety_native);
+
+    let mut different_default = base.clone();
+    different_default.default = Angle::deg(36.0);
+
+    let mut different_style = base.clone();
+    different_style.styles = StyleChain::default_chain().push_styles(
+        &Styles::new().push_custom("p1291.store", Value::Str("different".into())),
+    );
+
+    for changed in [different_func, different_default, different_style] {
+        assert_eq!(changed.id, base.id, "o ataque deve conservar exatamente o mesmo id");
+        let store = SealedMathCallbacks::new(vec![p1291_resolution(base.clone(), 5.0)]);
+        let pass = MathCallbackPassState::new(Some(&store));
+        assert!(
+            pass.resolve_or_record(changed.clone()).is_none(),
+            "id isolado não basta: func, default e estilo colapsado também identificam a request",
+        );
+        match pass.finish(PagedDocument::new(vec![])) {
+            MathLayoutPassOutcome::Pending(requests) => {
+                assert_eq!(requests.len(), 1);
+                assert_eq!(requests[0].id, changed.id);
+            }
+            MathLayoutPassOutcome::Complete(_) => {
+                panic!("store semanticamente stale foi aceita por igualdade apenas do id")
+            }
+        }
+    }
+}
+
+#[test]
+fn p1291_cross_reusa_default_positivo_e_ignora_inverted_na_chamada() {
+    use super::callbacks::{MathCallbackPassState, MathLayoutPassOutcome};
+    use crate::entities::func::Func;
+    use crate::entities::location::Location;
+    use crate::entities::style_chain::StyleChain;
+
+    fn transcript(inverted: bool) -> Vec<super::callbacks::MathCancelRequest> {
+        let style = TextStyle::regular(Pt(20.0));
+        let chain = StyleChain::default_chain();
+        let pass = MathCallbackPassState::new(None);
+        let content = p1291_cancel_with_flags(
+            Content::MathIdent("x".into()),
+            Func::native("p1291-angle-zero", p1291_angle_zero_native),
+            true,
+            inverted,
+        );
+        let ml = MathLayouter::new_with_context(
+            &FixedMetrics,
+            true,
+            &style,
+            Location::from_raw(0x1291_21),
+            Pt(240.0),
+            &chain,
+            &pass,
+        );
+        let _ = ml.layout_node(&content, &style);
+        drop(ml);
+        match pass.finish(PagedDocument::new(vec![])) {
+            MathLayoutPassOutcome::Pending(requests) => requests,
+            MathLayoutPassOutcome::Complete(_) => {
+                panic!("cross sem store deve ficar Pending")
+            }
+        }
+    }
+
+    let normal = transcript(false);
+    let inverted = transcript(true);
+    for requests in [&normal, &inverted] {
+        assert_eq!(requests.len(), 2);
+        assert_eq!(requests[0].id.occurrence, requests[1].id.occurrence);
+        assert_eq!([requests[0].id.line, requests[1].id.line], [0, 1]);
+        assert!(requests[0].default.to_deg() > 0.0, "default deve ser positivo");
+        assert!(
+            (requests[0].default.to_deg() - requests[1].default.to_deg()).abs() < 1e-9,
+            "as duas chamadas de cross recebem exatamente o mesmo default positivo",
+        );
+    }
+    assert!(
+        (normal[0].default.to_deg() - inverted[0].default.to_deg()).abs() < 1e-9,
+        "cross prevalece sobre inverted; inverted não altera o argumento default",
+    );
+}
+
+#[test]
+fn p1291_identity_preorder_e_cross_duas_chamadas() {
+    use super::callbacks::{MathCallbackPassState, MathLayoutPassOutcome};
+    use crate::entities::func::Func;
+    use crate::entities::location::Location;
+    use crate::entities::style_chain::StyleChain;
+
+    let style = TextStyle::regular(Pt(12.0));
+    let chain = StyleChain::default_chain();
+    assert_ne!(p1291_request(1, 0, 0, 35.0).id, p1291_request(2, 0, 0, 35.0).id);
+    assert_ne!(p1291_request(1, 0, 0, 35.0).id, p1291_request(1, 1, 0, 35.0).id);
+    assert_ne!(p1291_request(1, 0, 0, 35.0).id, p1291_request(1, 0, 1, 35.0).id);
+    let pass = MathCallbackPassState::new(None);
+    let f = Func::native("p1291-angle-zero", p1291_angle_zero_native);
+    let nested = p1291_cancel_with(
+        p1291_cancel_with(Content::MathIdent("x".into()), f.clone(), false),
+        f,
+        false,
+    );
+    let ml = MathLayouter::new_with_context(
+        &FixedMetrics,
+        true,
+        &style,
+        Location::from_raw(0x1291),
+        Pt(240.0),
+        &chain,
+        &pass,
+    );
+    let _ = ml.layout_node(&nested, &style);
+    drop(ml);
+    let requests = match pass.finish(PagedDocument::new(vec![])) {
+        MathLayoutPassOutcome::Pending(requests) => requests,
+        MathLayoutPassOutcome::Complete(_) => {
+            panic!("nested callbacks devem ficar Pending")
+        }
+    };
+    assert_eq!(requests.len(), 2);
+    assert_eq!(requests[0].id.equation, Location::from_raw(0x1291));
+    assert_eq!(requests[1].id.equation, Location::from_raw(0x1291));
+    assert_eq!(
+        requests.iter().map(|r| r.id.occurrence).collect::<Vec<_>>(),
+        vec![1, 0],
+        "outer reserva occurrence 0 antes da descida; inner reserva 1 e chama primeiro",
+    );
+    assert!(requests.iter().all(|r| r.id.line == 0));
+
+    let cross_pass = MathCallbackPassState::new(None);
+    let cross = p1291_cancel_with(
+        Content::MathIdent("x".into()),
+        Func::native("p1291-angle-zero", p1291_angle_zero_native),
+        true,
+    );
+    let cross_ml = MathLayouter::new_with_context(
+        &FixedMetrics,
+        true,
+        &style,
+        Location::from_raw(0x1292),
+        Pt(240.0),
+        &chain,
+        &cross_pass,
+    );
+    let _ = cross_ml.layout_node(&cross, &style);
+    drop(cross_ml);
+    let cross_requests = match cross_pass.finish(PagedDocument::new(vec![])) {
+        MathLayoutPassOutcome::Pending(requests) => requests,
+        MathLayoutPassOutcome::Complete(_) => panic!("cross callback deve ficar Pending"),
+    };
+    assert_eq!(cross_requests.len(), 2, "cross executa uma callback por linha");
+    assert_eq!(cross_requests[0].id.occurrence, cross_requests[1].id.occurrence);
+    assert_eq!(cross_requests.iter().map(|r| r.id.line).collect::<Vec<_>>(), vec![0, 1],);
+}
+
+#[test]
+fn p1291_request_preserva_chain_lexical_e_style_math_efetivo() {
+    use super::callbacks::{MathCallbackPassState, MathLayoutPassOutcome};
+    use crate::entities::func::Func;
+    use crate::entities::location::Location;
+    use crate::entities::style::Styles;
+    use crate::entities::style_chain::StyleChain;
+    use crate::entities::value::Value;
+
+    let chain = StyleChain::default_chain().push_styles(
+        &Styles::new().push_custom("p1291.probe", Value::Str("lexical".into())),
+    );
+    let mut style = TextStyle::regular(Pt(19.0));
+    style.weight = Some(700);
+    let pass = MathCallbackPassState::new(None);
+    let content = p1291_cancel_with(
+        Content::MathIdent("x".into()),
+        Func::native("p1291-angle-zero", p1291_angle_zero_native),
+        false,
+    );
+    let ml = MathLayouter::new_with_context(
+        &FixedMetrics,
+        false,
+        &style,
+        Location::from_raw(0x1293),
+        Pt(180.0),
+        &chain,
+        &pass,
+    );
+    let _ = ml.layout_node(&content, &style);
+    drop(ml);
+    let request = match pass.finish(PagedDocument::new(vec![])) {
+        MathLayoutPassOutcome::Pending(mut requests) => {
+            assert_eq!(requests.len(), 1);
+            requests.remove(0)
+        }
+        MathLayoutPassOutcome::Complete(_) => {
+            panic!("callback sem store deve ficar Pending")
+        }
+    };
+    let collapsed = request.styles.collapse();
+    assert_eq!(collapsed.size, Some(19.0));
+    assert_eq!(collapsed.weight, Some(700));
+    assert!(collapsed.custom.iter().any(|(key, value)| {
+        key.as_str() == "p1291.probe" && value == &Value::Str("lexical".into())
+    }));
 }

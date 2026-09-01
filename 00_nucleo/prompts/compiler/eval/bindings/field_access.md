@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 6f7ae61e
+Hash do Código: 6daf5fa2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -93,6 +93,35 @@ erro de campo).
 #[= T].fields()                             → dicionário com level e body
 #(1).foo                                    → Err (nomeia "integer")
 ```
+
+## P1291.cancel-angle-runtime — `text.size` contextual
+
+### Medição anterior à decisão
+
+`eval_field_access` já reconhece `Value::Func("text")` como fronteira de
+propriedades contextuais e lê `text.lang` da `StyleChain` ativa. Quando a
+callback selada de `math.cancel(angle:)` executa com o snapshot correto,
+`context text.size` chega ao mesmo braço, mas cai no acesso comum de `Func` e
+falha com `cannot access fields on type function`. A falha está no catálogo
+fechado deste consumer, não no transporte de estilo nem no layouter.
+
+### Decisão
+
+No braço existente `text.<campo>`, `size` devolve `Value::Length` a partir do
+accessor tipado `engine.styles.size()`. Esse accessor observa primeiro o slot
+`StyleDelta.size` do topo — inclusive o `TextStyle.size` math derivado que o
+transcript empurra —, depois o custom lexical compatível e, na ausência de
+ambos, o default vigente `11pt`. Ler somente `custom("text.size")` é proibido,
+pois perde redução de script/cramped. `lang` permanece inalterado e qualquer
+outro campo continua no despacho fechado normal, sem namespace fabricado ou
+fallback reflexivo.
+
+Este consumer apenas lê o contexto quando a expressão contextual é executada.
+Não clona nem altera `Func`, não executa callback, não conhece requests math e
+não move avaliação para layout. Aceitação: `context text.size` observa um
+`#set text(size: 19pt)` capturado; dentro de script observa o tamanho math
+reduzido do snapshot (por exemplo `20pt × 0,7 = 14pt`); ausência observa
+`11pt`; campo desconhecido mantém o erro vigente.
 
 ## Resultado Esperado
 

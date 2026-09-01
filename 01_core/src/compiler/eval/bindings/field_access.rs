@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 4f6b7817
+//! @prompt-hash b8c1901a
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -58,6 +58,11 @@ pub(in crate::compiler::eval) fn eval_field_access(
     if let Value::Func(ref f) = target {
         if f.name() == Some("text") {
             match field {
+                "size" => {
+                    return Ok(Value::Length(crate::entities::layout_types::Length::pt(
+                        engine.styles.size(),
+                    )));
+                }
                 "lang" => {
                     let lang = match engine.styles.custom("text.lang") {
                         Some(Value::Str(s)) => s.clone(),

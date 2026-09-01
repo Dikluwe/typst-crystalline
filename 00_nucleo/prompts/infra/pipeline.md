@@ -1,9 +1,10 @@
 # Pipeline — L3 orquestração
-Hash do Código: b975c6d6
+Hash do Código: 51b7a990
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
 - 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -518,3 +519,53 @@ original, portanto o marcador não se acumula nem duplica conteúdo visível.
 Seleção e recolha de fontes percorrem `background`, `items` e `foreground` em
 ordem. Running matter realizado não pode ficar fora do conjunto de fontes
 embutidas só por residir na camada marginal.
+
+## P1291 — realização entre passagens de `cancel.angle` (PROPOSTO; GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A pipeline já é o ponto onde callbacks que exigem `Engine` são executadas:
+page numbering é realizada entre passagens de layout em
+`03_infra/src/pipeline.rs:671-735`. Em contraste, o `MathLayouter` L1 não
+possui `World`, `Scopes` ou `Engine`. O vanilla chama `CancelAngle::Func` com o
+ângulo default somente depois de medir o body e faz cast do retorno para Angle
+(`lab/typst-original/crates/typst-layout/src/math/cancel.rs:92-103`).
+
+### Decisão proposta
+
+No caminho paginado, a pipeline chama a entry point de passagem com store
+vazia e recebe `Pending(transcript)`; o documento provisório já foi descartado
+em L1 e não fica acessível. Fora do layouter, onde `Engine` existe, realiza cada
+request em ordem por `apply_func(func, [Value::Angle(default)], ...)`, usando o
+`StyleChain` e span capturados. Somente retorno convertível a `Angle` gera uma
+`MathCancelResolution`; erro da closure ou cast inválido aborta sem exportar o
+documento provisório.
+
+As resoluções completas formam `SealedMathCallbacks`. A pipeline repete layout
+com essa store. `Complete(document)` encerra a realização; novo
+`Pending(transcript)` invalida a store, realiza o transcript novo e repete sob
+teto finito. Teto excedido ou store parcialmente consumida é diagnóstico de
+não convergência, nunca sucesso, `Unknown` rebaixado ou `Auto` final.
+
+A pipeline encapsula isso num ciclo `stabilize_math_layout`: antes do layout
+inicial e antes de **cada** relayout externo do ciclo P1159, repete
+`Pending → realizar → nova passagem` até obter `Complete`. A rotina L1 pode
+internamente tentar mais de um `Layouter::new` por TOC, mas somente o transcript
+da tentativa candidata retorna ao L3; transcripts de tentativas internas
+rejeitadas são descartados. `realize_page_numberings` recebe exclusivamente um
+documento `Complete`. Se a store de page numbering provocar relayout, esse
+novo candidato volta a estabilizar callbacks math antes de alimentar a próxima
+realização de numbering. Esse ciclo não é mesclado com
+`compiler::introspect::run_fixpoint` e não compartilha estado com ele.
+
+Uma request corresponde a uma chamada da função. Assim `cross=true` produz e
+executa duas requests consecutivas, conforme as duas chamadas reais de
+`draw_cancel_line` no vanilla. A store é local ao ciclo de compilação, não é
+global nem cacheada entre compilações. PNG/SVG reutilizam o documento paginado
+já estabilizado. HTML não atravessa layout math paginado e fica fora até
+medição própria.
+
+Esta forma replica P240/P241/P1159: L3 realiza callbacks entre passagens e L1
+layout recebe somente dados selados. Não existe implementação L3 de trait L1,
+reentrada layout→eval ou execução em `native_math_cancel`. A ligação de fase
+continua gate ADR-0127.

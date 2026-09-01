@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash d63bd054
+//! @prompt-hash 822efbfe
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -28,7 +28,7 @@ use crate::entities::{
     },
     location::Location,
     locator::Locator,
-    source_result::SourceDiagnostic,
+    source_result::{SourceDiagnostic, SourceResult},
     style_chain::StyleChain,
 };
 use ecow::EcoString;
@@ -324,6 +324,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// em vez de snapshot final (cf. ADR-0068 PROPOSTO). (F-4 E0, P338:
     /// `is_numbering_active_at` saiu — gate vive no campo assado.)
     pub(super) current_location: Option<Location>,
+    /// Callback state for this concrete layout attempt. It is borrowed from
+    /// the entrypoint and never escapes L1.
+    pub(super) math_callback_pass:
+        Option<&'a crate::compiler::math::layout::callbacks::MathCallbackPassState>,
     /// **P190C (M6 categoria Page tracking)** — state Layouter-runtime
     /// dedicado. Campos `label_pages` + `known_page_numbers` movidos
     /// de `CounterStateLegacy` para `LayouterRuntimeState` por não
@@ -774,6 +778,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             cell_align: None, // P232
             locator: Locator::new(),
             current_location: None,
+            math_callback_pass: None,
             runtime:
                 crate::entities::layouter_runtime_state::LayouterRuntimeState::default(),
             // P245 (M9d / M7+4) — buffer floats + reservas inicializados vazios.
@@ -2437,6 +2442,7 @@ pub fn layout_with_introspector(
         NullImageSizer,
         DEFAULT_FONT_SIZE,
     )
+    .expect("legacy layout entrypoint cannot resolve math callbacks")
 }
 
 /// **P712/P858** — layout real e isolado de conteúdo para `measure()` (stdlib).
@@ -2528,7 +2534,40 @@ pub fn layout_with_introspector_and_metrics<
     metrics: M,
     sizer: S,
     font_size: f64,
-) -> PagedDocument {
+) -> SourceResult<PagedDocument> {
+    match layout_with_introspector_and_metrics_and_math_callbacks(
+        content,
+        introspector,
+        metrics,
+        sizer,
+        font_size,
+        None,
+    ) {
+        crate::compiler::math::layout::callbacks::MathLayoutPassOutcome::Complete(
+            doc,
+        ) => Ok(doc),
+        crate::compiler::math::layout::callbacks::MathLayoutPassOutcome::Pending(_) => {
+            Err(vec![SourceDiagnostic::error(
+                crate::entities::span::Span::detached(),
+                "math callbacks require the callback-aware layout entrypoint",
+            )])
+        }
+    }
+}
+
+pub fn layout_with_introspector_and_metrics_and_math_callbacks<
+    M: FontMetrics + Clone,
+    S: ImageSizer + Clone,
+>(
+    content: &Content,
+    introspector: crate::entities::introspector::TagIntrospector,
+    metrics: M,
+    sizer: S,
+    font_size: f64,
+    callback_store: Option<
+        &crate::compiler::math::layout::callbacks::SealedMathCallbacks,
+    >,
+) -> crate::compiler::math::layout::callbacks::MathLayoutPassOutcome {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
     use std::collections::HashMap;
@@ -2604,11 +2643,14 @@ pub fn layout_with_introspector_and_metrics<
     // P488 — carry-forward páginas de figuras/tabelas entre iterações (LoF/LoT).
     let mut known_figure_page_numbers: Vec<usize> = Vec::new();
     let mut known_table_page_numbers: Vec<usize> = Vec::new();
-    let mut final_doc: Option<PagedDocument> = None;
-
     for _ in 0..MAX_ITERATIONS {
+        let callback_pass =
+            crate::compiler::math::layout::callbacks::MathCallbackPassState::new(
+                callback_store,
+            );
         let mut l =
             Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
+        l.math_callback_pass = Some(&callback_pass);
         l.bib_render_cache = bib_render_cache.clone();
         l.layout_errors = layout_errors.clone();
 
@@ -2642,7 +2684,7 @@ pub fn layout_with_introspector_and_metrics<
             && doc.extracted_figure_page_numbers == known_figure_page_numbers
             && doc.extracted_table_page_numbers == known_table_page_numbers
         {
-            return doc;
+            return callback_pass.finish(doc);
         }
 
         // Actualizar para a próxima iteração.
@@ -2659,13 +2701,13 @@ pub fn layout_with_introspector_and_metrics<
         // P488 — actualizar carry-forward de figuras/tabelas.
         known_figure_page_numbers = doc.extracted_figure_page_numbers.clone();
         known_table_page_numbers = doc.extracted_table_page_numbers.clone();
-        final_doc = Some(doc);
+        // A tentativa foi rejeitada pelo fixpoint de TOC. O `callback_pass`
+        // e seu transcript são descartados junto com este documento.
     }
 
-    // Limite atingido sem convergência (DEBT-17: caso patológico).
-    // Retornar o documento da última iteração — melhor esforço.
-    // Sem `log::` em L1 — não existe ADR que o autorize.
-    final_doc.expect("layout: deve produzir pelo menos um documento")
+    // Limite atingido sem convergência. Não existe candidato cujo transcript
+    // possa ser realizado nem documento que possa atravessar a API.
+    crate::compiler::math::layout::callbacks::MathLayoutPassOutcome::Pending(vec![])
 }
 
 // ── Helpers P418 ───────────────────────────────────────────────────────────

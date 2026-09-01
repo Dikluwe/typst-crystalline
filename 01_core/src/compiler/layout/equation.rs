@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/equation.md
-//! @prompt-hash bb205644
+//! @prompt-hash 1f49e377
 //! @layer L1
 //! @updated 2026-08-01
 //!
@@ -104,8 +104,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // **P893** — `&math_style` propagado para que `FallbackFontMetrics`
         // resolva as constantes MATH reais da fonte activa, em vez de
         // `MathConstants::fallback()` incondicional.
-        let math_layouter =
-            math::layout::MathLayouter::new(&self.metrics, block, &math_style);
+        let equation_location = self
+            .current_location
+            .expect("equation layout must have a stable location");
+        // Helpers and older unit tests may construct `Layouter` directly,
+        // outside the callback-aware document entrypoint. They still need a
+        // pure transcript for callback-free equations; production always
+        // installs the attempt-wide state before reaching this point.
+        let fallback_callback_pass =
+            math::layout::callbacks::MathCallbackPassState::new(None);
+        let callback_pass = self.math_callback_pass.unwrap_or(&fallback_callback_pass);
+        let math_layouter = math::layout::MathLayouter::new_with_context(
+            &self.metrics,
+            block,
+            &math_style,
+            equation_location,
+            Pt(self.regions.effective().height),
+            &self.chain,
+            callback_pass,
+        );
         // **P813** — equações de bloco precisam da extensão geométrica
         // (largura + ascent/descent de tinta) para centragem e espaçamento;
         // os items são os mesmos de `layout_equation`.

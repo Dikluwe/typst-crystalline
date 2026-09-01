@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash fcb8e404
+//! @prompt-hash 90f20f34
 //! @layer L1
-//! @updated 2026-08-10
+//! @updated 2026-08-31
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
+use std::cell::Cell;
 use std::sync::Arc;
 
 use ecow::EcoString;
@@ -22,6 +23,7 @@ use crate::entities::{
 mod accent;
 mod assembly;
 mod attach;
+pub mod callbacks;
 mod cancel;
 mod cases;
 mod delimited;
@@ -386,6 +388,11 @@ pub struct MathLayouter<'a, M: FontMetrics> {
     /// True se a equação é de bloco (display mode); false se inline.
     /// Controla se operadores grandes usam limites verticais (Passo 50).
     pub(super) block: bool,
+    pub(super) equation: Option<crate::entities::location::Location>,
+    pub(super) region_height: Pt,
+    pub(super) lexical_styles: Option<&'a crate::entities::style_chain::StyleChain>,
+    pub(super) callback_pass: Option<&'a callbacks::MathCallbackPassState>,
+    pub(super) cancel_occurrence: Cell<usize>,
 }
 
 impl<'a, M: FontMetrics> MathLayouter<'a, M> {
@@ -394,7 +401,34 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// fallback em vez de devolver sempre `MathConstants::fallback()`.
     pub fn new(metrics: &'a M, block: bool, style: &TextStyle) -> Self {
         let constants = metrics.math_constants(style);
-        Self { metrics, constants, block }
+        Self {
+            metrics,
+            constants,
+            block,
+            equation: None,
+            region_height: Pt(0.0),
+            lexical_styles: None,
+            callback_pass: None,
+            cancel_occurrence: Cell::new(0),
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_with_context(
+        metrics: &'a M,
+        block: bool,
+        style: &TextStyle,
+        equation: crate::entities::location::Location,
+        region_height: Pt,
+        lexical_styles: &'a crate::entities::style_chain::StyleChain,
+        callback_pass: &'a callbacks::MathCallbackPassState,
+    ) -> Self {
+        let mut this = Self::new(metrics, block, style);
+        this.equation = Some(equation);
+        this.region_height = region_height;
+        this.lexical_styles = Some(lexical_styles);
+        this.callback_pass = Some(callback_pass);
+        this
     }
 
     /// Centra um MathBox no eixo matemático ajustando ascent/descent.
@@ -662,7 +696,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // P296 — Math accent/cancel handlers dedicados.
             Content::MathAccent(e) => self.layout_accent(&e.base, &e.accent, style),
 
-            Content::MathCancel(e) => self.layout_cancel(&e.body, style),
+            Content::MathCancel(e) => {
+                let occurrence = self.cancel_occurrence.get();
+                self.cancel_occurrence.set(occurrence + 1);
+                self.layout_cancel_elem(e, style, occurrence)
+            }
 
             // P772y — `math.class(class, body)`: override de classe afecta
             // apenas espaçamento (spacing.rs); o layout do body é normal.
@@ -702,23 +740,46 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // P298 — Math op (trivial delegate; limits flag consumido em layout_attach).
             Content::MathOp(e) => self.layout_op(&e.text, style),
 
-            // P311b.4 — Math style wrapper: aplica map_glyph + size factor.
-            // Composição outer-wins é resolvida por `apply_math_style` que
-            // funde MathStyled aninhados via Option::or (outer set ganha).
+            // P311b.4/P1291 — Math style wrapper: resolve a cadeia por eixos.
+            // No mesmo eixo o setter mais interno vence; glyph, tamanho,
+            // bold, italic e cramped permanecem ortogonais.
             Content::MathStyled(m) => {
-                // Modelo D (P316): MathStyled delegado; re-bind dos campos.
-                let kind = &m.kind;
-                let bold = &m.bold;
-                let italic = &m.italic;
-                let body = &m.body;
-                let transformed = apply_math_style(body, *kind, *bold, *italic);
-                let size_factor = kind
-                    .filter(|k| k.is_size_variant())
-                    .map(|k| k.size_factor())
-                    .unwrap_or(1.0);
+                let mut node = m.as_ref();
+                let mut glyph_kind = None;
+                let mut size_kind = None;
+                let mut bold = None;
+                let mut italic = None;
+                let mut cramped = None;
+
+                let body = loop {
+                    if let Some(kind) = node.kind {
+                        if kind.is_size_variant() {
+                            size_kind = Some(kind);
+                        } else {
+                            glyph_kind = Some(kind);
+                        }
+                    }
+                    if node.bold.is_some() {
+                        bold = node.bold;
+                    }
+                    if node.italic.is_some() {
+                        italic = node.italic;
+                    }
+                    if node.cramped.is_some() {
+                        cramped = node.cramped;
+                    }
+
+                    match &node.body {
+                        Content::MathStyled(inner) => node = inner.as_ref(),
+                        body => break body,
+                    }
+                };
+
+                let transformed = apply_math_style(body, glyph_kind, bold, italic);
+                let size_factor = size_kind.map(|k| k.size_factor()).unwrap_or(1.0);
                 let mut math_style = style.clone();
                 math_style.size = style.size * size_factor;
-                if let Some(k) = kind {
+                if let Some(k) = size_kind {
                     use crate::entities::layout_types::MathSize;
                     use crate::entities::math_style::MathStyleKind;
                     match k {
@@ -737,14 +798,19 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                         _ => {}
                     }
                 }
-                if let Some(c) = m.cramped {
+                if let Some(c) = cramped {
                     math_style.cramped = c;
                 }
                 // Se kind glyph foi aplicado (chars já variant-encoded) OU
                 // italic explícito foi set, suprimir auto-itálico do
                 // `MathIdent` handler. Itálico explícito é honrado via
                 // codepoint já transformado (Italic plane).
-                if kind.is_some() || italic.is_some() || bold.is_some() {
+                if glyph_kind.is_some()
+                    || size_kind.is_some()
+                    || italic.is_some()
+                    || bold.is_some()
+                    || cramped.is_some()
+                {
                     math_style.italic = false;
                 }
                 self.layout_node(&transformed, &math_style)
@@ -1805,9 +1871,9 @@ pub(super) fn flatten_math_sequence_nodes(nodes: &[Content], out: &mut Vec<Conte
 // ── Passo 311b.4 — `apply_math_style` helper ─────────────────────────────
 //
 // Aplica recursivamente o variant glyph + flags (bold/italic) aos chars
-// do body. Composição: outer-wins via Option::or (outer set ganha sobre
-// inner). Para sub-arvores não-`MathStyled` (MathFrac/MathSequence/etc.),
-// propaga o contexto recursivamente.
+// do body. P1291: no mesmo eixo, o setter interno ganha; eixos distintos
+// continuam a compor. Para sub-arvores não-`MathStyled`
+// (MathFrac/MathSequence/etc.), propaga o contexto recursivamente.
 
 /// **P812** — aplicação do itálico matemático **por defeito** (P809) no topo
 /// de `layout_equation`. Percorre a árvore mapeando folhas de 1 carácter
@@ -1924,7 +1990,16 @@ fn apply_math_default(body: &Content) -> Content {
         // `MathAccent` de P961). `Strike`: recursão no corpo, `stroke`/
         // `offset`/`extent` preservados sem alteração. Ver `_comum.md`
         // §P990-C.
-        Content::MathCancel(e) => Content::math_cancel(apply_math_default(&e.body)),
+        Content::MathCancel(e) => Content::math_cancel_full(
+            apply_math_default(&e.body),
+            e.length,
+            e.inverted,
+            e.cross,
+            e.angle.clone(),
+            e.stroke.clone(),
+            e.background,
+            e.span,
+        ),
         Content::Strike(e) => {
             Content::strike(apply_math_default(&e.body), e.stroke, e.offset, e.extent)
         }
@@ -1958,24 +2033,24 @@ fn apply_math_style(
     italic: Option<bool>,
 ) -> Content {
     match body {
-        // Composição: inner MathStyled é fundido com outer via Option::or.
-        // Modelo D (P316): MathStyled delegado; campos via Arc<Elem>.
-        // **P812** — os eixos são ortogonais no vanilla (tamanho × glifo):
-        // outer size-variant + inner glyph-variant → o GLYPH do inner
-        // prevalece (`script(bb(R))` → ℝ pequeno); ambos size-variants →
-        // outer vence (regra P311b.4); caso contrário outer vence.
+        // P1291 — setters internos vencem no mesmo eixo. Tamanho e cramped
+        // não pertencem à transformação de glifo: preserva-se um wrapper
+        // mínimo para o handler aplicar esses eixos no subtree correcto.
         Content::MathStyled(m) => {
-            let eff_kind = match (kind, m.kind) {
-                (Some(outer), Some(inner)) => {
-                    if outer.is_size_variant() && !inner.is_size_variant() {
-                        Some(inner)
-                    } else {
-                        Some(outer)
-                    }
-                }
-                (outer, inner) => outer.or(inner),
-            };
-            apply_math_style(&m.body, eff_kind, bold.or(m.bold), italic.or(m.italic))
+            let outer_glyph = kind.filter(|k| !k.is_size_variant());
+            let inner_glyph = m.kind.filter(|k| !k.is_size_variant());
+            let transformed = apply_math_style(
+                &m.body,
+                inner_glyph.or(outer_glyph),
+                m.bold.or(bold),
+                m.italic.or(italic),
+            );
+            let size_kind = m.kind.filter(|k| k.is_size_variant());
+            if size_kind.is_some() || m.cramped.is_some() {
+                Content::math_styled(size_kind, None, None, transformed, m.cramped)
+            } else {
+                transformed
+            }
         }
         // Folha textual: aplica map_glyph char-by-char.
         Content::MathIdent(name) => {
@@ -2158,8 +2233,8 @@ mod p311b_tests {
     }
 
     #[test]
-    fn p311b4_apply_math_style_bb_cal_outer_wins() {
-        // bb(cal(x)) — outer Bb deve ganhar.
+    fn p1291_apply_math_style_bb_cal_inner_wins() {
+        // Medição vanilla P1291: bb(cal(x)) preserva o setter mais interno.
         let inner = Content::math_styled(
             Some(MathStyleKind::Chancery),
             None,
@@ -2168,25 +2243,75 @@ mod p311b_tests {
             None,
         );
         let out = apply_math_style(&inner, Some(MathStyleKind::DoubleStruck), None, None);
-        match out {
-            Content::MathIdent(s) => {
-                assert_eq!(s.as_str(), "\u{1D569}", "outer Bb deve ganhar")
-            }
-            other => panic!("esperado MathIdent, obteve {other:?}"),
-        }
+        let expected =
+            apply_math_style(&mk_ident("x"), Some(MathStyleKind::Chancery), None, None);
+        assert_eq!(out, expected, "inner cal must win over outer bb");
     }
 
     #[test]
-    fn p311b4_apply_math_style_upright_italic_outer_wins() {
-        // upright(italic(x)) — outer upright (italic=false) deve ganhar.
-        let inner = Content::math_styled(None, None, Some(true), mk_ident("x"), None);
-        let out = apply_math_style(&inner, None, None, Some(false));
-        match out {
-            Content::MathIdent(s) => {
-                assert_eq!(s.as_str(), "x", "upright deve suprimir italic")
-            }
-            other => panic!("esperado MathIdent, obteve {other:?}"),
+    fn p1291_glyph_exterior_preserva_inline_e_cramped_interiores() {
+        use crate::compiler::layout::FixedMetrics;
+
+        let inner_inline = Content::math_styled(
+            Some(MathStyleKind::Inline),
+            None,
+            None,
+            mk_ident("x"),
+            Some(true),
+        );
+        let outer_bb = Content::math_styled(
+            Some(MathStyleKind::DoubleStruck),
+            None,
+            None,
+            inner_inline,
+            None,
+        );
+        let input_style = TextStyle {
+            math_size: MathSize::Display,
+            ..TextStyle::regular(Pt(12.0))
+        };
+        let layouter = MathLayouter::new(&FixedMetrics, true, &input_style);
+        let box_ = layouter.layout_node(&outer_bb, &input_style);
+        let Some(FrameItem::Text { text, style, .. }) = box_.items.first() else {
+            panic!("styled leaf must yield a text item: {:?}", box_.items)
+        };
+        assert_eq!(text.as_str(), "\u{1D569}", "outer bb glyph must remain");
+        assert_eq!(style.math_size, MathSize::Text, "inner inline size was lost");
+        assert!(style.cramped, "inner inline cramped was lost");
+    }
+
+    #[test]
+    fn p1291_scripts_override_mantem_attachments_laterais() {
+        use crate::compiler::layout::FixedMetrics;
+
+        fn x_of(items: &[FrameItem], needle: &str) -> f64 {
+            items
+                .iter()
+                .find_map(|item| match item {
+                    FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                        Some(pos.x.val())
+                    }
+                    _ => None,
+                })
+                .unwrap_or_else(|| panic!("missing {needle:?} in {items:?}"))
         }
+
+        let style = TextStyle::regular(Pt(12.0));
+        let layouter = MathLayouter::new(&FixedMetrics, true, &style);
+        let attach = Content::math_attach_scripts(
+            Content::math_limits_override(Content::MathText("∑".into()), false, true),
+            None,
+            None,
+            Some(Content::MathText("1".into())),
+            Some(Content::MathText("2".into())),
+        );
+        let items = layouter.layout_equation(&attach, &style);
+        let base_x = x_of(&items, "∑");
+        let sup_x = x_of(&items, "2");
+        assert!(
+            sup_x > base_x + 3.6,
+            "scripts(sum) must put superscript laterally: base={base_x}, sup={sup_x}"
+        );
     }
 
     #[test]

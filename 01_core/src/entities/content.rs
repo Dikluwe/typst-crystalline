@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 89bcf65b
+//! @prompt-hash ba7b6e7f
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -46,7 +46,7 @@ use crate::entities::elements::Element;
 use crate::entities::elements::math_accent::MathAccentElem;
 use crate::entities::elements::math_align_point::MathAlignPointElem;
 use crate::entities::elements::math_attach::MathAttachElem;
-use crate::entities::elements::math_cancel::MathCancelElem;
+use crate::entities::elements::math_cancel::{MathCancelAngle, MathCancelElem};
 use crate::entities::elements::math_cases::MathCasesElem;
 use crate::entities::elements::math_class_override::MathClassOverrideElem;
 use crate::entities::elements::math_delimited::MathDelimitedElem;
@@ -1634,7 +1634,40 @@ impl Content {
     }
     /// Construtor de `MathCancel`.
     pub fn math_cancel(body: Content) -> Self {
-        Self::MathCancel(Arc::new(MathCancelElem { body }))
+        Self::math_cancel_full(
+            body,
+            crate::entities::rel::Rel::from_percent(100.0)
+                + crate::entities::layout_types::Length::em(0.3),
+            false,
+            false,
+            MathCancelAngle::Auto,
+            None,
+            false,
+            crate::entities::span::Span::detached(),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn math_cancel_full(
+        body: Content,
+        length: crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+        inverted: bool,
+        cross: bool,
+        angle: MathCancelAngle,
+        stroke: Option<crate::entities::geometry::Stroke>,
+        background: bool,
+        span: crate::entities::span::Span,
+    ) -> Self {
+        Self::MathCancel(Arc::new(MathCancelElem {
+            body,
+            length,
+            inverted,
+            cross,
+            angle,
+            stroke,
+            background,
+            span,
+        }))
     }
     /// Construtor de `MathClassOverride` — `math.class(class, body)`.
     pub fn math_class_override(

@@ -1,0 +1,26 @@
+{
+  "protocol": "tekt-materializacao-segregada-v1",
+  "step": "P1291.cancel-angle-runtime",
+  "kind": "continuous_internal_parity_refinement",
+  "recorded_at": "2026-08-31T16:40:10-03:00",
+  "predecessor_seal": {
+    "path": "00_nucleo/diagnosticos/p1291-callback-runtime-seal.json",
+    "sha256": "59650dfc24435e73892ee1d4346b66438349a0b3c679bc63130eb2de87082179"
+  },
+  "trigger": "independent black-box test reached eval_math_arg_value before the native and observed closure/context converted to Content/math identifier",
+  "classification": {
+    "adr_0127": "internal parity correction; no new public Rust contract, default behavior, pipeline phase or compatibility break",
+    "human_gate": "not required; continuous L0-first flow",
+    "observable_contract": "already frozen by the protected RED tests"
+  },
+  "added_protected_prompt": {
+    "path": "00_nucleo/prompts/compiler/eval/math.md",
+    "sha256": "4f6bdd8034aea86f8f11f748597eafd60102bdbf94223e339c42d14c1c75ad55"
+  },
+  "protected_tests_revalidated": {
+    "01_core/src/compiler/math/layout/tests.rs": "b5c8098348a7ee7c50b3757f72655ed9c5aca7d3050fb844462aa2f47ac3f3be",
+    "04_wiring/tests/p1291_callback_runtime.rs": "9ab09f8173a3d3444dfe07ac5d8b3742552bd4d64b72cc2f8afa9a08f4993735"
+  },
+  "implementation_capability_added": "01_core/src/compiler/eval/math.rs only",
+  "attestation_limitation": "refinement discovered after implementation began; chain resumed from the affected L0 mapping, with preexisting observable tests unchanged and without technical isolation attestation"
+}

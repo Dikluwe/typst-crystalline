@@ -1,0 +1,77 @@
+{
+  "protocol": "tekt-materializacao-segregada-v1",
+  "step": "P1291.cancel-angle-runtime.layout-with-font",
+  "kind": "final_test_reseal_and_mutation_verdict",
+  "sealed_at": "2026-08-31T18:24:51-03:00",
+  "repository_head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+  "working_tree": "uncommitted shared working tree",
+  "predecessor": {
+    "path": "00_nucleo/diagnosticos/p1291-layout-with-font-red-receipt.json",
+    "sha256": "00a0d9e979c56ef97a4a377c1af326f286a9932bb5770f4495f20b67c87614e7",
+    "verdict": "RED_CONFIRMED"
+  },
+  "authority": {
+    "role": "Testador A acting as verifier and adversary after the oracle was frozen",
+    "writes": [
+      "00_nucleo/diagnosticos/p1291-layout-with-font-test-reseal-v2.json"
+    ],
+    "production_edits": false,
+    "test_edits_after_red_seal": false,
+    "attestation_limitation": "executed_without_technical_isolation_attestation in a shared working tree; verification is scoped to the recorded observable and mutation"
+  },
+  "normative_input": {
+    "path": "00_nucleo/prompts/infra/layout.md",
+    "sha256": "d38f0cb22f7dc28b89bedebc80bfbb16ba3edc9a8e348deda83f22c09844416d",
+    "obligation": "valid-font callback math fails closed before layout_with_font can return a provisional PagedDocument"
+  },
+  "protected_oracle": {
+    "path": "03_infra/src/layout.rs",
+    "test": "layout::tests::p1291_layout_with_font_callback_nao_exporta_documento_provisorio",
+    "red_seal_block_sha256": "27f358a84fed21cd3314efec20e8b78d8e50e065294a947e605d7103f51c37f9",
+    "verified_current_block_sha256": "27f358a84fed21cd3314efec20e8b78d8e50e065294a947e605d7103f51c37f9",
+    "unchanged": true
+  },
+  "implementation_under_test": {
+    "path": "03_infra/src/layout.rs",
+    "file_sha256": "0fa5031334161d5e220b49db206375235aeebcabb8a2d3ebdcec5203c15722c2",
+    "layout_with_font_block_sha256": "e24efbd997242aa4ba2cc2df3b17cc3656c076549afbf204d61fd7d9f041b180",
+    "public_signature_changed": false,
+    "observed_strategy": "valid-font path calls layout_with_introspector_and_metrics through a cloneable &dyn FontMetrics boundary and converts Pending into the legacy helper's closed panic"
+  },
+  "green_verification": [
+    {
+      "command": "cargo test -p typst-infra p1291_layout_with_font_callback_nao_exporta_documento_provisorio -- --nocapture",
+      "exit_status": 0,
+      "selected_tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "closed_failure_observed": "layout_with_font cannot resolve math callbacks: math callbacks require the callback-aware layout entrypoint"
+    },
+    {
+      "command": "cargo test -p typst-infra layout::tests:: -- --nocapture",
+      "exit_status": 0,
+      "selected_tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "coverage": "callback fail-closed plus invalid, empty and valid-font legacy controls"
+    }
+  ],
+  "mutation_attack": {
+    "mutation": "replace the callback-aware valid-font boundary with the prior direct Layouter::new(...).layout_content(...).finish() path",
+    "execution_evidence": "the exact direct-Layouter predecessor was exercised in the RED receipt before the implementation change",
+    "witness": "the protected oracle failed because layout_with_font returned a provisional PagedDocument with 1 page",
+    "oracle_result_for_mutation": "Violated",
+    "valid_mutations": 1,
+    "rejected_mutations": 1,
+    "mutation_score": 1.0,
+    "fresh_mutant_edit_performed": false,
+    "reason": "the historical RED run already executed the requested mutation state; recreating it would require an unauthorized production edit"
+  },
+  "mechanical_checks": {
+    "command": "rustfmt --edition 2021 --check 03_infra/src/layout.rs",
+    "exit_status": 0,
+    "diff_check_command": "git diff --check -- 03_infra/src/layout.rs",
+    "diff_check_exit_status": 0
+  },
+  "verdict": "APPROVED_FOR_RECORDED_LAYOUT_WITH_FONT_OBSERVABLE"
+}

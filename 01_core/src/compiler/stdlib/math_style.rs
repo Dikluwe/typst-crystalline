@@ -1,16 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/math_style.md
-//! @prompt-hash 404600a0
+//! @prompt-hash 58661c6c
 //! @layer L1
-//! @updated 2026-05-20
+//! @updated 2026-08-31
 //!
 //! 12 funções math style — `bb`/`bold`/`cal`/`frak`/`italic`/`mono`/
 //! `sans`/`scr`/`script`/`serif`/`sscript`/`upright` (P311b.3 per
 //! diagnóstico P311a). Cada função wrap o body em
 //! `Content::MathStyled` com `kind`/`bold`/`italic`/`cramped`
-//! específicos. Composição (outer-wins variant, ortogonal bold)
-//! resolvida em `MathLayouter` (P311b.4).
+//! específicos. Composição (inner-wins no mesmo eixo; eixos ortogonais
+//! preservados) resolvida em `MathLayouter` (P311b.4/P1291).
 
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
@@ -30,19 +31,27 @@ use crate::entities::value::Value;
 /// qualquer named arg.
 fn wrap_math_style(
     args: &Args,
-    name: &str,
+    _name: &str,
     kind: Option<MathStyleKind>,
     bold: Option<bool>,
     italic: Option<bool>,
     default_cramped: Option<bool>,
 ) -> SourceResult<Value> {
     let cramped = if let Some(default) = default_cramped {
+        for key in args.named.keys() {
+            if key.as_str() != "cramped" {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("unexpected argument: {key}"),
+                )]);
+            }
+        }
         match args.named.get("cramped") {
             Some(Value::Bool(b)) => Some(*b),
             Some(other) => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("cramped deve ser bool, recebeu {}", other.type_name()),
+                    format!("expected boolean, found {}", vanilla_type_name(other)),
                 )]);
             }
             None => Some(default),
@@ -51,7 +60,7 @@ fn wrap_math_style(
         for key in args.named.keys() {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("{}() não aceita o argumento nomeado '{}'", name, key),
+                format!("unexpected argument: {key}"),
             )]);
         }
         None
@@ -60,7 +69,7 @@ fn wrap_math_style(
     if args.items.len() > 1 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}() espera 1 argumento, recebeu {}", name, args.items.len()),
+            "unexpected argument".to_string(),
         )]);
     }
     let body = match args.items.first() {
@@ -74,11 +83,7 @@ fn wrap_math_style(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!(
-                    "{}() espera content ou string, recebeu {}",
-                    name,
-                    other.type_name()
-                ),
+                format!("expected content, found {}", vanilla_type_name(other)),
             )])
         }
         // **P811** — paridade vanilla medida (`$ frak() $` →

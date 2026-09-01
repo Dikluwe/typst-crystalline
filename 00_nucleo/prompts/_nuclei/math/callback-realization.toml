@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "math-callback-realization"
+title = "Realização de callbacks matemáticas dependentes de geometria"
+
+[[claims]]
+id = "pure-layout"
+level = "must-not"
+statement = "O layouter não executa Func, Engine ou World; ele somente produz requests puras e consome resoluções seladas."
+
+[[claims]]
+id = "provisional-not-success"
+level = "must-not"
+statement = "Uma passagem com request pendente, store stale ou transcript não convergente não pode ser exportada ou devolvida como compilação bem-sucedida."
+
+[[claims]]
+id = "stable-request-identity"
+level = "must"
+statement = "Cada request é identificada pela Location da equação, occurrence estrutural reservada uma vez na entrada do elemento antes de descer no body e índice da linha; Span é somente diagnóstico."
+
+[[claims]]
+id = "concrete-attempt-scope"
+level = "must"
+statement = "Cada tentativa concreta de Layouter possui estado de transcript novo; tentativas internas rejeitadas descartam os seus transcripts, e somente uma tentativa candidata estabilizada pode alimentar fases posteriores."
+
+[[claims]]
+id = "pipeline-realization"
+level = "must"
+statement = "A pipeline realiza requests em ordem com Engine e estilo capturado, valida Angle e entrega uma store completa à passagem seguinte."
+
+[[claims]]
+id = "one-request-per-language-call"
+level = "must"
+statement = "A cardinalidade de requests preserva as chamadas da linguagem; cancel cross executa a callback uma vez por linha."

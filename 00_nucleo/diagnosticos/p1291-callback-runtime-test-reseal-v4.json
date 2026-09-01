@@ -1,0 +1,29 @@
+{
+  "protocol": "tekt-materializacao-segregada-v1",
+  "step": "P1291.cancel-angle-runtime",
+  "kind": "protected_test_lineage_reseal",
+  "sealed_at": "2026-08-31T17:54:00-03:00",
+  "repository_head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+  "predecessor": {
+    "path": "00_nucleo/diagnosticos/p1291-callback-runtime-test-reseal-v3.json",
+    "sha256": "5ba8a1a6a19a9025558684eb7f44c4fe1cb0a518f8209320d8e88029da90a948"
+  },
+  "authorization": {
+    "adr_0127": "continuous mechanical lineage correction; no public contract, default behavior, pipeline phase or compatibility change",
+    "scope": "only the @prompt-hash line of the protected wiring test"
+  },
+  "reason": "V5 requires the effective L0 hash prefix 645410e8 rather than the raw prompt hash prefix e7f18437",
+  "changed_protected_test": {
+    "path": "04_wiring/tests/p1291_callback_runtime.rs",
+    "old_sha256": "613997cb501fe3d8ce7e547101a08032a3ad6d9eacc236dd976f34ee04d40d69",
+    "new_sha256": "527eee47b1f2d6f60943ef8d25688fd21d9c94d8fbbcf2fd7ebc791efb01f018",
+    "old_prompt_hash": "e7f18437",
+    "new_prompt_hash": "645410e8",
+    "body_identity_check": "replacing only 645410e8 with e7f18437 in the new file reproduces old_sha256 exactly"
+  },
+  "unchanged_protected_artifacts": {
+    "01_core/src/compiler/math/layout/tests.rs": "54aa5b5017803bb829e56d0ff632f359c6824574d5eb84e9f2f17351ac4e991a",
+    "01_core/src/compiler/math/layout/callbacks.rs::cfg_test_block": "1ee542bde60ae273b2bdd57b9c54c3cd4b251aa779afc624ec5609869ebc786a"
+  },
+  "attestation_limitation": "executed_without_technical_isolation_attestation"
+}

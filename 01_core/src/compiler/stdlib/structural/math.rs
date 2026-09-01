@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash e0e5a1a7
+//! @prompt-hash 085a24a9
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-08-31
 //!
 //! Nativas de matemática: `accent`, `cancel`, `class`, `underover`, `op`,
 //! e a montagem do módulo `math`.
@@ -16,7 +16,9 @@ use ecow::EcoString;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
-use crate::entities::layout_types::{Align2D, HAlign};
+use crate::entities::elements::math_cancel::MathCancelAngle;
+use crate::entities::layout_types::{Align2D, HAlign, Length};
+use crate::entities::rel::Rel;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style::Styles;
@@ -282,35 +284,115 @@ pub fn native_cancel(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let body = match args.items.first() {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s)) => Content::text(s.as_str()),
-        Some(other) => {
+    let body = match args.items.as_slice() {
+        [Value::Content(c)] => c.clone(),
+        [Value::Str(s)] => Content::text(s.as_str()),
+        [other] => {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!(
-                    "cancel() espera content ou string, recebeu {}",
-                    other.type_name()
-                ),
+                args.span,
+                format!("expected content, found {}", vanilla_type_name_class(other)),
             )])
         }
-        None => {
+        [] => {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "cancel() exige body como argumento posicional".to_string(),
+                args.span,
+                "missing argument: body".to_string(),
             )])
         }
+        _ => return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]),
     };
 
-    // Validar ausência de named args (P296 scope-out cosméticos).
-    for k in args.named.keys() {
-        return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("cancel(): argumento nomeado '{}' não suportado em P296 (length/inverted/cross/angle/stroke scope-out per ADR-0054 graded)", k),
-        )]);
+    let mut length = Rel::from_percent(100.0) + Length::em(0.3);
+    let mut inverted = false;
+    let mut cross = false;
+    let mut angle = MathCancelAngle::Auto;
+    let mut stroke = None;
+    let mut background = false;
+    for (name, value) in &args.named {
+        match name.as_str() {
+            "length" => match value {
+                Value::Relative(value) => length = *value,
+                Value::Length(value) => length = Rel { rel: 0.0, abs: *value },
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "expected relative length, found {}",
+                            vanilla_type_name_class(other)
+                        ),
+                    )])
+                }
+            },
+            "inverted" => match value {
+                Value::Bool(value) => inverted = *value,
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "expected boolean, found {}",
+                            vanilla_type_name_class(other)
+                        ),
+                    )])
+                }
+            },
+            "cross" => match value {
+                Value::Bool(value) => cross = *value,
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "expected boolean, found {}",
+                            vanilla_type_name_class(other)
+                        ),
+                    )])
+                }
+            },
+            "angle" => match value {
+                Value::Auto => angle = MathCancelAngle::Auto,
+                Value::Angle(value) => angle = MathCancelAngle::Angle(*value),
+                Value::Func(value) => angle = MathCancelAngle::Func(value.clone()),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "expected angle, function, or auto, found {}",
+                            vanilla_type_name_class(other)
+                        ),
+                    )])
+                }
+            },
+            "stroke" => match value {
+                Value::None => stroke = None,
+                other => {
+                    stroke = Some(crate::compiler::stdlib::layout::extract_stroke(
+                        other, "cancel", "stroke",
+                    )?);
+                }
+            },
+            "background" => match value {
+                Value::Bool(value) => background = *value,
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "expected boolean, found {}",
+                            vanilla_type_name_class(other)
+                        ),
+                    )])
+                }
+            },
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("unexpected argument: {other}"),
+                )])
+            }
+        }
     }
 
-    Ok(Value::Content(Content::math_cancel(body)))
+    Ok(Value::Content(Content::math_cancel_full(
+        body, length, inverted, cross, angle, stroke, background, args.span,
+    )))
 }
 
 // ── P772y — `math.class(class, body)` ────────────────────────────────────
@@ -584,6 +666,40 @@ fn op_value(text: &str, limits: bool) -> Value {
     Value::Content(Content::math_op(Content::text(text), limits))
 }
 
+/// `scripts(body)` — força attachments laterais reutilizando o constructor
+/// canónico de `MathLimitsOverride`.
+fn native_math_scripts(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if let Some((name, _)) = args.named.iter().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+
+    match args.items.as_slice() {
+        [Value::Content(body)] => {
+            Ok(Value::Content(Content::math_limits_override(body.clone(), false, true)))
+        }
+        [other] => Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("expected content, found {}", vanilla_type_name_class(other)),
+        )]),
+        [] => Err(vec![SourceDiagnostic::error(
+            args.span,
+            "missing argument: body".to_string(),
+        )]),
+        _ => Err(vec![SourceDiagnostic::error(
+            args.span,
+            "unexpected argument".to_string(),
+        )]),
+    }
+}
+
 /// Constrói o módulo `math` como `Value::Module` com 41 operadores
 /// vanilla pré-definidos (paralelo `make_calc_module()` P283).
 pub fn make_math_module() -> Value {
@@ -679,6 +795,25 @@ pub fn make_math_module() -> Value {
         Value::Func(crate::entities::func::Func::native_with_engine("op", native_op)),
     );
 
+    // P1291 — bindings próprios medidos do namespace math. Os quatro
+    // styles reutilizam exactamente as nativas donas; `scripts` é somente
+    // o adapter ABI privado para o constructor estrutural existente.
+    for (name, native) in [
+        ("bb", crate::compiler::stdlib::math_style::native_bb as _),
+        ("frak", crate::compiler::stdlib::math_style::native_frak as _),
+        ("inline", crate::compiler::stdlib::math_style::native_inline as _),
+        ("serif", crate::compiler::stdlib::math_style::native_serif as _),
+    ] {
+        dict.insert(
+            name.into(),
+            Value::Func(crate::entities::func::Func::native(name, native)),
+        );
+    }
+    dict.insert(
+        "scripts".into(),
+        Value::Func(crate::entities::func::Func::native("scripts", native_math_scripts)),
+    );
+
     // **P895** — espaçamentos nomeados de modo math, nunca registados
     // (paridade vanilla `math/mod.rs:36-40,98-102`: `THIN`/`MEDIUM`/`THICK`
     // = mesmas fracções de em já usadas em `spacing.rs` para o espaçamento
@@ -718,6 +853,330 @@ pub fn make_math_module() -> Value {
         }
     }
     Value::Module(crate::entities::module::Module::new("math", scope))
+}
+
+#[cfg(test)]
+mod p1291_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::func::Func;
+    use crate::entities::math_style::MathStyleKind;
+    use crate::entities::source::Source;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use std::num::NonZeroU16;
+
+    type NativeFn =
+        fn(&mut EvalContext, &Args, &dyn World, FileId) -> SourceResult<Value>;
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: Library,
+        book: FontBook,
+    }
+
+    impl World for NullWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            test_file_id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn test_file_id() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1).unwrap())
+    }
+
+    fn math_func(name: &str) -> Func {
+        let Value::Module(module) = make_math_module() else {
+            panic!("math must be a module")
+        };
+        match module.scope().get(name) {
+            Some(Value::Func(func)) => func.clone(),
+            Some(other) => panic!("math.{name} must be callable, got {other:?}"),
+            None => panic!("missing callable math.{name}"),
+        }
+    }
+
+    fn call_math(name: &str, args: Args) -> SourceResult<Value> {
+        let call = math_func(name)
+            .native_fn_addr()
+            .unwrap_or_else(|| panic!("math.{name} must be a native callable"));
+        call(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
+    }
+
+    fn body() -> Value {
+        Value::Content(Content::MathIdent("x".into()))
+    }
+
+    fn diagnostic_message(name: &str, args: Args) -> String {
+        let diagnostics = call_math(name, args).unwrap_err();
+        assert_eq!(diagnostics.len(), 1, "math.{name} must emit one primary diagnostic");
+        diagnostics.into_iter().next().unwrap().message
+    }
+
+    #[test]
+    fn p1291_namespace_expoe_cinco_funcoes_com_nome_curto() {
+        let Value::Module(module) = make_math_module() else {
+            panic!("math must be a module")
+        };
+        for name in ["bb", "frak", "inline", "scripts", "serif"] {
+            let Some(Value::Func(func)) = module.scope().get(name) else {
+                panic!("math.{name} must be callable")
+            };
+            assert_eq!(func.name(), Some(name), "math.{name} public name");
+        }
+    }
+
+    #[test]
+    fn p1291_styles_reutilizam_as_quatro_nativas_donas() {
+        let expected: [(&str, NativeFn); 4] = [
+            ("bb", crate::compiler::stdlib::math_style::native_bb),
+            ("frak", crate::compiler::stdlib::math_style::native_frak),
+            ("inline", crate::compiler::stdlib::math_style::native_inline),
+            ("serif", crate::compiler::stdlib::math_style::native_serif),
+        ];
+        for (name, expected) in expected {
+            let actual = math_func(name).native_fn_addr().unwrap();
+            assert!(
+                std::ptr::fn_addr_eq(actual, expected),
+                "math.{name} points to the wrong global function"
+            );
+        }
+    }
+
+    #[test]
+    fn p1291_styles_produzem_morfologia_e_defaults_medidos() {
+        for (name, kind, cramped) in [
+            ("bb", MathStyleKind::DoubleStruck, None),
+            ("frak", MathStyleKind::Fraktur, None),
+            ("inline", MathStyleKind::Inline, Some(false)),
+            ("serif", MathStyleKind::Plain, None),
+        ] {
+            let value = call_math(name, Args::positional(vec![body()])).unwrap();
+            let Value::Content(Content::MathStyled(elem)) = value else {
+                panic!("math.{name} must produce MathStyled")
+            };
+            assert_eq!(elem.kind, Some(kind), "math.{name} style kind");
+            assert_eq!(elem.cramped, cramped, "math.{name} cramped default");
+            assert!(matches!(&elem.body, Content::MathIdent(x) if x == "x"));
+        }
+
+        let mut explicit = Args::positional(vec![body()]);
+        explicit.named.insert("cramped".into(), Value::Bool(true));
+        let Value::Content(Content::MathStyled(elem)) =
+            call_math("inline", explicit).unwrap()
+        else {
+            panic!("math.inline(cramped: true) must produce MathStyled")
+        };
+        assert_eq!(elem.cramped, Some(true));
+    }
+
+    #[test]
+    fn p1291_styles_rejeitam_aridade_tipo_e_named_invalidos() {
+        for name in ["bb", "frak", "inline", "serif"] {
+            assert!(call_math(name, Args::positional(vec![])).is_err());
+            assert!(call_math(name, Args::positional(vec![Value::Int(1)])).is_err());
+            assert!(call_math(name, Args::positional(vec![body(), body()])).is_err());
+            let mut unknown = Args::positional(vec![body()]);
+            unknown.named.insert("unknown".into(), Value::Bool(true));
+            assert!(call_math(name, unknown).is_err());
+        }
+        let mut wrong_cramped = Args::positional(vec![body()]);
+        wrong_cramped.named.insert("cramped".into(), Value::Int(1));
+        assert!(call_math("inline", wrong_cramped).is_err());
+    }
+
+    #[test]
+    fn p1291_scripts_constroi_override_e_valida_argumentos() {
+        let value = call_math("scripts", Args::positional(vec![body()])).unwrap();
+        let Value::Content(Content::MathLimitsOverride(elem)) = value else {
+            panic!("math.scripts must produce MathLimitsOverride")
+        };
+        assert!(matches!(&elem.body, Content::MathIdent(x) if x == "x"));
+        assert!(!elem.limits, "scripts must force lateral attachments");
+        assert!(elem.inline, "canonical ignored inline transport must be true");
+
+        assert!(call_math("scripts", Args::positional(vec![])).is_err());
+        assert!(call_math("scripts", Args::positional(vec![Value::Int(1)])).is_err());
+        assert!(call_math("scripts", Args::positional(vec![body(), body()])).is_err());
+        let mut unknown = Args::positional(vec![body()]);
+        unknown.named.insert("foo".into(), Value::Int(1));
+        let err = call_math("scripts", unknown).unwrap_err();
+        assert!(format!("{err:?}").contains("unexpected argument: foo"));
+    }
+
+    #[test]
+    fn p1291_red_errors_excesso_e_unexpected_argument_verbatim() {
+        let actual: Vec<_> = ["bb", "frak", "inline", "scripts", "serif"]
+            .into_iter()
+            .map(|name| {
+                (name, diagnostic_message(name, Args::positional(vec![body(), body()])))
+            })
+            .collect();
+        assert_eq!(
+            actual,
+            vec![
+                ("bb", "unexpected argument".to_string()),
+                ("frak", "unexpected argument".to_string()),
+                ("inline", "unexpected argument".to_string()),
+                ("scripts", "unexpected argument".to_string()),
+                ("serif", "unexpected argument".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn p1291_red_errors_named_nope_e_unexpected_argument_verbatim() {
+        let actual: Vec<_> = ["bb", "frak", "inline", "scripts", "serif"]
+            .into_iter()
+            .map(|name| {
+                let mut args = Args::positional(vec![body()]);
+                args.named.insert("nope".into(), Value::Bool(true));
+                (name, diagnostic_message(name, args))
+            })
+            .collect();
+        assert_eq!(
+            actual,
+            vec![
+                ("bb", "unexpected argument: nope".to_string()),
+                ("frak", "unexpected argument: nope".to_string()),
+                ("inline", "unexpected argument: nope".to_string()),
+                ("scripts", "unexpected argument: nope".to_string()),
+                ("serif", "unexpected argument: nope".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn p1291_red_errors_body_integer_e_expected_content_verbatim() {
+        let actual: Vec<_> = ["bb", "frak", "inline", "scripts", "serif"]
+            .into_iter()
+            .map(|name| {
+                (name, diagnostic_message(name, Args::positional(vec![Value::Int(1)])))
+            })
+            .collect();
+        assert_eq!(
+            actual,
+            vec![
+                ("bb", "expected content, found integer".to_string()),
+                ("frak", "expected content, found integer".to_string()),
+                ("inline", "expected content, found integer".to_string()),
+                ("scripts", "expected content, found integer".to_string()),
+                ("serif", "expected content, found integer".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn p1291_red_errors_inline_cramped_integer_e_boolean_verbatim() {
+        let mut args = Args::positional(vec![body()]);
+        args.named.insert("cramped".into(), Value::Int(1));
+        assert_eq!(diagnostic_message("inline", args), "expected boolean, found integer");
+    }
+
+    #[test]
+    fn p1291_red_errors_styles_continuam_a_aceitar_string() {
+        for name in ["bb", "frak", "inline", "serif"] {
+            let value = call_math(name, Args::positional(vec![Value::Str("x".into())]))
+                .unwrap_or_else(|diagnostics| {
+                    panic!("math.{name} rejected string: {diagnostics:?}")
+                });
+            let Value::Content(Content::MathStyled(elem)) = value else {
+                panic!("math.{name} string must produce MathStyled")
+            };
+            assert!(
+                matches!(&elem.body, Content::MathText(text) if text == "x"),
+                "math.{name} string must be converted to MathText"
+            );
+        }
+    }
+
+    #[test]
+    fn p1291_scope_fechado_nao_copia_extras_globais() {
+        let Value::Module(module) = make_math_module() else {
+            panic!("math must be a module")
+        };
+        for name in ["lorem", "read", "eval", "panic", "assert"] {
+            assert!(
+                module.scope().get(name).is_none(),
+                "global extra math.{name} leaked"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod p1283_tests {
+    use super::*;
+
+    fn assert_mirror(
+        sym: &crate::entities::module::Module,
+        math: &crate::entities::module::Module,
+    ) {
+        for (name, binding) in sym.scope().iter() {
+            let mirrored = math
+                .scope()
+                .get(name)
+                .unwrap_or_else(|| panic!("missing math.{name}"));
+            match (binding.value(), mirrored) {
+                (Value::Symbol(left), Value::Symbol(right)) => {
+                    assert_eq!(left.value, right.value, "wrong math mirror base: {name}");
+                    assert_eq!(
+                        left.variants, right.variants,
+                        "wrong math mirror variants: {name}"
+                    );
+                }
+                (Value::Module(left), Value::Module(right)) => assert_mirror(left, right),
+                // Bindings próprios de math ganham de símbolos homónimos.
+                (_, Value::Func(_))
+                    if matches!(name, "sqrt" | "class" | "equation" | "op") => {}
+                (left, right) => {
+                    panic!("wrong math mirror kind for {name}: {left:?} vs {right:?}")
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn p1283_math_espelha_sym_sem_sobrescrever_funcoes() {
+        let Value::Module(sym) = crate::compiler::stdlib::sym::build_sym_module() else {
+            panic!("sym must be module")
+        };
+        let Value::Module(math) = make_math_module() else {
+            panic!("math must be module")
+        };
+        assert_mirror(&sym, &math);
+        for name in ["sqrt", "class", "equation", "op"] {
+            assert!(
+                matches!(math.scope().get(name), Some(Value::Func(_))),
+                "math.{name} overwritten"
+            );
+        }
+        assert!(matches!(math.scope().get("gender"), Some(Value::Module(_))));
+        assert!(matches!(math.scope().get("control"), Some(Value::Module(_))));
+    }
 }
 
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────

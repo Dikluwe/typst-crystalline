@@ -1,5 +1,8 @@
 # Prompt L0 — `math/layout/cancel` — `MathCancel`
-Hash do Código: 369ab691
+Hash do Código: b804d54b
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/cancel.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -73,3 +76,42 @@ coordenadas do PDF nem constantes em pt.
 
 O contrato P986 de canto a canto fica assim especializado: ele descreve a
 parcela de `100%`; o default público acrescenta `0.3em` simetricamente.
+
+## P1291.cancel-gate — consumo dos campos públicos (RASCUNHO PARA SELO)
+
+### Medição anterior à decisão
+
+O consumer cristalino em `01_core/src/compiler/math/layout/cancel.rs:26-64`
+recebe somente `body` e assa comprimento, direção e espessura default. O
+vanilla ratificado mede primeiro a caixa, resolve o ângulo e o comprimento e
+insere a linha atrás ou à frente em
+`lab/typst-original/crates/typst-layout/src/math/cancel.rs:14-147`.
+
+### Decisão proposta
+
+`layout_cancel` recebe `&MathCancelElem`, não uma lista paralela de escalares.
+O corpo é disposto uma vez para obter `width`, `ascent` e `descent`. O
+comprimento resolve `Rel<Length>` contra a diagonal dessa caixa; a reta fica
+centrada na caixa e não altera suas métricas. `inverted` reflete a direção no
+eixo vertical. `cross` desenha as duas direções opostas e prevalece sobre
+`inverted`. `background=true` insere a(s) linha(s) antes dos items do corpo;
+`false` as insere depois. `stroke=None` deriva espessura `0.05em` e paint do
+texto ativo; `Some(stroke)` preserva paint, espessura, cap, join e dash que o
+modelo de `FrameItem` suportar, sem rebaixar silenciosamente o observável.
+
+`MathCancelAngle::Angle` usa o ângulo explícito em relação ao eixo vertical;
+`Auto` usa a diagonal ascendente dinâmica. Para `MathCancelAngle::Func`, cada
+linha consulta/registra uma request pura em
+`compiler/math/layout/callbacks.md` depois da medição. Uma resolução selada
+correspondente fornece o ângulo; sem ela, o default desenhado é estritamente
+provisório e a request impede exportação até realização L3. `cross=true`
+produz duas requests/chamadas, uma por linha, como o vanilla; ambas recebem o
+mesmo default positivo, cada resultado é independente e somente a geometria da
+segunda linha é refletida. `cross` força a primeira linha não invertida e a
+segunda invertida, ignorando `inverted`; sem `cross`, `inverted` reflete a linha
+única depois da resolução. O resultado não é reutilizado artificialmente. O
+fallback final `Func => Auto` seria divergência de linguagem.
+
+O despacho estático e exaustivo continua no owner
+`compiler/math/layout/_comum.md`; este arquivo permanece a unidade dona de toda
+a geometria de cancel conforme ADR-0109.

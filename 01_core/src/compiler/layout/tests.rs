@@ -20793,6 +20793,7 @@ mod p945_tests {
             NullImageSizer,
             BASE_PT,
         )
+        .expect("test layout without math callbacks")
     }
 
     fn mat_3x3_digitos() -> Content {

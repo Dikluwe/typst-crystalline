@@ -1,0 +1,48 @@
+{
+  "protocol": "tekt-materializacao-segregada-v1",
+  "step": "P1291.cancel-angle-runtime",
+  "status": "human_sealed_for_red_and_implementation",
+  "sealed_at": "2026-08-31T15:55:23-03:00",
+  "human_confirmation": "Confirmo",
+  "repository_head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+  "working_tree": "uncommitted; exact protected inputs identified by sha256",
+  "baseline": {
+    "vanilla_revision": "a51e02804",
+    "vanilla_binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1291-callback-runtime-manifest.json",
+    "sha256": "76707c51ee6bb659501475b6c81a8fbece379dd1e563787182acca8a19a97c73"
+  },
+  "nucleus": {
+    "path": "00_nucleo/prompts/_nuclei/math/callback-realization.toml",
+    "raw_sha256": "5f0a5ea7cbf0a94ed748872bfe67341d7f29a292f3ae2c3a0aee0a098474aa7c",
+    "effective_sha256": "4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917"
+  },
+  "protected_prompts": {
+    "00_nucleo/prompts/compiler/math/layout/callbacks.md": "a305478928d785027e521cc9f2d7dbcedf6895fd8207d3501b595a97d32601dd",
+    "00_nucleo/prompts/compiler/math/layout/_comum.md": "3b5eb1149957ed04f95b289d0a1f526ab7da491e160c80fce943c2906390a99e",
+    "00_nucleo/prompts/compiler/layout.md": "f4bd917d3c8256392359a44ba462f48c84ad2a976acebabbad9aa57a36ac865c",
+    "00_nucleo/prompts/compiler/layout/equation.md": "d38a2ef130e4b878a33b841aaa15ba38c93ac0456b8d22689557dd46eca749ec",
+    "00_nucleo/prompts/compiler/math/layout/cancel.md": "7f6820bbe2de268ab31b7fec4c855a6766e9ce02b9087c163d3e405362a7b969",
+    "00_nucleo/prompts/compiler/math/layout/vec.md": "17e0b016019812bebe4fc5fe902051fc2d808174557f32571f6620457ffa32ea",
+    "00_nucleo/prompts/entities/elements/math_cancel.md": "97b23542c82daa0d144189d26a5bbc43be26605834609a18046318eaee263334",
+    "00_nucleo/prompts/entities/content.md": "e766b0e65403438ac22d204ecb51ab9163ab6ee262c93e1890755b9a7f7c79f5",
+    "00_nucleo/prompts/compiler/stdlib/structural/math.md": "94ae011a5ded72ffec4b8468f7b496cdb6a33079eaade67241230b6e79a2812f",
+    "00_nucleo/prompts/infra/pipeline.md": "28fb5f18d4f6d454de32cb6120c0ac2919d802a5d1aa85261b466872d632df3b"
+  },
+  "contract_gate": {
+    "valid_negative_mutations": 8,
+    "rejected_negative_mutations": 8,
+    "mutation_score": 1.0,
+    "architectural_verdict": "approved",
+    "adversarial_verdict": "approved",
+    "unknown_policy": "Unknown is never success"
+  },
+  "capabilities": {
+    "test_author": "may write dedicated P1291 callback tests and its receipt; may not edit production, prompts, nucleus, manifest or seal",
+    "implementer": "may write production consumers and implementation receipt after RED; may not edit protected tests, prompts, nucleus, manifest or seal",
+    "verifier_and_adversary": "read-only verdicts and receipts after integration"
+  },
+  "attestation_limitation": "executed_without_technical_isolation_attestation; agents share thread context and filesystem"
+}

@@ -1,0 +1,62 @@
+{
+  "protocol": "tekt-materializacao-segregada-v1",
+  "step": "P1291.cancel-angle-runtime.layout-with-font",
+  "kind": "independent_test_red_receipt",
+  "recorded_at": "2026-08-31T18:19:58-03:00",
+  "repository_head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+  "working_tree": "uncommitted shared working tree",
+  "role": {
+    "executor": "Testador A",
+    "regime": "A-only independent RED oracle",
+    "read_scope": [
+      "00_nucleo/prompts/infra/layout.md",
+      "03_infra/src/layout.rs public API and cfg(test) module",
+      "existing P1291 test-side constructors and public entity definitions"
+    ],
+    "write_scope": [
+      "03_infra/src/layout.rs::tests",
+      "00_nucleo/diagnosticos/p1291-layout-with-font-red-receipt.json"
+    ],
+    "production_code_changed": false,
+    "attestation_limitation": "executed_without_technical_isolation_attestation in a shared working tree; the parent supplied the suspected failure mode, but the production function body was not used to tailor the oracle"
+  },
+  "normative_input": {
+    "path": "00_nucleo/prompts/infra/layout.md",
+    "sha256": "d38f0cb22f7dc28b89bedebc80bfbb16ba3edc9a8e348deda83f22c09844416d",
+    "obligation": "with valid font bytes, callback math must fail closed before layout_with_font returns and must never expose a provisional PagedDocument"
+  },
+  "test_artifact": {
+    "path": "03_infra/src/layout.rs",
+    "baseline_file_sha256": "3579ca1bb85e80436c4eafa6d967c2f59eb6caa8b2f5abaabf90c41a96c80968",
+    "red_file_sha256": "d491874c7a0e74516ed2f38f37feccca91e07c57e848d52b2ff92271202d7ad3",
+    "test": "layout::tests::p1291_layout_with_font_callback_nao_exporta_documento_provisorio",
+    "test_block_sha256": "27f358a84fed21cd3314efec20e8b78d8e50e065294a947e605d7103f51c37f9",
+    "fixture": "03_infra/fixtures/fonts/NewCMMath-Book.otf",
+    "observable": "catch_unwind must observe the legacy helper failing closed; Ok(PagedDocument) is rejected and reports its page count",
+    "mutation": "valid-font direct Layouter path returns a provisional document for MathCancelAngle::Func",
+    "mutation_score": "1/1 discriminated"
+  },
+  "red_measurement": {
+    "command": "cargo test -p typst-infra p1291_layout_with_font_callback_nao_exporta_documento_provisorio -- --nocapture",
+    "exit_status": 101,
+    "selected_tests": 1,
+    "passed": 0,
+    "failed": 1,
+    "filtered_out": 911,
+    "failure": "layout_with_font devolveu PagedDocument provisório com 1 página(s)",
+    "interpretation": "the valid-font API returned a PagedDocument instead of failing closed, so the current implementation violates the refined L0"
+  },
+  "mechanical_checks": {
+    "format_command": "rustfmt --edition 2021 --check 03_infra/src/layout.rs",
+    "format_exit_status": 0,
+    "diff_check_command": "git diff --check -- 03_infra/src/layout.rs",
+    "diff_check_exit_status": 0,
+    "diff_scope": "imports and one test inside cfg(test) only"
+  },
+  "seal": {
+    "verdict": "RED_CONFIRMED",
+    "public_signature_changed": false,
+    "production_fix_applied": false,
+    "protected_test_sha256": "27f358a84fed21cd3314efec20e8b78d8e50e065294a947e605d7103f51c37f9"
+  }
+}
