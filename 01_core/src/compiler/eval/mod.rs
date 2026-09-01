@@ -68,12 +68,14 @@ pub(crate) mod bindings;
 mod markup;
 mod modules;
 pub(crate) mod repr;
+pub(crate) mod table;
 
 /// Representação morfológica pública e estreita de `Stroke` para consumidores
 /// que possuem uma branch nominal do tipo. Não é fallback genérico de `Value`.
 pub fn repr_stroke_value(stroke: &crate::entities::geometry::Stroke) -> String {
     repr::repr_stroke(stroke)
 }
+
 pub(crate) mod rules;
 pub(crate) mod selector_matching;
 pub(crate) mod show_rule_termination;
@@ -108,7 +110,7 @@ pub(crate) mod show_rule_termination;
 /// Segunda aplicação concreta da ADR-0036.
 pub struct EvalContext {
     pub target: EvalTarget,
-    pub features: crate::entities::html::Features,
+    pub features: crate::entities::compiler_features::Features,
     // ADR-0036 Regra 4: contador monotónico global — limite de segurança
     // anti-loop-bombing, independente do fluxo de controlo.
     pub loop_iterations: usize,
@@ -208,7 +210,7 @@ impl EvalContext {
     pub fn new() -> Self {
         Self {
             target: EvalTarget::Paged,
-            features: crate::entities::html::Features::default(),
+            features: crate::entities::compiler_features::Features::default(),
             loop_iterations: 0,
             max_loop_iterations: 1_000_000,
             next_rule_id: 0,
@@ -300,18 +302,18 @@ pub fn eval_expression(
     eval_expression_with_features(
         world,
         expression,
-        crate::entities::html::Features::default(),
+        crate::entities::compiler_features::Features::default(),
     )
 }
 
 pub fn eval_expression_with_features(
     world: &dyn World,
     expression: &str,
-    features: crate::entities::html::Features,
+    features: crate::entities::compiler_features::Features,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
     let inputs = world.inputs();
     let mut global = Scope::new();
-    let stdlib = make_stdlib(&inputs);
+    let stdlib = make_stdlib_with_features(&inputs, features);
     global.define("std", Value::Module(Module::new("std", stdlib.clone())));
     for (name, binding) in stdlib.iter() {
         global.define(name, binding.value().clone());
@@ -438,7 +440,7 @@ pub fn eval_with_full_error_and_target(
         registry,
         full_error,
         target,
-        crate::entities::html::Features::default(),
+        crate::entities::compiler_features::Features::default(),
     )
 }
 
@@ -452,7 +454,7 @@ pub fn eval_with_full_error_target_and_features(
     registry: &crate::entities::element_registry::ElementRegistry,
     full_error: bool,
     target: EvalTarget,
-    features: crate::entities::html::Features,
+    features: crate::entities::compiler_features::Features,
 ) -> SourceResult<Module> {
     let root = source.root();
 
@@ -543,7 +545,7 @@ pub fn eval_with_full_error_target_and_features(
         // leitura (`Scopes::get`), nunca por `Scopes::get_mut`. Ver
         // `rules/eval.md` §P772n.
         let mut global = Scope::new();
-        let stdlib = make_stdlib(&inputs);
+        let stdlib = make_stdlib_with_features(&inputs, features);
         // P709 — `std`: clone independente da stdlib, tirado ANTES de ser
         // espalhada em `global`, dá acesso à versão não-sombreada mesmo que
         // o documento redefina `length`/`calc`/etc. (paridade vanilla,
@@ -925,7 +927,9 @@ pub(crate) fn eval_expr(
         Expr::Ident(ident) => {
             let name = ident.as_str();
             if name == "html"
-                && !ctx.features.contains(crate::entities::html::Feature::Html)
+                && !ctx
+                    .features
+                    .contains(crate::entities::compiler_features::Feature::Html)
             {
                 return Err(vec![SourceDiagnostic::error(
                     ident.span(),
@@ -1476,6 +1480,16 @@ fn eval_markup_body(
 /// Passo 64 (DEBT-16): `native_figure` migrada do interceptador em eval.rs para cá.
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib(inputs: &SysInputs) -> Scope {
+    make_stdlib_with_features(
+        inputs,
+        crate::entities::compiler_features::Features::default(),
+    )
+}
+
+fn make_stdlib_with_features(
+    inputs: &SysInputs,
+    features: crate::entities::compiler_features::Features,
+) -> Scope {
     use crate::compiler::stdlib::{
         // P735 — módulos emoji e pdf.
         build_emoji_module,
@@ -2124,7 +2138,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // P735 — módulos `emoji` (tabela codex, 1 codepoint + face) e `pdf`
     // (attach = scope-out com erro; artifact = passthrough do body).
     scope.define("emoji", build_emoji_module());
-    scope.define("pdf", make_pdf_module());
+    scope.define("pdf", make_pdf_module(features));
     // P476 — operadores de cor. **P736** — `color` é `Value::Type`
     // (paridade vanilla — medido: `type(color)` → `type`); fields via
     // `color_type_field` em field access.

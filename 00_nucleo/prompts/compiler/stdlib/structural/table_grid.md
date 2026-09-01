@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/table_grid` — estrutura de tabela e grelha
-Hash do Código: 6116f71a
+Hash do Código: d4d8c07e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/table_grid.rs`
@@ -61,3 +61,24 @@ zero-thickness continua proibido (hairline em PDF).
 #table(fill: none)[a]                   → aceite (P726)
 #table()[a]                             → grelha desenhada sem stroke explícito (P887)
 ```
+
+## P1288 — níveis semânticos de `table.header`
+
+### Medição anterior à decisão
+
+O owner produtivo rejeita hoje `level` em `native_table_header` e qualquer
+segundo `TableHeader` em `native_table` (`table_grid.rs:542-581,123-129`). O
+baseline vanilla P1288 mede `level` inteiro positivo, múltiplos headers de
+níveis distintos e preservação de célula explicitamente Data dentro do
+header. O teste histórico cristalino mede que dois headers no mesmo nível
+continuam erro.
+
+### Decisão
+
+`table.header(level: 1, ..cells)` aceita `level` inteiro estritamente positivo.
+Cada conteúdo cru vira `TableCell` Header com scope Column; célula Auto existente
+é promovida da mesma forma; Header/Data explícito conserva a classificação.
+`table` combina headers de níveis distintos num único grupo lógico, em ordem,
+mas rejeita níveis duplicados. Esta exceção semântica PDF não se propaga a
+`grid.header`: grid continua sem `level`. Geometria, repeat e diagnóstico de
+dois headers default permanecem compatíveis.

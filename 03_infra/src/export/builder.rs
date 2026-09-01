@@ -182,6 +182,7 @@ fn per_font_used_glyphs(
 fn current_pdf_timestamp() -> time::OffsetDateTime {
     std::env::var("CRYSTALLINE_PDF_FIXED_EPOCH")
         .ok()
+        .or_else(|| std::env::var("SOURCE_DATE_EPOCH").ok())
         .and_then(|s| s.parse::<i64>().ok())
         .and_then(|ts| time::OffsetDateTime::from_unix_timestamp(ts).ok())
         .unwrap_or_else(time::OffsetDateTime::now_utc)
@@ -2431,55 +2432,238 @@ impl PdfBuilder {
         }
     }
 
-    /// **P1140.6** — emite a árvore estrutural mínima Document → Formula e
-    /// liga MCID, página e ParentTree. Não declara conformidade PDF/UA.
+    /// Emite a árvore estrutural Document → Formula/Table e liga MCIDs,
+    /// páginas e ParentTree. Não declara conformidade PDF/UA.
     fn emit_tag_structure(&mut self, doc: &PagedDocument) {
         if self.pdf_tags != super::PdfTags::Enabled {
             return;
         }
 
         #[derive(Clone)]
-        struct FormulaTag {
-            page_index: usize,
-            mcid: usize,
-            alt: Option<String>,
+        enum TagAttrs {
+            None,
+            Header {
+                table_id: u64,
+                row: u32,
+                column: u32,
+                level: u32,
+                scope: typst_core::entities::elements::table_cell::TableHeaderScope,
+                rowspan: u32,
+                colspan: u32,
+            },
+            Data {
+                table_id: u64,
+                row: u32,
+                column: u32,
+                rowspan: u32,
+                colspan: u32,
+            },
         }
 
-        fn collect(
+        struct TagNode {
+            role: &'static str,
+            object_id: usize,
+            table_id: Option<u64>,
+            page_index: Option<usize>,
+            mcid: Option<usize>,
+            alt: Option<String>,
+            summary: Option<String>,
+            attrs: TagAttrs,
+            children: Vec<TagNode>,
+        }
+
+        fn semantic_node(
             item: &FrameItem,
             page_index: usize,
             next: &mut usize,
-            out: &mut Vec<FormulaTag>,
+        ) -> Option<TagNode> {
+            use typst_core::entities::layout_types::SemanticKind;
+            let FrameItem::Semantic { kind, alt, items, .. } = item else {
+                return None;
+            };
+            let mut container = |role: &'static str, table_id: Option<u64>| TagNode {
+                role,
+                object_id: 0,
+                table_id,
+                page_index: None,
+                mcid: None,
+                alt: None,
+                summary: None,
+                attrs: TagAttrs::None,
+                children: items
+                    .iter()
+                    .filter_map(|child| semantic_node(child, page_index, next))
+                    .collect(),
+            };
+            match *kind {
+                SemanticKind::Formula => {
+                    let mcid = *next;
+                    *next += 1;
+                    Some(TagNode {
+                        role: "Formula",
+                        object_id: 0,
+                        table_id: None,
+                        page_index: Some(page_index),
+                        mcid: Some(mcid),
+                        alt: alt.as_ref().map(ToString::to_string),
+                        summary: None,
+                        attrs: TagAttrs::None,
+                        children: vec![],
+                    })
+                }
+                SemanticKind::Table { id } => {
+                    let mut node = container("Table", Some(id));
+                    node.summary = alt.as_ref().map(ToString::to_string);
+                    Some(node)
+                }
+                SemanticKind::TableHead { table_id } => {
+                    Some(container("THead", Some(table_id)))
+                }
+                SemanticKind::TableBody { table_id } => {
+                    Some(container("TBody", Some(table_id)))
+                }
+                SemanticKind::TableRow { table_id, .. } => {
+                    Some(container("TR", Some(table_id)))
+                }
+                SemanticKind::TableHeaderCell {
+                    table_id,
+                    row,
+                    column,
+                    level,
+                    scope,
+                    rowspan,
+                    colspan,
+                } => {
+                    let mcid = *next;
+                    *next += 1;
+                    Some(TagNode {
+                        role: "TH",
+                        object_id: 0,
+                        table_id: Some(table_id),
+                        page_index: Some(page_index),
+                        mcid: Some(mcid),
+                        alt: None,
+                        summary: None,
+                        attrs: TagAttrs::Header {
+                            table_id,
+                            row,
+                            column,
+                            level,
+                            scope,
+                            rowspan,
+                            colspan,
+                        },
+                        children: vec![],
+                    })
+                }
+                SemanticKind::TableDataCell {
+                    table_id,
+                    row,
+                    column,
+                    rowspan,
+                    colspan,
+                } => {
+                    let mcid = *next;
+                    *next += 1;
+                    Some(TagNode {
+                        role: "TD",
+                        object_id: 0,
+                        table_id: Some(table_id),
+                        page_index: Some(page_index),
+                        mcid: Some(mcid),
+                        alt: None,
+                        summary: None,
+                        attrs: TagAttrs::Data { table_id, row, column, rowspan, colspan },
+                        children: vec![],
+                    })
+                }
+                | SemanticKind::ExplicitLinebreakBoundary
+                | SemanticKind::ParbreakBoundary => None,
+            }
+        }
+
+        fn collect_top(
+            item: &FrameItem,
+            page_index: usize,
+            next: &mut usize,
+            out: &mut Vec<TagNode>,
+            inside_artifact: bool,
         ) {
             match item {
-                FrameItem::Semantic { kind, alt, items, .. } => {
-                    if *kind == typst_core::entities::layout_types::SemanticKind::Formula
-                    {
-                        out.push(FormulaTag {
-                            page_index,
-                            mcid: *next,
-                            alt: alt.as_ref().map(ToString::to_string),
-                        });
-                        *next += 1;
+                FrameItem::Semantic { kind, items, .. } => {
+                    let artifact = false;
+                    if !inside_artifact {
+                        if let Some(node) = semantic_node(item, page_index, next) {
+                            out.push(node);
+                            return;
+                        }
                     }
                     for child in items {
-                        collect(child, page_index, next, out);
+                        collect_top(
+                            child,
+                            page_index,
+                            next,
+                            out,
+                            inside_artifact || artifact,
+                        );
                     }
                 }
                 FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
                     for child in items {
-                        collect(child, page_index, next, out);
+                        collect_top(child, page_index, next, out, inside_artifact);
                     }
                 }
                 _ => {}
             }
         }
 
-        let mut tags = Vec::new();
+        fn merge_table(existing: &mut TagNode, mut continuation: TagNode) {
+            if existing.summary.is_none() {
+                existing.summary = continuation.summary.take();
+            }
+            for child in continuation.children {
+                if child.role == "THead" {
+                    if let Some(group) =
+                        existing.children.iter_mut().find(|node| node.role == "THead")
+                    {
+                        group.children.extend(child.children);
+                    } else {
+                        existing.children.push(child);
+                    }
+                } else if child.role == "TBody" {
+                    if let Some(group) =
+                        existing.children.iter_mut().find(|node| node.role == "TBody")
+                    {
+                        group.children.extend(child.children);
+                    } else {
+                        existing.children.push(child);
+                    }
+                } else {
+                    existing.children.push(child);
+                }
+            }
+        }
+
+        let mut tags: Vec<TagNode> = Vec::new();
         for (page_index, page) in doc.pages.iter().enumerate() {
             let mut next = 0;
             for item in &page.items {
-                collect(item, page_index, &mut next, &mut tags);
+                let mut found = Vec::new();
+                collect_top(item, page_index, &mut next, &mut found, false);
+                for node in found {
+                    if node.role == "Table" {
+                        if let Some(existing) = tags.iter_mut().find(|candidate| {
+                            candidate.role == "Table"
+                                && candidate.table_id == node.table_id
+                        }) {
+                            merge_table(existing, node);
+                        } else {
+                            tags.push(node);
+                        }
+                    } else {
+                        tags.push(node);
+                    }
+                }
             }
         }
 
@@ -2490,18 +2674,196 @@ impl PdfBuilder {
         next_id += 1;
         let parent_tree_id = next_id;
         next_id += 1;
-        let elem_ids: Vec<usize> = (next_id..next_id + tags.len()).collect();
 
-        let document_k = elem_ids
+        fn assign_ids(nodes: &mut [TagNode], next: &mut usize) {
+            for node in nodes {
+                node.object_id = *next;
+                *next += 1;
+                assign_ids(&mut node.children, next);
+            }
+        }
+        assign_ids(&mut tags, &mut next_id);
+
+        #[derive(Clone)]
+        struct HeaderInfo {
+            object_id: usize,
+            table_id: u64,
+            row: u32,
+            column: u32,
+            level: u32,
+            scope: typst_core::entities::elements::table_cell::TableHeaderScope,
+            id: String,
+        }
+
+        fn gather_headers(nodes: &[TagNode], out: &mut Vec<HeaderInfo>) {
+            for node in nodes {
+                if let TagAttrs::Header { table_id, row, column, level, scope, .. } =
+                    node.attrs
+                {
+                    out.push(HeaderInfo {
+                        object_id: node.object_id,
+                        table_id,
+                        row,
+                        column,
+                        level,
+                        scope,
+                        id: format!("U1x{column}y{row}"),
+                    });
+                }
+                gather_headers(&node.children, out);
+            }
+        }
+        let mut headers = Vec::new();
+        gather_headers(&tags, &mut headers);
+
+        fn header_refs(
+            headers: &[HeaderInfo],
+            table_id: u64,
+            row: u32,
+            column: u32,
+            level: Option<u32>,
+        ) -> Vec<String> {
+            let candidates = headers
+                .iter()
+                .filter(|header| {
+                    if header.table_id != table_id {
+                        return false;
+                    }
+                    if let Some(current) = level {
+                        return header.level < current
+                            && header.column == column
+                            && matches!(
+                                header.scope,
+                                typst_core::entities::elements::table_cell::TableHeaderScope::Column
+                                    | typst_core::entities::elements::table_cell::TableHeaderScope::Both
+                            );
+                    }
+                    (header.column == column
+                        && matches!(
+                            header.scope,
+                            typst_core::entities::elements::table_cell::TableHeaderScope::Column
+                                | typst_core::entities::elements::table_cell::TableHeaderScope::Both
+                        ))
+                        || (header.row == row
+                            && matches!(
+                                header.scope,
+                                typst_core::entities::elements::table_cell::TableHeaderScope::Row
+                                    | typst_core::entities::elements::table_cell::TableHeaderScope::Both
+                            ))
+                })
+                .collect::<Vec<_>>();
+            let max_level = candidates.iter().map(|header| header.level).max();
+            candidates
+                .into_iter()
+                .filter(|header| Some(header.level) == max_level)
+                .map(|header| header.id.clone())
+                .collect()
+        }
+
+        fn emit_node(
+            builder: &mut PdfBuilder,
+            node: &TagNode,
+            parent_id: usize,
+            headers: &[HeaderInfo],
+        ) {
+            let children = node
+                .children
+                .iter()
+                .map(|child| format!("{} 0 R", child.object_id))
+                .collect::<Vec<_>>()
+                .join(" ");
+            let mut value =
+                format!("<< /Type /StructElem /S /{} /P {parent_id} 0 R", node.role);
+            if !children.is_empty() {
+                value.push_str(&format!(" /K [{children}]"));
+            } else if let (Some(page), Some(mcid)) = (node.page_index, node.mcid) {
+                value.push_str(&format!(" /Pg {} 0 R /K {mcid}", 3 + page));
+            }
+            if let Some(alt) = &node.alt {
+                value.push_str(&format!(" /Alt {}", utf16be_hex_string(alt)));
+            }
+            match node.attrs {
+                TagAttrs::None => {
+                    if node.role == "Table" {
+                        if let Some(summary) = &node.summary {
+                            value.push_str(&format!(
+                                " /A [<< /O /Table /Summary {} >> << /O /Layout /Placement /Block >>]",
+                                escape_pdf_literal(summary)
+                            ));
+                        } else {
+                            value.push_str(" /A << /O /Layout /Placement /Block >>");
+                        }
+                    }
+                }
+                TagAttrs::Header {
+                    table_id,
+                    row,
+                    column,
+                    level,
+                    scope,
+                    rowspan,
+                    colspan,
+                } => {
+                    let id = format!("U1x{column}y{row}");
+                    let scope = match scope {
+                        typst_core::entities::elements::table_cell::TableHeaderScope::Both => "Both",
+                        typst_core::entities::elements::table_cell::TableHeaderScope::Column => "Column",
+                        typst_core::entities::elements::table_cell::TableHeaderScope::Row => "Row",
+                    };
+                    let refs = header_refs(headers, table_id, row, column, Some(level))
+                        .into_iter()
+                        .map(|id| format!("({id})"))
+                        .collect::<Vec<_>>()
+                        .join(" ");
+                    value.push_str(&format!(
+                        " /ID ({id}) /A << /O /Table /Scope /{scope} /Headers [{refs}]"
+                    ));
+                    if colspan > 1 {
+                        value.push_str(&format!(" /ColSpan {colspan}"));
+                    }
+                    if rowspan > 1 {
+                        value.push_str(&format!(" /RowSpan {rowspan}"));
+                    }
+                    value.push_str(" >>");
+                }
+                TagAttrs::Data { table_id, row, column, rowspan, colspan } => {
+                    let refs = header_refs(headers, table_id, row, column, None)
+                        .into_iter()
+                        .map(|id| format!("({id})"))
+                        .collect::<Vec<_>>()
+                        .join(" ");
+                    value.push_str(&format!(" /A << /O /Table /Headers [{refs}]"));
+                    if colspan > 1 {
+                        value.push_str(&format!(" /ColSpan {colspan}"));
+                    }
+                    if rowspan > 1 {
+                        value.push_str(&format!(" /RowSpan {rowspan}"));
+                    }
+                    value.push_str(" >>");
+                }
+            }
+            value.push_str(" >>");
+            builder.add(node.object_id, value);
+            for child in &node.children {
+                emit_node(builder, child, node.object_id, headers);
+            }
+        }
+
+        let document_k = tags
             .iter()
-            .map(|id| format!("{id} 0 R"))
+            .map(|node| format!("{} 0 R", node.object_id))
+            .collect::<Vec<_>>()
+            .join(" ");
+        let id_names = headers
+            .iter()
+            .map(|header| format!("({}) {} 0 R", header.id, header.object_id))
             .collect::<Vec<_>>()
             .join(" ");
         self.add(
             root_id,
             format!(
-                "<< /Type /StructTreeRoot /K {document_id} 0 R /ParentTree {parent_tree_id} 0 R /ParentTreeNextKey {} >>",
-                doc.pages.len()
+                "<< /Type /StructTreeRoot /K {document_id} 0 R /ParentTree {parent_tree_id} 0 R /ParentTreeNextKey {} /IDTree << /Names [{id_names}] >> >>",
+                doc.pages.len(),
             ),
         );
         self.add(
@@ -2511,29 +2873,31 @@ impl PdfBuilder {
             ),
         );
 
-        for (tag, elem_id) in tags.iter().zip(&elem_ids) {
-            let page_id = 3 + tag.page_index;
-            let alt = tag
-                .alt
-                .as_deref()
-                .map(|value| format!(" /Alt {}", utf16be_hex_string(value)))
-                .unwrap_or_default();
-            self.add(
-                *elem_id,
-                format!(
-                    "<< /Type /StructElem /S /Formula /P {document_id} 0 R /Pg {page_id} 0 R /K {}{} >>",
-                    tag.mcid, alt
-                ),
-            );
+        for node in &tags {
+            emit_node(self, node, document_id, &headers);
         }
 
+        fn collect_parent_refs(nodes: &[TagNode], out: &mut Vec<(usize, usize, usize)>) {
+            for node in nodes {
+                if let (Some(page), Some(mcid)) = (node.page_index, node.mcid) {
+                    out.push((page, mcid, node.object_id));
+                }
+                collect_parent_refs(&node.children, out);
+            }
+        }
+        let mut parent_refs = Vec::new();
+        collect_parent_refs(&tags, &mut parent_refs);
         let mut nums = Vec::new();
         for page_index in 0..doc.pages.len() {
-            let page_refs = tags
+            let mut page_entries = parent_refs
                 .iter()
-                .zip(&elem_ids)
-                .filter(|(tag, _)| tag.page_index == page_index)
-                .map(|(_, id)| format!("{id} 0 R"))
+                .filter(|(page, _, _)| *page == page_index)
+                .copied()
+                .collect::<Vec<_>>();
+            page_entries.sort_by_key(|(_, mcid, _)| *mcid);
+            let page_refs = page_entries
+                .iter()
+                .map(|(_, _, id)| format!("{id} 0 R"))
                 .collect::<Vec<_>>()
                 .join(" ");
             nums.push(format!("{page_index} [{page_refs}]"));
@@ -2548,7 +2912,7 @@ impl PdfBuilder {
         if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
             insert_pdf_dict_entry(
                 content,
-                &format!(" /StructTreeRoot {root_id} 0 R /MarkInfo << /Marked true >>"),
+                &format!(" /StructTreeRoot {root_id} 0 R /MarkInfo << /Marked true /Suspects false >>"),
             );
         }
     }

@@ -34,6 +34,7 @@ pub struct PlatformInfo {
 #[derive(Debug, Clone, Serialize)]
 pub struct FeatureInfo {
     pub html: bool,
+    pub a11y_extras: bool,
     pub bundle: bool,
 }
 
@@ -64,12 +65,13 @@ pub fn format_human(info: &InfoData) -> Vec<u8> {
     let commit = info.build.commit.as_deref().unwrap_or("unknown");
     let short = &commit[..commit.len().min(8)];
     let mut output = format!(
-        "Version: {}\nCommit: {}\nPlatform: {} {}\n\nFeatures:\n  HTML: {}\n  Bundle: {}\n\nFonts:\n  System: {}\n",
+        "Version: {}\nCommit: {}\nPlatform: {} {}\n\nFeatures:\n  HTML: {}\n  A11y extras: {}\n  Bundle: {}\n\nFonts:\n  System: {}\n",
         info.version,
         short,
         info.build.platform.os,
         info.build.platform.arch,
         info.features.html,
+        info.features.a11y_extras,
         info.features.bundle,
         info.fonts.system,
     );
@@ -97,7 +99,7 @@ mod tests {
                 commit: Some("1234567890".into()),
                 platform: PlatformInfo { os: "linux".into(), arch: "x86_64".into() },
             },
-            features: FeatureInfo { html: true, bundle: false },
+            features: FeatureInfo { html: true, a11y_extras: false, bundle: false },
             fonts: FontInfo { system: true, font_paths: vec![] },
             packages: PackageInfo {
                 data_path: None,

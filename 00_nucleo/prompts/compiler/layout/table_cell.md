@@ -20,3 +20,23 @@ consumer e nenhum despacho dinâmico é introduzido.
 
 Testes focais e a suíte do subsistema preservam comportamento e morfologia;
 alteração observável exige medição e decisão próprias.
+
+## P1288 — carrier semântico de célula (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/table_cell.rs:14-20` apenas renderiza o body e
+descarta kind/level/scope como identidade de frame. A fonte vanilla pinada
+resolve a classe explícita antes da classe da linha em
+`typst-pdf/src/tags/context/table.rs:98-126`.
+
+### Decisão proposta
+
+Preservar a função descendente e o render único do body, mas devolver/emitir o
+envelope semântico fechado pedido por `layout/table.rs`, contendo classe
+resolvida, level/scope quando Header, rowspan/colspan e filhos visuais. O
+envelope não desenha, não muda bounds nem texto e não produz MCID em L1.
+
+Data explícita dentro de header permanece Data. Header explícito conserva
+scope Row/Column/Both e level positivo. A associação entre headers e data é
+responsabilidade do exporter, não inferência visual do layout.

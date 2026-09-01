@@ -8151,6 +8151,7 @@ mod tests_show_rule_integration {
                 }),
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -8400,6 +8401,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: Some(Color::rgb(200, 200, 200)),
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -9965,6 +9967,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -9979,6 +9982,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -10039,6 +10043,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -10053,6 +10058,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -10115,6 +10121,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -10129,6 +10136,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -10195,6 +10203,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -10209,6 +10218,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -10408,6 +10418,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -10422,6 +10433,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -11232,6 +11244,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -11246,6 +11259,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -11313,6 +11327,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -11327,6 +11342,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -11367,6 +11383,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -11381,6 +11398,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -11457,6 +11475,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -11471,6 +11490,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -11529,6 +11549,7 @@ mod tests_show_rule_integration {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
@@ -11543,6 +11564,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),
@@ -11624,6 +11646,7 @@ mod tests_show_rule_integration {
                     align: None,
                     inset: None,
                     breakable: None,
+                    kind: crate::entities::elements::table_cell::TableCellKind::Auto,
                 },
             ))
         };
@@ -11639,6 +11662,7 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(0.0),
                 ),

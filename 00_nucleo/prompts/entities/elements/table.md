@@ -61,3 +61,26 @@ ergonómicos: `Content::table(columns, rows, children)` (caption `None`) e
 ## `eq`
 
 `#[derive(PartialEq)]` compara todos os 10 campos (paridade `content.rs`).
+
+## P1288 — summary semântico de acessibilidade (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`01_core/src/entities/elements/table.rs:29-42` mede `TableElem` sem summary.
+A fonte vanilla pinada mede `summary: Option<EcoString>` interno em
+`typst-library/src/model/table.rs:271-277` e `pdf.table-summary` substituindo
+somente esse valor em `pdf/accessibility.rs:137-143`.
+
+### Decisão proposta
+
+Adicionar a `TableElem` um summary semântico opcional, distinto de caption e
+texto visível. Só a omissão pública é convertida em `None` interno;
+`summary: none` explícito é rejeitado no cast antes de alcançar a entidade;
+string vazia permanece presente. Todo
+constructor, clone, hash, igualdade mecânica, `map_content` e `map_text`
+preserva o campo. `plain_text`/`is_empty` o ignoram, pois summary não é texto
+visual nem body. `pdf.table-summary` substitui só esse campo.
+
+O storage Rust exato é mecânica; o observável é a preservação do summary até
+a estrutura `/Table` no PDF tagueado sem alterar texto, páginas, boxes ou
+geometria.

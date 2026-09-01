@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/table_grid.md
-//! @prompt-hash b682fe9c
+//! @prompt-hash f4d50af8
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -120,13 +120,30 @@ pub fn native_table(
                 vlines.push(vline);
             }
             Value::Content(c @ Content::TableHeader(_)) => {
-                if header.is_some() {
-                    return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
-                        "table: não pode haver mais do que um header (scope-out — múltiplos headers por `level` não suportados)".to_string(),
-                    )]);
+                if let Some(previous) = header.take() {
+                    let previous_levels = table_header_levels(&previous);
+                    let current_levels = table_header_levels(c);
+                    if previous_levels.iter().any(|level| current_levels.contains(level))
+                    {
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            "table: não pode haver mais do que um header (scope-out — múltiplos headers por `level` não suportados)".to_string(),
+                        )]);
+                    }
+                    let (previous_body, previous_repeat) = match previous {
+                        Content::TableHeader(group) => (group.body.clone(), group.repeat),
+                        _ => unreachable!("header carrier must remain TableHeader"),
+                    };
+                    let Content::TableHeader(current) = c else {
+                        unreachable!("matched TableHeader above")
+                    };
+                    header = Some(Content::table_header(
+                        Content::sequence(vec![previous_body, current.body.clone()]),
+                        previous_repeat && current.repeat,
+                    ));
+                } else {
+                    header = Some(c.clone());
                 }
-                header = Some(c.clone());
             }
             Value::Content(c @ Content::TableFooter(_)) => {
                 if footer.is_some() {
@@ -264,6 +281,7 @@ pub fn native_table(
             stroke,
             fill,
             caption,
+            summary: None,
             inset,
             align,
         },
@@ -472,6 +490,7 @@ pub fn native_table_cell(
             align,
             inset,
             breakable,
+            kind: crate::entities::elements::table_cell::TableCellKind::Auto,
         },
     ))))
 }
@@ -545,16 +564,57 @@ pub fn native_table_header(
 ) -> SourceResult<Value> {
     // P772i — colectar todos os argumentos posicionais, não só o primeiro
     // (mesmo bug de `native_grid_header`, ver comentário lá).
+    let level = match args.named.get("level") {
+        None => 1,
+        Some(Value::Int(value)) if *value > 0 && *value <= u32::MAX as i64 => {
+            *value as u32
+        }
+        Some(Value::Int(_)) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "number must be positive",
+            )])
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected integer, found {}", other.type_name()),
+            )])
+        }
+    };
     let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
     for v in args.items.iter() {
-        match v {
-            Value::Content(c) => cell_values.push(c.clone()),
-            Value::Str(s)     => cell_values.push(Content::text(s.as_str())),
+        let content = match v {
+            Value::Content(c) => c.clone(),
+            Value::Str(s) => Content::text(s.as_str()),
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("table_header() espera content ou string como argumento posicional, recebeu {}", other.type_name()),
             )]),
+        };
+        let mut cell = match content {
+            Content::TableCell(cell) => (*cell).clone(),
+            body => crate::entities::elements::table_cell::TableCellElem {
+                body,
+                x: None,
+                y: None,
+                colspan: None,
+                rowspan: None,
+                stroke: None,
+                fill: None,
+                align: None,
+                inset: None,
+                breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
+            },
+        };
+        if cell.kind == crate::entities::elements::table_cell::TableCellKind::Auto {
+            cell.kind = crate::entities::elements::table_cell::TableCellKind::Header {
+                level,
+                scope: crate::entities::elements::table_cell::TableHeaderScope::Column,
+            };
         }
+        cell_values.push(Content::TableCell(std::sync::Arc::new(cell)));
     }
     if cell_values.is_empty() {
         return Err(vec![SourceDiagnostic::error(
@@ -566,7 +626,7 @@ pub fn native_table_header(
     let body = Content::sequence(cell_values);
 
     for key in args.named.keys() {
-        if !["repeat"].contains(&key.as_str()) {
+        if !["repeat", "level"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("table_header(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
@@ -577,6 +637,35 @@ pub fn native_table_header(
     let repeat = extract_bool_with_default(args, "table_header", "repeat", true)?;
 
     Ok(Value::Content(Content::table_header(body, repeat)))
+}
+
+fn table_header_levels(content: &Content) -> std::collections::BTreeSet<u32> {
+    fn collect(content: &Content, levels: &mut std::collections::BTreeSet<u32>) {
+        match content {
+            Content::TableHeader(header) => collect(&header.body, levels),
+            Content::Sequence(items) => {
+                for item in items.iter() {
+                    collect(item, levels);
+                }
+            }
+            Content::TableCell(cell) => {
+                if let crate::entities::elements::table_cell::TableCellKind::Header {
+                    level,
+                    ..
+                } = cell.kind
+                {
+                    levels.insert(level);
+                }
+            }
+            _ => {
+                levels.insert(1);
+            }
+        }
+    }
+
+    let mut levels = std::collections::BTreeSet::new();
+    collect(content, &mut levels);
+    levels
 }
 
 /// `table_footer(body, repeat: true)` → `Content::TableFooter`.

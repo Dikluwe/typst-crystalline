@@ -25,6 +25,9 @@
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
+use crate::entities::compiler_features::{Feature, Features};
+use crate::entities::content::Content;
+use crate::entities::elements::table_cell::{TableCellKind, TableHeaderScope};
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -35,14 +38,134 @@ use super::expect_no_named;
 
 /// Constrói o módulo `pdf` como `Value::Module` com `attach` e `artifact`
 /// (paridade do conteúdo medido no namespace vanilla).
-pub fn make_pdf_module() -> Value {
+pub fn make_pdf_module(features: Features) -> Value {
     let mut scope = crate::entities::scope::Scope::new();
     scope.define("attach", Value::Func(Func::native("pdf.attach", native_pdf_attach)));
     scope.define(
         "artifact",
         Value::Func(Func::native("pdf.artifact", native_pdf_artifact)),
     );
+    if features.contains(Feature::A11yExtras) {
+        scope.define(
+            "table-summary",
+            Value::Func(Func::native("pdf.table-summary", native_pdf_table_summary)),
+        );
+        scope.define(
+            "header-cell",
+            Value::Func(Func::native("pdf.header-cell", native_pdf_header_cell)),
+        );
+        scope.define(
+            "data-cell",
+            Value::Func(Func::native("pdf.data-cell", native_pdf_data_cell)),
+        );
+    }
     Value::Module(crate::entities::module::Module::new("pdf", scope))
+}
+
+pub(crate) fn native_pdf_table_summary(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if key.as_str() != "summary" {
+            return super::err(format!("unexpected argument: {key}"));
+        }
+    }
+    let summary = match args.named.get("summary") {
+        None => None,
+        Some(Value::Str(value)) => Some(value.clone()),
+        Some(other) => {
+            return super::err(format!(
+                "expected string, found {}",
+                vanilla_type_name(other)
+            ))
+        }
+    };
+    let Some(table) = args.items.first() else {
+        return super::err("missing argument: table");
+    };
+    let Value::Content(Content::Table(table)) = table else {
+        return super::err("expected table");
+    };
+    if args.items.len() != 1 {
+        return super::err("unexpected argument");
+    }
+    let mut table = (**table).clone();
+    table.summary = summary;
+    Ok(Value::Content(Content::Table(std::sync::Arc::new(table))))
+}
+
+pub(crate) fn native_pdf_header_cell(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if !matches!(key.as_str(), "level" | "scope") {
+            return super::err(format!("unexpected argument: {key}"));
+        }
+    }
+    let level = match args.named.get("level") {
+        None => 1,
+        Some(Value::Int(value)) if *value > 0 && *value <= u32::MAX as i64 => {
+            *value as u32
+        }
+        Some(Value::Int(_)) => return super::err("number must be positive"),
+        Some(other) => {
+            return super::err(format!(
+                "expected integer, found {}",
+                vanilla_type_name(other)
+            ))
+        }
+    };
+    let scope = match args.named.get("scope") {
+        None => TableHeaderScope::Column,
+        Some(Value::Str(value)) if value.as_str() == "both" => TableHeaderScope::Both,
+        Some(Value::Str(value)) if value.as_str() == "column" => TableHeaderScope::Column,
+        Some(Value::Str(value)) if value.as_str() == "row" => TableHeaderScope::Row,
+        Some(Value::Str(_)) => return super::err("expected \"both\", \"column\", or \"row\""),
+        Some(other) => {
+            return super::err(format!(
+                "expected \"both\", \"column\", or \"row\", found {}",
+                vanilla_type_name(other)
+            ))
+        }
+    };
+    let Some(value) = args.items.first() else {
+        return super::err("missing argument: cell");
+    };
+    if args.items.len() != 1 {
+        return super::err("unexpected argument");
+    }
+    let mut cell = crate::compiler::eval::table::normalize_table_cell(value)?;
+    cell.kind = TableCellKind::Header { level, scope };
+    Ok(Value::Content(Content::TableCell(std::sync::Arc::new(cell))))
+}
+
+pub(crate) fn native_pdf_data_cell(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.named.contains_key("cell") {
+        return super::err("the argument `cell` is positional");
+    }
+    if let Some(key) = args.named.keys().next() {
+        return super::err(format!("unexpected argument: {key}"));
+    }
+    let Some(value) = args.items.first() else {
+        return super::err("missing argument: cell");
+    };
+    if args.items.len() != 1 {
+        return super::err("unexpected argument");
+    }
+    let mut cell = crate::compiler::eval::table::normalize_table_cell(value)?;
+    cell.kind = TableCellKind::Data;
+    Ok(Value::Content(Content::TableCell(std::sync::Arc::new(cell))))
 }
 
 /// `pdf.attach(...)` — scope-out: sem suporte a ficheiros embutidos no

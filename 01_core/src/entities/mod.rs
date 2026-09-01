@@ -10,6 +10,7 @@ pub mod bib_entry;
 pub mod bib_store;
 pub mod citation_form;
 pub mod color;
+pub mod compiler_features;
 pub mod file_id;
 pub mod font_book;
 pub mod math_class;

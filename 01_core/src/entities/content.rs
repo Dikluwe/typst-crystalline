@@ -2473,6 +2473,7 @@ impl Content {
             stroke: None,
             fill: None,
             caption: None,
+            summary: None,
             inset: crate::entities::sides::Sides::uniform(
                 crate::entities::layout_types::Length::pt(5.0),
             ),
@@ -2499,6 +2500,7 @@ impl Content {
             stroke: None,
             fill: None,
             caption,
+            summary: None,
             inset: crate::entities::sides::Sides::uniform(
                 crate::entities::layout_types::Length::pt(5.0),
             ),
@@ -2528,6 +2530,7 @@ impl Content {
             align: None,
             inset: None,
             breakable: None,
+            kind: crate::entities::elements::table_cell::TableCellKind::Auto,
         }))
     }
 
@@ -5778,6 +5781,7 @@ mod tests {
                 }),
                 fill: None,
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(5.0),
                 ),
@@ -5870,6 +5874,7 @@ mod tests {
                 stroke: None,
                 fill: Some(Color::rgb(0, 255, 0)),
                 caption: None,
+                summary: None,
                 inset: crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::pt(5.0),
                 ),
@@ -6021,6 +6026,7 @@ mod tests {
                 align: None,
                 inset: None,
                 breakable: None,
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         if let Content::TableCell(e) = &c {
@@ -6132,6 +6138,7 @@ mod tests {
                 align: Some(Align2D::from_string("right")),
                 inset: Some(Sides::uniform(Length::pt(3.0))),
                 breakable: Some(true),
+                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
             },
         ));
         if let Content::TableCell(e) = &c {

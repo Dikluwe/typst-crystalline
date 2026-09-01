@@ -48,10 +48,10 @@ use typst_core::contracts::world::World;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
-    compile_to_pdf_bytes_full_error_and_document_id,
-    compile_to_pdf_bytes_with_timings_full_error_and_document_id, compile_to_png_bytes,
-    compile_to_png_bytes_with_timings_full_error, compile_to_svg_string,
-    compile_to_svg_string_with_timings_full_error,
+    compile_to_pdf_bytes_full_error_and_document_id_with_features,
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features,
+    compile_to_png_bytes_with_timings_full_error_and_features,
+    compile_to_svg_string_with_timings_full_error_and_features,
 };
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{
@@ -159,7 +159,7 @@ fn run_info(intent: InfoIntent) -> ExitCode {
                 arch: std::env::consts::ARCH.to_owned(),
             },
         },
-        features: FeatureInfo { html: false, bundle: false },
+        features: FeatureInfo { html: false, a11y_extras: false, bundle: false },
         fonts: FontInfo {
             system: true,
             font_paths: snapshot
@@ -316,62 +316,73 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
     ) = match output_format {
         OutputFormat::Pdf => {
             if oracle_pdf {
-                let (r, w) = typst_infra::pipeline::compile_to_pdf_bytes_oracle(
-                    &world,
-                    &source,
-                    full_error,
-                    document_id,
-                    stream_mode,
-                    pdf_tags,
-                );
-                (r, w, typst_infra::pipeline::Timings::default())
-            } else if timings_json.is_some() {
-                let (r, w, t) =
-                    compile_to_pdf_bytes_with_timings_full_error_and_document_id(
+                let (r, w) =
+                    typst_infra::pipeline::compile_to_pdf_bytes_oracle_with_features(
                         &world,
                         &source,
                         full_error,
                         document_id,
                         stream_mode,
                         pdf_tags,
+                        features,
+                    );
+                (r, w, typst_infra::pipeline::Timings::default())
+            } else if timings_json.is_some() {
+                let (r, w, t) =
+                    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features(
+                        &world,
+                        &source,
+                        full_error,
+                        document_id,
+                        stream_mode,
+                        pdf_tags,
+                        features,
                     );
                 (r, w, t)
             } else {
-                let (r, w) = compile_to_pdf_bytes_full_error_and_document_id(
-                    &world,
-                    &source,
-                    full_error,
-                    document_id,
-                    stream_mode,
-                    pdf_tags,
-                );
+                let (r, w) =
+                    compile_to_pdf_bytes_full_error_and_document_id_with_features(
+                        &world,
+                        &source,
+                        full_error,
+                        document_id,
+                        stream_mode,
+                        pdf_tags,
+                        features,
+                    );
                 (r, w, typst_infra::pipeline::Timings::default())
             }
         }
         OutputFormat::Png => {
             if timings_json.is_some() {
-                let (r, w, t) = compile_to_png_bytes_with_timings_full_error(
-                    &world, &source, full_error,
+                let (r, w, t) = compile_to_png_bytes_with_timings_full_error_and_features(
+                    &world, &source, full_error, features,
                 );
                 (r, w, t)
             } else {
-                let (r, w) = compile_to_png_bytes(&world, &source);
+                let (r, w, _) = compile_to_png_bytes_with_timings_full_error_and_features(
+                    &world, &source, full_error, features,
+                );
                 (r, w, typst_infra::pipeline::Timings::default())
             }
         }
         OutputFormat::Svg => {
             if timings_json.is_some() {
-                let (r, w, t) = compile_to_svg_string_with_timings_full_error(
-                    &world, &source, full_error,
-                );
+                let (r, w, t) =
+                    compile_to_svg_string_with_timings_full_error_and_features(
+                        &world, &source, full_error, features,
+                    );
                 (r.map(|s| s.into_bytes()), w, t)
             } else {
-                let (r, w) = compile_to_svg_string(&world, &source);
+                let (r, w, _) =
+                    compile_to_svg_string_with_timings_full_error_and_features(
+                        &world, &source, full_error, features,
+                    );
                 (r.map(|s| s.into_bytes()), w, typst_infra::pipeline::Timings::default())
             }
         }
         OutputFormat::Html => {
-            if features.contains(typst_core::entities::html::Feature::Html) {
+            if features.contains(typst_core::entities::compiler_features::Feature::Html) {
                 eprintln!(
                     "warning: html export is under active development and incomplete"
                 );

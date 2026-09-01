@@ -1,0 +1,117 @@
+{
+  "schema": "p1288-segregated-contract-manifest/v1",
+  "protocol": {
+    "regime": "full-segregated-protocol",
+    "phase": "independent-contract-authoring-before-candidate",
+    "generated_at": "2026-08-31T11:06:12-03:00",
+    "attestation": "segregated-by-role-capability-order-and-hashes-without-strong-environmental-isolation"
+  },
+  "repository": {
+    "head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+    "working_tree": "uncommitted-shared",
+    "candidate_read_or_executed": false,
+    "harness_read_or_executed": false
+  },
+  "contract": {
+    "manifest_path": "00_nucleo/diagnosticos/p1288-manifest.json",
+    "receipt_path": "00_nucleo/diagnosticos/p1288-contract-receipt.md",
+    "scope": "feature profiles and a11y-extras table semantics",
+    "general_equivalence_claimed": false,
+    "verdict_emitted": false
+  },
+  "baseline_identity": {
+    "ratified_upstream_commit": "a51e02804",
+    "binary": "/usr/local/bin/typst",
+    "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "protected_inputs": {
+    "00_nucleo/materialization/typst-passo-1288.md": "3858860e2d3e9916b051dfbbea0ff66009382bb5daa3fcec8025e9a2492a3e28",
+    "00_nucleo/diagnosticos/p1288-vanilla-measurement-receipt.md": "06a32ad3a77cc710a4ba1c54330325d0cc5a788ba2378cf0e6fda32269c5df80",
+    "lab/parity/matrix/p1288-vanilla-baseline.json": "057bab7534c4855b0b47cc7cd05e243058d8b39407e30c2b3ee478f04d24c377",
+    "00_nucleo/diagnosticos/p1288-pre-gate-l0-receipt.md": "b259334c262683a2e62979b67cbf3b09f57f65ac9e07c4e5c504b6dda5436c6b",
+    "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "9d7509d01a00589f48d7599d39921f017cc141cf45a8786de8fa73b65abe8de9",
+    "00_nucleo/prompts/entities/compiler_features.md": "5f12a9e8ca4b96fa3d9a06a54b5030f509ff2c5331374ff8fe5fb9b5ca567826",
+    "00_nucleo/prompts/entities/html.md": "71696c0e59cc8b66badfa6de3bd8b8622a6f60d994f3b589dc868f3df00bda50",
+    "00_nucleo/prompts/shell/cli.md": "de31ec1b7f6bc60faeb0942a25878922699f5ca8ac4810f4ffa7ea1908e9b880",
+    "00_nucleo/prompts/wiring.md": "960aa048d2075017116ec488280e2bf887066cd87edcff5daae1966b05344c32",
+    "00_nucleo/prompts/infra/pipeline.md": "250ec46bc143ea0f372799e7a24b5c7ac6b4573fec13e01c9085d0d5333d5378",
+    "00_nucleo/prompts/compiler/eval.md": "597324272eabfafe87f3588b8bd008d89caf760d40af1da55bd9b3956358db4d",
+    "00_nucleo/prompts/compiler/stdlib/pdf.md": "50a786cd8ee9d5c3709bae325bba24fe6def783f3b1b6da88e5612fc5f038530",
+    "00_nucleo/prompts/entities/elements/table.md": "2fe30f7dca9306a66522b238d368505096aaa595ae3a4f3129789ba186ed3a63",
+    "00_nucleo/prompts/entities/elements/table_cell.md": "f357690a18da076fc13c125000ea17ccfaa9f5ea871b46b8b6151185cae3baf6",
+    "00_nucleo/prompts/compiler/eval/table.md": "8984d3c54b00f039dcc6f759cf0c67a7eecbde28d27977199cf4ac6712d360d8",
+    "00_nucleo/prompts/compiler/layout/table.md": "637759bd4904c3d74ca8f9db3ed9437e41b6ece1d4bcf23cbe233fa02fe11d08",
+    "00_nucleo/prompts/compiler/layout/table_cell.md": "c27375012f64a3faae031bad5d257b7faa26e3814419748e130404c1c10f508e",
+    "00_nucleo/prompts/entities/layout_types.md": "bc3b00aea1673ef898c79acd401211e8f3dac45ea023e53245db6933421f3436",
+    "00_nucleo/prompts/infra/export/stream.md": "25c6f398f8df1703d73f12938032e412ece7ee68774ddcf32061e14e8c468a7b",
+    "00_nucleo/prompts/infra/export/builder.md": "3e5c2fb0466745137d8600c3ad5ca73d53f1ae1e70d0448a4ca810d83f52dcd7"
+  },
+  "nucleus_effective_sha256": "59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9",
+  "roles": [
+    {"role":"vanilla-baseline-author","read":"step, enumerated L0/ADR, pinned vanilla","write":"baseline receipt, baseline JSON, fixtures","forbidden":"candidate, contract, oracles, attacks, verdict"},
+    {"role":"nucleus-and-l0-author","executor":"/root/p1288_l0","read":"step, enumerated L0/ADR, pinned vanilla, final baseline","write":"enumerated nucleus/L0 and pre-gate receipt","forbidden":"candidate, harness, contract, oracles, verdict"},
+    {"role":"contract-author","executor":"/root/p1288_contract2","read":"skill, step, final baseline/receipts, enumerated final nucleus/L0","write":"manifest and contract receipt only","forbidden":"candidate, harness, code, attacks, verdict","environment":"shared checkout; protocol allowlist, no strong isolation"},
+    {"role":"oracle-author","executor":"future-independent","read":"protected inputs and frozen contract","write":"positive, negative and opaque oracles","forbidden":"candidate before freeze; protected edits"},
+    {"role":"adversary","executor":"future-independent","read":"protected inputs, contract, frozen oracles","write":"mutation plan and persistent log","forbidden":"solution selection or protected edits"},
+    {"role":"implementer","executor":"future-after-gate-and-seal","read":"confirmed L0 and sealed contract","write":"authorized candidate and tests","forbidden":"baseline, manifest, contract, oracle or attack edits"},
+    {"role":"verifier","executor":"future-independent","read":"sealed artifacts and candidate outputs","write":"receipt, seal or certificate only","forbidden":"editing anything judged"}
+  ],
+  "profiles": {
+    "default": {"flags":[],"html":"disabled","a11y-extras":"disabled"},
+    "html": {"flags":["--features","html"],"html":"enabled","a11y-extras":"disabled"},
+    "a11y-extras": {"flags":["--features","a11y-extras"],"html":"disabled","a11y-extras":"enabled"},
+    "controls": ["repeat","both orders","comma composition","unknown feature"],
+    "bundle": "Unknown/scope-out; no implicit activation"
+  },
+  "status_lattice": {
+    "Preserved": "Valid bilateral executions preserve the registered public observable.",
+    "Violated": "A valid decisive execution or mutation witnesses mismatch or a forbidden outcome.",
+    "Unknown": "Identity, provenance, parser, fixture, tool or execution opacity prevents decision.",
+    "rules": ["Unknown never becomes Preserved.","Disabled-by-profile receives no Preserved or MATCH credit.","Active-profile inability is Violated when decisive and Unknown when opaque; never disabled.","Only deliberately opaque cases may satisfy expected Unknown."]
+  },
+  "observables": [
+    {"id":"O01","required":"Preserved","claim":"Default set empty; html and a11y bindings absent; target/format never activates features."},
+    {"id":"O02","required":"Preserved","claim":"html and a11y-extras are independent; each active profile exposes only its gated surface."},
+    {"id":"O03","required":"Preserved","claim":"Repeat, order, separate/comma flags are idempotent and deterministic; unknown feature is an argument error."},
+    {"id":"O04","required":"Preserved","claim":"The a11y trio is indivisible: table-summary, header-cell and data-cell appear together only when active."},
+    {"id":"O05","required":"Preserved","claim":"table-summary replaces only summary; omission removes /Summary; empty string stays present."},
+    {"id":"O06","required":"Preserved","claim":"Explicit summary:none is error `expected string, found none`; only omission maps to absence."},
+    {"id":"O07","required":"Preserved","claim":"All measured summary diagnostics preserve missing table, table cast, named-only and string cast semantics."},
+    {"id":"O08","required":"Preserved","claim":"header-cell defaults level=1/scope=column, accepts row/column/both, requires positive integer and preserves existing cell fields."},
+    {"id":"O09","required":"Preserved","claim":"data-cell accepts raw content or existing cell, preserves fields, forces Data, and preserves measured diagnostics."},
+    {"id":"O10","required":"Preserved","claim":"Simple tagged table is Table>TR>TD in logical order."},
+    {"id":"O11","required":"Preserved","claim":"Uniform automatic header is one THead plus one TBody with correct TH/TD header references."},
+    {"id":"O12","required":"Preserved","claim":"Explicit mixed row remains direct TR; explicit Data inside header remains TD."},
+    {"id":"O13","required":"Preserved","claim":"Row/Column/Both scopes, rowspan/colspan and nearest applicable level relations survive; level is not a numeric PDF attribute."},
+    {"id":"O14","required":"Preserved","claim":"Tags enabled emit one StructTreeRoot, MarkInfo Marked=true/Suspects=false and balanced marked content."},
+    {"id":"O15","required":"Preserved","claim":"Tags disabled omit table structure, ParentTree and MCIDs while preserving visual/textual observables."},
+    {"id":"O16","required":"Preserved","claim":"MCIDs restart per page; StructParents and ParentTree preserve local order without duplicates or orphans."},
+    {"id":"O17","required":"Preserved","claim":"Multipage keeps one logical table/header identity; repeated visual headers do not duplicate THead, TH IDs or relations."},
+    {"id":"O18","required":"Preserved","claim":"Metadata-only change preserves text, pages, boxes, bbox and raster for frozen fixtures."},
+    {"id":"O19","required":"Preserved","claim":"Frozen plain/a11y pair is byte-equal in HTML/SVG/PNG without generalization."},
+    {"id":"O20","required":"Preserved","claim":"Forward/reverse and repetition agree; every probe has one classification and totals close exactly."},
+    {"id":"O21","required":"Unknown","claim":"AT, screen-reader navigation, reflow, PDF/UA and certification remain Unknown."},
+    {"id":"O22","required":"Unknown","claim":"Bundle behavior and undecoded PDF objects/relations remain Unknown and receive no success credit."}
+  ],
+  "mandatory_attack_obligations": [
+    "A01 reject HTML on by default", "A02 reject HTML target implicitly enabling a feature",
+    "A03 reject a11y-extras on by default", "A04 reject html enabling a11y-extras",
+    "A05 reject a11y-extras enabling html", "A06 reject accepted-but-ignored flag",
+    "A07 reject registration of only data-cell", "A08 reject bindings present without feature",
+    "A09 reject body-returning metadata-discarding stub", "A10 reject summary lost before builder",
+    "A11 reject Header converted to Data", "A12 reject explicit Data promoted inside header",
+    "A13 reject row/column scope swap", "A14 reject ignored level or accepted zero",
+    "A15 reject duplicate MCID", "A16 reject orphan ParentTree/StructElem",
+    "A17 reject tags emitted when disabled", "A18 reject visual/text change from metadata",
+    "A19 reject disabled counted as MATCH/Preserved", "A20 reject unknown active flag classified disabled",
+    "A21 reject forward/reverse divergence", "A22 reject ignored manifest/baseline/fixture/nucleus/L0 drift"
+  ],
+  "discriminatory_gate": {
+    "positive_expected": "Preserved",
+    "valid_mutation_expected": "Violated with witness",
+    "opaque_expected": "Unknown",
+    "mutation_score_required": 1.0,
+    "surviving_valid_mutation_blocks_seal": true
+  },
+  "invalidation": ["protected input hash drift","vanilla identity drift","protected edit after seal","forbidden capability use","Unknown or disabled promoted to success"]
+}

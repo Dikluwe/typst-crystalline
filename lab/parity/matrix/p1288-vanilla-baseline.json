@@ -1,0 +1,358 @@
+{
+  "schema": "p1288-vanilla-baseline/v1",
+  "role": "vanilla-baseline-author",
+  "protocol_regime": "full-segregated-protocol",
+  "generated_at": "2026-08-31T10:30:21-03:00",
+  "repository": {
+    "head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+    "working_tree": "uncommitted-shared",
+    "candidate_read_or_executed": false
+  },
+  "vanilla": {
+    "ratified_upstream_commit": "a51e02804",
+    "binary": "/usr/local/bin/typst",
+    "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "reported_version": "typst 0.15.1 (e0e8ca4d)",
+    "note": "The reported build hash is not used as the ratified source identity; binary SHA-256 plus the P1288 pin are authoritative."
+  },
+  "unknown_policy": {
+    "default": "Unknown is never promoted to Preserved or Match.",
+    "opaque_pdf": "Any object or relationship not decoded by the recorded tools remains Unknown.",
+    "external": [
+      "real assistive technology behavior",
+      "screen-reader navigation",
+      "reflow behavior",
+      "PDF/UA conformance",
+      "accessibility certification",
+      "bundle behavior"
+    ]
+  },
+  "profiles": {
+    "default": {
+      "flags": [],
+      "html": "disabled",
+      "a11y-extras": "disabled"
+    },
+    "html": {
+      "flags": [
+        "--features",
+        "html"
+      ],
+      "html": "enabled",
+      "a11y-extras": "disabled"
+    },
+    "a11y-extras": {
+      "flags": [
+        "--features",
+        "a11y-extras"
+      ],
+      "html": "disabled",
+      "a11y-extras": "enabled"
+    },
+    "controls": {
+      "repeated_a11y": "accepted and byte-deterministic",
+      "a11y_then_html": "accepted",
+      "html_then_a11y": "accepted",
+      "comma_combination": "accepted",
+      "unknown_feature": "exit 2",
+      "bundle": "scope-out; does not activate a11y-extras"
+    }
+  },
+  "feature_probes": [
+    {
+      "id": "default-html-binding",
+      "profile": "default",
+      "exit_code": 1,
+      "result": "cannot access variable `html` because the `html` feature is not enabled"
+    },
+    {
+      "id": "html-binding-enabled",
+      "profile": "html",
+      "exit_code": 0,
+      "stdout": "\"module\"\n"
+    },
+    {
+      "id": "default-pdf-trio",
+      "profile": "default",
+      "exit_code": 1,
+      "result": "cannot access field `table-summary` because the `a11y-extras` feature is not enabled"
+    },
+    {
+      "id": "a11y-pdf-trio",
+      "profile": "a11y-extras",
+      "exit_code": 0,
+      "stdout": "\"(function, function, function)\"\n"
+    },
+    {
+      "id": "unknown-feature",
+      "profile": "active-invalid",
+      "exit_code": 2,
+      "result": "invalid value 'not-a-feature'; possible values: html, bundle, a11y-extras"
+    }
+  ],
+  "functions": {
+    "pdf.table-summary": {
+      "signature": "pdf.table-summary(summary: string?, table)",
+      "arguments": {
+        "summary": "named, optional by omission, string when present",
+        "table": "required positional TableElem"
+      },
+      "positive": [
+        "summary string returns a table and emits /Summary in tagged PDF",
+        "omitted summary returns a table and omits /Summary"
+      ],
+      "diagnostics": {
+        "missing_table": "missing argument: table",
+        "content_instead_of_table": "expected table",
+        "integer_summary": "expected string, found integer",
+        "explicit_none_summary": "expected string, found none",
+        "positional_summary": "expected table"
+      },
+      "important_observation": "The source-level Option represents omission. Explicit `summary: none` is rejected by the public cast."
+    },
+    "pdf.header-cell": {
+      "signature": "pdf.header-cell(level: integer=1, scope: both|column|row=column, cell)",
+      "arguments": {
+        "level": "named NonZeroU32, default 1",
+        "scope": "named closed string cast, default column",
+        "cell": "required positional; raw content casts to TableCell; an existing table.cell is preserved"
+      },
+      "positive": [
+        "scope row accepted",
+        "scope column accepted",
+        "scope both accepted",
+        "level 2 accepted",
+        "table.cell(colspan: 2) preserves colspan"
+      ],
+      "diagnostics": {
+        "missing_cell": "missing argument: cell",
+        "level_zero": "number must be positive",
+        "level_negative": "number must be positive",
+        "level_float": "expected integer, found float",
+        "level_string": "expected integer, found string",
+        "invalid_scope": "expected \"both\", \"column\", or \"row\"",
+        "none_scope": "expected \"both\", \"column\", or \"row\", found none",
+        "integer_cell": "expected content, found integer"
+      }
+    },
+    "pdf.data-cell": {
+      "signature": "pdf.data-cell(cell)",
+      "arguments": {
+        "cell": "required positional; raw content casts to TableCell; an existing table.cell is preserved"
+      },
+      "positive": [
+        "raw content emits TD",
+        "table.cell(colspan: 2) emits TD with /ColSpan 2"
+      ],
+      "diagnostics": {
+        "missing_cell": "missing argument: cell",
+        "integer_cell": "expected content, found integer",
+        "named_cell": "the argument `cell` is positional"
+      }
+    }
+  },
+  "pdf_observations": {
+    "default_tagging": {
+      "tagged": true,
+      "catalog": [
+        "/StructTreeRoot",
+        "/MarkInfo << /Marked true /Suspects false >>"
+      ]
+    },
+    "disabled_tagging": {
+      "tagged": false,
+      "catalog_absent": [
+        "/StructTreeRoot",
+        "/MarkInfo"
+      ],
+      "pdfinfo_struct_output": "empty"
+    },
+    "simple": {
+      "tree": "Document > Table > 2 TR > 4 TD",
+      "headers": "all empty"
+    },
+    "summary_string": {
+      "table_attribute": "/Summary (First column is a key; second column is its value.)"
+    },
+    "summary_omitted": {
+      "table_attribute": "/Summary absent"
+    },
+    "automatic_header": {
+      "tree": "Document > Table > THead(TR(TH,TH)) + TBody(TR(TD,TD),TR(TD,TD))",
+      "scopes": [
+        "Column",
+        "Column"
+      ],
+      "data_headers": "each TD references the TH in its column"
+    },
+    "explicit_semantics": {
+      "tree": "Document > Table > 3 TR; row 1 is TH(Both), TH(Column), TD; rows 2-3 are TH(Row), TD, TD",
+      "summary": "present",
+      "data_inside_header": "remains TD",
+      "header_ids": [
+        "U1x0y0",
+        "U1x1y0",
+        "U1x0y1",
+        "U1x0y2"
+      ],
+      "mcids_page_1": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "parent_tree": "/Nums [0 3 0 R]",
+      "parent_array": "[4 0 R, 5 0 R, 6 0 R, 8 0 R, 9 0 R, 10 0 R, 12 0 R, 13 0 R, 14 0 R] in MCID order"
+    },
+    "levels": {
+      "level_1": "Top A/Top B TH cells have empty Headers",
+      "level_2": "Nested A/Nested B TH cells reference the level-1 TH in the same column",
+      "data": "Data A/Data B reference the nearest level-2 TH in the same column",
+      "storage": "level is not emitted as a numeric PDF attribute; it affects header relationships"
+    },
+    "spans": {
+      "colspan": "/ColSpan 2 on TH",
+      "rowspan": "/RowSpan 2 on TH",
+      "scope": "Both and Row retained",
+      "headers": "TD cells reference column and row header IDs as applicable"
+    },
+    "multipage": {
+      "pages": 3,
+      "logical_tree": "one Table with one THead and one TBody; 12 logical data rows",
+      "repeated_header": "appears once in logical structure; repeated visual header copies do not duplicate logical TH nodes",
+      "struct_parents_by_page": [
+        0,
+        1,
+        2
+      ],
+      "parent_tree": "/Nums [0 3 0 R 1 4 0 R 2 5 0 R]",
+      "mcids_by_page": [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [0, 1, 2, 3, 4, 5, 6, 7],
+        [0, 1, 2, 3, 4, 5, 6, 7]
+      ]
+    },
+    "tool_warning": "pdfinfo -struct emitted: Syntax Warning: Attribute BorderColor value is of wrong type (array). This warning is preserved and no PDF/UA claim is made."
+  },
+  "separated_observables": {
+    "summary_tagged_vs_untagged": {
+      "text_equal": true,
+      "text_sha256": "e5252b85c66a2ea6c216861be58b37d9f818c44b02c2223710f072036e7f41be",
+      "bbox_equal": true,
+      "bbox_sha256": "81d79ca2e1da37a6760135e8c39a7ba79ab44c25fcee27d025a3f22f690a3263",
+      "raster_144ppi_equal": true,
+      "raster_sha256": "d3b61dad133ccc24851229351230df0d679515ed909599ffe3563075b5b325b6",
+      "page_boxes_equal": true
+    },
+    "explicit_tagged_vs_untagged": {
+      "text_equal": true,
+      "text_sha256": "601118279e541c2165727dca4fcf2d0518a0f3a6b1aaacde95f89450ccb71055",
+      "bbox_equal": true,
+      "bbox_sha256": "3c4bc7dc9a94720ae1ffdc0df580cc69673cead5b82c4de831a25b743928f4f6",
+      "raster_144ppi_equal": true,
+      "raster_sha256": "da6863ba31bc9ca2fe018d5ed0d2d912e900e410a52810ef1e426e1871adfd3c",
+      "page_boxes_equal": true
+    },
+    "multipage_tagged_vs_untagged": {
+      "text_equal": true,
+      "text_sha256": "73a0f0633c0c4cf569be1880d4e58d35c30ef436345f4df6b9b220d0d9b19cfd",
+      "bbox_equal": true,
+      "bbox_sha256": "aa75f67641355fc77d94bf951bd20bfb2e642089dc1eeba14dfe762c763de9a3",
+      "raster_144ppi_equal_by_page": [true, true, true],
+      "raster_sha256_by_page": [
+        "708069c4fa170e15826d02f91a0f6d6e61c11edc30a8c420d7ab7d67588ffead",
+        "b38292a6b773c5b2e470ad7c797b023ba07b6946e22596bba75b171fb6c9bd23",
+        "a3c3d1c27e491d901ebe3198d96605930ff6548dd775c2e5724850990fc48ba3"
+      ],
+      "page_boxes_equal": true
+    },
+    "non_pdf_targets_plain_vs_a11y": {
+      "html": {
+        "byte_equal": true,
+        "sha256": "0aa89e551aa6683e52c84832167f8f3581f90cd283bd6ea47ef9058f3984aa78",
+        "warning": "HTML export is under active development; page set rule ignored"
+      },
+      "svg": {
+        "byte_equal": true,
+        "sha256": "1989aae182383966b7292ef5810ca602cc38f1dcbd2b40b4e90c85032dcc0c90"
+      },
+      "png": {
+        "byte_equal": true,
+        "sha256": "19554c506367aae04ce1f2d36f44de1ac715cf9bc1f3ea8323b094793b8bd361"
+      },
+      "classification": "Measured equality for these fixtures only; PDF metadata is not inferred to have a general contract in other targets."
+    }
+  },
+  "artifacts": {
+    "automatic-header-tagged.pdf": {
+      "sha256": "9470fba590de7a37cf6f3b72a6a637dbaffdd7651161c2a6e4f7cfd2fcafb94c",
+      "bytes": 7774
+    },
+    "data-cell-casts-tagged.pdf": {
+      "sha256": "50b7ad2ce55087f3af66c9bc966ac304d9e72f4ad48914b5434f9a69db13635e"
+    },
+    "explicit-tagged.pdf": {
+      "sha256": "3d6dbad1fe7823fc78b23f72680e8f96f2a027ae660b162f0eb9b2c08952e4f4",
+      "bytes": 9774,
+      "repeat_byte_equal": true
+    },
+    "explicit-untagged.pdf": {
+      "sha256": "7dbb60bc3dcb40399a21cef1c47403b4f48567c3d000caadddd5fa20b9ebd741",
+      "bytes": 7209
+    },
+    "feature-control.pdf": {
+      "sha256": "989da25e3fcc82ba5c5ec99435cd72ecf784a0653aa44dfbfd2a53a594174ebd",
+      "byte_equal_across_repeat_order_and_comma_controls": true
+    },
+    "levels-tagged.pdf": {
+      "sha256": "d8159dbd8d878849c3251f4ac98ffb2e7d6b66d7a041450579751a5d6c31f414"
+    },
+    "multipage-tagged.pdf": {
+      "sha256": "8d96cb594565264d01ba9bde1362fb92fa6e344b9addd6fb3c1a8c5436f51042",
+      "bytes": 14188
+    },
+    "multipage-untagged.pdf": {
+      "sha256": "32cf9b1850ce79831d50268f6012f5dc81b232eda293d441c347c2133a00ce92",
+      "bytes": 7730
+    },
+    "simple.pdf": {
+      "sha256": "1c94121bc44dee14e352b0acf2eb00f67700b1d2a610fccda94fc98846784b40",
+      "bytes": 6005
+    },
+    "spans-tagged.pdf": {
+      "sha256": "6ca2b871a225bca9ea75bf99589298bd60f89c8b3d2131cac09894ca86b9052b",
+      "bytes": 8796
+    },
+    "summary-omitted-tagged.pdf": {
+      "sha256": "3c722cf84c586f934d7317318c8f602fbd10e04d8463c97cc7aa4ae21c40f387",
+      "bytes": 6727
+    },
+    "summary-string-tagged.pdf": {
+      "sha256": "63e023848d945d43a91aa92b0c20506a4f75a32c7c75fc81698e5096b984d032",
+      "bytes": 6799
+    },
+    "summary-string-untagged.pdf": {
+      "sha256": "3304520ae5e4dade47777e2bb79b9af7e6b24fccc01f706b51636c2d27e0d0a3",
+      "bytes": 5369
+    }
+  },
+  "fixtures_sha256": {
+    "automatic-header.typ": "6fff0c0c527de1ab93af9e4cc428e4ff5801468cde56a840f8c3b4e1a51c308f",
+    "data-cell-casts.typ": "742435cdee4dc003965972e5942f533ab7db663588607e5356ba5b3d04b24519",
+    "explicit-semantics.typ": "3a3eed3d8b4722a2598732f8dad26c6b26e9b5b4df3dfdbd059e0fe06f2d5785",
+    "gate.typ": "3c507aabb8012630514c0d69a3f7193ccd1ccd365f070203bd334526ad1e2383",
+    "levels.typ": "ad1c9220fc787448c57d0f2672c57c88bafb98a51564c26ed9635b0e6db6bac9",
+    "multipage.typ": "fc0ac5937529e51b419a15f820be86688ca3a9d7043d3bcaa400f02882e34e95",
+    "simple.typ": "bb75aed220e9277d0a38451eb9bfab75e7fed0909dcb3589a3bd8b6407c7e475",
+    "spans.typ": "6c4ec3eb2fdbbb5de52e7026d2a6f8583c7ad6839fc506a527255fee279f3b6f",
+    "summary-omitted.typ": "a1f89109f12cfd541ae61754ece8172ce8659634e9299127953274041b61e98a",
+    "summary-string.typ": "c55f03c0476b1fe195f21c07b8c19674c108cfd003791105baf889ee0c4cc206",
+    "visual-a11y.typ": "93342985ff54547864ddafe5a20c96b42b0aa7229f17cba20bb4df9f93063d7e",
+    "visual-plain.typ": "2bc427fcddd20b71d16dd5eb7afb73f631725083f727358778918b4703847004"
+  }
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/table.md
-//! @prompt-hash da77e49f
+//! @prompt-hash 926162a0
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -19,6 +19,7 @@ use crate::entities::geometry::Stroke;
 use crate::entities::layout_types::{Align2D, Color, Length, TrackSizing};
 use crate::entities::sides::Sides;
 use crate::entities::source_result::SourceResult;
+use ecow::EcoString;
 
 /// Tabela: `children` distribuídos em `columns`×`rows`; `stroke`/`fill` globais.
 /// **P459**: `caption` opcional para numeração automática via `table.numbering`.
@@ -37,6 +38,7 @@ pub struct TableElem {
     pub stroke: Option<Stroke>,
     pub fill: Option<Color>,
     pub caption: Option<Content>,
+    pub summary: Option<EcoString>,
     pub inset: Sides<Length>,
     pub align: Option<Align2D>,
 }
@@ -91,6 +93,7 @@ impl Element for TableElem {
                 .as_ref()
                 .map(|c| c.map_content(transform))
                 .transpose()?,
+            summary: self.summary.clone(),
             inset: self.inset,
             align: self.align,
         })))
@@ -111,6 +114,7 @@ impl Element for TableElem {
             stroke: self.stroke.clone(),
             fill: self.fill,
             caption: self.caption.as_ref().map(|c| c.map_text(transform)),
+            summary: self.summary.clone(),
             inset: self.inset,
             align: self.align,
         }))
@@ -150,6 +154,7 @@ mod tests {
             stroke: None,
             fill: None,
             caption: None,
+            summary: None,
             inset: Sides::uniform(Length::pt(5.0)),
             align: None,
         }
@@ -174,6 +179,7 @@ mod tests {
             stroke: None,
             fill: None,
             caption: None,
+            summary: None,
             inset: Sides::uniform(Length::pt(5.0)),
             align: None,
         }
@@ -215,6 +221,7 @@ mod tests {
             stroke: None,
             fill: None,
             caption: None,
+            summary: None,
             inset: Sides::uniform(Length::pt(5.0)),
             align: None,
         };

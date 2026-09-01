@@ -1,6 +1,9 @@
 # Prompt L0 — entidade de conteúdo HTML
 Hash do Código: 453c2796
 
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  
 **Owner candidato:** `01_core/src/entities/html.rs`
@@ -82,3 +85,25 @@ para `None` e o conteúdo para `Content`. Exporter/plain-text/walkers tratam
 
 Esta substituição foi aprovada pelo dono antes da materialização. Não usar
 tag, conteúdo vazio nem booleano oculto como codificação implícita.
+
+## P1288 — retirar ownership do set de features (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`01_core/src/entities/html.rs:12-42` contém hoje `Feature`/`Features` antes de
+`HtmlAttrs`/`HtmlBody`/`HtmlElem`, e `:88-92` testa o set no mesmo consumer.
+A fonte vanilla pinada mede `A11yExtras` como feature irmã de `Html` em
+`typst-library/src/lib.rs:272-305`; portanto a coleção deixou de ser uma
+responsabilidade HTML.
+
+### Decisão proposta
+
+Após confirmação humana, mover a definição canônica para o owner
+`entities/compiler_features.md`. Este consumer continua dono somente de
+`HtmlAttrs`, `HtmlBody`, `HtmlElem` e suas operações puras. Preservar
+`entities::html::{Feature, Features}` como re-export explícito da identidade
+canônica enquanto o path público anterior exigir compatibilidade; não manter
+estado, implementação ou teste duplicado em HTML.
+
+O binding público `html` e o exporter permanecem sujeitos ao Núcleo pinado;
+esta entidade não ativa feature, target nem formato.

@@ -144,9 +144,12 @@ impl<'a> PageContext<'a> {
             ) {
                 match item {
                     FrameItem::Semantic { kind, items, .. } => {
-                        if *kind
-                            == typst_core::entities::layout_types::SemanticKind::Formula
-                        {
+                        if matches!(
+                            kind,
+                            typst_core::entities::layout_types::SemanticKind::Formula
+                                | typst_core::entities::layout_types::SemanticKind::TableHeaderCell { .. }
+                                | typst_core::entities::layout_types::SemanticKind::TableDataCell { .. }
+                        ) {
                             out.insert(item as *const FrameItem as usize, *next);
                             *next += 1;
                         }
@@ -1187,6 +1190,40 @@ fn push_run_tj_entries(
     }
 }
 
+fn semantic_opening(
+    item: &FrameItem,
+    kind: typst_core::entities::layout_types::SemanticKind,
+    ctx: &PageContext,
+) -> Option<String> {
+    use typst_core::entities::layout_types::SemanticKind;
+
+    if ctx.tags != PdfTags::Enabled {
+        return None;
+    }
+    match kind {
+        SemanticKind::Formula => {
+            let key = item as *const FrameItem as usize;
+            ctx.semantic_mcids
+                .get(&key)
+                .map(|mcid| format!("/Formula << /MCID {mcid} >> BDC\n"))
+        }
+        SemanticKind::TableHeaderCell { .. } => ctx
+            .semantic_mcids
+            .get(&(item as *const FrameItem as usize))
+            .map(|mcid| format!("/TH << /MCID {mcid} >> BDC\n")),
+        SemanticKind::TableDataCell { .. } => ctx
+            .semantic_mcids
+            .get(&(item as *const FrameItem as usize))
+            .map(|mcid| format!("/TD << /MCID {mcid} >> BDC\n")),
+        SemanticKind::Table { .. }
+        | SemanticKind::TableHead { .. }
+        | SemanticKind::TableBody { .. }
+        | SemanticKind::TableRow { .. }
+        | SemanticKind::ExplicitLinebreakBoundary
+        | SemanticKind::ParbreakBoundary => None,
+    }
+}
+
 /// **P788** — emissão top-level (com flip Y-down→PDF: `page_height - pos.y`)
 /// de UM `FrameItem`, extraída de `build_page_stream` para que filhos de
 /// `FrameItem::Link` ao nível da página sigam o mesmo caminho. Antes eram
@@ -1537,17 +1574,15 @@ fn draw_item_top(
                 ops = draw_item_top(ops, child, page_height, ctx);
             }
         }
-        FrameItem::Semantic { items, .. } => {
-            let tagged = ctx.tags == PdfTags::Enabled;
-            if tagged {
-                let key = item as *const FrameItem as usize;
-                let mcid = ctx.semantic_mcids.get(&key).copied().unwrap_or(0);
-                ops.push_str(&format!("/Formula << /MCID {mcid} >> BDC\n"));
+        FrameItem::Semantic { kind, items, .. } => {
+            let opening = semantic_opening(item, *kind, ctx);
+            if let Some(ref opening) = opening {
+                ops.push_str(opening);
             }
             for child in items {
                 ops = draw_item_top(ops, child, page_height, ctx);
             }
-            if tagged {
+            if opening.is_some() {
                 ops.push_str("EMC\n");
             }
         }
@@ -2023,17 +2058,15 @@ pub(super) fn draw_item_local(
                 draw_item_local(ops, child, parent_bbox_override, ctx);
             }
         }
-        FrameItem::Semantic { items, .. } => {
-            let tagged = ctx.tags == PdfTags::Enabled;
-            if tagged {
-                let key = item as *const FrameItem as usize;
-                let mcid = ctx.semantic_mcids.get(&key).copied().unwrap_or(0);
-                ops.push_str(&format!("/Formula << /MCID {mcid} >> BDC\n"));
+        FrameItem::Semantic { kind, items, .. } => {
+            let opening = semantic_opening(item, *kind, ctx);
+            if let Some(ref opening) = opening {
+                ops.push_str(opening);
             }
             for child in items {
                 draw_item_local(ops, child, parent_bbox_override, ctx);
             }
-            if tagged {
+            if opening.is_some() {
                 ops.push_str("EMC\n");
             }
         }

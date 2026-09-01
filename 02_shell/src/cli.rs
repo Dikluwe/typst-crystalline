@@ -77,15 +77,20 @@ pub enum OutputFormat {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
 enum FeatureArg {
     Html,
+    A11yExtras,
+    Bundle,
 }
 
-fn resolve_features(values: &[FeatureArg]) -> typst_core::entities::html::Features {
-    let mut features = typst_core::entities::html::Features::default();
+fn resolve_features(
+    values: &[FeatureArg],
+) -> typst_core::entities::compiler_features::Features {
+    use typst_core::entities::compiler_features::{Feature, Features};
+    let mut features = Features::default();
     for value in values {
         match value {
-            FeatureArg::Html => {
-                features.enable(typst_core::entities::html::Feature::Html)
-            }
+            FeatureArg::Html => features.enable(Feature::Html),
+            FeatureArg::A11yExtras => features.enable(Feature::A11yExtras),
+            FeatureArg::Bundle => {}
         }
     }
     features
@@ -137,7 +142,7 @@ struct Args {
 #[derive(Debug, clap::Args)]
 struct CompileArgs {
     /// Enables in-development compiler features.
-    #[arg(long = "features", value_enum, action = clap::ArgAction::Append)]
+    #[arg(long = "features", value_enum, value_delimiter = ',', action = clap::ArgAction::Append)]
     features: Vec<FeatureArg>,
     /// Input .typ file.
     input: Option<PathBuf>,
@@ -311,7 +316,7 @@ struct EvalArgs {
     #[arg(long)]
     pretty: bool,
     /// Enables in-development compiler features.
-    #[arg(long = "features", value_enum, action = clap::ArgAction::Append)]
+    #[arg(long = "features", value_enum, value_delimiter = ',', action = clap::ArgAction::Append)]
     features: Vec<FeatureArg>,
 }
 
@@ -328,7 +333,7 @@ pub enum EvalFormat {
 /// L4 consome directamente sem conhecer clap ou env vars.
 #[derive(Debug, Clone)]
 pub struct CompileIntent {
-    pub features: typst_core::entities::html::Features,
+    pub features: typst_core::entities::compiler_features::Features,
     pub input: PathBuf,
     pub output: PathBuf,
     /// P866 — formato de saída resolvido pela extensão ou `--format`.
@@ -371,7 +376,7 @@ pub struct EvalIntent {
     pub pretty: bool,
     pub colored: bool,
     pub cert_path: Option<PathBuf>,
-    pub features: typst_core::entities::html::Features,
+    pub features: typst_core::entities::compiler_features::Features,
 }
 
 #[derive(Debug)]

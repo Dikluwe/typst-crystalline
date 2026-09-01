@@ -298,6 +298,35 @@ pub use crate::entities::shaped_glyph::ShapedGlyph;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SemanticKind {
     Formula,
+    Table {
+        id: u64,
+    },
+    TableHead {
+        table_id: u64,
+    },
+    TableBody {
+        table_id: u64,
+    },
+    TableRow {
+        table_id: u64,
+        row: u32,
+    },
+    TableHeaderCell {
+        table_id: u64,
+        row: u32,
+        column: u32,
+        level: u32,
+        scope: crate::entities::elements::table_cell::TableHeaderScope,
+        rowspan: u32,
+        colspan: u32,
+    },
+    TableDataCell {
+        table_id: u64,
+        row: u32,
+        column: u32,
+        rowspan: u32,
+        colspan: u32,
+    },
     /// P1140.12 — fronteira visualmente transparente que preserva a causa
     /// semântica de um flush explícito até ao reflow bidi em L3.
     ExplicitLinebreakBoundary,

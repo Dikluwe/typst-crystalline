@@ -1,45 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/html.md
-//! @prompt-hash 88856dc1
+//! @prompt-hash 1051b620
 //! @layer L1
 
 use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
+pub use crate::entities::compiler_features::{Feature, Features};
 use crate::entities::content::Content;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Feature {
-    Html,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct Features {
-    html: bool,
-}
-
-impl Features {
-    pub const fn empty() -> Self {
-        Self { html: false }
-    }
-
-    pub const fn html() -> Self {
-        Self { html: true }
-    }
-
-    pub const fn contains(self, feature: Feature) -> bool {
-        match feature {
-            Feature::Html => self.html,
-        }
-    }
-
-    pub fn enable(&mut self, feature: Feature) {
-        match feature {
-            Feature::Html => self.html = true,
-        }
-    }
-}
 
 pub type HtmlAttrs = IndexMap<EcoString, EcoString, FxBuildHasher>;
 

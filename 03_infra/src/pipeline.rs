@@ -80,7 +80,7 @@ pub fn eval_expression_with_sink(
 pub fn eval_expression_with_sink_features(
     world: &dyn World,
     expression: &str,
-    features: typst_core::entities::html::Features,
+    features: typst_core::entities::compiler_features::Features,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
     eval_expression_with_features(world, expression, features)
 }
@@ -122,7 +122,7 @@ fn eval_to_module_with_sink_target(
         source,
         full_error,
         target,
-        typst_core::entities::html::Features::default(),
+        typst_core::entities::compiler_features::Features::default(),
     )
 }
 
@@ -131,7 +131,7 @@ fn eval_to_module_with_sink_target_features(
     source: &Source,
     full_error: bool,
     target: EvalTarget,
-    features: typst_core::entities::html::Features,
+    features: typst_core::entities::compiler_features::Features,
 ) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
     let routines = Routines::new();
     let traced = Traced::default();
@@ -164,16 +164,16 @@ pub fn compile_to_html_string(
     compile_to_html_string_with_features(
         world,
         source,
-        typst_core::entities::html::Features::default(),
+        typst_core::entities::compiler_features::Features::default(),
     )
 }
 
 pub fn compile_to_html_string_with_features(
     world: &dyn World,
     source: &Source,
-    features: typst_core::entities::html::Features,
+    features: typst_core::entities::compiler_features::Features,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    if !features.contains(typst_core::entities::html::Feature::Html) {
+    if !features.contains(typst_core::entities::compiler_features::Feature::Html) {
         return (
             Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -530,6 +530,27 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        typst_core::entities::compiler_features::Features::default(),
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
     let result = compile_to_pdf_bytes_impl(
         world,
@@ -538,6 +559,7 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
         document_id,
         stream_mode,
         pdf_tags,
+        features,
         false,
         &mut timings,
     );
@@ -554,9 +576,30 @@ fn compile_to_paged_document_full_error(
     full_error: bool,
     timings: &mut Timings,
 ) -> (Result<PagedDocument, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_paged_document_full_error_and_features(
+        world,
+        source,
+        full_error,
+        typst_core::entities::compiler_features::Features::default(),
+        timings,
+    )
+}
+
+fn compile_to_paged_document_full_error_and_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: typst_core::entities::compiler_features::Features,
+    timings: &mut Timings,
+) -> (Result<PagedDocument, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let t0 = Instant::now();
-    let (eval_result, mut warnings) =
-        eval_to_module_with_sink_full_error(world, source, full_error);
+    let (eval_result, mut warnings) = eval_to_module_with_sink_target_features(
+        world,
+        source,
+        full_error,
+        EvalTarget::Paged,
+        features,
+    );
     let t1 = Instant::now();
     timings.eval_ms = duration_ms(t1.duration_since(t0));
 
@@ -976,11 +1019,13 @@ fn compile_to_pdf_bytes_impl(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
     oracle: bool,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    let (doc_result, warnings) =
-        compile_to_paged_document_full_error(world, source, full_error, timings);
+    let (doc_result, warnings) = compile_to_paged_document_full_error_and_features(
+        world, source, full_error, features, timings,
+    );
     let doc = match doc_result {
         Ok(d) => d,
         Err(errors) => {
@@ -1141,6 +1186,27 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error_and_document_id_with_features(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        typst_core::entities::compiler_features::Features::default(),
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
     compile_to_pdf_bytes_impl(
         world,
@@ -1149,6 +1215,7 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id(
         document_id,
         stream_mode,
         pdf_tags,
+        features,
         false,
         &mut timings,
     )
@@ -1167,6 +1234,26 @@ pub fn compile_to_pdf_bytes_oracle(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_oracle_with_features(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        typst_core::entities::compiler_features::Features::default(),
+    )
+}
+
+pub fn compile_to_pdf_bytes_oracle_with_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
     compile_to_pdf_bytes_impl(
         world,
@@ -1175,6 +1262,7 @@ pub fn compile_to_pdf_bytes_oracle(
         document_id,
         stream_mode,
         pdf_tags,
+        features,
         true,
         &mut timings,
     )
@@ -1273,9 +1361,29 @@ pub fn compile_to_png_bytes_with_timings_full_error(
     source: &Source,
     full_error: bool,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_png_bytes_with_timings_full_error_and_features(
+        world,
+        source,
+        full_error,
+        typst_core::entities::compiler_features::Features::default(),
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_png_bytes_with_timings_full_error_and_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: typst_core::entities::compiler_features::Features,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
-    let (doc_result, warnings) =
-        compile_to_paged_document_full_error(world, source, full_error, &mut timings);
+    let (doc_result, warnings) = compile_to_paged_document_full_error_and_features(
+        world,
+        source,
+        full_error,
+        features,
+        &mut timings,
+    );
     let result = match doc_result {
         Ok(doc) => {
             let fonts = match resolve_and_instantiate_fonts(&doc, world) {
@@ -1358,9 +1466,29 @@ pub fn compile_to_svg_string_with_timings_full_error(
     source: &Source,
     full_error: bool,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_svg_string_with_timings_full_error_and_features(
+        world,
+        source,
+        full_error,
+        typst_core::entities::compiler_features::Features::default(),
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_svg_string_with_timings_full_error_and_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: typst_core::entities::compiler_features::Features,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
-    let (doc_result, warnings) =
-        compile_to_paged_document_full_error(world, source, full_error, &mut timings);
+    let (doc_result, warnings) = compile_to_paged_document_full_error_and_features(
+        world,
+        source,
+        full_error,
+        features,
+        &mut timings,
+    );
     let result = match doc_result {
         Ok(doc) => {
             let fonts = match resolve_and_instantiate_fonts(&doc, world) {

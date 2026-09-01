@@ -1,0 +1,307 @@
+{
+  "candidate_read_or_executed": false,
+  "control": {
+    "failures": {},
+    "status": "Preserved"
+  },
+  "forward_reverse_agreement": true,
+  "invalid_mutants": [
+    {
+      "id": "X01",
+      "reason": "no-op mutation preserves the control value",
+      "valid": false
+    },
+    {
+      "id": "X02",
+      "reason": "mutation path is outside the frozen observable model",
+      "valid": false
+    }
+  ],
+  "killed_valid_mutants": 22,
+  "mutation_score": 1.0,
+  "note": "Evidence-only discriminatory gate; no implementation or refinement verdict is emitted.",
+  "opaque_cases": [
+    {
+      "deliberately_opaque": true,
+      "id": "opaque-assistive-technology",
+      "reason": "No real assistive-technology or screen-reader test is authorized.",
+      "status": "Unknown"
+    },
+    {
+      "deliberately_opaque": true,
+      "id": "opaque-pdfua-reflow-certification",
+      "reason": "Positive structure does not prove PDF/UA, reflow or certification.",
+      "status": "Unknown"
+    },
+    {
+      "deliberately_opaque": true,
+      "id": "opaque-bundle",
+      "reason": "Bundle behavior is outside P1288.",
+      "status": "Unknown"
+    },
+    {
+      "deliberately_opaque": true,
+      "id": "opaque-undecoded-pdf",
+      "reason": "Any relationship not decoded by recorded tools remains opaque.",
+      "status": "Unknown"
+    }
+  ],
+  "phase_a_harness_read_or_executed": false,
+  "protected_inputs_unchanged": true,
+  "protected_snapshot_sha256": "6c5f38e088202ba0505153e1287a3a97159f2499b9b73bd673020bb89ce8de00",
+  "results": [
+    {
+      "evidence": [
+        "feature-default-html"
+      ],
+      "id": "A01",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "HTML enabled in default profile",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "manifest:O01",
+        "contract:profiles"
+      ],
+      "id": "A02",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "target/format activated a feature",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "feature-default-a11y"
+      ],
+      "id": "A03",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "a11y-extras enabled in default profile",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "feature-html-does-not-enable-a11y"
+      ],
+      "id": "A04",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "html activated a11y-extras",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "feature-a11y-does-not-enable-html"
+      ],
+      "id": "A05",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "a11y-extras activated html",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "feature-a11y-trio"
+      ],
+      "id": "A06",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "accepted feature flag had no effect",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "feature-a11y-trio"
+      ],
+      "id": "A07",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "a11y trio is partial",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "feature-default-a11y"
+      ],
+      "id": "A08",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "gated binding exists without feature",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "summary-string",
+        "automatic-header"
+      ],
+      "id": "A09",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "body-returning stub discarded metadata",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "summary-string"
+      ],
+      "id": "A10",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "summary was lost before builder",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "automatic-header"
+      ],
+      "id": "A11",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "Header was serialized as Data/TD",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "explicit-semantics"
+      ],
+      "id": "A12",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "explicit Data was promoted inside header",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "scope-gate"
+      ],
+      "id": "A13",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "row/column scope mapping changed",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "header-level-zero",
+        "levels"
+      ],
+      "id": "A14",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "level was ignored, zero accepted, or numeric attribute emitted",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "multipage",
+        "contract:O16"
+      ],
+      "id": "A15",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "MCID is duplicated or does not restart per page",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "multipage",
+        "contract:O16"
+      ],
+      "id": "A16",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "ParentTree/StructElem is incomplete or orphaned",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "tags-disabled-explicit-semantics.typ"
+      ],
+      "id": "A17",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "tags were emitted while disabled",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "visual-pair-summary-string.typ"
+      ],
+      "id": "A18",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "metadata-only change altered visual/text observables",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "manifest:status_lattice"
+      ],
+      "id": "A19",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "disabled profile received MATCH/Preserved credit",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "feature-unknown",
+        "manifest:status_lattice"
+      ],
+      "id": "A20",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "unknown active flag was hidden as disabled",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "oracle:canonical_results"
+      ],
+      "id": "A21",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "forward/reverse results diverged",
+      "workspace": "temporary-copy"
+    },
+    {
+      "evidence": [
+        "oracle:verify_hashes",
+        "manifest:protected_inputs"
+      ],
+      "id": "A22",
+      "killed": true,
+      "status": "Violated",
+      "valid": true,
+      "witness": "protected manifest/baseline/fixture/nucleus/L0 drift was ignored",
+      "workspace": "temporary-copy"
+    }
+  ],
+  "role": "pre-candidate-adversary",
+  "schema": "p1288-adversarial-mutation-campaign/v1",
+  "surviving_valid_mutants": [],
+  "valid_mutants": 22
+}

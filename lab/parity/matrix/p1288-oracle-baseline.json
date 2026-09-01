@@ -1,0 +1,85 @@
+{
+  "schema": "p1288-oracle-baseline/v1",
+  "contract_manifest": {
+    "path": "00_nucleo/diagnosticos/p1288-manifest.json",
+    "sha256": "0e7282b6b5b445d0532bb5456abfbd765e7878fc44d318f96a0b8b960351ed3a"
+  },
+  "contract_receipt": {
+    "path": "00_nucleo/diagnosticos/p1288-contract-receipt.md",
+    "sha256": "69d8ea63d2eb6f0267e135cdcd37a479c1b0a0b72814a1170a01be28cf48d34a"
+  },
+  "protected_inputs": {
+    "00_nucleo/diagnosticos/p1288-vanilla-measurement-receipt.md": "06a32ad3a77cc710a4ba1c54330325d0cc5a788ba2378cf0e6fda32269c5df80",
+    "lab/parity/matrix/p1288-vanilla-baseline.json": "057bab7534c4855b0b47cc7cd05e243058d8b39407e30c2b3ee478f04d24c377",
+    "00_nucleo/diagnosticos/p1288-pre-gate-l0-receipt.md": "b259334c262683a2e62979b67cbf3b09f57f65ac9e07c4e5c504b6dda5436c6b"
+  },
+  "vanilla": {
+    "ratified_upstream_commit": "a51e02804",
+    "binary": "/usr/local/bin/typst",
+    "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "fixtures": {
+    "automatic-header.typ": "6fff0c0c527de1ab93af9e4cc428e4ff5801468cde56a840f8c3b4e1a51c308f",
+    "data-cell-casts.typ": "742435cdee4dc003965972e5942f533ab7db663588607e5356ba5b3d04b24519",
+    "explicit-semantics.typ": "3a3eed3d8b4722a2598732f8dad26c6b26e9b5b4df3dfdbd059e0fe06f2d5785",
+    "gate.typ": "3c507aabb8012630514c0d69a3f7193ccd1ccd365f070203bd334526ad1e2383",
+    "levels.typ": "ad1c9220fc787448c57d0f2672c57c88bafb98a51564c26ed9635b0e6db6bac9",
+    "multipage.typ": "fc0ac5937529e51b419a15f820be86688ca3a9d7043d3bcaa400f02882e34e95",
+    "simple.typ": "bb75aed220e9277d0a38451eb9bfab75e7fed0909dcb3589a3bd8b6407c7e475",
+    "spans.typ": "6c4ec3eb2fdbbb5de52e7026d2a6f8583c7ad6839fc506a527255fee279f3b6f",
+    "summary-omitted.typ": "a1f89109f12cfd541ae61754ece8172ce8659634e9299127953274041b61e98a",
+    "summary-string.typ": "c55f03c0476b1fe195f21c07b8c19674c108cfd003791105baf889ee0c4cc206",
+    "visual-a11y.typ": "93342985ff54547864ddafe5a20c96b42b0aa7229f17cba20bb4df9f93063d7e",
+    "visual-plain.typ": "2bc427fcddd20b71d16dd5eb7afb73f631725083f727358778918b4703847004"
+  },
+  "eval_cases": [
+    {"id":"feature-default-html","kind":"negative","expr":"repr(type(html))","features":[],"exit":1,"stderr_contains":"cannot access variable `html` because the `html` feature is not enabled"},
+    {"id":"feature-html-enabled","kind":"positive","expr":"repr(type(html))","features":["html"],"exit":0,"stdout":"\"module\"\n"},
+    {"id":"feature-default-a11y","kind":"negative","expr":"repr((type(pdf.table-summary), type(pdf.header-cell), type(pdf.data-cell)))","features":[],"exit":1,"stderr_contains":"cannot access field `table-summary` because the `a11y-extras` feature is not enabled"},
+    {"id":"feature-a11y-trio","kind":"positive","expr":"repr((type(pdf.table-summary), type(pdf.header-cell), type(pdf.data-cell)))","features":["a11y-extras"],"exit":0,"stdout":"\"(function, function, function)\"\n"},
+    {"id":"feature-html-does-not-enable-a11y","kind":"negative","expr":"repr(type(pdf.data-cell))","features":["html"],"exit":1,"stderr_contains":"a11y-extras` feature is not enabled"},
+    {"id":"feature-a11y-does-not-enable-html","kind":"negative","expr":"repr(type(html))","features":["a11y-extras"],"exit":1,"stderr_contains":"html` feature is not enabled"},
+    {"id":"feature-both-comma","kind":"positive","expr":"repr((type(html), type(pdf.data-cell)))","features":["html,a11y-extras"],"exit":0,"stdout":"\"(module, function)\"\n","equivalence_group":"both-features"},
+    {"id":"feature-both-forward","kind":"positive","expr":"repr((type(html), type(pdf.data-cell)))","features":["html","a11y-extras"],"exit":0,"stdout":"\"(module, function)\"\n","equivalence_group":"both-features"},
+    {"id":"feature-both-reverse","kind":"positive","expr":"repr((type(html), type(pdf.data-cell)))","features":["a11y-extras","html"],"exit":0,"stdout":"\"(module, function)\"\n","equivalence_group":"both-features"},
+    {"id":"feature-a11y-repeated","kind":"positive","expr":"repr(type(pdf.data-cell))","features":["a11y-extras","a11y-extras"],"exit":0,"stdout":"\"function\"\n"},
+    {"id":"feature-unknown","kind":"negative","expr":"repr(type(pdf.data-cell))","features":["not-a-feature"],"exit":2,"stderr_contains":"invalid value 'not-a-feature'"},
+    {"id":"feature-bundle-no-a11y","kind":"negative","expr":"repr(type(pdf.data-cell))","features":["bundle"],"exit":1,"stderr_contains":"a11y-extras` feature is not enabled"},
+    {"id":"summary-missing-table","kind":"negative","expr":"pdf.table-summary()","features":["a11y-extras"],"exit":1,"stderr_contains":"missing argument: table"},
+    {"id":"summary-content-not-table","kind":"negative","expr":"pdf.table-summary([x])","features":["a11y-extras"],"exit":1,"stderr_contains":"expected table"},
+    {"id":"summary-integer","kind":"negative","expr":"pdf.table-summary(summary: 1, table(columns: 1, [x]))","features":["a11y-extras"],"exit":1,"stderr_contains":"expected string, found integer"},
+    {"id":"summary-explicit-none","kind":"negative","expr":"pdf.table-summary(summary: none, table(columns: 1, [x]))","features":["a11y-extras"],"exit":1,"stderr_contains":"expected string, found none"},
+    {"id":"summary-positional","kind":"negative","expr":"pdf.table-summary(\"x\", table(columns: 1, [x]))","features":["a11y-extras"],"exit":1,"stderr_contains":"expected table"},
+    {"id":"header-missing-cell","kind":"negative","expr":"pdf.header-cell()","features":["a11y-extras"],"exit":1,"stderr_contains":"missing argument: cell"},
+    {"id":"header-integer-cell","kind":"negative","expr":"pdf.header-cell(1)","features":["a11y-extras"],"exit":1,"stderr_contains":"expected content, found integer"},
+    {"id":"header-level-zero","kind":"negative","expr":"pdf.header-cell(level: 0, [x])","features":["a11y-extras"],"exit":1,"stderr_contains":"number must be positive"},
+    {"id":"header-level-negative","kind":"negative","expr":"pdf.header-cell(level: -1, [x])","features":["a11y-extras"],"exit":1,"stderr_contains":"number must be positive"},
+    {"id":"header-level-float","kind":"negative","expr":"pdf.header-cell(level: 1.5, [x])","features":["a11y-extras"],"exit":1,"stderr_contains":"expected integer, found float"},
+    {"id":"header-invalid-scope","kind":"negative","expr":"pdf.header-cell(scope: \"sideways\", [x])","features":["a11y-extras"],"exit":1,"stderr_contains":"expected \"both\", \"column\", or \"row\""},
+    {"id":"header-none-scope","kind":"negative","expr":"pdf.header-cell(scope: none, [x])","features":["a11y-extras"],"exit":1,"stderr_contains":"expected \"both\", \"column\", or \"row\", found none"},
+    {"id":"data-missing-cell","kind":"negative","expr":"pdf.data-cell()","features":["a11y-extras"],"exit":1,"stderr_contains":"missing argument: cell"},
+    {"id":"data-integer-cell","kind":"negative","expr":"pdf.data-cell(1)","features":["a11y-extras"],"exit":1,"stderr_contains":"expected content, found integer"},
+    {"id":"data-named-cell","kind":"negative","expr":"pdf.data-cell(cell: [x])","features":["a11y-extras"],"exit":1,"stderr_contains":"the argument `cell` is positional"}
+  ],
+  "compile_cases": [
+    {"id":"simple-structure","fixture":"simple.typ","struct_contains":["Table (block):","TR","TD:"],"struct_counts":{"TR":2,"TD:":4,"TH ":0}},
+    {"id":"automatic-header","fixture":"automatic-header.typ","struct_contains":["THead","TBody","/Scope /Column","/Headers [(U1x0y0)]","/Headers [(U1x1y0)]"],"struct_counts":{"THead":1,"TBody":1,"TH ":2,"TD:":4}},
+    {"id":"explicit-semantics","fixture":"explicit-semantics.typ","struct_contains":["/Summary (The first column labels each row; the third header cell is data.)","/Scope /Both","/Scope /Column","/Scope /Row"],"struct_counts":{"THead":0,"TBody":0,"TR":3,"TH ":4,"TD:":5}},
+    {"id":"levels","fixture":"levels.typ","struct_contains":["/Headers [(U1x0y0)]","/Headers [(U1x1y0)]","/Headers [(U1x0y1)]","/Headers [(U1x1y1)]"],"struct_absent":["/Level"],"struct_counts":{"TH ":4,"TD:":2}},
+    {"id":"spans","fixture":"spans.typ","struct_contains":["/ColSpan 2","/RowSpan 2","/Scope /Both","/Scope /Row"],"struct_counts":{"TH ":3,"TD:":4}},
+    {"id":"multipage","fixture":"multipage.typ","info_contains":["Pages:           3","Tagged:          yes"],"struct_contains":["THead","TBody"],"struct_counts":{"THead":1,"TBody":1,"TH ":2,"TD:":24}},
+    {"id":"summary-string","fixture":"summary-string.typ","struct_contains":["/Summary (First column is a key; second column is its value.)"]},
+    {"id":"summary-omitted","fixture":"summary-omitted.typ","struct_absent":["/Summary"]},
+    {"id":"data-cell-casts","fixture":"data-cell-casts.typ","struct_contains":["/ColSpan 2"],"struct_counts":{"TH ":0,"TD:":2}},
+    {"id":"scope-gate","fixture":"gate.typ","struct_contains":["/Scope /Both","/Scope /Column","/Scope /Row"],"struct_counts":{"TH ":3,"TD:":1}}
+  ],
+  "tag_disabled_cases": ["summary-string.typ","explicit-semantics.typ","multipage.typ"],
+  "visual_pairs": ["summary-string.typ","explicit-semantics.typ","multipage.typ"],
+  "non_pdf_pair": {"plain":"visual-plain.typ","a11y":"visual-a11y.typ","formats":["html","svg","png"]},
+  "opaque_cases": [
+    {"id":"opaque-assistive-technology","expected":"Unknown","reason":"No real assistive-technology or screen-reader test is authorized."},
+    {"id":"opaque-pdfua-reflow-certification","expected":"Unknown","reason":"Positive structure does not prove PDF/UA, reflow or certification."},
+    {"id":"opaque-bundle","expected":"Unknown","reason":"Bundle behavior is outside P1288."},
+    {"id":"opaque-undecoded-pdf","expected":"Unknown","reason":"Any relationship not decoded by recorded tools remains opaque."}
+  ]
+}

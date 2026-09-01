@@ -1,7 +1,8 @@
 # Prompt L0 — `rules/eval/table` — `#set table(numbering:)` e namespace `table.*`
 Hash do Código: PENDENTE_HUMAN_CALC
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/eval/rules.rs` (arm `target == "table"`) e `01_core/src/compiler/stdlib/structural.rs`
+**Camada**: L1 · **Owner futuro exclusivo P1288**: `01_core/src/compiler/eval/table.rs`
+**Estado P1288:** PROPOSTO — não materializável antes da confirmação humana.
 **Prompt pai**: `00_nucleo/prompts/compiler/eval.md`
 **P459**: materializar numeração automática de tables via chain léxica, análoga a `figure.numbering` (P454) e `equation.numbering` (P456).
 **P493b**: namespace anexado em `table` para `table.header`, `table.footer`, `table.cell`.
@@ -108,3 +109,34 @@ a `figure`. Ver `00_nucleo/prompts/compiler/layout/table.md` §P661.
 - `table.cell[Conteúdo]` deve avaliar para `Content::TableCell`.
 - `table(...)` sem header/footer continua a funcionar (não-regressão).
 - Show rules de `figure.where(kind: table)` não afectam tabelas numeradas por P459 (P661).
+
+## 6. P1288 — normalização content-or-cell sem colisão de ownership
+
+### Medição anterior à decisão
+
+O header de `01_core/src/compiler/eval/rules.rs:1-4` aponta corretamente para
+`compiler/eval/rules.md`; `compiler/stdlib/structural/table_grid.rs:1-4`
+aponta para `compiler/stdlib/structural/table_grid.md`. Este documento estava
+como exceção órfã histórica e não pode apropriar-se de nenhum desses consumers
+sem violar ADR-0129. A fonte vanilla mede o cast `TableCell` a partir de
+`Content` em `model/table.rs:781-784` e as duas funções usando-o em
+`pdf/accessibility.rs:203-220,264-272`.
+
+### Decisão proposta
+
+Após o gate, este prompt passa a possuir exclusivamente um helper puro novo em
+`compiler/eval/table.rs`. Ele normaliza o argumento de `pdf.header-cell` e
+`pdf.data-cell`: conteúdo cru vira célula default; `Content::TableCell`
+existente é clonado preservando todos os campos; outro tipo produz o cast
+nominal medido. O caller aplica Header/Data depois da normalização.
+
+O helper não registra bindings, não aplica layout, não lê features e não
+duplica `native_table_cell`. Os casts preservam os diagnósticos medidos:
+célula ausente → `missing argument: cell`; célula inteira → `expected content,
+found integer`; `pdf.data-cell(cell:)` → ``the argument `cell` is positional``;
+nível zero/negativo → `number must be positive`; nível float → `expected
+integer, found float`; scope inválido → `expected "both", "column", or
+"row"`, com `, found none` para none explícito. `pdf.table-summary` aceita
+summary string apenas quando fornecido; omissão produz `None`, mas none
+explícito produz `expected string, found none`. Até a confirmação humana,
+nenhum consumer é criado e este L0 não alega ownership materializado.

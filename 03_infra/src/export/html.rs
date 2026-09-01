@@ -84,6 +84,7 @@ pub fn export_html(content: &Content) -> Result<String, SourceDiagnostic> {
             format!("<p>{}</p>", inline(content)?)
         }
         Content::HtmlElem(_) => inline(content)?,
+        Content::Table(_) => inline(content)?,
         Content::Sequence(seq)
             if seq.iter().any(|c| {
                 matches!(
@@ -92,6 +93,7 @@ pub fn export_html(content: &Content) -> Result<String, SourceDiagnostic> {
                         | Content::Parbreak
                         | Content::Par { .. }
                         | Content::HtmlElem(_)
+                        | Content::Table(_)
                 )
             }) =>
         {
@@ -169,6 +171,10 @@ fn block_sequence(seq: &[Content]) -> Result<String, SourceDiagnostic> {
                     out.push_str(&inline(item)?);
                 }
             }
+            Content::Table(_) => {
+                flush(&mut out, &mut paragraph);
+                out.push_str(&inline(item)?);
+            }
             Content::Space => paragraph.push_str(top_level_space_between(seq, index)),
             other => paragraph.push_str(&inline(other)?),
         }
@@ -186,6 +192,7 @@ fn inline(content: &Content) -> Result<String, SourceDiagnostic> {
         Content::Empty => String::new(),
         Content::Text(text) => escape(text),
         Content::Space => " ".into(),
+        Content::SetPage { .. } => String::new(),
         Content::Sequence(seq) => {
             seq.iter().map(inline).collect::<Result<Vec<_>, _>>()?.concat()
         }
@@ -193,6 +200,10 @@ fn inline(content: &Content) -> Result<String, SourceDiagnostic> {
         Content::Emph(e) => format!("<em>{}</em>", inline(&e.body)?),
         Content::Styled(body, _) => inline(body)?,
         Content::Linebreak(_) => "<br>".into(),
+        Content::Table(table) => html_table(table)?,
+        Content::TableCell(cell) => inline(&cell.body)?,
+        Content::TableHeader(header) => inline(&header.body)?,
+        Content::TableFooter(footer) => inline(&footer.body)?,
         Content::HtmlElem(elem) => {
             let mut out = String::new();
             out.push('<');
@@ -237,6 +248,75 @@ fn inline(content: &Content) -> Result<String, SourceDiagnostic> {
             ))
         }
     })
+}
+
+fn html_table(
+    table: &typst_core::entities::elements::table::TableElem,
+) -> Result<String, SourceDiagnostic> {
+    fn flatten<'a>(content: &'a Content, out: &mut Vec<&'a Content>) {
+        match content {
+            Content::Sequence(items) => {
+                for item in items.iter() {
+                    flatten(item, out);
+                }
+            }
+            Content::TableHeader(header) => flatten(&header.body, out),
+            Content::TableFooter(footer) => flatten(&footer.body, out),
+            other => out.push(other),
+        }
+    }
+
+    fn rows(
+        cells: &[&Content],
+        columns: usize,
+        tag: &str,
+    ) -> Result<String, SourceDiagnostic> {
+        let mut out = String::new();
+        for chunk in cells.chunks(columns.max(1)) {
+            out.push_str("<tr>");
+            for content in chunk {
+                let (body, colspan, rowspan) = match content {
+                    Content::TableCell(cell) => {
+                        (&cell.body, cell.colspan.unwrap_or(1), cell.rowspan.unwrap_or(1))
+                    }
+                    other => (*other, 1, 1),
+                };
+                out.push('<');
+                out.push_str(tag);
+                if colspan > 1 {
+                    out.push_str(&format!(" colspan=\"{colspan}\""));
+                }
+                if rowspan > 1 {
+                    out.push_str(&format!(" rowspan=\"{rowspan}\""));
+                }
+                out.push('>');
+                out.push_str(&inline(body)?);
+                out.push_str("</");
+                out.push_str(tag);
+                out.push('>');
+            }
+            out.push_str("</tr>");
+        }
+        Ok(out)
+    }
+
+    let columns = table.columns.len().max(1);
+    let mut out = String::from("<table>");
+    if let Some(header) = &table.header {
+        let mut cells = Vec::new();
+        flatten(header, &mut cells);
+        out.push_str("<thead>");
+        out.push_str(&rows(&cells, columns, "th")?);
+        out.push_str("</thead>");
+    }
+    let mut cells = Vec::new();
+    for child in &table.children {
+        flatten(child, &mut cells);
+    }
+    out.push_str("<tbody>");
+    out.push_str(&rows(&cells, columns, "td")?);
+    out.push_str("</tbody></table>");
+    Ok(out)
 }
 
 fn title_text(content: &Content) -> Result<String, SourceDiagnostic> {

@@ -9902,7 +9902,7 @@ mod p1140_6_tagged_pdf {
         assert!(streams.contains("EMC"));
         assert!(raw.contains("/StructTreeRoot"));
         assert!(raw.contains("/ParentTree"));
-        assert!(raw.contains("/MarkInfo << /Marked true >>"));
+        assert!(raw.contains("/MarkInfo << /Marked true /Suspects false >>"));
         assert!(raw.contains("/S /Formula"));
         assert!(raw.contains("/Alt <FEFF006500710075006100E700E3006F002003B1>"));
     }

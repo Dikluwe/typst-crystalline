@@ -1,0 +1,127 @@
+{
+  "schema": "p1288-pre-candidate-contract-seal/v1",
+  "sealed_at": "2026-08-31T11:56:48-03:00",
+  "repository": {
+    "head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+    "working_tree": "uncommitted-shared",
+    "environmental_isolation": "not-attested",
+    "segregation": "role-capability-order-and-hashes"
+  },
+  "verifier": {
+    "role": "independent-preseal-discriminatory-verifier",
+    "candidate_read_or_executed": false,
+    "productive_code_l1_l4_inspected_or_executed_by_verifier": false,
+    "architectural_linter_workspace_scan": "authorized-v15-v26-only",
+    "phase_a_harness_in_seal": false,
+    "judged_artifacts_edited": false,
+    "functional_verdict_emitted": false,
+    "human_gate_approved": false
+  },
+  "protocol_inputs": {
+    "skill": "33a32f7bc439de3fe3aa530bd65518e512a93f40152c91b2ace0789de34a3a56",
+    "roles_reference": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417",
+    "artifacts_and_gates_reference": "bf218259b4454974bf8889ce319e04c0c7ec668b9a542d0eb3b4d0492a623963",
+    "00_nucleo/materialization/typst-passo-1288.md": "3858860e2d3e9916b051dfbbea0ff66009382bb5daa3fcec8025e9a2492a3e28"
+  },
+  "contract_inputs": {
+    "00_nucleo/diagnosticos/p1288-manifest.json": "0e7282b6b5b445d0532bb5456abfbd765e7878fc44d318f96a0b8b960351ed3a",
+    "00_nucleo/diagnosticos/p1288-contract-receipt.md": "69d8ea63d2eb6f0267e135cdcd37a479c1b0a0b72814a1170a01be28cf48d34a",
+    "00_nucleo/diagnosticos/p1288-vanilla-measurement-receipt.md": "06a32ad3a77cc710a4ba1c54330325d0cc5a788ba2378cf0e6fda32269c5df80",
+    "lab/parity/matrix/p1288-vanilla-baseline.json": "057bab7534c4855b0b47cc7cd05e243058d8b39407e30c2b3ee478f04d24c377",
+    "00_nucleo/diagnosticos/p1288-pre-gate-l0-receipt.md": "b259334c262683a2e62979b67cbf3b09f57f65ac9e07c4e5c504b6dda5436c6b"
+  },
+  "nucleus_and_l0_inputs": {
+    "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "9d7509d01a00589f48d7599d39921f017cc141cf45a8786de8fa73b65abe8de9",
+    "nucleus_effective_sha256": "59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9",
+    "00_nucleo/prompts/entities/compiler_features.md": "5f12a9e8ca4b96fa3d9a06a54b5030f509ff2c5331374ff8fe5fb9b5ca567826",
+    "00_nucleo/prompts/entities/html.md": "71696c0e59cc8b66badfa6de3bd8b8622a6f60d994f3b589dc868f3df00bda50",
+    "00_nucleo/prompts/shell/cli.md": "de31ec1b7f6bc60faeb0942a25878922699f5ca8ac4810f4ffa7ea1908e9b880",
+    "00_nucleo/prompts/wiring.md": "960aa048d2075017116ec488280e2bf887066cd87edcff5daae1966b05344c32",
+    "00_nucleo/prompts/infra/pipeline.md": "250ec46bc143ea0f372799e7a24b5c7ac6b4573fec13e01c9085d0d5333d5378",
+    "00_nucleo/prompts/compiler/eval.md": "597324272eabfafe87f3588b8bd008d89caf760d40af1da55bd9b3956358db4d",
+    "00_nucleo/prompts/compiler/stdlib/pdf.md": "50a786cd8ee9d5c3709bae325bba24fe6def783f3b1b6da88e5612fc5f038530",
+    "00_nucleo/prompts/entities/elements/table.md": "2fe30f7dca9306a66522b238d368505096aaa595ae3a4f3129789ba186ed3a63",
+    "00_nucleo/prompts/entities/elements/table_cell.md": "f357690a18da076fc13c125000ea17ccfaa9f5ea871b46b8b6151185cae3baf6",
+    "00_nucleo/prompts/compiler/eval/table.md": "8984d3c54b00f039dcc6f759cf0c67a7eecbde28d27977199cf4ac6712d360d8",
+    "00_nucleo/prompts/compiler/layout/table.md": "637759bd4904c3d74ca8f9db3ed9437e41b6ece1d4bcf23cbe233fa02fe11d08",
+    "00_nucleo/prompts/compiler/layout/table_cell.md": "c27375012f64a3faae031bad5d257b7faa26e3814419748e130404c1c10f508e",
+    "00_nucleo/prompts/entities/layout_types.md": "bc3b00aea1673ef898c79acd401211e8f3dac45ea023e53245db6933421f3436",
+    "00_nucleo/prompts/infra/export/stream.md": "25c6f398f8df1703d73f12938032e412ece7ee68774ddcf32061e14e8c468a7b",
+    "00_nucleo/prompts/infra/export/builder.md": "3e5c2fb0466745137d8600c3ad5ca73d53f1ae1e70d0448a4ca810d83f52dcd7"
+  },
+  "fixture_inputs": {
+    "lab/parity/matrix/fixtures/p1288/automatic-header.typ": "6fff0c0c527de1ab93af9e4cc428e4ff5801468cde56a840f8c3b4e1a51c308f",
+    "lab/parity/matrix/fixtures/p1288/data-cell-casts.typ": "742435cdee4dc003965972e5942f533ab7db663588607e5356ba5b3d04b24519",
+    "lab/parity/matrix/fixtures/p1288/explicit-semantics.typ": "3a3eed3d8b4722a2598732f8dad26c6b26e9b5b4df3dfdbd059e0fe06f2d5785",
+    "lab/parity/matrix/fixtures/p1288/gate.typ": "3c507aabb8012630514c0d69a3f7193ccd1ccd365f070203bd334526ad1e2383",
+    "lab/parity/matrix/fixtures/p1288/levels.typ": "ad1c9220fc787448c57d0f2672c57c88bafb98a51564c26ed9635b0e6db6bac9",
+    "lab/parity/matrix/fixtures/p1288/multipage.typ": "fc0ac5937529e51b419a15f820be86688ca3a9d7043d3bcaa400f02882e34e95",
+    "lab/parity/matrix/fixtures/p1288/simple.typ": "bb75aed220e9277d0a38451eb9bfab75e7fed0909dcb3589a3bd8b6407c7e475",
+    "lab/parity/matrix/fixtures/p1288/spans.typ": "6c4ec3eb2fdbbb5de52e7026d2a6f8583c7ad6839fc506a527255fee279f3b6f",
+    "lab/parity/matrix/fixtures/p1288/summary-omitted.typ": "a1f89109f12cfd541ae61754ece8172ce8659634e9299127953274041b61e98a",
+    "lab/parity/matrix/fixtures/p1288/summary-string.typ": "c55f03c0476b1fe195f21c07b8c19674c108cfd003791105baf889ee0c4cc206",
+    "lab/parity/matrix/fixtures/p1288/visual-a11y.typ": "93342985ff54547864ddafe5a20c96b42b0aa7229f17cba20bb4df9f93063d7e",
+    "lab/parity/matrix/fixtures/p1288/visual-plain.typ": "2bc427fcddd20b71d16dd5eb7afb73f631725083f727358778918b4703847004"
+  },
+  "oracle_inputs": {
+    "lab/parity/matrix/p1288_oracles.py": "98bb462601c255708a646fdc7dc27e2f59455ade5198b2d26105299934723e48",
+    "lab/parity/matrix/test_p1288_oracles.py": "59f3c8ea71df9fee0221c4daf50c5fb53c4fde6dd0992eb1fd0aa3e849c77f99",
+    "lab/parity/matrix/p1288-oracle-baseline.json": "ac0d97379820eb09f89c69e52858b231794bb4db6455d16527be2d04f1fd7a3d",
+    "00_nucleo/diagnosticos/p1288-oracle-receipt.md": "894bf70aef8b0cce128f1c3a050a7ed8a2cb895d48feafbc2f97a3c22f108ff4"
+  },
+  "adversarial_inputs": {
+    "lab/parity/matrix/p1288_adversarial.py": "2e23f18ce69dfdd01399b104cf208bebab96b6f4574da9b9340b797ca38b7ddf",
+    "lab/parity/matrix/p1288-mutation-campaign.json": "049a8fbc6b924eec6c1c07fbbd7c930fc89b27cc2a5223a33dd8891891078aae",
+    "00_nucleo/diagnosticos/p1288-adversarial-mutation-plan.md": "a873ce5dab07ad33acac4dd55aa8c698822551347589ac9c68febeabb00d8307",
+    "00_nucleo/diagnosticos/p1288-adversarial-receipt.md": "11276472fa94472e72b0cdc484327991c43017a2d5ece2f6d407f0ee87875203"
+  },
+  "tool_identities": {
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "/home/dikluwe/.cargo/bin/crystalline-lint": "80bb6b2aa23ce1b83f9a0a2540a4ff61a9a4993aca01b2e44f72bf16378e5cff"
+  },
+  "gate_results": {
+    "protected_hashes": "pass",
+    "json_validation": "pass",
+    "python_compile": "pass",
+    "oracle_self_test": "pass",
+    "oracle_unit_tests": {"status": "pass", "tests": 10},
+    "vanilla_replay": {
+      "status": "pass",
+      "output_sha256": "04f2c408b9f923624825f6d6909a1deeb4a84c13f6ff8e5b6e6d7f659ae884fd",
+      "preserved": 46,
+      "violated": 0,
+      "unknown_deliberate": 4,
+      "forward_reverse_agreement": true
+    },
+    "discriminatory_campaign": {
+      "status": "pass",
+      "output_sha256": "049a8fbc6b924eec6c1c07fbbd7c930fc89b27cc2a5223a33dd8891891078aae",
+      "valid_mutants": 22,
+      "killed_valid_mutants": 22,
+      "surviving_valid_mutants": 0,
+      "invalid_mutants_excluded": 2,
+      "opaque_cases": 4,
+      "mutation_score": 1.0,
+      "forward_reverse_agreement": true,
+      "protected_inputs_unchanged": true
+    },
+    "v15_v26": "pass-zero-violations",
+    "diff_check": "pass"
+  },
+  "seal": {
+    "status": "SEALED_PRE_CANDIDATE_CONTRACT",
+    "mutation_score": 1.0,
+    "unknown_policy_preserved": true,
+    "protected_inputs_read_only_from_now": true,
+    "scope": "P1288 frozen contract, vanilla baseline, final nucleus/L0, oracle suite and pre-candidate discriminatory campaign only",
+    "excludes": [
+      "Phase A harness",
+      "candidate implementation or target binary",
+      "functional refinement verdict",
+      "human ADR-0127 approval",
+      "PDF/UA, assistive-technology, reflow or accessibility certification claims"
+    ],
+    "invalidation": "Any byte drift in a pinned input invalidates this seal from the first affected causal phase."
+  },
+  "verification_receipt_path": "00_nucleo/diagnosticos/p1288-preseal-verification-receipt.md"
+}

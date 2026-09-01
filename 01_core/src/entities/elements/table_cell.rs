@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/table_cell.md
-//! @prompt-hash a21b9074
+//! @prompt-hash 3010d55e
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -17,6 +17,24 @@ use crate::entities::layout_types::{Align2D, Color};
 use crate::entities::sides::Sides;
 use crate::entities::source_result::SourceResult;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TableHeaderScope {
+    Both,
+    Column,
+    Row,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum TableCellKind {
+    #[default]
+    Auto,
+    Header {
+        level: u32,
+        scope: TableHeaderScope,
+    },
+    Data,
+}
+
 /// Célula de `Table`. `body` + 9 cosméticos (posição/span/estilo).
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableCellElem {
@@ -30,6 +48,7 @@ pub struct TableCellElem {
     pub align: Option<Align2D>,
     pub inset: Option<Sides<Length>>,
     pub breakable: Option<bool>,
+    pub kind: TableCellKind,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Stroke`/`Color`/
@@ -64,6 +83,7 @@ impl Element for TableCellElem {
             align: self.align,
             inset: self.inset,
             breakable: self.breakable,
+            kind: self.kind,
         })))
     }
 
@@ -82,6 +102,7 @@ impl Element for TableCellElem {
             align: self.align,
             inset: self.inset,
             breakable: self.breakable,
+            kind: self.kind,
         }))
     }
 }
@@ -104,6 +125,7 @@ mod tests {
             align: None,
             inset: None,
             breakable: None,
+            kind: TableCellKind::Auto,
         }
     }
 

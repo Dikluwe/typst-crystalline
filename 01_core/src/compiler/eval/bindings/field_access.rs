@@ -81,6 +81,21 @@ pub(in crate::compiler::eval) fn eval_field_access(
     // vanilla é `Deprecation` em `Binding` (`foundations/scope.rs:288`);
     // aqui, data-driven pela tabela `SYM_DEPRECATED` do módulo `sym`.
     if let Value::Module(ref m) = target {
+        if m.name() == "pdf"
+            && matches!(field, "table-summary" | "header-cell" | "data-cell")
+            && !ctx
+                .features
+                .contains(crate::entities::compiler_features::Feature::A11yExtras)
+        {
+            return Err(vec![SourceDiagnostic::error(
+                access.span(),
+                format!(
+                    "cannot access field `{field}` because the `a11y-extras` feature is not enabled"
+                ),
+            )
+            .with_hint("try enabling the `a11y-extras` feature")
+            .with_hint("see https://typst.app/help/compiler-features for more details")]);
+        }
         if m.name() == "sym" {
             if let Some(msg) = crate::compiler::stdlib::sym::sym_deprecation(field) {
                 engine.sink.warn_note(access.field().span(), msg, "");
