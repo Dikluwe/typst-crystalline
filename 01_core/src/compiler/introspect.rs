@@ -731,6 +731,13 @@ fn materialize_time(
             keywords: keywords.clone(),
         },
         Content::Asset { .. } => content.clone(),
+        Content::PdfAttach(_) => content.clone(),
+        Content::PdfArtifact(e) => Content::PdfArtifact(std::sync::Arc::new(
+            crate::entities::elements::pdf_artifact::PdfArtifactElem {
+                kind: e.kind,
+                body: materialize_time(&e.body, intr, location),
+            },
+        )),
 
         // Passo 99 (ADR-0038): `Styled` é transparente para materialização de
         // contadores — o body é processado e os estilos preservados.
@@ -1219,6 +1226,8 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::CounterDisplayCallback(_)
         | Content::ContextBlock(_)
         | Content::Dynamic(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
         | Content::HtmlElem(_) => UnreferencableKind::Text,
     }
 }
@@ -1349,6 +1358,16 @@ pub(crate) fn walk(
         // P863: parágrafo é transparente ao walk.
         Content::Par { body } => walk(
             body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent,
+        ),
+        Content::PdfArtifact(e) => walk(
+            &e.body,
+            locator,
+            tags,
+            intr,
+            auto_label_counter,
+            lang,
+            chain,
+            label_from_parent,
         ),
         Content::PageRun(e) => walk(
             &e.body,
@@ -1901,7 +1920,7 @@ pub(crate) fn walk(
         Content::Asset { .. }    => {}
 
         // Passo 513 — Curve é leaf não-locatable; sem descendência.
-        Content::Curve(_) | Content::HtmlElem(_) => {}
+        Content::Curve(_) | Content::PdfAttach(_) | Content::HtmlElem(_) => {}
     }
 
     // P162 .E: emissão Tag::End após recursão. Usa o mesmo Location

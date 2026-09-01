@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 2fbc1511
+Hash do Código: cdeb74dd
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
@@ -224,3 +224,101 @@ contrato tipado aprovado em P1157.
 O braço `page-numbering` consulta o Numbering cru através do introspector e
 devolve `Str`, `Func` ou `None`. Nunca consulta a vista realizada nem aplica o
 callback.
+
+## P1284 — equivalência ligada/não ligada sem duplicação
+
+### Medição antes da decisão
+
+O contrato `C-P1284-v2` mede que os métodos P1284 devem funcionar em duas
+formas: `value.method(args)` e `type.method(value,args)`. A primeira passa por
+intercepção sintáctica quando mutação, contexto ou preservação de AST a exige;
+a segunda resolve um `Func` pelo `field_access` e entra em `apply_func`.
+
+### Decisão
+
+- Avaliar receiver e argumentos exatamente uma vez. A intercepção só escolhe
+  rota e delega ao owner: coleções/arguments → `stdlib/collections`; cor →
+  `stdlib/color` via `value_methods`; state → `stdlib/state`; selectors
+  `and/or/within` → `value_methods`; location → `eval_location_method`;
+  comprimento/duração/direção/alinhamento → helpers internos fechados.
+- Wrappers de `field_access` sintetizam o mesmo receiver como primeiro
+  positional. Não copiam parser, callback, defaults, erro ou metadata.
+- `push/pop/insert/remove` ligados preservam o caminho sintáctico de l-value.
+  A função não ligada não adquire autoridade para mutar um binding remoto.
+- `length.to-absolute` e métodos de `state`/`location` preservam o gate de
+  contexto; a forma estática não contorna introspecção nem inventa defaults.
+- `arguments.len` conta posicionais e named no nível da linguagem sem mudar a
+  assinatura ou a semântica Rust pública de `Args`.
+
+O match continua fechado. Nomes desconhecidos caem no field access normal; a
+intercepção não transforma presença desconhecida em sucesso.
+
+## P1289 — chamada ligada de `float.is-infinite`
+
+### Medição anterior à decisão
+
+No vanilla pinado, `(0.0).is-infinite()`, `(42.5).is-infinite()`,
+`(float.inf).is-infinite()`, `(-float.inf).is-infinite()` e
+`(float.nan).is-infinite()` produzem, respectivamente,
+`false`, `false`, `true`, `true`, `false`. A chamada ligada rejeita positional
+extra e named desconhecido com os mesmos diagnósticos da forma estática.
+
+### Decisão
+
+O match fechado de chamadas reconhece `Value::Float` somente para
+`is-infinite`, avalia os argumentos uma vez e delega ao owner
+`stdlib/foundations/float`, que sintetiza o receiver e chama a mesma nativa da
+forma estática. Nome desconhecido cai no erro genérico vigente. Não expor o
+método ligado como valor e não duplicar `f64::is_infinite` neste nó.
+
+
+### Gates
+
+`selector.before/after` não entram no match: faltam variantes públicas e
+consumers exaustivos precisam de revisão. Estado:
+`BLOCKED_ADR0127_PUBLIC_CONTRACT`. Também não se interceptam aproximações por
+`Within`/`And`/`Or`. `color.spot/tint` e `outline.entry/*` conservam os gates
+do seu L0. Nenhum campo/variante/método de trait/assinatura pública ou mudança
+de fase é autorizado por esta secção.
+
+### Critérios
+
+Comparar resultado e erro das duas formas para cada método, inclusive ausência,
+positional excedente, named desconhecido, tipo errado e default. Callbacks
+preservam ordem e curto-circuito. Métodos contextuais falham fora de contexto.
+Repetir e reordenar probes independentes produz o mesmo resultado.
+
+## P1284-v5 — `Type::Arguments` é construtor chamável
+
+### Medição antes da decisão
+
+O oráculo selado usa `arguments(1, x: 2)` como pré-condição de
+`arguments.len`. Na fonte vanilla ratificada
+`foundations/args.rs:320-340`, `Args::construct` é `#[func(constructor)]`,
+recebe os argumentos externos como variádicos e devolve o `Args` integral.
+O L0 v4 deste owner enumerava vários braços chamáveis de `Value::Type`, mas
+não legitimava `Type::Arguments`; portanto a afirmação anterior de que wrappers
+privados e representação existente bastavam era incompleta.
+
+### Decisão
+
+No match fechado de `Value::Type`, `Type::Arguments` é chamável e constrói
+`Value::Args` a partir do `Args` já avaliado da chamada:
+
+- aceita zero ou mais posicionais e zero ou mais named;
+- preserva ordem, valores, nomes e span disponíveis; named não é tratado como
+  argumento desconhecido do constructor;
+- `arguments()` produz arguments vazio;
+- `arguments(1, x: 2)` contém um positional e um named, e sua superfície de
+  linguagem tem `len() == 2`, `pos() == (1,)`, `named() == (x: 2)`;
+- `type(arguments) == type` e `type(arguments(...)) == arguments`.
+
+O constructor não reimplementa os seis métodos, que continuam pertencendo a
+`stdlib/collections`; apenas materializa o receiver necessário. Não alterar o
+método Rust público `Args::len`, que continua contando somente posicionais na
+entidade cristalina: o total da linguagem é responsabilidade do wrapper.
+
+Esta correção reutiliza `Type::Arguments`, `Value::Args` e `Args` existentes,
+sem campo/variante/trait/assinatura Rust pública ou mudança de fase. É paridade
+em fluxo contínuo ADR-0127. Mutação que omita o braço, descarte named, reordene
+ou recrie `Args` sem os metadados disponíveis viola o contrato.

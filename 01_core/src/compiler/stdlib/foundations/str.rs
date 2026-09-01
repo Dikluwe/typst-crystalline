@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/str.md
-//! @prompt-hash 6ad636eb
+//! @prompt-hash 2330c7e7
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -101,8 +101,8 @@ pub fn native_str_from_unicode(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(i)] => match char::try_from(*i as u32) {
-            Ok(c) if c != '\0' => Ok(Value::Str(EcoString::from(c.to_string()))),
+        [Value::Int(i)] => match u32::try_from(*i).ok().and_then(char::from_u32) {
+            Some(c) => Ok(Value::Str(EcoString::from(c.to_string()))),
             _ => err("str.from-unicode() requer um codepoint Unicode válido"),
         },
         [other] => {

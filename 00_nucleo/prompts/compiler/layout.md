@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: b134c576
+Hash do Código: 2ccc7ac0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -23,6 +23,34 @@ preservam referencial e causalidade.
 Empty, texto, parágrafos, paginação, páginas auto, dispatch e composição final
 são cobertos pela suíte de layout. Mudança pública/default/fase para no gate
 ADR-0127.
+
+## P1286 — dispatch PDF condicionado ao gate
+
+### Medição anterior à decisão
+
+O dispatcher exaustivo ainda não possui braços para attachment/artifact.
+`PagedDocument` é montado neste consumer; logo um side-channel de attachments
+coletado durante layout precisa ser drenado aqui. O caminho atual de Formula
+já demonstra o envelope `FrameItem::Semantic`; ele não pode ser reutilizado
+como Formula para artifact.
+
+### Decisão proposta
+
+Após confirmação dos contratos públicos em `entities/content.md` e
+`entities/layout_types.md`, o match central permanece magro e delega:
+
+- `Content::PdfAttach` à futura free function dona da feature, que registra o
+  mesmo `Arc<PdfAttachElem>` no side-channel em ordem documental e não cria
+  frame nem desloca cursor;
+- `Content::PdfArtifact` à futura free function dona da feature, que faz
+  layout do body uma vez e o envolve em `FrameItem::Semantic` com
+  `SemanticKind::Artifact(kind)`, sem alterar dimensões, posição ou texto.
+
+A composição final move o side-channel para `PagedDocument.attachments`.
+Não há introspecção global nova, segunda passagem nem mudança da ordem
+eval→layout→export. Os dois ficheiros futuros de feature só recebem Prompt L0
+proprietário 1:1 após a confirmação; este owner não os legitima. O gate é
+obrigatório pelos tipos públicos já listados, não por mudança de fase.
 
 ## P1291 — passagem pura de requests math (PROPOSTO; GATE ADR-0127)
 

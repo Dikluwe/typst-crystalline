@@ -1,11 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/pdf.md
-//! @prompt-hash 38bda66a
+//! @prompt-hash 1628d781
 //! @layer L1
 //! @updated 2026-07-22
 //!
-//! Módulo `pdf` — namespace de metadados PDF (P735, paridade parcial
-//! medida no vanilla 0.14).
+//! Módulo `pdf` — namespace de metadados e acessibilidade PDF.
 //!
 //! Conteúdo medido do namespace vanilla (binário padrão): apenas
 //! `pdf.attach` e `pdf.artifact` existem como funções. As funções
@@ -13,28 +12,24 @@
 //! estão gated na feature `A11yExtras` (off por omissão) — não existem
 //! no binário de referência.
 //!
-//! - `pdf.attach(...)` → **scope-out**: o exportador PDF cristalino não
-//!   suporta ficheiros embutidos. Retorna erro explícito em vez de
-//!   silenciar (o vanilla emite o attachment no PDF).
-//! - `pdf.artifact(body, kind:)` → passthrough do `body`: paridade de
-//!   render (o vanilla renderiza o body; a marcação de artefacto no tag
-//!   tree é scope-out global do exportador). P826: o named `kind:` é
-//!   aceite e validado contra a enumeração `ArtifactKind` do vanilla
-//!   (12 valores; erro de cast verbatim).
+//! - `pdf.attach(...)` produz um carrier semântico com os bytes e os
+//!   metadados necessários para o exportador emitir um EmbeddedFile.
+//! - `pdf.artifact(body, kind:)` preserva o corpo e transporta uma das
+//!   12 classes de artefacto até à marcação do stream PDF.
 
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::compiler_features::{Feature, Features};
 use crate::entities::content::Content;
+use crate::entities::elements::pdf_artifact::{ArtifactKind, PdfArtifactElem};
+use crate::entities::elements::pdf_attach::{AttachedFileRelationship, PdfAttachElem};
 use crate::entities::elements::table_cell::{TableCellKind, TableHeaderScope};
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-
-use super::expect_no_named;
 
 /// Constrói o módulo `pdf` como `Value::Module` com `attach` e `artifact`
 /// (paridade do conteúdo medido no namespace vanilla).
@@ -126,7 +121,9 @@ pub(crate) fn native_pdf_header_cell(
         Some(Value::Str(value)) if value.as_str() == "both" => TableHeaderScope::Both,
         Some(Value::Str(value)) if value.as_str() == "column" => TableHeaderScope::Column,
         Some(Value::Str(value)) if value.as_str() == "row" => TableHeaderScope::Row,
-        Some(Value::Str(_)) => return super::err("expected \"both\", \"column\", or \"row\""),
+        Some(Value::Str(_)) => {
+            return super::err("expected \"both\", \"column\", or \"row\"")
+        }
         Some(other) => {
             return super::err(format!(
                 "expected \"both\", \"column\", or \"row\", found {}",
@@ -168,19 +165,106 @@ pub(crate) fn native_pdf_data_cell(
     Ok(Value::Content(Content::TableCell(std::sync::Arc::new(cell))))
 }
 
-/// `pdf.attach(...)` — scope-out: sem suporte a ficheiros embutidos no
-/// exportador PDF cristalino. Erro explícito (o observável é a mensagem).
+/// Constrói o carrier semântico de `pdf.attach(...)`, lendo o caminho
+/// apenas pela capacidade `World` injetada ou usando os bytes explícitos.
 pub(crate) fn native_pdf_attach(
     _ctx: &mut EvalContext,
     args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
+    world: &dyn crate::contracts::world::World,
+    current_file: FileId,
 ) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
-    Err(vec![SourceDiagnostic::error(
-        Span::detached(),
-        "pdf.attach: o exportador PDF cristalino não suporta ficheiros embutidos (scope-out)",
-    )])
+    for key in args.named.keys() {
+        if !matches!(key.as_str(), "relationship" | "mime-type" | "description") {
+            return super::err(format!("unexpected argument: {key}"));
+        }
+    }
+    let Some(path_value) = args.items.first() else {
+        return super::err("missing argument: path");
+    };
+    let Value::Str(path) = path_value else {
+        return super::err(format!(
+            "expected path or string, found {}",
+            vanilla_type_name(path_value)
+        ));
+    };
+    if args.items.len() > 2 {
+        return super::err(format!(
+            "unexpected argument: {}",
+            vanilla_type_name(&args.items[2])
+        ));
+    }
+    let data = match args.items.get(1) {
+        Some(Value::Bytes(bytes)) => std::sync::Arc::new(bytes.as_slice().to_vec()),
+        Some(other) => {
+            return super::err(format!(
+                "expected bytes, found {}",
+                vanilla_type_name(other)
+            ))
+        }
+        None => world
+            .read_bytes(current_file, path.as_str())
+            .map_err(|message| vec![SourceDiagnostic::error(args.span, message)])?,
+    };
+    let relationship = match args.named.get("relationship") {
+        None | Some(Value::None) => None,
+        Some(Value::Str(value)) => Some(
+            AttachedFileRelationship::parse(value).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "expected \"source\", \"data\", \"alternative\", \"supplement\", or none",
+                )]
+            })?,
+        ),
+        Some(_) => {
+            return super::err(
+                "expected \"source\", \"data\", \"alternative\", \"supplement\", or none",
+            )
+        }
+    };
+    let mime_type = match args.named.get("mime-type") {
+        None | Some(Value::None) => None,
+        Some(Value::Str(value)) if valid_mime_type(value) => Some(value.clone()),
+        Some(Value::Str(_)) => return super::err("invalid mime type"),
+        Some(other) => {
+            return super::err(format!(
+                "expected string or none, found {}",
+                vanilla_type_name(other)
+            ))
+        }
+    };
+    let description = match args.named.get("description") {
+        None | Some(Value::None) => None,
+        Some(Value::Str(value)) => Some(value.clone()),
+        Some(other) => {
+            return super::err(format!(
+                "expected string or none, found {}",
+                vanilla_type_name(other)
+            ))
+        }
+    };
+
+    Ok(Value::Content(Content::pdf_attach(PdfAttachElem {
+        path: path.clone(),
+        data,
+        relationship,
+        mime_type,
+        description,
+    })))
+}
+
+fn valid_mime_type(value: &str) -> bool {
+    let Some((top, sub)) = value.split_once('/') else { return false };
+    let valid_token = |token: &str| {
+        !token.is_empty()
+            && token.bytes().all(|byte| {
+                byte.is_ascii_alphanumeric()
+                    || matches!(
+                        byte,
+                        b'!' | b'#' | b'$' | b'&' | b'^' | b'_' | b'.' | b'+' | b'-'
+                    )
+            })
+    };
+    !sub.contains('/') && valid_token(top) && valid_token(sub)
 }
 
 /// Valores válidos do `kind:` de `pdf.artifact`, medidos no vanilla 0.15.0
@@ -208,22 +292,22 @@ const ARTIFACT_KIND_EXPECTED: &str = "expected \"header\", \"footer\", \"waterma
      \"page-number\", \"line-number\", \"redaction\", \"bates\", \"page\", \
      \"pagination-other\", \"layout\", \"background\", or \"other\"";
 
-/// `pdf.artifact(body)` — passthrough do `body` (paridade de render; o
-/// tagging de artefacto é scope-out do exportador).
+/// Constrói o carrier semântico de `pdf.artifact(body, kind:)`.
 ///
-/// P826 — arg nomeado `kind:` (default `"other"` no vanilla). O valor só
-/// afecta o tag tree de acessibilidade (scope-out global do exportador
-/// cristalino, sem tag tree em `03_infra`); aqui é aceite e **validado**
-/// contra a enumeração do vanilla, para paridade de aceitação/erro.
+/// `kind:` usa `"other"` por omissão e é validado contra a enumeração
+/// fechada observada no vanilla; o layout e o exportador preservam essa
+/// classificação sem alterar a morfologia do corpo.
 pub(crate) fn native_pdf_artifact(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    match args.named.get("kind") {
-        None => {}
-        Some(Value::Str(s)) if ARTIFACT_KINDS.contains(&s.as_str()) => {}
+    let kind = match args.named.get("kind") {
+        None => ArtifactKind::Other,
+        Some(Value::Str(s)) if ARTIFACT_KINDS.contains(&s.as_str()) => {
+            ArtifactKind::parse(s).unwrap_or(ArtifactKind::Other)
+        }
         Some(Value::Str(_)) => return super::err(ARTIFACT_KIND_EXPECTED.to_string()),
         Some(other) => {
             return super::err(format!(
@@ -231,7 +315,7 @@ pub(crate) fn native_pdf_artifact(
                 vanilla_type_name(other)
             ))
         }
-    }
+    };
     for key in args.named.keys() {
         if key.as_str() != "kind" {
             return Err(vec![SourceDiagnostic::error(
@@ -241,11 +325,17 @@ pub(crate) fn native_pdf_artifact(
         }
     }
     match args.items.as_slice() {
-        [body] => Ok(body.clone()),
-        _ => super::err(format!(
-            "pdf.artifact() requer 1 argumento (body), recebeu {}",
-            args.items.len()
-        )),
+        [Value::Content(body)] => {
+            Ok(Value::Content(Content::pdf_artifact(PdfArtifactElem {
+                kind,
+                body: body.clone(),
+            })))
+        }
+        [other] => {
+            super::err(format!("expected content, found {}", vanilla_type_name(other)))
+        }
+        [] => super::err("missing argument: body"),
+        _ => super::err("unexpected argument"),
     }
 }
 
@@ -302,15 +392,15 @@ mod tests_p826 {
     }
 
     fn args_com_kind(kind: Value) -> Args {
-        let mut a = Args::positional(vec![Value::Str("corpo".into())]);
+        let mut a = Args::positional(vec![Value::Content(Content::text("corpo"))]);
         a.named.insert("kind".into(), kind);
         a
     }
 
-    /// P826 — `kind:` com valor válido é aceite (passthrough do body).
+    /// P826/P1286 — `kind:` válido preserva body e identidade do artifact.
     /// Lista medida no vanilla 0.15.0 (`pdf/accessibility.rs:58-98`).
     #[test]
-    fn p826_kind_header_aceite_passthrough() {
+    fn p826_kind_header_aceite_com_carrier() {
         let v = native_pdf_artifact(
             &mut EvalContext::new(),
             &args_com_kind(Value::Str("header".into())),
@@ -318,11 +408,17 @@ mod tests_p826 {
             test_file_id(),
         )
         .unwrap();
-        assert_eq!(v, Value::Str("corpo".into()));
+        match v {
+            Value::Content(Content::PdfArtifact(e)) => {
+                assert_eq!(e.kind, ArtifactKind::Header);
+                assert_eq!(e.body.plain_text(), "corpo");
+            }
+            other => panic!("esperado PdfArtifact Header, obtido {other:?}"),
+        }
     }
 
     #[test]
-    fn p826_kind_pagination_other_aceite_passthrough() {
+    fn p826_kind_pagination_other_aceite_com_carrier() {
         let v = native_pdf_artifact(
             &mut EvalContext::new(),
             &args_com_kind(Value::Str("pagination-other".into())),
@@ -330,13 +426,19 @@ mod tests_p826 {
             test_file_id(),
         )
         .unwrap();
-        assert_eq!(v, Value::Str("corpo".into()));
+        match v {
+            Value::Content(Content::PdfArtifact(e)) => {
+                assert_eq!(e.kind, ArtifactKind::PaginationOther);
+                assert_eq!(e.body.plain_text(), "corpo");
+            }
+            other => panic!("esperado PdfArtifact PaginationOther, obtido {other:?}"),
+        }
     }
 
-    /// P826 — controlo de regressão: sem `kind:` continua a funcionar.
+    /// P826/P1286 — sem `kind:` usa `Other`, sem colapsar para o body.
     #[test]
-    fn p826_sem_kind_continua_passthrough() {
-        let args = Args::positional(vec![Value::Str("corpo".into())]);
+    fn p826_sem_kind_usa_other_com_carrier() {
+        let args = Args::positional(vec![Value::Content(Content::text("corpo"))]);
         let v = native_pdf_artifact(
             &mut EvalContext::new(),
             &args,
@@ -344,7 +446,13 @@ mod tests_p826 {
             test_file_id(),
         )
         .unwrap();
-        assert_eq!(v, Value::Str("corpo".into()));
+        match v {
+            Value::Content(Content::PdfArtifact(e)) => {
+                assert_eq!(e.kind, ArtifactKind::Other);
+                assert_eq!(e.body.plain_text(), "corpo");
+            }
+            other => panic!("esperado PdfArtifact Other, obtido {other:?}"),
+        }
     }
 
     /// P826 — string fora do domínio → erro verbatim do vanilla (cast de

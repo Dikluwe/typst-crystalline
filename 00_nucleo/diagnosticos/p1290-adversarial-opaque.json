@@ -1,0 +1,75 @@
+{
+  "schema": "p1290-adversarial-opaque/v1",
+  "role": "adversary",
+  "manifest_sha256": "235d9ed5015580c8f2c32cf16c6eb3478089f038f10774578ecc896e36f03266",
+  "contract_sha256": "0ae42afcbc54ffe62daaec925be5e02ff3218f51ab5864fd64d6be9f7d1e6a26",
+  "classification_rule": "Every case in this file must classify as Unknown. Preserved or Violated is an incorrect result because the frozen contract deliberately lacks authoritative evidence for the observation.",
+  "denominator_membership": false,
+  "cases": [
+    {
+      "id": "U01-non-ascii-width-unit",
+      "opaque_observation": {
+        "subject": "An array item representation containing non-ASCII scalar values placed at a candidate line-breaking boundary.",
+        "baseline_output": null,
+        "candidate_output": "(\"éééééééééééééééééééééééé\",)"
+      },
+      "expected_classification": "Unknown",
+      "why_opaque": "The contract freezes the threshold only for measured ASCII bodies and explicitly leaves the non-ASCII counting unit unknown."
+    },
+    {
+      "id": "U02-unenumerated-math-member",
+      "opaque_observation": {
+        "subject": "The repr of a math library member absent from every exact MathOp and non-MathOp case in the contract.",
+        "baseline_output": null,
+        "candidate_output": "op(text: [opaque-member], limits: false)"
+      },
+      "expected_classification": "Unknown",
+      "why_opaque": "The contract explicitly refuses to generalize membership or variant identity from neighboring math names."
+    },
+    {
+      "id": "U03-unenumerated-content-morphology",
+      "opaque_observation": {
+        "subject": "A user MathOp whose content variant is not string, plain content, measured markup, or either measured escaping form.",
+        "baseline_output": null,
+        "candidate_output": "op(text: opaque-content(), limits: false)"
+      },
+      "expected_classification": "Unknown",
+      "why_opaque": "Unenumerated content morphologies are named Unknown and cannot inherit preservation from the measured content forms."
+    },
+    {
+      "id": "U04-parser-unsupported-construction",
+      "opaque_observation": {
+        "subject": "A syntactically or semantically opaque construction that the contract runner cannot parse into the frozen observable fragment.",
+        "baseline_output": null,
+        "candidate_output": null
+      },
+      "expected_classification": "Unknown",
+      "why_opaque": "Parser-unsupported or opaque constructions are an explicit Unknown class; absence of an output is not evidence of preservation."
+    },
+    {
+      "id": "U05-outside-repr-fragment",
+      "opaque_observation": {
+        "subject": "A claim of functional equivalence unrelated to the exact public repr morphology of arrays, tuples, or Content::MathOp.",
+        "baseline_output": "opaque-baseline-result",
+        "candidate_output": "opaque-candidate-result"
+      },
+      "expected_classification": "Unknown",
+      "why_opaque": "The frozen contract denies equivalence claims beyond its exact repr fragment."
+    },
+    {
+      "id": "U06-pre-resolved-smartquote-provenance",
+      "opaque_observation": {
+        "subject": "Curly quote glyphs received as Content::Text after an earlier markup phase, where the same received glyphs may originate from SmartQuote syntax or from literal curved text.",
+        "baseline_output": null,
+        "candidate_output": "op(text: [“quote”], limits: false)"
+      },
+      "expected_classification": "Unknown",
+      "why_opaque": "This owner observes only the already-resolved text glyphs and cannot legitimately reconstruct SmartQuote provenance by glyph recognition, textual heuristic or nominal specialization."
+    }
+  ],
+  "score_effect": {
+    "included_in_valid_negative_denominator": false,
+    "unknown_counts_as_preserved": false,
+    "unknown_counts_as_violated": false
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "schema": "p1290-adversarial-receipt/v1",
+  "role": "adversary",
+  "regime": "tekt-materializacao-segregada/full-v1",
+  "execution": {
+    "executor": "Codex agent /root/p1290_adversary",
+    "environment": "shared repository filesystem",
+    "completed_at": "2026-08-31T12:38:11-03:00",
+    "attestation": "executed without attestation of enforced read isolation",
+    "reason": "The shared filesystem exposes paths outside the declared allowlist even though this execution did not intentionally read them."
+  },
+  "capabilities": {
+    "read_allowlist_used": [
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "00_nucleo/prompts/compiler/eval/repr.md",
+      "00_nucleo/diagnosticos/p1290-manifest.json",
+      "00_nucleo/diagnosticos/p1290-contract.json",
+      "/usr/local/bin/typst hash metadata and behavior for the frozen contract probe",
+      "00_nucleo/diagnosticos/p1290-contract-probes.typ",
+      "the adversarial artifacts produced by this role for validation"
+    ],
+    "write_allowlist_used": [
+      "00_nucleo/diagnosticos/p1290-adversarial-candidates.json",
+      "00_nucleo/diagnosticos/p1290-adversarial-opaque.json",
+      "00_nucleo/diagnosticos/p1290-adversarial-receipt.json"
+    ],
+    "denylist_respected_by_declared_execution": [
+      "01_core/src/compiler/eval/repr.rs contents",
+      "candidate patch or implementation",
+      "implementation-private outputs",
+      "private oracle-author outputs",
+      "other materialization steps",
+      "verdict or seal artifacts"
+    ],
+    "forbidden_outputs_not_authored": [
+      "solution or Rust code",
+      "Prompt L0 edit",
+      "contract or manifest edit",
+      "oracle suite",
+      "verdict",
+      "mutation score",
+      "seal or certificate"
+    ],
+    "context_inherited": "Parent instructions restricted this role to P1290 adversarial authorship and named the frozen allowlisted inputs."
+  },
+  "frozen_inputs": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "e584d5b159f04f3cf8d9a485e2c3c64b3df344520403c2407e6955f2c6b07739",
+      "hash_matches_assignment": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1290-manifest.json",
+      "sha256": "235d9ed5015580c8f2c32cf16c6eb3478089f038f10774578ecc896e36f03266",
+      "hash_matches_assignment": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1290-contract.json",
+      "sha256": "0ae42afcbc54ffe62daaec925be5e02ff3218f51ab5864fd64d6be9f7d1e6a26",
+      "hash_matches_assignment": true
+    },
+    {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "identity": "vanilla ratified a51e02804 as frozen by the manifest"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1290-contract-probes.typ",
+      "sha256": "6ac1fed77e50b0ed7b7962048427be1c87ca9917d55c181a35d6ea4e01a6229b",
+      "identity": "frozen probe referenced by the manifest; arrays.internal-multiline measured from repr((repeat-zero(18), 0))"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1290-adversarial-candidates.json",
+      "sha256": "2f850b05f0a0c77c334227c8633b0082f4a6b0cfa5d08da74b34532f69c3eb4b",
+      "contents": "14 valid negative mutations; 20 canonical observable outputs including the frozen probe's measured arrays.internal-multiline case; deterministic complete-candidate expansion rule"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1290-adversarial-opaque.json",
+      "sha256": "a070f248356bcfb0b66df03bd6600f5510f9b4895f682845198e25b25fc1da9e",
+      "contents": "6 explicit opaque cases including pre-resolved SmartQuote provenance; required Unknown; excluded from valid-negative denominator"
+    }
+  ],
+  "commands": [
+    {
+      "purpose": "verify frozen input, baseline and adversarial artifact identities",
+      "command": "sha256sum 00_nucleo/prompts/compiler/eval/repr.md 00_nucleo/diagnosticos/p1290-manifest.json 00_nucleo/diagnosticos/p1290-contract.json /usr/local/bin/typst 00_nucleo/diagnosticos/p1290-adversarial-candidates.json 00_nucleo/diagnosticos/p1290-adversarial-opaque.json",
+      "exit": 0
+    },
+    {
+      "purpose": "measure the canonical arrays.internal-multiline output from the frozen probe with the ratified vanilla",
+      "command": "/usr/local/bin/typst query 00_nucleo/diagnosticos/p1290-contract-probes.typ '<p1290-contract>' --field value --one --pretty",
+      "exit": 0
+    },
+    {
+      "purpose": "parse both JSON artifacts and validate candidate-key completeness, witness consistency, classifications and denominator policy",
+      "command": "python3 -c 'import json,pathlib; d=json.loads(pathlib.Path(\"00_nucleo/diagnosticos/p1290-adversarial-candidates.json\").read_text()); o=json.loads(pathlib.Path(\"00_nucleo/diagnosticos/p1290-adversarial-opaque.json\").read_text()); b=d[\"canonical_outputs\"]; r=set(d[\"candidate_encoding\"][\"required_expanded_keys\"]); assert len(b)==20 and set(b)==r and len(d[\"mutations\"])==14; assert all(set(b|m[\"candidate_output_overlay\"] )==r and (b|m[\"candidate_output_overlay\"])[m[\"witness\"][\"case\"]]==m[\"witness\"][\"actual\"] and b[m[\"witness\"][\"case\"]]==m[\"witness\"][\"expected\"] and m[\"valid_negative\"] and m[\"expected_classification\"]==\"Violated\" for m in d[\"mutations\"]); assert len(o[\"cases\"])==6 and not o[\"denominator_membership\"] and all(c[\"expected_classification\"]==\"Unknown\" for c in o[\"cases\"]); print(\"p1290 adversarial restart artifacts: valid\")'",
+      "exit": 0,
+      "result": "p1290 adversarial restart artifacts: valid"
+    }
+  ],
+  "coverage": {
+    "required_attacks": [
+      "MathOp only csc/dim",
+      "limits fixed false",
+      "omit text",
+      "invert fields",
+      "threshold shifted to 49",
+      "threshold shifted to 51",
+      "no multiline trailing comma",
+      "flat recursive indentation",
+      "alter singleton",
+      "alter short array"
+    ],
+    "additional_same-fragment_attacks": [
+      "omit limits",
+      "lossy content escaping without SmartQuote provenance",
+      "flatten multiline MathOp",
+      "misclassify the non-MathOp sum control"
+    ]
+  },
+  "gates_not_performed_by_this_role": {
+    "discriminatory_execution": "reserved for verifier",
+    "mutation_score": "not computed",
+    "verdict": "not issued",
+    "seal": "not issued"
+  },
+  "restart": {
+    "prior_adversarial_artifacts_status": "causally invalidated by protected input changes",
+    "regenerated_from_new_frozen_inputs": true,
+    "smartquote_policy": "Pre-resolved SmartQuote provenance is opaque and belongs only to the explicit Unknown suite; no negative mutation assumes recoverable SmartQuote nodes.",
+    "lineage_generation": "v4 final after invalidated v3 inversion",
+    "v3_invalidation_sha256": "9ea424db2cd7160a5ca37e53b9d25ad5a8d648ac9f9b537e4d526abe8eb01a56",
+    "contract_receipt_v4_sha256_received": "c878ef395fb5e41f362587d73d3d768d74fbdd5486d47707d0203b5dd879b26c"
+  }
+}

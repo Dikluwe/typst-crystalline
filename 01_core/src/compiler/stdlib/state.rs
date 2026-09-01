@@ -62,7 +62,7 @@ pub fn state_get(state: &State, ctx: &EvalContext, span: Span) -> SourceResult<V
     if !ctx.in_context {
         return Err(vec![SourceDiagnostic::error(
             span,
-            "state.get() can only be used inside context".to_string(),
+            "state.get() can only be used when context is known".to_string(),
         )]);
     }
     let Some(location) = ctx.current_location else {

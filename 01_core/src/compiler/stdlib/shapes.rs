@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/shapes.md
-//! @prompt-hash 2b236727
+//! @prompt-hash 133d9166
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -384,9 +384,26 @@ pub fn native_line(
     // end: (1cm, 1cm))` compila no vanilla com `length` ignorado). Sem
     // `end`: `dx = cos(angle)·length`, `dy = sin(angle)·length`
     // (vanilla `layout_line`); default `length: 30pt`, `angle: 0deg`.
-    let has_polar_extent =
-        args.named.contains_key("length") || args.named.contains_key("angle");
-    let (dx, dy) = match args.named.get("end") {
+    let has_polar_extent = args.named.contains_key("length")
+        || args.named.contains_key("angle")
+        || args.named.contains_key("start");
+    let parse_line_coordinate = |value: &Value, name: &str| -> SourceResult<(f64, f64)> {
+        if let Value::Array(values) = value {
+            if values.len() != 2 {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "array must contain exactly two items",
+                )]);
+            }
+        }
+        extract_coordinate(value).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                args.span,
+                format!("line({name}): espera array de 2 coordenadas"),
+            )]
+        })
+    };
+    let (start_x, start_y, end_x, end_y, absolute_path) = match args.named.get("end") {
         Some(end_v) => {
             if args.named.contains_key("dx") || args.named.contains_key("dy") {
                 return Err(vec![SourceDiagnostic::error(
@@ -394,35 +411,14 @@ pub fn native_line(
                     "line(): 'end' não pode ser combinado com 'dx'/'dy'".to_string(),
                 )]);
             }
-            let (ex, ey) = extract_coordinate(end_v).ok_or_else(|| {
-                vec![SourceDiagnostic::error(
-                    args.span,
-                    "line(end): espera array de 2 coordenadas, ex. (50pt, 50pt)"
-                        .to_string(),
-                )]
-            })?;
+            let (ex, ey) = parse_line_coordinate(end_v, "end")?;
             let (sx, sy) = match args.named.get("start") {
-                Some(start_v) => extract_coordinate(start_v).ok_or_else(|| {
-                    vec![SourceDiagnostic::error(
-                        args.span,
-                        "line(start): espera array de 2 coordenadas, ex. (0pt, 0pt)"
-                            .to_string(),
-                    )]
-                })?,
+                Some(start_v) => parse_line_coordinate(start_v, "start")?,
                 None => (0.0, 0.0),
             };
-            // ShapeKind::Line não carrega posição absoluta — `start` ≠
-            // (0,0) desenharia a linha deslocada para a origem. Scope-out
-            // explícito (o vanilla desenha de start a end dentro da caixa).
-            if sx != 0.0 || sy != 0.0 {
-                return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    "line(start): posição inicial não-zero não é suportada (scope-out) — a shape de linha cristalina é relativa à posição corrente".to_string(),
-                )]);
-            }
             // `length`/`angle` presentes com `end` são ignorados (paridade
             // vanilla: "only respected if end is none", medido em P804).
-            (ex - sx, ey - sy)
+            (sx, sy, ex, ey, true)
         }
         None if has_polar_extent => {
             // ── P804 — caminho `length`/`angle` (sem `end`) ──────────────
@@ -433,21 +429,10 @@ pub fn native_line(
                         .to_string(),
                 )]);
             }
-            if let Some(start_v) = args.named.get("start") {
-                let (sx, sy) = extract_coordinate(start_v).ok_or_else(|| {
-                    vec![SourceDiagnostic::error(
-                        args.span,
-                        "line(start): espera array de 2 coordenadas, ex. (0pt, 0pt)"
-                            .to_string(),
-                    )]
-                })?;
-                if sx != 0.0 || sy != 0.0 {
-                    return Err(vec![SourceDiagnostic::error(
-                        args.span,
-                        "line(start): posição inicial não-zero não é suportada (scope-out) — a shape de linha cristalina é relativa à posição corrente".to_string(),
-                    )]);
-                }
-            }
+            let (sx, sy) = match args.named.get("start") {
+                Some(start_v) => parse_line_coordinate(start_v, "start")?,
+                None => (0.0, 0.0),
+            };
             let length = match args.named.get("length") {
                 Some(v @ (Value::Float(_) | Value::Int(_) | Value::Length(_))) => {
                     extract_pt(v)
@@ -476,26 +461,36 @@ pub fn native_line(
                 }
                 None => 0.0,
             };
-            (angle_rad.cos() * length, angle_rad.sin() * length)
+            let dx = angle_rad.cos() * length;
+            let dy = angle_rad.sin() * length;
+            (sx, sy, sx + dx, sy + dy, true)
         }
         None => {
-            if args.named.contains_key("start") {
-                return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    "line(start): requer também 'end'".to_string(),
-                )]);
-            }
-            (
-                args.named.get("dx").map(extract_pt).unwrap_or(0.0),
-                args.named.get("dy").map(extract_pt).unwrap_or(0.0),
-            )
+            let dx = args.named.get("dx").map(extract_pt).unwrap_or(0.0);
+            let dy = args.named.get("dy").map(extract_pt).unwrap_or(0.0);
+            (0.0, 0.0, dx, dy, false)
         }
     };
 
+    if !absolute_path {
+        return Ok(Value::Content(Content::shape(
+            ShapeKind::Line { dx: end_x, dy: end_y },
+            None,
+            None,
+            None,
+            Some(stroke),
+        )));
+    }
+
+    let width = 0.0_f64.max(start_x).max(end_x);
+    let height = 0.0_f64.max(start_y).max(end_y);
     Ok(Value::Content(Content::shape(
-        ShapeKind::Line { dx, dy },
-        None,
-        None,
+        ShapeKind::Path(vec![
+            PathItem::MoveTo(Point { x: Pt(start_x), y: Pt(start_y) }),
+            PathItem::LineTo(Point { x: Pt(end_x), y: Pt(end_y) }),
+        ]),
+        Some(Box::new(Value::Length(Length::pt(width)))),
+        Some(Box::new(Value::Length(Length::pt(height)))),
         None,
         Some(stroke),
     )))

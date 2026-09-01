@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export-fixtures` — Corpus canónico de snapshot binário
-Hash do Código: 705cb4e7
+Hash do Código: 4d5d2bc8
 
 **Camada**: L3 (apoio — fixtures de teste)
 **Diretório alvo**: `03_infra/fixtures/p307b/`
@@ -57,6 +57,9 @@ intencionalmente em passo futuro.
 
 ```
 03_infra/fixtures/p307b/
+    ../fonts/           # Fontes externas versionadas e respectivas licenças
+        NotoSans-Regular.ttf
+        LICENSE-NotoSans.md
     sources/             # Inputs .typ + assets (1 .jpg fixture)
         01-markup-plain.typ
         02-markup-heading.typ
@@ -145,8 +148,9 @@ idênticos (verificação md5 documentada em MANIFEST.md).
   fixa.
 - Ordering em `HashMap` interno do exporter não afecta output
   textual final (objects emitidos em ordem fixa por ID).
-- Discovery de fontes via `--font-path` é determinístico em FS
-  estável.
+- Discovery de fontes via `--font-path` usa exclusivamente
+  `03_infra/fixtures/fonts`, com identidade SHA-256 e licença
+  versionadas, e é determinístico em FS estável.
 
 **Quebras conhecidas de determinismo a evitar**:
 
@@ -164,7 +168,7 @@ Quando o invariante muda intencionalmente:
 ```bash
 cd /home/dikluwe/Documentos/Antigravity/typst-crystalline
 cargo build --bin typst
-FONTDIR=lab/krilla-reference/assets/fonts
+FONTDIR=03_infra/fixtures/fonts
 for f in 03_infra/fixtures/p307b/sources/*.typ; do
   bn=$(basename "$f" .typ)
   # Fixture 09 requer --font-path

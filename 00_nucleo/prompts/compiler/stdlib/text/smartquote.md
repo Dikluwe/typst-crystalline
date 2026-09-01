@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text/smartquote` — `smartquote`
-Hash do Código: 844653a1
+Hash do Código: dc4246cd
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/smartquote.rs`
@@ -33,27 +33,24 @@ estado open/close do Layouter fica intacto porque o Layouter nunca vê este caso
 
 ## Instrução
 
-`smartquote(double: ?, enabled: ?)` — **zero** posicionais.
+`smartquote(double: ?, enabled: ?, alternative: ?, quotes: ?)` — **zero**
+posicionais; contrato proposto condicionado ao gate P1286.
 
 | Nomeado | Tipo | Default | Semântica |
 |---|---|---|---|
 | `double` | `Bool` | `true` | aspa dupla (`"`) vs simples (`'`) |
 | `enabled` | `Bool` | `true` | `false` → glifo ASCII literal, sem alternância lang-aware |
+| `alternative` | `Bool` | `false` | seleciona o par alternativo localizado quando disponível |
+| `quotes` | `Auto`, string, array ou dicionário | `auto` | override explícito single/double |
 
-- `enabled: true` → `Content::smartquote(double)` (variant leaf, 1 campo `bool`).
+- `enabled: true` → `Content::SmartQuote` com `double` e os overrides
+  explicitamente assentes; o leaf não é embrulhado em `Content::Styled`.
 - `enabled: false` → `Content::text("\"")` se `double`, `Content::text("'")` caso
   contrário.
 - Posicionais → `smartquote() não aceita argumentos posicionais (recebeu {n})`.
-- Tipo errado num nomeado → `smartquote({nome}:) espera bool, recebeu {tipo}`.
+- Tipo errado em `double`/`enabled`/`alternative` é erro de bool; tipos e
+  cardinalidades de `quotes` seguem as mensagens P1286 abaixo.
 - Nomeado desconhecido → `smartquote(): argumento nomeado inesperado '{nome}'`.
-
-**Scope-out com erro educacional** (ADR-0054 graded): `alternative` (aspas alternativas
-DE/FR) e `quotes` (`Smart<SmartQuoteDict>`) respondem com mensagem que cita o scope-out —
-literalmente `"smartquote({key}:) não suportado neste passo (P287 §A.2 scope-out /
-ADR-0054 graded)"` — e não com "argumento inesperado" genérico. A distinção é observável na
-mensagem, e por isso é aceitação ao nível da mecânica: **a mecânica é o observável**
-(ADR-0108). A citação acima reproduz a mensagem visível ao autor do documento; não é
-referência de legitimação (ver a nota do hub sobre estas duas mensagens).
 
 O consumer de layout (glifo lang-aware, alternância open/close per documento) é
 propriedade de `entities/content.md` e do L0 do layout de texto.
@@ -76,7 +73,57 @@ propriedade de `entities/content.md` e do L0 do layout de texto.
 #smartquote(enabled: false, double: false) → Content::Text("'")
 #smartquote(double: 1)                 → Err "smartquote(double:) espera bool, recebeu integer"
 #smartquote(true)                      → Err "não aceita argumentos posicionais (recebeu 1)"
-#smartquote(alternative: true)         → Err com a mensagem de scope-out literal (acima)
-#smartquote(quotes: "()")              → Err com a mensagem de scope-out literal (acima)
+#smartquote(alternative: true)         → Content::SmartQuote com override true
+#smartquote(quotes: "()")              → Content::SmartQuote com par double `(`, `)`
+#smartquote(quotes: "x")               → Err "expected 2 characters, found 1 character"
 #smartquote(foo: 1)                    → Err "argumento nomeado inesperado 'foo'"
 ```
+
+## P1286 — `alternative` e `quotes` com carrier explícito (GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla ratificado, `text/smartquote.rs:51-89,201-317,335-419` define
+`alternative: bool = false` e `quotes: auto|string|array|dictionary`. String
+conta grapheme clusters Unicode; string e array devem conter exatamente dois
+itens; o dicionário aceita apenas `single` e `double`, cada qual `auto`, string
+ou array. O receipt P1286 mediu alemão default `„Default“`, alternativo
+`»Alt«`, override explícito `(Explicit)`, array `[[Array]]`, override
+parcial de simples e as três mensagens negativas canônicas.
+
+O cristalino já transporta deltas de `#set` em `Styles::push_custom`. Porém a
+auditoria de morfologia pública refutou usar `Content::Styled` também para os
+argumentos da chamada direta: `repr_content` é transparente ao wrapper em
+`compiler/eval/repr.rs:681-739`, mas `content.func()` escolhe pelo
+`elem_name()` externo em `compiler/eval/bindings/field_access.rs:648-677` e
+exporia `styled` em vez de `smart.quote`. Não se infere transparência total de
+uma só operação que por acaso elimina o wrapper.
+
+### Decisão
+
+- Remover o scope-out de `alternative` e `quotes`.
+- Manter `double`/`enabled` e seus defaults. `alternative` aceita somente
+  `Bool`, default `false`; `quotes` aceita `Auto`, string, array ou dicionário,
+  default `Auto`.
+- A validação/canonização pertence ao owner de quotes localizado. A chamada
+  direta produz `Content::SmartQuote` e guarda somente os argumentos
+  explicitamente assentes nos novos campos públicos opcionais definidos em
+  `entities/elements/smartquote.md`; não cria `Content::Styled` local.
+- `#set smartquote` continua a usar o carrier `Styles` existente. No layout,
+  campo explícito do leaf prevalece sobre a chain, e a chain prevalece sobre o
+  default. `quotes: auto` explícito precisa permanecer distinguível de campo
+  omitido para poder apagar quotes herdadas.
+- `enabled: false` continua a emitir ASCII imediatamente e ignora
+  `alternative`/`quotes`, sem alterar o estado do quoter.
+- Quotes explícitas têm precedência sobre `alternative`; membros ausentes ou
+  `auto` no dicionário usam o par localizado correspondente.
+- Erros observáveis: string fora de dois graphemes →
+  `expected 2 characters, found {n} character{s}`; array fora de dois itens →
+  `expected 2 quotes, found {n} quote{s}`; chave alheia →
+  `unexpected key "{key}", valid keys are "double" and "single"`.
+
+Esta proposta altera os campos públicos de `SmartQuoteElem`; é
+**PARAGEM OBRIGATÓRIA** por contrato público no ADR-0127. Não altera default,
+ordem de pipeline ou compatibilidade de chamadas já aceites. Região BCP47,
+morfologia de `content.fields()` não medida e comportamento real fora da
+matriz permanecem `Unknown`, nunca sucesso implícito.

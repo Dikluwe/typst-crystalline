@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: bfe561d8
+Hash do Código: afa01e47
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/math.rs`
@@ -45,7 +45,24 @@ pré-definidos, o elemento chamável `equation`, `op`, os cinco
 espaçamentos nomeados (P895) e as funções math explicitamente registradas.
 `dif`/`Dif` levam `upright` explícito — não itálico (§P962).
 
-+### P1291 — bindings próprios ausentes e fecho parcial segregado
+### P1283 — espelho estrutural integral `sym → math`
+
+**Medição anterior à decisão (2026-08-30, vanilla `a51e02804`):** o módulo math
+estende o scope de símbolos em `lab/typst-original/crates/typst-library/src/math/mod.rs:98-107`.
+O catálogo `codex 0.3.0` pinado por P1283 contém 334 símbolos, 2 submódulos e 1.206
+registos de valor/variant sob `sym`; o mesmo subgrafo público é observável sob `math`.
+Estas são contagens de inventário, não percentagem de paridade.
+
+Depois de registrar seus bindings próprios, `make_math_module` copia recursivamente o
+scope completo construído pelo owner de `sym`, incluindo `gender` e `control`. A cópia
+nunca sobrescreve binding math existente: `sqrt`, `class`, `equation` e `op` continuam
+funções, com os contratos já definidos neste L0. Cada símbolo copiado preserva kind,
+valor default, `repr`, aliases, modifiers, variants e clusters Unicode integrais.
+
+`math.registered`, herdado de `sym.registered`, permanece extensão cristalina
+individualizada, sem crédito de paridade e sem remoção automática.
+
+### P1291 — bindings próprios ausentes e fecho parcial segregado
 
 **Medição anterior à decisão (2026-08-31T10:37:16-03:00, vanilla
 `a51e02804`):** `math.bb`, `math.cancel`, `math.frak`, `math.inline`,
@@ -141,7 +158,6 @@ realiza entre passagens segundo `infra/pipeline.md`. `math.vec` transporta
 `compiler/math/layout/_comum.md`. Assim o constructor não duplica layout nem
 assa a região observada no momento da chamada. Esta divisão permanece proposta
 até o mesmo selo ADR-0127.
-
 
 ### P1140.3-A — `math.sqrt` função, não símbolo
 

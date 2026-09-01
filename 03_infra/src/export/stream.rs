@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 412e3910
+//! @prompt-hash 3e6a7e01
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -20,6 +20,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use super::pdf_defaults;
+use typst_core::entities::elements::pdf_artifact::ArtifactKind;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
@@ -141,25 +142,31 @@ impl<'a> PageContext<'a> {
                 item: &FrameItem,
                 next: &mut usize,
                 out: &mut HashMap<usize, usize>,
+                inside_artifact: bool,
             ) {
                 match item {
                     FrameItem::Semantic { kind, items, .. } => {
-                        if matches!(
+                        let is_artifact = matches!(
+                            kind,
+                            typst_core::entities::layout_types::SemanticKind::Artifact(_)
+                        );
+                        let owns_mcid = matches!(
                             kind,
                             typst_core::entities::layout_types::SemanticKind::Formula
                                 | typst_core::entities::layout_types::SemanticKind::TableHeaderCell { .. }
                                 | typst_core::entities::layout_types::SemanticKind::TableDataCell { .. }
-                        ) {
+                        );
+                        if !inside_artifact && owns_mcid {
                             out.insert(item as *const FrameItem as usize, *next);
                             *next += 1;
                         }
                         for child in items {
-                            collect(child, next, out);
+                            collect(child, next, out, inside_artifact || is_artifact);
                         }
                     }
                     FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
                         for child in items {
-                            collect(child, next, out);
+                            collect(child, next, out, inside_artifact);
                         }
                     }
                     _ => {}
@@ -167,7 +174,7 @@ impl<'a> PageContext<'a> {
             }
             let mut next = 0;
             for item in &page.items {
-                collect(item, &mut next, &mut self.semantic_mcids);
+                collect(item, &mut next, &mut self.semantic_mcids, false);
             }
         }
         self
@@ -1207,6 +1214,14 @@ fn semantic_opening(
                 .get(&key)
                 .map(|mcid| format!("/Formula << /MCID {mcid} >> BDC\n"))
         }
+        SemanticKind::Artifact(ArtifactKind::Header) => Some(
+            "/Artifact << /Attached [/Top] /Subtype /Header /Type /Pagination >> BDC\n"
+                .into(),
+        ),
+        SemanticKind::Artifact(ArtifactKind::Background) => {
+            Some("/Artifact << /Type /Background >> BDC\n".into())
+        }
+        SemanticKind::Artifact(_) => Some("/Artifact BMC\n".into()),
         SemanticKind::TableHeaderCell { .. } => ctx
             .semantic_mcids
             .get(&(item as *const FrameItem as usize))
@@ -1577,7 +1592,7 @@ fn draw_item_top(
         FrameItem::Semantic { kind, items, .. } => {
             let opening = semantic_opening(item, *kind, ctx);
             if let Some(ref opening) = opening {
-                ops.push_str(opening);
+                ops.push_str(&opening);
             }
             for child in items {
                 ops = draw_item_top(ops, child, page_height, ctx);
@@ -2061,7 +2076,7 @@ pub(super) fn draw_item_local(
         FrameItem::Semantic { kind, items, .. } => {
             let opening = semantic_opening(item, *kind, ctx);
             if let Some(ref opening) = opening {
-                ops.push_str(opening);
+                ops.push_str(&opening);
             }
             for child in items {
                 draw_item_local(ops, child, parent_bbox_override, ctx);

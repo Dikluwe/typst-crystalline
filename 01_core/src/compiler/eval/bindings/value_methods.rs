@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods.md
-//! @prompt-hash d0dec858
+//! @prompt-hash 9af814fe
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -712,7 +712,9 @@ pub(in crate::compiler::eval) fn eval_element_where<'a>(
 /// Converte `Value::Func` nativo de elemento (heading, figure) ou
 /// `Value::Selector` num `Selector` de query. Retorna `None` se o valor não
 /// for convertível.
-fn value_to_query_selector(value: &Value) -> Option<Selector> {
+pub(in crate::compiler::eval) fn value_to_query_selector(
+    value: &Value,
+) -> Option<Selector> {
     match value {
         Value::Selector(s) => Some(s.clone()),
         Value::Func(f) => {
@@ -747,26 +749,30 @@ pub(in crate::compiler::eval) fn eval_selector_or_and<'a>(
 
     let args =
         crate::compiler::eval::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
-    let other = args.items.into_iter().next().ok_or_else(|| {
-        vec![SourceDiagnostic::error(
-            args_node.span(),
-            format!("selector.{}() requer um argumento posicional", method),
-        )]
-    })?;
-    let Some(other_sel) = value_to_query_selector(&other) else {
+    if !args.named.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             args_node.span(),
-            format!(
-                "selector.{}() espera um selector, recebeu {}",
-                method,
-                other.type_name()
-            ),
+            "unexpected argument",
         )]);
-    };
+    }
+    let mut selectors = vec![base];
+    for other in args.items {
+        let Some(other_sel) = value_to_query_selector(&other) else {
+            return Err(vec![SourceDiagnostic::error(
+                args_node.span(),
+                format!(
+                    "selector.{}() espera um selector, recebeu {}",
+                    method,
+                    other.type_name()
+                ),
+            )]);
+        };
+        selectors.push(other_sel);
+    }
 
     match method {
-        "or" => Ok(Some(Selector::Or(EcoVec::from(vec![base, other_sel])))),
-        "and" => Ok(Some(Selector::And(EcoVec::from(vec![base, other_sel])))),
+        "or" => Ok(Some(Selector::Or(EcoVec::from(selectors)))),
+        "and" => Ok(Some(Selector::And(EcoVec::from(selectors)))),
         _ => Ok(None),
     }
 }

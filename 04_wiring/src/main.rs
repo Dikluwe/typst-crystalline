@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 2c5649af
+//! @prompt-hash 1d9e10c1
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -40,7 +40,7 @@ mod eviction;
 // L4 não cria tipos, apenas consome `cache_stats()` e
 // `introspector_call_counts()`.
 
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -495,30 +495,47 @@ fn run_eval(intent: EvalIntent) -> ExitCode {
 
 fn run_query(intent: QueryIntent) -> ExitCode {
     eprintln!("warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(...)' --in ...` instead\n");
-    let root = intent
-        .input
-        .parent()
-        .filter(|p| !p.as_os_str().is_empty())
-        .unwrap_or(Path::new("."));
-    let Some(main) = intent.input.file_name() else {
-        eprintln!("error: input path must have a file name: {}", intent.input.display());
-        return ExitCode::from(2);
-    };
-    let world = match SystemWorld::new(root, main) {
-        Ok(world) => world
+    let (world, source) = if intent.input == Path::new("-") {
+        let mut text = String::new();
+        if let Err(error) = std::io::stdin().lock().read_to_string(&mut text) {
+            eprintln!("error: failed to read source from stdin: {error}");
+            return ExitCode::from(2);
+        }
+        let world = SystemWorld::for_eval(PathBuf::from("."))
             .with_fonts_and_system(&[])
-            .with_custom_ca(intent.cert_path.clone()),
-        Err(error) => {
-            eprintln!("error: {error}");
+            .with_custom_ca(intent.cert_path.clone());
+        let source = Source::new(world.main(), text);
+        (world, source)
+    } else {
+        let root = intent
+            .input
+            .parent()
+            .filter(|p| !p.as_os_str().is_empty())
+            .unwrap_or(Path::new("."));
+        let Some(main) = intent.input.file_name() else {
+            eprintln!(
+                "error: input path must have a file name: {}",
+                intent.input.display()
+            );
             return ExitCode::from(2);
-        }
-    };
-    let source = match world.source(world.main()) {
-        Ok(source) => source,
-        Err(error) => {
-            eprintln!("error: failed to load source: {error:?}");
-            return ExitCode::from(2);
-        }
+        };
+        let world = match SystemWorld::new(root, main) {
+            Ok(world) => world
+                .with_fonts_and_system(&[])
+                .with_custom_ca(intent.cert_path.clone()),
+            Err(error) => {
+                eprintln!("error: {error}");
+                return ExitCode::from(2);
+            }
+        };
+        let source = match world.source(world.main()) {
+            Ok(source) => source,
+            Err(error) => {
+                eprintln!("error: failed to load source: {error:?}");
+                return ExitCode::from(2);
+            }
+        };
+        (world, source)
     };
     let (result, warnings) =
         typst_infra::query_helpers::query_elements(&world, &source, &intent.selector);
@@ -530,11 +547,12 @@ fn run_query(intent: QueryIntent) -> ExitCode {
             return ExitCode::from(1);
         }
     };
-    let bytes = match cli::serialize_query(
+    let bytes = match cli::serialize_query_with_format(
         &elements,
         intent.field.as_deref(),
         intent.one,
         intent.pretty,
+        intent.format,
     ) {
         Ok(bytes) => bytes,
         Err(error) => {

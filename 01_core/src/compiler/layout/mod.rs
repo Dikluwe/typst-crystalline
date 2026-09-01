@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 822efbfe
+//! @prompt-hash 152b636b
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -126,6 +126,8 @@ mod hide;
 mod linebreak;
 mod link;
 mod parbreak;
+mod pdf_artifact;
+mod pdf_attach;
 mod quote;
 mod raw;
 mod sequence;
@@ -448,6 +450,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// preservado. Per-document (reset em `Layouter::new`).
     pub(super) smartquote_double_open: bool,
     pub(super) smartquote_single_open: bool,
+    pub(super) attachments:
+        Vec<std::sync::Arc<crate::entities::elements::pdf_attach::PdfAttachElem>>,
+    pub(super) artifact_marker_id: u64,
     /// **P418** — cache pré-renderizado CSL para citações/bibliografia.
     /// Populado em `layout_with_introspector` antes do layout principal.
     pub(super) bib_render_cache: Option<crate::compiler::layout::bib_csl::BibRenderCache>,
@@ -823,6 +828,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P287 — estado smartquote per-document (true = próximo é open).
             smartquote_double_open: true,
             smartquote_single_open: true,
+            attachments: Vec::new(),
+            artifact_marker_id: 0,
             // P446 — smallcaps activo no corpo de um `#smallcaps[...]`.
             smallcaps: false,
             // P418 — cache pré-renderizado de citações/bibliografia CSL.
@@ -1750,6 +1757,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // consecutivos" — registado em diagnóstico §A.3.2.
             // Atomizado (ADR-0109, P381) → layout/smartquote.rs.
             Content::SmartQuote(e) => smartquote::layout(self, e),
+            Content::PdfAttach(e) => pdf_attach::layout(self, e),
+            Content::PdfArtifact(e) => pdf_artifact::layout(self, e),
 
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
             // Atomizado (ADR-0109, P381) → layout/quote.rs.
@@ -1994,6 +2003,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         }
 
         let mut doc = PagedDocument::new(self.pages);
+        doc.attachments = self.attachments;
         // Expor o mapa de páginas sem mudar a assinatura de layout() (Passo 63).
         // P190C (M6 categoria Page tracking): label_pages movido para
         // LayouterRuntimeState.

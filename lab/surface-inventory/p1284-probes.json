@@ -1,0 +1,324 @@
+{
+  "schema": "tekt.p1284.oracle-suite.v2",
+  "seal": "SEALED_ORACLES_FOR_IMPLEMENTATION",
+  "oracle_id": "A-P1284-v5",
+  "role": "independent_oracle_author",
+  "contract": {
+    "id": "C-P1284-v7",
+    "path": "00_nucleo/diagnosticos/p1284-contract-receipt.md",
+    "sha256": "ea85130ae2954d0fb930e68ce82b5554780798ef5927bcab0cc7f109ab9c61f6",
+    "changed_l0s": [
+      {"path":"00_nucleo/prompts/compiler/stdlib/collections.md","sha256":"f474e4b654509de4c5dda75223499463388d2e683be36b4eff11dbaf732839e5"},
+      {"path":"00_nucleo/prompts/compiler/eval/bindings/field_access.md","sha256":"97122927d00c44fac5039b1ae45fc1705e6f6a4743fa5d31e8a7eedbe7e2e649"},
+      {"path":"00_nucleo/prompts/compiler/eval/call_dispatch.md","sha256":"9dfe195c585fa95acf71d0c2dec41541bf16b72dac4033c55a83159f8b68809f"},
+      {"path":"00_nucleo/prompts/compiler/eval/bindings/value_methods.md","sha256":"85d31916ee6091f9853e2605760c3ecc41d4be5c5a702f1fa7e4b3bacc1b6091"},
+      {"path":"00_nucleo/prompts/compiler/stdlib/foundations/str.md","sha256":"4b3fa3d5cb2c313fa13326dc8c398f70ef89efb229a6a8ae8b37c1e77bca0043"},
+      {"path":"00_nucleo/prompts/compiler/stdlib/foundations/color.md","sha256":"453059c00c2acefcb7c8610523e986a98edd1ed7a0a1b36fb24dcd357fa5b048"},
+      {"path":"00_nucleo/prompts/compiler/stdlib/color.md","sha256":"7149cf1a93c96dab1c4d31aa491fd2093bfccd06459681c6f9f04ee1eff2677c"}
+    ]
+  },
+  "vanilla": {
+    "commit": "a51e02804",
+    "binary": "/usr/local/bin/typst",
+    "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "reported_version": "typst 0.15.1 (e0e8ca4d)",
+    "note": "The reported version is not the provenance pin; a51e02804 plus the source hashes is authoritative."
+  },
+  "execution": {
+    "engine": "typst query",
+    "query_selector": "<p1284>",
+    "query_field": "value",
+    "one": true,
+    "source_protocol": "Write each probe source to an isolated .typ file, then run /usr/local/bin/typst query FILE '<p1284>' --field value --one. For compile_error probes run /usr/local/bin/typst compile FILE OUT.pdf and compare the normalized diagnostic.",
+    "normalization": {
+      "line_endings": "LF",
+      "diagnostic": "remove only absolute temporary paths and source coordinates; retain message text",
+      "color_token": "lowercase 0xrrggbbaa; normalize #rrggbb to 0xrrggbbff and #rrggbbaa to 0xrrggbbaa",
+      "color_map_digest": "SHA-256 of the comma-joined ordered color_token sequence with no whitespace"
+    }
+  },
+  "classifiers": {
+    "Preserved": "All declared existence, kind, metadata, real-call and value relations hold.",
+    "Violated": "Any declared relation is false, including a blocked surface being implemented or approximated.",
+    "Unknown": "Observation is impossible for a documented reason; never counts as success.",
+    "Blocked": "Absence is the required control state pending ADR-0127; excluded from success score."
+  },
+  "metadata_policy": {
+    "observable_fields": ["name", "self", "order", "positional", "named", "required", "variadic", "settable", "default"],
+    "instance_method_rule": "Every authorized instance method is resolved and called both as value.method(...) and type.method(value,...).",
+    "argument_rule": ["valid", "missing_required", "extra_positional", "unknown_named", "wrong_type", "at_least_one_default"],
+    "variadic_rule": ["zero", "one", "multiple"],
+    "contextual_rule": ["context_present", "context_absent"],
+    "unknown_is_success": false
+  },
+  "authorized_surface_catalog": {
+    "array": {
+      "kind": "type",
+      "instance_methods": [
+        "all(self,test)", "any(self,test)", "at(self,index,default:?)", "chunks(self,chunk-size,exact:false)",
+        "contains(self,value)", "dedup(self,key:?)", "enumerate(self,start:0)", "filter(self,test)",
+        "find(self,searcher)", "first(self,default:?)", "flatten(self)", "fold(self,init,folder)",
+        "insert(self,index,value)", "intersperse(self,separator)", "join(self,separator:none,last:?,default:none)",
+        "last(self,default:?)", "len(self)", "map(self,mapper)", "pop(self)", "position(self,searcher)",
+        "product(self,default:?)", "push(self,value)", "reduce(self,reducer)", "remove(self,index,default:?)",
+        "rev(self)", "slice(self,start,end:none,count:?)", "sorted(self,key:?,by:?)", "split(self,at)",
+        "sum(self,default:?)", "to-dict(self)", "windows(self,window-size)", "zip(self,exact:false,..others)"
+      ],
+      "static_functions": ["range(start:0,end,inclusive:false,step:1)"]
+    },
+    "bytes": {
+      "kind": "type",
+      "instance_methods": ["at(self,index,default:?)", "len(self)", "slice(self,start,end:none,count:?)"]
+    },
+    "arguments": {
+      "kind": "type",
+      "instance_methods": ["at(self,key,default:?)", "filter(self,test)", "len(self)", "map(self,mapper)", "named(self)", "pos(self)"]
+    },
+    "str": {
+      "kind": "type",
+      "instance_methods": [
+        "at(self,index,default:?)", "clusters(self)", "codepoints(self)", "contains(self,pattern)", "ends-with(self,pattern)",
+        "find(self,pattern)", "first(self,default:?)", "last(self,default:?)", "len(self)", "match(self,pattern)",
+        "matches(self,pattern)", "normalize(self,form:nfc)", "position(self,pattern)",
+        "replace(self,pattern,replacement,count:?)", "rev(self)", "slice(self,start,end:none,count:?)",
+        "split(self,pattern:none)", "starts-with(self,pattern)", "trim(self,pattern:none,at:?,repeat:true)"
+      ],
+      "static_functions": ["from-unicode(value)", "to-unicode(character)"]
+    },
+    "dictionary": {
+      "kind": "type",
+      "instance_methods": ["at(self,key,default:?)", "filter(self,test)", "insert(self,key,value)", "keys(self)", "len(self)", "map(self,mapper)", "pairs(self)", "remove(self,key,default:?)", "values(self)"]
+    },
+    "color": {
+      "kind": "type",
+      "constants": ["aqua", "black", "blue", "eastern", "fuchsia", "gray", "green", "lime", "maroon", "navy", "olive", "orange", "purple", "red", "silver", "teal", "white", "yellow"],
+      "static_functions": ["cmyk", "hsl", "hsv", "linear-rgb", "luma", "mix", "oklab", "oklch", "rgb"],
+      "instance_methods": ["components", "darken", "desaturate", "lighten", "negate", "opacify", "rotate", "saturate", "space", "to-hex", "transparentize"],
+      "modules": ["map"]
+    },
+    "direction": {
+      "kind": "type",
+      "constants": ["btt", "ltr", "rtl", "ttb"],
+      "static_functions": ["from(side)", "to(side)"],
+      "instance_methods": ["axis(self)", "end(self)", "inv(self)", "sign(self)", "start(self)"]
+    },
+    "alignment": {
+      "kind": "type",
+      "constants": ["bottom", "center", "end", "horizon", "left", "right", "start", "top"],
+      "instance_methods": ["axis(self)", "inv(self)"]
+    },
+    "duration": {"kind": "type", "instance_methods": ["days(self)", "hours(self)", "minutes(self)", "seconds(self)", "weeks(self)"]},
+    "length": {"kind": "type", "instance_methods": ["cm(self)", "inches(self)", "mm(self)", "pt(self)", "to-absolute(self)"]},
+    "selector": {"kind": "type", "instance_methods": ["and(self,..others)", "or(self,..others)", "within(self,ancestor)"]},
+    "state": {"kind": "type", "instance_methods": ["at(self,selector)", "final(self)", "get(self)", "update(self,update)"]},
+    "location": {"kind": "type", "instance_methods": ["page(self)", "page-numbering(self)", "position(self)"]},
+    "pdf": {"kind": "module", "members": ["artifact(kind:other,body)", "attach(path,data,relationship:none,mime-type:none,description:none)"]}
+  },
+  "six_sentinels": [
+    {
+      "id": "S1-array-len",
+      "source": "#metadata((type(array.len) == function, array.len((1, 2, 3)) == 3, (1, 2, 3).len() == 3)) <p1284>",
+      "expect_query_json": [true, true, true]
+    },
+    {
+      "id": "S2-bytes-len",
+      "source": "#metadata((type(bytes.len) == function, bytes.len(bytes(\"é\")) == 2, bytes(\"é\").len() == 2)) <p1284>",
+      "expect_query_json": [true, true, true]
+    },
+    {
+      "id": "S3-arguments-len",
+      "source": "#let a = arguments(1, x: 2)\n#metadata((type(arguments.len) == function, arguments.len(a) == 2, a.len() == 2, a.pos().len() == 1, a.named().len() == 1)) <p1284>",
+      "expect_query_json": [true, true, true, true, true]
+    },
+    {
+      "id": "S4-alignment-left",
+      "source": "#metadata((type(alignment.left) == alignment, alignment.left == left, repr(alignment.left) == \"left\")) <p1284>",
+      "expect_query_json": [true, true, true]
+    },
+    {
+      "id": "S5-direction-rtl",
+      "source": "#metadata((type(direction.rtl) == direction, direction.rtl == rtl, repr(direction.rtl) == \"rtl\")) <p1284>",
+      "expect_query_json": [true, true, true]
+    },
+    {
+      "id": "S6-color-map",
+      "source": "#metadata((type(color.map) == module, type(color.map.viridis) == array, color.map.viridis.len() == 9, color.map.viridis.first() == rgb(\"#440154\"), color.map.viridis.last() == rgb(\"#fee825\"))) <p1284>",
+      "expect_query_json": [true, true, true, true, true]
+    }
+  ],
+  "required_extra_sentinels": [
+    {
+      "id": "unicode-nul-roundtrip",
+      "source": "#let z = str.from-unicode(0)\n#metadata((type(z) == str, z.len() == 1, str.to-unicode(z) == 0)) <p1284>",
+      "expect_query_json": [true, true, true]
+    }
+  ],
+  "real_call_probes": [
+    {
+      "id": "array-read-defaults-and-projection",
+      "covers": ["all", "any", "at", "contains", "find", "first", "last", "len", "position", "slice"],
+      "source": "#let a = (1, 2, 3)\n#metadata((a.all(x => x > 0) == array.all(a, x => x > 0), a.any(x => x == 2) == array.any(a, x => x == 2), a.at(9, default: 7) == 7, array.at(a, 9, default: 7) == 7, a.contains(2), a.find(x => x > 1) == 2, a.first() == 1, a.last() == 3, a.len() == 3, a.position(x => x == 2) == 1, a.slice(1) == (2, 3))) <p1284>",
+      "expect_query_json": [true, true, true, true, true, true, true, true, true, true, true]
+    },
+    {
+      "id": "array-transform-and-variadic",
+      "covers": ["chunks", "dedup", "enumerate", "filter", "flatten", "fold", "intersperse", "join", "map", "product", "reduce", "rev", "sorted", "split", "sum", "to-dict", "windows", "zip", "range"],
+      "source": "#let a = (1, 2, 3)\n#metadata((a.chunks(2) == array.chunks(a, 2), (1,1,2).dedup() == (1,2), a.enumerate() == ((0,1),(1,2),(2,3)), a.filter(x => x > 1) == (2,3), ((1,2),(3,)).flatten() == (1,2,3), a.fold(0, (x,y) => x+y) == 6, a.intersperse(0) == (1,0,2,0,3), (\"1\",\"2\",\"3\").join(\"-\") == \"1-2-3\", a.map(x => x+1) == (2,3,4), a.product() == 6, a.reduce((x,y) => x+y) == 6, a.rev() == (3,2,1), a.sorted() == a, a.split(2) == ((1,),(3,)), a.sum() == 6, ((\"a\",1),(\"b\",2)).to-dict() == (a:1,b:2), a.windows(2) == ((1,2),(2,3)), a.zip((4,5,6)) == ((1,4),(2,5),(3,6)), array.zip(a, (4,5), exact:false) == ((1,4),(2,5)), array.range(3) == (0,1,2), array.range(1,4,inclusive:true,step:2) == (1,3))) <p1284>",
+      "expect_query_json": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
+    },
+    {
+      "id": "array-mutators",
+      "covers": ["push", "pop", "insert", "remove"],
+      "source": "#let p = { let x=(1,2); x.push(3); x }\n#let i = { let x=(1,3); x.insert(1,2); x }\n#let r = { let x=(1,2,3); let y=x.remove(1); (x,y) }\n#let o = { let x=(1,2); let y=x.pop(); (x,y) }\n#metadata((p == (1,2,3), i == (1,2,3), r == ((1,3),2), o == ((1,),2))) <p1284>",
+      "expect_query_json": [true, true, true, true],
+      "unbound_projection_control": {"source":"#let x=(1,2)\n#array.push(x,3)","expect":"compile_error","must_include":"cannot mutate a constant","classification":"expected_language_limitation_not_success"}
+    },
+    {
+      "id": "bytes-all",
+      "covers": ["at", "len", "slice"],
+      "source": "#let b=bytes(\"éx\")\n#metadata((b.len()==3, bytes.len(b)==3, b.at(-1)==120, bytes.at(b,99,default:7)==7, b.slice(0,2)==bytes(\"é\"), bytes.slice(b,2)==bytes(\"x\"))) <p1284>",
+      "expect_query_json": [true, true, true, true, true, true]
+    },
+    {
+      "id": "arguments-all",
+      "covers": ["at", "filter", "len", "map", "named", "pos"],
+      "source": "#let a=arguments(1,2,x:3)\n#metadata((a.at(0)==1, arguments.at(a,\"x\")==3, a.len()==3, a.pos()==(1,2), a.named()==(x:3), type(a.filter(v=>true))==arguments, type(arguments.map(a,v=>v))==arguments)) <p1284>",
+      "expect_query_json": [true, true, true, true, true, true, true]
+    },
+    {
+      "id": "str-all",
+      "covers": ["at", "clusters", "codepoints", "contains", "ends-with", "find", "first", "last", "len", "match", "matches", "normalize", "position", "replace", "rev", "slice", "split", "starts-with", "trim", "from-unicode", "to-unicode"],
+      "source": "#let s=\" aéa \"\n#metadata((s.at(1)==\"a\", s.clusters().len()==5, \"é\".codepoints()==(\"é\",), s.contains(\"é\"), s.ends-with(\" \"), s.find(\"é\")==\"é\", s.first()==\" \", s.last()==\" \", s.len()==6, type(s.match(\"é\"))==dictionary, type(s.matches(\"a\"))==array, \"é\".normalize()==\"é\", s.position(\"é\")==2, s.replace(\"a\",\"x\",count:1)==\" xéa \", \"aé\".rev()==\"éa\", s.slice(1,5)==\"aéa\", \"a,b\".split(\",\")== (\"a\",\"b\"), s.starts-with(\" \"), s.trim()==\"aéa\", str.from-unicode(65)==\"A\", str.to-unicode(\"A\")==65, str.len(s)==s.len())) <p1284>",
+      "expect_query_json": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
+    },
+    {
+      "id": "dictionary-all",
+      "covers": ["at", "filter", "insert", "keys", "len", "map", "pairs", "remove", "values"],
+      "source": "#let d=(a:1,b:2)\n#let ins={let x=d; x.insert(\"c\",3); x}\n#let rem={let x=d; let v=x.remove(\"a\"); (x,v)}\n#metadata((d.at(\"a\")==1, dictionary.at(d,\"z\",default:7)==7, d.filter(v=>v>1)==(b:2), ins==(a:1,b:2,c:3), d.keys()==(\"a\",\"b\"), d.len()==2, d.map(v=>v+1)==(a:2,b:3), d.pairs()==((\"a\",1),(\"b\",2)), rem==((b:2),1), d.values()==(1,2))) <p1284>",
+      "expect_query_json": [true, true, true, true, true, true, true, true, true, true]
+    },
+    {
+      "id": "color-constructors-methods-and-aliases",
+      "covers": ["18 constants", "cmyk", "hsl", "hsv", "linear-rgb", "luma", "mix", "oklab", "oklch", "rgb", "components", "darken", "desaturate", "lighten", "negate", "opacify", "rotate", "saturate", "space", "to-hex", "transparentize"],
+      "source": "#let cs=(aqua,black,blue,eastern,fuchsia,gray,green,lime,maroon,navy,olive,orange,purple,red,silver,teal,white,yellow)\n#let qs=(color.aqua,color.black,color.blue,color.eastern,color.fuchsia,color.gray,color.green,color.lime,color.maroon,color.navy,color.olive,color.orange,color.purple,color.red,color.silver,color.teal,color.white,color.yellow)\n#let c=rgb(\"#336699\")\n#metadata((cs==qs, color.rgb(\"#336699\")==c, color.cmyk(0%,0%,0%,100%)==cmyk(0%,0%,0%,100%), type(color.hsl(0deg,100%,50%))==color, type(color.hsv(0deg,100%,100%))==color, type(color.linear-rgb(0%,0%,0%))==color, type(color.luma(50%))==color, type(color.mix(red,blue))==color, type(color.oklab(50%,0,0))==color, type(color.oklch(50%,0,0deg))==color, color.components(c)==c.components(), type(c.darken(10%))==color, type(c.desaturate(10%))==color, type(c.lighten(10%))==color, type(c.negate())==color, type(c.opacify(10%))==color, type(c.rotate(10deg))==color, type(c.saturate(10%))==color, c.space()==color.space(c), c.to-hex()==color.to-hex(c), type(c.transparentize(10%))==color)) <p1284>",
+      "expect_query_json": [true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true]
+    },
+    {
+      "id": "direction-all",
+      "source": "#metadata(((direction.btt,direction.ltr,direction.rtl,direction.ttb)==(btt,ltr,rtl,ttb), direction.from(left)==ltr, direction.to(right)==ltr, rtl.axis()==direction.axis(rtl), rtl.end()==direction.end(rtl), rtl.inv()==direction.inv(rtl), rtl.sign()==direction.sign(rtl), rtl.start()==direction.start(rtl))) <p1284>",
+      "expect_query_json": [true,true,true,true,true,true,true,true]
+    },
+    {
+      "id": "alignment-all",
+      "source": "#metadata(((alignment.bottom,alignment.center,alignment.end,alignment.horizon,alignment.left,alignment.right,alignment.start,alignment.top)==(bottom,center,end,horizon,left,right,start,top), left.axis()==alignment.axis(left), left.inv()==alignment.inv(left))) <p1284>",
+      "expect_query_json": [true,true,true]
+    },
+    {
+      "id": "duration-all",
+      "source": "#let d=duration(weeks:1,days:1,hours:1,minutes:1,seconds:1)\n#metadata((d.weeks()==duration.weeks(d), d.days()==duration.days(d), d.hours()==duration.hours(d), d.minutes()==duration.minutes(d), d.seconds()==duration.seconds(d), duration().seconds()==0)) <p1284>",
+      "expect_query_json": [true,true,true,true,true,true]
+    },
+    {
+      "id": "length-units",
+      "source": "#let x=72pt\n#metadata((x.pt()==length.pt(x), x.mm()==length.mm(x), x.cm()==length.cm(x), x.inches()==length.inches(x), x.inches()==1)) <p1284>",
+      "expect_query_json": [true,true,true,true,true]
+    },
+    {
+      "id": "length-to-absolute-context",
+      "source": "#context [#metadata((type(1em.to-absolute())==length, 1em.to-absolute()==length.to-absolute(1em))) <p1284>]",
+      "expect_query_json": [true,true]
+    },
+    {
+      "id": "selector-authorized",
+      "source": "#let h=selector(heading)\n#let f=selector(figure)\n#metadata((h.and(f)==selector.and(h,f), h.or(f)==selector.or(h,f), h.within(f)==selector.within(h,f), type(selector.and)==function, type(selector.or)==function, type(selector.within)==function)) <p1284>",
+      "expect_query_json": [true,true,true,true,true,true]
+    },
+    {
+      "id": "state-context-and-projection",
+      "source": "#let s=state(\"p1284\",0)\n#s.update(5)\n#context [#metadata((s.get()==state.get(s), s.final()==state.final(s), s.at(here())==state.at(s,here()))) <p1284>]",
+      "expect_query_json": [true,true,true]
+    },
+    {
+      "id": "state-update",
+      "source": "#let s=state(\"p1284-update\",0)\n#metadata((type(s.update(1))==content, type(state.update(s,1))==content)) <p1284>",
+      "expect_query_json": [true,true]
+    },
+    {
+      "id": "location-context-and-projection",
+      "source": "#context [#metadata((here().page()==location.page(here()), here().position()==location.position(here()), here().page-numbering()==location.page-numbering(here()))) <p1284>]",
+      "expect_query_json": [true,true,true]
+    },
+    {
+      "id": "pdf-artifact-default-and-kind",
+      "source": "#metadata((type(pdf)==module, type(pdf.artifact)==function, type(pdf.attach)==function, type(pdf.artifact[body])==content, type(pdf.artifact(kind:\"header\")[body])==content)) <p1284>",
+      "expect_query_json": [true,true,true,true,true]
+    }
+  ],
+  "argument_and_error_probes": [
+    {"id":"missing-required", "source":"#array.at((1,2))", "expect":"compile_error", "must_include":"missing argument"},
+    {"id":"extra-positional", "source":"#array.len((1,2), 3)", "expect":"compile_error", "must_include":"unexpected argument"},
+    {"id":"unknown-named", "source":"#bytes.len(bytes(\"x\"), bogus: 1)", "expect":"compile_error", "must_include":"unexpected argument"},
+    {"id":"wrong-type", "source":"#str.slice(1, 0)", "expect":"compile_error", "must_include":"expected string"},
+    {"id":"range-defaults", "source":"#metadata((array.range(3)==(0,1,2),array.range(1,3)==(1,2))) <p1284>", "expect_query_json":[true,true]},
+    {"id":"zip-variadic-zero", "source":"#metadata((1,2).zip()) <p1284>", "expect_query_json":[[1],[2]]},
+    {"id":"zip-variadic-one", "source":"#metadata((1,2).zip((3,4))) <p1284>", "expect_query_json":[[1,3],[2,4]]},
+    {"id":"zip-variadic-multiple", "source":"#metadata((1,2).zip((3,4),(5,6))) <p1284>", "expect_query_json":[[1,3,5],[2,4,6]]},
+    {"id":"state-context-absent", "source":"#let s=state(\"x\",0)\n#s.get()", "expect":"compile_error", "must_include":"can only be used when context is known"},
+    {"id":"length-context-absent", "source":"#(1em).to-absolute()", "expect":"compile_error", "must_include":"context"},
+    {"id":"pdf-attach-baseline-vs-crystalline-scope-out", "source":"#pdf.attach(\"x\", bytes(\"x\"))", "expect":"compile_success", "candidate_expect":"compile_error", "candidate_must_include":"scope-out", "classification":"intentional_crystalline_export_scope_out"}
+  ],
+  "color_maps": {
+    "path": "color.map",
+    "kind": "module",
+    "closed_child_count": 15,
+    "probe_source_template": "#metadata((type(color.map.NAME), color.map.NAME.len(), color.map.NAME.first(), color.map.NAME.last(), color.map.NAME.map(c => c.to-hex()))) <p1284>",
+    "canonicalization": "Convert the ordered to-hex strings to lowercase 0xrrggbbaa tokens, append ff when alpha is absent, join with commas and SHA-256.",
+    "members": [
+      {"name":"turbo","kind":"array","cardinality":256,"first":"0x23171bff","last":"0x900c00ff","sha256":"7909421397bc2bef00faf5a1064d7356ad4cab112ec1fd5e290b124a13529a3e"},
+      {"name":"cividis","kind":"array","cardinality":256,"first":"0x002051ff","last":"0xfdea45ff","sha256":"dece34103d5266311558bb44f96f02df7090edf8977744fc9a1213b2213b2f79"},
+      {"name":"rainbow","kind":"array","cardinality":256,"first":"0x7c4bbbff","last":"0x7c4bbbff","sha256":"74fe385a692d3da43ff8afc8f61896f76bc87a1a766f05f4897f5e8164db4ed7"},
+      {"name":"spectral","kind":"array","cardinality":11,"first":"0x9e0142ff","last":"0x5e4fa2ff","sha256":"1c62ea2e765ddf6d6b1c5189e772605e0203d6116bf384597df0cfa4cdab5f17"},
+      {"name":"viridis","kind":"array","cardinality":9,"first":"0x440154ff","last":"0xfee825ff","sha256":"3b9d02b0685ec2ae62958a287c4cdd68fdb08f642339aabaa8d96e60aeaf999b"},
+      {"name":"inferno","kind":"array","cardinality":11,"first":"0x000004ff","last":"0xfcffa4ff","sha256":"20de1b5440e58c3727d645e6f8444d9e6d1c73fb09f9e905a49c314dc58496da"},
+      {"name":"magma","kind":"array","cardinality":11,"first":"0x000004ff","last":"0xfcfdbfff","sha256":"c634397325d83383609535f10e2d964efd899be34a2cef337379a5368b09fa79"},
+      {"name":"plasma","kind":"array","cardinality":11,"first":"0x0d0887ff","last":"0xf0f921ff","sha256":"f0ddd8a6d9e12c3c3b5d705dfa2e7c5f7929ce242c8d94ab5e4a0f6b2e0d9f2d"},
+      {"name":"rocket","kind":"array","cardinality":256,"first":"0x03051aff","last":"0xfaebddff","sha256":"b3d6e7d7762c8e4d3b27d86aa41391cf8d5093df122b328bc6482f2d37a1497b"},
+      {"name":"mako","kind":"array","cardinality":256,"first":"0x0b0405ff","last":"0xdef5e5ff","sha256":"f74edb89a1207308a4534b6648d32f54439e0057fb5b4cb0346151610131da77"},
+      {"name":"coolwarm","kind":"array","cardinality":256,"first":"0x3b4cc0ff","last":"0xb40426ff","sha256":"13161dddf6ad860268eece02ce446b1025d3ab95871cc1a484a93aa05da4aed2"},
+      {"name":"vlag","kind":"array","cardinality":256,"first":"0x2369bdff","last":"0xa9373bff","sha256":"d015c8a4cb87aaebc49d0416edf430e5c76392e772602ca1234ce6fe748db81d"},
+      {"name":"icefire","kind":"array","cardinality":256,"first":"0xbde7dbff","last":"0xffd4acff","sha256":"0de0d1c2a9dd6a8a03cd3155b872ea4a2eeaa74a5454df8f511632aa5d91e55f"},
+      {"name":"flare","kind":"array","cardinality":256,"first":"0xedb081ff","last":"0x4b2362ff","sha256":"03f70bedc78f4fb3e22b3f7ed06a680d56d721321eca69218ab746d4c803f595"},
+      {"name":"crest","kind":"array","cardinality":256,"first":"0xa5cd90ff","last":"0x2c3172ff","sha256":"660b6381c0f53156c07b4f0f86988a280c06578f46a44b734c1f388cadeaeb98"}
+    ]
+  },
+  "blocked_controls": [
+    {"path":"color.spot","required_state":"Blocked","reason":"BLOCKED_ADR0127_PUBLIC_CONTRACT","pass_condition":"member absent","fail_condition":"type, function, module, stub or passthrough is present"},
+    {"path":"color.spot.tint","required_state":"Unknown","reason":"blocked_by_ancestor:color.spot","pass_condition":"not claimed as success","fail_condition":"implemented, approximated or credited"},
+    {"path":"outline.entry","required_state":"Blocked","reason":"BLOCKED_ADR0127_PUBLIC_CONTRACT","pass_condition":"member absent","fail_condition":"element, dict, module, stub or reused OutlineElem is present"},
+    {"path":"outline.entry.body|inner|page|prefix|indented","required_state":"Unknown","reason":"blocked_by_ancestor:outline.entry","pass_condition":"not claimed as success","fail_condition":"any child implemented, approximated or credited"},
+    {"path":"selector.before","required_state":"Blocked","reason":"BLOCKED_ADR0127_PUBLIC_CONTRACT","pass_condition":"member absent","fail_condition":"present or approximated with Within/And/Or/Where"},
+    {"path":"selector.after","required_state":"Blocked","reason":"BLOCKED_ADR0127_PUBLIC_CONTRACT","pass_condition":"member absent","fail_condition":"present or approximated with Within/And/Or/Where"},
+    {"path":"outline metadata/defaults","required_state":"Blocked","reason":"default/compatibility gate","pass_condition":"existing crystalline defaults preserved and discrepancy reported","fail_condition":"defaults changed to residual vanilla values without a new ADR-0127 seal"}
+  ],
+  "score_policy": {
+    "denominator": "all authorized catalog members plus mandatory semantic probes",
+    "blocked_controls_in_denominator": false,
+    "unknown_counts_as_pass": false,
+    "seal_threshold": "all authorized observations Preserved and every blocked control remains Blocked/Unknown as declared"
+  },
+  "vanilla_validation": {
+    "timestamp": "2026-08-30T12:41:54-03:00",
+    "result": "52/52",
+    "success_error_probes": "37/37",
+    "success_error_breakdown": "6 six_sentinels + 1 required_extra_sentinel + 18 real_call_probes + 11 argument_and_error_probes + 1 nested unbound_projection_control = 37",
+    "color_map_identity_probes": "15/15",
+    "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "method": "After pinning C-P1284-v7 and confirming 23/23 final L0 hashes, each semantically unchanged source was piped to /usr/local/bin/typst query or compile through stdin; query JSON, exit status, normalized diagnostic needles, and canonical map digests were compared exactly."
+  },
+  "limitations": [
+    "This file was authored before and without reading candidate P1284 code, tests or diffs.",
+    "It is a declarative executable oracle suite; an implementation-side runner is still needed to materialize isolated .typ files and collect results.",
+    "The color-map digest oracle is source-pinned and canonical; it intentionally does not embed thousands of color literals.",
+    "Blocked controls are evidence of a closed gate, never authorized success."
+  ]
+}

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
-Hash do Código: adaad248
+Hash do Código: c5024fd4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
@@ -599,3 +599,21 @@ preserva identidade.
 Contrato e ataques posteriores devem cobrir variante simples, assembly com
 várias peças, duas fontes com o mesmo `glyph_id`, fill/alpha, transform, fonte
 ausente e wrapper fontless.
+
+## P1286 — morfologia SVG de paths abertos de dois pontos
+
+### Medição anterior à decisão
+
+O oráculo congelado mede `line(start:, end:)` como um `<path>` aberto cuja
+origem é o `transform="translate(start)"` e cujo `d` é `M 0 0 l delta`. O
+carrier L1 deliberadamente continua `ShapeKind::Path([MoveTo(start),
+LineTo(end)])`; igualdade textual de SVG não é o objetivo, mas início e delta
+são a morfologia observada pela sonda.
+
+### Decisão
+
+Ao emitir exatamente um path aberto `MoveTo + LineTo`, o SVG normaliza a
+representação para translate no primeiro ponto e segmento relativo até o
+segundo. A geometria, stroke, fill, bbox e ordem de pintura não mudam. Paths
+fechados, cúbicos ou com outra cardinalidade continuam no emissor genérico.
+É correção de paridade interna sem API pública, default ou fase nova.

@@ -1,5 +1,27 @@
 # Prompt L0 — layout_types
-Hash do Código: 66b28ef2
+Hash do Código: 76c11fc6
+
+## P1286 — attachments e artifact semântico propostos (GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`PagedDocument` não transporta anexos. `FrameItem::Semantic` já transporta
+Formula e builder/stream constroem tagging real; reutilizar Formula para
+artifact emitiria `/Formula` e MCID, semanticamente errado.
+
+### Contrato público proposto
+
+- `PagedDocument` ganha `pub attachments: Vec<Arc<PdfAttachElem>>`, em ordem
+  documental. O layout coleta markers invisíveis; nenhum `FrameItem` visual é
+  criado. `plain_text` ignora o vetor.
+- `SemanticKind` ganha `Artifact(ArtifactKind)`. O envelope preserva filhos
+  visuais, usa `alt: None` e não participa na árvore estrutural/MCIDs.
+  Visitors continuam descendo nos filhos.
+
+Não há nova fase: eval produz markers, layout coleta/embrulha, export consome
+o `PagedDocument`. São alterações de enum/campo público e ficam bloqueadas até
+confirmação ADR-0127. `PdfTags::Enabled` continua default; Disabled preserva
+o visual sem tags.
 
 ## P1140.20.2 — canvas e camadas
 
@@ -606,3 +628,29 @@ antes do export SVG. Adicionar `fill_rule: FillRule` ao variant público
 existentes que não expõem regra usam `NonZero`. Exportadores consomem o campo,
 sem derivá-lo da orientação dos segmentos. Esta mudança de contrato público
 fica bloqueada pelo gate ADR-0127 até confirmação humana.
+
+## P1288 — vocabulário semântico de tabela (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`01_core/src/entities/layout_types.rs:300-310` mede `SemanticKind` restrito a
+Formula, Artifact e boundaries; `PagedDocument:891-930` não possui árvore de
+tabela separada. A estrutura atual já permite envelope transparente com filhos
+em `FrameItem::Semantic:323-330`. A fonte vanilla mede Table/TR/TH/TD e spans
+em `typst-pdf/src/tags/context/table.rs:289-353`.
+
+### Decisão proposta
+
+Estender o vocabulário fechado de `SemanticKind` (ou carrier público fechado
+equivalente) para representar Table com summary, Row, HeaderCell com
+level/scope/rowspan/colspan e DataCell com rowspan/colspan. O carrier representa
+`THead` e `TBody` para header automático uniforme e também permite `TR` direta
+sob `Table` para linha explicitamente mista, sem fabricar grupos da posição
+visual. Preserva uma identidade lógica única para headers repetidos em várias
+páginas e vínculos físicos por página para MCID/ParentTree. `level` é dado
+relacional transitório, nunca atributo numérico de saída.
+
+Todo carrier é visualmente transparente: bounds, plain text, visitors,
+shaping, transforms e layers descem nos filhos e preservam metadata. L1 não
+aloca object IDs/MCIDs nem escreve PDF. Variantes públicas novas permanecem
+bloqueadas pela confirmação ADR-0127.

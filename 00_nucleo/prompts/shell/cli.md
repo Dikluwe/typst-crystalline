@@ -1,7 +1,8 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 49d42c99
+Hash do Código: 84ab63b4
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 - 00_nucleo/prompts/_nuclei/shell/build-identity.toml sha256:a97f32705be8700feaa6a5c89440ffa49d15c11145ea83744307aefc65a50297
 
@@ -513,6 +514,144 @@ Critérios: sentinela P1137-I-001 passa a `MATCH`; `--field level` e `--one`
 igualam o stdout vanilla; zero/múltiplos com `--one` falham; compile legado e
 `eval` permanecem verdes.
 
+## P1285 — formatos estruturados, valores públicos e query genérica
+
+> **Estado do gate ADR-0127:** CONFIRMADO PELO DONO EM 2026-08-30. Esta secção
+> substitui, somente para P1285, as restrições históricas acima que adiavam
+> YAML, proibiam o fallback público por `repr` e limitavam query a headings.
+> A confirmação autoriza a materialização dos contratos públicos abaixo.
+
+### Medição anterior à decisão
+
+Medição em 2026-08-30 contra binários imutavelmente identificados:
+
+- vanilla ratificado `a51e02804`, `/usr/local/bin/typst`, SHA-256
+  `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
+- cristalino produzido após P1284, `target/release/typst`, SHA-256
+  `8b85f933b7cd1fa74e46e2c18902b8343d9064f11b2a76844a476a252835a57e`.
+
+Os cinco consumers L0 auditados para este passo estavam byte-a-byte em HEAD
+`53d21c5a602f4045a769a0ab0c935baa5ecd3b88` antes desta alteração de L0:
+`02_shell/src/cli.rs`, `01_core/src/compiler/eval/mod.rs`,
+`01_core/src/compiler/eval/repr.rs` e
+`01_core/src/compiler/eval/selector_matching.rs`, além de
+`03_infra/src/query_helpers.rs`. A restante working tree
+continha materializações P1281–P1284, mas não alterava esses consumers.
+
+Resultados públicos medidos:
+
+```text
+eval --help
+vanilla    -> json, yaml, raw
+cristalino -> json, raw
+
+eval 'sys.version' --format json
+vanilla    -> "version(0, 15, 1)"\n, exit 0
+cristalino -> cannot serialize value to JSON, exit 1
+
+eval '(a: 1, b: (2, 3), v: sys.version)' --format yaml
+vanilla    -> mapping/sequence YAML e v: version(0, 15, 1), exit 0
+cristalino -> yaml rejeitado pelo clap, exit 2
+
+eval 'calc.inf' --format json
+vanilla    -> null\n, exit 0
+cristalino -> cannot serialize non-finite float to JSON, exit 1
+
+query --help
+vanilla    -> json, yaml
+cristalino -> json
+
+query de metadata rotulada, sem --field
+vanilla    -> objeto {func: metadata, value: {...}, label: <meta>}, exit 0
+cristalino -> query serialization currently supports headings only, exit 1
+
+query de figure --field body
+vanilla    -> content text estruturado, exit 0
+cristalino -> query serialization currently supports headings only, exit 1
+```
+
+Fonte do vanilla que produz a medição:
+
+- `lab/typst-original/crates/typst-cli/src/eval.rs:129-153` separa
+  `json|yaml|raw`, mantendo raw restrito a string/bytes;
+- `lab/typst-original/crates/typst-cli/src/main.rs:113-131` usa JSON com
+  `pretty` opcional e YAML sem efeito de `pretty`;
+- `lab/typst-original/crates/typst-library/src/foundations/value.rs:343-362`
+  serializa `none`, bool, int, float, str, bytes, symbol, content, array e dict
+  pela forma nativa; os outros valores viram string da sua `repr` pública;
+- `lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:709-718`
+  serializa content como mapa `func` + campos públicos, sem caso especial de
+  heading.
+
+Classificação ADR-0107/0108: escolha de crate, enum Rust e árvore intermediária
+são mecânica livre; formatos anunciados, estrutura semântica dos valores,
+stdout, erro e exit code são observáveis públicos. A intenção é confirmada
+pela implementação genérica e pelos tipos `Serialize`, não inferida apenas dos
+bytes medidos. A conclusão seria refutada se um tipo público nominal do
+vanilla falhasse na serialização genérica ou se YAML não constasse do help e
+do dispatcher pinados.
+
+### Decisão pública sujeita ao gate
+
+`EvalFormat` passa a anunciar e aceitar as três variantes do vanilla:
+
+```rust
+pub enum EvalFormat { Json, Yaml, Raw }
+```
+
+Query passa a transportar explicitamente o formato estruturado:
+
+```rust
+pub enum QueryFormat { Json, Yaml }
+
+pub struct QueryIntent {
+    // campos existentes
+    pub format: QueryFormat,
+}
+```
+
+`serialize_eval` e `serialize_query` usam um único modelo semântico recursivo:
+
+- `none`, bool, int, float finito, string, symbol, array e dict mantêm forma
+  estruturada; dict preserva a ordem pública de inserção;
+- float não-finito segue o formato: JSON produz `null`; YAML preserva
+  infinito conforme o escalar YAML;
+- bytes usam a forma serializada pública medida do tipo (`"bytes(N)"`), sem
+  despejar os bytes nem usar `Debug`;
+- `Content` é objeto `func` + campos públicos recursivamente serializados;
+- os demais `Value` públicos são strings com `repr` morfológica de L1. Isso é
+  o contrato genérico medido do vanilla, revogando a proibição histórica de
+  fallback genérico; `Debug`, `PartialEq` e layout Rust continuam proibidos;
+- JSON acrescenta um newline; YAML preserva um documento YAML válido e o
+  comportamento observável de terminação do vanilla; `--pretty` só altera
+  JSON e é neutro em YAML;
+- raw continua byte-exato e restrito a string/bytes. O erro nomeia o tipo
+  público real (`version`, `length`, etc.), nunca o fallback `value`.
+
+Para query, o serializer deixa de ter uma branch exclusiva de heading. Todo
+`Content` recuperado é convertido pelo mesmo caminho `func` + campos públicos;
+um tipo ainda não representável falha nominalmente, sem `Debug`, mas a
+existência de qualquer tipo diferente de heading não é por si só erro.
+Quando L3 transporta um resultado rotulado como `Content::Label`, L2 serializa
+o elemento interno (`func` + fields) e acrescenta `label: "<nome>"`; o wrapper
+não aparece como `func: label` e não muda a cardinalidade da query.
+
+Sem `--one`, `--field F` descarta elementos onde `F` não existe e serializa os
+valores existentes. Com `--one`, primeiro exige exatamente um elemento e então
+campo ausente falha com `no such field found for element`. O formato JSON/YAML
+aplica-se depois dessa seleção. A warning de deprecação permanece em stderr.
+
+### Aceitação RED→GREEN após confirmação
+
+- helps de eval/query anunciam exatamente os formatos implementados;
+- Version, valores nominais selecionados, conteúdo e compostos aninhados
+  preservam a semântica JSON/YAML medida;
+- JSON não-finito é `null`; YAML `--pretty` não muda o valor;
+- query de metadata e figure deixa de encontrar o sentinela
+  `supports headings only` e expõe `value`/`body` estruturados;
+- `--field` e `--one` obedecem à ordem e aos erros acima;
+- raw e os casos heading existentes não regridem.
+
 **P866** — detecção de formato de saída pela extensão (`-o simple.png`
 → `OutputFormat::Png`) e flag explícita `--format`. O formato é
 resolvido em L2 e transportado em `RunIntent.output_format`; L4
@@ -673,3 +812,57 @@ reutiliza `CompileArgs`. Ausente significa tags habilitadas; presente significa
 tags desabilitadas. L2 transporta apenas o booleano com a polaridade da CLI e
 não importa `PdfTags`; L4 traduz para o enum L3. A flag não altera `compact`,
 não tem efeito em PNG/SVG/HTML e não promete conformidade PDF/UA.
+
+## P1286 — aceitação compatível de `--pdf-standard`
+
+### Medição anterior à decisão
+
+O caso congelado de artifact background invoca `compile --pdf-standard 2.0`.
+O cristalino ainda não possui política nem enum pública de standards PDF; a
+emissão já reproduz o fragmento medido e rejeitar a opção impede observar a
+semântica. Expor a opção no help também ativaria indevidamente o caso PDF/A-3,
+cujo `/AFRelationship` continua fora do recorte normal.
+
+### Decisão
+
+`CompileArgs` aceita `--pdf-standard <STANDARD>` como argumento oculto de
+compatibilidade e não o transporta para `CompileIntent`. O valor não altera a
+versão, conformidade, defaults ou pipeline e não anuncia capacidade PDF/A.
+Isto cobre somente a invocação medida de PDF 2.0; suporte real e exposição no
+help exigem contrato próprio. O gate público de P1286 foi confirmado pelo
+humano em 2026-08-30.
+
+## P1288 — perfil CLI `a11y-extras` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+- `02_shell/src/cli.rs:77-91` mede `FeatureArg` restrito a `Html` e resolução
+  tipada pelo path antigo `entities::html`.
+- `02_shell/src/cli.rs:137-141` e `:310-322` medem `--features` em compile e
+  eval, mas sem `value_delimiter = ','` e sem `A11yExtras`.
+- A fonte vanilla pinada mede `ProcessArgs.features` com delimitador vírgula em
+  `typst-cli/src/args.rs:432-443` e as três grafias em `:646-654`; P1288 só
+  materializa `html` e `a11y-extras`, mantendo `bundle` fora.
+
+### Decisão proposta
+
+Compile e Eval aceitam `--features a11y-extras`, repetição da opção, lista
+separada por vírgula e combinação com `html`. A ordem e repetição são
+idempotentes e resultam no mesmo `Features` canônico. Ausência produz conjunto
+vazio. `bundle` continua rejeitado/scope-out neste recorte, nunca convertido
+em HTML nem em `a11y-extras`.
+
+`CompileIntent.features` e `EvalIntent.features` usam
+`entities::compiler_features::Features`; L2 somente parseia e transporta.
+Selecionar `--format html`, PDF ou outro target não acrescenta feature.
+Feature desconhecida termina como erro de argumentos e jamais é reclassificada
+como perfil desligado. `info` continua sem receber `--features` próprio; a
+extensão da sua estrutura para reportar `a11y-extras: false` pertence ao
+consumer L4.
+
+### Aceitação pós-confirmação
+
+- helps de compile/eval anunciam `html` e `a11y-extras`, não `bundle`;
+- `--features html,a11y-extras` e as duas ordens repetidas produzem o mesmo set;
+- sem flag, ambos permanecem false;
+- nome desconhecido falha no parser e não alcança L1/L3/L4 como valor parcial.

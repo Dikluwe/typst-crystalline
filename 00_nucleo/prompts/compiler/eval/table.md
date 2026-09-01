@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/table` — `#set table(numbering:)` e namespace `table.*`
-Hash do Código: PENDENTE_HUMAN_CALC
+Hash do Código: c650f66c
 
 **Camada**: L1 · **Owner futuro exclusivo P1288**: `01_core/src/compiler/eval/table.rs`
 **Estado P1288:** PROPOSTO — não materializável antes da confirmação humana.

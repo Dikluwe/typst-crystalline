@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 52adb33c
+//! @prompt-hash 7091a54c
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -1037,6 +1037,21 @@ fn compile_to_pdf_bytes_impl(
             return (Err(errors), warnings);
         }
     };
+
+    // P1286 — nomes duplicados só são erro no target PDF, onde ambos
+    // disputariam a mesma chave da name tree `/EmbeddedFiles`.
+    let mut attachment_paths = HashSet::new();
+    for attachment in &doc.attachments {
+        if !attachment_paths.insert(attachment.path.clone()) {
+            return (
+                Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("attempted to attach file {} twice", attachment.path),
+                )]),
+                warnings,
+            );
+        }
+    }
 
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
     // 0 fonts resolvidos → fallback Helvetica.

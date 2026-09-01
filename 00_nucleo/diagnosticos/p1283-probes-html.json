@@ -1,0 +1,1279 @@
+{
+  "binaries": {
+    "crystalline": {
+      "path": "target/release/typst",
+      "sha256": "a6e03f6c3da68e689c3baa1d06d1fd8f6665b9294786e4add145eb13b4f47917"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  },
+  "counts": {
+    "different_or_disabled": 0,
+    "same": 33,
+    "total": 33
+  },
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "features": [
+    "html"
+  ],
+  "profile": "html",
+  "results": [
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(emoji.apple)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"🍏\"\n"
+      },
+      "expression": "str(emoji.apple)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-emoji-apple-parent",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(emoji.apple)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"🍏\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(emoji.arrow)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"↙️\"\n"
+      },
+      "expression": "str(emoji.arrow)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-emoji-arrow-parent",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(emoji.arrow)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"↙️\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(emoji.heart.excl)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"❣️\"\n"
+      },
+      "expression": "str(emoji.heart.excl)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-emoji-heart-excl-vs16",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(emoji.heart.excl)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"❣️\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(emoji.heart.lightblue)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"🩵\"\n"
+      },
+      "expression": "str(emoji.heart.lightblue)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-emoji-heart-lightblue",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(emoji.heart.lightblue)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"🩵\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(emoji.heart)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"❤️\"\n"
+      },
+      "expression": "str(emoji.heart)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-emoji-heart-vs16",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(emoji.heart)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"❤️\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(emoji.face.angry.red)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"😡\"\n"
+      },
+      "expression": "str(emoji.face.angry.red)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-emoji-multi-modifier",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(emoji.face.angry.red)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"😡\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(emoji.dancing.ballet)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"🧑‍🩰\"\n"
+      },
+      "expression": "str(emoji.dancing.ballet)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-emoji-zwj",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(emoji.dancing.ballet)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"🧑‍🩰\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr(type(math.gender))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"module\"\n"
+      },
+      "expression": "repr(type(math.gender))",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-kind-math-gender",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(math.gender))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"module\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr(type(sym.control))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"module\"\n"
+      },
+      "expression": "repr(type(sym.control))",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-kind-sym-control",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(sym.control))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"module\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr(type(sym.gender))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"module\"\n"
+      },
+      "expression": "repr(type(sym.gender))",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-kind-sym-gender",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(sym.gender))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"module\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(math.control.dc.one)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"␑\"\n"
+      },
+      "expression": "str(math.control.dc.one)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-math-mirror-control-one",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(math.control.dc.one)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"␑\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(math.gender.male.stroke.t)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⚨\"\n"
+      },
+      "expression": "str(math.gender.male.stroke.t)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-math-mirror-gender",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(math.gender.male.stroke.t)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⚨\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(math.control.dc)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"␑\"\n"
+      },
+      "expression": "str(math.control.dc)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-math-mirror-nested",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(math.control.dc)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"␑\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(math.arrow.r.double.long)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟹\"\n"
+      },
+      "expression": "str(math.arrow.r.double.long)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-math-mirror-variant",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(math.arrow.r.double.long)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟹\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr(type(math.class))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(math.class))",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-math-own-class",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(math.class))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr(type(math.equation))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(math.equation))",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-math-own-equation",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(math.equation))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr(type(math.op))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(math.op))",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-math-own-op",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(math.op))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr(type(math.sqrt))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(math.sqrt))",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-math-own-sqrt",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(math.sqrt))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.dollar)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"$\"\n"
+      },
+      "expression": "str(sym.dollar)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-alias-dollar",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.dollar)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"$\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.pataca)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"$\"\n"
+      },
+      "expression": "str(sym.pataca)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-alias-pataca",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.pataca)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"$\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.alpha)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"α\"\n"
+      },
+      "expression": "str(sym.alpha)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-alpha",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.alpha)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"α\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.bowtie.big)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⨝\"\n"
+      },
+      "expression": "str(sym.bowtie.big)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-bowtie-big",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.bowtie.big)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⨝\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.bowtie)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⋈\"\n"
+      },
+      "expression": "str(sym.bowtie)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-bowtie-default",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.bowtie)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⋈\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.bowtie.stroked.big.l.r)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟗\"\n"
+      },
+      "expression": "str(sym.bowtie.stroked.big.l.r)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-bowtie-order-a",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.bowtie.stroked.big.l.r)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟗\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.bowtie.r.l.big.stroked)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟗\"\n"
+      },
+      "expression": "str(sym.bowtie.r.l.big.stroked)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-bowtie-order-b",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.bowtie.r.l.big.stroked)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟗\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.control.dc.one)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"␑\"\n"
+      },
+      "expression": "str(sym.control.dc.one)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-control-nested",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.control.dc.one)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"␑\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.gender.male.stroke.t)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⚨\"\n"
+      },
+      "expression": "str(sym.gender.male.stroke.t)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-gender-nested",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.gender.male.stroke.t)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⚨\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.join)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:8\n  │\n1 │ str(sym.join)\n  │         ^^^^\n\n",
+        "stdout": "\"⨝\"\n"
+      },
+      "expression": "str(sym.join)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-join",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.join)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:8\n  │\n1 │ str(sym.join)\n  │         ^^^^\n\n",
+        "stdout": "\"⨝\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.arrow.r.double.long)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟹\"\n"
+      },
+      "expression": "str(sym.arrow.r.double.long)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-modifier-order-a",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.arrow.r.double.long)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟹\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.arrow.long.double.r)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟹\"\n"
+      },
+      "expression": "str(sym.arrow.long.double.r)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-modifier-order-b",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.arrow.long.double.r)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"⟹\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.control.dc)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"␑\"\n"
+      },
+      "expression": "str(sym.control.dc)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-nested-control",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.control.dc)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"␑\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.paren)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\"\n"
+      },
+      "expression": "str(sym.paren)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-parent-no-bare",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.paren)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "str(sym.trademark)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"™︎\"\n"
+      },
+      "expression": "str(sym.trademark)",
+      "features": [
+        "html"
+      ],
+      "id": "p1283-sym-vs15",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "str(sym.trademark)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"™︎\"\n"
+      },
+      "verdict": "MATCH"
+    }
+  ],
+  "schema_version": "p1282-probes-v1"
+}

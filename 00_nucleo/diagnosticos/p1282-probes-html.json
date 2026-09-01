@@ -1,0 +1,4802 @@
+{
+  "binaries": {
+    "crystalline": {
+      "path": "target/release/typst",
+      "sha256": "0a4d71415b4e3ba47ed9c50f08b612a61fd14e1e538790ea4e51245d3019ce3f"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  },
+  "counts": {
+    "different_or_disabled": 65,
+    "same": 55,
+    "total": 120
+  },
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "features": [
+    "html"
+  ],
+  "profile": "html",
+  "results": [
+    {
+      "access_form": "instance_method",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "(true, false).all(x => x)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "false\n"
+      },
+      "expression": "(true, false).all(x => x)",
+      "features": [
+        "html"
+      ],
+      "id": "canary-instance-array-all",
+      "profile": "html",
+      "profiles": [
+        "default",
+        "html"
+      ],
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "(true, false).all(x => x)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "false\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "access_form": "type_static_member",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "array.range(3)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: type array does not contain field \"range\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ array.range(3)\n  │ ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "array.range(3)",
+      "features": [
+        "html"
+      ],
+      "id": "canary-static-array-range",
+      "profile": "html",
+      "profiles": [
+        "default",
+        "html"
+      ],
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "array.range(3)",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "[0,1,2]\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr(type(html))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"module\"\n"
+      },
+      "expression": "repr(type(html))",
+      "features": [
+        "html"
+      ],
+      "id": "global-html",
+      "path": "html",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(html))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"module\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(linebreak), repr(linebreak)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"linebreak\\\")\"\n"
+      },
+      "expression": "repr((type(linebreak), repr(linebreak)))",
+      "features": [
+        "html"
+      ],
+      "id": "global-linebreak",
+      "path": "linebreak",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(linebreak), repr(linebreak)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"linebreak\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(page), repr(page)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"page\\\")\"\n"
+      },
+      "expression": "repr((type(page), repr(page)))",
+      "features": [
+        "html"
+      ],
+      "id": "global-page",
+      "path": "page",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(page), repr(page)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"page\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(parbreak), repr(parbreak)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"parbreak\\\")\"\n"
+      },
+      "expression": "repr((type(parbreak), repr(parbreak)))",
+      "features": [
+        "html"
+      ],
+      "id": "global-parbreak",
+      "path": "parbreak",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(parbreak), repr(parbreak)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"parbreak\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(path), repr(path)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"path\\\")\"\n"
+      },
+      "expression": "repr((type(path), repr(path)))",
+      "features": [
+        "html"
+      ],
+      "id": "global-path",
+      "path": "path",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(path), repr(path)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"path\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(decimal), repr(decimal)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"decimal\\\")\"\n"
+      },
+      "expression": "repr((type(decimal), repr(decimal)))",
+      "features": [
+        "html"
+      ],
+      "id": "kind-decimal",
+      "path": "decimal",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(decimal), repr(decimal)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"decimal\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(duration), repr(duration)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"duration\\\")\"\n"
+      },
+      "expression": "repr((type(duration), repr(duration)))",
+      "features": [
+        "html"
+      ],
+      "id": "kind-duration",
+      "path": "duration",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(duration), repr(duration)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"duration\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(label), repr(label)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"label\\\")\"\n"
+      },
+      "expression": "repr((type(label), repr(label)))",
+      "features": [
+        "html"
+      ],
+      "id": "kind-label",
+      "path": "label",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(label), repr(label)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"label\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(regex), repr(regex)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"regex\\\")\"\n"
+      },
+      "expression": "repr((type(regex), repr(regex)))",
+      "features": [
+        "html"
+      ],
+      "id": "kind-regex",
+      "path": "regex",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(regex), repr(regex)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"regex\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(selector), repr(selector)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"selector\\\")\"\n"
+      },
+      "expression": "repr((type(selector), repr(selector)))",
+      "features": [
+        "html"
+      ],
+      "id": "kind-selector",
+      "path": "selector",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(selector), repr(selector)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"selector\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(stroke), repr(stroke)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"stroke\\\")\"\n"
+      },
+      "expression": "repr((type(stroke), repr(stroke)))",
+      "features": [
+        "html"
+      ],
+      "id": "kind-stroke",
+      "path": "stroke",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(stroke), repr(stroke)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"stroke\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(tiling), repr(tiling)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"tiling\\\")\"\n"
+      },
+      "expression": "repr((type(tiling), repr(tiling)))",
+      "features": [
+        "html"
+      ],
+      "id": "kind-tiling",
+      "path": "tiling",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(tiling), repr(tiling)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"tiling\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(version), repr(version)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"version\\\")\"\n"
+      },
+      "expression": "repr((type(version), repr(version)))",
+      "features": [
+        "html"
+      ],
+      "id": "kind-version",
+      "path": "version",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(version), repr(version)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"version\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(array.all), repr(array.all)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"all\\\")\"\n"
+      },
+      "expression": "repr((type(array.all), repr(array.all)))",
+      "features": [
+        "html"
+      ],
+      "id": "member-array-all",
+      "path": "array.all",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(array.all), repr(array.all)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"all\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(color.black), repr(color.black)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(color, \\\"luma(0%)\\\")\"\n"
+      },
+      "expression": "repr((type(color.black), repr(color.black)))",
+      "features": [
+        "html"
+      ],
+      "id": "member-color-black",
+      "path": "color.black",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(color.black), repr(color.black)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(color, \\\"luma(0%)\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(content.fields), repr(content.fields)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"content.fields\\\")\"\n"
+      },
+      "expression": "repr((type(content.fields), repr(content.fields)))",
+      "features": [
+        "html"
+      ],
+      "id": "member-content-fields",
+      "path": "content.fields",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(content.fields), repr(content.fields)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"fields\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(counter.get), repr(counter.get)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"counter.get\\\")\"\n"
+      },
+      "expression": "repr((type(counter.get), repr(counter.get)))",
+      "features": [
+        "html"
+      ],
+      "id": "member-counter-get",
+      "path": "counter.get",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(counter.get), repr(counter.get)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"get\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(datetime.day), repr(datetime.day)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"day\\\")\"\n"
+      },
+      "expression": "repr((type(datetime.day), repr(datetime.day)))",
+      "features": [
+        "html"
+      ],
+      "id": "member-datetime-day",
+      "path": "datetime.day",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(datetime.day), repr(datetime.day)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"day\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(gradient.kind), repr(gradient.kind)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"kind\\\")\"\n"
+      },
+      "expression": "repr((type(gradient.kind), repr(gradient.kind)))",
+      "features": [
+        "html"
+      ],
+      "id": "member-gradient-kind",
+      "path": "gradient.kind",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(gradient.kind), repr(gradient.kind)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"kind\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(int.bit-and), repr(int.bit-and)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"bit-and\\\")\"\n"
+      },
+      "expression": "repr((type(int.bit-and), repr(int.bit-and)))",
+      "features": [
+        "html"
+      ],
+      "id": "member-int-bit-and",
+      "path": "int.bit-and",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(int.bit-and), repr(int.bit-and)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"bit-and\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'pdf' does not contain field \"data-cell\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │            ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "features": [
+        "html"
+      ],
+      "id": "member-pdf-data-cell",
+      "path": "pdf.data-cell",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │                ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(str.clusters), repr(str.clusters)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"clusters\\\")\"\n"
+      },
+      "expression": "repr((type(str.clusters), repr(str.clusters)))",
+      "features": [
+        "html"
+      ],
+      "id": "member-str-clusters",
+      "path": "str.clusters",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(str.clusters), repr(str.clusters)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"clusters\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(calc.abs), repr(calc.abs)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"calc.abs\\\")\"\n"
+      },
+      "expression": "repr((type(calc.abs), repr(calc.abs)))",
+      "features": [
+        "html"
+      ],
+      "id": "present-calc-abs",
+      "path": "calc.abs",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(calc.abs), repr(calc.abs)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"abs\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.heart), repr(emoji.heart)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\n  \\\\\\\"❤\\\\\\\\u{fe0f}\\\\\\\",\\\\n  (\\\\\\\"arrow\\\\\\\", \\\\\\\"💘\\\\\\\"),\\\\n  (\\\\\\\"beat\\\\\\\", \\\\\\\"💓\\\\\\\"),\\\\n  (\\\\\\\"black\\\\\\\", \\\\\\\"🖤\\\\\\\"),\\\\n  (\\\\\\\"blue\\\\\\\", \\\\\\\"💙\\\\\\\"),\\\\n  (\\\\\\\"box\\\\\\\", \\\\\\\"💟\\\\\\\"),\\\\n  (\\\\\\\"broken\\\\\\\", \\\\\\\"💔\\\\\\\"),\\\\n  (\\\\\\\"brown\\\\\\\", \\\\\\\"🤎\\\\\\\"),\\\\n  (\\\\\\\"double\\\\\\\", \\\\\\\"💕\\\\\\\"),\\\\n  (\\\\\\\"excl\\\\\\\", \\\\\\\"❣\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"gray\\\\\\\", \\\\\\\"🩶\\\\\\\"),\\\\n  (\\\\\\\"green\\\\\\\", \\\\\\\"💚\\\\\\\"),\\\\n  (\\\\\\\"grow\\\\\\\", \\\\\\\"💗\\\\\\\"),\\\\n  (\\\\\\\"lightblue\\\\\\\", \\\\\\\"🩵\\\\\\\"),\\\\n  (\\\\\\\"orange\\\\\\\", \\\\\\\"🧡\\\\\\\"),\\\\n  (\\\\\\\"pink\\\\\\\", \\\\\\\"🩷\\\\\\\"),\\\\n  (\\\\\\\"purple\\\\\\\", \\\\\\\"💜\\\\\\\"),\\\\n  (\\\\\\\"real\\\\\\\", \\\\\\\"🫀\\\\\\\"),\\\\n  (\\\\\\\"revolve\\\\\\\", \\\\\\\"💞\\\\\\\"),\\\\n  (\\\\\\\"ribbon\\\\\\\", \\\\\\\"💝\\\\\\\"),\\\\n  (\\\\\\\"spark\\\\\\\", \\\\\\\"💖\\\\\\\"),\\\\n  (\\\\\\\"white\\\\\\\", \\\\\\\"🤍\\\\\\\"),\\\\n  (\\\\\\\"yellow\\\\\\\", \\\\\\\"💛\\\\\\\"),\\\\n)\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.heart), repr(emoji.heart)))",
+      "features": [
+        "html"
+      ],
+      "id": "present-emoji-heart",
+      "path": "emoji.heart",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.heart), repr(emoji.heart)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  \\\\\\\"❤\\\\\\\\u{fe0f}\\\\\\\",\\\\n  (\\\\\\\"arrow\\\\\\\", \\\\\\\"💘\\\\\\\"),\\\\n  (\\\\\\\"beat\\\\\\\", \\\\\\\"💓\\\\\\\"),\\\\n  (\\\\\\\"black\\\\\\\", \\\\\\\"🖤\\\\\\\"),\\\\n  (\\\\\\\"blue\\\\\\\", \\\\\\\"💙\\\\\\\"),\\\\n  (\\\\\\\"box\\\\\\\", \\\\\\\"💟\\\\\\\"),\\\\n  (\\\\\\\"broken\\\\\\\", \\\\\\\"💔\\\\\\\"),\\\\n  (\\\\\\\"brown\\\\\\\", \\\\\\\"🤎\\\\\\\"),\\\\n  (\\\\\\\"double\\\\\\\", \\\\\\\"💕\\\\\\\"),\\\\n  (\\\\\\\"excl\\\\\\\", \\\\\\\"❣\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"gray\\\\\\\", \\\\\\\"🩶\\\\\\\"),\\\\n  (\\\\\\\"green\\\\\\\", \\\\\\\"💚\\\\\\\"),\\\\n  (\\\\\\\"grow\\\\\\\", \\\\\\\"💗\\\\\\\"),\\\\n  (\\\\\\\"lightblue\\\\\\\", \\\\\\\"🩵\\\\\\\"),\\\\n  (\\\\\\\"orange\\\\\\\", \\\\\\\"🧡\\\\\\\"),\\\\n  (\\\\\\\"pink\\\\\\\", \\\\\\\"🩷\\\\\\\"),\\\\n  (\\\\\\\"purple\\\\\\\", \\\\\\\"💜\\\\\\\"),\\\\n  (\\\\\\\"real\\\\\\\", \\\\\\\"🫀\\\\\\\"),\\\\n  (\\\\\\\"revolve\\\\\\\", \\\\\\\"💞\\\\\\\"),\\\\n  (\\\\\\\"ribbon\\\\\\\", \\\\\\\"💝\\\\\\\"),\\\\n  (\\\\\\\"spark\\\\\\\", \\\\\\\"💖\\\\\\\"),\\\\n  (\\\\\\\"white\\\\\\\", \\\\\\\"🤍\\\\\\\"),\\\\n  (\\\\\\\"yellow\\\\\\\", \\\\\\\"💛\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.sum), repr(math.sum)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"∑\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(math.sum), repr(math.sum)))",
+      "features": [
+        "html"
+      ],
+      "id": "present-math-sum",
+      "path": "math.sum",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.sum), repr(math.sum)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"∑\\\\\\\", (\\\\\\\"integral\\\\\\\", \\\\\\\"⨋\\\\\\\"))\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.arrow), repr(sym.arrow)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\n  \\\\\\\"→\\\\\\\",\\\\n  (\\\\\\\"long.bar\\\\\\\", \\\\\\\"⟼\\\\\\\"),\\\\n  (\\\\\\\"bar\\\\\\\", \\\\\\\"↦\\\\\\\"),\\\\n  (\\\\\\\"curve\\\\\\\", \\\\\\\"⤷\\\\\\\"),\\\\n  (\\\\\\\"turn\\\\\\\", \\\\\\\"⮎\\\\\\\"),\\\\n  (\\\\\\\"dashed\\\\\\\", \\\\\\\"⇢\\\\\\\"),\\\\n  (\\\\\\\"dotted\\\\\\\", \\\\\\\"⤑\\\\\\\"),\\\\n  (\\\\\\\"double\\\\\\\", \\\\\\\"⇒\\\\\\\"),\\\\n  (\\\\\\\"double.bar\\\\\\\", \\\\\\\"⤇\\\\\\\"),\\\\n  (\\\\\\\"double.long\\\\\\\", \\\\\\\"⟹\\\\\\\"),\\\\n  (\\\\\\\"double.long.bar\\\\\\\", \\\\\\\"⟾\\\\\\\"),\\\\n  (\\\\\\\"double.not\\\\\\\", \\\\\\\"⇏\\\\\\\"),\\\\n  (\\\\\\\"double.struck\\\\\\\", \\\\\\\"⤃\\\\\\\"),\\\\n  (\\\\\\\"filled\\\\\\\", \\\\\\\"➡\\\\\\\"),\\\\n  (\\\\\\\"hook\\\\\\\", \\\\\\\"↪\\\\\\\"),\\\\n  (\\\\\\\"long\\\\\\\", \\\\\\\"⟶\\\\\\\"),\\\\n  (\\\\\\\"r\\\\\\\", \\\\\\\"→\\\\\\\"),\\\\n  (\\\\\\\"r.filled\\\\\\\", \\\\\\\"➡\\\\\\\"),\\\\n  (\\\\\\\"long.squiggly\\\\\\\", \\\\\\\"⟿\\\\\\\"),\\\\n  (\\\\\\\"loop\\\\\\\", \\\\\\\"↬\\\\\\\"),\\\\n  (\\\\\\\"not\\\\\\\", \\\\\\\"↛\\\\\\\"),\\\\n  (\\\\\\\"quad\\\\\\\", \\\\\\\"⭆\\\\\\\"),\\\\n  (\\\\\\\"squiggly\\\\\\\", \\\\\\\"⇝\\\\\\\"),\\\\n  (\\\\\\\"stop\\\\\\\", \\\\\\\"⇥\\\\\\\"),\\\\n  (\\\\\\\"stroked\\\\\\\", \\\\\\\"⇨\\\\\\\"),\\\\n  (\\\\\\\"struck\\\\\\\", \\\\\\\"⇸\\\\\\\"),\\\\n  (\\\\\\\"dstruck\\\\\\\", \\\\\\\"⇻\\\\\\\"),\\\\n  (\\\\\\\"tail\\\\\\\", \\\\\\\"↣\\\\\\\"),\\\\n  (\\\\\\\"tail.struck\\\\\\\", \\\\\\\"⤔\\\\\\\"),\\\\n  (\\\\\\\"tail.dstruck\\\\\\\", \\\\\\\"⤕\\\\\\\"),\\\\n  (\\\\\\\"tilde\\\\\\\", \\\\\\\"⥲\\\\\\\"),\\\\n  (\\\\\\\"triple\\\\\\\", \\\\\\\"⇛\\\\\\\"),\\\\n  (\\\\\\\"twohead\\\\\\\", \\\\\\\"↠\\\\\\\"),\\\\n  (\\\\\\\"twohead.bar\\\\\\\", \\\\\\\"⤅\\\\\\\"),\\\\n  (\\\\\\\"twohead.struck\\\\\\\", \\\\\\\"⤀\\\\\\\"),\\\\n  (\\\\\\\"twohead.dstruck\\\\\\\", \\\\\\\"⤁\\\\\\\"),\\\\n  (\\\\\\\"twohead.tail\\\\\\\", \\\\\\\"⤖\\\\\\\"),\\\\n  (\\\\\\\"twohead.tail.struck\\\\\\\", \\\\\\\"⤗\\\\\\\"),\\\\n  (\\\\\\\"twohead.tail.dstruck\\\\\\\", \\\\\\\"⤘\\\\\\\"),\\\\n  (\\\\\\\"open\\\\\\\", \\\\\\\"⇾\\\\\\\"),\\\\n  (\\\\\\\"wave\\\\\\\", \\\\\\\"↝\\\\\\\"),\\\\n  (\\\\\\\"l\\\\\\\", \\\\\\\"←\\\\\\\"),\\\\n  (\\\\\\\"l.double\\\\\\\", \\\\\\\"⇔\\\\\\\"),\\\\n  (\\\\\\\"l.double.long\\\\\\\", \\\\\\\"⟺\\\\\\\"),\\\\n  (\\\\\\\"l.double.not\\\\\\\", \\\\\\\"⇎\\\\\\\"),\\\\n  (\\\\\\\"l.double.struck\\\\\\\", \\\\\\\"⤄\\\\\\\"),\\\\n  (\\\\\\\"l.filled\\\\\\\", \\\\\\\"⬌\\\\\\\"),\\\\n  (\\\\\\\"l.long\\\\\\\", \\\\\\\"⟷\\\\\\\"),\\\\n  (\\\\\\\"l.not\\\\\\\", \\\\\\\"↮\\\\\\\"),\\\\n  (\\\\\\\"l.stroked\\\\\\\", \\\\\\\"⬄\\\\\\\"),\\\\n  (\\\\\\\"l.struck\\\\\\\", \\\\\\\"⇹\\\\\\\"),\\\\n  (\\\\\\\"l.dstruck\\\\\\\", \\\\\\\"⇼\\\\\\\"),\\\\n  (\\\\\\\"l.open\\\\\\\", \\\\\\\"⇿\\\\\\\"),\\\\n  (\\\\\\\"l.wave\\\\\\\", \\\\\\\"↭\\\\\\\"),\\\\n)\\\")\"\n"
+      },
+      "expression": "repr((type(sym.arrow), repr(sym.arrow)))",
+      "features": [
+        "html"
+      ],
+      "id": "present-sym-arrow",
+      "path": "sym.arrow",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.arrow), repr(sym.arrow)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  (\\\\\\\"r\\\\\\\", \\\\\\\"→\\\\\\\"),\\\\n  (\\\\\\\"r.long.bar\\\\\\\", \\\\\\\"⟼\\\\\\\"),\\\\n  (\\\\\\\"r.bar\\\\\\\", \\\\\\\"↦\\\\\\\"),\\\\n  (\\\\\\\"r.curve\\\\\\\", \\\\\\\"⤷\\\\\\\"),\\\\n  (\\\\\\\"r.turn\\\\\\\", \\\\\\\"⮎\\\\\\\"),\\\\n  (\\\\\\\"r.dashed\\\\\\\", \\\\\\\"⇢\\\\\\\"),\\\\n  (\\\\\\\"r.dotted\\\\\\\", \\\\\\\"⤑\\\\\\\"),\\\\n  (\\\\\\\"r.double\\\\\\\", \\\\\\\"⇒\\\\\\\"),\\\\n  (\\\\\\\"r.double.bar\\\\\\\", \\\\\\\"⤇\\\\\\\"),\\\\n  (\\\\\\\"r.double.long\\\\\\\", \\\\\\\"⟹\\\\\\\"),\\\\n  (\\\\\\\"r.double.long.bar\\\\\\\", \\\\\\\"⟾\\\\\\\"),\\\\n  (\\\\\\\"r.double.not\\\\\\\", \\\\\\\"⇏\\\\\\\"),\\\\n  (\\\\\\\"r.double.struck\\\\\\\", \\\\\\\"⤃\\\\\\\"),\\\\n  (\\\\\\\"r.filled\\\\\\\", \\\\\\\"➡\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"r.hook\\\\\\\", \\\\\\\"↪\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"r.long\\\\\\\", \\\\\\\"⟶\\\\\\\"),\\\\n  (\\\\\\\"r.long.squiggly\\\\\\\", \\\\\\\"⟿\\\\\\\"),\\\\n  (\\\\\\\"r.loop\\\\\\\", \\\\\\\"↬\\\\\\\"),\\\\n  (\\\\\\\"r.not\\\\\\\", \\\\\\\"↛\\\\\\\"),\\\\n  (\\\\\\\"r.quad\\\\\\\", \\\\\\\"⭆\\\\\\\"),\\\\n  (\\\\\\\"r.squiggly\\\\\\\", \\\\\\\"⇝\\\\\\\"),\\\\n  (\\\\\\\"r.stop\\\\\\\", \\\\\\\"⇥\\\\\\\"),\\\\n  (\\\\\\\"r.stroked\\\\\\\", \\\\\\\"⇨\\\\\\\"),\\\\n  (\\\\\\\"r.struck\\\\\\\", \\\\\\\"⇸\\\\\\\"),\\\\n  (\\\\\\\"r.dstruck\\\\\\\", \\\\\\\"⇻\\\\\\\"),\\\\n  (\\\\\\\"r.tail\\\\\\\", \\\\\\\"↣\\\\\\\"),\\\\n  (\\\\\\\"r.tail.struck\\\\\\\", \\\\\\\"⤔\\\\\\\"),\\\\n  (\\\\\\\"r.tail.dstruck\\\\\\\", \\\\\\\"⤕\\\\\\\"),\\\\n  (\\\\\\\"r.tilde\\\\\\\", \\\\\\\"⥲\\\\\\\"),\\\\n  (\\\\\\\"r.triple\\\\\\\", \\\\\\\"⇛\\\\\\\"),\\\\n  (\\\\\\\"r.twohead\\\\\\\", \\\\\\\"↠\\\\\\\"),\\\\n  (\\\\\\\"r.twohead.bar\\\\\\\", \\\\\\\"⤅\\\\\\\"),\\\\n  (\\\\\\\"r.twohead.struck\\\\\\\", \\\\\\\"⤀\\\\\\\"),\\\\n  (\\\\\\\"r.twohead.dstruck\\\\\\\", \\\\\\\"⤁\\\\\\\"),\\\\n  (\\\\\\\"r.twohead.tail\\\\\\\", \\\\\\\"⤖\\\\\\\"),\\\\n  (\\\\\\\"r.twohead.tail.struck\\\\\\\", \\\\\\\"⤗\\\\\\\"),\\\\n  (\\\\\\\"r.twohead.tail.dstruck\\\\\\\", \\\\\\\"⤘\\\\\\\"),\\\\n  (\\\\\\\"r.open\\\\\\\", \\\\\\\"⇾\\\\\\\"),\\\\n  (\\\\\\\"r.wave\\\\\\\", \\\\\\\"↝\\\\\\\"),\\\\n  (\\\\\\\"l\\\\\\\", \\\\\\\"←\\\\\\\"),\\\\n  (\\\\\\\"l.bar\\\\\\\", \\\\\\\"↤\\\\\\\"),\\\\n  (\\\\\\\"l.curve\\\\\\\", \\\\\\\"⤶\\\\\\\"),\\\\n  (\\\\\\\"l.turn\\\\\\\", \\\\\\\"⮌\\\\\\\"),\\\\n  (\\\\\\\"l.dashed\\\\\\\", \\\\\\\"⇠\\\\\\\"),\\\\n  (\\\\\\\"l.dotted\\\\\\\", \\\\\\\"⬸\\\\\\\"),\\\\n  (\\\\\\\"l.double\\\\\\\", \\\\\\\"⇐\\\\\\\"),\\\\n  (\\\\\\\"l.double.bar\\\\\\\", \\\\\\\"⤆\\\\\\\"),\\\\n  (\\\\\\\"l.double.long\\\\\\\", \\\\\\\"⟸\\\\\\\"),\\\\n  (\\\\\\\"l.double.long.bar\\\\\\\", \\\\\\\"⟽\\\\\\\"),\\\\n  (\\\\\\\"l.double.not\\\\\\\", \\\\\\\"⇍\\\\\\\"),\\\\n  (\\\\\\\"l.double.struck\\\\\\\", \\\\\\\"⤂\\\\\\\"),\\\\n  (\\\\\\\"l.filled\\\\\\\", \\\\\\\"⬅\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"l.hook\\\\\\\", \\\\\\\"↩\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"l.long\\\\\\\", \\\\\\\"⟵\\\\\\\"),\\\\n  (\\\\\\\"l.long.bar\\\\\\\", \\\\\\\"⟻\\\\\\\"),\\\\n  (\\\\\\\"l.long.squiggly\\\\\\\", \\\\\\\"⬳\\\\\\\"),\\\\n  (\\\\\\\"l.loop\\\\\\\", \\\\\\\"↫\\\\\\\"),\\\\n  (\\\\\\\"l.not\\\\\\\", \\\\\\\"↚\\\\\\\"),\\\\n  (\\\\\\\"l.quad\\\\\\\", \\\\\\\"⭅\\\\\\\"),\\\\n  (\\\\\\\"l.squiggly\\\\\\\", \\\\\\\"⇜\\\\\\\"),\\\\n  (\\\\\\\"l.stop\\\\\\\", \\\\\\\"⇤\\\\\\\"),\\\\n  (\\\\\\\"l.stroked\\\\\\\", \\\\\\\"⇦\\\\\\\"),\\\\n  (\\\\\\\"l.struck\\\\\\\", \\\\\\\"⇷\\\\\\\"),\\\\n  (\\\\\\\"l.dstruck\\\\\\\", \\\\\\\"⇺\\\\\\\"),\\\\n  (\\\\\\\"l.tail\\\\\\\", \\\\\\\"↢\\\\\\\"),\\\\n  (\\\\\\\"l.tail.struck\\\\\\\", \\\\\\\"⬹\\\\\\\"),\\\\n  (\\\\\\\"l.tail.dstruck\\\\\\\", \\\\\\\"⬺\\\\\\\"),\\\\n  (\\\\\\\"l.tilde\\\\\\\", \\\\\\\"⭉\\\\\\\"),\\\\n  (\\\\\\\"l.triple\\\\\\\", \\\\\\\"⇚\\\\\\\"),\\\\n  (\\\\\\\"l.twohead\\\\\\\", \\\\\\\"↞\\\\\\\"),\\\\n  (\\\\\\\"l.twohead.bar\\\\\\\", \\\\\\\"⬶\\\\\\\"),\\\\n  (\\\\\\\"l.twohead.struck\\\\\\\", \\\\\\\"⬴\\\\\\\"),\\\\n  (\\\\\\\"l.twohead.dstruck\\\\\\\", \\\\\\\"⬵\\\\\\\"),\\\\n  (\\\\\\\"l.twohead.tail\\\\\\\", \\\\\\\"⬻\\\\\\\"),\\\\n  (\\\\\\\"l.twohead.tail.struck\\\\\\\", \\\\\\\"⬼\\\\\\\"),\\\\n  (\\\\\\\"l.twohead.tail.dstruck\\\\\\\", \\\\\\\"⬽\\\\\\\"),\\\\n  (\\\\\\\"l.open\\\\\\\", \\\\\\\"⇽\\\\\\\"),\\\\n  (\\\\\\\"l.wave\\\\\\\", \\\\\\\"↜\\\\\\\"),\\\\n  (\\\\\\\"t\\\\\\\", \\\\\\\"↑\\\\\\\"),\\\\n  (\\\\\\\"t.bar\\\\\\\", \\\\\\\"↥\\\\\\\"),\\\\n  (\\\\\\\"t.curve\\\\\\\", \\\\\\\"⤴\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"t.turn\\\\\\\", \\\\\\\"⮍\\\\\\\"),\\\\n  (\\\\\\\"t.dashed\\\\\\\", \\\\\\\"⇡\\\\\\\"),\\\\n  (\\\\\\\"t.double\\\\\\\", \\\\\\\"⇑\\\\\\\"),\\\\n  (\\\\\\\"t.filled\\\\\\\", \\\\\\\"⬆\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"t.quad\\\\\\\", \\\\\\\"⟰\\\\\\\"),\\\\n  (\\\\\\\"t.stop\\\\\\\", \\\\\\\"⤒\\\\\\\"),\\\\n  (\\\\\\\"t.stroked\\\\\\\", \\\\\\\"⇧\\\\\\\"),\\\\n  (\\\\\\\"t.struck\\\\\\\", \\\\\\\"⤉\\\\\\\"),\\\\n  (\\\\\\\"t.dstruck\\\\\\\", \\\\\\\"⇞\\\\\\\"),\\\\n  (\\\\\\\"t.triple\\\\\\\", \\\\\\\"⤊\\\\\\\"),\\\\n  (\\\\\\\"t.twohead\\\\\\\", \\\\\\\"↟\\\\\\\"),\\\\n  (\\\\\\\"b\\\\\\\", \\\\\\\"↓\\\\\\\"),\\\\n  (\\\\\\\"b.bar\\\\\\\", \\\\\\\"↧\\\\\\\"),\\\\n  (\\\\\\\"b.curve\\\\\\\", \\\\\\\"⤵\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"b.turn\\\\\\\", \\\\\\\"⮏\\\\\\\"),\\\\n  (\\\\\\\"b.dashed\\\\\\\", \\\\\\\"⇣\\\\\\\"),\\\\n  (\\\\\\\"b.double\\\\\\\", \\\\\\\"⇓\\\\\\\"),\\\\n  (\\\\\\\"b.filled\\\\\\\", \\\\\\\"⬇\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"b.quad\\\\\\\", \\\\\\\"⟱\\\\\\\"),\\\\n  (\\\\\\\"b.stop\\\\\\\", \\\\\\\"⤓\\\\\\\"),\\\\n  (\\\\\\\"b.stroked\\\\\\\", \\\\\\\"⇩\\\\\\\"),\\\\n  (\\\\\\\"b.struck\\\\\\\", \\\\\\\"⤈\\\\\\\"),\\\\n  (\\\\\\\"b.dstruck\\\\\\\", \\\\\\\"⇟\\\\\\\"),\\\\n  (\\\\\\\"b.triple\\\\\\\", \\\\\\\"⤋\\\\\\\"),\\\\n  (\\\\\\\"b.twohead\\\\\\\", \\\\\\\"↡\\\\\\\"),\\\\n  (\\\\\\\"l.r\\\\\\\", \\\\\\\"↔\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"l.r.double\\\\\\\", \\\\\\\"⇔\\\\\\\"),\\\\n  (\\\\\\\"l.r.double.long\\\\\\\", \\\\\\\"⟺\\\\\\\"),\\\\n  (\\\\\\\"l.r.double.not\\\\\\\", \\\\\\\"⇎\\\\\\\"),\\\\n  (\\\\\\\"l.r.double.struck\\\\\\\", \\\\\\\"⤄\\\\\\\"),\\\\n  (\\\\\\\"l.r.filled\\\\\\\", \\\\\\\"⬌\\\\\\\"),\\\\n  (\\\\\\\"l.r.long\\\\\\\", \\\\\\\"⟷\\\\\\\"),\\\\n  (\\\\\\\"l.r.not\\\\\\\", \\\\\\\"↮\\\\\\\"),\\\\n  (\\\\\\\"l.r.stroked\\\\\\\", \\\\\\\"⬄\\\\\\\"),\\\\n  (\\\\\\\"l.r.struck\\\\\\\", \\\\\\\"⇹\\\\\\\"),\\\\n  (\\\\\\\"l.r.dstruck\\\\\\\", \\\\\\\"⇼\\\\\\\"),\\\\n  (\\\\\\\"l.r.open\\\\\\\", \\\\\\\"⇿\\\\\\\"),\\\\n  (\\\\\\\"l.r.wave\\\\\\\", \\\\\\\"↭\\\\\\\"),\\\\n  (\\\\\\\"t.b\\\\\\\", \\\\\\\"↕\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"t.b.double\\\\\\\", \\\\\\\"⇕\\\\\\\"),\\\\n  (\\\\\\\"t.b.filled\\\\\\\", \\\\\\\"⬍\\\\\\\"),\\\\n  (\\\\\\\"t.b.stroked\\\\\\\", \\\\\\\"⇳\\\\\\\"),\\\\n  (\\\\\\\"tr\\\\\\\", \\\\\\\"↗\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"tr.bar\\\\\\\", \\\\\\\"🢹\\\\\\\"),\\\\n  (\\\\\\\"tr.double\\\\\\\", \\\\\\\"⇗\\\\\\\"),\\\\n  (\\\\\\\"tr.filled\\\\\\\", \\\\\\\"⬈\\\\\\\"),\\\\n  (\\\\\\\"tr.hook\\\\\\\", \\\\\\\"⤤\\\\\\\"),\\\\n  (\\\\\\\"tr.stroked\\\\\\\", \\\\\\\"⬀\\\\\\\"),\\\\n  (\\\\\\\"br\\\\\\\", \\\\\\\"↘\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"br.bar\\\\\\\", \\\\\\\"🢺\\\\\\\"),\\\\n  (\\\\\\\"br.double\\\\\\\", \\\\\\\"⇘\\\\\\\"),\\\\n  (\\\\\\\"br.filled\\\\\\\", \\\\\\\"⬊\\\\\\\"),\\\\n  (\\\\\\\"br.hook\\\\\\\", \\\\\\\"⤥\\\\\\\"),\\\\n  (\\\\\\\"br.stroked\\\\\\\", \\\\\\\"⬂\\\\\\\"),\\\\n  (\\\\\\\"tl\\\\\\\", \\\\\\\"↖\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"tl.bar\\\\\\\", \\\\\\\"🢸\\\\\\\"),\\\\n  (\\\\\\\"tl.double\\\\\\\", \\\\\\\"⇖\\\\\\\"),\\\\n  (\\\\\\\"tl.filled\\\\\\\", \\\\\\\"⬉\\\\\\\"),\\\\n  (\\\\\\\"tl.hook\\\\\\\", \\\\\\\"⤣\\\\\\\"),\\\\n  (\\\\\\\"tl.stroked\\\\\\\", \\\\\\\"⬁\\\\\\\"),\\\\n  (\\\\\\\"bl\\\\\\\", \\\\\\\"↙\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"bl.bar\\\\\\\", \\\\\\\"🢻\\\\\\\"),\\\\n  (\\\\\\\"bl.double\\\\\\\", \\\\\\\"⇙\\\\\\\"),\\\\n  (\\\\\\\"bl.filled\\\\\\\", \\\\\\\"⬋\\\\\\\"),\\\\n  (\\\\\\\"bl.hook\\\\\\\", \\\\\\\"⤦\\\\\\\"),\\\\n  (\\\\\\\"bl.stroked\\\\\\\", \\\\\\\"⬃\\\\\\\"),\\\\n  (\\\\\\\"tl.br\\\\\\\", \\\\\\\"⤡\\\\\\\"),\\\\n  (\\\\\\\"tr.bl\\\\\\\", \\\\\\\"⤢\\\\\\\"),\\\\n  (\\\\\\\"ccw\\\\\\\", \\\\\\\"↺\\\\\\\"),\\\\n  (\\\\\\\"ccw.half\\\\\\\", \\\\\\\"↶\\\\\\\"),\\\\n  (\\\\\\\"cw\\\\\\\", \\\\\\\"↻\\\\\\\"),\\\\n  (\\\\\\\"cw.half\\\\\\\", \\\\\\\"↷\\\\\\\"),\\\\n  (\\\\\\\"zigzag\\\\\\\", \\\\\\\"↯\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(accent), repr(accent)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"accent\\\")\"\n"
+      },
+      "expression": "repr((type(accent), repr(accent)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-accent",
+      "path": "accent",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(accent), repr(accent)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `accent`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(accent), repr(accent)))\n  │            ^^^^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(cal), repr(cal)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"cal\\\")\"\n"
+      },
+      "expression": "repr((type(cal), repr(cal)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-cal",
+      "path": "cal",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(cal), repr(cal)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `cal`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(cal), repr(cal)))\n  │            ^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(frak), repr(frak)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"frak\\\")\"\n"
+      },
+      "expression": "repr((type(frak), repr(frak)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-frak",
+      "path": "frak",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(frak), repr(frak)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `frak`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(frak), repr(frak)))\n  │            ^^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(grid_footer), repr(grid_footer)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"grid_footer\\\")\"\n"
+      },
+      "expression": "repr((type(grid_footer), repr(grid_footer)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-grid_footer",
+      "path": "grid_footer",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(grid_footer), repr(grid_footer)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `grid_footer`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(grid_footer), repr(grid_footer)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(grid_header), repr(grid_header)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"grid_header\\\")\"\n"
+      },
+      "expression": "repr((type(grid_header), repr(grid_header)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-grid_header",
+      "path": "grid_header",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(grid_header), repr(grid_header)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `grid_header`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(grid_header), repr(grid_header)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(inline), repr(inline)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"inline\\\")\"\n"
+      },
+      "expression": "repr((type(inline), repr(inline)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-inline",
+      "path": "inline",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(inline), repr(inline)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `inline`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(inline), repr(inline)))\n  │            ^^^^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(lot), repr(lot)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"lot\\\")\"\n"
+      },
+      "expression": "repr((type(lot), repr(lot)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-lot",
+      "path": "lot",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(lot), repr(lot)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `lot`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(lot), repr(lot)))\n  │            ^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(state_at), repr(state_at)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"state_at\\\")\"\n"
+      },
+      "expression": "repr((type(state_at), repr(state_at)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-state_at",
+      "path": "state_at",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(state_at), repr(state_at)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `state_at`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(state_at), repr(state_at)))\n  │            ^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(table_header), repr(table_header)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"table_header\\\")\"\n"
+      },
+      "expression": "repr((type(table_header), repr(table_header)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-table_header",
+      "path": "table_header",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(table_header), repr(table_header)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `table_header`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(table_header), repr(table_header)))\n  │            ^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "EXTRA_BINDING",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(underover), repr(underover)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"underover\\\")\"\n"
+      },
+      "expression": "repr((type(underover), repr(underover)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-extra_binding-underover",
+      "path": "underover",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(underover), repr(underover)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: unknown variable `underover`\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(underover), repr(underover)))\n  │            ^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(content), repr(content)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"content\\\")\"\n"
+      },
+      "expression": "repr((type(content), repr(content)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-content",
+      "path": "content",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(content), repr(content)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"content\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(direction), repr(direction)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"direction\\\")\"\n"
+      },
+      "expression": "repr((type(direction), repr(direction)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-direction",
+      "path": "direction",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(direction), repr(direction)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(type, \\\"direction\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.brick), repr(emoji.brick)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🧱\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.brick), repr(emoji.brick)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.brick",
+      "path": "emoji.brick",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.brick), repr(emoji.brick)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🧱\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.bug), repr(emoji.bug)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🐛\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.bug), repr(emoji.bug)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.bug",
+      "path": "emoji.bug",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.bug), repr(emoji.bug)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🐛\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.cl), repr(emoji.cl)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🆑\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.cl), repr(emoji.cl)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.cl",
+      "path": "emoji.cl",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.cl), repr(emoji.cl)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🆑\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.cooking), repr(emoji.cooking)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🍳\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.cooking), repr(emoji.cooking)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.cooking",
+      "path": "emoji.cooking",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.cooking), repr(emoji.cooking)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🍳\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.curling), repr(emoji.curling)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🥌\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.curling), repr(emoji.curling)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.curling",
+      "path": "emoji.curling",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.curling), repr(emoji.curling)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🥌\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.curry), repr(emoji.curry)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🍛\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.curry), repr(emoji.curry)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.curry",
+      "path": "emoji.curry",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.curry), repr(emoji.curry)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🍛\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.egg), repr(emoji.egg)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🥚\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.egg), repr(emoji.egg)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.egg",
+      "path": "emoji.egg",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.egg), repr(emoji.egg)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🥚\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.fishing), repr(emoji.fishing)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🎣\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.fishing), repr(emoji.fishing)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.fishing",
+      "path": "emoji.fishing",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.fishing), repr(emoji.fishing)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🎣\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.hundred), repr(emoji.hundred)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"💯\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.hundred), repr(emoji.hundred)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.hundred",
+      "path": "emoji.hundred",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.hundred), repr(emoji.hundred)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"💯\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.merperson), repr(emoji.merperson)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🧜\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.merperson), repr(emoji.merperson)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.merperson",
+      "path": "emoji.merperson",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.merperson), repr(emoji.merperson)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🧜\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.parachute), repr(emoji.parachute)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🪂\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.parachute), repr(emoji.parachute)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.parachute",
+      "path": "emoji.parachute",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.parachute), repr(emoji.parachute)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🪂\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.powerplug), repr(emoji.powerplug)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🔌\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.powerplug), repr(emoji.powerplug)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.powerplug",
+      "path": "emoji.powerplug",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.powerplug), repr(emoji.powerplug)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🔌\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.rainbow), repr(emoji.rainbow)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🌈\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.rainbow), repr(emoji.rainbow)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.rainbow",
+      "path": "emoji.rainbow",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.rainbow), repr(emoji.rainbow)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🌈\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.screwdriver), repr(emoji.screwdriver)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🪛\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.screwdriver), repr(emoji.screwdriver)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.screwdriver",
+      "path": "emoji.screwdriver",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.screwdriver), repr(emoji.screwdriver)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🪛\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.sled), repr(emoji.sled)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🛷\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.sled), repr(emoji.sled)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.sled",
+      "path": "emoji.sled",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.sled), repr(emoji.sled)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🛷\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.spoon), repr(emoji.spoon)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🥄\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.spoon), repr(emoji.spoon)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.spoon",
+      "path": "emoji.spoon",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.spoon), repr(emoji.spoon)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🥄\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.taco), repr(emoji.taco)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🌮\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.taco), repr(emoji.taco)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.taco",
+      "path": "emoji.taco",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.taco), repr(emoji.taco)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🌮\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.vs), repr(emoji.vs)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🆚\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.vs), repr(emoji.vs)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-emoji.vs",
+      "path": "emoji.vs",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.vs), repr(emoji.vs)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🆚\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.bowtie), repr(math.bowtie)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\n  (\\\\\\\"stroked\\\\\\\", \\\\\\\"⋈\\\\\\\"),\\\\n  (\\\\\\\"stroked.big\\\\\\\", \\\\\\\"⨝\\\\\\\"),\\\\n  (\\\\\\\"stroked.big.l\\\\\\\", \\\\\\\"⟕\\\\\\\"),\\\\n  (\\\\\\\"stroked.big.r\\\\\\\", \\\\\\\"⟖\\\\\\\"),\\\\n  (\\\\\\\"stroked.big.l.r\\\\\\\", \\\\\\\"⟗\\\\\\\"),\\\\n  (\\\\\\\"filled\\\\\\\", \\\\\\\"⧓\\\\\\\"),\\\\n  (\\\\\\\"filled.l\\\\\\\", \\\\\\\"⧑\\\\\\\"),\\\\n  (\\\\\\\"filled.r\\\\\\\", \\\\\\\"⧒\\\\\\\"),\\\\n)\\\")\"\n"
+      },
+      "expression": "repr((type(math.bowtie), repr(math.bowtie)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-math.bowtie",
+      "path": "math.bowtie",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.bowtie), repr(math.bowtie)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  (\\\\\\\"stroked\\\\\\\", \\\\\\\"⋈\\\\\\\"),\\\\n  (\\\\\\\"stroked.big\\\\\\\", \\\\\\\"⨝\\\\\\\"),\\\\n  (\\\\\\\"stroked.big.l\\\\\\\", \\\\\\\"⟕\\\\\\\"),\\\\n  (\\\\\\\"stroked.big.r\\\\\\\", \\\\\\\"⟖\\\\\\\"),\\\\n  (\\\\\\\"stroked.big.l.r\\\\\\\", \\\\\\\"⟗\\\\\\\"),\\\\n  (\\\\\\\"filled\\\\\\\", \\\\\\\"⧓\\\\\\\"),\\\\n  (\\\\\\\"filled.l\\\\\\\", \\\\\\\"⧑\\\\\\\"),\\\\n  (\\\\\\\"filled.r\\\\\\\", \\\\\\\"⧒\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.csch), repr(math.csch)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(content, \\\"op([csch])\\\")\"\n"
+      },
+      "expression": "repr((type(math.csch), repr(math.csch)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-math.csch",
+      "path": "math.csch",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.csch), repr(math.csch)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(content, \\\"op(text: [csch], limits: false)\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.quad), repr(math.quad)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(content, \\\"h(amount: 1em)\\\")\"\n"
+      },
+      "expression": "repr((type(math.quad), repr(math.quad)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-math.quad",
+      "path": "math.quad",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.quad), repr(math.quad)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(content, \\\"h(amount: 1em)\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.amp), repr(sym.amp)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"&\\\\\\\", (\\\\\\\"inv\\\\\\\", \\\\\\\"⅋\\\\\\\"))\\\")\"\n"
+      },
+      "expression": "repr((type(sym.amp), repr(sym.amp)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-sym.amp",
+      "path": "sym.amp",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.amp), repr(sym.amp)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"&\\\\\\\", (\\\\\\\"inv\\\\\\\", \\\\\\\"⅋\\\\\\\"))\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.not), repr(sym.not)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"¬\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(sym.not), repr(sym.not)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-sym.not",
+      "path": "sym.not",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.not), repr(sym.not)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"¬\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "MATCH",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.plus), repr(sym.plus)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\n  \\\\\\\"+\\\\\\\",\\\\n  (\\\\\\\"o\\\\\\\", \\\\\\\"⊕\\\\\\\"),\\\\n  (\\\\\\\"o.l\\\\\\\", \\\\\\\"⨭\\\\\\\"),\\\\n  (\\\\\\\"o.r\\\\\\\", \\\\\\\"⨮\\\\\\\"),\\\\n  (\\\\\\\"o.arrow\\\\\\\", \\\\\\\"⟴\\\\\\\"),\\\\n  (\\\\\\\"o.big\\\\\\\", \\\\\\\"⨁\\\\\\\"),\\\\n  (\\\\\\\"dot\\\\\\\", \\\\\\\"∔\\\\\\\"),\\\\n  (\\\\\\\"double\\\\\\\", \\\\\\\"⧺\\\\\\\"),\\\\n  (\\\\\\\"minus\\\\\\\", \\\\\\\"±\\\\\\\"),\\\\n  (\\\\\\\"square\\\\\\\", \\\\\\\"⊞\\\\\\\"),\\\\n  (\\\\\\\"triangle\\\\\\\", \\\\\\\"⨹\\\\\\\"),\\\\n  (\\\\\\\"triple\\\\\\\", \\\\\\\"⧻\\\\\\\"),\\\\n  (\\\\\\\"hat\\\\\\\", \\\\\\\"⨣\\\\\\\"),\\\\n)\\\")\"\n"
+      },
+      "expression": "repr((type(sym.plus), repr(sym.plus)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-match-sym.plus",
+      "path": "sym.plus",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.plus), repr(sym.plus)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  \\\\\\\"+\\\\\\\",\\\\n  (\\\\\\\"o\\\\\\\", \\\\\\\"⊕\\\\\\\"),\\\\n  (\\\\\\\"o.l\\\\\\\", \\\\\\\"⨭\\\\\\\"),\\\\n  (\\\\\\\"o.r\\\\\\\", \\\\\\\"⨮\\\\\\\"),\\\\n  (\\\\\\\"o.arrow\\\\\\\", \\\\\\\"⟴\\\\\\\"),\\\\n  (\\\\\\\"o.big\\\\\\\", \\\\\\\"⨁\\\\\\\"),\\\\n  (\\\\\\\"dot\\\\\\\", \\\\\\\"∔\\\\\\\"),\\\\n  (\\\\\\\"double\\\\\\\", \\\\\\\"⧺\\\\\\\"),\\\\n  (\\\\\\\"minus\\\\\\\", \\\\\\\"±\\\\\\\"),\\\\n  (\\\\\\\"square\\\\\\\", \\\\\\\"⊞\\\\\\\"),\\\\n  (\\\\\\\"triangle\\\\\\\", \\\\\\\"⨹\\\\\\\"),\\\\n  (\\\\\\\"triple\\\\\\\", \\\\\\\"⧻\\\\\\\"),\\\\n  (\\\\\\\"hat\\\\\\\", \\\\\\\"⨣\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(arguments.at), repr(arguments.at)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: type arguments does not contain field \"at\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(arguments.at), repr(arguments.at)))\n  │            ^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(arguments.at), repr(arguments.at)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-arguments.at",
+      "path": "arguments.at",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(arguments.at), repr(arguments.at)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"at\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(arguments.pos), repr(arguments.pos)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: type arguments does not contain field \"pos\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(arguments.pos), repr(arguments.pos)))\n  │            ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(arguments.pos), repr(arguments.pos)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-arguments.pos",
+      "path": "arguments.pos",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(arguments.pos), repr(arguments.pos)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"pos\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(array.dedup), repr(array.dedup)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: type array does not contain field \"dedup\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(array.dedup), repr(array.dedup)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(array.dedup), repr(array.dedup)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-array.dedup",
+      "path": "array.dedup",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(array.dedup), repr(array.dedup)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"dedup\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(dictionary.at), repr(dictionary.at)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: type dictionary does not contain field \"at\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(dictionary.at), repr(dictionary.at)))\n  │            ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(dictionary.at), repr(dictionary.at)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-dictionary.at",
+      "path": "dictionary.at",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(dictionary.at), repr(dictionary.at)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"at\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.arrow), repr(emoji.arrow)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"arrow\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.arrow), repr(emoji.arrow)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.arrow), repr(emoji.arrow)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.arrow",
+      "path": "emoji.arrow",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.arrow), repr(emoji.arrow)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  (\\\\\\\"r.filled\\\\\\\", \\\\\\\"➡\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"r.hook\\\\\\\", \\\\\\\"↪\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"r.soon\\\\\\\", \\\\\\\"🔜\\\\\\\"),\\\\n  (\\\\\\\"l.filled\\\\\\\", \\\\\\\"⬅\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"l.hook\\\\\\\", \\\\\\\"↩\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"l.back\\\\\\\", \\\\\\\"🔙\\\\\\\"),\\\\n  (\\\\\\\"l.end\\\\\\\", \\\\\\\"🔚\\\\\\\"),\\\\n  (\\\\\\\"t.filled\\\\\\\", \\\\\\\"⬆\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"t.curve\\\\\\\", \\\\\\\"⤴\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"t.top\\\\\\\", \\\\\\\"🔝\\\\\\\"),\\\\n  (\\\\\\\"b.filled\\\\\\\", \\\\\\\"⬇\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"b.curve\\\\\\\", \\\\\\\"⤵\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"l.r\\\\\\\", \\\\\\\"↔\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"l.r.on\\\\\\\", \\\\\\\"🔛\\\\\\\"),\\\\n  (\\\\\\\"t.b\\\\\\\", \\\\\\\"↕\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"bl\\\\\\\", \\\\\\\"↙\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"br\\\\\\\", \\\\\\\"↘\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"tl\\\\\\\", \\\\\\\"↖\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"tr\\\\\\\", \\\\\\\"↗\\\\\\\\u{fe0f}\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.b), repr(emoji.b)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"b\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.b), repr(emoji.b)))\n  │            ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.b), repr(emoji.b)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.b",
+      "path": "emoji.b",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.b), repr(emoji.b)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🅱\\\\\\\\u{fe0f}\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.clamp), repr(emoji.clamp)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"clamp\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.clamp), repr(emoji.clamp)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.clamp), repr(emoji.clamp)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.clamp",
+      "path": "emoji.clamp",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.clamp), repr(emoji.clamp)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🗜\\\\\\\\u{fe0f}\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.clock), repr(emoji.clock)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"clock\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.clock), repr(emoji.clock)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.clock), repr(emoji.clock)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.clock",
+      "path": "emoji.clock",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.clock), repr(emoji.clock)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  (\\\\\\\"one\\\\\\\", \\\\\\\"🕐\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"one.thirty\\\\\\\", \\\\\\\"🕜\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"two\\\\\\\", \\\\\\\"🕑\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"two.thirty\\\\\\\", \\\\\\\"🕝\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"three\\\\\\\", \\\\\\\"🕒\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"three.thirty\\\\\\\", \\\\\\\"🕞\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"four\\\\\\\", \\\\\\\"🕓\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"four.thirty\\\\\\\", \\\\\\\"🕟\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"five\\\\\\\", \\\\\\\"🕔\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"five.thirty\\\\\\\", \\\\\\\"🕠\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"six\\\\\\\", \\\\\\\"🕕\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"six.thirty\\\\\\\", \\\\\\\"🕡\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"seven\\\\\\\", \\\\\\\"🕖\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"seven.thirty\\\\\\\", \\\\\\\"🕢\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"eight\\\\\\\", \\\\\\\"🕗\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"eight.thirty\\\\\\\", \\\\\\\"🕣\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"nine\\\\\\\", \\\\\\\"🕘\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"nine.thirty\\\\\\\", \\\\\\\"🕤\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"ten\\\\\\\", \\\\\\\"🕙\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"ten.thirty\\\\\\\", \\\\\\\"🕥\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"eleven\\\\\\\", \\\\\\\"🕚\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"eleven.thirty\\\\\\\", \\\\\\\"🕦\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"twelve\\\\\\\", \\\\\\\"🕛\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"twelve.thirty\\\\\\\", \\\\\\\"🕧\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"alarm\\\\\\\", \\\\\\\"⏰\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"old\\\\\\\", \\\\\\\"🕰\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"timer\\\\\\\", \\\\\\\"⏲\\\\\\\\u{fe0f}\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.controller), repr(emoji.controller)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"controller\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.controller), repr(emoji.controller)))\n  │            ^^^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.controller), repr(emoji.controller)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.controller",
+      "path": "emoji.controller",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.controller), repr(emoji.controller)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🎮\\\\\\\\u{fe0f}\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.leaf), repr(emoji.leaf)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"leaf\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.leaf), repr(emoji.leaf)))\n  │            ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.leaf), repr(emoji.leaf)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.leaf",
+      "path": "emoji.leaf",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.leaf), repr(emoji.leaf)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  (\\\\\\\"clover.three\\\\\\\", \\\\\\\"☘\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"clover.four\\\\\\\", \\\\\\\"🍀\\\\\\\"),\\\\n  (\\\\\\\"fall\\\\\\\", \\\\\\\"🍂\\\\\\\"),\\\\n  (\\\\\\\"herb\\\\\\\", \\\\\\\"🌿\\\\\\\"),\\\\n  (\\\\\\\"maple\\\\\\\", \\\\\\\"🍁\\\\\\\"),\\\\n  (\\\\\\\"wind\\\\\\\", \\\\\\\"🍃\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.motorcycle), repr(emoji.motorcycle)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"motorcycle\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.motorcycle), repr(emoji.motorcycle)))\n  │            ^^^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.motorcycle), repr(emoji.motorcycle)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.motorcycle",
+      "path": "emoji.motorcycle",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.motorcycle), repr(emoji.motorcycle)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🏍\\\\\\\\u{fe0f}\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.oil), repr(emoji.oil)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"oil\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.oil), repr(emoji.oil)))\n  │            ^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.oil), repr(emoji.oil)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.oil",
+      "path": "emoji.oil",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.oil), repr(emoji.oil)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🛢\\\\\\\\u{fe0f}\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.post), repr(emoji.post)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"post\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.post), repr(emoji.post)))\n  │            ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.post), repr(emoji.post)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.post",
+      "path": "emoji.post",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.post), repr(emoji.post)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol((\\\\\\\"eu\\\\\\\", \\\\\\\"🏤\\\\\\\"), (\\\\\\\"jp\\\\\\\", \\\\\\\"🏣\\\\\\\"))\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.sun), repr(emoji.sun)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'emoji' does not contain field \"sun\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(emoji.sun), repr(emoji.sun)))\n  │            ^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(emoji.sun), repr(emoji.sun)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-emoji.sun",
+      "path": "emoji.sun",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.sun), repr(emoji.sun)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  \\\\\\\"☀\\\\\\\\u{fe0f}\\\\\\\",\\\\n  (\\\\\\\"cloud\\\\\\\", \\\\\\\"🌤\\\\\\\\u{fe0f}\\\\\\\"),\\\\n  (\\\\\\\"face\\\\\\\", \\\\\\\"🌞\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(html.col), repr(html.col)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'html' does not contain field \"col\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(html.col), repr(html.col)))\n  │            ^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(html.col), repr(html.col)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-html.col",
+      "path": "html.col",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(html.col), repr(html.col)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"col\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(html.select), repr(html.select)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'html' does not contain field \"select\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(html.select), repr(html.select)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(html.select), repr(html.select)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-html.select",
+      "path": "html.select",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(html.select), repr(html.select)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"select\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.cc), repr(math.cc)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'math' does not contain field \"cc\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(math.cc), repr(math.cc)))\n  │            ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(math.cc), repr(math.cc)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-math.cc",
+      "path": "math.cc",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.cc), repr(math.cc)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  \\\\\\\"🅭\\\\\\\",\\\\n  (\\\\\\\"by\\\\\\\", \\\\\\\"🅯\\\\\\\"),\\\\n  (\\\\\\\"nc\\\\\\\", \\\\\\\"🄏\\\\\\\"),\\\\n  (\\\\\\\"nd\\\\\\\", \\\\\\\"⊜\\\\\\\"),\\\\n  (\\\\\\\"public\\\\\\\", \\\\\\\"🅮\\\\\\\"),\\\\n  (\\\\\\\"sa\\\\\\\", \\\\\\\"🄎\\\\\\\"),\\\\n  (\\\\\\\"zero\\\\\\\", \\\\\\\"🄍\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.mapsfrom), repr(math.mapsfrom)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'math' does not contain field \"mapsfrom\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(math.mapsfrom), repr(math.mapsfrom)))\n  │            ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(math.mapsfrom), repr(math.mapsfrom)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-math.mapsfrom",
+      "path": "math.mapsfrom",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.mapsfrom), repr(math.mapsfrom)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"↤\\\\\\\", (\\\\\\\"long\\\\\\\", \\\\\\\"⟻\\\\\\\"))\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.models), repr(math.models)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'math' does not contain field \"models\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(math.models), repr(math.models)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(math.models), repr(math.models)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-math.models",
+      "path": "math.models",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.models), repr(math.models)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"⊧\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.numero), repr(math.numero)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'math' does not contain field \"numero\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(math.numero), repr(math.numero)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(math.numero), repr(math.numero)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-math.numero",
+      "path": "math.numero",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.numero), repr(math.numero)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"№\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.parallel), repr(math.parallel)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'math' does not contain field \"parallel\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(math.parallel), repr(math.parallel)))\n  │            ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(math.parallel), repr(math.parallel)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-math.parallel",
+      "path": "math.parallel",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.parallel), repr(math.parallel)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  \\\\\\\"∥\\\\\\\",\\\\n  (\\\\\\\"struck\\\\\\\", \\\\\\\"⫲\\\\\\\"),\\\\n  (\\\\\\\"o\\\\\\\", \\\\\\\"⦷\\\\\\\"),\\\\n  (\\\\\\\"eq\\\\\\\", \\\\\\\"⋕\\\\\\\"),\\\\n  (\\\\\\\"equiv\\\\\\\", \\\\\\\"⩨\\\\\\\"),\\\\n  (\\\\\\\"not\\\\\\\", \\\\\\\"∦\\\\\\\"),\\\\n  (\\\\\\\"slanted.eq\\\\\\\", \\\\\\\"⧣\\\\\\\"),\\\\n  (\\\\\\\"slanted.eq.tilde\\\\\\\", \\\\\\\"⧤\\\\\\\"),\\\\n  (\\\\\\\"slanted.equiv\\\\\\\", \\\\\\\"⧥\\\\\\\"),\\\\n  (\\\\\\\"tilde\\\\\\\", \\\\\\\"⫳\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.rect), repr(math.rect)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'math' does not contain field \"rect\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(math.rect), repr(math.rect)))\n  │            ^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(math.rect), repr(math.rect)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-math.rect",
+      "path": "math.rect",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.rect), repr(math.rect)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  (\\\\\\\"stroked.h\\\\\\\", \\\\\\\"▭\\\\\\\"),\\\\n  (\\\\\\\"stroked.v\\\\\\\", \\\\\\\"▯\\\\\\\"),\\\\n  (\\\\\\\"filled.h\\\\\\\", \\\\\\\"▬\\\\\\\"),\\\\n  (\\\\\\\"filled.v\\\\\\\", \\\\\\\"▮\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.som), repr(math.som)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'math' does not contain field \"som\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(math.som), repr(math.som)))\n  │            ^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(math.som), repr(math.som)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-math.som",
+      "path": "math.som",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.som), repr(math.som)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"⃀\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.taman), repr(math.taman)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'math' does not contain field \"taman\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(math.taman), repr(math.taman)))\n  │            ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(math.taman), repr(math.taman)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-math.taman",
+      "path": "math.taman",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.taman), repr(math.taman)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"߿\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.wreath), repr(math.wreath)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'math' does not contain field \"wreath\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(math.wreath), repr(math.wreath)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(math.wreath), repr(math.wreath)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-math.wreath",
+      "path": "math.wreath",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.wreath), repr(math.wreath)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"≀\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(str.ends-with), repr(str.ends-with)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: type str does not contain field \"ends-with\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(str.ends-with), repr(str.ends-with)))\n  │            ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(str.ends-with), repr(str.ends-with)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-str.ends-with",
+      "path": "str.ends-with",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(str.ends-with), repr(str.ends-with)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"ends-with\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.ast), repr(sym.ast)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'sym' does not contain field \"ast\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(sym.ast), repr(sym.ast)))\n  │            ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(sym.ast), repr(sym.ast)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-sym.ast",
+      "path": "sym.ast",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.ast), repr(sym.ast)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  (\\\\\\\"op\\\\\\\", \\\\\\\"∗\\\\\\\"),\\\\n  (\\\\\\\"op.o\\\\\\\", \\\\\\\"⊛\\\\\\\"),\\\\n  (\\\\\\\"basic\\\\\\\", \\\\\\\"*\\\\\\\\u{fe0e}\\\\\\\"),\\\\n  (\\\\\\\"low\\\\\\\", \\\\\\\"⁎\\\\\\\"),\\\\n  (\\\\\\\"double\\\\\\\", \\\\\\\"⁑\\\\\\\"),\\\\n  (\\\\\\\"triple\\\\\\\", \\\\\\\"⁂\\\\\\\"),\\\\n  (\\\\\\\"square\\\\\\\", \\\\\\\"⧆\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.checkmark), repr(sym.checkmark)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'sym' does not contain field \"checkmark\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(sym.checkmark), repr(sym.checkmark)))\n  │            ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(sym.checkmark), repr(sym.checkmark)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-sym.checkmark",
+      "path": "sym.checkmark",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.checkmark), repr(sym.checkmark)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\\\\"✓\\\\\\\", (\\\\\\\"light\\\\\\\", \\\\\\\"🗸\\\\\\\"), (\\\\\\\"heavy\\\\\\\", \\\\\\\"✔\\\\\\\\u{fe0e}\\\\\\\"))\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.diaer), repr(sym.diaer)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'sym' does not contain field \"diaer\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(sym.diaer), repr(sym.diaer)))\n  │            ^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(sym.diaer), repr(sym.diaer)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-sym.diaer",
+      "path": "sym.diaer",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.diaer), repr(sym.diaer)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"¨\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.hexa), repr(sym.hexa)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'sym' does not contain field \"hexa\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(sym.hexa), repr(sym.hexa)))\n  │            ^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(sym.hexa), repr(sym.hexa)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-sym.hexa",
+      "path": "sym.hexa",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.hexa), repr(sym.hexa)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol((\\\\\\\"stroked\\\\\\\", \\\\\\\"⬡\\\\\\\"), (\\\\\\\"filled\\\\\\\", \\\\\\\"⬢\\\\\\\"))\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "MISSING_MEMBER",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.natural), repr(sym.natural)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 1,
+        "stderr": "error: module 'sym' does not contain field \"natural\"\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(sym.natural), repr(sym.natural)))\n  │            ^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr((type(sym.natural), repr(sym.natural)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-missing_member-sym.natural",
+      "path": "sym.natural",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.natural), repr(sym.natural)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\\\\"♮\\\\\\\", (\\\\\\\"t\\\\\\\", \\\\\\\"𝄮\\\\\\\"), (\\\\\\\"b\\\\\\\", \\\\\\\"𝄯\\\\\\\"))\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(calc.fract), repr(calc.fract)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"calc.fract\\\")\"\n"
+      },
+      "expression": "repr((type(calc.fract), repr(calc.fract)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-calc.fract",
+      "path": "calc.fract",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(calc.fract), repr(calc.fract)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"fract\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(cbor.encode), repr(cbor.encode)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"cbor.encode\\\")\"\n"
+      },
+      "expression": "repr((type(cbor.encode), repr(cbor.encode)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-cbor.encode",
+      "path": "cbor.encode",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(cbor.encode), repr(cbor.encode)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"encode\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(color.desaturate), repr(color.desaturate)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"desaturate\\\")\"\n"
+      },
+      "expression": "repr((type(color.desaturate), repr(color.desaturate)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-color.desaturate",
+      "path": "color.desaturate",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(color.desaturate), repr(color.desaturate)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"desaturate\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(color.oklab), repr(color.oklab)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"oklab\\\")\"\n"
+      },
+      "expression": "repr((type(color.oklab), repr(color.oklab)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-color.oklab",
+      "path": "color.oklab",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(color.oklab), repr(color.oklab)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"oklab\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(color.saturate), repr(color.saturate)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"saturate\\\")\"\n"
+      },
+      "expression": "repr((type(color.saturate), repr(color.saturate)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-color.saturate",
+      "path": "color.saturate",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(color.saturate), repr(color.saturate)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"saturate\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(color.teal), repr(color.teal)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(color, \\\"rgb(\\\\\\\"#39cccc\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(color.teal), repr(color.teal)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-color.teal",
+      "path": "color.teal",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(color.teal), repr(color.teal)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(color, \\\"rgb(\\\\\\\"#39cccc\\\\\\\")\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(columns), repr(columns)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"columns\\\")\"\n"
+      },
+      "expression": "repr((type(columns), repr(columns)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-columns",
+      "path": "columns",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(columns), repr(columns)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"columns\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(content.has), repr(content.has)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"content.has\\\")\"\n"
+      },
+      "expression": "repr((type(content.has), repr(content.has)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-content.has",
+      "path": "content.has",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(content.has), repr(content.has)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"has\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(emoji.litter), repr(emoji.litter)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🚮\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(emoji.litter), repr(emoji.litter)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-emoji.litter",
+      "path": "emoji.litter",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(emoji.litter), repr(emoji.litter)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"🚮\\\\\\\", (\\\\\\\"not\\\\\\\", \\\\\\\"🚯\\\\\\\"))\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(grid.cell), repr(grid.cell)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"grid_cell\\\")\"\n"
+      },
+      "expression": "repr((type(grid.cell), repr(grid.cell)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-grid.cell",
+      "path": "grid.cell",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(grid.cell), repr(grid.cell)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"cell\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(hide), repr(hide)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"hide\\\")\"\n"
+      },
+      "expression": "repr((type(hide), repr(hide)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-hide",
+      "path": "hide",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(hide), repr(hide)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"hide\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(html.b), repr(html.b)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"b\\\")\"\n"
+      },
+      "expression": "repr((type(html.b), repr(html.b)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-html.b",
+      "path": "html.b",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(html.b), repr(html.b)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"b\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(html.dd), repr(html.dd)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"dd\\\")\"\n"
+      },
+      "expression": "repr((type(html.dd), repr(html.dd)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-html.dd",
+      "path": "html.dd",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(html.dd), repr(html.dd)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"dd\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(html.samp), repr(html.samp)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"samp\\\")\"\n"
+      },
+      "expression": "repr((type(html.samp), repr(html.samp)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-html.samp",
+      "path": "html.samp",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(html.samp), repr(html.samp)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"samp\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.equation), repr(math.equation)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"math.equation\\\")\"\n"
+      },
+      "expression": "repr((type(math.equation), repr(math.equation)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-math.equation",
+      "path": "math.equation",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.equation), repr(math.equation)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"equation\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.op), repr(math.op)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"op\\\")\"\n"
+      },
+      "expression": "repr((type(math.op), repr(math.op)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-math.op",
+      "path": "math.op",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.op), repr(math.op)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"op\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(rgb), repr(rgb)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"rgb\\\")\"\n"
+      },
+      "expression": "repr((type(rgb), repr(rgb)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-rgb",
+      "path": "rgb",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(rgb), repr(rgb)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"rgb\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.ceil), repr(sym.ceil)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"⌈\\\\\\\", (\\\\\\\"l\\\\\\\", \\\\\\\"⌈\\\\\\\"), (\\\\\\\"r\\\\\\\", \\\\\\\"⌉\\\\\\\"))\\\")\"\n"
+      },
+      "expression": "repr((type(sym.ceil), repr(sym.ceil)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-sym.ceil",
+      "path": "sym.ceil",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.ceil), repr(sym.ceil)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol((\\\\\\\"l\\\\\\\", \\\\\\\"⌈\\\\\\\"), (\\\\\\\"r\\\\\\\", \\\\\\\"⌉\\\\\\\"))\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.copyright), repr(sym.copyright)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"©\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(sym.copyright), repr(sym.copyright)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-sym.copyright",
+      "path": "sym.copyright",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.copyright), repr(sym.copyright)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\\\\"©\\\\\\\\u{fe0e}\\\\\\\", (\\\\\\\"sound\\\\\\\", \\\\\\\"℗\\\\\\\"))\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(sym.dagger), repr(sym.dagger)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(symbol, \\\"symbol(\\\\\\\"†\\\\\\\")\\\")\"\n"
+      },
+      "expression": "repr((type(sym.dagger), repr(sym.dagger)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-sym.dagger",
+      "path": "sym.dagger",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(sym.dagger), repr(sym.dagger)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(\\n  symbol,\\n  \\\"symbol(\\\\n  \\\\\\\"†\\\\\\\",\\\\n  (\\\\\\\"double\\\\\\\", \\\\\\\"‡\\\\\\\"),\\\\n  (\\\\\\\"triple\\\\\\\", \\\\\\\"⹋\\\\\\\"),\\\\n  (\\\\\\\"l\\\\\\\", \\\\\\\"⸶\\\\\\\"),\\\\n  (\\\\\\\"r\\\\\\\", \\\\\\\"⸷\\\\\\\"),\\\\n  (\\\\\\\"inv\\\\\\\", \\\\\\\"⸸\\\\\\\"),\\\\n)\\\",\\n)\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(table.cell), repr(table.cell)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"table_cell\\\")\"\n"
+      },
+      "expression": "repr((type(table.cell), repr(table.cell)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-table.cell",
+      "path": "table.cell",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(table.cell), repr(table.cell)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"cell\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "classification": "UNVERIFIED_METADATA",
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(table.header), repr(table.header)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"table_header\\\")\"\n"
+      },
+      "expression": "repr((type(table.header), repr(table.header)))",
+      "features": [
+        "html"
+      ],
+      "id": "sample-unverified_metadata-table.header",
+      "path": "table.header",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(table.header), repr(table.header)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"header\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(std.page), repr(std.page)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"page\\\")\"\n"
+      },
+      "expression": "repr((type(std.page), repr(std.page)))",
+      "features": [
+        "html"
+      ],
+      "id": "std-page",
+      "path": "std.page",
+      "profile": "html",
+      "same": true,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(std.page), repr(std.page)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"page\\\")\"\n"
+      },
+      "verdict": "MATCH"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.equation), repr(math.equation)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"math.equation\\\")\"\n"
+      },
+      "expression": "repr((type(math.equation), repr(math.equation)))",
+      "features": [
+        "html"
+      ],
+      "id": "wrong-kind-math-equation",
+      "path": "math.equation",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.equation), repr(math.equation)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"equation\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    },
+    {
+      "crystalline": {
+        "command": [
+          "target/release/typst",
+          "eval",
+          "repr((type(math.sqrt), repr(math.sqrt)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"math.sqrt\\\")\"\n"
+      },
+      "expression": "repr((type(math.sqrt), repr(math.sqrt)))",
+      "features": [
+        "html"
+      ],
+      "id": "wrong-kind-math-sqrt",
+      "path": "math.sqrt",
+      "profile": "html",
+      "same": false,
+      "vanilla": {
+        "command": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(math.sqrt), repr(math.sqrt)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "\"(function, \\\"sqrt\\\")\"\n"
+      },
+      "verdict": "DIFFERENCE_OR_DISABLED"
+    }
+  ],
+  "schema_version": "p1282-probes-v1"
+}

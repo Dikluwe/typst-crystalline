@@ -1,7 +1,8 @@
 # Wiring — typst-wiring
-Hash do Código: 4385d927
+Hash do Código: 32ad6bca
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 - 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
 
@@ -248,3 +249,52 @@ expressão recebida, byte-idêntica à usada pelo entrypoint L1, e fornece-a ao
 formatter apenas durante a drenagem de diagnósticos. L4 não decide regiões nem
 reescreve spans/mensagens; somente torna resolvível a fonte transitória que não
 existe no filesystem. Os demais comandos mantêm a resolução pelo `World`.
+
+## P1285 — transporte de formato e fonte transitória de `query`
+
+### Medição antes da decisão
+
+`run_query` chama `serialize_query` sem transportar o formato já decidido em
+L2, portanto todo sucesso é forçado a JSON. Além disso, embora o argumento
+posicional anunciado aceite `-`, L4 entrega esse token a `SystemWorld::new`
+como nome de ficheiro e falha antes da avaliação. No vanilla ratificado
+`a51e02804`, as sondas de query por stdin preservam o mesmo resultado semântico
+que uma fonte física e `--format yaml` seleciona YAML.
+
+### Decisão
+
+L4 permanece composição fina: encaminha `QueryIntent.format` ao serializer L2
+sem reinterpretá-lo. Quando `input == "-"`, lê stdin como UTF-8, cria um
+`SystemWorld::for_eval` e uma `Source` markup transitória com `world.main()`;
+quando é outro path, conserva o fluxo físico existente. Os dois ramos entregam
+a mesma combinação `World + Source` a `query_elements`, mantêm warning e
+diagnósticos em stderr e output estruturado em stdout. L4 não serializa YAML,
+não enumera campos, não decide selectors e não altera cardinalidade.
+
+Esta correção materializa comportamento já anunciado pelo argumento `-` e o
+formato público confirmado em L2; não cria flag, default ou assinatura pública
+nova.
+
+## P1288 — transporte ortogonal de `a11y-extras` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`04_wiring/src/main.rs:238-250` já desestrutura `features` do compile intent e
+`:373-382` o encaminha somente ao caminho HTML. `main.rs:162` reporta hoje
+apenas `html: false, bundle: false`; o caminho PDF não recebe o set. Logo o
+wiring ainda não consegue exercitar `a11y-extras` em eval/compile PDF.
+
+### Decisão proposta
+
+L4 encaminha o mesmo `Features` canônico de L2 aos entrypoints apropriados de
+L3 para compile e eval, inclusive no target PDF. Não interpreta, completa nem
+ativa o set. Formato PDF/HTML, `PdfTags` e `StreamMode` permanecem eixos
+ortogonais.
+
+`InfoData.features` passa a reportar também `a11y_extras`, com `false` no
+snapshot sem configuração explícita. `bundle` permanece false/scope-out. O
+report é estado efetivo, não capacidade compilada.
+
+Uma incapacidade devolvida pelo pipeline com `a11y-extras` ativo permanece
+erro/Unknown para o harness; L4 não a converte em sucesso nem em feature
+desligada.

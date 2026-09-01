@@ -210,3 +210,25 @@ pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
 `type(selector) == type` e `repr(type(selector)) == "type"`, enquanto valores
 construídos continuam com `type_name() == "selector"`. A representação interna
 da entidade e suas operações não mudam.
+
+## P1284 — inventário público congelado e gate `before`/`after`
+
+### Medição antes da decisão
+
+O consumer pré-candidato possui `Kind`, `Label`, `Location`, `And`, `Or`,
+`Regex`, `Where` e `Within { base, ancestor }`. Não possui `Before` nem
+`After`. A narrativa histórica no início deste L0 descreve P175 e não reduz o
+estado vigente às variantes daquele primeiro passo.
+
+### Decisão
+
+P1284 pode expor na linguagem `selector.and`, `selector.or` e
+`selector.within` sobre as variantes públicas já existentes, sem alterar este
+consumer. Este L0 não autoriza qualquer edição de `entities/selector.rs`.
+
+Materializar `selector.before(self,end,inclusive:true)` ou
+`selector.after(self,start,inclusive:true)` exigiria novas variantes públicas,
+semântica de query e revisão de matches consumidores. Ambos permanecem
+`BLOCKED_ADR0127_PUBLIC_CONTRACT` até novo L0 com desenho explícito e
+confirmação humana. Ausência é `Blocked`, não `Unknown`; simular por
+`Within`/`And`/`Or`/`Where` é `Violated`.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash d8e97fc4
+//! @prompt-hash 52efe145
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -13,12 +13,14 @@
 use crate::entities::content::Content;
 use crate::entities::func::{Func, FuncRepr};
 use crate::entities::geometry::Stroke;
+use crate::entities::gradient::Gradient;
 use crate::entities::layout_types::{
     Align2D, Angle, Color, HAlign, Length, Ratio, VAlign,
 };
 use crate::entities::paint::Paint;
 use crate::entities::rel::Rel;
 use crate::entities::selector::Selector;
+use crate::entities::tiling::Tiling;
 use crate::entities::value::{Type, Value};
 
 /// Representação de um `Value`.
@@ -35,11 +37,7 @@ pub fn repr_value(v: &Value) -> String {
             // P801 — array de exactamente 1 elemento leva vírgula final
             // (paridade vanilla `pretty_array_like(_, len == 1)`),
             // distinguindo-o de parênteses de agrupamento: `(5,)` ≠ `(5)`.
-            if items.len() == 1 {
-                format!("({},)", items[0])
-            } else {
-                format!("({})", items.join(", "))
-            }
+            pretty_array_like(&items, items.len() == 1)
         }
         Value::Dict(dict) => {
             // P695 — dict vazio é `(:)`, distinto de array vazio `()` (paridade
@@ -67,7 +65,7 @@ pub fn repr_value(v: &Value) -> String {
                 if name.is_empty() {
                     "#function(...)".to_string()
                 } else {
-                    name.to_string()
+                    name.rsplit('.').next().unwrap_or(name).to_string()
                 }
             } else {
                 "#function(...)".to_string()
@@ -83,9 +81,9 @@ pub fn repr_value(v: &Value) -> String {
         Value::Fraction(f) => format_float_with_unit(*f, "fr"),
         Value::Align(a) => repr_align(a),
         Value::Location(_) => "location(...)".to_string(),
-        Value::Gradient(_) => "gradient(...)".to_string(),
+        Value::Gradient(gradient) => repr_gradient(gradient),
         Value::Regex(r) => format!("regex(\"{}\")", r.pattern()),
-        Value::Tiling(_) => "tiling(...)".to_string(),
+        Value::Tiling(tiling) => repr_tiling(tiling),
         Value::Bytes(b) => format!("bytes({})", b.len()),
         // P817-D — paridade vanilla: repr de decimal é `decimal("...")`.
         Value::Decimal(d) => format!("decimal(\"{}\")", d.to_string()),
@@ -422,13 +420,50 @@ pub(super) fn repr_stroke(s: &Stroke) -> String {
     format!("({})", fields.join(", "))
 }
 
-/// Representação de um `Paint` — `Solid` delega em `repr_color`;
-/// Gradient/Tiling mantêm os placeholders existentes em `repr_value`.
+/// Representação de um gradient linear com stops já convertidas para o espaço
+/// de interpolação e offsets automáticos resolvidos.
+fn repr_gradient(gradient: &Gradient) -> String {
+    match gradient {
+        Gradient::Linear(linear) => {
+            let offsets = linear.effective_offsets();
+            let stops = linear
+                .stops
+                .iter()
+                .zip(offsets)
+                .map(|(stop, offset)| {
+                    format!(
+                        "({}, {})",
+                        repr_color(&stop.color.to_space(linear.space)),
+                        repr_ratio(Ratio(offset as f64))
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            format!("gradient.linear({stops})")
+        }
+        Gradient::Radial(_) | Gradient::Conic(_) => "gradient(...)".to_string(),
+    }
+}
+
+/// Representação pública mínima de tiling: a dimensão explícita é observável;
+/// o corpo declarativo permanece representado pelo spread morfológico.
+fn repr_tiling(tiling: &Tiling) -> String {
+    match tiling.size {
+        Some(size) => format!(
+            "tiling(({}, {}), ..)",
+            format_float_with_unit(size.width.val(), "pt"),
+            format_float_with_unit(size.height.val(), "pt")
+        ),
+        None => "tiling(...)".to_string(),
+    }
+}
+
+/// Representação de um `Paint` delegada às mesmas formas públicas de `Value`.
 fn repr_paint(p: &Paint) -> String {
     match p {
         Paint::Solid(c) => repr_color(c),
-        Paint::Gradient(_) => "gradient(...)".to_string(),
-        Paint::Tiling(_) => "tiling(...)".to_string(),
+        Paint::Gradient(gradient) => repr_gradient(gradient),
+        Paint::Tiling(tiling) => repr_tiling(tiling),
     }
 }
 
@@ -618,7 +653,13 @@ pub fn repr_content(c: &Content) -> String {
             }
             out
         }
-        Content::MathOp(o) => format!("op({})", repr_content(&o.text)),
+        Content::MathOp(o) => {
+            let fields = [
+                format!("text: {}", repr_content(&o.text)),
+                format!("limits: {}", o.limits),
+            ];
+            format!("op{}", pretty_array_like(&fields, false))
+        }
         Content::MathStyled(s) => repr_content(&s.body),
         Content::Label(l) if l.auto => format!("label(\"{}\")", l.name),
         Content::Label(l) => format!("label(\"{}\", {})", l.name, repr_content(&l.body)),
@@ -787,6 +828,18 @@ pub fn repr_content(c: &Content) -> String {
             }
         }
         Content::Asset { path, .. } => format!("asset(\"{}\")", path.as_str()),
+        Content::PdfAttach(e) => format!("pdf.attach(\"{}\")", e.path),
+        Content::PdfArtifact(e) => {
+            if e.kind == crate::entities::elements::pdf_artifact::ArtifactKind::Other {
+                format!("pdf.artifact[{}]", repr_content(&e.body))
+            } else {
+                format!(
+                    "pdf.artifact(kind: \"{}\")[{}]",
+                    e.kind.as_str(),
+                    repr_content(&e.body)
+                )
+            }
+        }
     }
 }
 
@@ -894,7 +947,7 @@ fn pretty_comma_list(pieces: &[String], trailing_comma: bool) -> String {
     let len = pieces.iter().map(|s| s.len()).sum::<usize>()
         + 2 * pieces.len().saturating_sub(1);
 
-    if len <= MAX_WIDTH {
+    if !pieces.iter().any(|piece| piece.contains('\n')) && len <= MAX_WIDTH {
         for (i, piece) in pieces.iter().enumerate() {
             if i > 0 {
                 buf.push_str(", ");
@@ -1032,7 +1085,7 @@ mod tests {
                     anti_alias: true,
                 }
             )))),
-            "gradient(...)"
+            "gradient.linear()"
         );
         assert_eq!(
             repr_value(&Value::Regex(Regex::new("\\d+").unwrap())),
@@ -1598,5 +1651,96 @@ mod tests {
         assert_eq!(repr_value(&Value::Type(Type::Int)), "int");
         assert_eq!(repr_value(&Value::Type(Type::Str)), "str");
         assert_eq!(repr_value(&Value::Type(Type::Bytes)), "bytes");
+    }
+
+    #[test]
+    fn p1290_array_vazio_singleton_e_curto() {
+        assert_eq!(repr_value(&Value::Array(vec![])), "()");
+        assert_eq!(repr_value(&Value::Array(vec![Value::Int(0)])), "(0,)");
+        assert_eq!(
+            repr_value(&Value::Array(vec![Value::Int(0), Value::Int(1), Value::Int(2)])),
+            "(0, 1, 2)"
+        );
+    }
+
+    #[test]
+    fn p1290_array_fronteira_ascii_49_50_51() {
+        let array_with_text = |count: usize| {
+            repr_value(&Value::Array(vec![Value::Str("x".repeat(count).into())]))
+        };
+
+        assert_eq!(
+            array_with_text(47),
+            "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)"
+        );
+        assert_eq!(
+            array_with_text(48),
+            "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)"
+        );
+        assert_eq!(
+            array_with_text(49),
+            "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n)"
+        );
+    }
+
+    #[test]
+    fn p1290_array_item_multiline_reindenta_recursivamente() {
+        let inner = Value::Array(vec![Value::Str("x".repeat(49).into())]);
+        let outer = Value::Array(vec![inner]);
+
+        assert_eq!(
+            repr_value(&outer),
+            "(\n  (\n    \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n  ),\n)"
+        );
+    }
+
+    #[test]
+    fn p1290_math_op_estrutura_geral_preserva_limits_false_e_true() {
+        let false_op = Content::math_op(Content::text("tensor-op"), false);
+        let true_op = Content::math_op(Content::text("custom-limit"), true);
+
+        assert_eq!(repr_content(&false_op), "op(text: [tensor-op], limits: false)");
+        assert_eq!(repr_content(&true_op), "op(text: [custom-limit], limits: true)");
+    }
+
+    #[test]
+    fn p1290_math_op_campos_em_ordem_e_conteudo_markup_multiline() {
+        use crate::entities::elements::strong::StrongElem;
+
+        let markup = Content::Sequence(Arc::from(vec![
+            Content::Strong(Arc::new(StrongElem::new(Content::text("f")))),
+            Content::Space,
+            Content::text("oo"),
+        ]));
+        let op = Content::math_op(markup, false);
+
+        assert_eq!(
+            repr_content(&op),
+            "op(\n  text: sequence(strong(body: [f]), [ ], [oo]),\n  limits: false,\n)"
+        );
+    }
+
+    #[test]
+    fn p1290_math_op_conteudo_preserva_aspas_e_barra_invertida() {
+        let op = Content::math_op(Content::text(r#"a "quote" \ slash"#), false);
+
+        assert_eq!(repr_content(&op), r#"op(text: [a "quote" \ slash], limits: false)"#);
+    }
+
+    #[test]
+    fn p1290_math_op_conteudo_escapado_estrutural() {
+        let escaped = Content::Sequence(Arc::from(vec![
+            Content::text("a"),
+            Content::Space,
+            Content::text("#"),
+            Content::Space,
+            Content::text("*"),
+        ]));
+        let op = Content::math_op(escaped, false);
+
+        assert_eq!(
+            repr_content(&op),
+            "op(\n  text: sequence([a], [ ], [#], [ ], [*]),\n  limits: false,\n)"
+        );
     }
 }

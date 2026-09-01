@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 9c8cdb68
+//! @prompt-hash 82030adc
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -76,6 +76,13 @@ pub fn repr_stroke_value(stroke: &crate::entities::geometry::Stroke) -> String {
     repr::repr_stroke(stroke)
 }
 
+/// Representação morfológica pública usada por serializers estruturados.
+///
+/// A classificação entre valores estruturais e fallback textual pertence ao
+/// formatter consumidor; esta fachada apenas expõe o `repr` total de L1.
+pub fn repr_value_for_serialization(value: &crate::entities::value::Value) -> String {
+    repr::repr_value(value)
+}
 pub(crate) mod rules;
 pub(crate) mod selector_matching;
 pub(crate) mod show_rule_termination;
@@ -705,56 +712,34 @@ pub(crate) fn eval_markup(
                     let off = byte_offset;
                     let prev = src_str[..off].chars().last();
                     let next = src_str[off + child.len()..].chars().next();
-
-                    let glyph: ecow::EcoString = if is_double {
-                        let (open, close) = match engine
-                            .styles
-                            .custom("smartquote.quotes")
-                        {
-                            Some(Value::Str(q)) => {
-                                let mut chars = q.chars();
-                                let open_c = chars.next().unwrap_or('“');
-                                let close_c = chars.next().unwrap_or('”');
-                                (
-                                    ecow::EcoString::from(open_c),
-                                    ecow::EcoString::from(close_c),
-                                )
-                            }
-                            _ => {
-                                let (open_s, close_s) = match &lang {
-                                    Some(l) => {
-                                        crate::compiler::lang::quotes::localize_quotes(l)
-                                    }
-                                    None => crate::compiler::lang::quotes::DEFAULT_QUOTES,
-                                };
-                                (
-                                    ecow::EcoString::from(open_s),
-                                    ecow::EcoString::from(close_s),
-                                )
-                            }
-                        };
-                        if is_opening_context(prev) {
-                            open
-                        } else {
-                            close
-                        }
+                    let alternative = match engine.styles.custom("smartquote.alternative")
+                    {
+                        Some(Value::Bool(value)) => *value,
+                        _ => false,
+                    };
+                    let configured = engine
+                        .styles
+                        .custom("smartquote.quotes")
+                        .map(|value| {
+                            crate::compiler::lang::quotes::parse_smartquote_quotes(
+                                value,
+                                child.span(),
+                            )
+                        })
+                        .transpose()?;
+                    let pair = crate::compiler::lang::quotes::resolve_smartquote_pair(
+                        lang.as_ref(),
+                        alternative,
+                        configured.as_ref(),
+                        is_double,
+                    );
+                    let glyph = if !is_double && is_word_char(prev) && is_word_char(next)
+                    {
+                        pair.close
+                    } else if is_opening_context(prev) {
+                        pair.open
                     } else {
-                        let (open, close) = match &lang {
-                            Some(l) => {
-                                crate::compiler::lang::quotes::localize_single_quotes(l)
-                            }
-                            None => crate::compiler::lang::quotes::DEFAULT_SINGLE_QUOTES,
-                        };
-                        let (open_str, close_str) =
-                            (ecow::EcoString::from(open), ecow::EcoString::from(close));
-                        // Contracções / possessivos: `don't`, `Alice's` → apostrophe (U+2019).
-                        if is_word_char(prev) && is_word_char(next) {
-                            close_str
-                        } else if is_opening_context(prev) {
-                            open_str
-                        } else {
-                            close_str
-                        }
+                        pair.close
                     };
                     Content::Text(glyph)
                 };

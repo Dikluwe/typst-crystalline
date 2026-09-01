@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/selector.md
-//! @prompt-hash 9bda6428
+//! @prompt-hash 9bea0284
 //! @layer L1
 //! @updated 2026-08-23
 
@@ -28,6 +28,23 @@ pub fn native_selector(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
+        [Value::Selector(selector)] => Ok(Value::Selector(selector.clone())),
+        [Value::Regex(regex)] if regex.pattern().is_empty() => {
+            Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "regex selector is empty",
+            )])
+        }
+        [Value::Regex(regex)] if regex.is_match("") => {
+            Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "regex matches empty text",
+            )])
+        }
+        [Value::Regex(regex)] => Ok(Value::Selector(Selector::Regex(regex.clone()))),
+        [Value::Str(text)] if text.is_empty() => {
+            Err(vec![SourceDiagnostic::error(Span::detached(), "text selector is empty")])
+        }
         [Value::Str(s)]
             if matches!(
                 (s.len() >= 2, s.starts_with('<'), s.ends_with('>')),
@@ -44,24 +61,14 @@ pub fn native_selector(
                     format!("selector(): kind '{}' não reconhecido", kind_str),
                 )]
             }),
-        [Value::Func(f)] => {
-            let addr = f.native_fn_addr().ok_or_else(|| {
+        [Value::Func(f)] => element_kind_of_native_func(f)
+            .map(|kind| Value::Selector(Selector::Kind(kind)))
+            .ok_or_else(|| {
                 vec![SourceDiagnostic::error(
                     Span::detached(),
-                    "selector(): função nativa esperada",
+                    "only element functions can be used as selectors",
                 )]
-            })?;
-            if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
-                Ok(Value::Selector(Selector::Kind(ElementKind::Heading)))
-            } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
-                Ok(Value::Selector(Selector::Kind(ElementKind::Figure)))
-            } else {
-                Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "selector(): função nativa não suportada como selector",
-                )])
-            }
-        }
+            }),
         [other] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("selector(): argumento inválido ({})", other.type_name()),
@@ -190,6 +197,51 @@ mod tests {
         // 238 - C1=T, C2=T, C3=F: s.len() >= 2 && starts_with('<') && !ends_with('>') -> falls through -> Err
         let res = parse_selector_arg(&[Value::Str("<figure".into())], "query");
         assert!(res.is_err());
+    }
+
+    #[test]
+    fn p1285_native_selector_preserva_selector_por_identidade() {
+        let expected = Selector::Where {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            field: "level".into(),
+            value: Box::new(Value::Int(1)),
+        };
+        let args = Args::positional(vec![Value::Selector(expected.clone())]);
+        let actual =
+            native_selector(&mut ctx(), &args, &NullWorld::default(), tfid()).unwrap();
+
+        assert_eq!(actual, Value::Selector(expected));
+    }
+
+    #[test]
+    fn p1285_native_selector_converte_regex_valida_em_selector() {
+        let regex = crate::entities::regex::Regex::new("f.o").unwrap();
+        let args = Args::positional(vec![Value::Regex(regex.clone())]);
+        let actual =
+            native_selector(&mut ctx(), &args, &NullWorld::default(), tfid()).unwrap();
+
+        assert_eq!(actual, Value::Selector(Selector::Regex(regex)));
+    }
+
+    #[test]
+    fn p1285_native_selector_distingue_tres_diagnosticos_de_vazio() {
+        fn message(value: Value) -> String {
+            let args = Args::positional(vec![value]);
+            native_selector(&mut ctx(), &args, &NullWorld::default(), tfid())
+                .unwrap_err()
+                .remove(0)
+                .message
+        }
+
+        assert_eq!(message(Value::Str("".into())), "text selector is empty");
+        assert_eq!(
+            message(Value::Regex(crate::entities::regex::Regex::new("").unwrap())),
+            "regex selector is empty"
+        );
+        assert_eq!(
+            message(Value::Regex(crate::entities::regex::Regex::new("a*").unwrap())),
+            "regex matches empty text"
+        );
     }
 }
 

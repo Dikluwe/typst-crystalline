@@ -31,6 +31,7 @@ as funções para manter compatibilidade com os consumidores existentes
 | `cast` | `foundations/cast.rs` | `native_int`, `native_float`, `native_range`, `native_bytes`, `native_datetime`, `native_symbol` |
 | `datetime` | `foundations/datetime.rs` | fields estáticos `today`, `display`, `year`, `month`, `weekday`, `day`, `hour`, `minute`, `second`, `ordinal` |
 | `int` | `foundations/int.rs` | `int_type_field`, signum, bitwise e conversões bytes |
+| `float` | `foundations/float.rs` | `float_type_field`, descoberta e semântica de `is-infinite` |
 | `color` | `foundations/color.rs` | `native_rgb`, `native_luma`, `native_oklab`, `native_oklch`, `native_linear_rgb`, `native_cmyk`, `native_hsl`, `native_hsv` |
 | `query` | `foundations/query.rs` | `native_metadata`, `native_query`, `native_locate`, `native_here`, `native_target` |
 | `selector` | `foundations/selector.rs` | `native_selector`, parser partilhado de selectors |
@@ -62,3 +63,9 @@ calendário, formatting ou acesso ao World.
 
 Serialização morfológica de valores pertence a `compiler/eval/repr.md`;
 constructors e algoritmos dos nós pertencem aos seus prompts próprios.
+
+## P1289 — nó `float`
+
+O hub declara `float` e reexporta, somente dentro da crate,
+`float_type_field`, `is_float_instance_method` e `dispatch_float_method`.
+Não contém fórmula numérica nem validação de argumentos.

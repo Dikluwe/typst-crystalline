@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-import datetime as dt
+import hashlib
 import json
 import os
 import pathlib
@@ -23,13 +23,108 @@ ROOT = HERE.parents[2]
 DEFAULT_VANILLA = ROOT / "lab/typst-original/target/release/typst"
 DEFAULT_CRYSTALLINE = ROOT / "target/release/typst"
 STATES = {"MATCH", "DIFF", "ABSENT", "PARTIAL", "ERROR", "UNMEASURED", "NOT_APPLICABLE"}
+LATTICE_STATES = (
+    "MATCH",
+    "DIFFERENCE",
+    "DISABLED_BY_PROFILE",
+    "UNKNOWN",
+    "BASELINE_ONLY",
+    "EXTRA_BINDING",
+)
+EXPECTED_STATES = STATES | set(LATTICE_STATES)
+REQUIRED_PROFILES = {
+    "default": {"features": []},
+    "html": {"features": ["html"]},
+    "a11y-extras": {"features": ["a11y-extras"]},
+}
 CLASSES = {"LANGUAGE_SEMANTICS", "LANGUAGE_SYNTAX", "LANGUAGE_MORPHOLOGY", "PUBLIC_DIAGNOSTIC", "PUBLIC_CLI", "PUBLIC_FORMAT", "MECHANICS_ALLOWED", "HARNESS_DEFECT", "BASELINE_DEFECT", "UNKNOWN", None}
 AXES = set("SEBILXC")
+
+
+def feature_flags(args: list[str]) -> set[str]:
+    """Return the semantic feature set accepted by the Typst CLI."""
+    features: set[str] = set()
+    for index, arg in enumerate(args):
+        value = None
+        if arg == "--features" and index + 1 < len(args):
+            value = args[index + 1]
+        elif arg.startswith("--features="):
+            value = arg.split("=", 1)[1]
+        if value is not None:
+            features.update(item.strip() for item in value.split(",") if item.strip())
+    return features
 
 
 def load_manifest(path: pathlib.Path) -> dict:
     # JSON is a strict subset of YAML 1.2, avoiding an undeclared PyYAML dependency.
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def sha256_file(path: pathlib.Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def profile_features(profiles: dict, profile_name: str) -> set[str]:
+    profile = profiles.get(profile_name)
+    if not isinstance(profile, dict):
+        return set()
+    features = profile.get("features", [])
+    return set(features) if isinstance(features, list) else set()
+
+
+def profile_gate(case: dict, profile_name: str, profiles: dict) -> str | None:
+    """Classify a non-executed feature gate, or return None to execute it."""
+    required = set(case.get("required_features", []))
+    active = profile_features(profiles, profile_name)
+    if required <= active:
+        return None
+    has_active_peer = any(
+        required <= profile_features(profiles, name)
+        for name in profiles
+    )
+    return "DISABLED_BY_PROFILE" if has_active_peer else "UNKNOWN"
+
+
+def with_profile_features(
+    args: list[str],
+    features: set[str],
+    required_features: set[str] | None = None,
+) -> list[str]:
+    """Canonicalize declared features without widening unrelated commands."""
+    kept: list[str] = []
+    declared: set[str] = set()
+    has_inline_declaration = False
+    index = 0
+    while index < len(args):
+        arg = args[index]
+        if arg == "--features":
+            if index + 1 < len(args):
+                has_inline_declaration = True
+                declared.update(
+                    item.strip() for item in args[index + 1].split(",") if item.strip()
+                )
+                index += 2
+                continue
+        elif arg.startswith("--features="):
+            has_inline_declaration = True
+            declared.update(
+                item.strip() for item in arg.split("=", 1)[1].split(",")
+                if item.strip()
+            )
+            index += 1
+            continue
+        kept.append(arg)
+        index += 1
+    if not has_inline_declaration and not required_features:
+        return list(args)
+    declared.update(features)
+    if declared:
+        kept.extend(["--features", ",".join(sorted(declared))])
+    return kept
 
 
 def validate_manifest(data: dict) -> list[str]:
@@ -38,10 +133,16 @@ def validate_manifest(data: dict) -> list[str]:
         errors.append("schema_version must be 1")
     if data.get("vanilla_revision") != "a51e02804":
         errors.append("vanilla_revision must be a51e02804")
+    profiles = data.get("profiles")
+    if profiles != REQUIRED_PROFILES:
+        errors.append("profiles must freeze default, html and a11y-extras exactly")
+        profiles = profiles if isinstance(profiles, dict) else {}
+    if data.get("scope_out_features") != ["bundle"]:
+        errors.append("scope_out_features must contain only bundle")
     cases = data.get("cases")
     if not isinstance(cases, list):
         return errors + ["cases must be an array"]
-    required = {"id", "eixo", "feature", "caso", "fonte_typ", "observavel", "oraculo", "cristalino", "estado", "classe", "proveniencia_vanilla", "proveniencia_cristalino", "comando_reproducao", "artefactos", "nota", "comparison"}
+    required = {"id", "eixo", "feature", "caso", "fonte_typ", "observavel", "oraculo", "cristalino", "estado", "classe", "proveniencia_vanilla", "proveniencia_cristalino", "comando_reproducao", "artefactos", "nota", "comparison", "expected_state"}
     seen: set[str] = set()
     for index, case in enumerate(cases):
         prefix = f"cases[{index}]"
@@ -58,8 +159,18 @@ def validate_manifest(data: dict) -> list[str]:
             errors.append(f"{prefix}: invalid estado")
         if case.get("classe") not in CLASSES:
             errors.append(f"{prefix}: invalid classe")
+        if case.get("expected_state") not in EXPECTED_STATES:
+            errors.append(f"{prefix}: invalid expected_state")
         if case.get("estado") != "MATCH" and case.get("classe") is None:
             errors.append(f"{prefix}: non-MATCH requires classe")
+        source_name = case.get("fonte_typ")
+        if source_name is not None:
+            if not isinstance(source_name, str):
+                errors.append(f"{prefix}: fonte_typ must be a string or null")
+            else:
+                source = (HERE / source_name).resolve()
+                if not source.is_relative_to(HERE) or not source.is_file():
+                    errors.append(f"{prefix}: source fixture does not exist: {source_name}")
         for side in ("oraculo", "cristalino"):
             if not isinstance(case.get(side, {}).get("args"), list):
                 errors.append(f"{prefix}: {side}.args must be an array")
@@ -69,6 +180,27 @@ def validate_manifest(data: dict) -> list[str]:
                 for key, value in side_env.items()
             ):
                 errors.append(f"{prefix}: {side}.env must be a string map")
+        oracle_features = feature_flags(case.get("oraculo", {}).get("args", []))
+        crystal_features = feature_flags(case.get("cristalino", {}).get("args", []))
+        required_features = case.get("required_features", [])
+        if not isinstance(required_features, list) or not all(
+            isinstance(feature, str) and feature for feature in required_features
+        ) or len(required_features) != len(set(required_features)):
+            errors.append(f"{prefix}: required_features must be unique strings")
+            required_features = []
+        required_set = set(required_features)
+        if oracle_features != crystal_features:
+            errors.append(f"{prefix}: features must be symmetric")
+        if oracle_features and oracle_features != required_set:
+            errors.append(f"{prefix}: command features must equal required_features")
+        for required_feature in required_set:
+            if not any(
+                required_feature in profile_features(profiles, name)
+                for name in profiles
+            ):
+                errors.append(
+                    f"{prefix}: required feature has no active profile: {required_feature}"
+                )
     return errors
 
 
@@ -233,20 +365,42 @@ def classify(comparison: str, oracle: dict, crystalline: dict) -> tuple[str, str
         except (ValueError, json.JSONDecodeError): return "ERROR", "HARNESS_DEFECT"
         return ("MATCH", None) if same else ("DIFF", "LANGUAGE_SEMANTICS")
     if comparison in {"semantic_tree", "geometry", "raster", "pdf_observables"}:
-        try:
-            suffix = ({"geometry": ".pdf", "raster": ".png", "pdf_observables": ".pdf"}.get(comparison)
-                      or (".html" if any(path.endswith(".html") for path in oracle.get("artifact_paths", [])) else ".svg"))
-            left, right = artifact(oracle, suffix), artifact(crystalline, suffix)
-            if comparison == "semantic_tree" and suffix == ".svg":
-                verdict = compare_svg_morphology(left, right)["verdict"]
-                if verdict == "Unknown":
-                    return "PARTIAL", "UNKNOWN"
-                same = oracle["exit_code"] == crystalline["exit_code"] == 0 and verdict == "Preserved"
-            else:
-                extract = {"semantic_tree": semantic_tree, "geometry": pdf_geometry, "raster": png_pixels, "pdf_observables": pdf_observables}[comparison]
-                same = oracle["exit_code"] == crystalline["exit_code"] == 0 and extract(left) == extract(right)
-        except (OSError, ValueError, subprocess.SubprocessError, ET.ParseError): return "ERROR", "HARNESS_DEFECT"
         classes = {"semantic_tree": "LANGUAGE_MORPHOLOGY", "geometry": "LANGUAGE_MORPHOLOGY", "raster": "PUBLIC_FORMAT", "pdf_observables": "PUBLIC_FORMAT"}
+        suffix = ({"geometry": ".pdf", "raster": ".png", "pdf_observables": ".pdf"}.get(comparison)
+                  or (".html" if any(path.endswith(".html") for path in oracle.get("artifact_paths", [])) else ".svg"))
+        try:
+            left = artifact(oracle, suffix)
+        except ValueError:
+            return "ERROR", "BASELINE_DEFECT"
+        try:
+            right = artifact(crystalline, suffix)
+        except ValueError:
+            return "DIFF", classes[comparison]
+        if comparison == "semantic_tree" and suffix == ".svg":
+            try:
+                verdict = compare_svg_morphology(left, right)["verdict"]
+            except FileNotFoundError:
+                return "ERROR", "HARNESS_DEFECT"
+            except (OSError, ValueError, subprocess.SubprocessError, ET.ParseError):
+                return "DIFF", classes[comparison]
+            if verdict == "Unknown":
+                return "PARTIAL", "UNKNOWN"
+            same = oracle["exit_code"] == crystalline["exit_code"] == 0 and verdict == "Preserved"
+        else:
+            extract = {"semantic_tree": semantic_tree, "geometry": pdf_geometry, "raster": png_pixels, "pdf_observables": pdf_observables}[comparison]
+            try:
+                left_value = extract(left)
+            except FileNotFoundError:
+                return "ERROR", "HARNESS_DEFECT"
+            except (OSError, ValueError, subprocess.SubprocessError, ET.ParseError):
+                return "ERROR", "BASELINE_DEFECT"
+            try:
+                right_value = extract(right)
+            except FileNotFoundError:
+                return "ERROR", "HARNESS_DEFECT"
+            except (OSError, ValueError, subprocess.SubprocessError, ET.ParseError):
+                return "DIFF", classes[comparison]
+            same = oracle["exit_code"] == crystalline["exit_code"] == 0 and left_value == right_value
         return ("MATCH", None) if same else ("DIFF", classes[comparison])
     if comparison == "exact_output":
         same = oracle["exit_code"] == crystalline["exit_code"] and oracle["stdout"] == crystalline["stdout"] and oracle["stderr"] == crystalline["stderr"]
@@ -293,26 +447,157 @@ def classify(comparison: str, oracle: dict, crystalline: dict) -> tuple[str, str
         same = oracle["exit_code"] == 0 and crystalline["exit_code"] == 0 and oracle["artifact_exists"] and crystalline["artifact_exists"]
         return ("MATCH", None) if same else ("DIFF", "LANGUAGE_MORPHOLOGY")
     if comparison == "capability":
+        if oracle["exit_code"] != 0:
+            return "ERROR", "BASELINE_DEFECT"
         if oracle["exit_code"] == 0 and crystalline["exit_code"] != 0:
             return "ABSENT", None
-        same = oracle["exit_code"] == crystalline["exit_code"] and oracle["stdout"] == crystalline["stdout"]
+        same = crystalline["exit_code"] == 0 and oracle["stdout"] == crystalline["stdout"]
         return ("MATCH", None) if same else ("DIFF", None)
     return "ERROR", "HARNESS_DEFECT"
 
 
-def run_case(case: dict, vanilla: pathlib.Path, crystalline: pathlib.Path, artifact_dir: pathlib.Path) -> dict:
+def lattice_state(state: str) -> str:
+    return {
+        "MATCH": "MATCH",
+        "DIFF": "DIFFERENCE",
+        "ABSENT": "DIFFERENCE",
+        "PARTIAL": "UNKNOWN",
+        "ERROR": "UNKNOWN",
+        "UNMEASURED": "UNKNOWN",
+        "NOT_APPLICABLE": "UNKNOWN",
+        **{state: state for state in LATTICE_STATES},
+    }.get(state, "UNKNOWN")
+
+
+def classify_for_profile(
+    case: dict,
+    profile_name: str,
+    profiles: dict,
+    comparison: str,
+    oracle: dict,
+    crystalline: dict,
+) -> tuple[str, str | None]:
+    gate = profile_gate(case, profile_name, profiles)
+    if gate is not None:
+        return gate, "UNKNOWN" if gate == "UNKNOWN" else None
+    asymmetry = case.get("asymmetry")
+    if asymmetry == "baseline-only":
+        return "BASELINE_ONLY", None
+    if asymmetry == "extra-binding":
+        return "EXTRA_BINDING", None
+    legacy, inferred_class = classify(comparison, oracle, crystalline)
+    return lattice_state(legacy), inferred_class
+
+
+def closed_counts(results: list[dict]) -> dict[str, int]:
+    counts = Counter(result["estado"] for result in results)
+    unknown_states = set(counts) - set(LATTICE_STATES)
+    if unknown_states:
+        raise ValueError(f"results outside lattice: {sorted(unknown_states)}")
+    return {state: counts.get(state, 0) for state in LATTICE_STATES}
+
+
+def _stable_value(value, replacements: tuple[tuple[str, str], ...] = ()):
+    if isinstance(value, dict):
+        return {
+            key: _stable_value(item, replacements)
+            for key, item in sorted(value.items())
+        }
+    if isinstance(value, list):
+        return [_stable_value(item, replacements) for item in value]
+    if isinstance(value, tuple):
+        return [_stable_value(item, replacements) for item in value]
+    if isinstance(value, str):
+        for old, new in replacements:
+            value = value.replace(old, new)
+    return value
+
+
+def render_payload(payload: dict) -> bytes:
+    return (
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        + "\n"
+    ).encode("utf-8")
+
+
+def make_payload(
+    profile_name: str,
+    results: list[dict],
+    vanilla_binary: str,
+    crystalline_binary: str,
+    *,
+    vanilla_revision: str = "a51e02804",
+    vanilla_sha256: str | None = None,
+    crystalline_sha256: str | None = None,
+    order_check: dict | None = None,
+) -> dict:
+    ordered = sorted(results, key=lambda result: result["id"])
+    payload = {
+        "schema": "p1288-profile-result/v1",
+        "profile": profile_name,
+        "vanilla_revision": vanilla_revision,
+        "vanilla_binary": vanilla_binary,
+        "vanilla_sha256": vanilla_sha256,
+        "crystalline_binary": crystalline_binary,
+        "crystalline_sha256": crystalline_sha256,
+        "counts": closed_counts(ordered),
+        "total": len(ordered),
+        "results": ordered,
+    }
+    if order_check is not None:
+        payload["order_check"] = order_check
+    return payload
+
+
+def run_case(
+    case: dict,
+    vanilla: pathlib.Path,
+    crystalline: pathlib.Path,
+    artifact_dir: pathlib.Path,
+    profile_name: str = "default",
+    profiles: dict | None = None,
+) -> dict:
+    active_profiles = profiles or {"default": {"features": []}}
+    gate = profile_gate(case, profile_name, active_profiles)
+    if gate is not None:
+        return {
+            "id": case["id"],
+            "eixo": case["eixo"],
+            "estado": gate,
+            "classe": "UNKNOWN" if gate == "UNKNOWN" else None,
+            "expected_state": gate,
+            "expectation_met": True,
+            "nota": case["nota"],
+        }
     if case.get("expected_state") in {"UNMEASURED", "NOT_APPLICABLE"}:
-        return {"id": case["id"], "eixo": case["eixo"], "estado": case["expected_state"], "classe": case["classe"], "nota": case["nota"]}
+        return {"id": case["id"], "eixo": case["eixo"], "estado": "UNKNOWN", "classe": "UNKNOWN", "expected_state": "UNKNOWN", "expectation_met": True, "nota": case["nota"]}
     source = HERE / case["fonte_typ"] if case["fonte_typ"] else None
-    oracle = invoke(vanilla, case["oraculo"]["args"], source, artifact_dir / "oracle", case["oraculo"].get("env"))
-    crystal = invoke(crystalline, case["cristalino"]["args"], source, artifact_dir / "crystalline", case["cristalino"].get("env"))
-    state, inferred_class = classify(case["comparison"], oracle, crystal)
+    active_features = profile_features(active_profiles, profile_name)
+    required_features = set(case.get("required_features", []))
+    oracle_args = with_profile_features(
+        case["oraculo"]["args"], active_features, required_features
+    )
+    crystal_args = with_profile_features(
+        case["cristalino"]["args"], active_features, required_features
+    )
+    oracle = invoke(vanilla, oracle_args, source, artifact_dir / "oracle", case["oraculo"].get("env"))
+    crystal = invoke(crystalline, crystal_args, source, artifact_dir / "crystalline", case["cristalino"].get("env"))
+    state, inferred_class = classify_for_profile(
+        case,
+        profile_name,
+        active_profiles,
+        case["comparison"],
+        oracle,
+        crystal,
+    )
     try:
         observed = comparison_observables(case["comparison"], oracle, crystal, artifact_dir)
     except (OSError, ValueError, subprocess.SubprocessError, ET.ParseError, json.JSONDecodeError) as error:
         observed = {"harness_error": str(error)}
-    result_class = None if state == "MATCH" else (case["classe"] if case["classe"] not in (None, "UNKNOWN") else inferred_class or "UNKNOWN")
-    return {"id": case["id"], "eixo": case["eixo"], "estado": state, "classe": result_class, "expected_state": case.get("expected_state"), "expectation_met": state == case.get("expected_state"), "oracle": oracle, "crystalline": crystal, "observed": observed, "nota": case["nota"]}
+    no_credit = {"MATCH", "DISABLED_BY_PROFILE", "BASELINE_ONLY", "EXTRA_BINDING"}
+    result_class = None if state in no_credit else (case["classe"] if case["classe"] not in (None, "UNKNOWN") else inferred_class or "UNKNOWN")
+    expected = lattice_state(case.get("expected_state", "UNKNOWN"))
+    return {"id": case["id"], "eixo": case["eixo"], "estado": state, "classe": result_class, "expected_state": expected, "expectation_met": state == expected, "oracle": oracle, "crystalline": crystal, "observed": observed, "nota": case["nota"]}
 
 
 def main() -> int:
@@ -321,6 +606,7 @@ def main() -> int:
     parser.add_argument("--vanilla", type=pathlib.Path, default=DEFAULT_VANILLA)
     parser.add_argument("--crystalline", type=pathlib.Path, default=DEFAULT_CRYSTALLINE)
     parser.add_argument("--case")
+    parser.add_argument("--profile", default="default")
     parser.add_argument("--output", type=pathlib.Path)
     parser.add_argument("--validate-only", action="store_true")
     args = parser.parse_args()
@@ -333,30 +619,90 @@ def main() -> int:
     if args.validate_only:
         print(f"valid manifest: {len(manifest['cases'])} cases")
         return 0
+    if args.profile not in manifest["profiles"]:
+        print(f"unknown profile: {args.profile}")
+        return 2
     selected = [case for case in manifest["cases"] if not args.case or case["id"] == args.case]
     if not selected:
         print(f"unknown case: {args.case}")
         return 2
+    def execute(artifact_root: pathlib.Path) -> tuple[list[dict], dict]:
+        forward_root = artifact_root / "forward"
+        reverse_root = artifact_root / "reverse"
+        forward = [
+            run_case(
+                case,
+                args.vanilla.resolve(),
+                args.crystalline.resolve(),
+                forward_root / case["id"],
+                args.profile,
+                manifest["profiles"],
+            )
+            for case in selected
+        ]
+        reverse = [
+            run_case(
+                case,
+                args.vanilla.resolve(),
+                args.crystalline.resolve(),
+                reverse_root / case["id"],
+                args.profile,
+                manifest["profiles"],
+            )
+            for case in reversed(selected)
+        ]
+        forward_stable = _stable_value(
+            forward, ((str(forward_root), "<ARTIFACT_ROOT>"),)
+        )
+        reverse_stable = _stable_value(
+            reverse, ((str(reverse_root), "<ARTIFACT_ROOT>"),)
+        )
+        forward_stable.sort(key=lambda result: result["id"])
+        reverse_stable.sort(key=lambda result: result["id"])
+        forward_digest = hashlib.sha256(render_payload({"results": forward_stable})).hexdigest()
+        reverse_digest = hashlib.sha256(render_payload({"results": reverse_stable})).hexdigest()
+        identical = forward_stable == reverse_stable
+        if not identical:
+            reverse_by_id = {result["id"]: result for result in reverse_stable}
+            for index, result in enumerate(forward_stable):
+                if reverse_by_id.get(result["id"]) != result:
+                    forward_stable[index] = {
+                        "id": result["id"],
+                        "eixo": result["eixo"],
+                        "estado": "UNKNOWN",
+                        "classe": "UNKNOWN",
+                        "expected_state": result.get("expected_state"),
+                        "expectation_met": False,
+                        "nota": "forward/reverse disagreement",
+                    }
+        return forward_stable, {
+            "identical": identical,
+            "forward_sha256": forward_digest,
+            "reverse_sha256": reverse_digest,
+        }
+
     if args.output:
         artifact_root = args.output.parent / f"{args.output.stem}-artifacts"
         artifact_root.mkdir(parents=True, exist_ok=True)
-        results = [run_case(case, args.vanilla.resolve(), args.crystalline.resolve(), artifact_root / case["id"]) for case in selected]
+        results, order_check = execute(artifact_root)
     else:
-        with tempfile.TemporaryDirectory(prefix="p1138-") as tmp:
-            results = [run_case(case, args.vanilla.resolve(), args.crystalline.resolve(), pathlib.Path(tmp) / case["id"]) for case in selected]
-    payload = {
-        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "vanilla_revision": manifest["vanilla_revision"],
-        "vanilla_binary": str(args.vanilla.resolve()),
-        "crystalline_binary": str(args.crystalline.resolve()),
-        "counts": dict(sorted(Counter(result["estado"] for result in results).items())),
-        "results": results,
-    }
-    rendered = json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
+        with tempfile.TemporaryDirectory(prefix="p1288-") as tmp:
+            results, order_check = execute(pathlib.Path(tmp))
+    payload = make_payload(
+        args.profile,
+        results,
+        str(args.vanilla.resolve()),
+        str(args.crystalline.resolve()),
+        vanilla_revision=manifest["vanilla_revision"],
+        vanilla_sha256=sha256_file(args.vanilla) if args.vanilla.is_file() else None,
+        crystalline_sha256=sha256_file(args.crystalline) if args.crystalline.is_file() else None,
+        order_check=order_check,
+    )
+    rendered = render_payload(payload)
     if args.output:
-        args.output.write_text(rendered, encoding="utf-8")
+        args.output.write_bytes(rendered)
     else:
-        print(rendered, end="")
+        print(rendered.decode("utf-8"), end="")
     return 0 if all(result.get("expectation_met", True) for result in results) else 1
 
 

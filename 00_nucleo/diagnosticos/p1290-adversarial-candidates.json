@@ -1,0 +1,318 @@
+{
+  "schema": "p1290-adversarial-candidates/v1",
+  "role": "adversary",
+  "regime": "tekt-materializacao-segregada/full-v1",
+  "manifest_sha256": "235d9ed5015580c8f2c32cf16c6eb3478089f038f10774578ecc896e36f03266",
+  "prompt_sha256": "e584d5b159f04f3cf8d9a485e2c3c64b3df344520403c2407e6955f2c6b07739",
+  "contract_sha256": "0ae42afcbc54ffe62daaec925be5e02ff3218f51ab5864fd64d6be9f7d1e6a26",
+  "candidate_encoding": {
+    "rule": "For each mutation, construct its complete candidate output map by copying canonical_outputs and shallowly replacing every key present in candidate_output_overlay. No key may be added or omitted after expansion.",
+    "required_expanded_keys": [
+      "array.empty",
+      "array.singleton",
+      "array.short",
+      "array.inner_length_49",
+      "array.inner_length_50",
+      "array.inner_length_51",
+      "array.zeros_body_49",
+      "array.zeros_body_52",
+      "array.internal_multiline",
+      "math_op.csc",
+      "math_op.dim",
+      "math_op.lim_limits_true",
+      "math_op.compound_arcsin",
+      "math_op.user_false_string",
+      "math_op.user_true_string",
+      "math_op.user_false_content",
+      "math_op.user_markup",
+      "math_op.user_escaping_string",
+      "math_op.user_escaping_content",
+      "control.non_mathop_sum"
+    ],
+    "complete_after_expansion": true,
+    "unknown_default_for_missing_output": false
+  },
+  "canonical_outputs": {
+    "array.empty": "()",
+    "array.singleton": "(0,)",
+    "array.short": "(0, 1, 2)",
+    "array.inner_length_49": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)",
+    "array.inner_length_50": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)",
+    "array.inner_length_51": "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n)",
+    "array.zeros_body_49": "(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)",
+    "array.zeros_body_52": "(\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n)",
+    "array.internal_multiline": "(\n  (\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n  ),\n  0,\n)",
+    "math_op.csc": "op(text: [csc], limits: false)",
+    "math_op.dim": "op(text: [dim], limits: false)",
+    "math_op.lim_limits_true": "op(text: [lim], limits: true)",
+    "math_op.compound_arcsin": "op(text: [arcsin], limits: false)",
+    "math_op.user_false_string": "op(text: [foo], limits: false)",
+    "math_op.user_true_string": "op(text: [foo], limits: true)",
+    "math_op.user_false_content": "op(text: [foo], limits: false)",
+    "math_op.user_markup": "op(\n  text: sequence(strong(body: [f]), [ ], [oo]),\n  limits: false,\n)",
+    "math_op.user_escaping_string": "op(text: [a \"quote\" \\ slash], limits: false)",
+    "math_op.user_escaping_content": "op(\n  text: sequence([a], [ ], [#], [ ], [*]),\n  limits: false,\n)",
+    "control.non_mathop_sum": "symbol(\"∑\", (\"integral\", \"⨋\"))"
+  },
+  "mutations": [
+    {
+      "id": "M01-mathop-only-csc-dim",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Implements the constructor morphology only for the two native witness names csc and dim, falling back to the content repr for every other MathOp.",
+      "why_negative": "The frozen rule is structural for every MathOp and explicitly forbids nominal specialization or a closed witness list.",
+      "witness": {
+        "case": "math_op.compound_arcsin",
+        "expected": "op(text: [arcsin], limits: false)",
+        "actual": "[arcsin]"
+      },
+      "candidate_output_overlay": {
+        "math_op.lim_limits_true": "[lim]",
+        "math_op.compound_arcsin": "[arcsin]",
+        "math_op.user_false_string": "[foo]",
+        "math_op.user_true_string": "[foo]",
+        "math_op.user_false_content": "[foo]",
+        "math_op.user_markup": "sequence(strong(body: [f]), [ ], [oo])",
+        "math_op.user_escaping_string": "[a \"quote\" \\ slash]",
+        "math_op.user_escaping_content": "sequence([a], [ ], [#], [ ], [*])"
+      }
+    },
+    {
+      "id": "M02-limits-fixed-false",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Serializes the limits field as false independently of the actual MathOp value.",
+      "why_negative": "The public morphology must preserve the actual boolean for native and user-created operators.",
+      "witness": {
+        "case": "math_op.lim_limits_true",
+        "expected": "op(text: [lim], limits: true)",
+        "actual": "op(text: [lim], limits: false)"
+      },
+      "candidate_output_overlay": {
+        "math_op.lim_limits_true": "op(text: [lim], limits: false)",
+        "math_op.user_true_string": "op(text: [foo], limits: false)"
+      }
+    },
+    {
+      "id": "M03-mathop-omit-text",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Emits an op constructor with limits but omits the required text field.",
+      "why_negative": "Both named fields are mandatory; omitting text destroys the operator content morphology.",
+      "witness": {
+        "case": "math_op.csc",
+        "expected": "op(text: [csc], limits: false)",
+        "actual": "op(limits: false)"
+      },
+      "candidate_output_overlay": {
+        "math_op.csc": "op(limits: false)",
+        "math_op.dim": "op(limits: false)",
+        "math_op.lim_limits_true": "op(limits: true)",
+        "math_op.compound_arcsin": "op(limits: false)",
+        "math_op.user_false_string": "op(limits: false)",
+        "math_op.user_true_string": "op(limits: true)",
+        "math_op.user_false_content": "op(limits: false)",
+        "math_op.user_markup": "op(limits: false)",
+        "math_op.user_escaping_string": "op(limits: false)",
+        "math_op.user_escaping_content": "op(limits: false)"
+      }
+    },
+    {
+      "id": "M04-mathop-invert-field-order",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Emits limits before text for every MathOp.",
+      "why_negative": "Field order is an exact textual observable: text must precede limits in both linear and multiline forms.",
+      "witness": {
+        "case": "math_op.dim",
+        "expected": "op(text: [dim], limits: false)",
+        "actual": "op(limits: false, text: [dim])"
+      },
+      "candidate_output_overlay": {
+        "math_op.csc": "op(limits: false, text: [csc])",
+        "math_op.dim": "op(limits: false, text: [dim])",
+        "math_op.lim_limits_true": "op(limits: true, text: [lim])",
+        "math_op.compound_arcsin": "op(limits: false, text: [arcsin])",
+        "math_op.user_false_string": "op(limits: false, text: [foo])",
+        "math_op.user_true_string": "op(limits: true, text: [foo])",
+        "math_op.user_false_content": "op(limits: false, text: [foo])",
+        "math_op.user_markup": "op(\n  limits: false,\n  text: sequence(strong(body: [f]), [ ], [oo]),\n)",
+        "math_op.user_escaping_string": "op(limits: false, text: [a \"quote\" \\ slash])",
+        "math_op.user_escaping_content": "op(\n  limits: false,\n  text: sequence([a], [ ], [#], [ ], [*]),\n)"
+      }
+    },
+    {
+      "id": "M05-array-threshold-49",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Uses an ASCII inner-body multiline threshold of 49 instead of the frozen boundary of 50.",
+      "why_negative": "An inner body of exactly 50 ASCII characters is measured and required to remain linear.",
+      "witness": {
+        "case": "array.inner_length_50",
+        "expected": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)",
+        "actual": "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n)"
+      },
+      "candidate_output_overlay": {
+        "array.inner_length_50": "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n)"
+      }
+    },
+    {
+      "id": "M06-array-threshold-51",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Uses an ASCII inner-body multiline threshold of 51 instead of the frozen boundary of 50.",
+      "why_negative": "An inner body of exactly 51 ASCII characters is measured and required to break across lines.",
+      "witness": {
+        "case": "array.inner_length_51",
+        "expected": "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n)",
+        "actual": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)"
+      },
+      "candidate_output_overlay": {
+        "array.inner_length_51": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)"
+      }
+    },
+    {
+      "id": "M07-no-multiline-trailing-comma",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Omits the terminal comma before a closing delimiter in multiline arrays, sequences and op constructors.",
+      "why_negative": "Every multiline item and field must retain a trailing comma, including the final item at each nesting level.",
+      "witness": {
+        "case": "array.inner_length_51",
+        "expected": "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n)",
+        "actual": "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n)"
+      },
+      "candidate_output_overlay": {
+        "array.inner_length_51": "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n)",
+        "array.zeros_body_52": "(\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0\n)",
+        "math_op.user_markup": "op(\n  text: sequence(strong(body: [f]), [ ], [oo]),\n  limits: false\n)",
+        "math_op.user_escaping_content": "op(\n  text: sequence([a], [ ], [#], [ ], [*]),\n  limits: false\n)"
+      }
+    },
+    {
+      "id": "M08-flat-nested-indentation",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Keeps every nested array line at the outer two-space indentation instead of adding two spaces per nesting level.",
+      "why_negative": "Nested multiline representations must reindent every child line recursively and may not be flattened.",
+      "witness": {
+        "case": "array.internal_multiline",
+        "expected": "(\n  (\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n  ),\n  0,\n)",
+        "actual": "(\n  (\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  ),\n  0,\n)"
+      },
+      "candidate_output_overlay": {
+        "array.internal_multiline": "(\n  (\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  ),\n  0,\n)"
+      }
+    },
+    {
+      "id": "M09-linear-singleton-without-comma",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Formats linear singleton arrays as parenthesized values without the disambiguating comma.",
+      "why_negative": "The singleton comma is part of the frozen public morphology and distinguishes a singleton array from grouping.",
+      "witness": {
+        "case": "array.singleton",
+        "expected": "(0,)",
+        "actual": "(0)"
+      },
+      "candidate_output_overlay": {
+        "array.singleton": "(0)",
+        "array.inner_length_49": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\")",
+        "array.inner_length_50": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\")"
+      }
+    },
+    {
+      "id": "M10-short-array-terminal-comma",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Applies the singleton comma rule to a short multi-item linear array.",
+      "why_negative": "The exact short morphology is the comma-space join without an extra terminal comma.",
+      "witness": {
+        "case": "array.short",
+        "expected": "(0, 1, 2)",
+        "actual": "(0, 1, 2,)"
+      },
+      "candidate_output_overlay": {
+        "array.short": "(0, 1, 2,)"
+      }
+    },
+    {
+      "id": "M11-mathop-omit-limits",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Emits an op constructor with text but omits the required limits field.",
+      "why_negative": "Both fields are mandatory even when limits is false; omission loses an observable boolean and the constructor shape.",
+      "witness": {
+        "case": "math_op.user_false_string",
+        "expected": "op(text: [foo], limits: false)",
+        "actual": "op(text: [foo])"
+      },
+      "candidate_output_overlay": {
+        "math_op.csc": "op(text: [csc])",
+        "math_op.dim": "op(text: [dim])",
+        "math_op.lim_limits_true": "op(text: [lim])",
+        "math_op.compound_arcsin": "op(text: [arcsin])",
+        "math_op.user_false_string": "op(text: [foo])",
+        "math_op.user_true_string": "op(text: [foo])",
+        "math_op.user_false_content": "op(text: [foo])",
+        "math_op.user_markup": "op(\n  text: sequence(strong(body: [f]), [ ], [oo]),\n)",
+        "math_op.user_escaping_string": "op(text: [a \"quote\" \\ slash])",
+        "math_op.user_escaping_content": "op(\n  text: sequence([a], [ ], [#], [ ], [*]),\n)"
+      }
+    },
+    {
+      "id": "M12-content-escaping-loss",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Drops the backslash from string content and drops the escaped literal # and * content from the measured no-SmartQuote sequence.",
+      "why_negative": "Escaping and content morphology are public repr observables; escaped literals cannot be discarded or reconstructed as syntax.",
+      "witness": {
+        "case": "math_op.user_escaping_content",
+        "expected": "op(\n  text: sequence([a], [ ], [#], [ ], [*]),\n  limits: false,\n)",
+        "actual": "op(text: [a], limits: false)"
+      },
+      "candidate_output_overlay": {
+        "math_op.user_escaping_string": "op(text: [a \"quote\" slash], limits: false)",
+        "math_op.user_escaping_content": "op(text: [a], limits: false)"
+      }
+    },
+    {
+      "id": "M13-flatten-multiline-mathop",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Forces MathOp constructors onto one line even when a field representation requires multiline formatting.",
+      "why_negative": "MathOp is bound to the same recursive pretty-print discipline; already multiline field content forces the enclosing constructor multiline.",
+      "witness": {
+        "case": "math_op.user_markup",
+        "expected": "op(\n  text: sequence(strong(body: [f]), [ ], [oo]),\n  limits: false,\n)",
+        "actual": "op(text: sequence(strong(body: [f]), [ ], [oo]), limits: false)"
+      },
+      "candidate_output_overlay": {
+        "math_op.user_markup": "op(text: sequence(strong(body: [f]), [ ], [oo]), limits: false)",
+        "math_op.user_escaping_content": "op(text: sequence([a], [ ], [#], [ ], [*]), limits: false)"
+      }
+    },
+    {
+      "id": "M14-treat-non-mathop-control-as-op",
+      "valid_negative": true,
+      "expected_classification": "Violated",
+      "semantic_fault": "Serializes the math.sum Symbol control through the MathOp constructor shape.",
+      "why_negative": "The frozen fragment explicitly identifies math.sum as a non-MathOp control whose own variant morphology must remain intact.",
+      "witness": {
+        "case": "control.non_mathop_sum",
+        "expected": "symbol(\"∑\", (\"integral\", \"⨋\"))",
+        "actual": "op(text: [∑], limits: false)"
+      },
+      "candidate_output_overlay": {
+        "control.non_mathop_sum": "op(text: [∑], limits: false)"
+      }
+    }
+  ],
+  "scoring": {
+    "denominator_membership": "Every mutation in mutations has valid_negative=true and belongs to the valid-negative denominator.",
+    "required_result_per_mutation": "Violated",
+    "unknown_is_not_rejection": true,
+    "final_score_computed_here": false,
+    "seal_emitted_here": false
+  }
+}

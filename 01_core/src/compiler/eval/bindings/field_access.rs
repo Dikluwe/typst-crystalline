@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash b8c1901a
+//! @prompt-hash ec9ad96f
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -245,6 +245,13 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
         },
         // P685 — Field access em valor-tipo
         Value::Type(t) => match (t, field) {
+            (Type::Float, _) => crate::compiler::stdlib::float_type_field(field)
+                .ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        span,
+                        format!("type float does not contain field \"{field}\""),
+                    )]
+                }),
             (Type::Int, _) => {
                 crate::compiler::stdlib::int_type_field(field).ok_or_else(|| {
                     vec![SourceDiagnostic::error(
@@ -280,6 +287,15 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
                         )]
                     })
             }
+            (Type::Dictionary, _) => {
+                crate::compiler::stdlib::collection_type_field(Type::Dictionary, field)
+                    .ok_or_else(|| {
+                        vec![SourceDiagnostic::error(
+                            span,
+                            format!("type dictionary does not contain field \"{field}\""),
+                        )]
+                    })
+            }
             (Type::Str, _) => {
                 crate::compiler::stdlib::collection_type_field(Type::Str, field)
                     .ok_or_else(|| {
@@ -289,6 +305,40 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
                         )]
                     })
             }
+            (Type::Bytes, _) => {
+                crate::compiler::stdlib::collection_type_field(Type::Bytes, field)
+                    .ok_or_else(|| {
+                        vec![SourceDiagnostic::error(
+                            span,
+                            format!("type bytes does not contain field \"{field}\""),
+                        )]
+                    })
+            }
+            (Type::Arguments, _) => {
+                crate::compiler::stdlib::collection_type_field(Type::Arguments, field)
+                    .ok_or_else(|| {
+                        vec![SourceDiagnostic::error(
+                            span,
+                            format!("type arguments does not contain field \"{field}\""),
+                        )]
+                    })
+            }
+            (
+                Type::Direction
+                | Type::Alignment
+                | Type::Duration
+                | Type::Length
+                | Type::Selector
+                | Type::State
+                | Type::Location,
+                _,
+            ) => crate::compiler::eval::call_dispatch::p1284_type_field(t, field)
+                .ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        span,
+                        format!("type {} does not contain field \"{field}\"", t.name()),
+                    )]
+                }),
             (Type::Color, _) => crate::compiler::stdlib::color_type_field(field)
                 .ok_or_else(|| {
                     vec![SourceDiagnostic::error(

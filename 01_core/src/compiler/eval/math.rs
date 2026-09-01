@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash dca284d3
+//! @prompt-hash ae9c33ea
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -363,13 +363,10 @@ fn eval_math_expr(
             // pré-P301 preservada até aqui).
             Err(vec![unknown_variable_math(ident.span(), name, scopes.has_global(name))])
         }
-        Expr::MathText(text) => {
-            let s = match text.get() {
-                MathTextKind::Grapheme(s) => s,
-                MathTextKind::Number(s) => s,
-            };
-            Ok(Content::MathText(s.into()))
-        }
+        Expr::MathText(text) => match text.get() {
+            MathTextKind::Grapheme(s) => Ok(Content::MathIdent(s.into())),
+            MathTextKind::Number(s) => Ok(Content::MathText(s.into())),
+        },
         Expr::MathShorthand(sh) => Ok(Content::MathText(sh.get().to_string().into())),
         Expr::MathFrac(frac) => {
             let num = eval_math_expr(scopes, ctx, engine, frac.num())?;

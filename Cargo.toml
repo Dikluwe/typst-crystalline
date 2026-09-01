@@ -71,3 +71,4 @@ two-face             = { version = "0.4.3", default-features = false, features =
 
 # lorem byte-parity — P805 (mesma crate do vanilla: Markov chain determinística)
 lipsum               = "0.9.1"
+codex                = "=0.3.0" # P1283 — catálogo declarativo pinado de sym/emoji

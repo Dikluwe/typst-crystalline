@@ -1,0 +1,32 @@
+{
+  "schema": "p1290-candidate-gate-report/v1",
+  "result": "Preserved",
+  "binary_sha256": "115f68b84cee409e332e3cff316ac96e9fa2de2e06638fae88ce2d55b8a2c4d0",
+  "vanilla_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+  "seal_v4_sha256": "03ff5d26678b01d9078e0ea43aa2ac4838ab3120622575aa1766b6f36340b63c",
+  "candidate_gate_sha256": "a68e1457a1fdac9e9828fd6008a0a8eb0ce0b23fb94fb725eb04ba5a3691b29d",
+  "probe_sha256": "6ac1fed77e50b0ed7b7962048427be1c87ca9917d55c181a35d6ea4e01a6229b",
+  "bilateral_equal": true,
+  "repeat_equal": true,
+  "positive_cases": 21,
+  "oracle_counts": {
+    "Preserved": 84,
+    "Unknown": 0,
+    "Violated": 0
+  },
+  "commands": [
+    {
+      "argv": ["/usr/local/bin/typst", "query", "00_nucleo/diagnosticos/p1290-contract-probes.typ", "<p1290-contract>", "--field", "value", "--one", "--pretty"],
+      "exit": 0
+    },
+    {
+      "argv": ["/tmp/p1290-final-target/release/typst", "query", "00_nucleo/diagnosticos/p1290-contract-probes.typ", "<p1290-contract>", "--field", "value", "--one", "--pretty"],
+      "exit": 0,
+      "runs": 2
+    }
+  ],
+  "output_sha256": {
+    "vanilla": "18913bdd11e4888d48fb614e437223809094fa826c0d914d68d959047d0364cd",
+    "candidate": "18913bdd11e4888d48fb614e437223809094fa826c0d914d68d959047d0364cd"
+  }
+}

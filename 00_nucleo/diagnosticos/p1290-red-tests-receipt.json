@@ -1,0 +1,130 @@
+{
+  "schema": "p1290-independent-red-tests-receipt/v1",
+  "protocol": "tekt-materializacao-segregada/full-v1",
+  "regime": "protocolo-completo",
+  "role": {
+    "name": "Testador A",
+    "executor": "/root/p1290_tests_a",
+    "environment": "shared workspace; isolated Cargo target directory",
+    "independence_claim": "segregated by declared capabilities and causal order; filesystem read isolation is not technically attested"
+  },
+  "causal_predecessor": {
+    "seal_path": "00_nucleo/diagnosticos/p1290-seal.json",
+    "seal_sha256": "18f2329888c79d64a8459bfa507f622a710745dd94c65c7586cc5b52967c7f6e",
+    "seal_status": "sealed-for-independent-tests-and-implementation"
+  },
+  "sealed_inputs": {
+    "prompt": {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256_before": "e931f91a21f76334cd24ad155b6ec79ffdcb9ea2dcbc3555830ef8b9728e5432",
+      "sha256_after": "e931f91a21f76334cd24ad155b6ec79ffdcb9ea2dcbc3555830ef8b9728e5432"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1290-contract.json",
+      "sha256_before": "5624ef55a2ffb070eb29f6d918f0ebd169fb471d07c56a3d293c900c8842d65b",
+      "sha256_after": "5624ef55a2ffb070eb29f6d918f0ebd169fb471d07c56a3d293c900c8842d65b"
+    },
+    "seal": {
+      "path": "00_nucleo/diagnosticos/p1290-seal.json",
+      "sha256_before": "18f2329888c79d64a8459bfa507f622a710745dd94c65c7586cc5b52967c7f6e",
+      "sha256_after": "18f2329888c79d64a8459bfa507f622a710745dd94c65c7586cc5b52967c7f6e"
+    },
+    "baseline_consumer": {
+      "path": "01_core/src/compiler/eval/repr.rs",
+      "sha256_before_tests": "7c56b8c79f489abe568ec3a104cae79f08dab81d9be3bccae6689a15a6589bf4",
+      "sha256_after_tests": "66420f7408d9889452f2c0a5061cc37ece7963d1a82ad9c0bc24f52b590ae3a2"
+    }
+  },
+  "capabilities": {
+    "read": [
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "AGENTS.md instructions supplied in task context",
+      "01_core/CLAUDE.md",
+      "Cargo.toml",
+      "01_core/Cargo.toml",
+      "00_nucleo/adr/*.md (keyword scan for an applicable segregated-materialization ADR; no match)",
+      "00_nucleo/prompts/compiler/eval/repr.md",
+      "00_nucleo/diagnosticos/p1290-contract.json",
+      "00_nucleo/diagnosticos/p1290-seal.json",
+      "01_core/src/compiler/eval/repr.rs",
+      "01_core/src/entities/content.rs",
+      "01_core/src/entities/elements/math_op.rs",
+      "repository Git metadata and diff for provenance validation"
+    ],
+    "write": [
+      "01_core/src/compiler/eval/repr.rs #[cfg(test)] only",
+      "00_nucleo/diagnosticos/p1290-red-tests-receipt.json"
+    ],
+    "cargo_target_dir": "/tmp/p1290-tests-a-target",
+    "candidate_implementation_read": false,
+    "oracle_or_mutation_artifact_read": false,
+    "protected_input_modified": false
+  },
+  "test_run": {
+    "started_at": "2026-08-31T11:20:32-03:00",
+    "finished_at": "2026-08-31T11:21:40-03:00",
+    "elapsed_observed_seconds": 68,
+    "command": "CARGO_TARGET_DIR=/tmp/p1290-tests-a-target cargo test -p typst-core p1290_ -- --nocapture",
+    "exit_code": 101,
+    "compiled": true,
+    "result": "RED-semantic",
+    "summary": {
+      "executed": 7,
+      "passed": 1,
+      "failed": 6,
+      "ignored": 0,
+      "filtered_out": 5330
+    },
+    "passed_controls": [
+      "p1290_array_vazio_singleton_e_curto"
+    ],
+    "failed_tests": [
+      "p1290_array_fronteira_ascii_49_50_51",
+      "p1290_array_item_multiline_reindenta_recursivamente",
+      "p1290_math_op_estrutura_geral_preserva_limits_false_e_true",
+      "p1290_math_op_campos_em_ordem_e_conteudo_markup_multiline",
+      "p1290_math_op_conteudo_preserva_aspas_e_barra_invertida",
+      "p1290_math_op_conteudo_escapado_estrutural"
+    ],
+    "failure_witnesses": [
+      {
+        "test": "p1290_array_fronteira_ascii_49_50_51",
+        "observed": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)",
+        "required": "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n)",
+        "semantic_divergence": "51-character ASCII inner body remained linear"
+      },
+      {
+        "test": "p1290_array_item_multiline_reindenta_recursivamente",
+        "observed": "((\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",),)",
+        "required": "(\n  (\n    \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n  ),\n)",
+        "semantic_divergence": "multiline child did not force or recursively indent the parent"
+      },
+      {
+        "test": "p1290_math_op_estrutura_geral_preserva_limits_false_e_true",
+        "observed": "op([tensor-op])",
+        "required": "op(text: [tensor-op], limits: false)",
+        "semantic_divergence": "named text and limits fields were omitted"
+      },
+      {
+        "test": "p1290_math_op_conteudo_escapado_estrutural",
+        "observed": "op(sequence([a], [ ], [#], [ ], \", [quote], \"))",
+        "required_prefix": "op(\n  text: sequence(\n",
+        "semantic_divergence": "structured escaped content and MathOp fields were flattened"
+      }
+    ]
+  },
+  "scope": {
+    "covered": [
+      "empty, singleton and short arrays",
+      "ASCII inner-body boundary 49/50/51",
+      "already-multiline child, recursive indentation and trailing commas",
+      "structural MathOp with arbitrary false and true limits",
+      "text-before-limits field order and presence",
+      "multiline markup and directly representable quote/backslash content"
+    ],
+    "claim_limit": "This receipt establishes an independent compiling RED suite only; it does not attest a future implementation or general functional equivalence."
+  },
+  "verdict": "RED confirmed by semantic assertion failures on the frozen baseline; no compilation error"
+}

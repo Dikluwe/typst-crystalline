@@ -1,5 +1,5 @@
 # Prompt L0 — entidade de conteúdo HTML
-Hash do Código: 453c2796
+Hash do Código: ac225f13
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9

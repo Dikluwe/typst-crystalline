@@ -1,0 +1,19 @@
+{
+  "schema": "p1290-contract-reseal-invalidation/v1",
+  "invalidated_at": "2026-08-31T12:33:26-03:00",
+  "invalidated_artifact": {
+    "path": "00_nucleo/diagnosticos/p1290-contract-receipt-v3.json",
+    "sha256": "d39b87ddf8bbcebe6c1d4cf9393ba30d5a43b8e82975af23531da352e9560ddb"
+  },
+  "invalidated_canonical_identities": {
+    "prompt_sha256": "8ca22b44402960e148b10d3c0fedbfadd72ef9a8dc128697a18b3deed71e83fb",
+    "manifest_sha256": "c61d7d08d1c96fb08efa4e4f2019bfe1d497cfa5952e92c402ba124e6bd3907b",
+    "contract_sha256": "9f950f20240b8ae50ed66231167643ed5771371d01eef7b7bb6f1d022135ff5d"
+  },
+  "cause": "The v3 lineage event inverted the two linter identities: it treated 52efe145 as Hash do Código and 19c40081 as consumer @prompt-hash. The verified mapping is Hash do Código=19c40081 and consumer @prompt-hash=52efe145.",
+  "first_affected_phase": "contract identity repin",
+  "semantic_contract_impact": "none",
+  "probe_impact": "none",
+  "required_recovery": "Repin from the unchanged protected v2 normative prompt and probe using the corrected current L0 identity, then propagate new canonical hashes through oracle and adversarial artifacts before a new verifier seal.",
+  "authority_boundary": "This record invalidates identities only and emits no materialization verdict."
+}

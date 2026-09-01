@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash 1ab23ae7
+//! @prompt-hash 47aef04d
 //! @layer L1
 //! @updated 2026-06-22
 
@@ -85,7 +85,8 @@ pub use crate::compiler::stdlib::foundations::{
     read_path_value, resolve_path_value,
 };
 pub(crate) use crate::compiler::stdlib::foundations::{
-    dispatch_int_method, is_int_instance_method,
+    dispatch_float_method, dispatch_int_method, float_type_field,
+    is_float_instance_method, is_int_instance_method,
 };
 pub use crate::compiler::stdlib::html::{make_html_module, native_html_elem};
 // P506 — state/counter/context como valores de primeira classe.
@@ -264,7 +265,7 @@ mod tests {
     use crate::entities::engine::Engine;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
-    use crate::entities::layout_types::{Angle, Color, Length};
+    use crate::entities::layout_types::{Angle, Color, Length, Ratio};
     use crate::entities::show::{RuleId, ShowRule};
     use crate::entities::sink::Sink;
     use crate::entities::source::Source;
@@ -523,7 +524,7 @@ mod tests {
         null_ctx!(ctx);
         let r = native_oklab(
             &mut ctx,
-            &p(vec![Value::Float(0.5), Value::Float(0.0), Value::Float(0.0)]),
+            &p(vec![Value::Ratio(Ratio(0.5)), Value::Float(0.0), Value::Float(0.0)]),
             &null_world(),
             test_file_id(),
         )
@@ -550,10 +551,10 @@ mod tests {
         let r = native_oklab(
             &mut ctx,
             &p(vec![
-                Value::Float(1.0),
+                Value::Ratio(Ratio(1.0)),
                 Value::Float(0.0),
                 Value::Float(0.0),
-                Value::Float(0.5),
+                Value::Ratio(Ratio(0.5)),
             ]),
             &null_world(),
             test_file_id(),
@@ -573,7 +574,11 @@ mod tests {
         null_ctx!(ctx);
         let r = native_oklch(
             &mut ctx,
-            &p(vec![Value::Float(0.5), Value::Float(0.0), Value::Float(0.0)]),
+            &p(vec![
+                Value::Ratio(Ratio(0.5)),
+                Value::Float(0.0),
+                Value::Angle(Angle::deg(0.0)),
+            ]),
             &null_world(),
             test_file_id(),
         )
@@ -609,10 +614,10 @@ mod tests {
         let r = native_cmyk(
             &mut ctx,
             &p(vec![
-                Value::Float(0.0),
-                Value::Float(0.0),
-                Value::Float(0.0),
-                Value::Float(0.0),
+                Value::Ratio(Ratio(0.0)),
+                Value::Ratio(Ratio(0.0)),
+                Value::Ratio(Ratio(0.0)),
+                Value::Ratio(Ratio(0.0)),
             ]),
             &null_world(),
             test_file_id(),
@@ -633,7 +638,11 @@ mod tests {
         null_ctx!(ctx);
         let r = native_cmyk(
             &mut ctx,
-            &p(vec![Value::Float(0.0), Value::Float(0.0), Value::Float(0.0)]),
+            &p(vec![
+                Value::Ratio(Ratio(0.0)),
+                Value::Ratio(Ratio(0.0)),
+                Value::Ratio(Ratio(0.0)),
+            ]),
             &null_world(),
             test_file_id(),
         );
@@ -645,7 +654,11 @@ mod tests {
         null_ctx!(ctx);
         let r = native_hsl(
             &mut ctx,
-            &p(vec![Value::Float(0.0), Value::Float(1.0), Value::Float(0.5)]),
+            &p(vec![
+                Value::Angle(Angle::deg(0.0)),
+                Value::Ratio(Ratio(1.0)),
+                Value::Ratio(Ratio(0.5)),
+            ]),
             &null_world(),
             test_file_id(),
         )
@@ -665,7 +678,11 @@ mod tests {
         null_ctx!(ctx);
         let r = native_hsv(
             &mut ctx,
-            &p(vec![Value::Float(0.0), Value::Float(0.0), Value::Float(1.0)]),
+            &p(vec![
+                Value::Angle(Angle::deg(0.0)),
+                Value::Ratio(Ratio(0.0)),
+                Value::Ratio(Ratio(1.0)),
+            ]),
             &null_world(),
             test_file_id(),
         )
@@ -4750,22 +4767,34 @@ mod tests {
 
     // ── P804 — `line(length:)`, `line(angle:)` (paridade vanilla) ─────────
 
+    fn p804_open_path_points(
+        kind: &crate::entities::geometry::ShapeKind,
+    ) -> ((f64, f64), (f64, f64)) {
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        match kind {
+            ShapeKind::Path(items) => match items.as_slice() {
+                [PathItem::MoveTo(start), PathItem::LineTo(end)] => {
+                    ((start.x.val(), start.y.val()), (end.x.val(), end.y.val()))
+                }
+                other => panic!("esperado path aberto de dois pontos: {other:?}"),
+            },
+            other => panic!("esperado Path, obtido {other:?}"),
+        }
+    }
+
     #[test]
     fn p804_line_length_sozinho() {
         // P804 — `#line(length: 3cm)` era rejeitado ("argumento nomeado
         // inesperado"); vanilla aceita: dx = cos(0)·length, dy = sin(0)·length.
-        use crate::entities::geometry::ShapeKind;
         use crate::entities::layout_types::Length;
         null_ctx!(ctx);
         let mut args = Args::positional(vec![]);
         args.named.insert("length".into(), Value::Length(Length::pt(85.04))); // 3cm
         let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
-            assert!(
-                matches!(e.kind, ShapeKind::Line { dx, dy } if (dx - 85.04).abs() < 0.01 && dy.abs() < 0.01),
-                "esperado Line dx=85.04 dy=0, obtido: {:?}",
-                e.kind
-            );
+            let (start, end) = p804_open_path_points(&e.kind);
+            assert_eq!(start, (0.0, 0.0));
+            assert!((end.0 - 85.04).abs() < 0.01 && end.1.abs() < 0.01, "end={end:?}");
         } else {
             panic!("Esperado Content::Shape");
         }
@@ -4775,7 +4804,6 @@ mod tests {
     fn p804_line_length_com_angle() {
         // P804 — `#line(length: 4cm, angle: 90deg)` → dx≈0, dy=4cm
         // (paridade vanilla layout_line: delta = (cos·len, sin·len)).
-        use crate::entities::geometry::ShapeKind;
         use crate::entities::layout_types::{Angle, Length};
         null_ctx!(ctx);
         let mut args = Args::positional(vec![]);
@@ -4783,11 +4811,9 @@ mod tests {
         args.named.insert("angle".into(), Value::Angle(Angle::deg(90.0)));
         let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
-            assert!(
-                matches!(e.kind, ShapeKind::Line { dx, dy } if dx.abs() < 0.01 && (dy - 113.39).abs() < 0.01),
-                "esperado Line dx≈0 dy=113.39, obtido: {:?}",
-                e.kind
-            );
+            let (start, end) = p804_open_path_points(&e.kind);
+            assert_eq!(start, (0.0, 0.0));
+            assert!(end.0.abs() < 0.01 && (end.1 - 113.39).abs() < 0.01, "end={end:?}");
         } else {
             panic!("Esperado Content::Shape");
         }
@@ -4797,7 +4823,6 @@ mod tests {
     fn p804_line_length_ignorado_com_end() {
         // P804 — medido no vanilla 0.15.0: `#line(length: 3cm, end: (1cm, 1cm))`
         // compila e `length` é IGNORADO ("only respected if end is none").
-        use crate::entities::geometry::ShapeKind;
         use crate::entities::layout_types::Length;
         null_ctx!(ctx);
         let mut args = Args::positional(vec![]);
@@ -4811,10 +4836,12 @@ mod tests {
         );
         let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
+            let (start, end) = p804_open_path_points(&e.kind);
+            assert_eq!(start, (0.0, 0.0));
             assert!(
-                matches!(e.kind, ShapeKind::Line { dx, dy } if (dx - Length::PT_PER_CM).abs() < 0.01 && (dy - Length::PT_PER_CM).abs() < 0.01),
-                "esperado Line do end (length ignorado), obtido: {:?}",
-                e.kind
+                (end.0 - Length::PT_PER_CM).abs() < 0.01
+                    && (end.1 - Length::PT_PER_CM).abs() < 0.01,
+                "end deve prevalecer sobre length: {end:?}"
             );
         } else {
             panic!("Esperado Content::Shape");
@@ -10221,9 +10248,12 @@ mod tests {
     fn native_table_header_named_arg_desconhecido_rejeitado() {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("body"))]);
-        args.named.insert("level".into(), Value::Int(2));
+        args.named.insert("repeat-rows".into(), Value::Int(2));
         let r = native_table_header(&mut ctx, &args, &null_world(), test_file_id());
-        assert!(r.is_err(), "level (scope-out) em table_header() deve retornar Err");
+        assert!(
+            r.is_err(),
+            "repeat-rows (scope-out) em table_header() deve retornar Err"
+        );
     }
 
     #[test]
@@ -11837,31 +11867,59 @@ mod tests {
     }
 
     #[test]
-    fn p287_native_smartquote_alternative_rejeitado_com_erro_educacional() {
-        // Scope-out per ADR-0054 graded — erro menciona ADR.
+    fn p287_native_smartquote_alternative_preserva_override_no_carrier() {
         use super::native_smartquote;
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("alternative".into(), Value::Bool(true));
-        let err = native_smartquote(&mut ctx, &args, &null_world(), test_file_id())
+        let value =
+            native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        match value {
+            Value::Content(Content::SmartQuote(e)) => {
+                assert!(e.double);
+                assert_eq!(e.alternative, Some(true));
+                assert!(e.quotes.is_none());
+            }
+            other => panic!("esperado SmartQuote carrier, obtido {other:?}"),
+        }
+
+        let mut invalid = p(vec![]);
+        invalid.named.insert("alternative".into(), Value::Int(1));
+        let err = native_smartquote(&mut ctx, &invalid, &null_world(), test_file_id())
             .unwrap_err();
-        let msg = format!("{:?}", err);
-        assert!(
-            msg.contains("alternative") && msg.contains("ADR-0054"),
-            "erro deve referir 'alternative' e ADR-0054: {msg}"
-        );
+        assert!(format!("{err:?}").contains("bool"));
     }
 
     #[test]
-    fn p287_native_smartquote_quotes_custom_scope_out_erro_explicito() {
-        // `quotes` (custom string/array/dict) é scope-out per §A.1.3.
+    fn p287_native_smartquote_quotes_custom_preserva_par_no_carrier() {
         use super::native_smartquote;
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("quotes".into(), Value::Str("()".into()));
-        let err = native_smartquote(&mut ctx, &args, &null_world(), test_file_id())
+        let value =
+            native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        match value {
+            Value::Content(Content::SmartQuote(e)) => match e.quotes.as_ref() {
+                Some(
+                    crate::entities::elements::smartquote::SmartQuoteQuotes::Custom(
+                        overrides,
+                    ),
+                ) => {
+                    assert!(overrides.single.is_none());
+                    let pair = overrides.double.as_ref().expect("override double");
+                    assert_eq!(pair.open.as_str(), "(");
+                    assert_eq!(pair.close.as_str(), ")");
+                }
+                other => panic!("esperado quotes custom, obtido {other:?}"),
+            },
+            other => panic!("esperado SmartQuote carrier, obtido {other:?}"),
+        }
+
+        let mut invalid = p(vec![]);
+        invalid.named.insert("quotes".into(), Value::Str("x".into()));
+        let err = native_smartquote(&mut ctx, &invalid, &null_world(), test_file_id())
             .unwrap_err();
-        assert!(format!("{:?}", err).contains("quotes"));
+        assert!(format!("{err:?}").contains("expected 2 characters"));
     }
 
     #[test]

@@ -77,3 +77,10 @@ Int/Int divisão → Float (semântica eval.rs, não stdlib)
 O hub reexporta `CollectionCallSpans` somente em `pub(crate)` para ligar
 `eval/call_dispatch` ao owner `stdlib/collections`. O tipo não entra na API da
 linguagem nem em contratos externos e não contém valores avaliados.
+
+## P1289 — reexport interno do owner `float`
+
+O registo raiz reexporta em `pub(crate)` somente
+`float_type_field`, `is_float_instance_method` e `dispatch_float_method` do
+owner `foundations/float`. O hub não contém lookup, fórmula ou validação e não
+amplia a API Rust externa.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/smartquote.md
-//! @prompt-hash 02ba82cf
+//! @prompt-hash 8c7c6a0f
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -19,19 +19,42 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &SmartQuoteElem,
 ) {
-    let glyph: &str = if e.double {
-        let (open, close) = match &layouter.style.lang {
-            Some(l) => crate::compiler::lang::quotes::localize_quotes(l),
-            None => crate::compiler::lang::quotes::DEFAULT_QUOTES,
+    let alternative = e.alternative.unwrap_or_else(|| {
+        match layouter.chain.custom("smartquote.alternative") {
+            Some(crate::entities::value::Value::Bool(value)) => *value,
+            _ => false,
+        }
+    });
+    let inherited_quotes = layouter.chain.custom("smartquote.quotes").and_then(|value| {
+        crate::compiler::lang::quotes::parse_smartquote_quotes(
+            value,
+            crate::entities::span::Span::detached(),
+        )
+        .ok()
+    });
+    let quotes = e.quotes.as_ref().or(inherited_quotes.as_ref());
+    let pair = crate::compiler::lang::quotes::resolve_smartquote_pair(
+        layouter.style.lang.as_ref(),
+        alternative,
+        quotes,
+        e.double,
+    );
+    let glyph = if e.double {
+        let g = if layouter.smartquote_double_open {
+            pair.open.as_str()
+        } else {
+            pair.close.as_str()
         };
-        let g = if layouter.smartquote_double_open { open } else { close };
         layouter.smartquote_double_open = !layouter.smartquote_double_open;
         g
     } else {
-        // Aspas simples — paridade P155 §A.1.2: always ASCII,
-        // smart-apostrophes scope-out.
+        let g = if layouter.smartquote_single_open {
+            pair.open.as_str()
+        } else {
+            pair.close.as_str()
+        };
         layouter.smartquote_single_open = !layouter.smartquote_single_open;
-        "'"
+        g
     };
     layouter.layout_word(glyph);
 }

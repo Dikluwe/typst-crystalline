@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash e1a5c43d
+//! @prompt-hash 35260452
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -118,6 +118,14 @@ pub fn parse_selector(s: &str) -> Result<ParsedSelector, QueryError> {
             return Err(QueryError::InvalidSelector("empty label".to_string()));
         }
         return Ok(ParsedSelector::Label(label.to_string()));
+    }
+    // Text and regex selectors are meaningful for show rules, but cannot be
+    // resolved to a location by the introspector. Keep this diagnostic
+    // distinct from the generic complex-selector error.
+    if (trimmed.starts_with('"') && trimmed.ends_with('"'))
+        || trimmed.starts_with("regex(")
+    {
+        return Err(QueryError::InvalidSelector("text is not locatable".to_string()));
     }
     // P480 — alias vanilla: `math.equation` → ElementKind::Equation.
     // Vanilla rejeita `equation` standalone; aceita `math.equation`.
@@ -312,6 +320,7 @@ fn has_any_text(content: &Content) -> bool {
         Content::Equation(equation) => has_any_text(&equation.body),
         Content::Bibliography(bib) => bib.title.as_ref().map_or(false, has_any_text),
         Content::Label(label) => has_any_text(&label.body),
+        Content::PdfArtifact(artifact) => has_any_text(&artifact.body),
         Content::Heading(_)
         | Content::Metadata(_) | Content::State(_) | Content::StateUpdate(_)
         | Content::StateDisplay(_) | Content::CounterDisplayCallback(_) | Content::CounterDisplay(_)
@@ -328,7 +337,7 @@ fn has_any_text(content: &Content) -> bool {
         | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathClassOverride(_)
         | Content::MathLimitsOverride(_)
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
-        | Content::SmartQuote(_) | Content::Dynamic(_)
+        | Content::SmartQuote(_) | Content::Dynamic(_) | Content::PdfAttach(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
         | Content::ContextBlock(_)
         | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_)
@@ -391,6 +400,7 @@ where
         Content::Equation(equation) => count_variant(&equation.body, predicate),
         Content::Bibliography(bib) => bib.title.as_ref().map_or(0, |t| count_variant(t, predicate)),
         Content::Label(label) => count_variant(&label.body, predicate),
+        Content::PdfArtifact(artifact) => count_variant(&artifact.body, predicate),
         Content::Heading(_) | Content::Link(_) | Content::Raw(_) | Content::Metadata(_)
         | Content::State(_) | Content::StateUpdate(_) | Content::StateDisplay(_)
         | Content::CounterDisplayCallback(_) | Content::CounterDisplay(_)
@@ -405,7 +415,7 @@ where
         | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathClassOverride(_)
         | Content::MathLimitsOverride(_)
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
-        | Content::SmartQuote(_) | Content::Dynamic(_)
+        | Content::SmartQuote(_) | Content::Dynamic(_) | Content::PdfAttach(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
         | Content::ContextBlock(_)
         | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_)
@@ -448,10 +458,18 @@ pub fn query_elements(
     let parsed = match parse_selector(selector) {
         Ok(parsed) => parsed,
         Err(error) => {
+            let message = match error {
+                QueryError::InvalidSelector(message)
+                    if message == "text is not locatable" =>
+                {
+                    message
+                }
+                other => other.to_string(),
+            };
             return (
-                Err(vec![SourceDiagnostic::error(Span::detached(), error.to_string())]),
+                Err(vec![SourceDiagnostic::error(Span::detached(), message)]),
                 Vec::new(),
-            )
+            );
         }
     };
     let (evaluated, warnings) = eval_to_module_with_sink(world, source);
@@ -462,18 +480,42 @@ pub fn query_elements(
     let Some(content) = module.content() else {
         return (Ok(Vec::new()), warnings);
     };
-    let intr_content = module.introspection_content().unwrap_or(content);
-    let intr = introspect(intr_content);
-    let locations = match parsed {
-        ParsedSelector::Kind(kind) => intr.query_by_kind(kind),
+    let locations_for = |intr: &TagIntrospector| match &parsed {
+        ParsedSelector::Kind(kind) => intr.query_by_kind(*kind),
         ParsedSelector::Label(label) => {
-            intr.query_by_label(&Label(label)).into_iter().collect()
+            intr.query_by_label(&Label(label.clone())).into_iter().collect()
         }
     };
+    let original_intr = introspect(module.introspection_content().unwrap_or(content));
+    let original_locations = locations_for(&original_intr);
+    let realized_intr = introspect(content);
+    let realized_locations = locations_for(&realized_intr);
+    // The pre-show tree keeps original locatable elements queryable (P498),
+    // while the realized tree may introduce new locatable elements from a
+    // show recipe. Prefer the realized index only when it carries additional
+    // matches; equal/fewer matches preserve the original-element contract.
+    let (intr, locations) = if realized_locations.len() > original_locations.len() {
+        (&realized_intr, realized_locations)
+    } else {
+        (&original_intr, original_locations)
+    };
+    let labelled = intr.query_labelled();
     let mut elements = Vec::with_capacity(locations.len());
     for location in locations {
         match intr.element_at(location) {
-            Some(element) => elements.push(element.clone()),
+            Some(element) => {
+                let label = match &parsed {
+                    ParsedSelector::Label(label) => Some(label.as_str()),
+                    ParsedSelector::Kind(_) => labelled
+                        .iter()
+                        .find(|(_, labelled_location)| *labelled_location == location)
+                        .map(|(label, _)| label.0.as_str()),
+                };
+                elements.push(match label {
+                    Some(label) => Content::label_auto(label, element.clone()),
+                    None => element.clone(),
+                });
+            }
             None => {
                 return (
                     Err(vec![SourceDiagnostic::error(
@@ -788,5 +830,37 @@ mod tests {
         let summary = run_query("Texto#footnote[Nota]", "footnote").unwrap();
         assert_eq!(summary.count, 1);
         assert_eq!(summary.kind_name.as_deref(), Some("footnote"));
+    }
+
+    fn p1285_query_elements(src: &str, selector: &str) -> Vec<Content> {
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let (result, warnings) = query_elements(&world, &source, selector);
+        assert!(warnings.is_empty(), "warnings inesperados: {warnings:?}");
+        result.unwrap_or_else(|diagnostics| panic!("query falhou: {diagnostics:?}"))
+    }
+
+    #[test]
+    fn p1285_query_elements_recupera_metadata_e_figure_na_ordem() {
+        let src = "#metadata((name: \"x\", n: 2))\n#figure[one]\n";
+
+        let metadata = p1285_query_elements(src, "metadata");
+        assert_eq!(metadata.len(), 1);
+        assert!(matches!(metadata[0], Content::Metadata(_)));
+
+        let figures = p1285_query_elements(src, "figure");
+        assert_eq!(figures.len(), 1);
+        assert!(matches!(figures[0], Content::Figure(_)));
+    }
+
+    #[test]
+    fn p1285_query_elements_transporta_label_sem_criar_match_extra() {
+        let elements = p1285_query_elements("#figure[one] <fig-one>\n", "<fig-one>");
+        assert_eq!(elements.len(), 1);
+        let Content::Label(label) = &elements[0] else {
+            panic!("label deve envolver o elemento original: {:?}", elements[0]);
+        };
+        assert_eq!(label.name.as_str(), "fig-one");
+        assert!(matches!(label.body, Content::Figure(_)));
     }
 }

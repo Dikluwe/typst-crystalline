@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash e6842462
+//! @prompt-hash 35fdd87b
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -207,6 +207,11 @@ struct CompileArgs {
     #[arg(long = "no-pdf-tags", action = clap::ArgAction::SetTrue)]
     no_pdf_tags: bool,
 
+    /// P1286 — compatibilidade de invocação para o fragmento PDF 2.0
+    /// medido; oculto porque conformidade/seleção real ainda não existe.
+    #[arg(long = "pdf-standard", value_name = "STANDARD", hide = true)]
+    _pdf_standard: Option<String>,
+
     /// P980 — FERRAMENTA DE DIAGNÓSTICO: emite o PDF do oráculo de
     /// paridade de operador (transformações `Tj`/`TJ` e futuras checks de
     /// paridade) em vez do PDF normal. Não é um formato de produção.
@@ -300,9 +305,11 @@ struct QueryArgs {
     pretty: bool,
 }
 
-#[derive(Debug, Clone, Copy, clap::ValueEnum)]
-enum QueryFormat {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum, Default)]
+pub enum QueryFormat {
+    #[default]
     Json,
+    Yaml,
 }
 
 #[derive(Debug, clap::Args)]
@@ -324,6 +331,7 @@ struct EvalArgs {
 pub enum EvalFormat {
     #[default]
     Json,
+    Yaml,
     Raw,
 }
 
@@ -386,6 +394,7 @@ pub struct QueryIntent {
     pub field: Option<String>,
     pub one: bool,
     pub pretty: bool,
+    pub format: QueryFormat,
     pub colored: bool,
     pub cert_path: Option<PathBuf>,
 }
@@ -481,6 +490,7 @@ pub fn parse() -> RunIntent {
             field: query.field,
             one: query.one,
             pretty: query.pretty,
+            format: query.format,
             colored,
             cert_path,
         }),
@@ -615,17 +625,8 @@ pub fn serialize_eval(
                 eval_type_name(other)
             )),
         },
-        EvalFormat::Json => {
-            let json = value_to_json(value)?;
-            let mut bytes = if pretty {
-                serde_json::to_vec_pretty(&json)
-            } else {
-                serde_json::to_vec(&json)
-            }
-            .map_err(|e| format!("failed to serialize eval result: {e}"))?;
-            bytes.push(b'\n');
-            Ok(bytes)
-        }
+        EvalFormat::Json => serialize_semantic(&value_to_semantic(value), true, pretty),
+        EvalFormat::Yaml => serialize_semantic(&value_to_semantic(value), false, false),
     }
 }
 
@@ -636,113 +637,470 @@ pub fn serialize_query(
     one: bool,
     pretty: bool,
 ) -> Result<Vec<u8>, String> {
-    let mut values = elements
-        .iter()
-        .map(content_to_query_json)
-        .collect::<Result<Vec<_>, _>>()?;
-    if let Some(field) = field {
-        for value in &mut values {
-            let object = value
-                .as_object()
-                .ok_or_else(|| "query result is not an object".to_string())?;
-            *value = object
-                .get(field)
-                .cloned()
-                .ok_or_else(|| format!("query result has no field `{field}`"))?;
-        }
-    }
+    serialize_query_with_format(elements, field, one, pretty, QueryFormat::Json)
+}
+
+/// Serializa query no formato já resolvido pelo parser L2.
+pub fn serialize_query_with_format(
+    elements: &[typst_core::entities::content::Content],
+    field: Option<&str>,
+    one: bool,
+    pretty: bool,
+    format: QueryFormat,
+) -> Result<Vec<u8>, String> {
+    let mut values = elements.iter().map(content_to_semantic).collect::<Vec<_>>();
     let output = if one {
         if values.len() != 1 {
-            return Err(format!(
-                "expected exactly one query result, found {}",
-                values.len()
+            return Err(format!("expected exactly one element, found {}", values.len()));
+        }
+        let value = values.remove(0);
+        match field {
+            Some(field) => semantic_field(&value, field)
+                .cloned()
+                .ok_or_else(|| "no such field found for element".to_string())?,
+            None => value,
+        }
+    } else {
+        if let Some(field) = field {
+            values = values
+                .into_iter()
+                .filter_map(|value| semantic_field(&value, field).cloned())
+                .collect();
+        }
+        SemanticValue::Array(values)
+    };
+    serialize_semantic(
+        &output,
+        matches!(format, QueryFormat::Json),
+        pretty && matches!(format, QueryFormat::Json),
+    )
+}
+
+#[derive(Clone)]
+enum SemanticValue {
+    Null,
+    Bool(bool),
+    Int(i64),
+    Float(f64),
+    String(String),
+    Array(Vec<SemanticValue>),
+    Object(Vec<(String, SemanticValue)>),
+}
+
+fn semantic_field<'a>(
+    value: &'a SemanticValue,
+    field: &str,
+) -> Option<&'a SemanticValue> {
+    let SemanticValue::Object(fields) = value else { return None };
+    fields.iter().find(|(name, _)| name == field).map(|(_, value)| value)
+}
+
+fn content_to_semantic(
+    content: &typst_core::entities::content::Content,
+) -> SemanticValue {
+    use typst_core::entities::content::Content;
+    if let Content::Label(label) = content {
+        let mut value = content_to_semantic(&label.body);
+        if let SemanticValue::Object(fields) = &mut value {
+            fields.push((
+                "label".into(),
+                SemanticValue::String(format!("<{}>", label.name)),
             ));
         }
-        values.remove(0)
-    } else {
-        serde_json::Value::Array(values)
-    };
-    let mut bytes = if pretty {
-        serde_json::to_vec_pretty(&output)
-    } else {
-        serde_json::to_vec(&output)
+        return value;
     }
-    .map_err(|e| format!("failed to serialize query result: {e}"))?;
-    bytes.push(b'\n');
-    Ok(bytes)
+
+    let mut fields = vec![(
+        "func".into(),
+        SemanticValue::String(content_semantic_func_name(content).into()),
+    )];
+    match content {
+        Content::Text(text) => {
+            fields.push(("text".into(), SemanticValue::String(text.to_string())))
+        }
+        Content::Sequence(children) | Content::MathSequence(children) => fields.push((
+            "children".into(),
+            SemanticValue::Array(children.iter().map(content_to_semantic).collect()),
+        )),
+        Content::Par { body } | Content::SmallCaps { body } => {
+            fields.push(("body".into(), content_to_semantic(body)))
+        }
+        Content::Heading(heading) => {
+            fields.extend([
+                ("level".into(), SemanticValue::Int(heading.level as i64)),
+                ("depth".into(), SemanticValue::Int(heading.level as i64)),
+                ("offset".into(), SemanticValue::Int(0)),
+                ("numbering".into(), SemanticValue::Null),
+                ("supplement".into(), content_to_semantic(&Content::text("Section"))),
+                ("outlined".into(), SemanticValue::Bool(heading.outlined)),
+                (
+                    "bookmarked".into(),
+                    heading
+                        .bookmarked
+                        .map(SemanticValue::Bool)
+                        .unwrap_or_else(|| SemanticValue::String("auto".into())),
+                ),
+                ("hanging-indent".into(), SemanticValue::String("auto".into())),
+                ("body".into(), content_to_semantic(&heading.body)),
+            ]);
+        }
+        Content::Title(title) => {
+            fields.push(("body".into(), content_to_semantic(&title.body)))
+        }
+        Content::Strong(elem) => {
+            fields.push(("body".into(), content_to_semantic(&elem.body)))
+        }
+        Content::Emph(elem) => {
+            fields.push(("body".into(), content_to_semantic(&elem.body)))
+        }
+        Content::Figure(figure) => {
+            fields.push(("body".into(), content_to_semantic(&figure.body)));
+            fields.push(("alt".into(), SemanticValue::Null));
+            fields.push(("placement".into(), SemanticValue::Null));
+            fields.push(("scope".into(), SemanticValue::String("column".into())));
+            let kind = figure.kind.as_deref().unwrap_or("image");
+            let supplement = Content::text(figure_supplement(kind));
+            let counter = format!("counter(figure.where(kind: {kind}))");
+            fields.push((
+                "caption".into(),
+                figure
+                    .caption
+                    .as_ref()
+                    .map(|caption| {
+                        figure_caption_to_semantic(caption, kind, &supplement, &counter)
+                    })
+                    .unwrap_or(SemanticValue::Null),
+            ));
+            fields.push(("kind".into(), SemanticValue::String(kind.into())));
+            fields.push(("supplement".into(), content_to_semantic(&supplement)));
+            fields.push(("numbering".into(), SemanticValue::String("1".into())));
+            fields.push(("gap".into(), SemanticValue::String("0.65em".into())));
+            fields.push(("outlined".into(), SemanticValue::Bool(true)));
+            fields.push(("counter".into(), SemanticValue::String(counter)));
+        }
+        Content::Equation(equation) => fields.extend([
+            ("block".into(), SemanticValue::Bool(equation.block)),
+            ("numbering".into(), SemanticValue::Null),
+            ("number-align".into(), SemanticValue::String("end + horizon".into())),
+            ("supplement".into(), content_to_semantic(&Content::text("Equation"))),
+            ("alt".into(), SemanticValue::Null),
+            ("body".into(), content_to_semantic(&equation.body)),
+        ]),
+        Content::MathIdent(text) | Content::MathText(text) => {
+            fields.push(("text".into(), SemanticValue::String(text.to_string())))
+        }
+        Content::MathAttach(attach) => {
+            fields.push(("base".into(), content_to_semantic(&attach.base)));
+            // The crystalline layout model separates centred limits (`t`/`b`)
+            // from right scripts (`tr`/`br`). The public content surface uses
+            // `t`/`b` for both; normalize that mechanical distinction here.
+            for (name, child) in [
+                ("t", attach.t.as_ref().or(attach.tr.as_ref())),
+                ("b", attach.b.as_ref().or(attach.br.as_ref())),
+                ("tl", attach.tl.as_ref()),
+                ("bl", attach.bl.as_ref()),
+            ] {
+                if let Some(child) = child {
+                    fields.push((name.into(), content_to_semantic(child)));
+                }
+            }
+        }
+        Content::Shape(shape) => {
+            fields.extend([
+                (
+                    "width".into(),
+                    shape
+                        .width
+                        .as_deref()
+                        .map(shape_dimension_to_semantic)
+                        .unwrap_or_else(|| SemanticValue::String("auto".into())),
+                ),
+                (
+                    "height".into(),
+                    shape
+                        .height
+                        .as_deref()
+                        .map(shape_dimension_to_semantic)
+                        .unwrap_or_else(|| SemanticValue::String("auto".into())),
+                ),
+                (
+                    "fill".into(),
+                    shape
+                        .fill
+                        .as_ref()
+                        .map(paint_to_semantic)
+                        .unwrap_or(SemanticValue::Null),
+                ),
+            ]);
+            if let Some(stroke) = &shape.stroke {
+                fields.push((
+                    "stroke".into(),
+                    value_to_semantic(&Value::Stroke(stroke.clone())),
+                ));
+            }
+        }
+        Content::Metadata(metadata) => {
+            fields.push(("value".into(), value_to_semantic(metadata.value.as_ref())))
+        }
+        Content::Quote(quote) => {
+            fields.push(("block".into(), SemanticValue::Bool(quote.block)));
+            fields.push(("quotes".into(), SemanticValue::Bool(quote.quotes)));
+            fields.push(("body".into(), content_to_semantic(&quote.body)));
+            fields.push((
+                "attribution".into(),
+                quote
+                    .attribution
+                    .as_ref()
+                    .map(content_to_semantic)
+                    .unwrap_or(SemanticValue::Null),
+            ));
+        }
+        Content::Styled(body, _) => {
+            fields.push(("body".into(), content_to_semantic(body)))
+        }
+        _ => {
+            if let Some(body) = content.get_field("body") {
+                fields.push(("body".into(), value_to_semantic(&body)));
+            }
+        }
+    }
+    SemanticValue::Object(fields)
 }
 
-fn content_to_query_json(
+fn content_semantic_func_name(
     content: &typst_core::entities::content::Content,
-) -> Result<serde_json::Value, String> {
+) -> &'static str {
     use typst_core::entities::content::Content;
-    let Content::Heading(heading) = content else {
-        return Err("query serialization currently supports headings only".to_string());
-    };
-    let mut object = serde_json::Map::new();
-    object.insert("func".into(), "heading".into());
-    object.insert("level".into(), heading.level.into());
-    object.insert("depth".into(), heading.level.into());
-    object.insert("offset".into(), 0.into());
-    object.insert("numbering".into(), serde_json::Value::Null);
-    object
-        .insert("supplement".into(), serde_json::json!({"func":"text","text":"Section"}));
-    object.insert("outlined".into(), heading.outlined.into());
-    object.insert(
-        "bookmarked".into(),
-        heading
-            .bookmarked
-            .map(serde_json::Value::Bool)
-            .unwrap_or_else(|| "auto".into()),
-    );
-    object.insert("hanging-indent".into(), "auto".into());
-    object.insert(
-        "body".into(),
-        serde_json::json!({"func":"text","text":heading.body.plain_text()}),
-    );
-    Ok(serde_json::Value::Object(object))
+    use typst_core::entities::geometry::ShapeKind;
+    match content {
+        Content::Shape(shape) => match shape.kind {
+            ShapeKind::Rect | ShapeKind::RoundedRect { .. } => "rect",
+            ShapeKind::Ellipse => "ellipse",
+            ShapeKind::Line { .. } => "line",
+            ShapeKind::Path(_) => "polygon",
+        },
+        // Crystalline keeps math graphemes in a dedicated variant, while
+        // their public content shape is still text-like.
+        Content::MathAttach(_) => "attach",
+        Content::MathText(_) => "text",
+        Content::MathIdent(_) => "symbol",
+        _ => content.elem_name(),
+    }
 }
 
-fn value_to_json(value: &Value) -> Result<serde_json::Value, String> {
-    Ok(match value {
-        Value::None => serde_json::Value::Null,
-        Value::Bool(v) => (*v).into(),
-        Value::Int(v) => (*v).into(),
-        Value::Float(v) => serde_json::Number::from_f64(*v)
-            .map(serde_json::Value::Number)
-            .ok_or_else(|| "cannot serialize non-finite float to JSON".to_string())?,
-        Value::Str(v) => v.as_str().into(),
-        Value::Symbol(v) => v.value.as_str().into(),
-        Value::Array(values) => serde_json::Value::Array(
-            values.iter().map(value_to_json).collect::<Result<_, _>>()?,
+fn figure_caption_to_semantic(
+    body: &typst_core::entities::content::Content,
+    kind: &str,
+    supplement: &typst_core::entities::content::Content,
+    counter: &str,
+) -> SemanticValue {
+    SemanticValue::Object(vec![
+        ("func".into(), SemanticValue::String("caption".into())),
+        (
+            "separator".into(),
+            content_to_semantic(&typst_core::entities::content::Content::text(": ")),
         ),
-        Value::Dict(values) => serde_json::Value::Object(
+        ("body".into(), content_to_semantic(body)),
+        ("kind".into(), SemanticValue::String(kind.into())),
+        ("supplement".into(), content_to_semantic(supplement)),
+        ("numbering".into(), SemanticValue::String("1".into())),
+        ("counter".into(), SemanticValue::String(counter.into())),
+    ])
+}
+
+fn figure_supplement(kind: &str) -> &'static str {
+    match kind {
+        "table" => "Table",
+        "raw" => "Listing",
+        _ => "Figure",
+    }
+}
+
+fn paint_to_semantic(paint: &typst_core::entities::paint::Paint) -> SemanticValue {
+    use std::sync::Arc;
+    use typst_core::entities::paint::Paint;
+    match paint {
+        Paint::Solid(color) => value_to_semantic(&Value::Color(*color)),
+        Paint::Gradient(gradient) => {
+            value_to_semantic(&Value::Gradient(gradient.clone()))
+        }
+        Paint::Tiling(tiling) => {
+            value_to_semantic(&Value::Tiling(Arc::new(tiling.clone())))
+        }
+    }
+}
+
+fn shape_dimension_to_semantic(value: &Value) -> SemanticValue {
+    use typst_core::entities::rel::Rel;
+
+    match value {
+        Value::Length(length) => {
+            value_to_semantic(&Value::Relative(Rel { rel: 0.0, abs: *length }))
+        }
+        _ => value_to_semantic(value),
+    }
+}
+
+fn value_to_semantic(value: &Value) -> SemanticValue {
+    match value {
+        Value::None => SemanticValue::Null,
+        Value::Bool(v) => SemanticValue::Bool(*v),
+        Value::Int(v) => SemanticValue::Int(*v),
+        Value::Float(v) => SemanticValue::Float(*v),
+        Value::Str(v) => SemanticValue::String(v.to_string()),
+        Value::Bytes(v) => {
+            SemanticValue::String(format!("bytes({})", v.as_slice().len()))
+        }
+        Value::Symbol(v) => SemanticValue::String(v.value.to_string()),
+        Value::Content(content) | Value::LocatedContent(content, _) => {
+            content_to_semantic(content)
+        }
+        Value::Array(values) => {
+            SemanticValue::Array(values.iter().map(value_to_semantic).collect())
+        }
+        Value::Dict(values) => SemanticValue::Object(
             values
                 .iter()
-                .map(|(k, v)| Ok((k.to_string(), value_to_json(v)?)))
-                .collect::<Result<_, String>>()?,
+                .map(|(key, value)| (key.to_string(), value_to_semantic(value)))
+                .collect(),
         ),
-        Value::Stroke(stroke) => {
-            typst_core::compiler::eval::repr_stroke_value(stroke).into()
-        }
-        other => {
-            return Err(format!("cannot serialize {} to JSON", eval_type_name(other)))
-        }
-    })
+        other => SemanticValue::String(
+            typst_core::compiler::eval::repr_value_for_serialization(other),
+        ),
+    }
 }
 
 fn eval_type_name(value: &Value) -> &'static str {
+    value.type_name()
+}
+
+fn serialize_semantic(
+    value: &SemanticValue,
+    json: bool,
+    pretty: bool,
+) -> Result<Vec<u8>, String> {
+    if json {
+        let json = semantic_to_json(value);
+        let mut bytes = if pretty {
+            serde_json::to_vec_pretty(&json)
+        } else {
+            serde_json::to_vec(&json)
+        }
+        .map_err(|e| format!("failed to serialize result: {e}"))?;
+        bytes.push(b'\n');
+        Ok(bytes)
+    } else {
+        let mut yaml = String::new();
+        write_yaml(value, 0, &mut yaml);
+        if !yaml.ends_with('\n') {
+            yaml.push('\n');
+        }
+        Ok(yaml.into_bytes())
+    }
+}
+
+fn semantic_to_json(value: &SemanticValue) -> serde_json::Value {
     match value {
-        Value::None => "none",
-        Value::Bool(_) => "boolean",
-        Value::Int(_) => "integer",
-        Value::Float(_) => "float",
-        Value::Str(_) => "string",
-        Value::Bytes(_) => "bytes",
-        Value::Array(_) => "array",
-        Value::Dict(_) => "dictionary",
-        Value::Symbol(_) => "symbol",
-        _ => "value",
+        SemanticValue::Null => serde_json::Value::Null,
+        SemanticValue::Bool(v) => (*v).into(),
+        SemanticValue::Int(v) => (*v).into(),
+        SemanticValue::Float(v) => serde_json::Number::from_f64(*v)
+            .map(serde_json::Value::Number)
+            .unwrap_or(serde_json::Value::Null),
+        SemanticValue::String(v) => v.as_str().into(),
+        SemanticValue::Array(values) => {
+            serde_json::Value::Array(values.iter().map(semantic_to_json).collect())
+        }
+        SemanticValue::Object(fields) => serde_json::Value::Object(
+            fields
+                .iter()
+                .map(|(key, value)| (key.clone(), semantic_to_json(value)))
+                .collect(),
+        ),
+    }
+}
+
+fn write_yaml(value: &SemanticValue, indent: usize, out: &mut String) {
+    match value {
+        SemanticValue::Array(values) if values.is_empty() => out.push_str("[]"),
+        SemanticValue::Object(fields) if fields.is_empty() => out.push_str("{}"),
+        SemanticValue::Array(values) => {
+            for value in values {
+                out.push_str(&" ".repeat(indent));
+                out.push('-');
+                if yaml_is_scalar(value) {
+                    out.push(' ');
+                    write_yaml_scalar(value, out);
+                    out.push('\n');
+                } else {
+                    out.push('\n');
+                    write_yaml(value, indent + 2, out);
+                }
+            }
+        }
+        SemanticValue::Object(fields) => {
+            for (key, value) in fields {
+                out.push_str(&" ".repeat(indent));
+                write_yaml_string(key, out);
+                out.push(':');
+                if yaml_is_scalar(value) {
+                    out.push(' ');
+                    write_yaml_scalar(value, out);
+                    out.push('\n');
+                } else {
+                    out.push('\n');
+                    write_yaml(value, indent + 2, out);
+                }
+            }
+        }
+        scalar => write_yaml_scalar(scalar, out),
+    }
+}
+
+fn yaml_is_scalar(value: &SemanticValue) -> bool {
+    !matches!(value, SemanticValue::Array(values) if !values.is_empty())
+        && !matches!(value, SemanticValue::Object(fields) if !fields.is_empty())
+}
+
+fn write_yaml_scalar(value: &SemanticValue, out: &mut String) {
+    match value {
+        SemanticValue::Null => out.push_str("null"),
+        SemanticValue::Bool(v) => out.push_str(if *v { "true" } else { "false" }),
+        SemanticValue::Int(v) => out.push_str(&v.to_string()),
+        SemanticValue::Float(v) if v.is_nan() => out.push_str(".nan"),
+        SemanticValue::Float(v) if *v == f64::INFINITY => out.push_str(".inf"),
+        SemanticValue::Float(v) if *v == f64::NEG_INFINITY => out.push_str("-.inf"),
+        SemanticValue::Float(v) => out.push_str(&v.to_string()),
+        SemanticValue::String(v) => write_yaml_string(v, out),
+        SemanticValue::Array(_) => out.push_str("[]"),
+        SemanticValue::Object(_) => out.push_str("{}"),
+    }
+}
+
+fn write_yaml_string(value: &str, out: &mut String) {
+    let reserved = matches!(
+        value,
+        "null"
+            | "Null"
+            | "NULL"
+            | "true"
+            | "True"
+            | "TRUE"
+            | "false"
+            | "False"
+            | "FALSE"
+            | "~"
+    );
+    let plain = !value.is_empty()
+        && !reserved
+        && value
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-'))
+        && !value.starts_with(|c: char| c.is_ascii_digit() || c == '-');
+    if plain {
+        out.push_str(value);
+    } else {
+        out.push_str(&serde_json::to_string(value).expect("string JSON infallible"));
     }
 }
 
@@ -1249,12 +1607,15 @@ mod tests {
         assert!(json.contains("phase: -0.5pt"));
         assert!(json.contains("miter-limit: 2"));
         assert!(serialize_eval(&value, EvalFormat::Raw, false).is_err());
-        assert!(serialize_eval(
-            &Value::Color(typst_core::entities::layout_types::Color::rgb(0, 0, 0)),
-            EvalFormat::Json,
-            false,
-        )
-        .is_err());
+        assert_eq!(
+            serialize_eval(
+                &Value::Color(typst_core::entities::layout_types::Color::rgb(0, 0, 0)),
+                EvalFormat::Json,
+                false,
+            )
+            .unwrap(),
+            b"\"rgb(\\\"#000000\\\")\"\n"
+        );
     }
 
     #[test]
@@ -1297,5 +1658,231 @@ mod tests {
             assert!(compile.no_pdf_tags);
             assert!(!compile.compact, "eixos devem permanecer independentes");
         }
+    }
+
+    fn p1285_metadata_value() -> Value {
+        let mut value = Value::Dict(Default::default());
+        let Value::Dict(fields) = &mut value else {
+            unreachable!();
+        };
+        fields.insert("name".into(), Value::from("x"));
+        fields.insert("n".into(), Value::Int(2));
+        value
+    }
+
+    #[test]
+    fn p1285_eval_e_query_aceitam_yaml_com_variantes_distintas() {
+        let eval =
+            Args::try_parse_from(["typst", "eval", "sys.version", "--format", "yaml"])
+                .expect("eval --format yaml deve ser aceite");
+        let Command::Eval(eval) = eval.command else {
+            panic!("comando eval esperado");
+        };
+        assert!(matches!(eval.format, EvalFormat::Yaml));
+
+        let query =
+            Args::try_parse_from(["typst", "query", "-", "metadata", "--format", "yaml"])
+                .expect("query --format yaml deve ser aceite");
+        let Command::Query(query) = query.command else {
+            panic!("comando query esperado");
+        };
+        assert!(matches!(query.format, QueryFormat::Yaml));
+    }
+
+    #[test]
+    fn p1285_eval_version_e_fallbacks_preservam_repr_publica() {
+        use std::sync::Arc;
+        use typst_core::entities::color::Color;
+        use typst_core::entities::func::Func;
+        use typst_core::entities::gradient::{Gradient, GradientStop};
+        use typst_core::entities::layout_types::{Angle, Length, Pt, Size};
+        use typst_core::entities::tiling::{Tiling, TilingBody};
+        use typst_core::entities::version::Version;
+
+        let version = Value::from(Version::new(0, 15, 1));
+        assert_eq!(
+            serialize_eval(&version, EvalFormat::Json, false).unwrap(),
+            b"\"version(0, 15, 1)\"\n"
+        );
+
+        let fallbacks =
+            Value::Array(vec![Value::Auto, Value::Length(Length::pt(12.0)), version]);
+        assert_eq!(
+            serialize_eval(&fallbacks, EvalFormat::Json, false).unwrap(),
+            b"[\"auto\",\"12pt\",\"version(0, 15, 1)\"]\n"
+        );
+
+        let gcd = Value::Func(Func::native("calc.gcd", |_ctx, _args, _world, _cf| {
+            Ok(Value::None)
+        }));
+        assert_eq!(serialize_eval(&gcd, EvalFormat::Json, false).unwrap(), b"\"gcd\"\n");
+
+        let gradient = Value::Gradient(Gradient::linear(
+            vec![
+                GradientStop::unspaced(Color::rgb(255, 65, 54)),
+                GradientStop::unspaced(Color::rgb(0, 116, 217)),
+            ],
+            Angle::deg(180.0),
+        ));
+        assert_eq!(
+            serialize_eval(&gradient, EvalFormat::Json, false).unwrap(),
+            b"\"gradient.linear((oklab(65.95%, 0.2, 0.108), 0%), (oklab(56.22%, -0.05, -0.17), 100%))\"\n"
+        );
+
+        let mut tiling = Tiling::new(TilingBody::Color(Color::rgb(255, 0, 0)));
+        tiling.size = Some(Size { width: Pt(10.0), height: Pt(10.0) });
+        assert_eq!(
+            serialize_eval(&Value::Tiling(Arc::new(tiling)), EvalFormat::Json, false,)
+                .unwrap(),
+            b"\"tiling((10pt, 10pt), ..)\"\n"
+        );
+    }
+
+    #[test]
+    fn p1285_eval_content_sequence_e_strong_sao_estruturais() {
+        use typst_core::entities::content::Content;
+
+        let content = Content::sequence(vec![
+            Content::strong(Content::text("Hi")),
+            Content::Space,
+            Content::text("there"),
+        ]);
+        assert_eq!(
+            serialize_eval(&Value::Content(content), EvalFormat::Json, false).unwrap(),
+            br#"{"func":"sequence","children":[{"func":"strong","body":{"func":"text","text":"Hi"}},{"func":"space"},{"func":"text","text":"there"}]}"#
+                .iter()
+                .copied()
+                .chain(std::iter::once(b'\n'))
+                .collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn p1285_query_metadata_figure_e_label_preservam_morfologia() {
+        use typst_core::entities::color::Color;
+        use typst_core::entities::content::Content;
+        use typst_core::entities::geometry::ShapeKind;
+        use typst_core::entities::layout_types::Length;
+        use typst_core::entities::paint::Paint;
+
+        let metadata = Content::metadata(p1285_metadata_value());
+        let metadata_json = serialize_query(&[metadata], None, false, false).unwrap();
+        let metadata_tree: serde_json::Value =
+            serde_json::from_slice(&metadata_json).unwrap();
+        assert_eq!(metadata_tree[0]["func"], "metadata");
+        assert_eq!(metadata_tree[0]["value"], serde_json::json!({"name": "x", "n": 2}));
+
+        let figure = Content::label(
+            "fig-one",
+            Content::figure(Content::text("one"), None, None, None),
+        );
+        let figure_json = serialize_query(&[figure], None, false, false).unwrap();
+        let figure_tree: serde_json::Value =
+            serde_json::from_slice(&figure_json).unwrap();
+        assert_eq!(figure_tree.as_array().unwrap().len(), 1);
+        assert_eq!(figure_tree[0]["func"], "figure");
+        assert_eq!(figure_tree[0]["label"], "<fig-one>");
+        assert_eq!(figure_tree[0]["body"]["func"], "text");
+        assert_ne!(figure_tree[0]["func"], "label");
+
+        let rect = Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(10.0)))),
+            Some(Box::new(Value::Length(Length::pt(20.0)))),
+            Some(Paint::solid(Color::rgb(255, 0, 0))),
+            None,
+        );
+        let figure = Content::label(
+            "fig",
+            Content::figure(rect, Some(Content::text("Cap")), Some("image".into()), None),
+        );
+        let equation = Content::equation(
+            Content::math_attach(
+                Content::MathIdent("x".into()),
+                Some(Content::MathText("2".into())),
+                None,
+                None,
+                None,
+                None,
+                None,
+            ),
+            false,
+        );
+        let tree: serde_json::Value = serde_json::from_slice(
+            &serialize_query(&[figure, equation], None, false, false).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            tree,
+            serde_json::json!([
+                {
+                    "func": "figure",
+                    "body": {
+                        "func": "rect",
+                        "width": "0% + 10pt",
+                        "height": "0% + 20pt",
+                        "fill": "rgb(\"#ff0000\")"
+                    },
+                    "alt": null,
+                    "placement": null,
+                    "scope": "column",
+                    "caption": {
+                        "func": "caption",
+                        "separator": {"func": "text", "text": ": "},
+                        "body": {"func": "text", "text": "Cap"},
+                        "kind": "image",
+                        "supplement": {"func": "text", "text": "Figure"},
+                        "numbering": "1",
+                        "counter": "counter(figure.where(kind: image))"
+                    },
+                    "kind": "image",
+                    "supplement": {"func": "text", "text": "Figure"},
+                    "numbering": "1",
+                    "gap": "0.65em",
+                    "outlined": true,
+                    "counter": "counter(figure.where(kind: image))",
+                    "label": "<fig>"
+                },
+                {
+                    "func": "equation",
+                    "block": false,
+                    "numbering": null,
+                    "number-align": "end + horizon",
+                    "supplement": {"func": "text", "text": "Equation"},
+                    "alt": null,
+                    "body": {
+                        "func": "attach",
+                        "base": {"func": "symbol", "text": "x"},
+                        "t": {"func": "text", "text": "2"}
+                    }
+                }
+            ])
+        );
+    }
+
+    #[test]
+    fn p1285_query_field_e_one_seguem_ordem_e_fallbacks() {
+        use typst_core::entities::content::Content;
+
+        let metadata = Content::metadata(p1285_metadata_value());
+        assert_eq!(
+            serialize_query(&[metadata], Some("value"), true, false).unwrap(),
+            b"{\"name\":\"x\",\"n\":2}\n"
+        );
+
+        let figure = Content::figure(Content::text("one"), None, None, None);
+        assert_eq!(
+            serialize_query(&[figure.clone()], Some("does-not-exist"), false, false)
+                .unwrap(),
+            b"[]\n"
+        );
+        assert_eq!(
+            serialize_query(&[figure], Some("does-not-exist"), true, false).unwrap_err(),
+            "no such field found for element"
+        );
+        assert_eq!(
+            serialize_query(&[], None, true, false).unwrap_err(),
+            "expected exactly one element, found 0"
+        );
     }
 }

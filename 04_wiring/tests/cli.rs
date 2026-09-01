@@ -19,6 +19,7 @@
 
 use std::env;
 use std::fs;
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::thread;
@@ -1859,7 +1860,7 @@ fn p1168_html_typed_batch_repr_and_dom() {
         .unwrap();
     assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
     let repr = String::from_utf8_lossy(&eval.stdout);
-    assert!(repr.starts_with("(elem(tag: \"div\", body: none)"));
+    assert!(repr.starts_with("(\n  elem(tag: \"div\", body: none),"));
     for tag in ["span", "p", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "ul"] {
         assert!(repr.contains(&format!("elem(tag: \"{tag}\"")), "repr sem {tag}: {repr}");
     }
@@ -2341,4 +2342,36 @@ fn p1178_1_html_familia_documento() {
     assert!(String::from_utf8_lossy(&failed.stderr)
         .contains("`<body>` element must be the only element in the document"));
     cleanup(&[&invalid, &invalid_output]);
+}
+
+#[test]
+fn p1285_query_stdin_transporta_yaml_ate_stdout() {
+    let mut child = Command::new(BIN)
+        .args(["query", "-", "metadata", "--field", "value", "--one", "--format", "yaml"])
+        .env("NO_COLOR", "1")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("executar query por stdin");
+    child
+        .stdin
+        .take()
+        .expect("stdin do child")
+        .write_all(b"#metadata((name: \"x\", n: 2))\n")
+        .expect("escrever source Typst em stdin");
+
+    let output = child.wait_with_output().expect("aguardar query");
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(String::from_utf8_lossy(&output.stdout), "name: x\nn: 2\n");
+    assert!(
+        String::from_utf8_lossy(&output.stderr).contains("subcommand is deprecated"),
+        "warning esperado em stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 }

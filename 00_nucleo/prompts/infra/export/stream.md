@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 0f5f9079
+Hash do Código: d2084747
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -469,3 +469,55 @@ Quando `PdfTags::Disabled`, Semantic continua container visual transparente e
 nenhum operador de tagging é emitido. A regra vale igualmente para Verbose e
 Compact; o conteúdo visual fora de BDC/EMC permanece idêntico. `alt` nunca é
 escrito no content stream e nunca vira texto visual.
+
+## P1286 — marcado de `pdf.artifact`
+
+### Medição anterior à decisão
+
+O receipt P1286 observou `/Artifact BMC ... EMC` para `other`,
+`/Artifact<</Attached[/Top]/Subtype/Header/Type/Pagination>>BDC` para header e
+`/Artifact<</Type/Background>>BDC` para background em PDF 2.0. O body fora do
+wrapper permaneceu na estrutura; dentro do artifact não ganhou MCID. AT real
+permaneceu `Unknown`.
+
+### Decisão condicionada ao gate
+
+Com `PdfTags::Enabled`, `SemanticKind::Artifact(kind)` abre marcado Artifact,
+desenha filhos exatamente uma vez e fecha `EMC`; não usa MCID nem
+`StructElem`. `Other` usa `BMC`. Kinds tipados usam property list conforme o
+mapeamento PDF aplicável; no fragmento medido, Header e Background reproduzem
+as propriedades acima. Com `PdfTags::Disabled`, o envelope é container visual
+transparente sem BMC/BDC/EMC. Verbose/Compact não altera essa semântica.
+
+Fallbacks dos doze kinds por versão PDF e efeito real em AT continuam
+`Unknown`; teste estrutural positivo não os converte em sucesso.
+
+## P1288 — conteúdo marcado de tabelas (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`03_infra/src/export/stream.rs:138-174` atribui MCID somente a Formula fora de
+Artifact; `semantic_opening` em `:1196-1222` não reconhece tabela. A fonte
+vanilla pinada mede Table/TR/TH/TD e associações header/data em
+`typst-pdf/src/tags/context/table.rs:197-239,289-353`.
+
+### Decisão proposta
+
+Com `PdfTags::Enabled`, a travessia da árvore de tabela atribui MCIDs
+determinísticos às unidades de conteúdo que participam da structure tree,
+preserva ordem de pintura e envelopes balanceados. Tabela simples usa
+Table→TR→TD; header automático uniforme usa Table→THead/TBody→TR→TH/TD; linha
+explicitamente mista conserva TR direta e Data explícita em header permanece
+TD. Scope/level não viram texto nem operadores visuais; level também não vira
+atributo numérico PDF.
+
+MCIDs reiniciam em zero por página. Cada página usa seu `StructParents`, e a
+entrada de `ParentTree /Nums` conserva a ordem local dos MCIDs. Repetição
+visual multipágina reutiliza o mesmo TH lógico e não duplica THead, IDs ou
+relações; uma única árvore lógica atravessa as páginas.
+
+Com `PdfTags::Disabled`, todos os carriers de tabela são containers visuais
+transparentes e nenhum BMC/BDC/EMC/MCID é emitido. Verbose/Compact não muda a
+semântica. O stream não decide ParentTree, header IDs nem summary; entrega os
+MCIDs ao builder pela mesma pré-passagem determinística. A estrutura medida
+não promete comportamento de AT, reflow nem conformidade PDF/UA.

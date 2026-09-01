@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/table` — Layout de `Table`
-Hash do Código: b2e5158e
+Hash do Código: a851d61c
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/table.rs`
 **Prompt pai**: `00_nucleo/prompts/compiler/layout.md`

@@ -1,5 +1,5 @@
-# Prompt L0 — `stdlib/foundations/str` — `str`, `str.from-unicode`
-Hash do Código: f824b2f2
+# Prompt L0 — `stdlib/foundations/str` — `str`, `str.from-unicode`, `str.to-unicode`
+Hash do Código: 890a94d9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/str.rs`
@@ -36,8 +36,23 @@ str(red)             -> Err "str() não suporta color"
 
 **Assinatura**: `str.from-unicode(codepoint: int) -> str`
 
-**Semântica**: Converte um scalar Unicode num carácter. Rejeita valores
-inválidos e `\0`.
+**Semântica**: Converte um scalar Unicode num carácter. Rejeita valores fora
+do domínio Unicode scalar ou na faixa surrogate. `U+0000` é válido e produz
+uma string de um scalar; a redação anterior que o rejeitava foi refutada pela
+fonte ratificada `a51e02804:foundations/str.rs:309-321`.
+
+### `native_str_to_unicode` — `str.to-unicode(character)` / `character.to-unicode()`
+
+**Assinatura**: `str.to-unicode(character: str) -> int`
+
+Aceita exatamente uma string com um único Unicode scalar e devolve seu
+codepoint. String vazia ou com mais de um scalar falha no cast de `char`.
+A forma ligada em `stdlib/collections` delega a esta unidade; a forma não
+ligada é o mesmo `Func`, com `character` como primeiro positional. Não usar o
+primeiro byte, primeiro grapheme nem normalização.
+
+Esta adição é paridade de linguagem em fluxo contínuo ADR-0127 e não adiciona
+API Rust pública: o helper é privado ou `pub(crate)` entre owners irmãos.
 
 `native_regex` e seus testes pertencem ao L0 irmão
 `compiler/stdlib/foundations/regex.md` desde P1140.1-A.

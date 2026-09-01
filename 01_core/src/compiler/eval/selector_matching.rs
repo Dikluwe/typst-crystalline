@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching.md
-//! @prompt-hash 3b286537
+//! @prompt-hash 557abd0a
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -145,8 +145,12 @@ pub(crate) fn selector_matches(work: &Content, selector: &Selector) -> bool {
         Selector::DynKind(name) => {
             matches!(work, Content::Dynamic(e) if e.dyn_kind() == name)
         }
-        Selector::Text(_) => false,
-        Selector::Regex(_) => false,
+        Selector::Text(pattern) => {
+            !pattern.is_empty()
+                && matches!(work, Content::Text(text) if text.contains(pattern.as_str()))
+        }
+        Selector::Regex(regex) => matches!(work, Content::Text(text)
+            if regex.captures_all(text.as_str()).iter().any(|m| m.start < m.end)),
         // P791 — regras de label NÃO casam na travessia principal: são
         // aplicadas por `intercept_labelled` no ponto de associação
         // retroactiva (evita dupla aplicação das outras regras e garante
@@ -229,6 +233,37 @@ pub(crate) fn splice_text_rule_matches(
     if !rest.is_empty() {
         parts.push(Content::text(rest));
     }
+    Ok(Some(Content::sequence(parts)))
+}
+
+/// Fatia `text` em todos os matches não vazios de `regex`, preservando as
+/// partes não casadas e entregando à transformação somente cada ocorrência.
+pub(crate) fn splice_regex_rule_matches(
+    text: &str,
+    regex: &crate::entities::regex::Regex,
+    mut replacement: impl FnMut(&str) -> SourceResult<Content>,
+) -> SourceResult<Option<Content>> {
+    let matches = regex.captures_all(text);
+    if !matches.iter().any(|matched| matched.start < matched.end) {
+        return Ok(None);
+    }
+
+    let mut parts = Vec::new();
+    let mut cursor = 0;
+    for matched in matches {
+        if matched.start == matched.end {
+            continue;
+        }
+        if cursor < matched.start {
+            parts.push(Content::text(&text[cursor..matched.start]));
+        }
+        parts.push(replacement(&text[matched.start..matched.end])?);
+        cursor = matched.end;
+    }
+    if cursor < text.len() {
+        parts.push(Content::text(&text[cursor..]));
+    }
+
     Ok(Some(Content::sequence(parts)))
 }
 
@@ -519,5 +554,68 @@ mod tests {
         // de tipo, exactamente como um `set` vazio não remove a origem sintática.
         let content = Content::highlight(Content::text("x"), None);
         assert!(selector_matches(&content, &Selector::NodeKind(NodeKind::Highlight)));
+    }
+
+    #[test]
+    fn p1285_selector_literal_casa_ocorrencia_local_sem_virar_node_rule() {
+        let selector = Selector::Text("b".to_string());
+        assert!(selector_matches(&Content::text("abc"), &selector));
+        assert!(!selector_matches(&Content::text("azc"), &selector));
+        assert!(!selector_matches(&Content::strong(Content::text("abc")), &selector,));
+        assert!(!is_node_rule(&selector));
+    }
+
+    #[test]
+    fn p1285_selector_regex_casa_match_nao_vazio_e_rejeita_negativos() {
+        let selector =
+            Selector::Regex(crate::entities::regex::Regex::new("[0-9]+").unwrap());
+        assert!(selector_matches(&Content::text("abc123"), &selector));
+        assert!(!selector_matches(&Content::text("abc"), &selector));
+        assert!(!selector_matches(&Content::strong(Content::text("123")), &selector,));
+        assert!(!is_node_rule(&selector));
+
+        let empty_match =
+            Selector::Regex(crate::entities::regex::Regex::new("a*").unwrap());
+        assert!(!selector_matches(&Content::text("bbb"), &empty_match));
+        assert!(!is_node_rule(&empty_match));
+    }
+
+    #[test]
+    fn p1285_splice_regex_substitui_todas_as_ocorrencias_em_ordem() {
+        let regex = crate::entities::regex::Regex::new("f.o").unwrap();
+        let mut matches = vec![];
+        let actual = splice_regex_rule_matches("foo fxo", &regex, |matched: &str| {
+            matches.push(matched.to_string());
+            Ok(Content::strong(Content::text(matched)))
+        })
+        .unwrap()
+        .expect("regex com duas ocorrências deve produzir splice");
+
+        assert_eq!(matches, ["foo", "fxo"]);
+        assert_eq!(
+            actual,
+            Content::sequence(vec![
+                Content::strong(Content::text("foo")),
+                Content::text(" "),
+                Content::strong(Content::text("fxo")),
+            ])
+        );
+    }
+
+    #[test]
+    fn p1285_splice_regex_preserva_no_match_e_ignora_match_somente_vazio() {
+        let mut calls = 0;
+        for regex in [
+            crate::entities::regex::Regex::new("z+").unwrap(),
+            crate::entities::regex::Regex::new("a*").unwrap(),
+        ] {
+            let actual = splice_regex_rule_matches("bbb", &regex, |_: &str| {
+                calls += 1;
+                Ok(Content::text("substituído"))
+            })
+            .unwrap();
+            assert_eq!(actual, None);
+        }
+        assert_eq!(calls, 0, "replacement não deve receber match vazio");
     }
 }

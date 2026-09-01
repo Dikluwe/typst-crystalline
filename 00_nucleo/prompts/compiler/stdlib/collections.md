@@ -1,10 +1,10 @@
-# Prompt L0 — `stdlib/collections` — superfícies de array, dict, str e bytes
-Hash do Código: 42727884
+# Prompt L0 — `stdlib/collections` — superfícies de array, dict, str, bytes e arguments
+Hash do Código: fdc334c2
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/collections.rs`  
 **Criado em**: 2026-06-25 (Passo P466)  
-**Atualizado em**: 2026-08-24 (P1142 — formas estáticas `array.all`/`str.clusters`, predicado booleano estrito e grapheme clusters reais; P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize`; P693 — `str.match` aceita `str | regex`; P714 — `array.at(index, default:)`; P730 — `array.slice(start, end?, count:)`)
+**Atualizado em**: 2026-08-30 (P1284 — inventário completo, `arguments` e projeções não ligadas; P1142 — formas estáticas `array.all`/`str.clusters`, predicado booleano estrito e grapheme clusters reais; P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize`; P693 — `str.match` aceita `str | regex`; P714 — `array.at(index, default:)`; P730 — `array.slice(start, end?, count:)`)
 **ADRs**: ADR-0013 (`unicode-segmentation` permitido em L1), ADR-0037 (coesão por domínio), ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos), ADR-0127 (correção de paridade em fluxo contínuo).
 
 ---
@@ -368,3 +368,83 @@ replace, trim, split, rev`) — os restantes símbolos do cristalino (`char-*`, 
 ## 7. Testes canônicos
 
 Ver `01_core/src/compiler/eval/tests.rs`, secção P466 e P493, com testes E2E por método.
+
+---
+
+## 8. P1284 — superfície completa e projeções não ligadas
+
+### 8.1 Medição anterior à decisão
+
+O contrato independente `C-P1284-v2`, selado antes de código candidato em
+`00_nucleo/diagnosticos/p1284-contract-receipt.md`, e a fonte vanilla
+ratificada `a51e02804` medem como ausentes no valor-tipo as projeções abaixo.
+No vanilla, cada método de instância também é uma função no scope do tipo:
+`type(array.len) == function` e `array.len((1, 2, 3)) == 3`. A forma ligada e
+a não ligada compartilham nome, metadata, validação e semântica; a segunda
+apenas recebe `self` como primeiro positional.
+
+### 8.2 Decisão e fronteira de ownership
+
+Este consumer é o único owner da semântica de coleção e de `arguments`. O
+owner `bindings/field_access` descobre wrappers, e `call_dispatch` encaminha a
+forma ligada; nenhum deles reimplementa operações. Não se adicionam variantes,
+campos ou métodos Rust públicos. Helpers novos ficam privados ou `pub(crate)`.
+
+As tabelas seguintes são normativas e substituem assinaturas históricas mais
+estreitas deste documento quando houver conflito.
+
+| Tipo | Superfície completa P1284 |
+|---|---|
+| `array` | `all(self,test)`; `any(self,test)`; `at(self,index,default:?)`; `chunks(self,chunk-size,exact:false)`; `contains(self,value)`; `dedup(self,key:?)`; `enumerate(self,start:0)`; `filter(self,test)`; `find(self,searcher)`; `first(self,default:?)`; `flatten(self)`; `fold(self,init,folder)`; `insert(self,index,value)`; `intersperse(self,separator)`; `join(self,separator:none,last:?,default:none)`; `last(self,default:?)`; `len(self)`; `map(self,mapper)`; `pop(self)`; `position(self,searcher)`; `product(self,default:?)`; `push(self,value)`; `reduce(self,reducer)`; `remove(self,index,default:?)`; `rev(self)`; `slice(self,start,end:none,count:?)`; `sorted(self,key:?,by:?)`; `split(self,at)`; `sum(self,default:?)`; `to-dict(self)`; `windows(self,window-size)`; `zip(self,exact:false,..others)`; estática/global `range(start:0,end,inclusive:false,step:1)` |
+| `dictionary` | `at(self,key,default:?)`; `filter(self,test)`; `insert(self,key,value)`; `keys(self)`; `len(self)`; `map(self,mapper)`; `pairs(self)`; `remove(self,key,default:?)`; `values(self)` |
+| `str` | `at(self,index,default:?)`; `clusters(self)`; `codepoints(self)`; `contains(self,pattern)`; `ends-with(self,pattern)`; `find(self,pattern)`; `first(self,default:?)`; `last(self,default:?)`; `len(self)`; `match(self,pattern)`; `matches(self,pattern)`; `normalize(self,form:"nfc")`; `position(self,pattern)`; `replace(self,pattern,replacement,count:?)`; `rev(self)`; `slice(self,start,end:none,count:?)`; `split(self,pattern:none)`; `starts-with(self,pattern)`; `trim(self,pattern:none,at:?,repeat:true)`; `to-unicode(self)` delegado a `foundations/str`; estática `from-unicode(value)` no mesmo owner irmão |
+| `bytes` | `at(self,index,default:?)`; `len(self)`; `slice(self,start,end:none,count:?)` |
+| `arguments` | `at(self,key,default:?)`; `filter(self,test)`; `len(self)`; `map(self,mapper)`; `named(self)`; `pos(self)` |
+
+`?` significa named opcional sem valor materializado quando ausente. `none`,
+`false`, `true`, `0`, `1` e `"nfc"` são defaults observáveis. Parâmetros após
+`self` preservam exatamente a ordem acima; `..others` é variádico positional.
+Named desconhecido, positional excedente, argumento ausente e tipo errado
+falham, sem serem consumidos silenciosamente.
+
+### 8.3 Semântica discriminatória obrigatória
+
+- `all`, `any`, `find`, `position`, `filter` e `sorted(by:)` exigem retorno
+  booleano; `all`/`any` fazem curto-circuito. `map`/`fold`/`reduce` preservam
+  ordem. `dictionary.filter/map` e `arguments.filter/map` aplicam callback ao
+  valor, preservando chaves/names e ordem.
+- `arguments.len()` conta todos os argumentos, posicionais e named.
+  A implementação calcula a superfície da linguagem a partir da representação
+  existente; não altera silenciosamente o método Rust público `Args::len`.
+- `flatten` é recursivo sobre arrays aninhados; `dedup` mantém a primeira
+  ocorrência global e aceita `key:`; `sorted` é estável e aceita `key:` e
+  `by:` simultaneamente.
+- `chunks(exact:true)` descarta o resto incompleto; `windows` só produz janelas
+  completas; tamanhos zero falham. `zip` sem outros arrays produz tuplas
+  unitárias, trunca no menor por default e, com `exact:true`, rejeita qualquer
+  comprimento divergente.
+- `first`/`last`/`at`/`remove` usam `default:` apenas no caso vazio/fora de
+  limites. Índices negativos contam do fim. `insert` admite a fronteira final.
+- `push`, `pop`, `insert` e `remove` preservam a semântica mutante apenas para
+  receiver ligado que seja l-value; a projeção não ligada não ganha mutação
+  remota de bindings. Resultado e erro continuam os do método vanilla.
+- `sum`/`product` usam as operações da linguagem e exigem `default:` no vazio;
+  `reduce` no vazio devolve `none`. `range` rejeita step zero, respeita sinal,
+  inclusive e overflow terminal sem loop infinito.
+- `dictionary.keys/values/pairs` preservam ordem de inserção; chave repetida em
+  `array.to-dict` escolhe o último valor; cada entrada deve ser par `(str, any)`.
+- `str.len/at/slice/position/match/matches` usam índices UTF-8 em bytes;
+  `clusters` usa graphemes estendidos e `codepoints` scalars Unicode.
+  `first`/`last` operam em scalar; `at`/`slice` rejeitam fronteira inválida.
+- `bytes.len` conta octetos, `bytes.at` devolve inteiro 0–255 e `bytes.slice`
+  devolve `bytes`, nunca array nem string.
+
+### 8.4 Critérios P1284
+
+Para cada nome: existência nas formas ligada e não ligada, kind `function`,
+metadata completa, chamada válida, defaults, erros de aridade/named/tipo e
+igualdade semântica dos dois caminhos. Sentinelas mínimas:
+`array.len((1,2,3)) == 3`, `bytes.len(bytes("é")) == 2` e
+`arguments.len(arguments(1,x:2)) == 2`. Extensões cristalinas já documentadas
+(`char-*`, `repeat`, `dict.update`) permanecem; não podem substituir nem
+ocultar os nomes vanilla.

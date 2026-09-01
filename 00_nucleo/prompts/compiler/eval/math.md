@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: cec9de22
+Hash do Código: 15ae0c5d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -52,6 +52,32 @@ Aceitação: closure literal direta ou sob wrapper math unitário chega à nativ
 como `Value::Func`; callback
 contextual observa o snapshot de estilo selado; expressão math comum continua
 `Value::Content`; nenhuma callback é executada por `eval_math_arg_value`.
+
+## P1285 — preservar grapheme distinto de número
+
+### Medição antes da decisão
+
+Em `eval/math.rs:327-333`, `MathTextKind::Grapheme` e
+`MathTextKind::Number` convergiam ambos para `Content::MathText`. A enum
+fechada já possui `Content::MathIdent`, e os consumidores de layout/spacing
+já distinguem `MathIdent` (variável/símbolo) de `MathText` (número ou texto).
+No vanilla ratificado, a morfologia pública de `$ x^2 $` serializa a base
+como `symbol("x")` e o expoente como texto `"2"`; a primeira candidata P1285
+não consegue recuperar essa distinção depois do eval.
+
+### Decisão
+
+`MathTextKind::Grapheme` produz `Content::MathIdent` e
+`MathTextKind::Number` produz `Content::MathText`. A decisão preserva a
+informação já presente na AST e usa variantes existentes; não cria tipo,
+campo, assinatura ou fase. Shorthands, símbolos resolvidos pelo scope e
+identificadores desconhecidos mantêm seus caminhos atuais. O armazenamento
+interno de anexos (`tr`/`br`) também permanece; a apresentação pública pode
+normalizar esses nomes sem alterar layout.
+
+Aceitação: `$ x $` preserva folha `MathIdent("x")`; `$ 2 $` preserva
+`MathText("2")`; `$ x^2 $` mantém base e expoente distintos e a suíte de
+layout/math permanece verde.
 
 ## P1291.vec-gate — identidade e argumentos no syntax evaluator (RASCUNHO PARA SELO)
 

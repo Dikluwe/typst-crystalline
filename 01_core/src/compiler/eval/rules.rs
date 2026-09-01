@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 67f41b66
+//! @prompt-hash b4cec5d0
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -650,41 +650,58 @@ pub(crate) fn apply_show_rules(
                     continue;
                 }
                 let Selector::Regex(re) = &rule.selector else { continue };
-                if !re.is_match(text.as_str()) {
-                    continue;
-                }
                 let produced = match &rule.transform {
                     Transformation::Func(func) => {
-                        let args = Args::positional(vec![Value::Content(node.clone())]);
-                        engine.active_guards.push(rule.id);
-                        let call_result = call_dispatch::apply_func(
-                            func.clone(),
-                            args,
-                            &mut scopes,
-                            ctx,
-                            engine,
-                        );
-                        engine.active_guards.pop();
-                        match call_result? {
-                            Value::Content(c) => c,
-                            Value::Str(s) => Content::text(s.as_str()),
-                            other => {
-                                return Err(vec![SourceDiagnostic::error(
-                                    Span::detached(),
-                                    format!(
-                                    "show rule regex deve retornar Content ou String, \
-                                     recebeu {}",
-                                    other.type_name()
-                                ),
-                                )])
-                            }
-                        }
+                        selector_matching::splice_regex_rule_matches(
+                            text.as_str(),
+                            re,
+                            |matched| {
+                                let args = Args::positional(vec![Value::Content(
+                                    Content::text(matched),
+                                )]);
+                                engine.active_guards.push(rule.id);
+                                let call_result = call_dispatch::apply_func(
+                                    func.clone(),
+                                    args,
+                                    &mut scopes,
+                                    ctx,
+                                    engine,
+                                );
+                                engine.active_guards.pop();
+                                match call_result? {
+                                    Value::Content(c) => Ok(c),
+                                    Value::Str(s) => Ok(Content::text(s.as_str())),
+                                    other => Err(vec![SourceDiagnostic::error(
+                                        Span::detached(),
+                                        format!(
+                                            "show rule regex deve retornar Content ou String, \
+                                             recebeu {}",
+                                            other.type_name()
+                                        ),
+                                    )]),
+                                }
+                            },
+                        )?
                     }
-                    Transformation::Content(c) => c.clone(),
-                    Transformation::Str(s) => Content::text(s.as_str()),
+                    Transformation::Content(c) => {
+                        selector_matching::splice_regex_rule_matches(
+                            text.as_str(),
+                            re,
+                            |_| Ok(c.clone()),
+                        )?
+                    }
+                    Transformation::Str(s) => {
+                        selector_matching::splice_regex_rule_matches(
+                            text.as_str(),
+                            re,
+                            |_| Ok(Content::text(s.as_str())),
+                        )?
+                    }
                     Transformation::Style(_) => continue,
                 };
-                return Ok(Some(produced));
+                if produced.is_some() {
+                    return Ok(produced);
+                }
             }
             Ok(None)
         };
@@ -1878,35 +1895,22 @@ pub(super) fn eval_set_rule(
                             return Err(vec![type_mismatch("bool", &other, span)]);
                         }
                     },
-                    "quotes" => match val {
-                        Value::Str(s) => {
-                            let char_count = s.chars().count();
-                            if char_count != 2 {
-                                return Err(vec![SourceDiagnostic::error(
-                                    span,
-                                    format!(
-                                        "expected 2 characters, found {} characters",
-                                        char_count
-                                    ),
-                                )]);
-                            }
-                            *engine.styles = engine
-                                .styles
-                                .push_custom("smartquote.quotes", Value::Str(s));
+                    "alternative" => match val {
+                        Value::Bool(value) => {
+                            *engine.styles = engine.styles.push_custom(
+                                "smartquote.alternative",
+                                Value::Bool(value),
+                            );
                         }
-                        Value::None | Value::Auto => {
-                            *engine.styles = engine
-                                .styles
-                                .push_custom("smartquote.quotes", Value::None);
-                        }
-                        other => {
-                            return Err(vec![type_mismatch(
-                                "string, auto or none",
-                                &other,
-                                span,
-                            )]);
-                        }
+                        other => return Err(vec![type_mismatch("bool", &other, span)]),
                     },
+                    "quotes" => {
+                        crate::compiler::lang::quotes::parse_smartquote_quotes(
+                            &val, span,
+                        )?;
+                        *engine.styles =
+                            engine.styles.push_custom("smartquote.quotes", val);
+                    }
                     _ => {
                         let (msg, hint) =
                             unsupported_property_warn("smartquote", key, None);

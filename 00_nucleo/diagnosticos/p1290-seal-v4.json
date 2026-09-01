@@ -1,0 +1,60 @@
+{
+  "schema": "p1290-contract-seal/v4",
+  "protocol": "tekt-materializacao-segregada/full-v1",
+  "sealed_at": "2026-08-31T12:42:23-03:00",
+  "status": "sealed-for-final-verification",
+  "supersedes": {
+    "seal_v2_sha256": "4a1844ffd08686eb067403a18d484617944fcba9e32df6f14de204dc5097fcad",
+    "v3_invalidation_sha256": "9ea424db2cd7160a5ca37e53b9d25ad5a8d648ac9f9b537e4d526abe8eb01a56"
+  },
+  "manifest_sha256": "235d9ed5015580c8f2c32cf16c6eb3478089f038f10774578ecc896e36f03266",
+  "prompt_sha256": "e584d5b159f04f3cf8d9a485e2c3c64b3df344520403c2407e6955f2c6b07739",
+  "contract_sha256": "0ae42afcbc54ffe62daaec925be5e02ff3218f51ab5864fd64d6be9f7d1e6a26",
+  "lineage": {
+    "consumer_sha256": "eda7b6c2318f51ad7673279ee85069e51ab5a002167511a7bf7a29bcb937e7bc",
+    "prompt_code_hash": "19c40081",
+    "consumer_prompt_hash": "52efe145",
+    "v5_dry_run_lists_consumer": false
+  },
+  "baseline": {
+    "repository_head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+    "vanilla_binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "probe_sha256": "6ac1fed77e50b0ed7b7962048427be1c87ca9917d55c181a35d6ea4e01a6229b"
+  },
+  "receipts": {
+    "contract_v4_sha256": "c878ef395fb5e41f362587d73d3d768d74fbdd5486d47707d0203b5dd879b26c",
+    "oracle_v4_sha256": "c14174d24c17e7041772da313ddb9e2b0a9aced972a635f8dc4c03dfff5bdfb9",
+    "adversarial_v4_sha256": "e6dd02fd71977ddbede2db4f8fbe0b97b2af2fed0ed1a116c4900b1ab6f3d73e",
+    "discriminatory_v4_sha256": "634462494cccbc542a5d4c222270d554e018999daf1a63a241cefd2e9272c377"
+  },
+  "suites": {
+    "oracle_suite_sha256": "3b98ef7a51bbc18e845b75cd05d571811172d25c763093de14eac174f8a43b5e",
+    "oracle_runner_sha256": "d44bf520530ab71e51ab10cba36639ced90a1b3b978001674fa8c035d12372da",
+    "adversarial_candidates_sha256": "2f850b05f0a0c77c334227c8633b0082f4a6b0cfa5d08da74b34532f69c3eb4b",
+    "adversarial_opaque_sha256": "a070f248356bcfb0b66df03bd6600f5510f9b4895f682845198e25b25fc1da9e",
+    "discriminatory_gate_sha256": "cc214299d0dff5ac6e65957bb15aa027ff32658196d15dacf001295906193f61"
+  },
+  "discriminatory_gate": {
+    "canonical": "Preserved",
+    "valid_negative_killed": 14,
+    "valid_negative_total": 14,
+    "mutation_score": 1.0,
+    "opaque_cases": 6,
+    "opaque_result": "Unknown",
+    "reverse_order_equal": true,
+    "verdict": "sealed"
+  },
+  "protected_after_seal": [
+    "00_nucleo/prompts/compiler/eval/repr.md",
+    "00_nucleo/diagnosticos/p1290-manifest.json",
+    "00_nucleo/diagnosticos/p1290-contract.json",
+    "00_nucleo/diagnosticos/p1290-contract-probes.typ",
+    "00_nucleo/diagnosticos/p1290-oracle-suite.json",
+    "00_nucleo/diagnosticos/p1290-oracle-runner.py",
+    "00_nucleo/diagnosticos/p1290-adversarial-candidates.json",
+    "00_nucleo/diagnosticos/p1290-adversarial-opaque.json"
+  ],
+  "unknown_guard": "Pre-resolved SmartQuote provenance remains Unknown; no glyph-based reconstruction, other-owner edit or phase move is authorized.",
+  "invalidation": "Any byte change to a protected artifact or frozen baseline identity invalidates this seal and restarts from the first affected phase.",
+  "attestation_limit": "Declared role segregation was observed, but the shared filesystem does not technically attest read isolation."
+}

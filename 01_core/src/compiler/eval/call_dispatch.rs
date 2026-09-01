@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 9244f658
+//! @prompt-hash 8e16488f
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -170,6 +170,482 @@ pub fn apply_func(
 ///   chamada → ganham um nível por chamada, innermost primeiro.
 /// - `func.name()` → `while calling \`name\``; `None` (closure anónima) →
 ///   `while calling function` (Display espelhado no renderer L2).
+pub(crate) fn p1284_type_field(t: Type, field: &str) -> Option<Value> {
+    use crate::entities::dir::Dir;
+    use crate::entities::layout_types::{Align2D, HAlign, VAlign};
+
+    let constant = match (t, field) {
+        (Type::Direction, "ltr") => Some(Value::Dir(Dir::LTR)),
+        (Type::Direction, "rtl") => Some(Value::Dir(Dir::RTL)),
+        (Type::Direction, "ttb") => Some(Value::Dir(Dir::TTB)),
+        (Type::Direction, "btt") => Some(Value::Dir(Dir::BTT)),
+        (Type::Alignment, "left") => {
+            Some(Value::Align(Align2D { h: Some(HAlign::Left), v: None }))
+        }
+        (Type::Alignment, "center") => {
+            Some(Value::Align(Align2D { h: Some(HAlign::Center), v: None }))
+        }
+        (Type::Alignment, "right") => {
+            Some(Value::Align(Align2D { h: Some(HAlign::Right), v: None }))
+        }
+        (Type::Alignment, "start") => {
+            Some(Value::Align(Align2D { h: Some(HAlign::Start), v: None }))
+        }
+        (Type::Alignment, "end") => {
+            Some(Value::Align(Align2D { h: Some(HAlign::End), v: None }))
+        }
+        (Type::Alignment, "top") => {
+            Some(Value::Align(Align2D { h: None, v: Some(VAlign::Top) }))
+        }
+        (Type::Alignment, "horizon") => {
+            Some(Value::Align(Align2D { h: None, v: Some(VAlign::Horizon) }))
+        }
+        (Type::Alignment, "bottom") => {
+            Some(Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }))
+        }
+        _ => None,
+    };
+    if constant.is_some() {
+        return constant;
+    }
+
+    let function = match (t, field) {
+        (Type::Direction, "axis") => {
+            Func::native_with_engine("axis", direction_axis_static)
+        }
+        (Type::Direction, "end") => Func::native_with_engine("end", direction_end_static),
+        (Type::Direction, "inv") => Func::native_with_engine("inv", direction_inv_static),
+        (Type::Direction, "sign") => {
+            Func::native_with_engine("sign", direction_sign_static)
+        }
+        (Type::Direction, "start") => {
+            Func::native_with_engine("start", direction_start_static)
+        }
+        (Type::Direction, "from") => Func::native_with_engine("from", direction_from),
+        (Type::Direction, "to") => Func::native_with_engine("to", direction_to),
+        (Type::Alignment, "axis") => {
+            Func::native_with_engine("axis", alignment_axis_static)
+        }
+        (Type::Alignment, "inv") => Func::native_with_engine("inv", alignment_inv_static),
+        (Type::Duration, "days") => {
+            Func::native_with_engine("days", duration_days_static)
+        }
+        (Type::Duration, "hours") => {
+            Func::native_with_engine("hours", duration_hours_static)
+        }
+        (Type::Duration, "minutes") => {
+            Func::native_with_engine("minutes", duration_minutes_static)
+        }
+        (Type::Duration, "seconds") => {
+            Func::native_with_engine("seconds", duration_seconds_static)
+        }
+        (Type::Duration, "weeks") => {
+            Func::native_with_engine("weeks", duration_weeks_static)
+        }
+        (Type::Length, "pt") => Func::native_with_engine("pt", length_pt_static),
+        (Type::Length, "mm") => Func::native_with_engine("mm", length_mm_static),
+        (Type::Length, "cm") => Func::native_with_engine("cm", length_cm_static),
+        (Type::Length, "inches") => {
+            Func::native_with_engine("inches", length_inches_static)
+        }
+        (Type::Length, "to-absolute") => {
+            Func::native_with_engine("to-absolute", length_to_absolute_static)
+        }
+        (Type::Selector, "and") => Func::native_with_engine("and", selector_and_static),
+        (Type::Selector, "or") => Func::native_with_engine("or", selector_or_static),
+        (Type::Selector, "within") => {
+            Func::native_with_engine("within", selector_within_static)
+        }
+        (Type::State, "at") => Func::native_with_engine("at", state_at_static),
+        (Type::State, "final") => Func::native_with_engine("final", state_final_static),
+        (Type::State, "get") => Func::native_with_engine("get", state_get_static),
+        (Type::State, "update") => {
+            Func::native_with_engine("update", state_update_static)
+        }
+        (Type::Location, "page") => {
+            Func::native_with_engine("page", location_page_static)
+        }
+        (Type::Location, "page-numbering") => {
+            Func::native_with_engine("page-numbering", location_page_numbering_static)
+        }
+        (Type::Location, "position") => {
+            Func::native_with_engine("position", location_position_static)
+        }
+        _ => return None,
+    };
+    Some(Value::Func(function))
+}
+
+fn p1284_no_args(args: &Args) -> SourceResult<()> {
+    if !args.items.is_empty() || !args.named.is_empty() {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    Ok(())
+}
+
+fn p1284_static_call(
+    method: &str,
+    args: &Args,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let Some((target, rest)) = args.items.split_first() else {
+        return Err(vec![SourceDiagnostic::error(args.span, "missing argument: self")]);
+    };
+    dispatch_p1284_value_method(
+        target.clone(),
+        method,
+        Args {
+            items: rest.to_vec(),
+            named: args.named.clone(),
+            span: args.span,
+        },
+        scopes,
+        ctx,
+        engine,
+    )
+}
+
+macro_rules! p1284_static {
+    ($rust:ident, $method:literal) => {
+        fn $rust(
+            ctx: &mut EvalContext,
+            args: &Args,
+            _world: &dyn crate::contracts::world::World,
+            _file: crate::entities::file_id::FileId,
+            scopes: &mut Scopes<'_>,
+            engine: &mut Engine<'_>,
+        ) -> SourceResult<Value> {
+            p1284_static_call($method, args, scopes, ctx, engine)
+        }
+    };
+}
+
+p1284_static!(direction_axis_static, "axis");
+p1284_static!(direction_end_static, "end");
+p1284_static!(direction_inv_static, "inv");
+p1284_static!(direction_sign_static, "sign");
+p1284_static!(direction_start_static, "start");
+p1284_static!(alignment_axis_static, "axis");
+p1284_static!(alignment_inv_static, "inv");
+p1284_static!(duration_days_static, "days");
+p1284_static!(duration_hours_static, "hours");
+p1284_static!(duration_minutes_static, "minutes");
+p1284_static!(duration_seconds_static, "seconds");
+p1284_static!(duration_weeks_static, "weeks");
+p1284_static!(length_pt_static, "pt");
+p1284_static!(length_mm_static, "mm");
+p1284_static!(length_cm_static, "cm");
+p1284_static!(length_inches_static, "inches");
+p1284_static!(length_to_absolute_static, "to-absolute");
+p1284_static!(selector_and_static, "and");
+p1284_static!(selector_or_static, "or");
+p1284_static!(selector_within_static, "within");
+p1284_static!(state_at_static, "at");
+p1284_static!(state_final_static, "final");
+p1284_static!(state_get_static, "get");
+p1284_static!(state_update_static, "update");
+p1284_static!(location_page_static, "page");
+p1284_static!(location_page_numbering_static, "page-numbering");
+p1284_static!(location_position_static, "position");
+
+fn direction_from(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _file: crate::entities::file_id::FileId,
+    _scopes: &mut Scopes<'_>,
+    _engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    direction_from_to(args, false)
+}
+
+fn direction_to(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _file: crate::entities::file_id::FileId,
+    _scopes: &mut Scopes<'_>,
+    _engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    direction_from_to(args, true)
+}
+
+fn direction_from_to(args: &Args, to: bool) -> SourceResult<Value> {
+    use crate::entities::dir::Dir;
+    use crate::entities::layout_types::{HAlign, VAlign};
+    if !args.named.is_empty() || args.items.len() != 1 {
+        return Err(vec![SourceDiagnostic::error(args.span, "expected one side")]);
+    }
+    let direction = match &args.items[0] {
+        Value::Align(align) => match (align.h, align.v, to) {
+            (Some(HAlign::Left), None, false) => Dir::LTR,
+            (Some(HAlign::Right), None, false) => Dir::RTL,
+            (None, Some(VAlign::Top), false) => Dir::TTB,
+            (None, Some(VAlign::Bottom), false) => Dir::BTT,
+            (Some(HAlign::Right), None, true) => Dir::LTR,
+            (Some(HAlign::Left), None, true) => Dir::RTL,
+            (None, Some(VAlign::Bottom), true) => Dir::TTB,
+            (None, Some(VAlign::Top), true) => Dir::BTT,
+            _ => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "expected side alignment",
+                )])
+            }
+        },
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected alignment, found {}", vanilla_type_name(other)),
+            )])
+        }
+    };
+    Ok(Value::Dir(direction))
+}
+
+fn dispatch_p1284_value_method(
+    target: Value,
+    method: &str,
+    args: Args,
+    _scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    use crate::entities::dir::Dir;
+    use crate::entities::layout_types::{Abs, Align2D, HAlign, Length, VAlign};
+
+    let inverse_h = |h| match h {
+        HAlign::Left => HAlign::Right,
+        HAlign::Right => HAlign::Left,
+        HAlign::Start => HAlign::End,
+        HAlign::End => HAlign::Start,
+        HAlign::Center => HAlign::Center,
+    };
+    let inverse_v = |v| match v {
+        VAlign::Top => VAlign::Bottom,
+        VAlign::Bottom => VAlign::Top,
+        VAlign::Horizon => VAlign::Horizon,
+    };
+
+    match target {
+        Value::Dir(direction) => {
+            p1284_no_args(&args)?;
+            Ok(match method {
+                "axis" => Value::Str(
+                    if direction.is_horizontal() { "horizontal" } else { "vertical" }
+                        .into(),
+                ),
+                "sign" => Value::Int(if direction.is_reverse() { -1 } else { 1 }),
+                "inv" => Value::Dir(match direction {
+                    Dir::LTR => Dir::RTL,
+                    Dir::RTL => Dir::LTR,
+                    Dir::TTB => Dir::BTT,
+                    Dir::BTT => Dir::TTB,
+                }),
+                "start" | "end" => {
+                    let start = method == "start";
+                    let alignment = match (direction, start) {
+                        (Dir::LTR, true) | (Dir::RTL, false) => {
+                            Align2D { h: Some(HAlign::Left), v: None }
+                        }
+                        (Dir::LTR, false) | (Dir::RTL, true) => {
+                            Align2D { h: Some(HAlign::Right), v: None }
+                        }
+                        (Dir::TTB, true) | (Dir::BTT, false) => {
+                            Align2D { h: None, v: Some(VAlign::Top) }
+                        }
+                        (Dir::TTB, false) | (Dir::BTT, true) => {
+                            Align2D { h: None, v: Some(VAlign::Bottom) }
+                        }
+                    };
+                    Value::Align(alignment)
+                }
+                _ => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        "unknown method",
+                    )])
+                }
+            })
+        }
+        Value::Align(alignment) => {
+            p1284_no_args(&args)?;
+            Ok(match method {
+                "axis" => match (alignment.h, alignment.v) {
+                    (Some(_), None) => Value::Str("horizontal".into()),
+                    (None, Some(_)) => Value::Str("vertical".into()),
+                    _ => Value::None,
+                },
+                "inv" => Value::Align(Align2D {
+                    h: alignment.h.map(inverse_h),
+                    v: alignment.v.map(inverse_v),
+                }),
+                _ => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        "unknown method",
+                    )])
+                }
+            })
+        }
+        Value::Duration(duration) => {
+            p1284_no_args(&args)?;
+            let seconds = duration.nanos as f64 / 1_000_000_000.0;
+            Ok(Value::Float(match method {
+                "seconds" => seconds,
+                "minutes" => seconds / 60.0,
+                "hours" => seconds / 3_600.0,
+                "days" => seconds / 86_400.0,
+                "weeks" => seconds / 604_800.0,
+                _ => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        "unknown method",
+                    )])
+                }
+            }))
+        }
+        Value::Length(length) => {
+            p1284_no_args(&args)?;
+            if method == "to-absolute" {
+                if !ctx.in_context {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        "can only be used when context is known",
+                    )]);
+                }
+                let points = length.abs.to_pt() + length.em * engine.styles.size();
+                return Ok(Value::Length(Length { abs: Abs(points), em: 0.0 }));
+            }
+            if length.em != 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "relative length cannot be converted without context",
+                )]);
+            }
+            let points = length.abs.to_pt();
+            Ok(Value::Float(match method {
+                "pt" => points,
+                "mm" => points * 25.4 / 72.0,
+                "cm" => points * 2.54 / 72.0,
+                "inches" => points / 72.0,
+                _ => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        "unknown method",
+                    )])
+                }
+            }))
+        }
+        Value::Selector(base) => {
+            if !args.named.is_empty() {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "unexpected argument",
+                )]);
+            }
+            match method {
+                "and" | "or" => {
+                    let mut selectors = vec![base];
+                    for value in &args.items {
+                        let selector = bindings::value_to_query_selector(value)
+                            .ok_or_else(|| {
+                                vec![SourceDiagnostic::error(
+                                    args.span,
+                                    format!(
+                                        "expected selector, found {}",
+                                        value.type_name()
+                                    ),
+                                )]
+                            })?;
+                        selectors.push(selector);
+                    }
+                    Ok(Value::Selector(if method == "and" {
+                        crate::entities::selector::Selector::And(ecow::EcoVec::from(
+                            selectors,
+                        ))
+                    } else {
+                        crate::entities::selector::Selector::Or(ecow::EcoVec::from(
+                            selectors,
+                        ))
+                    }))
+                }
+                "within" => {
+                    let [ancestor] = args.items.as_slice() else {
+                        return Err(vec![SourceDiagnostic::error(
+                            args.span,
+                            "within requires one ancestor",
+                        )]);
+                    };
+                    let ancestor = bindings::value_to_query_selector(ancestor)
+                        .ok_or_else(|| {
+                            vec![SourceDiagnostic::error(
+                                args.span,
+                                format!(
+                                    "expected selector, found {}",
+                                    ancestor.type_name()
+                                ),
+                            )]
+                        })?;
+                    Ok(Value::Selector(crate::entities::selector::Selector::Within {
+                        base: Box::new(base),
+                        ancestor: Box::new(ancestor),
+                    }))
+                }
+                _ => Err(vec![SourceDiagnostic::error(args.span, "unknown method")]),
+            }
+        }
+        Value::State(state) => {
+            use crate::compiler::stdlib::state::{
+                state_at_location, state_final, state_get, state_update,
+            };
+            match method {
+                "update" => match args.items.as_slice() {
+                    [value] if args.named.is_empty() => {
+                        Ok(state_update(state.key.clone(), value.clone()))
+                    }
+                    _ => Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        "state.update() requires one argument",
+                    )]),
+                },
+                "get" => {
+                    p1284_no_args(&args)?;
+                    state_get(&state, ctx, args.span)
+                }
+                "final" => {
+                    p1284_no_args(&args)?;
+                    state_final(&state, ctx, args.span)
+                }
+                "at" => match args.items.as_slice() {
+                    [Value::Location(location)] if args.named.is_empty() => {
+                        state_at_location(&state, *location, ctx, args.span)
+                    }
+                    [other] => Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("expected location, found {}", other.type_name()),
+                    )]),
+                    _ => Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        "state.at() requires one selector",
+                    )]),
+                },
+                _ => Err(vec![SourceDiagnostic::error(args.span, "unknown method")]),
+            }
+        }
+        Value::Location(location) => {
+            p1284_no_args(&args)?;
+            eval_location_method(location, method, ctx)
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("type {} has no method `{method}`", other.type_name()),
+        )]),
+    }
+}
+
 fn trace_call(
     result: SourceResult<Value>,
     func: &Func,
@@ -420,6 +896,52 @@ pub(super) fn eval_func_call(
                     );
                 }
             }
+            Value::Float(value) => {
+                if crate::compiler::stdlib::is_float_instance_method(method) {
+                    let args = eval_args(call.args(), scopes, ctx, engine)?;
+                    return crate::compiler::stdlib::dispatch_float_method(
+                        value,
+                        method,
+                        args,
+                        ctx,
+                        engine.world,
+                        engine.current_file,
+                    );
+                }
+            }
+            value @ Value::Dir(_)
+                if matches!(method, "axis" | "end" | "inv" | "sign" | "start") =>
+            {
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                return dispatch_p1284_value_method(
+                    value, method, args, scopes, ctx, engine,
+                );
+            }
+            value @ Value::Align(_) if matches!(method, "axis" | "inv") => {
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                return dispatch_p1284_value_method(
+                    value, method, args, scopes, ctx, engine,
+                );
+            }
+            value @ Value::Duration(_)
+                if matches!(
+                    method,
+                    "days" | "hours" | "minutes" | "seconds" | "weeks"
+                ) =>
+            {
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                return dispatch_p1284_value_method(
+                    value, method, args, scopes, ctx, engine,
+                );
+            }
+            value @ Value::Length(_)
+                if matches!(method, "cm" | "inches" | "mm" | "pt" | "to-absolute") =>
+            {
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                return dispatch_p1284_value_method(
+                    value, method, args, scopes, ctx, engine,
+                );
+            }
             // **P796** — `.at(index)` em `Value::Version` (único método de
             // instância; ver `entities/version.md` §8a). Só intercepta
             // "at"; outros métodos caem no caminho genérico existente.
@@ -481,47 +1003,6 @@ pub(super) fn eval_func_call(
             if let Value::Func(f) = target {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 return Ok(Value::Func(f.with(args)));
-            }
-        }
-    }
-
-    // **P707** — `args.pos()`/`args.named()`: métodos sobre `Value::Args`,
-    // distintos dos campos `.positional`/`.named` (P504, sem parênteses).
-    // Sem isto, `args.named()` avaliava o campo (Dict) e depois tentava
-    // chamá-lo como função ("não é possível chamar dictionary");
-    // `args.pos()` nem chegava a existir como campo. `.len()`/`.at()`/
-    // `.filter()`/`.map()` do vanilla ficam scope-out — sem consumidor
-    // medido em `cetz` (ver `rules/eval.md` §P707).
-    if let Expr::FieldAccess(access) = call.callee() {
-        let method = access.field().as_str();
-        if method == "pos" || method == "named" {
-            let target = eval_expr(access.target(), scopes, ctx, engine)?;
-            if let Value::Args(a) = target {
-                return Ok(match method {
-                    "pos" => Value::Array(a.items),
-                    _ => Value::Dict(a.named),
-                });
-            }
-        }
-    }
-
-    // **P710** — `length.to-absolute()`: resolve a componente `em` usando o
-    // tamanho de texto actual (`StyleChain::size()`, já usado pelo layout de
-    // texto — nenhum mecanismo novo de resolução de estilo). Divergência
-    // documentada (mecânica, não língua — `rules/eval.md` §P710): o vanilla
-    // só permite isto dentro de um bloco `context`; o cristalino não
-    // distingue "scripting" de "contexto resolvido" (`engine.styles` é
-    // sempre acessível), logo não replica esse gate — o valor produzido é
-    // idêntico ao vanilla no único caso medido (`cetz`, sempre dentro de
-    // `context {...}`). `.pt()`/`.mm()`/`.cm()`/`.inches()`/`.abs`/`.em`
-    // ficam scope-out, sem consumidor medido.
-    if let Expr::FieldAccess(access) = call.callee() {
-        if access.field().as_str() == "to-absolute" {
-            let target = eval_expr(access.target(), scopes, ctx, engine)?;
-            if let Value::Length(l) = target {
-                use crate::entities::layout_types::{Abs, Length};
-                let abs_pt = l.abs.to_pt() + l.em * engine.styles.size();
-                return Ok(Value::Length(Length { abs: Abs(abs_pt), em: 0.0 }));
             }
         }
     }
@@ -791,6 +1272,9 @@ pub(super) fn eval_func_call(
                 Type::Symbol => native_symbol(ctx, &args, world, current_file),
                 // P843 (F4/F5) — constructors `bytes(...)` e `datetime(...)`.
                 Type::Bytes => native_bytes(ctx, &args, world, current_file),
+                // P1284 — `arguments(...)` preserva simultaneamente a ordem
+                // dos posicionais e dos named na representação já existente.
+                Type::Arguments => Ok(Value::Args(args)),
                 Type::Datetime => native_datetime(ctx, &args, world, current_file),
                 // P1140.1-B — tipos públicos chamáveis, delegados aos
                 // mesmos construtores atomizados da fase estrutural.

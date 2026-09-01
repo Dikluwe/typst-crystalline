@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/sym.md
-//! @prompt-hash b08b2879
+//! @prompt-hash a4e31465
 //! @layer L1
-//! @updated 2026-07-15
+//! @updated 2026-08-30
 //!
 //! Módulo `sym` — tabela estática de símbolos Unicode prioritários.
 //!
@@ -507,7 +507,10 @@ static SYM_DEPRECATED: &[(&str, &str)] =
 /// Os call sites (eval math, field access) emitem o warning com o span
 /// apropriado (ident em math; campo em `#sym.join`).
 pub fn sym_deprecation(name: &str) -> Option<&'static str> {
-    SYM_DEPRECATED.iter().find(|(n, _)| *n == name).map(|(_, msg)| *msg)
+    codex::SYM
+        .get(name)
+        .and_then(|binding| binding.deprecation)
+        .or_else(|| SYM_DEPRECATED.iter().find(|(n, _)| *n == name).map(|(_, msg)| *msg))
 }
 
 /// Lista de grupos com variantes: (nome, caractere base, função de variantes).
@@ -545,7 +548,7 @@ pub(crate) static SYM_GROUPS: &[(&str, &str, fn() -> Vec<SymbolVariant>)] = &[
 /// Procura um símbolo pelo nome. Entradas compostas pré-definidas
 /// (`"arrow.r"`, `"eq.not"`) e modifiers encadeados (`"arrow.r.filled"`,
 /// `"tilde.equiv"`) são resolvidos.
-pub fn sym_lookup(name: &str) -> Option<Symbol> {
+fn legacy_sym_lookup(name: &str) -> Option<Symbol> {
     // 1. Grupos com variantes.
     for (group, base, variants_fn) in SYM_GROUPS {
         if name == *group {
@@ -569,27 +572,77 @@ pub fn sym_lookup(name: &str) -> Option<Symbol> {
         .map(|(n, ch)| Symbol::new(*ch, *n))
 }
 
+fn symbol_from_codex(name: &str, symbol: codex::Symbol) -> Symbol {
+    let value = symbol
+        .get(codex::ModifierSet::default())
+        .expect("codex symbol must have a default best match")
+        .0;
+    let variants = symbol
+        .variants()
+        .map(|(modifiers, value, _)| (modifiers.as_str().into(), value.into()))
+        .collect();
+    Symbol::with_variants(value, name, variants)
+}
+
+fn codex_lookup(name: &str) -> Option<Symbol> {
+    let mut segments = name.split('.');
+    let mut leaf = segments.next()?;
+    let mut binding = codex::SYM.get(leaf)?;
+    loop {
+        match binding.def {
+            codex::Def::Module(module) => {
+                leaf = segments.next()?;
+                binding = module.get(leaf)?;
+            }
+            codex::Def::Symbol(symbol) => {
+                let mut symbol = symbol_from_codex(leaf, symbol);
+                for modifier in segments {
+                    symbol = symbol.modified(modifier)?;
+                }
+                return Some(symbol);
+            }
+        }
+    }
+}
+
+/// Procura primeiro no catálogo integral codex 0.3.0; a tabela histórica só
+/// preserva extensões cristalinas explicitamente decididas, como `registered`.
+pub fn sym_lookup(name: &str) -> Option<Symbol> {
+    codex_lookup(name).or_else(|| legacy_sym_lookup(name))
+}
+
+fn module_from_codex(
+    name: &str,
+    module: codex::Module,
+) -> crate::entities::module::Module {
+    let mut scope = crate::entities::scope::Scope::new();
+    for (binding_name, binding) in module.iter() {
+        let value = match binding.def {
+            codex::Def::Symbol(symbol) => {
+                Value::Symbol(symbol_from_codex(binding_name, symbol))
+            }
+            codex::Def::Module(child) => {
+                Value::Module(module_from_codex(binding_name, child))
+            }
+        };
+        scope.define(binding_name, value);
+    }
+    crate::entities::module::Module::new(name, scope)
+}
+
 /// Constrói o `Value::Module` que representa o módulo `sym` no scope.
 ///
 /// Apenas as entradas com nome simples (sem `.`) ficam acessíveis via
 /// eval FieldAccess (`sym.arrow`). Entradas compostas estão disponíveis
 /// via `sym_lookup`.
 pub fn build_sym_module() -> Value {
-    let mut scope = crate::entities::scope::Scope::new();
-
-    for (group, base, variants_fn) in SYM_GROUPS {
-        scope.define(
-            *group,
-            Value::Symbol(Symbol::with_variants(*base, *group, variants_fn())),
-        );
+    let module = module_from_codex("sym", codex::SYM);
+    let mut scope = module.scope().clone();
+    // Extensão histórica preservada sem crédito de paridade (P1283).
+    if scope.get("registered").is_none() {
+        let registered = legacy_sym_lookup("registered").expect("registered extension");
+        scope.define("registered", Value::Symbol(registered));
     }
-
-    for (name, ch) in SYM_SIMPLE {
-        if !name.contains('.') {
-            scope.define(*name, Value::Symbol(Symbol::new(*ch, *name)));
-        }
-    }
-
     Value::Module(crate::entities::module::Module::new("sym", scope))
 }
 
@@ -613,7 +666,7 @@ mod tests {
     #[test]
     fn sym_lookup_arrow_modifier() {
         let s = sym_lookup("arrow.r.filled").unwrap();
-        assert_eq!(s.value, "➡");
+        assert_eq!(s.value, "➡\u{fe0e}");
     }
 
     #[test]
@@ -637,7 +690,7 @@ mod tests {
     #[test]
     fn sym_lookup_suit_modifier() {
         let s = sym_lookup("suit.heart").unwrap();
-        assert_eq!(s.value, "♥");
+        assert_eq!(s.value, "♥\u{fe0e}");
     }
 
     #[test]
@@ -756,7 +809,7 @@ mod tests {
     #[test]
     fn sym_lookup_diamond_small() {
         let s = sym_lookup("diamond.small").unwrap();
-        assert_eq!(s.value, "🔹");
+        assert_eq!(s.value, "⋄");
     }
 
     #[test]
@@ -840,6 +893,100 @@ mod tests {
             }
         } else {
             panic!("esperado Value::Module");
+        }
+    }
+
+    fn assert_codex_module(
+        source: codex::Module,
+        actual: &crate::entities::module::Module,
+    ) {
+        assert_eq!(actual.scope().iter().count(), source.iter().count());
+        for (name, expected) in source.iter() {
+            let actual = actual
+                .scope()
+                .get(name)
+                .unwrap_or_else(|| panic!("missing sym.{name}"));
+            match (expected.def, actual) {
+                (codex::Def::Symbol(expected), Value::Symbol(actual)) => {
+                    let expected_base = expected
+                        .get(codex::ModifierSet::default())
+                        .expect("every codex symbol has a default best match")
+                        .0;
+                    let expected_variants = expected
+                        .variants()
+                        .map(|(mods, value, _)| (mods.as_str().to_owned(), value))
+                        .collect::<Vec<_>>();
+                    let actual_variants = actual
+                        .variants
+                        .iter()
+                        .map(|(mods, value)| (mods.as_str().to_owned(), value.as_str()))
+                        .collect::<Vec<_>>();
+                    assert_eq!(actual.value, expected_base, "wrong base for sym.{name}");
+                    assert_eq!(
+                        actual_variants, expected_variants,
+                        "wrong variants for sym.{name}"
+                    );
+                }
+                (codex::Def::Module(expected), Value::Module(actual)) => {
+                    assert_codex_module(expected, actual);
+                }
+                (expected, actual) => {
+                    panic!("wrong kind for sym.{name}: {expected:?} vs {actual:?}")
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn p1283_catalogo_codex_integral_com_extensao_separada() {
+        let Value::Module(module) = build_sym_module() else {
+            panic!("sym must be module")
+        };
+        // O catálogo codex é fechado; `registered` é a única extensão P1283 preservada.
+        assert_eq!(module.scope().iter().count(), codex::SYM.iter().count() + 1);
+        assert!(module.scope().get("registered").is_some());
+        for (name, expected) in codex::SYM.iter() {
+            let actual = module
+                .scope()
+                .get(name)
+                .unwrap_or_else(|| panic!("missing sym.{name}"));
+            match (expected.def, actual) {
+                (codex::Def::Symbol(expected), Value::Symbol(actual)) => {
+                    let base = expected.get(codex::ModifierSet::default()).unwrap().0;
+                    assert_eq!(actual.value, base, "wrong base for sym.{name}");
+                    assert_eq!(
+                        actual.variants.len(),
+                        expected.variants().count(),
+                        "wrong variants for sym.{name}"
+                    );
+                }
+                (codex::Def::Module(expected), Value::Module(actual)) => {
+                    assert_codex_module(expected, actual)
+                }
+                _ => panic!("wrong kind for sym.{name}"),
+            }
+        }
+    }
+
+    #[test]
+    fn p1283_nested_aliases_e_parent_sem_bare() {
+        let Value::Module(module) = build_sym_module() else {
+            panic!("sym must be module")
+        };
+        assert!(matches!(module.scope().get("gender"), Some(Value::Module(_))));
+        assert!(matches!(module.scope().get("control"), Some(Value::Module(_))));
+        assert_eq!(sym_lookup("bowtie").unwrap().value, "⋈");
+        assert_eq!(sym_lookup("bowtie.big").unwrap().value, "⨝");
+        for (left, right) in [
+            ("dollar", "pataca"),
+            ("yen", "yuan"),
+            ("emptyset", "nothing"),
+            ("gradient", "nabla"),
+        ] {
+            let left = sym_lookup(left).unwrap();
+            let right = sym_lookup(right).unwrap();
+            assert_eq!(left.value, right.value);
+            assert_eq!(left.variants, right.variants);
         }
     }
 }

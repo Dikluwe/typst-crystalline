@@ -32,5 +32,5 @@ pub(super) use method_dispatch::{is_mutating_method, try_eval_mutating_method};
 pub(super) use value_methods::{
     eval_color_method, eval_counter_method_value, eval_counter_static_method_value,
     eval_element_where, eval_selector_or_and, eval_selector_within, eval_state_method,
-    eval_version_method_value,
+    eval_version_method_value, value_to_query_selector,
 };

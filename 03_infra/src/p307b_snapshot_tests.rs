@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export-fixtures.md
-//! @prompt-hash ac3468ab
+//! @prompt-hash 41241d6a
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -31,7 +31,7 @@ mod p307b_snapshot {
     /// Compila um fixture e devolve os bytes PDF.
     ///
     /// `src_rel`: path relativo a `03_infra/` (e.g. `"fixtures/p307b/sources/01-markup-plain.typ"`).
-    /// `font_path_rel`: opcional, e.g. `"../lab/krilla-reference/assets/fonts"` para fixture 09.
+    /// `font_path_rel`: opcional, e.g. `"fixtures/fonts"` para fixture 09.
     fn compile_fixture(src_rel: &str, font_path_rel: Option<&str>) -> Vec<u8> {
         // P601 — datas fixas para manter os snapshots binários determinísticos.
         std::env::set_var("CRYSTALLINE_PDF_FIXED_EPOCH", "0");
@@ -167,7 +167,7 @@ mod p307b_snapshot {
     fn p307b_09_cidfont() {
         let bytes = compile_fixture(
             "fixtures/p307b/sources/09-cidfont.typ",
-            Some("../lab/krilla-reference/assets/fonts"),
+            Some("fixtures/fonts"),
         );
         assert_bytes_eq(&bytes, "fixtures/p307b/reference/09-cidfont.pdf", "09-cidfont");
     }

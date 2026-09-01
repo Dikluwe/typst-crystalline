@@ -1,0 +1,257 @@
+# P1290 baseline working-tree status
+
+Captured originally at 2026-08-31T10:40:23-03:00 with `git status --short`.
+Re-materialized before P1290 manifest creation; the only excluded path is the
+P1290 probe artifact created after the L0-first write:
+`00_nucleo/diagnosticos/p1290-contract-probes.typ`.
+
+```text
+ M .gitignore
+A  .typ/sec_04.typ
+A  .typ/sec_07.typ
+A  .typ/sec_09.typ
+A  .typ/sec_10.typ
+A  .typ/sec_12.typ
+A  .typ/sec_16.typ
+A  .typ/sec_17.typ
+A  .typ/sec_18.typ
+A  .typ/sec_22.typ
+A  .typ/sec_27.typ
+A  00_nucleo/diagnosticos/p1282-crystalline-default.json
+A  00_nucleo/diagnosticos/p1282-crystalline-html.json
+A  00_nucleo/diagnosticos/p1282-inventory-default.json
+A  00_nucleo/diagnosticos/p1282-inventory-html.json
+A  00_nucleo/diagnosticos/p1282-probes-default.json
+A  00_nucleo/diagnosticos/p1282-probes-html.json
+A  00_nucleo/diagnosticos/p1282-summary.json
+A  00_nucleo/diagnosticos/p1282-vanilla-default.json
+A  00_nucleo/diagnosticos/p1282-vanilla-html.json
+A  00_nucleo/diagnosticos/typst-passo-1281-relatorio.md
+A  00_nucleo/diagnosticos/typst-passo-1282-relatorio.md
+ M 00_nucleo/prompts/compiler/eval.md
+ M 00_nucleo/prompts/compiler/eval/bindings/field_access.md
+ M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md
+ M 00_nucleo/prompts/compiler/eval/call_dispatch.md
+ M 00_nucleo/prompts/compiler/eval/math.md
+ M 00_nucleo/prompts/compiler/eval/repr.md
+ M 00_nucleo/prompts/compiler/eval/rules.md
+ M 00_nucleo/prompts/compiler/eval/selector_matching.md
+ M 00_nucleo/prompts/compiler/eval/table.md
+ M 00_nucleo/prompts/compiler/lang/quotes.md
+ M 00_nucleo/prompts/compiler/layout.md
+ M 00_nucleo/prompts/compiler/layout/smartquote.md
+ M 00_nucleo/prompts/compiler/layout/table.md
+ M 00_nucleo/prompts/compiler/layout/table_cell.md
+ M 00_nucleo/prompts/compiler/stdlib/_comum.md
+ M 00_nucleo/prompts/compiler/stdlib/collections.md
+ M 00_nucleo/prompts/compiler/stdlib/color.md
+ M 00_nucleo/prompts/compiler/stdlib/emoji.md
+ M 00_nucleo/prompts/compiler/stdlib/foundations.md
+ M 00_nucleo/prompts/compiler/stdlib/foundations/color.md
+ M 00_nucleo/prompts/compiler/stdlib/foundations/selector.md
+ M 00_nucleo/prompts/compiler/stdlib/foundations/str.md
+ M 00_nucleo/prompts/compiler/stdlib/pdf.md
+ M 00_nucleo/prompts/compiler/stdlib/shapes.md
+ M 00_nucleo/prompts/compiler/stdlib/structural/math.md
+ M 00_nucleo/prompts/compiler/stdlib/structural/outline.md
+ M 00_nucleo/prompts/compiler/stdlib/sym.md
+ M 00_nucleo/prompts/compiler/stdlib/text/smartquote.md
+ M 00_nucleo/prompts/entities/color.md
+ M 00_nucleo/prompts/entities/content.md
+ M 00_nucleo/prompts/entities/elements/smartquote.md
+ M 00_nucleo/prompts/entities/elements/table.md
+ M 00_nucleo/prompts/entities/elements/table_cell.md
+ M 00_nucleo/prompts/entities/html.md
+ M 00_nucleo/prompts/entities/layout_types.md
+ M 00_nucleo/prompts/entities/selector.md
+ M 00_nucleo/prompts/infra/export-fixtures.md
+ M 00_nucleo/prompts/infra/export/builder.md
+ M 00_nucleo/prompts/infra/export/stream.md
+ M 00_nucleo/prompts/infra/export/svg.md
+ M 00_nucleo/prompts/infra/pipeline.md
+ M 00_nucleo/prompts/infra/query-helpers.md
+ M 00_nucleo/prompts/shell/cli.md
+ M 00_nucleo/prompts/wiring.md
+ M 01_core/Cargo.toml
+ M 01_core/src/compiler/eval/bindings/field_access.rs
+ M 01_core/src/compiler/eval/bindings/mod.rs
+ M 01_core/src/compiler/eval/bindings/value_methods.rs
+ M 01_core/src/compiler/eval/call_dispatch.rs
+ M 01_core/src/compiler/eval/math.rs
+ M 01_core/src/compiler/eval/mod.rs
+ M 01_core/src/compiler/eval/repr.rs
+ M 01_core/src/compiler/eval/rules.rs
+ M 01_core/src/compiler/eval/selector_matching.rs
+ M 01_core/src/compiler/eval/tests.rs
+ M 01_core/src/compiler/introspect.rs
+ M 01_core/src/compiler/introspect/locatable.rs
+ M 01_core/src/compiler/lang/quotes.rs
+ M 01_core/src/compiler/layout/mod.rs
+ M 01_core/src/compiler/layout/smartquote.rs
+ M 01_core/src/compiler/layout/tests.rs
+ M 01_core/src/compiler/math/layout/spacing.rs
+ M 01_core/src/compiler/stdlib/collections.rs
+ M 01_core/src/compiler/stdlib/color.rs
+ M 01_core/src/compiler/stdlib/emoji.rs
+ M 01_core/src/compiler/stdlib/foundations/color.rs
+ M 01_core/src/compiler/stdlib/foundations/mod.rs
+ M 01_core/src/compiler/stdlib/foundations/selector.rs
+ M 01_core/src/compiler/stdlib/foundations/str.rs
+ M 01_core/src/compiler/stdlib/mod.rs
+ M 01_core/src/compiler/stdlib/pdf.rs
+ M 01_core/src/compiler/stdlib/shapes.rs
+ M 01_core/src/compiler/stdlib/state.rs
+ M 01_core/src/compiler/stdlib/structural/math.rs
+ M 01_core/src/compiler/stdlib/structural/outline.rs
+ M 01_core/src/compiler/stdlib/sym.rs
+ M 01_core/src/compiler/stdlib/text/smartquote.rs
+ M 01_core/src/entities/color.rs
+ M 01_core/src/entities/content.rs
+ M 01_core/src/entities/elements/mod.rs
+ M 01_core/src/entities/elements/smartquote.rs
+ M 01_core/src/entities/layout_types.rs
+ M 01_core/src/entities/selector.rs
+ M 02_shell/src/cli.rs
+A  03_infra/fixtures/fonts/LICENSE-NotoSans.md
+A  03_infra/fixtures/fonts/NotoSans-Regular.ttf
+ M 03_infra/fixtures/p307b/MANIFEST.md
+ M 03_infra/src/export/builder.rs
+ M 03_infra/src/export/stream.rs
+ M 03_infra/src/export/svg.rs
+ M 03_infra/src/p307b_snapshot_tests.rs
+ M 03_infra/src/pipeline.rs
+ M 03_infra/src/query_helpers.rs
+ M 04_wiring/src/main.rs
+ M 04_wiring/tests/cli.rs
+ M Cargo.lock
+ M Cargo.toml
+ M crystalline.toml
+ M lab/parity/matrix/manifest.yaml
+ M lab/parity/matrix/runner.py
+ M lab/parity/matrix/test_runner.py
+ M lab/surface-inventory/Cargo.lock
+A  lab/surface-inventory/extra_seeds.json
+ M lab/surface-inventory/merge.py
+ M lab/surface-inventory/probes.json
+ M lab/surface-inventory/run_probes.py
+ M lab/surface-inventory/src/main.rs
+AM lab/surface-inventory/summarize.py
+A  lab/surface-inventory/test_merge.py
+A  lab/surface-inventory/test_run_probes.py
+ M lab/typst-original/crates/p1140-inventory/src/main.rs
+?? 00_nucleo/diagnosticos/p1283-adversarial-receipt.md
+?? 00_nucleo/diagnosticos/p1283-contract-receipt.md
+?? 00_nucleo/diagnosticos/p1283-crystalline-default.json
+?? 00_nucleo/diagnosticos/p1283-crystalline-html.json
+?? 00_nucleo/diagnosticos/p1283-inventory-default.json
+?? 00_nucleo/diagnosticos/p1283-inventory-html.json
+?? 00_nucleo/diagnosticos/p1283-probes-default.json
+?? 00_nucleo/diagnosticos/p1283-probes-html.json
+?? 00_nucleo/diagnosticos/p1283-residual-p1284.json
+?? 00_nucleo/diagnosticos/p1283-summary.json
+?? 00_nucleo/diagnosticos/p1283-vanilla-default.json
+?? 00_nucleo/diagnosticos/p1283-vanilla-html.json
+?? 00_nucleo/diagnosticos/p1283-verification-receipt.md
+?? 00_nucleo/diagnosticos/p1284-adversarial-receipt.md
+?? 00_nucleo/diagnosticos/p1284-candidate-oracle-receipt.json
+?? 00_nucleo/diagnosticos/p1284-contract-receipt.md
+?? 00_nucleo/diagnosticos/p1284-crystalline-default.json
+?? 00_nucleo/diagnosticos/p1284-crystalline-html.json
+?? 00_nucleo/diagnosticos/p1284-inventory-default.json
+?? 00_nucleo/diagnosticos/p1284-inventory-html.json
+?? 00_nucleo/diagnosticos/p1284-oracle-receipt.md
+?? 00_nucleo/diagnosticos/p1284-probes-default.json
+?? 00_nucleo/diagnosticos/p1284-probes-html.json
+?? 00_nucleo/diagnosticos/p1284-residual-p1285.json
+?? 00_nucleo/diagnosticos/p1284-summary.json
+?? 00_nucleo/diagnosticos/p1284-vanilla-default.json
+?? 00_nucleo/diagnosticos/p1284-vanilla-html.json
+?? 00_nucleo/diagnosticos/p1284-verification-receipt.md
+?? 00_nucleo/diagnosticos/p1285-adversarial-mutation-plan-v2.md
+?? 00_nucleo/diagnosticos/p1285-adversarial-mutation-plan-v3.md
+?? 00_nucleo/diagnosticos/p1285-adversarial-mutation-plan-v4.md
+?? 00_nucleo/diagnosticos/p1285-adversarial-mutation-plan-v5.md
+?? 00_nucleo/diagnosticos/p1285-adversarial-mutation-plan-v6.md
+?? 00_nucleo/diagnosticos/p1285-adversarial-mutation-plan-v7.md
+?? 00_nucleo/diagnosticos/p1285-adversarial-receipt-v2.md
+?? 00_nucleo/diagnosticos/p1285-adversarial-receipt-v3.md
+?? 00_nucleo/diagnosticos/p1285-adversarial-receipt.md
+?? 00_nucleo/diagnosticos/p1285-contract-receipt.md
+?? 00_nucleo/diagnosticos/p1285-oracle-receipt.md
+?? 00_nucleo/diagnosticos/p1285-red-tests-receipt.md
+?? 00_nucleo/diagnosticos/p1285-verification-receipt-v2.md
+?? 00_nucleo/diagnosticos/p1285-verification-receipt-v3.md
+?? 00_nucleo/diagnosticos/p1285-verification-receipt.md
+?? 00_nucleo/diagnosticos/p1286-adversarial-mutation-plan.md
+?? 00_nucleo/diagnosticos/p1286-contract-receipt.md
+?? 00_nucleo/diagnosticos/p1286-mutation-campaign-receipt.md
+?? 00_nucleo/diagnosticos/p1286-oracle-receipt.md
+?? 00_nucleo/diagnosticos/p1286-ownership-audit.md
+?? 00_nucleo/diagnosticos/p1286-post-gate-l0-receipt.md
+?? 00_nucleo/diagnosticos/p1286-red-test-receipt.md
+?? 00_nucleo/diagnosticos/p1286-vanilla-measurement-receipt.md
+?? 00_nucleo/diagnosticos/p1286-verification-receipt.md
+?? 00_nucleo/diagnosticos/p1287-adversarial-mutation-plan.md
+?? 00_nucleo/diagnosticos/p1287-adversarial-receipt.md
+?? 00_nucleo/diagnosticos/p1287-contract-receipt.md
+?? 00_nucleo/diagnosticos/p1287-manifest.json
+?? 00_nucleo/diagnosticos/p1287-oracle-receipt.md
+?? 00_nucleo/diagnosticos/p1287-vanilla-measurement-receipt.md
+?? 00_nucleo/diagnosticos/p1287-verification-receipt.md
+?? 00_nucleo/diagnosticos/p1288-harness-receipt.md
+?? 00_nucleo/diagnosticos/p1288-pre-gate-l0-receipt.md
+?? 00_nucleo/diagnosticos/p1288-vanilla-measurement-receipt.md
+?? 00_nucleo/diagnosticos/p1289-contract-receipt.md
+?? 00_nucleo/diagnosticos/p1289-manifest.json
+?? 00_nucleo/diagnosticos/p1289-vanilla-measurement-receipt.md
+?? 00_nucleo/diagnosticos/p1291-baseline-status.txt
+?? 00_nucleo/diagnosticos/p1291-manifest.json
+?? 00_nucleo/diagnosticos/p1291-matriz.md
+?? 00_nucleo/diagnosticos/typst-passo-1283-relatorio.md
+?? 00_nucleo/diagnosticos/typst-passo-1284-relatorio.md
+?? 00_nucleo/diagnosticos/typst-passo-1285-relatorio-v2.md
+?? 00_nucleo/diagnosticos/typst-passo-1285-relatorio-v3.md
+?? 00_nucleo/diagnosticos/typst-passo-1285-relatorio.md
+?? 00_nucleo/diagnosticos/typst-passo-1287-relatorio.md
+?? 00_nucleo/materialization/typst-passo-1281.md
+?? 00_nucleo/materialization/typst-passo-1282.md
+?? 00_nucleo/materialization/typst-passo-1283.md
+?? 00_nucleo/materialization/typst-passo-1284.md
+?? 00_nucleo/materialization/typst-passo-1285.md
+?? 00_nucleo/materialization/typst-passo-1286.md
+?? 00_nucleo/materialization/typst-passo-1287.md
+?? 00_nucleo/materialization/typst-passo-1288.md
+?? 00_nucleo/materialization/typst-passo-1289.md
+?? 00_nucleo/materialization/typst-passo-1290.md
+?? 00_nucleo/materialization/typst-passo-1291.md
+?? 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml
+?? 00_nucleo/prompts/compiler/layout/pdf_artifact.md
+?? 00_nucleo/prompts/compiler/layout/pdf_attach.md
+?? 00_nucleo/prompts/compiler/stdlib/foundations/float.md
+?? 00_nucleo/prompts/entities/compiler_features.md
+?? 00_nucleo/prompts/entities/elements/pdf_artifact.md
+?? 00_nucleo/prompts/entities/elements/pdf_attach.md
+?? 01_core/src/compiler/layout/pdf_artifact.rs
+?? 01_core/src/compiler/layout/pdf_attach.rs
+?? 01_core/src/compiler/stdlib/color_maps.hex
+?? 01_core/src/entities/elements/pdf_artifact.rs
+?? 01_core/src/entities/elements/pdf_attach.rs
+?? 04_wiring/tests/p1286_contract.rs
+?? lab/parity/matrix/fixtures/p1287/
+?? lab/parity/matrix/fixtures/p1288/
+?? lab/parity/matrix/p1287-oracle-baseline.json
+?? lab/parity/matrix/p1287_candidate_adapter.py
+?? lab/parity/matrix/p1287_global.py
+?? lab/parity/matrix/p1288-vanilla-baseline.json
+?? lab/parity/matrix/test_p1287_candidate_adapter.py
+?? lab/parity/matrix/test_p1287_global.py
+?? lab/surface-inventory/extract_p1284_color_maps.py
+?? lab/surface-inventory/p1283-probes.json
+?? lab/surface-inventory/p1284-probes.json
+?? lab/surface-inventory/p1285-oracle-baseline.json
+?? lab/surface-inventory/p1286-oracle-baseline.json
+?? lab/surface-inventory/run_p1284_oracles.py
+?? lab/surface-inventory/run_p1285_oracles.py
+?? lab/surface-inventory/run_p1286_oracles.py
+?? lab/surface-inventory/summarize_p1283.py
+```

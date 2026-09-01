@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/selector_matching` — matching de selectores de show rule
-Hash do Código: 38982abe
+Hash do Código: 1a98d04a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/selector_matching.rs`
@@ -41,12 +41,22 @@ pub(crate) fn splice_text_rule_matches(
     pattern: &str,
     mut replacement: impl FnMut(&str) -> SourceResult<Content>,
 ) -> SourceResult<Option<Content>>;
+
+pub(crate) fn splice_regex_rule_matches(
+    text: &str,
+    regex: &Regex,
+    mut replacement: impl FnMut(&str) -> SourceResult<Content>,
+) -> SourceResult<Option<Content>>;
 ```
 
 - `query_selector_to_show_selector` — converte `QuerySelector` (de `heading.where(level: 1)`, combinadores `And`/`Or`, etc.) para `Selector` de show rule. Rejeita selectors não suportados com mensagem clara.
 - `selector_matches` — casa um `Content` contra um `Selector`. Puro: não toca `Engine`/`EvalContext`.
 - `is_node_rule` — decide se um selector deve viajar pela travessia de nós (`NodeKind`, `DynKind`, `Where`/`And`/`Or` sobre node-like). `Text`/`Regex`/`Label` retornam `false`.
 - `splice_text_rule_matches` — fatia uma string nas ocorrências de `pattern`, substituindo cada match por `replacement(matched)`. Devolve `Ok(None)` se não houver match.
+- `splice_regex_rule_matches` — faz o mesmo para todos os matches não vazios
+  de uma regex, preservando as fatias não casadas e a ordem. Regex que só casa
+  vazio devolve `Ok(None)`; a validação pública do selector ocorre no owner do
+  constructor.
 
 ### 2. Comportamento
 
@@ -54,7 +64,10 @@ Manter exatamente o comportamento actual:
 
 - `NodeKind`: casamento por tipo de nó, com regras especiais para `List`/`Enum` (sequence uniforme ou item isolado) e para origens sintáticas de `Strong`/`Emph`/`Subscript`/`Superscript`/`Highlight` via `is_styled_origin`.
 - `DynKind`: casa `Content::Dynamic` com o mesmo `dyn_kind`.
-- `Text`/`Regex`: nunca casam em `selector_matches` (tratados em loops dedicados).
+- `Text`: em `selector_matches`, casa somente `Content::Text` que contém ao
+  menos uma ocorrência literal não vazia do padrão.
+- `Regex`: em `selector_matches`, casa somente `Content::Text` cujo texto tem
+  ao menos um match não vazio da regex.
 - `Label`: nunca casa em `selector_matches` (aplicado em `intercept_labelled`).
 - `Where`: casa a base e verifica igualdade semântica do campo (`values_eq_semantic`, com coerção Int↔Float).
 - `And`/`Or`: curto-circuito; vazios retornam `false`.
@@ -70,6 +83,39 @@ Manter exatamente o comportamento actual:
 - Novo tipo de nó `Content` com regras de matching especiais.
 - Mudança de fase (eval ↔ layout) no processamento de show rules.
 
+### P1285 — medição e limite do matching geral
+
+Medição em 2026-08-30: o consumer estava byte-a-byte em HEAD
+`53d21c5a602f4045a769a0ab0c935baa5ecd3b88`; no cristalino,
+`selector_matching.rs:148-149` devolve `false` incondicional para Text/Regex,
+enquanto os loops dedicados em `rules.rs:639-758` já observam ocorrências em
+`Content::Text`. No vanilla ratificado,
+`typst-realize/src/lib.rs:1320-1371` encontra regex sobre o texto realizado e
+ignora matches vazios; `foundations/selector.rs:149-153` deixa regex fora do
+matcher de elementos. Portanto a paridade de língua está no predicado textual,
+não na distribuição mecânica entre helpers.
+
+Decisão P1285: completar o helper geral com o mesmo predicado textual local,
+sem alterar fase ou substituir os caminhos dedicados de show rule. O matcher
+geral não desce por `Sequence`, não concatena nós e não transforma conteúdo;
+ele responde apenas sobre o nó recebido. `is_node_rule(Text|Regex)` continua
+`false`, logo a mudança não faz esses seletores viajarem pela travessia de
+elementos e não duplica aplicação. Os loops dedicados permanecem donos de
+precedência, splice, transformação e revogação.
+
+Classificação ADR-0107/0108: “qual helper chama qual” é mecânica; a presença ou
+ausência de ocorrência literal/regex é semântica do selector. A decisão seria
+refutada se o matcher passasse a casar nó não textual, match vazio ou se um
+show rule passasse a aplicar duas vezes.
+
+Medição adicional após a primeira candidata: o loop dedicado de regex em
+`rules.rs:639-699` entregava o nó textual inteiro uma única vez à recipe,
+enquanto o literal já usava splice por ocorrência. As testemunhas vanilla
+`#show regex("f.o")` e `#show regex(".")` entregam cada fatia casada,
+preservando prefixo/sufixo e ignorando matches vazios. A unidade pura passa a
+possuir também o splice regex; `rules.rs` continua dono de precedência,
+revogação e chamada da recipe.
+
 ---
 
 ## Critérios de verificação
@@ -81,7 +127,14 @@ Dado selector Where(Heading, level=2) e Content::heading(1) → false
 Dado combinador And vazio → false
 Dado combinador Or vazio → false
 Dado is_node_rule(Text) → false
+Dado Content::Text("abc") e Text("b") → true
+Dado Content::Text("abc") e Text("z") → false
+Dado Content::Text("abc123") e Regex("[0-9]+") → true
+Dado Content::Text("abc") e Regex("[0-9]+") → false
+Dado Content não textual e Text/Regex → false
 Dado splice_text_rule_matches("aXbXc", "X", …) → sequence ["a", repl, "b", repl, "c"]
+Dado splice_regex_rule_matches("foo fxo", /f.o/, …) → sequence [repl("foo"), " ", repl("fxo")]
+Dado regex cujo único match é vazio → nenhuma substituição
 ```
 
 Aplicação final: `cargo build && crystalline-lint .` — zero violations.

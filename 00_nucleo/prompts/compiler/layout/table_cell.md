@@ -1,5 +1,5 @@
 # Prompt L0 — `table_cell`
-Hash do Código: ac3b893b
+Hash do Código: 87a6a377
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5

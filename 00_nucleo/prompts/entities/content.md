@@ -1,5 +1,59 @@
 # Prompt L0 — Content
-Hash do Código: af401ae2
+Hash do Código: b3d6486b
+
+## P1286 — payloads públicos propostos (GATE ADR-0127)
+
+### Smartquote: payload público proposto
+
+Conforme o owner `entities/elements/smartquote.md`, `SmartQuoteElem` ganha
+campos opcionais `alternative` e `quotes` para que a chamada direta permaneça
+na variante `Content::SmartQuote`; usar `Content::Styled` vazaria `styled` por
+`content.func()`. A variante do enum e a assinatura pública
+`Content::smartquote(double)` permanecem; o construtor inicializa ambos os
+campos novos como `None`. Os braços exaustivos continuam delegando igualdade,
+hash, plain-text e `map_*` ao elemento. A mudança de campos públicos está
+bloqueada pelo mesmo gate ADR-0127 e não autoriza código antes da confirmação.
+
+### Carriers PDF propostos
+
+#### Medição anterior à decisão
+
+`pdf.attach` hoje termina em erro e `pdf.artifact` perde identidade ao devolver
+o body. O vanilla pinado preserva `AttachElem` até coleta global e
+`ArtifactElem` até tagging. `Content` não possui carrier equivalente; Formula
+já demonstra que semântica PDF precisa sobreviver a eval/layout.
+
+#### Contrato público proposto
+
+Adicionar, após confirmação:
+
+```rust
+Content::PdfAttach(Arc<PdfAttachElem>)
+Content::PdfArtifact(Arc<PdfArtifactElem>)
+```
+
+`PdfAttachElem` é leaf invisível e transporta `path`, bytes, relationship,
+MIME e description. `plain_text` é vazio; `is_empty` permanece falso;
+`map_*` é terminal. `PdfArtifactElem` transporta `kind: ArtifactKind` e
+`body: Content`; `plain_text`, `is_empty` e `map_*` descem no body preservando
+o kind. Igualdade/hash incluem todos os campos.
+
+`ArtifactKind` é enum público fechado com
+`Header|Footer|Watermark|PageNumber|LineNumber|Redaction|Bates|Page|PaginationOther|Layout|Background|Other`;
+default `Other`. `AttachedFileRelationship` é enum público fechado
+`Source|Data|Alternative|Supplement`.
+
+Campos fechados propostos: `PdfAttachElem { path: EcoString,
+data: Arc<Vec<u8>>, relationship: Option<AttachedFileRelationship>,
+mime_type: Option<EcoString>, description: Option<EcoString> }` e
+`PdfArtifactElem { kind: ArtifactKind, body: Content }`. `path` é o nome
+virtual resolvido usado como identidade de deduplicação e Filespec; bytes não
+são relidos em L3.
+
+São duas variantes e tipos públicos: paragem ADR-0127 obrigatória. Os
+módulos futuros `entities/elements/pdf_attach.rs` e `pdf_artifact.rs`
+receberão prompts proprietários 1:1 somente quando seus consumers forem
+autorizados; não criar prompt órfão antes disso.
 
 ## P1166 — variante de nó HTML explícito
 

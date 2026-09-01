@@ -1,5 +1,7 @@
 [
-  {"id":"global-html","path":"html"},
+  {"id":"canary-instance-array-all","expression":"(true, false).all(x => x)","access_form":"instance_method","profiles":["default","html"]},
+  {"id":"canary-static-array-range","expression":"array.range(3)","access_form":"type_static_member","profiles":["default","html"]},
+  {"id":"global-html","path":"html","expression":"repr(type(html))"},
   {"id":"global-linebreak","path":"linebreak"},
   {"id":"global-page","path":"page"},
   {"id":"std-page","path":"std.page"},

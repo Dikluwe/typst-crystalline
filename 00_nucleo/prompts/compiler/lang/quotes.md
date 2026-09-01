@@ -1,5 +1,5 @@
 # Prompt L0 — aspas localizadas
-Hash do Código: 32112a2f
+Hash do Código: a2383787
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:c8f920865f8895a89d9c42659c15e773e9bb2603bd614e390805f620834babd9
@@ -26,3 +26,28 @@ Códigos fora das tabelas usam pares curly ingleses determinísticos.
 Sem smart-apostrophes, alternância aninhada ou inferência por ambiente. Os
 pares existentes, NBSP e fallback devem permanecer iguais; mudanças públicas
 ficam sob ADR-0127.
+
+## P1286 — pares alternativos e overrides explícitos
+
+### Medição anterior à decisão
+
+O baseline `text/smartquote.rs:233-310` escolhe quatro glifos (single/double,
+open/close) por língua, região e `alternative`; depois aplica separadamente os
+overrides `single` e `double`. `:335-419` converte string por grapheme, array e
+dicionário. O receipt P1286 confirma a precedência no caso alemão e os erros
+de cardinalidade/chave.
+
+### Decisão
+
+Este owner fornece operações puras de validação e resolução sobre os tipos
+canônicos públicos pertencentes ao owner
+`entities/elements/smartquote.md`. Para a superfície sem região representável
+no cristalino, a tabela replica os ramos sem região do baseline pinado; em
+particular alemão primário usa
+`(‚,‘,„,“)` e alternativo usa `(›,‹,»,«)`. Quotes explícitas anulam a
+escolha alternativa apenas no membro substituído; `auto` conserva o fallback.
+Não ampliar `Lang` nem inventar região neste lote.
+
+Aceitação é a morfologia dos glifos e as mensagens medidas, não a forma do
+helper. Casos regionais, stack de nesting, prime/apóstrofo e profundidade 32
+permanecem `Unknown` e não podem ser promovidos a paridade.

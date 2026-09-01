@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: 88be1393
+Hash do Código: dfc7912c
 
 ## Módulo
 `01_core/src/compiler/stdlib/color.rs`
@@ -71,12 +71,16 @@ em `color_type_field` e emite "type color does not contain field `<f>`"
 
 - Análogo a `lighten`; delega para `Color::darken(amount)`.
 
-### `color.mix(col1, col2, weight: 0.5)` → Color
+### `color.mix(..colors, space: auto)` → Color
 
-- `col1`, `col2`: `Value::Color` (posicionais).
-- `weight`: named opcional; default `0.5`; tipo igual a `amount`.
-- Delega para `col1.mix(col2, weight)`.
-- Erro: named desconhecido (além de `weight:`).
+- Aceita uma ou mais entradas, cada uma `Value::Color` de peso `1` ou array
+  `(cor, peso)` com peso float/ratio; zero entradas falha pela soma não positiva.
+- Normaliza todos os pesos pela soma e reduz no espaço alvo; `space:auto` usa
+  Oklab para process colors.
+- A extensão compatível `weight:` continua aceita somente com exatamente duas
+  cores nuas e equivale aos pesos `1-weight, weight`.
+- Espaços com hue rejeitam mais de duas cores; detalhes e mensagens estão na
+  decisão P1286 abaixo.
 
 ### `color.negate(col, space: auto)` → Color
 
@@ -95,13 +99,14 @@ em `color_type_field` e emite "type color does not contain field `<f>`"
   does not support hue rotation".
 - Delega para `Color::rotate(angle, Some(space))`.
 
-### `color.mix(col1, col2, weight: 0.5, space: auto)` → Color
+### Extensões `space:`/`weight:` de `color.mix`
 
-- `col1`, `col2`: `Value::Color` (posicionais).
-- `weight`: named opcional; default `0.5`; tipo igual a `amount`.
-- `space`: constructor de cor; default `auto` = Oklab. O resultado fica no
-  espaço indicado.
-- Delega para `col1.mix(col2, weight, Some(space))`.
+- `space`: constructor de cor; default `auto` = Oklab para process colors. O
+  contrato vale para todas as entradas variádicas P1286.
+- `weight:` é extensão cristalina de compatibilidade, somente para exatamente
+  duas cores nuas, e equivale aos pesos relativos `1-weight, weight`.
+- A redução N-ária usa helper privado; a API pública binária `Color::mix`
+  permanece como caminho compatível para exatamente duas cores.
 
 ### `color.to-hex(col)` → Str
 
@@ -137,6 +142,8 @@ fn extract_ratio_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult
 - `color.negate(Color::srgb_f32(1,0,0,1))` → ciano `(0.0, 1.0, 1.0, 1.0)`.
 - `color.mix(red, blue)` sem `weight:` → Ok (default 0.5).
 - `color.mix(red, blue, weight: 0.25)` → Ok.
+- `color.mix(red, green, blue)` → Ok pela redução variádica P1286.
+- `color.mix((red, 1), (green, 2), (blue, 3))` → Ok, pesos relativos.
 - ~~`make_color_module()` retorna `Value::Dict` com 4 entradas.~~
   **P736** — substituído por: `color_type_field` devolve `Some(Value::Func(_))`
   para cada um dos 14 fields e `None` para campo inexistente; o scope global
@@ -302,13 +309,11 @@ Value::Color(ref color) => {
 
 ### Scope-outs P742/P744 (medidos, com erro explícito)
 
-- `mix` variádico com pesos `(cor, peso)` — mantido de P476.
 - Repr de closure anónima (`#function(...)`) — o vanilla imprime `(..) => ..`
   (P744); fora do caminho da sonda → achado adiado.
 
 ## Scope-out
 
-- `color.mix` com N > 2 cores — scope-out (cristalino aceita 2 + weight).
 - `color.saturate/desaturate` com `space:` arg — scope-out (não suportado no vanilla).
 - ~~`color.rotate`, `color.components`, `color.space`~~ — **P742: implementados**
   (estáticas + instância).
@@ -317,4 +322,105 @@ Value::Color(ref color) => {
   (estáticas + instância).
 - ~~Métodos de instância de cor (`red.lighten(20%)`, …)~~ — **P742/P744: implementados**
   (12 métodos; despacho P506).
-- `mix` variádico com pesos — scope-out (acima).
+
+---
+
+## P1284 — `color.map` exato e gate spot
+
+### Medição anterior à decisão
+
+No vanilla ratificado `a51e02804`, arquivo
+`lab/typst-original/crates/typst-library/src/visualize/color.rs` SHA-256
+`80473eba7460cb0f398e7937946e6412c1a8cb1cadffe00580aea9b48f6c0713`,
+`color.map` é um `module` com 15 arrays, na ordem abaixo. O digest de cada
+sequência é SHA-256 dos valores RGBA canonizados como tokens lowercase de oito
+dígitos (`0xrrggbbaa`), com left-padding de zero quando o literal Rust omite o
+nibble inicial, unidos por vírgula sem whitespace
+(ex.: `0x440154ff,...,0xfee825ff`). Assim, contagem, ordem, canais e alpha
+ficam integralmente pinados sem copiar milhares de literais.
+
+| Nome | N | Primeiro | Último | SHA-256 da sequência canônica |
+|---|---:|---|---|---|
+| `turbo` | 256 | `0x23171bff` | `0x900c00ff` | `7909421397bc2bef00faf5a1064d7356ad4cab112ec1fd5e290b124a13529a3e` |
+| `cividis` | 256 | `0x002051ff` | `0xfdea45ff` | `dece34103d5266311558bb44f96f02df7090edf8977744fc9a1213b2213b2f79` |
+| `rainbow` | 256 | `0x7c4bbbff` | `0x7c4bbbff` | `74fe385a692d3da43ff8afc8f61896f76bc87a1a766f05f4897f5e8164db4ed7` |
+| `spectral` | 11 | `0x9e0142ff` | `0x5e4fa2ff` | `1c62ea2e765ddf6d6b1c5189e772605e0203d6116bf384597df0cfa4cdab5f17` |
+| `viridis` | 9 | `0x440154ff` | `0xfee825ff` | `3b9d02b0685ec2ae62958a287c4cdd68fdb08f642339aabaa8d96e60aeaf999b` |
+| `inferno` | 11 | `0x000004ff` | `0xfcffa4ff` | `20de1b5440e58c3727d645e6f8444d9e6d1c73fb09f9e905a49c314dc58496da` |
+| `magma` | 11 | `0x000004ff` | `0xfcfdbfff` | `c634397325d83383609535f10e2d964efd899be34a2cef337379a5368b09fa79` |
+| `plasma` | 11 | `0x0d0887ff` | `0xf0f921ff` | `f0ddd8a6d9e12c3c3b5d705dfa2e7c5f7929ce242c8d94ab5e4a0f6b2e0d9f2d` |
+| `rocket` | 256 | `0x03051aff` | `0xfaebddff` | `b3d6e7d7762c8e4d3b27d86aa41391cf8d5093df122b328bc6482f2d37a1497b` |
+| `mako` | 256 | `0x0b0405ff` | `0xdef5e5ff` | `f74edb89a1207308a4534b6648d32f54439e0057fb5b4cb0346151610131da77` |
+| `coolwarm` | 256 | `0x3b4cc0ff` | `0xb40426ff` | `13161dddf6ad860268eece02ce446b1025d3ab95871cc1a484a93aa05da4aed2` |
+| `vlag` | 256 | `0x2369bdff` | `0xa9373bff` | `d015c8a4cb87aaebc49d0416edf430e5c76392e772602ca1234ce6fe748db81d` |
+| `icefire` | 256 | `0xbde7dbff` | `0xffd4acff` | `0de0d1c2a9dd6a8a03cd3155b872ea4a2eeaa74a5454df8f511632aa5d91e55f` |
+| `flare` | 256 | `0xedb081ff` | `0x4b2362ff` | `03f70bedc78f4fb3e22b3f7ed06a680d56d721321eca69218ab746d4c803f595` |
+| `crest` | 256 | `0xa5cd90ff` | `0x2c3172ff` | `660b6381c0f53156c07b4f0f86988a280c06578f46a44b734c1f388cadeaeb98` |
+
+### Refutação P1284-v4 — contagem 246/252
+
+O oráculo independente `A-P1284-v2` executou 52/52 sondas no vanilla e pinou
+`lab/surface-inventory/p1284-probes.json` por
+`06e205483a9bc905f778a72fcbb74ddb229b73141ffe6bf27ec95d0a40e145c3` e
+seu recibo por
+`50b6e34b826041edb61f15828a14c2cfd234bc7bee71215c378e89e68079ba79`.
+Ele refutou as contagens v3 diretamente pela superfície de linguagem.
+
+A auditoria reproduziu a causa: o extrator v3 usou o padrão
+`0x[0-9a-fA-F]{8}`. `rocket` possui 256 literais, mas 10 são escritos com sete
+dígitos (`0x3051aff` … `0xe0b22ff`) e 246 com oito; `mako` possui 4 com sete
+(`0xb0405ff` … `0xf0609ff`) e 252 com oito. O regex descartou exatamente
+esses 10/4 prefixos. Portanto a fonte não estava truncada: a **extração era
+truncante por largura textual**. `Color::from_u32` interpreta os literais como
+`0x03051aff`/`0x0b0405ff`, e `to-hex` confirma o left-padding na linguagem.
+
+Uma extração reproduzível deve aceitar de um a oito dígitos, converter o
+inteiro e formatar `0x%08x` antes de contar/digerir. Esse procedimento produz
+exatamente os N/extremos/digests corrigidos acima. A hipótese v3 seria
+refutada — e foi — por qualquer valor válido escrito com menos de oito
+dígitos ou por sonda de cardinalidade no valor público.
+
+### Decisão
+
+`color_type_field("map")` devolve `Value::Module("map", scope)`; cada filho
+é `Value::Array` de `Value::Color` sRGB na ordem literal, com alpha `ff`.
+Nenhum `Value`, `Type`, `Color` ou `Content` novo é necessário. O catálogo do
+tipo passa de 38 para 39 fields; desconhecidos continuam erro. Não interpolar,
+subamostrar, arredondar, reordenar nem converter espaços. O gate exige os 15
+digests acima, além de kind e inventário fechado.
+
+### Gate não autorizado
+
+`color.spot` e `color.spot.tint` não pertencem ao lote contínuo. O vanilla
+exige `SpotColorant`/cor spot e a entidade cristalina não possui variante
+correspondente. Estado: `BLOCKED_ADR0127_PUBLIC_CONTRACT`. Não usar dict,
+module, string, sRGB aproximado ou `none` como substituto; este L0 não autoriza
+nova variante/tipo público.
+
+## P1286 — `color.mix` variádico e pesos relativos
+
+### Medição anterior à decisão
+
+O baseline `visualize/color.rs:1058-1090,1136-1204,2422-2459` recebe N
+argumentos, cada um cor nua (peso `1`) ou array `(cor,peso)` com peso float ou
+ratio; normaliza pela soma. O receipt P1286 mediu 1 e 3 cores, pesos positivos,
+zero e negativos com soma positiva, rejeição de soma `<=0`, e proibição de
+mais de duas cores em HSL/HSV/Oklch.
+
+### Decisão
+
+`color.mix(..colors, space:auto)` aceita uma ou mais entradas no domínio
+medido. Zero entradas e qualquer soma `<= 0` produzem
+`sum of weights must be positive`. Array fora de aridade dois produz
+`expected a color or color-weight pair`; peso fora de float/ratio preserva o
+erro de cast medido. Em espaço com hue, N>2 produz
+`cannot mix more than two colors in a hue-based space`.
+
+O método de instância insere o receiver como primeira cor de peso `1` e aceita
+as demais formas sem glue paralelo. A extensão cristalina `weight:` permanece
+somente para exatamente duas cores nuas, interpretada como pesos
+`1-weight, weight`, para não quebrar documentos existentes; não pertence à
+alegação de paridade vanilla. `space:auto` continua Oklab para process colors;
+spot permanece fora do fragmento e `Unknown`/bloqueado pelo gate P1284.
+
+Nenhuma API Rust pública, default ou fase muda; fluxo contínuo ADR-0127.

@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: 3a7a726b
+Hash do Código: 80ac4c5f
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -464,3 +464,35 @@ linha 194 (enum `Color` com 8 variantes) + `ColorSpace` linha
    exhaustive em consumers.
 4. Constantes nomeadas extras — refino incremental via
    ADR-0080 (sem ADR dedicada).
+
+## P1284 — gate de cor spot; entidade sem alteração
+
+A fonte vanilla ratificada possui `SpotColorant`, `SpotColor` e representação
+spot. O enum cristalino vigente contém somente os oito espaços process-color
+documentados neste L0 e não transporta colorant spot. Portanto
+`color.spot`/`color.spot.tint` exigem tipo/variante pública e revisão de todos
+os matches: `BLOCKED_ADR0127_PUBLIC_CONTRACT`.
+
+P1284 não autoriza alterar `Color`, `ColorSpace`, `Value`, `Type`, métodos
+públicos ou consumers. `color.map` é implementável sem esta entidade, como
+`Module` de arrays dos `Color::Srgb` existentes, e pertence exclusivamente ao
+owner `compiler/stdlib/color.md`.
+
+## P1286 — redução ponderada interna para N cores
+
+### Medição anterior à decisão
+
+O método público binário atual interpola dois `vec4`; o vanilla soma
+diretamente `weight * component` no espaço alvo e divide uma vez pelo total
+(`visualize/color.rs:1185-1204`). Repetir `Color::mix` sem conservar os totais
+pode alterar o observável.
+
+### Decisão
+
+Preservar integralmente a assinatura pública
+`Color::mix(self, other, weight, space)`. Um helper não público recebe pares
+ponderados, converte cada cor uma vez ao espaço escolhido, acumula quatro
+componentes e divide pelo peso total uma vez. Para exatamente duas cores em
+espaços de hue, conserva o caminho curto angular medido; N>2 nesses espaços é
+rejeitado pelo owner stdlib. A construção do resultado usa o mesmo
+`from_vec4_in_space` vigente. Não expor `mix_iter` nem novo tipo público.

@@ -1531,7 +1531,8 @@ mod tests {
     fn p713_cetz_canvas_length_to_absolute_div_1cm() {
         // Reprodução exacta do bloqueio: `(2cm).to-absolute() / 1cm`.
         let world = MockWorld::new("#let x = (2cm).to-absolute() / 1cm");
-        assert_eq!(eval_let(&world, "x"), Some(Value::Float(2.0)));
+        // P1284: `to-absolute` fora de contexto falha antes da divisão.
+        assert!(eval_for_test(&world, &world.source).is_err());
     }
 
     // ── P720 — `Array + Array` (concatenação) e `Dict + Dict` (merge) ───────
@@ -7725,6 +7726,19 @@ mod tests {
     }
 
     #[test]
+    fn p1285_show_literal_e_regex_entregam_cada_ocorrencia_a_recipe() {
+        fn plain_text(source: &str) -> String {
+            let world = MockWorld::new(source);
+            let src = world.source(world.main()).unwrap();
+            let module = eval_for_test(&world, &src).unwrap();
+            module.content().unwrap().plain_text().trim().to_string()
+        }
+
+        assert_eq!(plain_text("#show \"foo\": [L]\nfoo bar foo"), "L bar L");
+        assert_eq!(plain_text("#show regex(\"f.o\"): [R]\nfoo fxo"), "R R");
+    }
+
+    #[test]
     fn show_rule_regex_ignora_texto_sem_match() {
         let world = MockWorld::new("#show regex(\"\\\\d+\"): it => strong(it)\nabcdef");
         let src = world.source(world.main()).unwrap();
@@ -9429,6 +9443,36 @@ mod tests {
     }
 
     #[test]
+    fn p1285_math_grapheme_e_numero_preservam_variantes_distintas() {
+        fn leaf<'a>(content: &'a Content, text: &str) -> Option<&'a Content> {
+            match content {
+                Content::MathIdent(value) | Content::MathText(value)
+                    if value.as_str() == text =>
+                {
+                    Some(content)
+                }
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(|item| leaf(item, text))
+                }
+                Content::Equation(equation) => leaf(&equation.body, text),
+                _ => None,
+            }
+        }
+
+        let number = extract_math_content(&MockWorld::new("$ 2 $"));
+        assert!(
+            matches!(leaf(&number, "2"), Some(Content::MathText(value)) if value.as_str() == "2"),
+            "$ 2 $ deve preservar número como MathText: {number:?}"
+        );
+
+        let grapheme = extract_math_content(&MockWorld::new("$ x $"));
+        assert!(
+            matches!(leaf(&grapheme, "x"), Some(Content::MathIdent(value)) if value.as_str() == "x"),
+            "$ x $ deve preservar grapheme como MathIdent: {grapheme:?}"
+        );
+    }
+
+    #[test]
     fn p301_variavel_x_continua_mathident() {
         // x não está no scope math (não é operador) → fallback MathIdent.
         let world = MockWorld::new("$x$");
@@ -10230,7 +10274,7 @@ mod tests {
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let plain = module.content().unwrap().plain_text();
-        assert_eq!(plain.trim(), "symbol(\"⊊\")");
+        assert_eq!(plain.trim(), "symbol(\"⊊\", (\"sq\", \"⋤\"))");
     }
 
     #[test]
@@ -10823,7 +10867,7 @@ mod tests {
         let v = eval_let(&world, "x");
         assert!(v.is_some(), "sym.arrow.r.filled deve resolver");
         if let Some(Value::Symbol(s)) = v {
-            assert_eq!(s.value, "➡");
+            assert_eq!(s.value, "➡\u{fe0e}");
         } else {
             panic!("esperado Value::Symbol, obtido {:?}", v);
         }
@@ -11027,7 +11071,10 @@ mod tests {
         let world = MockWorld::new("#let x = (1, \"a\", 2).sorted()");
         let err = eval_for_test(&world, &world.source).unwrap_err();
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(msg.contains("cannot compare str and int"), "mensagem inesperada: {msg}");
+        assert!(
+            msg.contains("cannot compare string and integer"),
+            "mensagem inesperada: {msg}"
+        );
     }
 
     // P653 — array.sorted(key: ...) ordena pelo resultado da função chave.
@@ -11076,7 +11123,10 @@ mod tests {
         let world = MockWorld::new("#let x = (1, \"a\", 2).sorted(key: x => x)");
         let err = eval_for_test(&world, &world.source).unwrap_err();
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(msg.contains("cannot compare str and int"), "mensagem inesperada: {msg}");
+        assert!(
+            msg.contains("cannot compare string and integer"),
+            "mensagem inesperada: {msg}"
+        );
     }
 
     #[test]
@@ -11486,7 +11536,7 @@ mod tests {
 
     #[test]
     fn p493_array_dedup() {
-        // dedup remove apenas duplicados ADJACENTES (paridade vanilla).
+        // P1284: dedup preserva a primeira ocorrência global (paridade vanilla ratificada).
         let world = MockWorld::new("#let x = (3, 1, 4, 4, 1, 5, 9, 2, 6).dedup()");
         assert_eq!(
             eval_let(&world, "x"),
@@ -11494,7 +11544,6 @@ mod tests {
                 Value::Int(3),
                 Value::Int(1),
                 Value::Int(4),
-                Value::Int(1),
                 Value::Int(5),
                 Value::Int(9),
                 Value::Int(2),
@@ -11815,10 +11864,7 @@ mod tests {
             ),
             ("#let x = \"  hello  \".trim()", Value::Str("hello".into())),
             ("#let x = \"hello\".replace(\"l\", \"r\")", Value::Str("herro".into())),
-            (
-                "#let x = \"abc\".to-unicode()",
-                Value::Array(vec![Value::Int(97), Value::Int(98), Value::Int(99)]),
-            ),
+            ("#let x = \"a\".to-unicode()", Value::Int(97)),
             ("#let x = str.from-unicode(97)", Value::Str("a".into())),
             ("#let x = \"hello\".contains(\"ell\")", Value::Bool(true)),
             ("#let x = \"hello\".starts-with(\"he\")", Value::Bool(true)),
@@ -11831,6 +11877,8 @@ mod tests {
             let world = MockWorld::new(src);
             assert_eq!(eval_let(&world, "x"), Some(expected), "falhou em: {src}");
         }
+        let world = MockWorld::new("#\"abc\".to-unicode()");
+        assert!(eval_for_test(&world, &world.source).is_err());
     }
 
     #[test]
@@ -11907,10 +11955,11 @@ mod tests {
 
     #[test]
     fn p504_dict_map_filter() {
+        // P1284: callbacks recebem somente o valor; as chaves são preservadas.
         let world_map =
-            MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.map((k, v) => v * 2)");
+            MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.map(v => v * 2)");
         let world_filter =
-            MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.filter((k, v) => v > 1)");
+            MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.filter(v => v > 1)");
         let mut expected_map: IndexMap<EcoString, Value, FxBuildHasher> =
             IndexMap::default();
         expected_map.insert("a".into(), Value::Int(2));
@@ -12151,24 +12200,16 @@ mod tests {
 
     #[test]
     fn p710_to_absolute_sem_em_inalterado() {
-        use crate::entities::layout_types::{Abs, Length};
+        // P1284: mesmo comprimentos absolutos exigem contexto conhecido.
         let world = MockWorld::new("#let x = (6pt).to-absolute()");
-        assert_eq!(
-            eval_let(&world, "x"),
-            Some(Value::Length(Length { abs: Abs(6.0), em: 0.0 }))
-        );
+        assert!(eval_for_test(&world, &world.source).is_err());
     }
 
     #[test]
     fn p710_to_absolute_resolve_em_com_tamanho_default() {
-        // Sem `#set text(size:)`, o default é 11pt (`StyleChain::size()`):
-        // 6pt + 10em -> 6 + 10*11 = 116pt.
-        use crate::entities::layout_types::{Abs, Length};
+        // A resolução depende de estilo e portanto não ocorre fora de contexto.
         let world = MockWorld::new("#let x = (6pt + 10em).to-absolute()");
-        assert_eq!(
-            eval_let(&world, "x"),
-            Some(Value::Length(Length { abs: Abs(116.0), em: 0.0 }))
-        );
+        assert!(eval_for_test(&world, &world.source).is_err());
     }
 
     #[test]
@@ -14304,13 +14345,23 @@ mod tests {
     }
 
     #[test]
-    fn p735_pdf_attach_e_scope_out_com_erro() {
-        // O exportador PDF cristalino não suporta embedding — erro
-        // explícito de scope-out (não "unknown variable").
-        let m = p729_eval("#pdf.attach(\"hi.txt\")");
-        let err = m.expect_err("pdf.attach deve ser scope-out com erro");
-        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(msg.contains("scope-out") || msg.contains("não suporta"), "msg: {msg}");
+    fn p735_pdf_attach_produz_carrier_invisivel() {
+        // P1286: bytes explícitos evitam I/O e preservam path/payload no
+        // carrier; a invisibilidade não autoriza podar o marker em eval.
+        let m = p729_eval(
+            "#let a = pdf.attach(\"hi.txt\", bytes((0, 65, 255)), description: \"payload\")",
+        )
+        .unwrap();
+        match m.scope().get("a") {
+            Some(Value::Content(Content::PdfAttach(e))) => {
+                assert_eq!(e.path.as_str(), "hi.txt");
+                assert_eq!(e.data.as_slice(), &[0, 65, 255]);
+                assert_eq!(e.description.as_deref(), Some("payload"));
+                assert!(e.relationship.is_none());
+                assert!(e.mime_type.is_none());
+            }
+            other => panic!("esperado PdfAttach carrier, encontrado {other:?}"),
+        }
     }
 
     #[test]
@@ -14873,7 +14924,26 @@ mod tests {
 
     // ── Passo 739B — line(start:, end:) ────────────────────────────────────
 
-    fn p739b_line_dx_dy(
+    fn p739b_line_path_points(
+        m: &crate::entities::module::Module,
+        binding: &str,
+    ) -> ((f64, f64), (f64, f64)) {
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        match m.scope().get(binding) {
+            Some(Value::Content(Content::Shape(e))) => match &e.kind {
+                ShapeKind::Path(items) => match items.as_slice() {
+                    [PathItem::MoveTo(start), PathItem::LineTo(end)] => {
+                        ((start.x.val(), start.y.val()), (end.x.val(), end.y.val()))
+                    }
+                    other => panic!("esperado path aberto de dois pontos: {other:?}"),
+                },
+                other => panic!("esperado Path, encontrado {other:?}"),
+            },
+            other => panic!("esperado Shape em {binding}, encontrado {other:?}"),
+        }
+    }
+
+    fn p739b_legacy_line_dx_dy(
         m: &crate::entities::module::Module,
         binding: &str,
     ) -> (f64, f64) {
@@ -14881,35 +14951,34 @@ mod tests {
         match m.scope().get(binding) {
             Some(Value::Content(Content::Shape(e))) => match &e.kind {
                 ShapeKind::Line { dx, dy } => (*dx, *dy),
-                other => panic!("esperado Line, encontrado {other:?}"),
+                other => panic!("esperado Line legado, encontrado {other:?}"),
             },
             other => panic!("esperado Shape em {binding}, encontrado {other:?}"),
         }
     }
 
     #[test]
-    fn p739b_line_start_end_compila_e_produz_dx_dy() {
+    fn p739b_line_start_end_compila_e_preserva_pontos_absolutos() {
         // Medido vanilla: line(start: (0pt, 0pt), end: (50pt, 50pt)) → exit 0.
         // Cristalino pré-P739: erro "argumento nomeado inesperado em line(): 'start'".
         let m = p729_eval("#let l = line(start: (0pt, 0pt), end: (50pt, 50pt))").unwrap();
-        assert_eq!(p739b_line_dx_dy(&m, "l"), (50.0, 50.0));
+        assert_eq!(p739b_line_path_points(&m, "l"), ((0.0, 0.0), (50.0, 50.0)));
     }
 
     #[test]
     fn p739b_line_end_sem_start_default_origem() {
         // start omitido → (0pt, 0pt) (paridade vanilla).
         let m = p729_eval("#let l = line(end: (30pt, 40pt))").unwrap();
-        assert_eq!(p739b_line_dx_dy(&m, "l"), (30.0, 40.0));
+        assert_eq!(p739b_line_path_points(&m, "l"), ((0.0, 0.0), (30.0, 40.0)));
     }
 
     #[test]
-    fn p739b_line_start_nao_zero_e_scope_out() {
-        // ShapeKind::Line não carrega posição absoluta; start ≠ (0,0)
-        // desenharia a linha deslocada errada — scope-out explícito.
-        let m = p729_eval("#line(start: (10pt, 0pt), end: (50pt, 50pt))");
-        let err = m.expect_err("start não-zero deve ser scope-out");
-        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(msg.contains("scope-out") || msg.contains("não suport"), "msg: {msg}");
+    fn p739b_line_start_nao_zero_preserva_origem_absoluta() {
+        // P1286 baixa para Path aberto, portanto a origem não-zero deixa de
+        // ser scope-out e não pode ser normalizada para zero.
+        let m =
+            p729_eval("#let l = line(start: (10pt, 0pt), end: (50pt, 50pt))").unwrap();
+        assert_eq!(p739b_line_path_points(&m, "l"), ((10.0, 0.0), (50.0, 50.0)));
     }
 
     #[test]
@@ -14917,7 +14986,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         // Interface legada dx/dy mantém-se (não-regressão).
         let m = p729_eval("#let l = line(dx: 1cm, dy: 2cm)").unwrap();
-        let (dx, dy) = p739b_line_dx_dy(&m, "l");
+        let (dx, dy) = p739b_legacy_line_dx_dy(&m, "l");
         assert!((dx - Length::PT_PER_CM).abs() < 0.01, "dx: {dx}");
         assert!((dy - 56.6929).abs() < 0.01, "dy: {dy}");
     }

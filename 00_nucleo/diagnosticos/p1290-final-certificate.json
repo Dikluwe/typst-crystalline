@@ -1,0 +1,41 @@
+{
+  "schema": "tekt-fragment-certificate/v1",
+  "step": 1290,
+  "issued_at": "2026-08-31T12:42:23-03:00",
+  "repository_head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+  "fragment": "compiler/eval/repr arrays-tuples and Content::MathOp morphology",
+  "verdict": "Preserved",
+  "scope": "sealed P1290 fragment only",
+  "evidence": {
+    "seal_v4_sha256": "03ff5d26678b01d9078e0ea43aa2ac4838ab3120622575aa1766b6f36340b63c",
+    "candidate_receipt_v4_sha256": "889cbed697a41f0c5da0e7059bd26ad8b0ff92b91131685e3e676192cc341a32",
+    "integration_receipt_sha256": "c0520bdc944cbed885970c769fb144997728b9e8e50d1abb79f94955892406b1",
+    "mutation_score": 1.0,
+    "valid_negative_killed": "14/14",
+    "positive_cases_bilateral": "21/21",
+    "unknown_outside_denominator": 6,
+    "surface_old_matches_preserved": "72/72",
+    "surface_p1290_gains": 17,
+    "surface_losses": 0
+  },
+  "lineage": {
+    "prompt_sha256": "e584d5b159f04f3cf8d9a485e2c3c64b3df344520403c2407e6955f2c6b07739",
+    "consumer_sha256": "eda7b6c2318f51ad7673279ee85069e51ab5a002167511a7bf7a29bcb937e7bc",
+    "prompt_code_hash": "19c40081",
+    "consumer_prompt_hash": "52efe145",
+    "v5_lists_consumer": false
+  },
+  "workspace_closure": {
+    "status": "not-certified",
+    "release_build": "passed",
+    "workspace_tests": "blocked by 29 concurrent compile errors outside repr",
+    "crystalline_lint": "blocked by 2 unrelated V0 and 20 unrelated V5",
+    "cargo_fmt_check": "blocked by unrelated files; repr itself is formatted",
+    "git_diff_check": "passed"
+  },
+  "limitations": [
+    "The verdict does not promote the six opaque Unknown cases.",
+    "The verdict does not certify unrelated concurrent changes in the shared working tree.",
+    "Role segregation is declared and observed, but shared filesystem access is not a technical read-isolation attestation."
+  ]
+}

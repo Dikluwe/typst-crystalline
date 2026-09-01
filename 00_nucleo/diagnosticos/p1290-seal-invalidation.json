@@ -1,0 +1,18 @@
+{
+  "schema": "p1290-seal-invalidation/v1",
+  "invalidated_at": "2026-08-31T11:41:51-03:00",
+  "seal_path": "00_nucleo/diagnosticos/p1290-seal.json",
+  "seal_sha256": "18f2329888c79d64a8459bfa507f622a710745dd94c65c7586cc5b52967c7f6e",
+  "result": "invalidated",
+  "first_affected_phase": "contract measurement for escaped markup containing smart quotes",
+  "evidence": {
+    "command": "/tmp/p1290-verify-target/release/typst query 00_nucleo/diagnosticos/p1290-contract-probes.typ '<p1290-contract>' --field value --one --pretty",
+    "candidate_binary_sha256": "09e8e40605da622e2421f471950768a77b24568b284803a628e99f200defd8a8",
+    "case": "math-ops.user-escaping-content",
+    "candidate": "op(\n  text: sequence([a], [ ], [#], [ ], [“], [quote], [”]),\n  limits: false,\n)",
+    "vanilla": "op(\n  text: sequence(\n    [a],\n    [ ],\n    [#],\n    [ ],\n    smartquote(double: true),\n    [quote],\n    smartquote(double: true),\n  ),\n  limits: false,\n)"
+  },
+  "cause": "The crystalline eval markup phase resolves SyntaxKind::SmartQuote into Content::Text glyphs before repr. Literal curly text and resolved smart quotes are therefore indistinguishable inside repr.rs; reconstructing provenance from glyphs would be lossy specialization.",
+  "required_restart": "Revise the contract/probe to cover escaping without destroyed provenance, retain pre-resolved smartquote provenance as Unknown, then regenerate oracle/adversarial artifacts, rerun the discriminatory gate and issue a new seal.",
+  "prohibited_shortcut": "Do not change another owner or the eval/layout phase under P1290, and do not infer SmartQuote from curly quote glyphs."
+}

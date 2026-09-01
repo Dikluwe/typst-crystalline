@@ -90,3 +90,25 @@ recebeu {tipo}`.
 #lof(title: "Figuras")              → título named
 #lof(title: 1)                      → Err "lof(title:): espera content ou string, recebeu integer"
 ```
+
+## P1284 — gate `outline.entry`; este consumer permanece inalterado
+
+### Medição antes da decisão
+
+O vanilla expõe `outline.entry` como função-elemento com scope próprio e cinco
+subfields (`body`, `inner`, `page`, `prefix`, `indented`). O cristalino possui
+somente `OutlineElem`/`Content::Outline`; não possui `OutlineEntry` nem variante
+`Content` equivalente. Além disso, os defaults P1284 medidos para `outline`
+não coincidem com os defaults históricos acima.
+
+### Decisão
+
+`outline.entry` e seus cinco filhos são
+`BLOCKED_ADR0127_PUBLIC_CONTRACT`. Este L0 não autoriza editar
+`structural/outline.rs`, criar dict/module/stub, nem reutilizar `OutlineElem`
+como entry. Filhos permanecem `Unknown(blocked_by_ancestor)`.
+
+Alterar `outline` para `target:heading`, `depth:none` ou qualquer default
+medido no residual também exige decisão humana por comportamento default e
+compatibilidade. Até esse gate, P1284 preserva integralmente as assinaturas e
+defaults vigentes deste owner.

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: cf8dcf06
+Hash do Código: def19f1d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/value_methods.rs`
@@ -100,3 +100,31 @@ como string, função ou `Auto` ao owner. Não formata por concatenação local.
 `counter.display`, extraindo o receiver e preservando literal label antes da
 avaliação genérica. Depois delega a `stdlib/counter`; resolução de location,
 numbering, total final e callback não vivem neste nó.
+
+## P1284 — limite fechado do glue AST
+
+Este nó continua owner apenas da orchestration que realmente precisa dos
+argumentos em AST: `state`, `counter`, `color`, `version`, `where` e os
+combinadores de selector. Coleções, `arguments`, direção, alinhamento,
+duração, comprimento e localização não movem sua semântica para cá.
+
+Para selector, P1284 autoriza somente:
+
+- `and(self, ..others)` → `Selector::And`, preservando receiver primeiro e a
+  ordem dos demais selectors;
+- `or(self, ..others)` → `Selector::Or`, com a mesma disciplina;
+- `within(self, ancestor)` → `Selector::Within` já existente.
+
+As formas não ligadas recebem `self` primeiro e chamam estas mesmas rotas.
+Conversão `Value → Selector`, aridade, tipo, metadata e erros são únicos; não
+há implementação paralela no wrapper.
+
+`before(self,end,inclusive:true)` e `after(self,start,inclusive:true)` ficam
+fora do match e são `BLOCKED_ADR0127_PUBLIC_CONTRACT`: o enum público atual
+não contém as variantes, e os consumers exaustivos exigiriam revisão. Não
+simular com `Within`, `And`, `Or`, `Where` ou composição aproximada.
+
+No ramo de cor, `color.map` não passa por este nó: é constante de tipo com
+kind `module`, descoberta por `field_access` e construída por `stdlib/color`.
+`color.spot/tint` permanece bloqueado. Nenhuma alteração de contrato Rust
+público, default ou fase é autorizada.

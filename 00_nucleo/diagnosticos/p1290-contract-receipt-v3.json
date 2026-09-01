@@ -1,0 +1,75 @@
+{
+  "schema": "p1290-contract-lineage-reseal/v1",
+  "phase": "contract-author identity repin after lineage reseal",
+  "recorded_at": "2026-08-31T12:26:35-03:00",
+  "executor": "/root/p1290_contract_repin",
+  "causal_predecessor": {
+    "seal_v2_path": "00_nucleo/diagnosticos/p1290-seal-v2.json",
+    "seal_v2_sha256": "4a1844ffd08686eb067403a18d484617944fcba9e32df6f14de204dc5097fcad",
+    "contract_receipt_v2_path": "00_nucleo/diagnosticos/p1290-contract-receipt.md",
+    "contract_receipt_v2_sha256": "ab3305b4ee8cfd9353599cfdeb0aa7448efa9aaa65f49b61285a77450ce23427"
+  },
+  "lineage_event": {
+    "kind": "identity-only reseal",
+    "prompt_code_hash_before": "eb0ec56f",
+    "prompt_code_hash_after": "52efe145",
+    "consumer_prompt_hash_after_received_from_orchestrator": "19c40081",
+    "scope": "No normative sentence, observable, Unknown policy, probe, baseline, threshold, exact output, or invalidation condition changed."
+  },
+  "prompt_nonsemantic_diff_proof": {
+    "path": "00_nucleo/prompts/compiler/eval/repr.md",
+    "v2_protected_sha256": "d4a7a25da0016bbb59bb84e0aa841b9597f9dc1e77695cf7923b1ac3dc99d1a5",
+    "v3_sha256": "8ca22b44402960e148b10d3c0fedbfadd72ef9a8dc128697a18b3deed71e83fb",
+    "reconstruction_command": "sed 's/^Hash do Código: 52efe145$/Hash do Código: eb0ec56f/' 00_nucleo/prompts/compiler/eval/repr.md | sha256sum",
+    "reconstructed_sha256": "d4a7a25da0016bbb59bb84e0aa841b9597f9dc1e77695cf7923b1ac3dc99d1a5",
+    "interpretation": "Replacing exactly the lineage metadata line reconstructs the byte-identical protected v2 prompt."
+  },
+  "preserved_measurement": {
+    "probe_path": "00_nucleo/diagnosticos/p1290-contract-probes.typ",
+    "probe_v2_and_v3_sha256": "6ac1fed77e50b0ed7b7962048427be1c87ca9917d55c181a35d6ea4e01a6229b",
+    "vanilla_binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "original_crystalline_baseline_sha256": "acc52526e1c1cfde21c4583857330a6f64540f46caf1b7fa89c666da6deee64a"
+  },
+  "mechanical_repins": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1290-manifest.json",
+      "v2_sha256": "8b18feaf2b0f75b3918d04b84e9dcf368d79df96fe7b9e2e92d2b727f4b10cda",
+      "v3_sha256": "c61d7d08d1c96fb08efa4e4f2019bfe1d497cfa5952e92c402ba124e6bd3907b",
+      "changed_fields": ["prompt.frozen_sha256"],
+      "reverse_repin_reconstructs_v2": true
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1290-contract.json",
+      "v2_sha256": "f0936c3de1ed8715bec043b01b9d283a9be2ac1fee422fc94b835192dd3f7a50",
+      "v3_sha256": "9f950f20240b8ae50ed66231167643ed5771371d01eef7b7bb6f1d022135ff5d",
+      "changed_fields": ["manifest_sha256", "prompt_sha256"],
+      "reverse_repin_reconstructs_v2": true
+    }
+  },
+  "reproduction": {
+    "manifest_reverse_repin": "sed 's/8ca22b44402960e148b10d3c0fedbfadd72ef9a8dc128697a18b3deed71e83fb/d4a7a25da0016bbb59bb84e0aa841b9597f9dc1e77695cf7923b1ac3dc99d1a5/' 00_nucleo/diagnosticos/p1290-manifest.json | sha256sum",
+    "contract_reverse_repin": "sed -e 's/c61d7d08d1c96fb08efa4e4f2019bfe1d497cfa5952e92c402ba124e6bd3907b/8b18feaf2b0f75b3918d04b84e9dcf368d79df96fe7b9e2e92d2b727f4b10cda/' -e 's/8ca22b44402960e148b10d3c0fedbfadd72ef9a8dc128697a18b3deed71e83fb/d4a7a25da0016bbb59bb84e0aa841b9597f9dc1e77695cf7923b1ac3dc99d1a5/' 00_nucleo/diagnosticos/p1290-contract.json | sha256sum"
+  },
+  "capabilities": {
+    "read": [
+      "tekt-materializacao-segregada SKILL.md and required references",
+      "current and protected-v2 prompt identities",
+      "P1290 canonical manifest, contract, probe and contract receipts",
+      "orchestrator-provided lineage header identities"
+    ],
+    "denied_and_not_read": [
+      "candidate implementation contents",
+      "candidate patch contents",
+      "candidate tests",
+      "candidate binary output",
+      "verification verdict"
+    ],
+    "write": [
+      "00_nucleo/diagnosticos/p1290-manifest.json prompt pin only",
+      "00_nucleo/diagnosticos/p1290-contract.json identity pins only",
+      "this receipt"
+    ],
+    "environment_limit": "The filesystem is shared; this records declared and respected capabilities, not technically enforced read isolation."
+  },
+  "authority_boundary": "This receipt records contract-author identity preservation only and intentionally emits no materialization verdict."
+}

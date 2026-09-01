@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/selector` — construtor e parsing
-Hash do Código: 93448072
+Hash do Código: 38a8528f
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/selector.rs`  
@@ -49,3 +49,26 @@ não de mecânica Rust (ADR-0107).
 O binding global `selector` passa a `Value::Type(Type::Selector)` e sua chamada
 delega a `native_selector`. O parser compartilhado de query/locate não muda.
 Somente o kind público do binding é corrigido.
+
+## P1285 — inputs públicos já materializados
+
+### Medição antes da decisão
+
+No vanilla ratificado, `selector(heading.where(level: 1))` preserva o selector
+recebido; `selector("")` falha com `text selector is empty`;
+`selector(regex(""))` falha com `regex selector is empty`; e uma regex não
+vazia que casa texto vazio, como `a*`, falha com
+`regex matches empty text`. A primeira candidata P1285 ainda devolvia
+`argumento inválido (selector|regex)`, impedindo inclusive o fallback público
+de serialização de `Value::Selector`.
+
+### Decisão
+
+`native_selector` aceita `Value::Selector` por identidade e `Value::Regex`
+como `Selector::Regex` depois das duas validações de vazio. String vazia usa o
+diagnóstico textual medido. Kind/label/função existentes preservam sua
+semântica. Não se adiciona variant, assinatura ou tipo público; é correção de
+paridade do constructor já exposto.
+
+Aceitação: selector composto preserva `repr`; os três vazios falham com as
+mensagens medidas; regex válida não vazia produz `Value::Selector`.

@@ -1,7 +1,8 @@
 # Pipeline — L3 orquestração
-Hash do Código: 51b7a990
+Hash do Código: 282c1f66
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
 - 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
@@ -519,6 +520,51 @@ original, portanto o marcador não se acumula nem duplica conteúdo visível.
 Seleção e recolha de fontes percorrem `background`, `items` e `foreground` em
 ordem. Running matter realizado não pode ficar fora do conjunto de fontes
 embutidas só por residir na camada marginal.
+
+## P1286 — validação global de attachments sem nova fase
+
+### Medição anterior à decisão
+
+O erro vanilla de duplicado depende da coleção global final; uma nativa
+isolada não consegue observá-lo. `compile_to_pdf_bytes*` já devolve
+`Result<_, Vec<SourceDiagnostic>>`, enquanto entrypoints diretos do exporter
+são infalíveis.
+
+### Decisão condicionada ao gate
+
+Depois do layout e antes do dispatch font-aware, a pipeline valida
+`PagedDocument.attachments` em ordem. Nome virtual derivado repetido produz
+`attempted to attach file {path} twice` e aborta antes de exportar. O builder
+recebe somente a lista validada. Não alterar assinatura pública, `World`,
+ordem eval→layout→export, PNG/SVG/HTML ou defaults. Entry points diretos do
+exporter têm como precondição um `PagedDocument` validado; isso não substitui
+o erro de linguagem no pipeline de produção.
+
+## P1288 — features também no pipeline paginado (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`03_infra/src/pipeline.rs:77-82` aceita features somente no adaptador de eval;
+`:111-150` possui helper target+features e default vazio, e `:156-197` aplica
+o gate somente ao HTML. Os entrypoints paginados/PDF não recebem a coleção,
+portanto `a11y-extras` não pode chegar ao eval de produção PDF.
+
+### Decisão proposta
+
+Os entrypoints paginados usados por L4 recebem ou delegam a variantes que
+recebem `entities::compiler_features::Features` e o encaminham sem transformação
+ao mesmo eval. As variantes de compatibilidade sem parâmetro continuam com
+conjunto vazio; não existe ativação por PDF, HTML, `PdfTags`, `StreamMode` ou
+exporter.
+
+Depois do layout, a pipeline preserva integralmente uma única árvore semântica
+de tabela até o builder, inclusive THead/TBody quando aplicáveis e identidade
+lógica de headers repetidos em várias páginas. Transporta separadamente os
+vínculos físicos por página necessários a StructParents, MCID e ParentTree.
+Não reclassifica células, não deriva summary de caption, não transforma
+metadata em texto e não muda a ordem eval→introspect→layout→export. Uma árvore
+ausente/ambígua continua falha ou Unknown conforme o contrato congelado; nunca
+ganha fallback de sucesso.
 
 ## P1291 — realização entre passagens de `cancel.angle` (PROPOSTO; GATE ADR-0127)
 

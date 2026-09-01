@@ -1,0 +1,766 @@
+{
+  "cases": {
+    "artifact_background_pdf20": {
+      "artifact_has_own_mcid": false,
+      "artifact_openings": 1,
+      "artifact_properties": [
+        "/Type/Background"
+      ],
+      "artifact_struct_elem": false,
+      "exit": 0,
+      "state": "Observed",
+      "text": "plain-before. artifact-secret plain-after."
+    },
+    "artifact_default_other": {
+      "artifact_has_own_mcid": false,
+      "artifact_openings": 1,
+      "artifact_properties": [
+        ""
+      ],
+      "artifact_struct_elem": false,
+      "exit": 0,
+      "state": "Observed",
+      "text": "plain-before. artifact-secret plain-after."
+    },
+    "artifact_error_body_type": {
+      "error": "error: expected content, found integer",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "artifact_error_kind": {
+      "error": "error: expected \"header\", \"footer\", \"watermark\", \"page-number\", \"line-number\", \"redaction\", \"bates\", \"page\", \"pagination-other\", \"layout\", \"background\", or \"other\"",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "artifact_error_missing_body": {
+      "error": "error: missing argument: body",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "artifact_explicit_other": {
+      "artifact_has_own_mcid": false,
+      "artifact_openings": 1,
+      "artifact_properties": [
+        ""
+      ],
+      "artifact_struct_elem": false,
+      "exit": 0,
+      "state": "Observed",
+      "text": "plain-before. artifact-secret plain-after."
+    },
+    "artifact_header": {
+      "artifact_has_own_mcid": false,
+      "artifact_openings": 1,
+      "artifact_properties": [
+        "/Attached[/Top]/Subtype/Header/Type/Pagination"
+      ],
+      "artifact_struct_elem": false,
+      "exit": 0,
+      "state": "Observed",
+      "text": "plain-before. artifact-secret plain-after."
+    },
+    "artifact_plain_control": {
+      "artifact_has_own_mcid": false,
+      "artifact_openings": 0,
+      "artifact_properties": [],
+      "artifact_struct_elem": false,
+      "exit": 0,
+      "state": "Observed",
+      "text": "plain-before. artifact-secret plain-after."
+    },
+    "artifact_tags_disabled": {
+      "artifact_has_own_mcid": false,
+      "artifact_openings": 0,
+      "artifact_properties": [],
+      "artifact_struct_elem": false,
+      "exit": 0,
+      "state": "Observed",
+      "text": "plain-before. artifact-secret plain-after."
+    },
+    "attach_bytes_metadata": {
+      "embedded_count": 1,
+      "exit": 0,
+      "extracted_hex": "0041ff",
+      "extracted_sha256": "fae12c85cb1b6aca5070c8837c2b720665f35afabe2dcd504d6c970de880d834",
+      "has_description": true,
+      "has_embedded_file": true,
+      "has_filespec": true,
+      "has_name_tree": true,
+      "has_octet_stream_mime": true,
+      "has_supplement_relationship": false,
+      "matches_expected_payload": true,
+      "mutool_finds_embedded_file": true,
+      "names": [
+        "virtual.bin"
+      ],
+      "state": "Observed"
+    },
+    "attach_bytes_metadata_a3": {
+      "embedded_count": 1,
+      "exit": 0,
+      "extracted_hex": "0041ff",
+      "extracted_sha256": "fae12c85cb1b6aca5070c8837c2b720665f35afabe2dcd504d6c970de880d834",
+      "has_description": true,
+      "has_embedded_file": true,
+      "has_filespec": true,
+      "has_name_tree": true,
+      "has_octet_stream_mime": true,
+      "has_supplement_relationship": true,
+      "matches_expected_payload": true,
+      "mutool_finds_embedded_file": true,
+      "names": [
+        "virtual.bin"
+      ],
+      "state": "Observed"
+    },
+    "attach_duplicate": {
+      "error": "error: attempted to attach file same.bin twice",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "attach_error_bytes_path": {
+      "error": "error: expected path or string, found bytes",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "attach_error_content_data": {
+      "error": "error: expected bytes, found content",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "attach_error_mime": {
+      "error": "error: invalid mime type",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "attach_error_missing_file": {
+      "error": "error: file not found (searched at <WORK>/does-not-exist.bin)",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "attach_error_missing_path": {
+      "error": "error: missing argument: path",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "attach_error_named_data": {
+      "error": "error: unexpected argument: data",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "attach_error_relationship": {
+      "error": "error: expected \"source\", \"data\", \"alternative\", \"supplement\", or none",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "attach_error_string_data": {
+      "error": "error: expected bytes, found string",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "attach_path": {
+      "embedded_count": 1,
+      "exit": 0,
+      "extracted_hex": "50313238362070617468207061796c6f61640a",
+      "extracted_sha256": "0f8481926f10dbe2cdb564c21be0f7520b411f3926345c5aee6349bdddc60a61",
+      "has_description": false,
+      "has_embedded_file": true,
+      "has_filespec": true,
+      "has_name_tree": true,
+      "has_octet_stream_mime": false,
+      "has_supplement_relationship": false,
+      "matches_expected_payload": true,
+      "mutool_finds_embedded_file": true,
+      "names": [
+        "payload.txt"
+      ],
+      "state": "Observed"
+    },
+    "color_error_bad_pair": {
+      "error": "error: expected a color or color-weight pair",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "color_error_cancelled_sum": {
+      "error": "error: sum of weights must be positive",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "color_error_hsl_n3": {
+      "error": "error: cannot mix more than two colors in a hue-based space",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "color_error_hsv_n3": {
+      "error": "error: cannot mix more than two colors in a hue-based space",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "color_error_oklch_n3": {
+      "error": "error: cannot mix more than two colors in a hue-based space",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "color_error_space_type": {
+      "error": "error: expected `rgb`, `luma`, `cmyk`, `oklab`, `oklch`, `color.linear-rgb`, `color.hsl`, `color.hsv`, or spot colorant, found string",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "color_error_weight_type": {
+      "error": "error: expected float or ratio, found string",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "color_error_zero_colors": {
+      "error": "error: sum of weights must be positive",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "color_error_zero_sum": {
+      "error": "error: sum of weights must be positive",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "color_float_weights": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#61969c\\\")\""
+    },
+    "color_method_three": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#909282\\\")\""
+    },
+    "color_negative_positive_sum": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#00bade\\\")\""
+    },
+    "color_one": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#ff4136\\\")\""
+    },
+    "color_ratio_weights": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#999f66\\\")\""
+    },
+    "color_space_cmyk": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#6b7c76\\\")\""
+    },
+    "color_space_luma": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#909090\\\")\""
+    },
+    "color_space_oklab": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#909282\\\")\""
+    },
+    "color_space_rgb": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#648070\\\")\""
+    },
+    "color_three_default": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#909282\\\")\""
+    },
+    "color_zero_weight": {
+      "exit": 0,
+      "state": "Observed",
+      "value_json": "\"rgb(\\\"#00a59f\\\")\""
+    },
+    "line_default_angle": {
+      "exit": 0,
+      "open_line_geometries": [
+        {
+          "delta": [
+            30.0,
+            0.0
+          ],
+          "end": [
+            40.0,
+            20.0
+          ],
+          "start": [
+            10.0,
+            20.0
+          ]
+        }
+      ],
+      "state": "Observed"
+    },
+    "line_end_precedence": {
+      "exit": 0,
+      "open_line_geometries": [
+        {
+          "delta": [
+            30.0,
+            30.0
+          ],
+          "end": [
+            40.0,
+            50.0
+          ],
+          "start": [
+            10.0,
+            20.0
+          ]
+        }
+      ],
+      "state": "Observed"
+    },
+    "line_error_dx": {
+      "error": "error: unexpected argument: dx",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "line_error_dy": {
+      "error": "error: unexpected argument: dy",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "line_error_start_arity": {
+      "error": "error: array must contain exactly two items",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "line_inverted_vector": {
+      "exit": 0,
+      "open_line_geometries": [
+        {
+          "delta": [
+            -30.0,
+            -30.0
+          ],
+          "end": [
+            10.0,
+            20.0
+          ],
+          "start": [
+            40.0,
+            50.0
+          ]
+        }
+      ],
+      "state": "Observed"
+    },
+    "line_length_angle": {
+      "exit": 0,
+      "open_line_geometries": [
+        {
+          "delta": [
+            0.0,
+            30.0
+          ],
+          "end": [
+            10.0,
+            50.0
+          ],
+          "start": [
+            10.0,
+            20.0
+          ]
+        }
+      ],
+      "state": "Observed"
+    },
+    "line_negative_length": {
+      "exit": 0,
+      "open_line_geometries": [
+        {
+          "delta": [
+            -30.0,
+            0.0
+          ],
+          "end": [
+            10.0,
+            50.0
+          ],
+          "start": [
+            40.0,
+            50.0
+          ]
+        }
+      ],
+      "state": "Observed"
+    },
+    "line_negative_origin": {
+      "exit": 0,
+      "open_line_geometries": [
+        {
+          "delta": [
+            40.0,
+            60.0
+          ],
+          "end": [
+            30.0,
+            40.0
+          ],
+          "start": [
+            -10.0,
+            -20.0
+          ]
+        }
+      ],
+      "state": "Observed"
+    },
+    "line_positive_origin": {
+      "exit": 0,
+      "open_line_geometries": [
+        {
+          "delta": [
+            30.0,
+            30.0
+          ],
+          "end": [
+            40.0,
+            50.0
+          ],
+          "start": [
+            10.0,
+            20.0
+          ]
+        }
+      ],
+      "state": "Observed"
+    },
+    "smartquote_alternative_de": {
+      "exit": 0,
+      "state": "Observed",
+      "text": "»Alt«."
+    },
+    "smartquote_array": {
+      "exit": 0,
+      "state": "Observed",
+      "text": "[[Array]]"
+    },
+    "smartquote_default_de": {
+      "exit": 0,
+      "state": "Observed",
+      "text": "„Default“."
+    },
+    "smartquote_dict_partial": {
+      "exit": 0,
+      "state": "Observed",
+      "text": "<Single> and »Double«"
+    },
+    "smartquote_disabled_double": {
+      "exit": 0,
+      "state": "Observed",
+      "text": "\""
+    },
+    "smartquote_disabled_single": {
+      "exit": 0,
+      "state": "Observed",
+      "text": "'"
+    },
+    "smartquote_error_array_cardinality": {
+      "error": "error: expected 2 quotes, found 1 quote",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "smartquote_error_dict_key": {
+      "error": "error: unexpected key \"triple\", valid keys are \"double\" and \"single\"",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "smartquote_error_string_cardinality": {
+      "error": "error: expected 2 characters, found 1 character",
+      "exit": 1,
+      "state": "Observed"
+    },
+    "smartquote_explicit_beats_alternative": {
+      "exit": 0,
+      "state": "Observed",
+      "text": "(Explicit)."
+    }
+  },
+  "comparison_policy": {
+    "artifact_background_pdf20": "semantic",
+    "artifact_default_other": "semantic",
+    "artifact_error_body_type": "semantic",
+    "artifact_error_kind": "semantic",
+    "artifact_error_missing_body": "semantic",
+    "artifact_explicit_other": "semantic",
+    "artifact_header": "semantic",
+    "artifact_plain_control": "semantic",
+    "artifact_tags_disabled": "semantic",
+    "attach_bytes_metadata": "semantic",
+    "attach_bytes_metadata_a3": "semantic",
+    "attach_duplicate": "semantic",
+    "attach_error_bytes_path": "semantic",
+    "attach_error_content_data": "semantic",
+    "attach_error_mime": "semantic",
+    "attach_error_missing_file": "semantic",
+    "attach_error_missing_path": "semantic",
+    "attach_error_named_data": "semantic",
+    "attach_error_relationship": "semantic",
+    "attach_error_string_data": "semantic",
+    "attach_path": "semantic",
+    "color_error_bad_pair": "semantic",
+    "color_error_cancelled_sum": "semantic",
+    "color_error_hsl_n3": "semantic",
+    "color_error_hsv_n3": "semantic",
+    "color_error_oklch_n3": "semantic",
+    "color_error_space_type": "semantic",
+    "color_error_weight_type": "semantic",
+    "color_error_zero_colors": "semantic",
+    "color_error_zero_sum": "semantic",
+    "color_float_weights": "semantic",
+    "color_method_three": "semantic",
+    "color_negative_positive_sum": "semantic",
+    "color_one": "semantic",
+    "color_ratio_weights": "semantic",
+    "color_space_cmyk": "semantic",
+    "color_space_luma": "semantic",
+    "color_space_oklab": "semantic",
+    "color_space_rgb": "semantic",
+    "color_three_default": "semantic",
+    "color_zero_weight": "semantic",
+    "line_default_angle": "semantic",
+    "line_end_precedence": "semantic",
+    "line_error_dx": "baseline_only",
+    "line_error_dy": "baseline_only",
+    "line_error_start_arity": "semantic",
+    "line_inverted_vector": "semantic",
+    "line_length_angle": "semantic",
+    "line_negative_length": "semantic",
+    "line_negative_origin": "semantic",
+    "line_positive_origin": "semantic",
+    "smartquote_alternative_de": "semantic",
+    "smartquote_array": "semantic",
+    "smartquote_default_de": "semantic",
+    "smartquote_dict_partial": "semantic",
+    "smartquote_disabled_double": "semantic",
+    "smartquote_disabled_single": "semantic",
+    "smartquote_error_array_cardinality": "semantic",
+    "smartquote_error_dict_key": "semantic",
+    "smartquote_error_string_cardinality": "semantic",
+    "smartquote_explicit_beats_alternative": "semantic"
+  },
+  "contract": {
+    "post_gate_l0_receipt_sha256": "27e2f5b931d898396319d7a62875ca377511e93ebe0e8b97cdd4f6817d6663c0",
+    "sha256": "16597543965ca13d37fdabf9be184f3477df92da4f6702ba14f0a4ca4918f9bb"
+  },
+  "fixture_sha256": {
+    "artifact_background_pdf20": "79b208cfe958766447e1ce85ec0bef6f976d73861811102a521d89f0d3b46ea3",
+    "artifact_default_other": "e453ef648796d8bbe2e2a6297eae571642733690d4bf5c2f931463196ff780e9",
+    "artifact_error_body_type": "8a337a0d71d1a260069aba920209774d22ba396e249d837138ea3adfe80a7049",
+    "artifact_error_kind": "000c4e449ac6b6118b4d39a813ddc63d77960d3ef2ff233db7a4573e8168bc8f",
+    "artifact_error_missing_body": "2b3fc20edd6fc2a82808aafc2b2d32931702216f583341593c563cb26c827420",
+    "artifact_explicit_other": "d17b3559ad64feea9eb6e897c9773cb8423153ed5af9c29852927a5acf21b193",
+    "artifact_header": "cfa6aa41256510d8d80fe68032a3d3cfb8ffa626feeb701069cc86e6f1749b5c",
+    "artifact_plain_control": "29de68e91478dbfc4f8c5935a9f173a0f06a2d9fed929705124bf1275fb8d8a0",
+    "artifact_tags_disabled": "e453ef648796d8bbe2e2a6297eae571642733690d4bf5c2f931463196ff780e9",
+    "attach_bytes_metadata": "421fdc2a014303ba8e171e1438197a1279e696573fcecca1b8aa747ca9f4dc28",
+    "attach_bytes_metadata_a3": "421fdc2a014303ba8e171e1438197a1279e696573fcecca1b8aa747ca9f4dc28",
+    "attach_duplicate": "59a95186abaf7c9d29c41add2c14ccca8eb43301f041f02e9010e6345d471d61",
+    "attach_error_bytes_path": "0e7f831e4bea9b1cf4e5168d51014f4a44591d6a64983cfefd42c6b26b94d342",
+    "attach_error_content_data": "4db4e19d28276d79ca43c7796dce3c3075ffc4b99fddcc6accabebccda89a2e7",
+    "attach_error_mime": "48c1c04bbb58c42240a5f0fcd2454294a1d20a219b010f4d3bfb7fe67ee75bc1",
+    "attach_error_missing_file": "8716d89cb1a1ee3b270d9f3c01f3562e8ea638f5a155ed5ad5467791791eb1a3",
+    "attach_error_missing_path": "7274061111f138c673cf671b7e266d6da838626fc913080aa81f3f006daeb447",
+    "attach_error_named_data": "e95a24c450cdf557a8acf8993da4cc7631758b1b9a1bc30ac1ea1061c4c80220",
+    "attach_error_relationship": "7f9d6748075c52391011b0024f4f3c679e0490c84ce43c282fa62268a15189e4",
+    "attach_error_string_data": "67edbe2fa7a0f0bbd94cf827137ca6c7ff41b8ba210f86d9f9368b8511ad34b4",
+    "attach_path": "c1b0cda9299b6ca2da5a0e0eb92f45c5ac1143146e8b19aff7b2c3c8eb86e08c",
+    "color_error_bad_pair": "0dd5ec0df55e1bd60cc6c4e985851022c7cb1baf29a214cfac57765505171ef2",
+    "color_error_cancelled_sum": "87c7ae436cdb0eed4c0c341727474b10864540937c191fec69132ac40733cdd4",
+    "color_error_hsl_n3": "1650141dffb9b54ccc04eb9e51acbbb95852b63750f0ac71c2b977b5796de167",
+    "color_error_hsv_n3": "583ee3b76982e0a0f762edb1dd81eccb073eda05523e8d5bdd66a36cea213097",
+    "color_error_oklch_n3": "a8046516feddd1535fdcc5df20d9fb6e6dc6d9a1935706c3d5b1f47943f7035b",
+    "color_error_space_type": "892803064d3fd3312695422e7cf95e0be980958c2078dc55a53b6057ea6843a1",
+    "color_error_weight_type": "be2cb8deefddfd755addd6624fb17c3f2e149c2ad61cbeb7e4353573a7e99a37",
+    "color_error_zero_colors": "9ba064567e1753a8cf972b33d4346d5167ef69e37b144a1282260906a2972b15",
+    "color_error_zero_sum": "ef0d8cbefb0f6ee26fdb0fb5bdc32ebdc34b269a7685024d08d9624ec26cf5c0",
+    "color_float_weights": "7170df5a178b4473057b385857920df1768257912c7d688304bf28f76798866b",
+    "color_method_three": "3bc6ec52181d272b9017141fc0288ca2555b1247f829d6b539e896199e82ba43",
+    "color_negative_positive_sum": "d182434071054029dd42cc25b0ac2bcf689ab4df7168320d8f191fb19db6b7ca",
+    "color_one": "16d41e0e145dc88520d78455c747c5dc633f4b66c1d65ba7f1c14c06a0f16ec5",
+    "color_ratio_weights": "2b313b160da104d9027739b3244c2b6a5743f3eb73ede347f39f39399572e181",
+    "color_space_cmyk": "a69bdb762f1f88daa009f35f11a72aeac3c9110a3bae72983de218eae39cfaf7",
+    "color_space_luma": "83a45e3e993f646521b9e459874bd494b4db157e017e0da641b2d3b4a70e248d",
+    "color_space_oklab": "2ec7c8c0492611808f2cc0fa5dac4995d1ef8180ea81a9c1a888652e06cc4de4",
+    "color_space_rgb": "03f91cc9a79b06e9175c1f0280ff7e387fa9a966bdffa77bbb344a3dc607bfd5",
+    "color_three_default": "69bc5901a7467dcfad324d4f05be310744fbd390a1a74ab7c2a388370336ba9f",
+    "color_zero_weight": "fcaf8951edbbb7ad6467fe56e7ee5305396cb917913cb7b02605ff913261f274",
+    "line_default_angle": "8fd74a4b9bf6399456fec598c5541639be467d69089a6b8ebc51af1f50a154e9",
+    "line_end_precedence": "2c4c64e458a5b1d6cf611596abe2478cd5deecb3ab364c4695449ba7a8c79442",
+    "line_error_dx": "30fe12194bd44d4acfec4a070ca482284f13aff5c5cb291e2722ee222ff00a4f",
+    "line_error_dy": "3f78423dc29259041a75374a0ee7e6703b8652e743e0ba8d44ade4b1fdda9c59",
+    "line_error_start_arity": "4848a6e34ff5c3ae60534ef270866f59a128d92bdab7919ccbe0dd261798c67a",
+    "line_inverted_vector": "fd3f504b1cd2396a41006e4a1190ab77e2dc9ce2047b25611fc6ef697a14331c",
+    "line_length_angle": "a6d621ea046561bf803c03db5db0d45cf36c545610d9d617fc1a8155c743ebbc",
+    "line_negative_length": "0ad58f138b07d564726d5c1fd0fb073f2acb9ca508ce78fbe6e1db1e47fa900f",
+    "line_negative_origin": "c1babac775b8c2cfdadfb829a0c9580fe7119d3ebf571c63e2aa5344170d1215",
+    "line_positive_origin": "2622596e9074575015090bfabecfcb71312cd5aa6f1b667bb4a4533b01e19a2a",
+    "smartquote_alternative_de": "f5c8efda5f801c30a73015a6535a5a4aac086ddaabeb58a071bec2719a2d544d",
+    "smartquote_array": "fec85d8b427e1e10f65201cd9a57d75aa5680d8f91c0e835d2bd1c9a8a736b80",
+    "smartquote_default_de": "eef1323a7cd9e937e6c70bafcb53a64729e682b53f3303034db8b07d7b7c9d8c",
+    "smartquote_dict_partial": "1994e270ae9c3be54c66a021e0ab8997e24fb606ada3406b427cdc7fbb902982",
+    "smartquote_disabled_double": "f5534598d44a61879141caecfad6dc77c67041e1c97027eeb5302ba27ea2a926",
+    "smartquote_disabled_single": "19514d1759a10a9b9a8f8333376a62af61e8dfcea77920db48299cdbc941c96c",
+    "smartquote_error_array_cardinality": "a38eaab363aba1bfb63aeefb7d62cb453e1a5835fa24ef4f39d3e617ae3d1f09",
+    "smartquote_error_dict_key": "b8c21d2ca52f0d80d5d32ba736620459b472cb390c98123a99c86c010d3e2967",
+    "smartquote_error_string_cardinality": "1a684e2ec4c8ec4dda9ad0ffc07d06d22c1b9f66c7c6aa135b09b751ba0ab05b",
+    "smartquote_explicit_beats_alternative": "c3274c7aa2c126173a49bcf170dc2037a9495765c999c85e549e1f70946c7aa7"
+  },
+  "frozen_at_utc": "2026-08-30T22:54:42.809439+00:00",
+  "passes": [
+    {
+      "name": "forward",
+      "order": [
+        "smartquote_default_de",
+        "smartquote_alternative_de",
+        "smartquote_explicit_beats_alternative",
+        "smartquote_disabled_double",
+        "smartquote_disabled_single",
+        "smartquote_array",
+        "smartquote_dict_partial",
+        "smartquote_error_string_cardinality",
+        "smartquote_error_array_cardinality",
+        "smartquote_error_dict_key",
+        "line_positive_origin",
+        "line_negative_origin",
+        "line_inverted_vector",
+        "line_end_precedence",
+        "line_length_angle",
+        "line_default_angle",
+        "line_negative_length",
+        "line_error_dx",
+        "line_error_dy",
+        "line_error_start_arity",
+        "color_three_default",
+        "color_method_three",
+        "color_float_weights",
+        "color_ratio_weights",
+        "color_zero_weight",
+        "color_negative_positive_sum",
+        "color_one",
+        "color_space_rgb",
+        "color_space_oklab",
+        "color_space_luma",
+        "color_space_cmyk",
+        "color_error_zero_colors",
+        "color_error_zero_sum",
+        "color_error_cancelled_sum",
+        "color_error_hsl_n3",
+        "color_error_hsv_n3",
+        "color_error_oklch_n3",
+        "color_error_bad_pair",
+        "color_error_weight_type",
+        "color_error_space_type",
+        "attach_path",
+        "attach_bytes_metadata",
+        "attach_bytes_metadata_a3",
+        "attach_duplicate",
+        "attach_error_content_data",
+        "attach_error_string_data",
+        "attach_error_missing_path",
+        "attach_error_missing_file",
+        "attach_error_relationship",
+        "attach_error_named_data",
+        "attach_error_bytes_path",
+        "attach_error_mime",
+        "artifact_plain_control",
+        "artifact_default_other",
+        "artifact_explicit_other",
+        "artifact_header",
+        "artifact_background_pdf20",
+        "artifact_tags_disabled",
+        "artifact_error_kind",
+        "artifact_error_missing_body",
+        "artifact_error_body_type"
+      ]
+    },
+    {
+      "name": "reverse",
+      "order": [
+        "artifact_error_body_type",
+        "artifact_error_missing_body",
+        "artifact_error_kind",
+        "artifact_tags_disabled",
+        "artifact_background_pdf20",
+        "artifact_header",
+        "artifact_explicit_other",
+        "artifact_default_other",
+        "artifact_plain_control",
+        "attach_error_mime",
+        "attach_error_bytes_path",
+        "attach_error_named_data",
+        "attach_error_relationship",
+        "attach_error_missing_file",
+        "attach_error_missing_path",
+        "attach_error_string_data",
+        "attach_error_content_data",
+        "attach_duplicate",
+        "attach_bytes_metadata_a3",
+        "attach_bytes_metadata",
+        "attach_path",
+        "color_error_space_type",
+        "color_error_weight_type",
+        "color_error_bad_pair",
+        "color_error_oklch_n3",
+        "color_error_hsv_n3",
+        "color_error_hsl_n3",
+        "color_error_cancelled_sum",
+        "color_error_zero_sum",
+        "color_error_zero_colors",
+        "color_space_cmyk",
+        "color_space_luma",
+        "color_space_oklab",
+        "color_space_rgb",
+        "color_one",
+        "color_negative_positive_sum",
+        "color_zero_weight",
+        "color_ratio_weights",
+        "color_float_weights",
+        "color_method_three",
+        "color_three_default",
+        "line_error_start_arity",
+        "line_error_dy",
+        "line_error_dx",
+        "line_negative_length",
+        "line_default_angle",
+        "line_length_angle",
+        "line_end_precedence",
+        "line_inverted_vector",
+        "line_negative_origin",
+        "line_positive_origin",
+        "smartquote_error_dict_key",
+        "smartquote_error_array_cardinality",
+        "smartquote_error_string_cardinality",
+        "smartquote_dict_partial",
+        "smartquote_array",
+        "smartquote_disabled_single",
+        "smartquote_disabled_double",
+        "smartquote_explicit_beats_alternative",
+        "smartquote_alternative_de",
+        "smartquote_default_de"
+      ]
+    }
+  ],
+  "policy": {
+    "byte_equality_is_parity": false,
+    "unknown_is_success": false
+  },
+  "schema": "p1286-oracle-baseline-v1",
+  "tools": {
+    "mutool": "mutool version 1.23.10",
+    "pdfdetach": "pdfdetach version 24.02.0",
+    "pdftotext": "I/O Error: Couldn't open file '--version': No such file or directory.",
+    "qpdf": "qpdf version 11.9.0"
+  },
+  "vanilla": {
+    "path": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "version": "typst 0.15.1 (e0e8ca4d)"
+  }
+}

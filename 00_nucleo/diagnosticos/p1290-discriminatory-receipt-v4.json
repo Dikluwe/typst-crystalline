@@ -1,0 +1,43 @@
+{
+  "canonical": "Preserved",
+  "frozen_hashes": {
+    "00_nucleo/diagnosticos/p1290-adversarial-candidates.json": "2f850b05f0a0c77c334227c8633b0082f4a6b0cfa5d08da74b34532f69c3eb4b",
+    "00_nucleo/diagnosticos/p1290-adversarial-opaque.json": "a070f248356bcfb0b66df03bd6600f5510f9b4895f682845198e25b25fc1da9e",
+    "00_nucleo/diagnosticos/p1290-contract.json": "0ae42afcbc54ffe62daaec925be5e02ff3218f51ab5864fd64d6be9f7d1e6a26",
+    "00_nucleo/diagnosticos/p1290-manifest.json": "235d9ed5015580c8f2c32cf16c6eb3478089f038f10774578ecc896e36f03266",
+    "00_nucleo/diagnosticos/p1290-oracle-runner.py": "d44bf520530ab71e51ab10cba36639ced90a1b3b978001674fa8c035d12372da",
+    "00_nucleo/diagnosticos/p1290-oracle-suite.json": "3b98ef7a51bbc18e845b75cd05d571811172d25c763093de14eac174f8a43b5e",
+    "00_nucleo/prompts/compiler/eval/repr.md": "e584d5b159f04f3cf8d9a485e2c3c64b3df344520403c2407e6955f2c6b07739"
+  },
+  "mutation_score": 1.0,
+  "mutations": {
+    "M01-mathop-only-csc-dim": {"result": "Violated", "unknown": 0, "violations": 24},
+    "M02-limits-fixed-false": {"result": "Violated", "unknown": 0, "violations": 6},
+    "M03-mathop-omit-text": {"result": "Violated", "unknown": 0, "violations": 30},
+    "M04-mathop-invert-field-order": {"result": "Violated", "unknown": 0, "violations": 30},
+    "M05-array-threshold-49": {"result": "Violated", "unknown": 0, "violations": 3},
+    "M06-array-threshold-51": {"result": "Violated", "unknown": 0, "violations": 3},
+    "M07-no-multiline-trailing-comma": {"result": "Violated", "unknown": 0, "violations": 12},
+    "M08-flat-nested-indentation": {"result": "Violated", "unknown": 0, "violations": 3},
+    "M09-linear-singleton-without-comma": {"result": "Violated", "unknown": 0, "violations": 9},
+    "M10-short-array-terminal-comma": {"result": "Violated", "unknown": 0, "violations": 3},
+    "M11-mathop-omit-limits": {"result": "Violated", "unknown": 0, "violations": 30},
+    "M12-content-escaping-loss": {"result": "Violated", "unknown": 0, "violations": 6},
+    "M13-flatten-multiline-mathop": {"result": "Violated", "unknown": 0, "violations": 6},
+    "M14-treat-non-mathop-control-as-op": {"result": "Violated", "unknown": 0, "violations": 3}
+  },
+  "opaque": {
+    "U01-non-ascii-width-unit": "Unknown",
+    "U02-unenumerated-math-member": "Unknown",
+    "U03-unenumerated-content-morphology": "Unknown",
+    "U04-parser-unsupported-construction": "Unknown",
+    "U05-outside-repr-fragment": "Unknown",
+    "U06-pre-resolved-smartquote-provenance": "Unknown"
+  },
+  "opaque_in_denominator": false,
+  "result": "Preserved",
+  "reverse_order_equal": true,
+  "schema": "p1290-discriminatory-gate-report/v1",
+  "valid_negative_killed": 14,
+  "valid_negative_total": 14
+}

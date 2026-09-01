@@ -17007,23 +17007,16 @@ mod p287_smartquote_tests {
     }
 
     #[test]
-    fn p287_smartquote_single_always_ascii_sem_lang() {
-        // Aspas simples scope-out smart-apostrophes (paridade P155).
-        // Lang None default → sempre ASCII `'`.
+    fn p287_smartquote_single_default_localizado_alterna() {
+        // P1286: sem override, o par simples default localizado é `‘…’` e
+        // usa o mesmo estado open/close do consumer de layout.
         let doc = layout(&Content::sequence(vec![
             Content::smartquote(false),
             Content::smartquote(false),
         ]));
         let txt = collect_text(&doc);
-        assert_eq!(
-            txt.matches('\'').count(),
-            2,
-            "2 SmartQuote simples → 2 chars `'` ASCII; got {txt:?}"
-        );
-        assert!(
-            !txt.contains('\u{2018}') && !txt.contains('\u{2019}'),
-            "sem curly Unicode (smart-apostrophes scope-out)"
-        );
+        assert_eq!(txt, "‘’", "par simples localizado deve alternar; got {txt:?}");
+        assert!(!txt.contains('\''), "não deve regredir para ASCII: {txt:?}");
     }
 
     #[test]

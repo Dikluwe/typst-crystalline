@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/lang/quotes.md
-//! @prompt-hash 07e3cb92
+//! @prompt-hash 036e193c
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -14,7 +14,14 @@
 //! region/country (e.g. `pt-BR`); por isso o lookup BCP47 com prefixo
 //! sugerido na spec P155 simplifica para exact match.
 
+use crate::entities::elements::smartquote::{
+    SmartQuoteOverrides, SmartQuotePair, SmartQuoteQuotes,
+};
 use crate::entities::lang::Lang;
+use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
+use crate::entities::value::Value;
+use unicode_segmentation::UnicodeSegmentation;
 
 /// Tabela inicial de aspas primárias por idioma (Passo 155).
 ///
@@ -44,7 +51,144 @@ pub const DEFAULT_SINGLE_QUOTES: (&str, &str) = ("\u{2018}", "\u{2019}");
 const LANG_SINGLE_QUOTES: &[(&str, (&str, &str))] = &[
     // (lang_code, (open, close))
     ("en", ("\u{2018}", "\u{2019}")), // ‘ ’
+    ("de", ("\u{201A}", "\u{2018}")), // ‚ ‘
 ];
+
+fn pair(open: &str, close: &str) -> SmartQuotePair {
+    SmartQuotePair { open: open.into(), close: close.into() }
+}
+
+fn pair_from_string(value: &str, span: Span) -> SourceResult<SmartQuotePair> {
+    let graphemes: Vec<&str> = UnicodeSegmentation::graphemes(value, true).collect();
+    if graphemes.len() != 2 {
+        let suffix = if graphemes.len() == 1 { "" } else { "s" };
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected 2 characters, found {} character{}",
+                graphemes.len(),
+                suffix
+            ),
+        )]);
+    }
+    Ok(pair(graphemes[0], graphemes[1]))
+}
+
+fn pair_from_array(values: &[Value], span: Span) -> SourceResult<SmartQuotePair> {
+    if values.len() != 2 {
+        let suffix = if values.len() == 1 { "" } else { "s" };
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected 2 quotes, found {} quote{}", values.len(), suffix),
+        )]);
+    }
+    let Value::Str(open) = &values[0] else {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected string, found {}", values[0].type_name()),
+        )]);
+    };
+    let Value::Str(close) = &values[1] else {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected string, found {}", values[1].type_name()),
+        )]);
+    };
+    Ok(SmartQuotePair { open: open.clone(), close: close.clone() })
+}
+
+fn optional_pair(value: &Value, span: Span) -> SourceResult<Option<SmartQuotePair>> {
+    match value {
+        Value::Auto | Value::None => Ok(None),
+        Value::Str(value) => pair_from_string(value, span).map(Some),
+        Value::Array(values) => pair_from_array(values, span).map(Some),
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected auto, string, or array, found {}", other.type_name()),
+        )]),
+    }
+}
+
+/// Valida e canoniza a superfície `quotes:` do elemento smartquote.
+pub fn parse_smartquote_quotes(
+    value: &Value,
+    span: Span,
+) -> SourceResult<SmartQuoteQuotes> {
+    match value {
+        Value::Auto | Value::None => Ok(SmartQuoteQuotes::Auto),
+        Value::Str(value) => Ok(SmartQuoteQuotes::Custom(SmartQuoteOverrides {
+            single: None,
+            double: Some(pair_from_string(value, span)?),
+        })),
+        Value::Array(values) => Ok(SmartQuoteQuotes::Custom(SmartQuoteOverrides {
+            single: None,
+            double: Some(pair_from_array(values, span)?),
+        })),
+        Value::Dict(values) => {
+            for key in values.keys() {
+                if !matches!(key.as_str(), "single" | "double") {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!(
+                            "unexpected key \"{}\", valid keys are \"double\" and \"single\"",
+                            key
+                        ),
+                    )]);
+                }
+            }
+            Ok(SmartQuoteQuotes::Custom(SmartQuoteOverrides {
+                single: values
+                    .get("single")
+                    .map(|value| optional_pair(value, span))
+                    .transpose()?
+                    .flatten(),
+                double: values
+                    .get("double")
+                    .map(|value| optional_pair(value, span))
+                    .transpose()?
+                    .flatten(),
+            }))
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected auto, string, array, or dictionary, found {}",
+                other.type_name()
+            ),
+        )]),
+    }
+}
+
+/// Resolve o par efectivo depois da precedência leaf > style > localizado.
+pub fn resolve_smartquote_pair(
+    lang: Option<&Lang>,
+    alternative: bool,
+    quotes: Option<&SmartQuoteQuotes>,
+    double: bool,
+) -> SmartQuotePair {
+    let localized = if alternative && lang.is_some_and(|lang| lang.as_str() == "de") {
+        if double {
+            pair("»", "«")
+        } else {
+            pair("›", "‹")
+        }
+    } else if double {
+        let (open, close) = lang.map(localize_quotes).unwrap_or(DEFAULT_QUOTES);
+        pair(open, close)
+    } else {
+        let (open, close) =
+            lang.map(localize_single_quotes).unwrap_or(DEFAULT_SINGLE_QUOTES);
+        pair(open, close)
+    };
+
+    match quotes {
+        Some(SmartQuoteQuotes::Custom(overrides)) => {
+            let configured = if double { &overrides.double } else { &overrides.single };
+            configured.clone().unwrap_or(localized)
+        }
+        Some(SmartQuoteQuotes::Auto) | None => localized,
+    }
+}
 
 /// Devolve par `(open, close)` de aspas primárias para o `Lang` dado.
 ///

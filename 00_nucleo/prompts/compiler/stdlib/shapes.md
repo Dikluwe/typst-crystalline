@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: 91e1828b
+Hash do Código: 6a9b5568
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/shapes.rs`
@@ -136,9 +136,8 @@ circle(fill: blue) -> Shape Ellipse fill blue
   (paridade vanilla — medido: `line(start: (0pt, 0pt), end: (50pt, 50pt))`
   compila). Alternativa a `dx`/`dy` — combinar `end` com `dx`/`dy` é erro.
 - **`start`** (P739B): ponto inicial; default `(0pt, 0pt)`. Só admissível com
-  `end` ou com `length`/`angle`. **Scope-out medido**: `start` ≠ `(0,0)` —
-  `ShapeKind::Line` não carrega posição absoluta (a linha é relativa à posição
-  corrente); erro explícito de scope-out em vez de desenhar deslocada para a origem.
+  `end` ou com `length`/`angle`. Origem não-zero é preservada pelo lowering
+  P1286 para `ShapeKind::Path`, sem ampliar o carrier público.
 - **`length`** (P804): comprimento da linha (`Length`, `Float`, `Int` em pt).
   Default `30pt` (paridade vanilla `#[default(Abs::pt(30.0))]`). **Só é
   respeitado se `end` for `none`** — medido no vanilla 0.15.0:
@@ -149,8 +148,12 @@ circle(fill: blue) -> Shape Ellipse fill blue
   Só respeitado se `end` for `none` (como `length`). Tipo errado →
   `expected angle, found {type}` (padrão do projecto).
 
-**Semântica**: Cria `Content::Shape { kind: Line { dx, dy }, stroke: preto default }`.
-Linhas não têm fill. Com `end`: `dx = end.x − start.x`, `dy = end.y − start.y`.
+**Semântica**: Linhas não têm fill. Com `start=(0,0)`, o caminho legado pode
+criar `Content::Shape { kind: Line { dx, dy }, stroke: preto default }`. Com
+origem não-zero, cria path aberto `MoveTo(start), LineTo(end)` com os mesmos
+stroke e pontos absolutos; largura=`max(0,start.x,end.x)` e
+altura=`max(0,start.y,end.y)`, nunca `max-min` ou `abs(delta)`.
+Com `end`: `dx = end.x − start.x`, `dy = end.y − start.y`.
 Sem `end`, com `length`/`angle` (P804, paridade vanilla
 `typst-layout/src/shapes.rs::layout_line`): `dx = cos(angle) · length`,
 `dy = sin(angle) · length`. Combinar `length`/`angle` com o legado `dx`/`dy`
@@ -158,14 +161,13 @@ Sem `end`, com `length`/`angle` (P804, paridade vanilla
 linha degenerada; NOTA: o vanilla desenharia 30pt a 0deg — divergência
 registada da interface legada, mantida).
 
-**Paridade vanilla**: Equivalente a `#line(dx: 3cm, dy: 2cm)`,
-`#line(start: (0pt, 0pt), end: (50pt, 50pt))`, `#line(length: 3cm)` ou
-`#line(length: 3cm, angle: 30deg)` (P804).
+**Paridade vanilla**: o fragmento alegado é `start`/`end`/`length`/`angle`,
+incluindo origem não-zero conforme P1286. `dx`/`dy` são extensão cristalina
+legada preservada por compatibilidade e não pertencem à alegação vanilla.
 
 **Limitações / scope-outs**: campos de stroke não modelados pela entidade
 cristalina (dash/cap/join) continuam scope-out.
 `length:` como `Ratio` (percentagem) — scope-out (P804, sem região no native).
-`start` ≠ `(0,0)` — scope-out (acima).
 
 **Testes canónicos**:
 ```
@@ -174,7 +176,7 @@ line(stroke: red) -> Shape Line dx=0 dy=0 stroke vermelho
 line(dx: -1cm) -> Shape Line dx=-1cm
 line(end: (50pt, 50pt)) -> Shape Line dx=50 dy=50  (P739B)
 line(start: (0pt, 0pt), end: (50pt, 50pt)) -> Shape Line dx=50 dy=50  (P739B)
-line(start: (10pt, 0pt), end: (50pt, 50pt)) -> Err scope-out  (P739B)
+line(start: (10pt, 0pt), end: (50pt, 50pt)) -> Shape Path absoluto  (P1286)
 line(length: 3cm) -> Shape Line dx=3cm dy=0  (P804)
 line(length: 4cm, angle: 90deg) -> Shape Line dx≈0 dy=4cm  (P804)
 line(length: 3cm, end: (1cm, 1cm)) -> Shape Line dx=1cm dy=1cm (length ignorado)  (P804)
@@ -381,3 +383,35 @@ square() sem width -> Err
 square(w, named:{x:1}) -> Err "argumento nomeado inesperado"
 square(w) sem cores -> stroke preta 1pt (paridade com rect)
 ```
+
+## P1286 — `line(start:)` não-zero sem novo carrier público
+
+### Medição anterior à decisão
+
+O vanilla resolve `start` e `end` contra a região, calcula `delta=end-start`,
+define a caixa por `max(start, start+delta, zero)` e insere a linha em `start`
+(`typst-layout/src/shapes.rs:28-51`). O receipt P1286 mediu origens positiva e
+negativa, vetor invertido, comprimento negativo e a precedência de `end` sobre
+`length`/`angle`. O cristalino já possui
+`ShapeKind::Path([MoveTo,LineTo])`; sua stdlib fornece dimensões ao layout.
+
+### Decisão
+
+- Remover a rejeição de origem não-zero.
+- Quando `start != (0,0)`, baixar internamente para path aberto
+  `MoveTo(start), LineTo(end)` com o mesmo stroke e sem fill.
+- A largura é `max(0,start.x,end.x)` e a altura
+  `max(0,start.y,end.y)`, exatamente a caixa medida do vanilla; não usar
+  `max-min`, `abs(delta)` nem normalizar os pontos pela origem da caixa.
+- Com `end`, ignorar `length`/`angle`. Sem `end`, calcular o endpoint como
+  `start + length*(cos(angle),sin(angle))`, inclusive comprimento negativo.
+- O legado `dx`/`dy` e o caso `start=(0,0)` podem conservar
+  `ShapeKind::Line`; a escolha interna não é observável da linguagem.
+- `dx`/`dy` permanecem incompatíveis com `end` e com `length`/`angle`, conforme
+  o contrato cristalino preexistente; removê-los seria quebra de
+  compatibilidade fora de P1286.
+
+Não se altera `ShapeKind`, `ShapeElem`, `FrameItem`, assinatura pública,
+default ou fase. Logo é correção interna de paridade em fluxo contínuo
+ADR-0127. Percentagens mistas, infinito e clipping continuam `Unknown`; esta
+rota só fecha os observáveis medidos.

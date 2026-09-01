@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash b771743d
+//! @prompt-hash ad66aa56
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -21,6 +21,8 @@ use ecow::EcoString;
 
 use crate::entities::dir::Dir;
 use crate::entities::document_info::DocumentInfo;
+use crate::entities::elements::pdf_artifact::ArtifactKind;
+use crate::entities::elements::pdf_attach::PdfAttachElem;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
 use crate::entities::source_result::SourceDiagnostic;
@@ -298,6 +300,7 @@ pub use crate::entities::shaped_glyph::ShapedGlyph;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SemanticKind {
     Formula,
+    Artifact(ArtifactKind),
     Table {
         id: u64,
     },
@@ -916,6 +919,7 @@ impl Frame {
 #[derive(Debug, Clone)]
 pub struct PagedDocument {
     pub pages: Vec<Page>,
+    pub attachments: Vec<Arc<PdfAttachElem>>,
     /// Mapa de labels para o número de página onde aterraram (Passo 63).
     /// Populado por `Layouter::finish()` após cada passagem de layout.
     /// Vazio por defeito — só tem dados após `layout()` com labels no documento.
@@ -965,6 +969,7 @@ impl PagedDocument {
     pub fn new(pages: Vec<Page>) -> Self {
         Self {
             pages,
+            attachments: Vec::new(),
             extracted_label_pages: HashMap::new(),
             extracted_label_positions: HashMap::new(),
             extracted_positions:

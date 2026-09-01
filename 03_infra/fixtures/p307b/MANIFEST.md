@@ -17,17 +17,17 @@ critério de escolha e protocolo de regeneração vive no L0
 
 | Source | Output (bytes) | md5 (8 prefix) | Cluster exercitado |
 |---|---:|---|---|
-| `01-markup-plain.typ` | 941 | `d45abf2d` | API + Helvetica + escape_pdf_string |
-| `02-markup-heading.typ` | 1031 | `e5ee6a16` | Helvetica + emit_text |
-| `03-text-styling.typ` | 1515 | `8b312c88` | Bold/italic via Styled → /F2/F3 |
-| `04-shapes.typ` | 1149 | `c8a3240f` | Shape kinds (rect, circle) + paint solid |
-| `05-gradient-linear.typ` | 915 | `b4410df5` | Linear scan + pattern_resources (P263) |
-| `06-gradient-conic.typ` | 1100 | `c1d7354d` | Conic Coons (P272) + bezier_control_points |
-| `07-multi-feature.typ` | 1527 | `1e4a3495` | Integração (heading + gradient + multi-página) |
-| `08-image-jpeg.typ` | 3497 | `d4a62272` | JPEG XObject + dedup + zlib |
-| `09-cidfont.typ` | 559206 | `2a19696b` | CIDFont + Type0 + Identity-H + ToUnicode CMap (font embebida ~556 KB) |
+| `01-markup-plain.typ` | 2204 | `dce5df2a` | API + Helvetica + escape_pdf_string |
+| `02-markup-heading.typ` | 2630 | `1f1b3d48` | Helvetica + emit_text |
+| `03-text-styling.typ` | 2328 | `57e163f0` | Bold/italic via Styled → /F2/F3 |
+| `04-shapes.typ` | 2263 | `bf4ea743` | Shape kinds (rect, circle) + paint solid |
+| `05-gradient-linear.typ` | 2162 | `b53dcaf3` | Linear scan + pattern_resources (P263) |
+| `06-gradient-conic.typ` | 2234 | `8c45c042` | Conic Coons (P272) + bezier_control_points |
+| `07-multi-feature.typ` | 2992 | `93c2de5f` | Integração (heading + gradient + multi-página) |
+| `08-image-jpeg.typ` | 3495 | `6218e60c` | JPEG XObject + dedup + zlib |
+| `09-cidfont.typ` | 6476 | `c43ceee6` | CIDFont + Type0 + Identity-H + ToUnicode CMap (subset da fonte versionada) |
 
-**Total**: 570.881 bytes de referência distribuídos por 9 fixtures.
+**Total**: 26.784 bytes de referência distribuídos por 9 fixtures.
 
 ## Cobertura por cluster
 
@@ -62,7 +62,7 @@ for f in 01-markup-plain 02-markup-heading 03-text-styling \
   diff -q /tmp/r1.pdf /tmp/r2.pdf
 done
 # Fixture 09 requer --font-path
-./target/debug/typst --font-path lab/krilla-reference/assets/fonts \
+./target/debug/typst --font-path 03_infra/fixtures/fonts \
   sources/09-cidfont.typ /tmp/r.pdf
 ```
 
@@ -83,10 +83,14 @@ Referência regenerada pelo protocolo do L0 (`CRYSTALLINE_PDF_FIXED_EPOCH=0`,
 
 ### Fixture 09 (CIDFont)
 
-Requer **font externa** descoberta via `--font-path
-lab/krilla-reference/assets/fonts`. O fixture `.typ` declara
-`#set text(font: "Noto Sans")`. PDF resultante embebe a fonte
-NotoSans-Regular.ttf (556 KB) — daí o tamanho ~559 KB.
+Requer a fonte externa versionada descoberta via `--font-path
+03_infra/fixtures/fonts`. O fixture `.typ` declara
+`#set text(font: "Noto Sans")`. A entrada é `NotoSans-Regular.ttf`
+(556.216 bytes, SHA-256
+`2ec33f84606cbaa0a1a944488e14f97faf2f6a25ecdd8354f5358f06da13c7d9`),
+copiada do checkout Cargo de `krilla` `7772dbe`; a redistribuição é OFL-1.1,
+preservada em `../fonts/LICENSE-NotoSans.md`. O PDF resultante contém o
+subset necessário, em vez da fonte integral.
 
 Se o font path mudar ou a fonte ser actualizada, regenerar fixture.
 

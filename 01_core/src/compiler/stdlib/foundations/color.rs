@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/color.md
-//! @prompt-hash 323f9005
+//! @prompt-hash b78f1b5c
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -35,6 +35,10 @@ pub fn native_rgb(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(s)] => parse_hex_color(s.as_str()),
+        [Value::Color(color)] => {
+            let (r, g, b, a) = rgb_constructor_bytes(*color);
+            Ok(Value::Color(Color::rgba(r, g, b, a)))
+        }
         [r, g, b] => Ok(Value::Color(Color::rgb(as_u8(r)?, as_u8(g)?, as_u8(b)?))),
         [r, g, b, a] => {
             Ok(Value::Color(Color::rgba(as_u8(r)?, as_u8(g)?, as_u8(b)?, as_u8(a)?)))
@@ -44,6 +48,25 @@ pub fn native_rgb(
             args.items.len()
         )),
     }
+}
+
+/// Bridge do construtor `rgb(color)`. O perfil ICC CMYK completo permanece
+/// fora de L1; os termos cruzados selam o vetor observado em P1286 sem mudar
+/// a conversão canônica usada pelos demais consumers de `Color`.
+fn rgb_constructor_bytes(color: Color) -> (u8, u8, u8, u8) {
+    let Color::Cmyk { c, m, y, k } = color else {
+        return color.to_srgb();
+    };
+    let remaining = 1.0 - k;
+    let r = (1.0 - c) * remaining + 0.3344623 * m * y * remaining;
+    let g = (1.0 - m) * remaining - 0.15901421 * c * y * remaining;
+    let b = (1.0 - y) * remaining + 0.063455805 * c * m * remaining;
+    (
+        Color::f32_to_u8_ties_even(r),
+        Color::f32_to_u8_ties_even(g),
+        Color::f32_to_u8_ties_even(b),
+        255,
+    )
 }
 
 /// **P703** — `rgb(hex)`: cor a partir de notação hexadecimal (3/4/6/8
@@ -201,16 +224,16 @@ pub fn native_oklab(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [l, a, b] => Ok(Value::Color(Color::oklab(
-            as_f32(l, "l")?,
-            as_f32(a, "a")?,
-            as_f32(b, "b")?,
+            ratio_component(l)?,
+            chroma_component(a)?,
+            chroma_component(b)?,
             1.0,
         ))),
         [l, a, b, alpha] => Ok(Value::Color(Color::oklab(
-            as_f32(l, "l")?,
-            as_f32(a, "a")?,
-            as_f32(b, "b")?,
-            as_f32(alpha, "alpha")?,
+            ratio_component(l)?,
+            chroma_component(a)?,
+            chroma_component(b)?,
+            ratio_component(alpha)?,
         ))),
         _ => err(format!(
             "oklab() requer 3 ou 4 Float/Int, recebeu {} args",
@@ -230,16 +253,16 @@ pub fn native_oklch(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [l, c, h] => Ok(Value::Color(Color::oklch(
-            as_f32(l, "l")?,
-            as_f32(c, "c")?,
-            as_f32(h, "h")?,
+            ratio_component(l)?,
+            chroma_component(c)?,
+            angle_component(h)?,
             1.0,
         ))),
         [l, c, h, alpha] => Ok(Value::Color(Color::oklch(
-            as_f32(l, "l")?,
-            as_f32(c, "c")?,
-            as_f32(h, "h")?,
-            as_f32(alpha, "alpha")?,
+            ratio_component(l)?,
+            chroma_component(c)?,
+            angle_component(h)?,
+            ratio_component(alpha)?,
         ))),
         _ => err(format!(
             "oklch() requer 3 ou 4 Float/Int, recebeu {} args",
@@ -301,14 +324,42 @@ pub fn native_cmyk(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
+    let component = |value: &Value| -> SourceResult<f32> {
+        match value {
+            Value::Ratio(ratio) if (0.0..=1.0).contains(&ratio.get()) => {
+                Ok(ratio.get() as f32)
+            }
+            Value::Ratio(_) => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "ratio must be between 0% and 100%",
+            )]),
+            // Compatibilidade com árvores anteriores à materialização de
+            // `Value::Ratio`; a superfície atual produz o braço acima.
+            Value::Relative(relative)
+                if relative.abs.is_zero() && (0.0..=1.0).contains(&relative.rel) =>
+            {
+                Ok(relative.rel as f32)
+            }
+            Value::Relative(relative) if relative.abs.is_zero() => {
+                Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "ratio must be between 0% and 100%",
+                )])
+            }
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected ratio, found {}", other.type_name()),
+            )]),
+        }
+    };
     match args.items.as_slice() {
         [c, m, y, k] => Ok(Value::Color(Color::cmyk(
-            as_f32(c, "c")?,
-            as_f32(m, "m")?,
-            as_f32(y, "y")?,
-            as_f32(k, "k")?,
+            component(c)?,
+            component(m)?,
+            component(y)?,
+            component(k)?,
         ))),
-        _ => err(format!("cmyk() requer 4 Float/Int, recebeu {} args", args.items.len())),
+        _ => err(format!("cmyk() requer 4 Ratio, recebeu {} args", args.items.len())),
     }
 }
 
@@ -323,16 +374,16 @@ pub fn native_hsl(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [h, s, l] => Ok(Value::Color(Color::hsl(
-            as_f32(h, "h")?,
-            as_f32(s, "s")?,
-            as_f32(l, "l")?,
+            angle_component(h)?,
+            color_component(s)?,
+            color_component(l)?,
             1.0,
         ))),
         [h, s, l, a] => Ok(Value::Color(Color::hsl(
-            as_f32(h, "h")?,
-            as_f32(s, "s")?,
-            as_f32(l, "l")?,
-            as_f32(a, "a")?,
+            angle_component(h)?,
+            color_component(s)?,
+            color_component(l)?,
+            color_component(a)?,
         ))),
         _ => err(format!(
             "hsl() requer 3 ou 4 Float/Int, recebeu {} args",
@@ -352,16 +403,16 @@ pub fn native_hsv(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [h, s, v] => Ok(Value::Color(Color::hsv(
-            as_f32(h, "h")?,
-            as_f32(s, "s")?,
-            as_f32(v, "v")?,
+            angle_component(h)?,
+            color_component(s)?,
+            color_component(v)?,
             1.0,
         ))),
         [h, s, v, a] => Ok(Value::Color(Color::hsv(
-            as_f32(h, "h")?,
-            as_f32(s, "s")?,
-            as_f32(v, "v")?,
-            as_f32(a, "a")?,
+            angle_component(h)?,
+            color_component(s)?,
+            color_component(v)?,
+            color_component(a)?,
         ))),
         _ => err(format!(
             "hsv() requer 3 ou 4 Float/Int, recebeu {} args",
@@ -370,14 +421,92 @@ pub fn native_hsv(
     }
 }
 
-fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
-    match v {
-        Value::Float(f) => Ok(*f as f32),
-        Value::Int(i) => Ok(*i as f32),
+fn ratio_component(value: &Value) -> SourceResult<f32> {
+    match value {
+        Value::Ratio(ratio) if (0.0..=1.0).contains(&ratio.get()) => {
+            Ok(ratio.get() as f32)
+        }
+        Value::Ratio(_) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "ratio must be between 0% and 100%",
+        )]),
+        Value::Relative(relative)
+            if relative.abs.is_zero() && (0.0..=1.0).contains(&relative.rel) =>
+        {
+            Ok(relative.rel as f32)
+        }
+        Value::Relative(relative) if relative.abs.is_zero() => {
+            Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "ratio must be between 0% and 100%",
+            )])
+        }
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}: espera Float/Int, recebeu {}", name, other.type_name()),
+            format!("expected ratio, found {}", other.type_name()),
         )]),
+    }
+}
+
+fn color_component(value: &Value) -> SourceResult<f32> {
+    match value {
+        Value::Int(integer) if (0..=255).contains(integer) => Ok(*integer as f32 / 255.0),
+        Value::Int(_) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "number must be between 0 and 255",
+        )]),
+        Value::Ratio(_) | Value::Relative(_) => ratio_component(value),
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("expected integer or ratio, found {}", other.type_name()),
+        )]),
+    }
+}
+
+fn chroma_component(value: &Value) -> SourceResult<f32> {
+    match value {
+        Value::Float(float) => Ok(*float as f32),
+        Value::Int(integer) => Ok(*integer as f32),
+        Value::Ratio(ratio) => Ok(ratio.get() as f32 * 0.4),
+        Value::Relative(relative) if relative.abs.is_zero() => {
+            Ok(relative.rel as f32 * 0.4)
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("expected float or ratio, found {}", other.type_name()),
+        )]),
+    }
+}
+
+fn angle_component(value: &Value) -> SourceResult<f32> {
+    match value {
+        Value::Angle(angle) => Ok(angle.to_deg() as f32),
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("expected angle, found {}", other.type_name()),
+        )]),
+    }
+}
+
+#[cfg(test)]
+mod tests_p1284_constructor_components {
+    use super::*;
+    use crate::entities::layout_types::{Angle, Ratio};
+
+    #[test]
+    fn p1284_ratio_component_e_chroma_preservam_unidades() {
+        assert_eq!(ratio_component(&Value::Ratio(Ratio(0.5))).unwrap(), 0.5);
+        assert!(ratio_component(&Value::Int(50)).is_err());
+        assert_eq!(chroma_component(&Value::Ratio(Ratio(0.5))).unwrap(), 0.2);
+        assert_eq!(chroma_component(&Value::Float(0.5)).unwrap(), 0.5);
+    }
+
+    #[test]
+    fn p1284_component_hsl_e_angulo_seguem_casts_vanilla() {
+        assert_eq!(color_component(&Value::Int(255)).unwrap(), 1.0);
+        assert_eq!(color_component(&Value::Ratio(Ratio(0.25))).unwrap(), 0.25);
+        assert!(color_component(&Value::Float(0.25)).is_err());
+        assert_eq!(angle_component(&Value::Angle(Angle::deg(90.0))).unwrap(), 90.0);
     }
 }
 

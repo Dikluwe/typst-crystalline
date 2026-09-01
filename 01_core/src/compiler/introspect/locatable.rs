@@ -216,6 +216,8 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Title(_)
         | Content::Document { .. }
         | Content::Asset { .. }
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
         | Content::HtmlElem(_) => false,
     }
 }

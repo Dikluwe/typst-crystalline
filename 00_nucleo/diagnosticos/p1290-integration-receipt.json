@@ -1,0 +1,122 @@
+{
+  "schema": "p1290-integration-receipt/v1",
+  "observed_at": "2026-08-31T12:34:20-03:00",
+  "repository": {
+    "head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+    "state": "working tree não commitado e compartilhado",
+    "diff_stat": "149 files changed, 650275 insertions(+), 2042 deletions(-)"
+  },
+  "p1290": {
+    "seal_v4_sha256": "03ff5d26678b01d9078e0ea43aa2ac4838ab3120622575aa1766b6f36340b63c",
+    "candidate_receipt_v4_sha256": "889cbed697a41f0c5da0e7059bd26ad8b0ff92b91131685e3e676192cc341a32",
+    "red_tests_receipt_v2_sha256": "bb3822e10a75307c3ea132ffb85117dfb430f08e42e9efb5e5d9975e45411d21",
+    "prompt_sha256": "e584d5b159f04f3cf8d9a485e2c3c64b3df344520403c2407e6955f2c6b07739",
+    "consumer_sha256": "eda7b6c2318f51ad7673279ee85069e51ab5a002167511a7bf7a29bcb937e7bc",
+    "final_binary_sha256": "115f68b84cee409e332e3cff316ac96e9fa2de2e06638fae88ce2d55b8a2c4d0",
+    "vanilla_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "gates": {
+    "discriminatory": {
+      "exit": 0,
+      "canonical": "Preserved",
+      "valid_negative_killed": 14,
+      "valid_negative_total": 14,
+      "mutation_score": 1.0,
+      "opaque_unknown": 6,
+      "reverse_order_equal": true
+    },
+    "candidate_bilateral": {
+      "exit": 0,
+      "cases": 21,
+      "repeat_equal": true,
+      "bilateral_equal": true,
+      "output_sha256": "18913bdd11e4888d48fb614e437223809094fa826c0d914d68d959047d0364cd"
+    },
+    "red_green": {
+      "baseline": "RED contratual: probe executou, mas omitiu text: e limits:",
+      "integrated_before_concurrent_breakage": "GREEN: 7/7 focais e 59/59 compiler::eval::repr::tests",
+      "receipt_sha256": "bb3822e10a75307c3ea132ffb85117dfb430f08e42e9efb5e5d9975e45411d21"
+    },
+    "release_build": {
+      "command": "CARGO_TARGET_DIR=/tmp/p1290-final-target cargo build --release --bin typst --quiet",
+      "exit": 0,
+      "log_sha256": "23d13bdb5d79aacbf2d0cf03219d3ff06cf1612efdb7aace0a8b5d12287959cb"
+    },
+    "matrix_runner_tests": {
+      "command": "python3 -m unittest lab.parity.matrix.test_runner",
+      "exit": 0,
+      "tests": 37,
+      "log_sha256": "5944317b35eb0ab7da7152b30ef146214e2ccb37e479380e1e832fdc9b061ccc"
+    },
+    "parity_matrix": {
+      "exit": 0,
+      "artifact_sha256": "0d9dfaa373a997fe773bb41a24d0d43040c5d6ef5ae788bee7cc2d3d2db8d87c",
+      "counts": {"MATCH": 15, "DIFFERENCE": 2, "DISABLED_BY_PROFILE": 3, "UNKNOWN": 0, "total": 20},
+      "all_expectation_met": true,
+      "reverse_order_equal": true
+    },
+    "surface_111": {
+      "baseline_artifact_sha256": "2e3c0640f12bafb258029cd257b7b365dd358c861403671064047e7f19a7d869",
+      "candidate_artifact_sha256": "74846d053a47acb839b956a93aff4a4168e4d5181f7707aa3e59f290dcba531a",
+      "baseline": {"same": 72, "different_or_disabled": 39, "total": 111},
+      "candidate": {"same": 95, "different_or_disabled": 16, "total": 111},
+      "old_matches_preserved": 72,
+      "lost": 0,
+      "gained": 23,
+      "p1290_attributed_gains": [
+        "present-emoji-heart",
+        "present-sym-arrow",
+        "sample-match-emoji.bell",
+        "sample-match-emoji.camera",
+        "sample-match-emoji.checkmark",
+        "sample-match-emoji.heart",
+        "sample-match-emoji.ship",
+        "sample-match-emoji.thumb",
+        "sample-match-math.arrows",
+        "sample-match-math.csc",
+        "sample-match-math.dim",
+        "sample-match-math.lt",
+        "sample-match-math.sharp",
+        "sample-match-sym.approx",
+        "sample-match-sym.emptyset",
+        "sample-match-sym.integral",
+        "sample-match-sym.rect"
+      ],
+      "concurrent_unattributed_gains": [
+        "sample-missing_member-float.is-infinite",
+        "sample-missing_member-math.bb",
+        "sample-missing_member-math.frak",
+        "sample-missing_member-math.inline",
+        "sample-missing_member-math.scripts",
+        "sample-missing_member-math.serif"
+      ]
+    },
+    "git_diff_check": {"exit": 0},
+    "workspace_test": {
+      "exit": 101,
+      "log_sha256": "054eaacf4001b9376d52da2794a2162dc5a9163e4dcd1f0fd1b5d511cb0ea865",
+      "cause": "29 compile errors outside repr, including make_stdlib arity and missing TableElem.summary/TableCellElem.kind in concurrent tests"
+    },
+    "final_focal_retry": {
+      "exit": 101,
+      "log_sha256": "12e2a1d5d3dee28408b7f005c090aaf84aaab153408691fc14d5828d5c719800",
+      "cause": "crate-wide test compilation reaches the same unrelated 29 errors before running the filter"
+    },
+    "crystalline_lint": {
+      "exit": 1,
+      "full_log_sha256": "ef240d9c4a458e10ef45262b92ab986633493be3f9948e2a6c8b9792d3e82ffc",
+      "lineage_log_sha256": "a70041cb48e6bdddf7182c931c8f5a4b36206c6b1bcf6416a482677a8e179f27",
+      "unrelated_fatal_v0": 2,
+      "unrelated_v5": 20,
+      "repr_listed_by_v5": false
+    },
+    "cargo_fmt_check": {
+      "exit": 1,
+      "log_sha256": "a9133e0050f320d29c0d7a7b686bd6b01fd2c568c2cf94fea1f2e985016c06da",
+      "repr_has_diff": false,
+      "cause": "outros ficheiros concorrentes não formatados"
+    }
+  },
+  "attestation_limit": "A segregação de papéis foi declarada e observada; o filesystem compartilhado não prova isolamento técnico de leitura.",
+  "verdict_scope": "O fragmento semântico P1290 está Preserved. A árvore global não pode receber certificado limpo enquanto falhas concorrentes fora de repr permanecerem."
+}

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/text/smartquote.md
-//! @prompt-hash 5a495c14
+//! @prompt-hash 961cbafa
 //! @layer L1
-//! @updated 2026-08-13
+//! @updated 2026-08-30
 //!
 //! `smartquote` — aspa tipográfica resolvida lang-aware pelo layout.
 //!
@@ -12,6 +12,7 @@
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::elements::smartquote::SmartQuoteElem;
 use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
@@ -23,8 +24,10 @@ use crate::entities::value::Value;
 // - `enabled: bool = true` — smart-quotes activas. Quando `false`, emite
 //                            o glyph ASCII literal (`"`/`'`) sem alternância
 //                            lang-aware (paridade vanilla `set smartquote(enabled: false)`).
-// - `alternative: bool`    — scope-out per ADR-0054 graded (rejeitado com erro
-//                            educacional; passo dedicado futuro condicional).
+// - `alternative: bool`    — seleciona o par alternativo localizado quando
+//                            não há override explícito em `quotes:`.
+// - `quotes`                — override explícito em string/array/dicionário;
+//                            `auto` apaga herança de estilo.
 //
 // Diagnóstico P287 §A.2: variant `Content::smartquote(double)` é leaf
 // (não rico) — 1 campo bool required. Quando `enabled = false`, função emite
@@ -49,6 +52,8 @@ pub fn native_smartquote(
 
     let mut double: bool = true; // vanilla default
     let mut enabled: bool = true; // vanilla default
+    let mut alternative = None;
+    let mut quotes = None;
 
     for (key, value) in args.named.iter() {
         match key.as_str() {
@@ -76,17 +81,22 @@ pub fn native_smartquote(
                     )])
                 }
             },
-            // Scope-out per diagnóstico P287 §A.2: `alternative` rejeitada
-            // com erro educacional (ADR-0054 graded); passo dedicado futuro.
-            "alternative" | "quotes" => {
-                return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    format!(
-                        "smartquote({}:) não suportado neste passo \
-                         (P287 §A.2 scope-out / ADR-0054 graded)",
-                        key,
-                    ),
-                )]);
+            "alternative" => match value {
+                Value::Bool(value) => alternative = Some(*value),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "smartquote(alternative:) espera bool, recebeu {}",
+                            other.type_name()
+                        ),
+                    )])
+                }
+            },
+            "quotes" => {
+                quotes = Some(crate::compiler::lang::quotes::parse_smartquote_quotes(
+                    value, args.span,
+                )?);
             }
             other => {
                 return Err(vec![SourceDiagnostic::error(
@@ -105,5 +115,9 @@ pub fn native_smartquote(
         return Ok(Value::Content(Content::text(glyph)));
     }
 
-    Ok(Value::Content(Content::smartquote(double)))
+    Ok(Value::Content(Content::SmartQuote(std::sync::Arc::new(SmartQuoteElem {
+        double,
+        alternative,
+        quotes,
+    }))))
 }

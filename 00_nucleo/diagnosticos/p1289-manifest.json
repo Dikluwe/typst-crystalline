@@ -1,0 +1,178 @@
+{
+  "schema_version": "tekt-ab-p1289-v3",
+  "contract_id": "C-P1289-FLOAT-IS-INFINITE-v3",
+  "regime": "A/B",
+  "baseline": {
+    "commit_claim": "a51e02804",
+    "path": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "pre_candidate": {
+    "path": "/tmp/p1289-target-pre/debug/typst",
+    "sha256": "e7c81e3a6c6f1933db95c2249286fca19f3b5991eb8bc392f49ea659cec0bd78"
+  },
+  "frozen_inputs": {
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1289.md",
+      "sha256": "156f223ce214eb13055dfd3ad0f7d9d45c25ac24e6c1f7379a9412c4077339fb"
+    },
+    "measurement": {
+      "path": "00_nucleo/diagnosticos/p1289-vanilla-measurement-receipt.md",
+      "sha256": "c35a5fc6b710386b103077d97326df8c2d45ca46aea8c068fb05539bceb1f741"
+    },
+    "prompts": [
+      {
+        "path": "00_nucleo/prompts/compiler/stdlib/foundations/float.md",
+        "sha256": "b05da320cddd30a455dd60e027bcd8639261fff9be16b39dc4dd82610ea2b242"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+        "sha256": "90155e0c0ed88d36e1c9d198782387a99ea7ad1813cbfd7402b8eca1176e4692"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "sha256": "66e9a245c7916e261a3c3970d9dd57f52d4a2626afe2afe13ae0a768b2933a6c"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/stdlib/foundations.md",
+        "sha256": "8df1e1b9317b6eeb11c691ed2126bd76901c8e2c207278172ce2e79984b0bc34"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+        "sha256": "29aee6d1d5413c0023e6feeb3151bc4642705a556313cdf8f6bac86d92291d7b"
+      },
+      {
+        "path": "00_nucleo/prompts/wiring/tests/p1289_float_is_infinite.md",
+        "sha256": "55694b8c40b3366d1e5c2d850b0033091b39a11eab1fb70403d1e1dc484d0899"
+      }
+    ]
+  },
+  "observables": [
+    {
+      "id": "presence-repr-static",
+      "expression": "repr((type(float.is-infinite), repr(float.is-infinite)))",
+      "exit_code": 0,
+      "stdout_json": "\"(function, \\\"is-infinite\\\")\""
+    },
+    {
+      "id": "static-values",
+      "expression": "(float.is-infinite(0.0), float.is-infinite(42.5), float.is-infinite(float(\"1e999\")), float.is-infinite(-float(\"1e999\")), float.is-infinite(float(\"NaN\")))",
+      "exit_code": 0,
+      "stdout_json": "[false,false,true,true,false]"
+    },
+    {
+      "id": "bound-values",
+      "expression": "((0.0).is-infinite(), (42.5).is-infinite(), (float(\"1e999\")).is-infinite(), (-float(\"1e999\")).is-infinite(), (float(\"NaN\")).is-infinite())",
+      "exit_code": 0,
+      "stdout_json": "[false,false,true,true,false]"
+    },
+    {
+      "id": "integer-coercion",
+      "expression": "float.is-infinite(0)",
+      "exit_code": 0,
+      "stdout_json": "false"
+    },
+    {
+      "id": "missing-self",
+      "expression": "float.is-infinite()",
+      "exit_code": 1,
+      "diagnostic": "missing argument: self"
+    },
+    {
+      "id": "static-extra",
+      "expression": "float.is-infinite(1.0, 2.0)",
+      "exit_code": 1,
+      "diagnostic": "unexpected argument"
+    },
+    {
+      "id": "static-named",
+      "expression": "float.is-infinite(1.0, foo: 2)",
+      "exit_code": 1,
+      "diagnostic": "unexpected argument: foo"
+    },
+    {
+      "id": "wrong-self-type",
+      "expression": "float.is-infinite(\"x\")",
+      "exit_code": 1,
+      "diagnostic": "expected float, found string"
+    },
+    {
+      "id": "bound-extra",
+      "expression": "(1.0).is-infinite(2.0)",
+      "exit_code": 1,
+      "diagnostic": "unexpected argument"
+    },
+    {
+      "id": "bound-named",
+      "expression": "(1.0).is-infinite(foo: 2)",
+      "exit_code": 1,
+      "diagnostic": "unexpected argument: foo"
+    },
+    {
+      "id": "bound-value-absent",
+      "expression": "repr((type((1.0).is-infinite), repr((1.0).is-infinite)))",
+      "exit_code": 1,
+      "diagnostic": "cannot access fields on type float"
+    }
+  ],
+  "unknown_policy": "Identity ambiguity, unsupported parser, unilateral execution or exhausted budget is Unknown and never success. No frozen case is initially Unknown.",
+  "required_mutations": [
+    "always_false",
+    "nan_is_infinite",
+    "accept_extra_or_unknown_named",
+    "qualified_repr",
+    "presence_without_call"
+  ],
+  "protected_test_artifacts": [
+    "lab/surface-inventory/run_p1289_oracles.py",
+    "lab/surface-inventory/p1289-oracle-baseline.json",
+    "04_wiring/tests/p1289_float_is_infinite.rs"
+  ],
+  "roles": {
+    "contract_author": {
+      "executor": "/root",
+      "writes": [
+        "00_nucleo/diagnosticos/p1289-manifest.json",
+        "00_nucleo/diagnosticos/p1289-contract-receipt.md",
+        "00_nucleo/diagnosticos/p1289-vanilla-measurement-receipt.md",
+        "00_nucleo/prompts/compiler/stdlib/foundations/float.md",
+        "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "00_nucleo/prompts/compiler/stdlib/foundations.md",
+        "00_nucleo/prompts/compiler/stdlib/_comum.md",
+        "00_nucleo/prompts/wiring/tests/p1289_float_is_infinite.md"
+      ],
+      "forbidden": ["candidate implementation", "protected tests", "final verdict"]
+    },
+    "tester_a": {
+      "executor": "/root/testador_a_p1289",
+      "reads": ["frozen manifest", "frozen prompts", "measurement receipt", "baseline binary"],
+      "writes": [
+        "lab/surface-inventory/run_p1289_oracles.py",
+        "lab/surface-inventory/p1289-oracle-baseline.json",
+        "04_wiring/tests/p1289_float_is_infinite.rs",
+        "00_nucleo/diagnosticos/p1289-oracle-receipt.md",
+        "00_nucleo/diagnosticos/p1289-red-tests-receipt.md"
+      ],
+      "forbidden": ["candidate consumers", "contract", "baseline mutation", "verdict"]
+    },
+    "implementer_b": {
+      "executor": "/root/implementador_b_p1289",
+      "reads": ["frozen prompts", "sealed protected tests"],
+      "writes": [
+        "01_core/src/compiler/stdlib/foundations/float.rs",
+        "01_core/src/compiler/stdlib/foundations/mod.rs",
+        "01_core/src/compiler/stdlib/mod.rs",
+        "01_core/src/compiler/eval/bindings/field_access.rs",
+        "01_core/src/compiler/eval/call_dispatch.rs"
+      ],
+      "forbidden": ["manifest", "measurement", "protected tests", "oracle baseline", "verification receipts"]
+    },
+    "verifier": {
+      "executor": "/root/verificador_p1289",
+      "reads": ["all frozen artifacts", "candidate outputs"],
+      "writes": ["00_nucleo/diagnosticos/p1289-verification-receipt.md"],
+      "forbidden": ["contract", "prompts", "candidate", "tests", "baseline"]
+    }
+  }
+}

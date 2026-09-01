@@ -1,0 +1,214 @@
+{
+  "schema": "p1290-repr-oracle-suite/v1",
+  "manifest_sha256": "235d9ed5015580c8f2c32cf16c6eb3478089f038f10774578ecc896e36f03266",
+  "contract_sha256": "0ae42afcbc54ffe62daaec925be5e02ff3218f51ab5864fd64d6be9f7d1e6a26",
+  "prompt_sha256": "e584d5b159f04f3cf8d9a485e2c3c64b3df344520403c2407e6955f2c6b07739",
+  "fragment": "public repr morphology for arrays/tuples and Content::MathOp",
+  "outcome_semantics": {
+    "Preserved": "A positive case has an actual string byte-for-byte equal to the canonical expected string.",
+    "Violated": "A positive case is missing, duplicated, structurally invalid, out of the required order, unstable across repetition, or differs byte-for-byte from the canonical expected string.",
+    "Unknown": "The case is deliberately opaque under the frozen contract. Any observation for it remains Unknown and never contributes a passing result."
+  },
+  "candidate_protocol": {
+    "schema": "p1290-repr-candidate-output/v1",
+    "required_runs": [
+      "canonical-1",
+      "canonical-2",
+      "reverse-1"
+    ],
+    "canonical-1": "Every positive case exactly once, in suite order.",
+    "canonical-2": "An exact repetition of canonical-1, including order and actual strings.",
+    "reverse-1": "Every positive case exactly once, in exact reverse suite order, with the same actual strings.",
+    "opaque_observations": "Optional list of opaque case observations. Every listed item is classified Unknown and makes validation fail; omission makes no claim about opaque behavior.",
+    "success": "All required positive observations and both determinism checks are Preserved, and no Unknown or Violated outcome is present."
+  },
+  "positive_cases": [
+    {
+      "id": "array.empty",
+      "probe_key": "arrays.empty",
+      "contract_pointer": "/arrays/exact/empty",
+      "expected_result": "Preserved",
+      "expected": "()"
+    },
+    {
+      "id": "array.singleton",
+      "probe_key": "arrays.singleton",
+      "contract_pointer": "/arrays/exact/singleton",
+      "expected_result": "Preserved",
+      "expected": "(0,)"
+    },
+    {
+      "id": "array.short",
+      "probe_key": "arrays.short",
+      "contract_pointer": "/arrays/exact/short",
+      "expected_result": "Preserved",
+      "expected": "(0, 1, 2)"
+    },
+    {
+      "id": "array.inner-length-49",
+      "probe_key": "arrays.inner-length-49",
+      "contract_pointer": "/arrays/exact/inner_length_49",
+      "expected_result": "Preserved",
+      "expected": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)"
+    },
+    {
+      "id": "array.inner-length-50",
+      "probe_key": "arrays.inner-length-50",
+      "contract_pointer": "/arrays/exact/inner_length_50",
+      "expected_result": "Preserved",
+      "expected": "(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",)"
+    },
+    {
+      "id": "array.inner-length-51",
+      "probe_key": "arrays.inner-length-51",
+      "contract_pointer": "/arrays/exact/inner_length_51",
+      "expected_result": "Preserved",
+      "expected": "(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n)"
+    },
+    {
+      "id": "array.zeros-body-49",
+      "probe_key": "arrays.zeros-body-49",
+      "contract_pointer": "/arrays/exact/zeros_body_49",
+      "expected_result": "Preserved",
+      "expected": "(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)"
+    },
+    {
+      "id": "array.zeros-body-52",
+      "probe_key": "arrays.zeros-body-52",
+      "contract_pointer": "/arrays/exact/zeros_body_52",
+      "expected_result": "Preserved",
+      "expected": "(\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n  0,\n)"
+    },
+    {
+      "id": "array.internal-multiline",
+      "probe_key": "arrays.internal-multiline",
+      "contract_pointer": "/arrays/nesting_obligation",
+      "derivation": "The 18-zero child is already multiline; the parent reindents every child line by two spaces and preserves child and parent trailing commas.",
+      "expected_result": "Preserved",
+      "expected": "(\n  (\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n  ),\n  0,\n)"
+    },
+    {
+      "id": "array.nested-long",
+      "probe_key": "arrays.nested-long",
+      "contract_pointer": "/arrays/nesting_obligation",
+      "derivation": "Both 18-zero children remain multiline and each complete child representation is reindented by two spaces inside the parent.",
+      "expected_result": "Preserved",
+      "expected": "(\n  (\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n  ),\n  (\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n  ),\n)"
+    },
+    {
+      "id": "mathop.csc",
+      "probe_key": "math-ops.csc",
+      "contract_pointer": "/math_op/exact/csc",
+      "expected_result": "Preserved",
+      "expected": "op(text: [csc], limits: false)"
+    },
+    {
+      "id": "mathop.dim",
+      "probe_key": "math-ops.dim",
+      "contract_pointer": "/math_op/exact/dim",
+      "expected_result": "Preserved",
+      "expected": "op(text: [dim], limits: false)"
+    },
+    {
+      "id": "mathop.lim-limits-true",
+      "probe_key": "math-ops.lim",
+      "contract_pointer": "/math_op/exact/lim_limits_true",
+      "expected_result": "Preserved",
+      "expected": "op(text: [lim], limits: true)"
+    },
+    {
+      "id": "mathop.compound-arcsin",
+      "probe_key": "math-ops.arcsin",
+      "contract_pointer": "/math_op/exact/compound_arcsin",
+      "expected_result": "Preserved",
+      "expected": "op(text: [arcsin], limits: false)"
+    },
+    {
+      "id": "mathop.user-false-string",
+      "probe_key": "math-ops.user-false-string",
+      "contract_pointer": "/math_op/exact/user_false_string",
+      "expected_result": "Preserved",
+      "expected": "op(text: [foo], limits: false)"
+    },
+    {
+      "id": "mathop.user-true-string",
+      "probe_key": "math-ops.user-true-string",
+      "contract_pointer": "/math_op/exact/user_true_string",
+      "expected_result": "Preserved",
+      "expected": "op(text: [foo], limits: true)"
+    },
+    {
+      "id": "mathop.user-false-content",
+      "probe_key": "math-ops.user-false-content",
+      "contract_pointer": "/math_op/exact/user_false_content",
+      "expected_result": "Preserved",
+      "expected": "op(text: [foo], limits: false)"
+    },
+    {
+      "id": "mathop.user-markup",
+      "probe_key": "math-ops.user-markup",
+      "contract_pointer": "/math_op/exact/user_markup",
+      "expected_result": "Preserved",
+      "expected": "op(\n  text: sequence(strong(body: [f]), [ ], [oo]),\n  limits: false,\n)"
+    },
+    {
+      "id": "mathop.user-escaping-string",
+      "probe_key": "math-ops.user-escaping-string",
+      "contract_pointer": "/math_op/exact/user_escaping_string",
+      "expected_result": "Preserved",
+      "expected": "op(text: [a \"quote\" \\ slash], limits: false)"
+    },
+    {
+      "id": "mathop.user-escaping-content",
+      "probe_key": "math-ops.user-escaping-content",
+      "contract_pointer": "/math_op/exact/user_escaping_content_no_smartquote",
+      "expected_result": "Preserved",
+      "expected": "op(\n  text: sequence([a], [ ], [#], [ ], [*]),\n  limits: false,\n)"
+    },
+    {
+      "id": "control.math-sum-non-mathop",
+      "probe_key": "math-ops.sum-non-op-control",
+      "contract_pointer": "/math_op/non_mathop_control/exact",
+      "expected_result": "Preserved",
+      "expected": "symbol(\"∑\", (\"integral\", \"⨋\"))"
+    }
+  ],
+  "opaque_cases": [
+    {
+      "id": "opaque.non-ascii-width-unit",
+      "contract_pointer": "/unknown/cases/0",
+      "expected_result": "Unknown",
+      "reason": "The width-counting unit for non-ASCII item representations is not frozen."
+    },
+    {
+      "id": "opaque.preresolved-smartquote-provenance",
+      "contract_pointer": "/unknown/cases/1",
+      "expected_result": "Unknown",
+      "reason": "SmartQuote provenance already resolved into Content::Text glyphs cannot be reconstructed by repr and never passes as preserved."
+    },
+    {
+      "id": "opaque.unmeasured-math-member",
+      "contract_pointer": "/unknown/cases/2",
+      "expected_result": "Unknown",
+      "reason": "Math members absent from the frozen probes cannot be generalized from measured names."
+    },
+    {
+      "id": "opaque.unmeasured-content-morphology",
+      "contract_pointer": "/unknown/cases/3",
+      "expected_result": "Unknown",
+      "reason": "Unmeasured content morphologies are outside the enumerated fragment."
+    },
+    {
+      "id": "opaque.parser-unsupported",
+      "contract_pointer": "/unknown/cases/4",
+      "expected_result": "Unknown",
+      "reason": "Parser-unsupported or deliberately opaque constructions preserve Unknown."
+    },
+    {
+      "id": "opaque.outside-repr-fragment",
+      "contract_pointer": "/unknown/cases/5",
+      "expected_result": "Unknown",
+      "reason": "No functional-equivalence claim is made outside the frozen repr fragment."
+    }
+  ]
+}

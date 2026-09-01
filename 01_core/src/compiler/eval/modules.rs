@@ -57,7 +57,7 @@ fn eval_imported_file(
     let mut global = Scope::new();
     // P694 — `make_stdlib` precisa de `SysInputs` (vêm do `World`); módulos
     // importados vêem os mesmos `sys.inputs` do documento principal.
-    let stdlib = super::make_stdlib(&engine.world.inputs());
+    let stdlib = super::make_stdlib_with_features(&engine.world.inputs(), ctx.features);
     // P709 — `std` também tem de existir aqui: um ficheiro importado (ex.
     // `cetz`) que sombreia um builtin (`#let length = ...`) precisa de
     // `std.length` para aceder à versão não-sombreada, exactamente como o

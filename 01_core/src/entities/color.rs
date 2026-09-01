@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash 56c71e6f
+//! @prompt-hash 49ec8a28
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -730,6 +730,58 @@ impl Color {
             c0[3] + (c1[3] - c0[3]) * t,
         ];
         Color::from_vec4_in_space(mixed, space)
+    }
+
+    /// Redução ponderada usada pela superfície variádica de `color.mix`.
+    /// Permanece interna ao crate; a API pública binária acima não muda.
+    pub(crate) fn mix_weighted(
+        colors: &[(Self, f32)],
+        space: Option<ColorSpace>,
+    ) -> Option<Self> {
+        let total: f32 = colors.iter().map(|(_, weight)| *weight).sum();
+        if total <= 0.0 || !total.is_finite() {
+            return None;
+        }
+        let space = space.unwrap_or(ColorSpace::Oklab);
+        let hue_idx = match space {
+            ColorSpace::Oklch => Some(2),
+            ColorSpace::Hsl | ColorSpace::Hsv => Some(0),
+            _ => None,
+        };
+        if hue_idx.is_some() && colors.len() > 2 {
+            return None;
+        }
+        if colors.is_empty() {
+            return None;
+        }
+
+        if let Some(idx) = hue_idx {
+            if colors.len() == 1 {
+                return Some(colors[0].0.to_space(space));
+            }
+            let mut first = colors[0].0.to_vec4_in_space(space);
+            let mut second = colors[1].0.to_vec4_in_space(space);
+            if (first[idx] - second[idx]).abs() > 180.0 {
+                if first[idx] < second[idx] {
+                    first[idx] += 360.0;
+                } else {
+                    second[idx] += 360.0;
+                }
+            }
+            let mixed = [0, 1, 2, 3].map(|component| {
+                (first[component] * colors[0].1 + second[component] * colors[1].1) / total
+            });
+            return Some(Self::from_vec4_in_space(mixed, space));
+        }
+
+        let mut mixed = [0.0_f32; 4];
+        for (color, weight) in colors {
+            let components = color.to_vec4_in_space(space);
+            for index in 0..4 {
+                mixed[index] += components[index] * *weight / total;
+            }
+        }
+        Some(Self::from_vec4_in_space(mixed, space))
     }
 
     /// **P744** — negação no espaço indicado (default Oklab). Converte para o

@@ -168,6 +168,8 @@ fn base_math_class(content: &Content) -> MathClass {
         | Content::StateUpdate(_)
         | Content::StateDisplay(_)
         | Content::CounterDisplayCallback(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
         | Content::ContextBlock(_)
         | Content::Dynamic(_)
         | Content::HtmlElem(_) => MathClass::Normal,

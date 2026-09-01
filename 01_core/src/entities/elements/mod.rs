@@ -83,6 +83,8 @@ pub mod quote;
 pub mod r#ref;
 // Lote 9 P324 — por largura (5 variantes element-shaped).
 pub mod cite;
+pub mod pdf_artifact;
+pub mod pdf_attach;
 pub mod place;
 pub mod smartquote;
 pub mod stack;

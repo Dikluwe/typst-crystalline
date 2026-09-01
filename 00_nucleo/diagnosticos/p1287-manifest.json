@@ -1,0 +1,85 @@
+{
+  "schema": "tekt-segregated-contract/v1",
+  "contract_id": "P1287-GLOBAL-PARITY-v1",
+  "created_at": "2026-08-30T22:29:57-03:00",
+  "regime": "full; capability-segregated without strong host isolation",
+  "scope": "Bilateral language parity against pinned vanilla for required corpus, inventories and exporters; no byte-level or unenumerated whole-language claim.",
+  "inputs": {
+    "AGENTS.md": "bc50c0c6d54c0e301a5fe3c5c5869dbeef8fdf624096b0fa20185122c64d7da0",
+    "00_nucleo/materialization/typst-passo-1287.md": "eb0622dd0fe195dfb4ed0dcdae079d0bc8c0162837531358a3598b7c9f0e32a8",
+    "00_nucleo/diagnosticos/p1287-vanilla-measurement-receipt.md": "3bbba47235e4865bb3c9e788bb709215dd0a53297ee587d4334a01ca42126cd6",
+    "00_nucleo/diagnosticos/p1286-verification-receipt.md": "d02c7cdd0fa7579b7489b3862caa74ec847aaa6116dcb2d30dcc77a8e1c1fd8f",
+    "00_nucleo/diagnosticos/typst-passo-1281-relatorio.md": "6e33212c9ac5de11c3e0dd37a073dea745504f19dc3e0b33d8e4f192ba9c5555",
+    "00_nucleo/diagnosticos/typst-p1280-polar-product-promotion.md": "42d245b5606e9cc605b3965723862828a693c16c0117201a0e88e5de344bab1c",
+    "00_nucleo/diagnosticos/p1246-final-certificate-v2.tsv": "195e8413bebd9a81850bdb4f2d131df02310ffcc76c7f7cac227b6588ab6278a",
+    "00_nucleo/diagnosticos/p1247-final-certificate.tsv": "e7356842f34ca8933a0d38eee851dd3061d1c26419f26c001883756e34f74248",
+    "00_nucleo/diagnosticos/p1248-final-certificate.tsv": "b7683baff761b46bf8074639b8749953ee172ed51c07c3d2a4b9addb8d39438d",
+    "00_nucleo/diagnosticos/p1249-final-certificate.tsv": "b6e29b625008f796e9c770f8cfa11ebb0536a03f2dd95c784ec465fea2e20f6e",
+    "00_nucleo/diagnosticos/p1254-final-certificate.tsv": "c96118840781518373d7d29a298420b21844cc5f50e75ee9e6709beeccc6b9f6",
+    "skill": "33a32f7bc439de3fe3aa530bd65518e512a93f40152c91b2ace0789de34a3a56",
+    "papeis-e-capacidades": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417",
+    "artefatos-e-gates": "bf218259b4454974bf8889ce319e04c0c7ec668b9a542d0eb3b4d0492a623963"
+  },
+  "baseline": {
+    "source": "upstream/main a51e02804", "executable": "/usr/local/bin/typst", "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "identity": "Unknown: bytes pinned, association to a51e02804 not independently proved; blocks PARIDADE DEMONSTRADA until resolved."
+  },
+  "obligations": [
+    "O01 Same frozen sources, assets, features, timestamp, jobs, options, fonts, locale and environment on both sides; record commands, exits, diagnostics, artifact/tool/binary hashes, HEAD, tree, and time.",
+    "O02 Classify every required observable separately at semantics, syntax or morphology; bytes/mechanics gate only when publicly observable.",
+    "O03 Execute complete standard and HTML inventories and all minimum cases, with no missing, duplicate, stale or unclassified row.",
+    "O04 Malformed output, unsupported parser, missing dependency, unilateral observation, ambiguous identity, budget or harness/provenance failure is Unknown, never success.",
+    "O05 Repeat forward and reverse; classifications and canonical observable digests must agree.",
+    "O06 Reject every valid semantic mutation before seal: mutation_score=1.0; deliberate opacity remains Unknown.",
+    "O07 Verify protected hashes before/after every phase; drift invalidates downstream evidence.",
+    "O08 Emit exactly one global verdict; test/path/format/pixel counts are not a language-parity percentage."
+  ],
+  "classifications": {
+    "Preserved": "Valid bilateral observation with adequate provenance and harness is equivalent in declared language semantics, syntax and morphology.",
+    "Violated": "Reproducible provenance-valid bilateral witness differs at language level, including a public diagnostic when it is the observable.",
+    "Unknown": "Identity, fixture, parser, dependency, bilateral execution, provenance, coverage or budget prevents decision; Unknown is never success.",
+    "NotApplicable": "Predeclared observable is structurally irrelevant; it cannot hide a required capability and never counts as Preserved.",
+    "case_fold": "Violated if any required observable is Violated; else Unknown if any is Unknown; else Preserved if all are Preserved/justified NotApplicable and at least one is Preserved; otherwise NotApplicable.",
+    "guards": "Malformed vanilla is Unknown even if reproduced; Available/BaselineOnly never implies Preserved."
+  },
+  "observables": {
+    "language": ["accept/reject", "public diagnostics", "content/value/order", "Unicode/bidi", "morphological style", "geometry/pagination", "counter/reference/query/eval", "links/destinations"],
+    "PNG": ["decode", "pages/order", "dimensions", "color/alpha", "decoded RGBA morphology", "text/image/gradient geometry"],
+    "PDF": ["parse", "pages/order/boxes", "text/order", "links/destinations", "font identity/embedding/subset/Unicode separately", "attachments/artifacts", "tagging/Marked/structure tree separately"],
+    "SVG": ["XML", "node/resource graph", "geometry/transforms", "paint/alpha/mask/clip/fill-rule", "gradient/color space", "image payload/MIME/orientation/fit", "glyph identity/outline", "links/bundle", "determinism"],
+    "HTML": ["parse/target", "semantic content/order", "links/resources", "target morphology"]
+  },
+  "minimum_corpus": {
+    "C01": "ASCII, combining Unicode, non-Latin, emoji", "C02": "LTR/RTL mixed bidi", "C03": "nested bold/italic/emphasis", "C04": "inline/display math, scripts, fractions, symbols",
+    "C05": "tables/grids with span/alignment", "C06": "columns, floats/place, footnotes", "C07": "counters, labels, references, internal/external links", "C08": "raster, SVG/SVGZ, opaque/unsupported images and dependencies",
+    "C09": "linear/radial/conic/tiling gradients in required color spaces", "C10": "single/multi-page pagination", "C11": "metadata/heading/figure and empty queries", "C12": "eval values and valid/invalid diagnostics"
+  },
+  "minimum_exporters": {
+    "E01": "PNG plain focal 144 PPI twice", "E02": "PDF plain timestamp 0; text, boxes, font and accessibility axes separate", "E03": "SVG plain deterministic XML",
+    "E04": "SVG Linear/Radial x Luma/CMYK", "E05": "SVG Conic separately per supported color space", "E06": "SVG tiling with content/image/gradient", "E07": "SVG/bundle same-page, cross-page and cross-file links",
+    "E08": "SVG PNG/JPEG/GIF/WebP/SVG/SVGZ/PDF-image/external/unsupported", "E09": "SVG glyph collisions, missing font, fontless wrapper", "E10": "SVG alpha, masks, nested clip, even-odd", "E11": "HTML standalone semantics/resources/links"
+  },
+  "png_focal_tolerance": {
+    "default": "Exact decoded RGBA; no general pixel, percent, channel, SSIM, geometry or antialias tolerance.", "only_case": "E01",
+    "rule": "Before candidate comparison, an independent oracle author freezes a SHA-pinned mask of <=11 coordinates, vanilla and allowed candidate RGBA per coordinate, and a root-cause witness proving rasterizer-edge variation rather than language morphology. Both images must be 1191x1684 RGBA, all non-raster observables Preserved, every difference in-mask matching its allowed pair, and zero outside. Otherwise exact equality applies.",
+    "non_generalization": "Never transfers to another fixture/PPI/size/exporter/global claim or excuses geometry, content, order, color-role or alpha changes."
+  },
+  "coverage_sufficient": [
+    "All C01-C12 and E01-E11 run bilaterally with frozen fixtures/tools; standard and HTML inventories are complete.",
+    "Every required observable has a witness and none is Unknown; NotApplicable is justified and removes no required capability.",
+    "Forward/reverse agree, protected hashes stay fixed, mutation_score=1.0. This checklist, never a percentage, defines sufficiency."
+  ],
+  "global_verdict": [
+    "1 If >=1 provenance-valid reproducible language Violated exists: PARIDADE PARCIAL; list all known differences and remaining Unknown.",
+    "2 Else if zero language Violated, coverage is sufficient, baseline identity is proved and no decision-critical harness/provenance defect exists: PARIDADE DEMONSTRADA with limits.",
+    "3 Else: INCONCLUSIVO; identify the harness, coverage, identity or provenance blocker. Exactly one verdict; green focal matrix alone never proves parity."
+  ],
+  "roles": {
+    "contract_author": "Reads pinned inputs; writes manifest/receipt only; no candidate/L0/tests/oracles/baselines/attacks/verdict.",
+    "oracle_author": "Reads frozen manifest/receipt/spec/baseline/fixtures; freezes oracles before candidate access; no contract/verdict.",
+    "adversary": "Reads frozen contract/baseline/oracles; writes attacks/receipt; no fixes/contract/verdict.",
+    "implementer": "Reads sealed contract/authorized L0; writes candidate/tests; no contract/baseline/oracle/attack/verdict.",
+    "verifier": "Reads frozen artifacts/outputs; writes receipt/certificate only; cannot correct verified material."
+  },
+  "freeze": "No oracle author may begin until p1287-contract-receipt.md records this SHA-256. Any byte change invalidates downstream oracle, attack, seal, candidate and verdict."
+}

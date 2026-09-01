@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations.md
-//! @prompt-hash 76b8c8e9
+//! @prompt-hash 1e5539d1
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -11,6 +11,7 @@
 pub mod cast;
 pub mod color;
 pub mod datetime;
+pub mod float;
 pub mod int;
 pub mod path;
 pub mod query;
@@ -28,6 +29,9 @@ pub use color::{
     native_oklch, native_rgb,
 };
 pub use datetime::datetime_type_field;
+pub(crate) use float::{
+    dispatch_float_method, float_type_field, is_float_instance_method,
+};
 pub use int::int_type_field;
 pub(crate) use int::{dispatch_int_method, is_int_instance_method};
 pub use path::{native_path, read_path_value, resolve_path_value};

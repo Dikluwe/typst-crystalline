@@ -276,3 +276,46 @@ atualizar este L0 antes do código.
 Testes RED→GREEN: um heading retorna um `Content::Heading` com corpo e nível;
 dois headings preservam ordem; selector inválido retorna diagnóstico; selector
 sem matches retorna vetor vazio.
+
+## P1285 — resultados locatáveis não-heading
+
+### Medição anterior à decisão
+
+Em 2026-08-30, sobre HEAD
+`53d21c5a602f4045a769a0ab0c935baa5ecd3b88`, o consumer estava sem diff local.
+As sondas públicas do subcomando recuperaram `Content::Metadata` e
+`Content::Figure` e só falharam depois, no serializer L2 com
+`query serialization currently supports headings only`. Logo a limitação
+observada não está na recuperação L3. Na fonte pinada do vanilla,
+`typst-cli/src/query.rs:71-123` recupera qualquer selector locatável, preserva
+ordem e entrega os `Content` ao serializer genérico.
+
+Classificação ADR-0107/0108: a lista e ordem de elementos recuperados são
+semântica/morfologia; `Introspector`, `element_at` e a divisão L2/L3 são
+mecânica livre. A inferência de que o helper já é suficientemente genérico
+seria refutada por um kind locatável presente no `Introspector` cuja location
+não pudesse ser resolvida para `Content`.
+
+### Decisão
+
+A garantia heading-only de P1137-I-001 é substituída: `query_elements` aceita
+todo selector simples já reconhecido por `ParsedSelector` que corresponda a
+elementos locatáveis no `Introspector`, e labels que resolvam para qualquer
+desses elementos. Para cada location, devolve o `Content` original em ordem
+documental. Quando o `LabelRegistry` associa a location a uma label explícita,
+o helper preserva esse metadado envolvendo o resultado em `Content::Label`
+com o elemento original como body; isso é transporte morfológico para L2, não
+um match adicional nem um elemento extra. Não filtra por variante e não
+prepara JSON/YAML em L3.
+
+Kinds deliberadamente não locatáveis que só possuem contagem aproximada no
+helper histórico de resumo não são promovidos artificialmente a `Content`.
+Texto e regex continuam não locatáveis. Selectors complexos permanecem fora do
+parser L3 enquanto não tiverem contrato próprio; isto não autoriza devolver
+um heading substituto nem perder silenciosamente um elemento locatável.
+
+Aceitação: heading permanece controlo; figure, equation e metadata são
+testemunhas não-heading obrigatórias; labels para esses kinds preservam o mesmo
+elemento; zero matches devolve vetor vazio; selector não locatável ou inválido
+continua diagnóstico. Serialização e `--field` pertencem exclusivamente ao
+owner L2 `shell/cli.md`.

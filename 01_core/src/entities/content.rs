@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash ba7b6e7f
+//! @prompt-hash 8676a7e4
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -105,6 +105,8 @@ use crate::entities::elements::hide::HideElem;
 use crate::entities::elements::image::ImageElem;
 use crate::entities::elements::outline::OutlineElem;
 use crate::entities::elements::pad::PadElem;
+use crate::entities::elements::pdf_artifact::PdfArtifactElem;
+use crate::entities::elements::pdf_attach::PdfAttachElem;
 use crate::entities::elements::place::PlaceElem;
 use crate::entities::elements::quote::QuoteElem;
 use crate::entities::elements::r#ref::RefElem;
@@ -660,6 +662,12 @@ pub enum Content {
     /// **Modelo D (Lote 9 P324)**: `entities::elements::smartquote::SmartQuoteElem`
     /// (não-locatável, leaf).
     SmartQuote(Arc<SmartQuoteElem>),
+
+    /// Marker invisível de attachment, coletado pelo layout.
+    PdfAttach(Arc<PdfAttachElem>),
+
+    /// Conteúdo visual preservado como artifact semântico no PDF.
+    PdfArtifact(Arc<PdfArtifactElem>),
 
     // ── Passo 284 (ADR-0054 graded) — text decoration ─────────────────────
     //
@@ -1236,6 +1244,8 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::TermItem(ti) => write!(f, "term.item({:?})", ti),
         Content::Quote(q) => write!(f, "quote({:?})", q),
         Content::SmartQuote(_) => write!(f, "smart.quote"),
+        Content::PdfAttach(_) => write!(f, "pdf.attach"),
+        Content::PdfArtifact(a) => write!(f, "pdf.artifact({:?})", a),
         Content::Underline(u) => write!(f, "underline({:?})", u),
         Content::Strike(s) => write!(f, "strike({:?})", s),
         Content::Overline(o) => write!(f, "overline({:?})", o),
@@ -1350,6 +1360,8 @@ impl Content {
             Self::TermItem(_) => "term.item",
             Self::Quote(_) => "quote",
             Self::SmartQuote(_) => "smart.quote",
+            Self::PdfAttach(_) => "pdf.attach",
+            Self::PdfArtifact(_) => "pdf.artifact",
             Self::Underline(_) => "underline",
             Self::Strike(_) => "strike",
             Self::Overline(_) => "overline",
@@ -2319,7 +2331,19 @@ impl Content {
 
     /// **Lote 9 P324** — `Content::SmartQuote` (aspa lang-aware).
     pub fn smartquote(double: bool) -> Self {
-        Self::SmartQuote(Arc::new(SmartQuoteElem { double }))
+        Self::SmartQuote(Arc::new(SmartQuoteElem {
+            double,
+            alternative: None,
+            quotes: None,
+        }))
+    }
+
+    pub fn pdf_attach(elem: PdfAttachElem) -> Self {
+        Self::PdfAttach(Arc::new(elem))
+    }
+
+    pub fn pdf_artifact(elem: PdfArtifactElem) -> Self {
+        Self::PdfArtifact(Arc::new(elem))
     }
 
     /// **Lote 9 P324** — `Content::Transform` (transformação afim 2D).
@@ -2802,6 +2826,8 @@ impl Content {
             | Self::Document { .. }
             | Self::Asset { .. }
             | Self::SmartQuote(_)
+            | Self::PdfAttach(_)
+            | Self::PdfArtifact(_)
             | Self::Underline(_)
             | Self::Strike(_)
             | Self::Overline(_)
@@ -2987,6 +3013,8 @@ impl Content {
             Self::SmallCaps { body } => body.is_empty(),
             // P287 — SmartQuote: nunca vazio (sempre emite 1 glyph).
             Self::SmartQuote(e) => e.is_empty(),
+            Self::PdfAttach(e) => e.is_empty(),
+            Self::PdfArtifact(e) => e.is_empty(),
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
             Self::Pad(e) => e.is_empty(),
             Self::Hide(e) => e.is_empty(),
@@ -3071,6 +3099,8 @@ impl Content {
             // Layouter resolve lang-aware (consumer pós-P287); plain_text
             // é vista textual sem contexto lang.
             Self::SmartQuote(e) => e.plain_text(),
+            Self::PdfAttach(e) => e.plain_text(),
+            Self::PdfArtifact(e) => e.plain_text(),
             Self::Equation(e) => e.plain_text(),
             Self::MathSequence(nodes) => nodes.iter().map(|n| n.plain_text()).collect(),
             Self::MathIdent(s) => s.to_string(),
@@ -3367,6 +3397,8 @@ impl PartialEq for Content {
             (Self::SmallCaps { body: a }, Self::SmallCaps { body: b }) => a == b,
             // Modelo D (Lote 9 P324): SmartQuote delega ao `Arc<…Elem>`.
             (Self::SmartQuote(a), Self::SmartQuote(b)) => a == b,
+            (Self::PdfAttach(a), Self::PdfAttach(b)) => a == b,
+            (Self::PdfArtifact(a), Self::PdfArtifact(b)) => a == b,
             // Passo 156C / 156L — Pad / Hide.
             // Modelo D (Lote 10 P325): Pad delega ao `Arc<…Elem>`.
             (Self::Pad(a), Self::Pad(b)) => a == b,
@@ -3432,6 +3464,7 @@ impl Content {
             (Content::Linebreak(e), f) => e.get_field(f),
             (Content::Figure(e), "body") => Some(Value::Content(e.body.clone())),
             (Content::Equation(e), f) => e.get_field(f),
+            (Content::PdfArtifact(e), f) => e.get_field(f),
             (Content::Styled(child, styles), f) if styled_equation(child).is_some() => {
                 let key = match f {
                     "numbering" => Some("equation.numbering"),
@@ -3556,6 +3589,7 @@ impl Content {
 
             // Modelo D (Lote 8 P323): Quote container delega ao elemento.
             Content::Quote(e) => e.map_content(transform)?,
+            Content::PdfArtifact(e) => e.map_content(transform)?,
 
             // P284 — text decoration containers — recurse em body;
             // atributos cosméticos são Copy primitivos.
@@ -3616,6 +3650,7 @@ impl Content {
             | Content::Divider(_)
             // P287 — SmartQuote leaf (sem body — terminal).
             | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
             | Content::HSpace(_)
             | Content::VSpace(_)
             | Content::Pagebreak(_)
@@ -3796,6 +3831,7 @@ impl Content {
 
             // Modelo D (Lote 8 P323): Quote container delega ao elemento.
             Content::Quote(e) => e.map_text(transform),
+            Content::PdfArtifact(e) => e.map_text(transform),
 
             // Modelo D (Lote 4 P319): decorações delegam ao elemento
             // (contentores de prosa — map_text recurse no body).
@@ -3851,6 +3887,7 @@ impl Content {
             | Content::MathText(_)
             // P287 — SmartQuote leaf (sem texto interno — map_text não recurse).
             | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
             // Modelo D (Lote 2 P317): família math é terminal em map_text

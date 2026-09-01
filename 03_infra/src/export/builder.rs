@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 3c4fcbaa
+//! @prompt-hash b21f15f2
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -697,7 +697,11 @@ impl PdfBuilder {
         };
         let blank_doc;
         let doc = if doc.pages.is_empty() {
-            blank_doc = PagedDocument::new(vec![blank_page]);
+            blank_doc = {
+                let mut preserved = doc.clone();
+                preserved.pages.push(blank_page);
+                preserved
+            };
             &blank_doc
         } else {
             doc
@@ -833,6 +837,7 @@ impl PdfBuilder {
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
+        self.emit_attachments(doc);
         self.emit_outlines(doc);
         self.emit_info(doc);
         self.emit_xmp_metadata(doc);
@@ -1207,6 +1212,7 @@ impl PdfBuilder {
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
+        self.emit_attachments(doc);
         self.emit_outlines(doc);
         self.emit_info(doc);
         self.emit_xmp_metadata(doc);
@@ -1702,6 +1708,7 @@ impl PdfBuilder {
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
+        self.emit_attachments(doc);
         self.emit_outlines(doc);
         self.emit_info(doc);
         self.emit_xmp_metadata(doc);
@@ -2127,6 +2134,87 @@ impl PdfBuilder {
                 new.push_str(&format!(" /Names {names_id} 0 R"));
                 new.push_str(&s[idx..]);
                 *content = new.into_bytes();
+            }
+        }
+    }
+
+    /// P1286 — materializa os carriers `pdf.attach` como EmbeddedFiles.
+    ///
+    /// A relação associada ao ficheiro permanece no domínio para futuros
+    /// perfis PDF/A, mas o export normal espelha o vanilla e não escreve
+    /// `/AFRelationship` nem `/AF`.
+    fn emit_attachments(&mut self, doc: &PagedDocument) {
+        if doc.attachments.is_empty() {
+            return;
+        }
+
+        let mut attachments = doc.attachments.clone();
+        attachments.sort_by(|a, b| a.path.cmp(&b.path));
+        let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+        let mut names = String::from("<< /Names [");
+
+        for attachment in attachments {
+            let embedded_id = next_id;
+            let filespec_id = next_id + 1;
+            next_id += 2;
+
+            let subtype = attachment
+                .mime_type
+                .as_deref()
+                .map(|mime| format!(" /Subtype {}", pdf_name(mime)))
+                .unwrap_or_default();
+            let mut stream = format!(
+                "<< /Type /EmbeddedFile{subtype} /Length {} >>\nstream\n",
+                attachment.data.len()
+            )
+            .into_bytes();
+            stream.extend_from_slice(attachment.data.as_slice());
+            stream.extend_from_slice(b"\nendstream");
+            self.add_bytes(embedded_id, stream);
+
+            let filename = attachment.path.as_str();
+            let description = attachment
+                .description
+                .as_deref()
+                .map(|value| format!(" /Desc {}", escape_pdf_literal(value)))
+                .unwrap_or_default();
+            self.add(
+                filespec_id,
+                format!(
+                    "<< /Type /Filespec /F {} /UF {} /EF << /F {embedded_id} 0 R >>{description} >>",
+                    escape_pdf_literal(filename),
+                    utf16be_hex_string(filename),
+                ),
+            );
+            names.push_str(&format!(
+                "{} {filespec_id} 0 R ",
+                escape_pdf_literal(filename)
+            ));
+        }
+
+        names.push_str("] >>");
+        let embedded_names_id = next_id;
+        self.add(embedded_names_id, names);
+
+        let existing_names_id = self
+            .objects
+            .iter()
+            .find(|(id, _)| *id == 1)
+            .and_then(|(_, content)| pdf_indirect_ref_after(content, "/Names"));
+        if let Some(names_id) = existing_names_id {
+            if let Some((_, content)) =
+                self.objects.iter_mut().find(|(id, _)| *id == names_id)
+            {
+                insert_pdf_dict_entry(
+                    content,
+                    &format!(" /EmbeddedFiles {embedded_names_id} 0 R"),
+                );
+            }
+        } else {
+            let names_id = embedded_names_id + 1;
+            self.add(names_id, format!("<< /EmbeddedFiles {embedded_names_id} 0 R >>"));
+            if let Some((_, catalog)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+                insert_pdf_dict_entry(catalog, &format!(" /Names {names_id} 0 R"));
             }
         }
     }
@@ -2577,6 +2665,7 @@ impl PdfBuilder {
                         children: vec![],
                     })
                 }
+                SemanticKind::Artifact(_)
                 | SemanticKind::ExplicitLinebreakBoundary
                 | SemanticKind::ParbreakBoundary => None,
             }
@@ -2591,7 +2680,10 @@ impl PdfBuilder {
         ) {
             match item {
                 FrameItem::Semantic { kind, items, .. } => {
-                    let artifact = false;
+                    let artifact = matches!(
+                        kind,
+                        typst_core::entities::layout_types::SemanticKind::Artifact(_)
+                    );
                     if !inside_artifact {
                         if let Some(node) = semantic_node(item, page_index, next) {
                             out.push(node);
@@ -3002,6 +3094,29 @@ fn escape_pdf_literal(s: &str) -> String {
     }
     out.push(')');
     out
+}
+
+/// Codifica uma string como PDF name, escapando delimitadores por `#XX`.
+fn pdf_name(value: &str) -> String {
+    let mut out = String::from("/");
+    for byte in value.bytes() {
+        if matches!(byte, b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'+')
+        {
+            out.push(byte as char);
+        } else {
+            out.push_str(&format!("#{byte:02X}"));
+        }
+    }
+    out
+}
+
+fn pdf_indirect_ref_after(content: &[u8], key: &str) -> Option<usize> {
+    let text = String::from_utf8_lossy(content);
+    let tail = text.split_once(key)?.1.trim_start();
+    let id = tail.split_whitespace().next()?.parse::<usize>().ok()?;
+    let mut parts = tail.split_whitespace();
+    let _ = parts.next();
+    (parts.next() == Some("0") && parts.next() == Some("R")).then_some(id)
 }
 
 /// Escapa o nome de um destino PDF. Se contiver caracteres fora do conjunto

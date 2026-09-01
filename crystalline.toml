@@ -38,6 +38,7 @@ clippy_toml  = "clippy.toml"
 rustfmt_toml = "rustfmt.toml"
 contributing = "CONTRIBUTING.md"
 dockerfile   = "Dockerfile"
+p1286_contract = "04_wiring/tests/p1286_contract.rs" # artefato de verificação congelado, não consumer produtivo
 
 # Rust module name → layer
 [module_layers]
@@ -169,6 +170,11 @@ types = ["syntax", "extra_no_newlines"]  # P785a
 # strings, sem I/O. Cadeia construída por chamada (L1 proíbe estado global).
 [l1_allowed_external.lipsum]
 types = ["MarkovChain", "LOREM_IPSUM", "LIBER_PRIMUS", "new", "learn", "iter_from"]
+
+# P1283 — fonte declarativa exata usada pelo vanilla ratificado. Apenas dados
+# imutáveis e tipos de travessia do catálogo; sem I/O nem estado global mutável.
+[l1_allowed_external.codex]
+types = ["Def", "Module", "ModifierSet", "Symbol", "SYM", "EMOJI"]
 
 # P937 — mmap como referência estável de bytes sem cópia. L1 apenas recebe o
 # tipo já construído por L3; nunca cria mmap nem faz I/O de ficheiros.

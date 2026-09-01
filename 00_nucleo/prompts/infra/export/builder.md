@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 0327af88
+Hash do Código: 7d431140
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -763,3 +763,65 @@ canônica antes da serialização, sem referências futuras ausentes.
 Com `PdfTags::Disabled`, não emitir nenhum desses objetos/chaves. A presença
 da estrutura não constitui declaração de PDF/UA; P1140.6 apenas mede
 validadores externos e não adiciona opção pública de conformidade.
+
+## P1286 — embedded files e exclusão de artifacts da structure tree
+
+### Medição anterior à decisão
+
+O vanilla coleta `AttachElem` globalmente e cria EmbeddedFile/Filespec
+(`typst-pdf/src/attach.rs:13-67`). O receipt mediu nome e bytes extraídos,
+`/Desc`, MIME, `/AFRelationship /Supplement` em PDF/A-3b e erro de path
+duplicado. A árvore cristalina atual constrói somente StructElem de Formula.
+
+### Decisão condicionada ao gate
+
+O builder consome `PagedDocument.attachments` em ordem, aloca stream
+`/Type /EmbeddedFile`, Filespec com nome e `EF`, e name tree
+`/EmbeddedFiles` no catálogo. Bytes são preservados; description e MIME são
+emitidos somente quando presentes. A pipeline rejeita nomes derivados
+duplicados antes do builder. Relationship é preservada no carrier; emissão
+dependente de PDF/A-3 permanece `Unknown` enquanto não existir configuração
+de standard, e não pode ser alegada como fechada por PDF normal.
+
+Se o documento tiver attachments mas nenhum frame visual, a página branca
+de compatibilidade é adicionada sem reconstruir nem descartar os metadados do
+`PagedDocument`; attachment-only continua exportável.
+
+Na pré-passagem de tagging, `SemanticKind::Artifact(_)` recursa para manter a
+ordem de pintura, mas não aloca MCID, `StructElem` ou ParentTree para si nem
+para descendentes enquanto o envelope estiver ativo. Formula fora de artifact
+conserva P1140.6.
+
+## P1288 — structure tree acessível de tabela (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`03_infra/src/export/builder.rs:2522-2655` constrói hoje somente
+Document→Formula e ParentTree por página. A fonte vanilla pinada mede summary
+em `typst-pdf/src/tags/context/table.rs:129-135`, resolução de headers por
+level/scope em `:197-239,374-440` e tags/spans em `:289-353`.
+
+### Decisão proposta
+
+Quando tags estão enabled, ampliar a pré-passagem para materializar a árvore:
+Table→TR→TD para tabela simples; Table→THead/TBody→TR→TH/TD para header
+automático uniforme; e TR direta para linha explicitamente mista, com:
+
+- summary presente somente em `/Table`, distinguindo ausência de string vazia;
+- TH com scope Row/Column/Both e IDs determinísticos; `level` resolve relações,
+  mas não é emitido como atributo numérico;
+- TD/TH com rowspan/colspan quando diferentes de um;
+- referências de headers calculadas por ordem, scope e level, sem promover
+  Data explícita em header;
+- um único TH lógico para cópias visuais de header multipágina, sem duplicar
+  THead, IDs ou relações;
+- `StructParents` próprio por página, MCIDs reiniciados em zero por página e
+  `ParentTree /Nums` associando cada página ao array em ordem de MCID, sem
+  referências órfãs;
+- `/MarkInfo << /Marked true /Suspects false >>` e uma única
+  `/StructTreeRoot` no catálogo tagueado.
+
+Com tags disabled, omitir `/StructTreeRoot`, `/MarkInfo` e toda a estrutura
+Table/TR/TH/TD/ParentTree associada, preservando texto, páginas, boxes e
+geometria. Não declarar PDF/UA, AT real, reflow ou acessibilidade geral; esses
+resultados permanecem Unknown e não são inferidos da estrutura positiva.

@@ -1,0 +1,123 @@
+{
+  "protocol": "tekt-materializacao-segregada/full-v1",
+  "step": {
+    "path": "00_nucleo/materialization/typst-passo-1290.md",
+    "sha256": "7aaf6183c4e5d7c51b1194b4f07046733d9f26b9cc72c441f6621a4d52590838"
+  },
+  "frozen_at": "2026-08-31T11:44:52-03:00",
+  "restart": {
+    "reason": "sealed contract invalidated at the escaped markup case containing pre-resolved smart quotes",
+    "invalidation_path": "00_nucleo/diagnosticos/p1290-seal-invalidation.json",
+    "invalidation_sha256": "c2e81e5db2810d720d80e2340cc79a600b12c3eea3725d20f342edd3e2d03d0e",
+    "invalidated_seal_sha256": "18f2329888c79d64a8459bfa507f622a710745dd94c65c7586cc5b52967c7f6e",
+    "first_affected_phase": "contract measurement for escaped markup containing smart quotes"
+  },
+  "repository": {
+    "head": "53d21c5a602f4045a769a0ab0c935baa5ecd3b88",
+    "working_tree": "uncommitted",
+    "baseline_status_path": "00_nucleo/diagnosticos/p1290-baseline-tree-state.md",
+    "baseline_status_sha256": "123a37709d24c3097eac85335fa574891c35dfbf1a21a68531c0338b231ac76b"
+  },
+  "prompt": {
+    "path": "00_nucleo/prompts/compiler/eval/repr.md",
+    "pre_p1290_sha256": "a2b35c8b3e622432b5a129a4cad0bb20ab94b450d3e793fd1441c5af6bc2775c",
+    "pre_restart_sha256": "e931f91a21f76334cd24ad155b6ec79ffdcb9ea2dcbc3555830ef8b9728e5432",
+    "frozen_sha256": "e584d5b159f04f3cf8d9a485e2c3c64b3df344520403c2407e6955f2c6b07739"
+  },
+  "baseline": {
+    "vanilla_commit": "a51e02804",
+    "vanilla_binary": "/usr/local/bin/typst",
+    "vanilla_binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "consumer_path": "01_core/src/compiler/eval/repr.rs",
+    "consumer_sha256_without_content_read": "7c56b8c79f489abe568ec3a104cae79f08dab81d9be3bccae6689a15a6589bf4",
+    "crystalline_build_command": "CARGO_TARGET_DIR=/tmp/p1290-contract-target cargo build --release --bin typst",
+    "crystalline_build_exit": 0,
+    "crystalline_binary": "/tmp/p1290-contract-target/release/typst",
+    "crystalline_binary_sha256": "acc52526e1c1cfde21c4583857330a6f64540f46caf1b7fa89c666da6deee64a",
+    "crystalline_version_output": "typst 0.15.1 (53d21c5a)",
+    "restart_policy": "reused the original frozen binary; no candidate or current-working-tree binary was read or executed",
+    "hash_reverified_at": "2026-08-31T11:43:44-03:00"
+  },
+  "cases": {
+    "path": "00_nucleo/diagnosticos/p1290-contract-probes.typ",
+    "sha256": "6ac1fed77e50b0ed7b7962048427be1c87ca9917d55c181a35d6ea4e01a6229b",
+    "command_template": "<binary> query 00_nucleo/diagnosticos/p1290-contract-probes.typ '<p1290-contract>' --field value --one --pretty"
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1290-contract.json",
+    "status": "candidate-produced-after-this-manifest"
+  },
+  "required_observables": [
+    "array empty, singleton and short morphology",
+    "ASCII inner-body widths 49, 50 and 51",
+    "multiline trailing comma and two-space recursive indentation",
+    "MathOp text then limits field order and presence",
+    "limits false and true",
+    "native csc, dim and compound arcsin",
+    "user math.op string, content, markup and escaping without pre-resolved SmartQuote provenance",
+    "non-MathOp sum control"
+  ],
+  "unknown_policy": {
+    "default": "Unknown",
+    "rule": "Unknown is never converted to Preserved implicitly",
+    "explicit_unknowns": [
+      "the width-counting unit for non-ASCII representations",
+      "SmartQuote provenance already resolved into Content::Text glyphs by an earlier markup phase",
+      "math members and content forms not enumerated by the frozen probes",
+      "opaque or parser-unsupported constructions",
+      "equivalence outside the exact public repr fragment"
+    ]
+  },
+  "roles": {
+    "contract_author": {
+      "executor": "Codex agent /root/p1290_contract",
+      "environment": "shared repository; isolated cargo target /tmp/p1290-contract-target",
+      "read_allowlist": [
+        "tekt-materializacao-segregada SKILL.md and two required references",
+        "00_nucleo/materialization/typst-passo-1290.md",
+        "00_nucleo/prompts/compiler/eval/repr.md",
+        "00_nucleo/diagnosticos/p1290-seal-invalidation.json",
+        "ADR-0107, ADR-0108, ADR-0127 and ADR-0129",
+        "repository status/stat/hash metadata without source content",
+        "/usr/local/bin/typst behavior",
+        "original crystalline baseline binary frozen before implementation"
+      ],
+      "read_denylist": [
+        "01_core/src/compiler/eval/repr.rs contents",
+        "candidate patches or implementations",
+        "candidate tests and oracles",
+        "other materialization steps",
+        "implementation or verification receipts"
+      ],
+      "write_allowlist": [
+        "00_nucleo/prompts/compiler/eval/repr.md",
+        "00_nucleo/diagnosticos/p1290-*",
+        "/tmp/p1290-contract-target",
+        "/tmp/p1290-contract-probe.typ"
+      ],
+      "context_inherited": "parent task instructions limited to the invalidation restart of P1290 phases 1-2",
+      "forbidden_outputs": ["Rust code", "tests", "oracles", "mutations", "verdict", "consumer header reseal"]
+    },
+    "oracle_author": {
+      "read_allowlist": ["frozen prompt", "this manifest", "canonical contract"],
+      "write_allowlist": ["separate p1290 oracle artifacts only"],
+      "deny": ["candidate patch", "implementation-private outputs"]
+    },
+    "adversary": {
+      "read_allowlist": ["frozen prompt", "this manifest", "canonical contract", "vanilla baseline"],
+      "write_allowlist": ["separate p1290 mutation artifacts only"],
+      "deny": ["solution authoring", "contract edits", "verdict edits"]
+    },
+    "implementer": {
+      "read_allowlist": ["frozen prompt", "sealed contract after future gate"],
+      "write_allowlist": ["01_core/src/compiler/eval/repr.rs and own tests after seal"],
+      "deny": ["manifest", "contract", "protected oracles", "verdict"]
+    },
+    "verifier": {
+      "read_allowlist": ["sealed artifacts and candidate outputs"],
+      "write_allowlist": ["verification receipt and certificate only"],
+      "deny": ["correcting artifacts under judgment"]
+    }
+  },
+  "attestation_limit": "This manifest records declared capabilities; the shared filesystem cannot itself attest enforced read isolation."
+}

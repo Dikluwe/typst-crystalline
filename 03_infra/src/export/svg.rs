@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash bc81b63a
+//! @prompt-hash d5f3bf56
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -1475,9 +1475,27 @@ fn render_shape(
             xml.end_element();
         }
         ShapeKind::Path(items) => {
-            let d = path_items_to_svg(items, pos);
             xml.start_element("path");
-            xml.write_attribute("d", &d);
+            if let [PathItem::MoveTo(start), PathItem::LineTo(end)] = items.as_slice() {
+                xml.write_attribute(
+                    "transform",
+                    &format!(
+                        "translate({} {})",
+                        fmt_num(pos.x.0 + start.x.0),
+                        fmt_num(pos.y.0 + start.y.0),
+                    ),
+                );
+                xml.write_attribute(
+                    "d",
+                    &format!(
+                        "M 0 0 l {} {}",
+                        fmt_num(end.x.0 - start.x.0),
+                        fmt_num(end.y.0 - start.y.0),
+                    ),
+                );
+            } else {
+                xml.write_attribute("d", &path_items_to_svg(items, pos));
+            }
             if fill_rule == typst_core::entities::geometry::FillRule::EvenOdd {
                 xml.write_attribute("fill-rule", "evenodd");
             }
@@ -2632,9 +2650,9 @@ mod tests {
     fn text_shaped_emits_glyph_paths_not_text() {
         // NotoSans-Regular tem glifo 0 (.notdef) com outline; usamo-lo
         // como canário para confirmar que TextShaped gera <use>/<symbol>.
-        let font_data = include_bytes!(
-            "../../../lab/krilla-reference/assets/fonts/NotoSans-Regular.ttf"
-        ) as &[u8];
+        // Origem/licença: 03_infra/fixtures/fonts/LICENSE-NotoSans.md.
+        let font_data =
+            include_bytes!("../../fixtures/fonts/NotoSans-Regular.ttf") as &[u8];
         let font_list = FontList::single(EcoString::from("noto sans"));
         let variant = FontVariant::default();
         let variations = FontVariations::default();

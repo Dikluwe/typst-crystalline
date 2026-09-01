@@ -1,0 +1,86 @@
+{
+  "schema_version": "tekt-ab-p1289-oracle-baseline-v3",
+  "contract_id": "C-P1289-FLOAT-IS-INFINITE-v3",
+  "manifest_path": "00_nucleo/diagnosticos/p1289-manifest.json",
+  "manifest_sha256": "1bd7c90a45f9cc2a2301eaab89405915d5dfc7d74627508325ca0124c50167ca",
+  "baseline": {
+    "path": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "unknown_policy": "Identity ambiguity, unsupported parser, unilateral execution or exhausted budget is Unknown and never success. No frozen case is initially Unknown.",
+  "observables": [
+    {
+      "id": "presence-repr-static",
+      "expression": "repr((type(float.is-infinite), repr(float.is-infinite)))",
+      "exit_code": 0,
+      "stdout": "(function, \"is-infinite\")"
+    },
+    {
+      "id": "static-values",
+      "expression": "(float.is-infinite(0.0), float.is-infinite(42.5), float.is-infinite(float(\"1e999\")), float.is-infinite(-float(\"1e999\")), float.is-infinite(float(\"NaN\")))",
+      "exit_code": 0,
+      "stdout": [false, false, true, true, false]
+    },
+    {
+      "id": "bound-values",
+      "expression": "((0.0).is-infinite(), (42.5).is-infinite(), (float(\"1e999\")).is-infinite(), (-float(\"1e999\")).is-infinite(), (float(\"NaN\")).is-infinite())",
+      "exit_code": 0,
+      "stdout": [false, false, true, true, false]
+    },
+    {
+      "id": "integer-coercion",
+      "expression": "float.is-infinite(0)",
+      "exit_code": 0,
+      "stdout": false
+    },
+    {
+      "id": "missing-self",
+      "expression": "float.is-infinite()",
+      "exit_code": 1,
+      "diagnostic": "missing argument: self"
+    },
+    {
+      "id": "static-extra",
+      "expression": "float.is-infinite(1.0, 2.0)",
+      "exit_code": 1,
+      "diagnostic": "unexpected argument"
+    },
+    {
+      "id": "static-named",
+      "expression": "float.is-infinite(1.0, foo: 2)",
+      "exit_code": 1,
+      "diagnostic": "unexpected argument: foo"
+    },
+    {
+      "id": "wrong-self-type",
+      "expression": "float.is-infinite(\"x\")",
+      "exit_code": 1,
+      "diagnostic": "expected float, found string"
+    },
+    {
+      "id": "bound-extra",
+      "expression": "(1.0).is-infinite(2.0)",
+      "exit_code": 1,
+      "diagnostic": "unexpected argument"
+    },
+    {
+      "id": "bound-named",
+      "expression": "(1.0).is-infinite(foo: 2)",
+      "exit_code": 1,
+      "diagnostic": "unexpected argument: foo"
+    },
+    {
+      "id": "bound-value-absent",
+      "expression": "repr((type((1.0).is-infinite), repr((1.0).is-infinite)))",
+      "exit_code": 1,
+      "diagnostic": "cannot access fields on type float"
+    }
+  ],
+  "required_mutations": [
+    "always_false",
+    "nan_is_infinite",
+    "accept_extra_or_unknown_named",
+    "qualified_repr",
+    "presence_without_call"
+  ]
+}

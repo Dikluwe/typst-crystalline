@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 6daf5fa2
+Hash do Código: 4e71df02
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -245,3 +245,83 @@ Medição vanilla: `emoji.heart.arrow` → `💘`, `emoji.heart.excl` → `❣�
 `eval_value_field_access` continua a delegar em `Symbol::modified`; o valor
 selecionado passa a ser o `EcoString` integral da variant, sem alterar a
 mensagem ou o span. Não duplicar seleção de variants neste nó.
+
+## P1284 — catálogo fechado de valores-tipo, constantes e wrappers
+
+### Medição antes da decisão
+
+`C-P1284-v2` mede 180 paths residuais e exige que membros de instância sejam
+também projetados como funções não ligadas no valor-tipo. A representação
+cristalina pré-candidata já possui `Value`/`Type`/entidades suficientes para o
+lote contínuo, exceto `selector.before/after`, `color.spot/tint` e
+`outline.entry/*`, bloqueados por ADR-0127.
+
+### Decisão
+
+`eval_value_field_access(Value::Type(t), field, span)` mantém um match fechado
+e delega a descoberta ao owner semântico. Este nó possui somente o glue de
+lookup e a classificação do valor devolvido; não duplica callbacks, unidades,
+introspecção, fórmulas de cor nem mutação.
+
+| Valor-tipo | Fields autorizados em P1284 | Owner semântico / kind |
+|---|---|---|
+| `array` | 32 métodos de instância + `range` (33 fields) de `stdlib/collections` | `function` |
+| `dictionary` | os 9 métodos de `stdlib/collections` | `function` |
+| `str` | 20 métodos de instância, inclusive `to-unicode`, + `from-unicode` (21 fields) | `function`; conversões no owner `foundations/str` |
+| `bytes` | `at`, `len`, `slice` | `function`, owner `stdlib/collections` |
+| `arguments` | `at`, `filter`, `len`, `map`, `named`, `pos` | `function`, owner `stdlib/collections` |
+| `color` | catálogo vigente + `map` | `map` é `module`, delegado a `stdlib/color` |
+| `direction` | `axis`, `end`, `inv`, `sign`, `start`, `from`, `to`; `btt/ltr/rtl/ttb` | funções; quatro constantes `direction` |
+| `alignment` | `axis`, `inv`; `bottom/center/end/horizon/left/right/start/top` | funções; oito constantes `alignment` |
+| `duration` | `days`, `hours`, `minutes`, `seconds`, `weeks` | `function` |
+| `length` | `cm`, `inches`, `mm`, `pt`, `to-absolute` | `function` |
+| `selector` | `and`, `or`, `within` | `function`, owner de orchestration `value_methods` |
+| `state` | `at`, `final`, `get`, `update` | `function`, owner `stdlib/state` |
+| `location` | `page`, `page-numbering`, `position` | `function`, owner `call_dispatch` |
+
+As constantes qualificadas reutilizam o mesmo `Value` do binding global:
+`direction.rtl == rtl`, `alignment.left == left`, etc. `axis` devolve
+`"horizontal"`/`"vertical"` ou `none` para alinhamento 2D; `inv`,
+`start/end`, `sign`, `from/to` seguem as tabelas fechadas das entidades
+existentes. Nenhuma constante é embrulhada como função.
+
+Cada wrapper de instância recebe `self` como primeiro positional e encaminha
+à mesma função que a forma ligada. Nome, `repr`, ordem, required/named,
+variadic, settable e default são os do owner. Field desconhecido mantém a
+mensagem `type <nome> does not contain field <field>`; não há fallback
+reflexivo.
+
+### Gates negativos
+
+- `selector.before` e `selector.after` permanecem ausentes:
+  `BLOCKED_ADR0127_PUBLIC_CONTRACT`; não mapear para `Within`/`And`/`Or`.
+- `color.spot`, `color.spot.tint` e `outline.entry/*` permanecem bloqueados;
+  não fabricar `dict`, `none`, stub ou módulo aproximado.
+- Este L0 não autoriza campo, variante, trait, assinatura Rust pública, default
+  de produto ou mudança de fase. Se um wrapper não couber no glue interno,
+  parar no ADR-0127.
+
+### Verificação
+
+Para todo field: existência, kind, `repr`, metadata, forma ligada/não ligada,
+chamada real, defaults e erros. Sentinelas: `array.len((1,2,3)) == 3`,
+`arguments.len(arguments(1,x:2)) == 2`, `direction.rtl == rtl`,
+`alignment.left == left`, `type(color.map) == module`. A mera resolução do
+nome sem chamada real é insuficiente.
+
+## P1289 — descoberta fechada de `float.is-infinite`
+
+### Medição anterior à decisão
+
+O vanilla pinado devolve `(function, "is-infinite")` para o field do valor-tipo;
+o cristalino pré-candidato falha com
+`type float does not contain field "is-infinite"`. Chamadas ligadas existem,
+mas obter `(1.0).is-infinite` como valor continua a falhar no vanilla com
+`cannot access fields on type float`.
+
+### Decisão
+
+O braço `Value::Type(Type::Float)` delega a descoberta ao owner
+`foundations::float_type_field`. Este nó não contém a fórmula, não cria
+reflexão para `Value::Float` e não intercepta a chamada ligada. Field
+desconhecido mantém `type float does not contain field "<field>"`.

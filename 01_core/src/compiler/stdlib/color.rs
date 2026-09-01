@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/color.md
-//! @prompt-hash d7d15154
+//! @prompt-hash 5696ce76
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -12,11 +12,14 @@
 
 use ecow::EcoString;
 
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
-use crate::entities::layout_types::Color;
+use crate::entities::layout_types::{Color, ColorSpace};
+use crate::entities::module::Module;
+use crate::entities::scope::Scope;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -49,6 +52,9 @@ pub fn color_type_field(field: &str) -> Option<Value> {
         native_cmyk, native_hsl, native_hsv, native_linear_rgb, native_luma,
         native_oklab, native_oklch, native_rgb,
     };
+    if field == "map" {
+        return Some(make_color_map_module());
+    }
     let function = match field {
         "rgb" => Value::Func(Func::native("rgb", native_rgb)),
         "linear-rgb" => Value::Func(Func::native("linear-rgb", native_linear_rgb)),
@@ -75,6 +81,32 @@ pub fn color_type_field(field: &str) -> Option<Value> {
         _ => return predefined_color(field).map(Value::Color),
     };
     Some(function)
+}
+
+const COLOR_MAP_DATA: &str = include_str!("color_maps.hex");
+
+fn make_color_map_module() -> Value {
+    let mut scope = Scope::new();
+    for line in COLOR_MAP_DATA.lines() {
+        let mut fields = line.split_ascii_whitespace();
+        let Some(name) = fields.next() else {
+            continue;
+        };
+        let colors = fields
+            .map(|token| {
+                let rgba = u32::from_str_radix(token, 16)
+                    .expect("color_maps.hex is generated from the pinned vanilla source");
+                Value::Color(Color::rgba(
+                    (rgba >> 24) as u8,
+                    (rgba >> 16) as u8,
+                    (rgba >> 8) as u8,
+                    rgba as u8,
+                ))
+            })
+            .collect();
+        scope.define(name, Value::Array(colors));
+    }
+    Value::Module(Module::new("map", scope))
 }
 
 /// **P742** — os 9 métodos de instância de `Value::Color` (despacho P506
@@ -235,8 +267,8 @@ fn extract_ratio_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult
 /// constructors de cor. Erro verbatim-style do vanilla para valores inválidos.
 fn extract_color_space_arg(
     val: &Value,
-    fn_name: &str,
-    arg_name: &str,
+    _fn_name: &str,
+    _arg_name: &str,
 ) -> SourceResult<crate::entities::color::ColorSpace> {
     use crate::entities::color::ColorSpace;
     match val {
@@ -250,17 +282,13 @@ fn extract_color_space_arg(
             Some("hsl") => Ok(ColorSpace::Hsl),
             Some("hsv") => Ok(ColorSpace::Hsv),
             _ => err_typed(format!(
-                "{}: argumento '{}' deve ser um espaço de cor, recebeu {}",
-                fn_name,
-                arg_name,
-                val.type_name()
+                "expected `rgb`, `luma`, `cmyk`, `oklab`, `oklch`, `color.linear-rgb`, `color.hsl`, `color.hsv`, or spot colorant, found {}",
+                vanilla_type_name(val)
             )),
         },
         other => err_typed(format!(
-            "{}: argumento '{}' deve ser um espaço de cor, recebeu {}",
-            fn_name,
-            arg_name,
-            other.type_name()
+            "expected `rgb`, `luma`, `cmyk`, `oklab`, `oklch`, `color.linear-rgb`, `color.hsl`, `color.hsv`, or spot colorant, found {}",
+            vanilla_type_name(other)
         )),
     }
 }
@@ -321,10 +349,6 @@ pub(crate) fn native_color_mix(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let weight = match args.named.get("weight") {
-        Some(v) => extract_ratio_arg(v, "color.mix", "weight")?,
-        None => 0.5_f32,
-    };
     let space = match args.named.get("space") {
         Some(v) => Some(extract_color_space_arg(v, "color.mix", "space")?),
         None => None,
@@ -334,16 +358,59 @@ pub(crate) fn native_color_mix(
             return err(format!("color.mix(): argumento nomeado inesperado '{}'", key));
         }
     }
-    match args.items.as_slice() {
-        [col1, col2] => {
-            let c1 = extract_color_arg(col1, "color.mix", "col1")?;
-            let c2 = extract_color_arg(col2, "color.mix", "col2")?;
-            Ok(Value::Color(c1.mix(c2, weight, space)))
+    if let Some(weight_value) = args.named.get("weight") {
+        let weight = extract_ratio_arg(weight_value, "color.mix", "weight")?;
+        return match args.items.as_slice() {
+            [Value::Color(first), Value::Color(second)] => {
+                Ok(Value::Color(first.mix(*second, weight, space)))
+            }
+            _ => err("color.mix(weight:) requer exatamente duas cores sem pesos"),
+        };
+    }
+
+    fn entry(value: &Value) -> SourceResult<(Color, f32)> {
+        match value {
+            Value::Color(color) => Ok((*color, 1.0)),
+            Value::Array(values) if values.len() == 2 => {
+                let Value::Color(color) = &values[0] else {
+                    return err_typed("expected a color or color-weight pair");
+                };
+                let weight = match &values[1] {
+                    Value::Float(value) => *value as f32,
+                    Value::Int(value) => *value as f32,
+                    Value::Ratio(value) => value.get() as f32,
+                    other => {
+                        return err_typed(format!(
+                            "expected float or ratio, found {}",
+                            vanilla_type_name(other)
+                        ))
+                    }
+                };
+                Ok((*color, weight))
+            }
+            _ => err_typed("expected a color or color-weight pair"),
         }
-        _ => err(format!(
-            "color.mix() requer 2 argumentos posicionais (col1, col2), recebeu {}",
-            args.items.len()
-        )),
+    }
+
+    let colors: Vec<(Color, f32)> =
+        args.items.iter().map(entry).collect::<SourceResult<_>>()?;
+    if matches!(
+        space,
+        Some(ColorSpace::Hsl) | Some(ColorSpace::Hsv) | Some(ColorSpace::Oklch)
+    ) && colors.len() > 2
+    {
+        return err("cannot mix more than two colors in a hue-based space");
+    }
+    match Color::mix_weighted(&colors, space) {
+        Some(color) => Ok(Value::Color(color)),
+        None => {
+            let total: f32 = colors.iter().map(|(_, weight)| *weight).sum();
+            if total <= 0.0 || colors.is_empty() {
+                err("sum of weights must be positive")
+            } else {
+                err("cannot mix more than two colors in a hue-based space")
+            }
+        }
     }
 }
 
