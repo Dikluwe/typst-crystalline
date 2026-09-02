@@ -1,0 +1,69 @@
+{
+  "schema": "tekt.p1293.preservation-verification.v1",
+  "generated_at": "2026-09-02T20:21:26.103426-03:00",
+  "verdict": "PRESERVED",
+  "claim": "segregado por capacidades e artefatos, sem isolamento técnico de leitura",
+  "process_incident": "PROCESS_VIOLATION_CONFIRMED_NOT_ABSOLVED",
+  "provenance": {
+    "head": "7dd25ff0e222b6c7c640d6bc7957b98f94227507",
+    "working_tree": "uncommitted",
+    "started_at": "2026-09-02T20:10:38.679661-03:00",
+    "postflight_at": "2026-09-02T20:21:26.103426-03:00",
+    "initial_status_porcelain_sha256": "4e4b2e666c815c7dda5d48cb8f6f4e9afa9682f589dfe7f9b3a194bca30076d6",
+    "pre_receipt_diff_head_stat_sha256": "2455be7f0baa922287b036e0dcb1a0acfbc392000d56ee1dbaec278f3ee806f5",
+    "pre_receipt_diff_head_stat_summary": "63 files changed, 7291 insertions(+), 750 deletions(-)"
+  },
+  "frozen_inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1293-manifest.json",
+      "sha256": "0e2e33d8c67a77d0e261451c8ffde67a37344655e9205e8af944e628f7013fe8"
+    },
+    "seal": {
+      "path": "00_nucleo/diagnosticos/p1293-contract-seal.json",
+      "sha256": "5e9b52b970e0eaf532415fd842f8ff5472c73e857c2446f37c6e6b96f4c36455",
+      "updated_definitive_final_candidate_read_only_canonical_sha256": "04460e7920e9f87269b2594829aeb7e9cb878bd4373d1c94cb85ded45f2e8fbc"
+    },
+    "effective_inventory": {
+      "canonical_sha256": "33fe3dcd9cd287b24a82e255f7dffd2728cc76aab969ad5b049d35bbcf7b9c42",
+      "l0_and_nuclei": 32,
+      "product_test_and_oracles": 42,
+      "total": 74,
+      "preflight_matches": 74,
+      "postflight_matches": 74,
+      "mismatches": 0,
+      "preserved": true,
+      "reproduction": "Merge the original 70 maps with the final layout-tests and CLI additions, recursively sort object keys, encode compact UTF-8 JSON, then SHA-256 the canonical object and each listed path."
+    }
+  },
+  "surfaces": {
+    "default": {
+      "path": "00_nucleo/diagnosticos/p1293-surface-default.json",
+      "sha256": "72a50909525231baafbdefbbc95e2c827eaab833f1062b01f5347636fb4d1106",
+      "counts": {"total": 111, "match": 99, "different_or_disabled": 12},
+      "missing": 0,
+      "unverified": 0,
+      "unknown": 0
+    },
+    "html": {
+      "path": "00_nucleo/diagnosticos/p1293-surface-html.json",
+      "sha256": "a986b41913d0f00b3ff8a8c77def9b487603dfa0c5f1eef6cfa8b4705b180314",
+      "counts": {"total": 115, "match": 104, "different_or_disabled": 11},
+      "missing": 0,
+      "unverified": 0,
+      "unknown": 0
+    }
+  },
+  "protected_oracles": {
+    "p1292": {"path": "04_wiring/tests/p1292_contract.rs", "sha256": "5104b48ff89766e9910cd3a39eef3706fe0c8539a0fa6cb7dafcb3cf66a7484a"},
+    "p1293": {"path": "04_wiring/tests/p1293_contract.rs", "sha256": "2505aa34538067c743530f4a15feaf0a1b937c24bb51e2abdd64c1bc4151c7cb", "canonical_body_sha256": "b07eb8d6eb6bfa0a892c06bb1f5599d8e2e188963dcca821d83f4a34badfb13a"}
+  },
+  "mutation_gate": {
+    "runner": "/tmp/p1293-final-observers-runner-31.py",
+    "runner_sha256": "300b6e5cf5f65cdc3727bfa9cf781f324d75d7ba93420eb0beeb73074168d70f",
+    "result": "/tmp/p1293-final-74-results-31.json",
+    "result_sha256": "a2ae8c75b7792201c902e8c8d38e6ec2071328ebbcb10a6e09f6d7372a051e55",
+    "protected_inputs_preserved": true
+  },
+  "verified_inputs_edited_by_verifier": false,
+  "unknown_converted_to_success": false
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 9eaf493c
+//! @prompt-hash 0d853401
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -32,20 +32,105 @@ use crate::entities::{
 /// `Semantic` é transparente; `Group` e `Link` também são percorridos, mas o
 /// próprio contentor permanece na vista para testes que procuram Shapes/Groups.
 fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
-    fn walk<'a>(items: &'a [FrameItem], out: &mut Vec<&'a FrameItem>) {
+    use crate::entities::layout_types::{Pt, TransformMatrix};
+
+    fn project_point(transform: TransformMatrix, point: Point) -> Point {
+        let (x, y) = transform.apply(point.x.0, point.y.0);
+        Point { x: Pt(x), y: Pt(y) }
+    }
+
+    fn project_item<'a>(
+        item: &'a FrameItem,
+        transform: TransformMatrix,
+    ) -> &'a FrameItem {
+        if transform == TransformMatrix::identity() {
+            return item;
+        }
+
+        let mut projected = item.clone();
+        match &mut projected {
+            FrameItem::Text { pos, .. }
+            | FrameItem::TextShaped { pos, .. }
+            | FrameItem::Glyph { pos, .. }
+            | FrameItem::Image { pos, .. }
+            | FrameItem::Shape { pos, .. }
+            | FrameItem::Group { pos, .. }
+            | FrameItem::Link { pos, .. } => *pos = project_point(transform, *pos),
+            FrameItem::Line { start, end, .. } => {
+                *start = project_point(transform, *start);
+                *end = project_point(transform, *end);
+            }
+            FrameItem::Semantic { .. } => {}
+        }
+
+        // A vista histórica devolve referências. Cópias projetadas existem
+        // somente durante o processo de teste e nunca entram no produto.
+        Box::leak(Box::new(projected))
+    }
+
+    fn walk<'a>(
+        items: &'a [FrameItem],
+        transform: TransformMatrix,
+        out: &mut Vec<&'a FrameItem>,
+    ) {
         for item in items {
-            out.push(item);
+            out.push(project_item(item, transform));
             match item {
-                FrameItem::Semantic { items, .. }
-                | FrameItem::Group { items, .. }
-                | FrameItem::Link { items, .. } => walk(items, out),
+                FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+                    walk(items, transform, out)
+                }
+                FrameItem::Group { pos, matrix, items, .. } => {
+                    let group_transform = transform
+                        .concat(&TransformMatrix::translate(pos.x.0, pos.y.0))
+                        .concat(matrix);
+                    walk(items, group_transform, out);
+                }
                 _ => {}
             }
         }
     }
     let mut out = Vec::new();
-    walk(items, &mut out);
+    walk(items, TransformMatrix::identity(), &mut out);
     out
+}
+
+#[test]
+fn p1293_final_frame_items_recursive_compoe_grupos_aninhados() {
+    use crate::entities::layout_types::{Pt, TransformMatrix};
+
+    let line = FrameItem::Line {
+        start: Point { x: Pt(1.0), y: Pt(1.0) },
+        end: Point { x: Pt(2.0), y: Pt(2.0) },
+        thickness: 1.0,
+        color: None,
+    };
+    let inner = FrameItem::Group {
+        pos: Point { x: Pt(4.0), y: Pt(5.0) },
+        matrix: TransformMatrix::translate(1.0, 2.0),
+        clip_mask: None,
+        inner_width: 0.0,
+        inner_height: 0.0,
+        items: vec![line],
+    };
+    let outer = FrameItem::Group {
+        pos: Point { x: Pt(10.0), y: Pt(20.0) },
+        matrix: TransformMatrix::scale(2.0, 3.0),
+        clip_mask: None,
+        inner_width: 0.0,
+        inner_height: 0.0,
+        items: vec![inner],
+    };
+
+    let (start, end) = frame_items_recursive(&[outer])
+        .into_iter()
+        .find_map(|item| match item {
+            FrameItem::Line { start, end, .. } => Some((*start, *end)),
+            _ => None,
+        })
+        .expect("a linha aninhada deve permanecer observável");
+
+    assert_eq!((start.x.0, start.y.0), (22.0, 44.0));
+    assert_eq!((end.x.0, end.y.0), (24.0, 47.0));
 }
 
 #[cfg(test)]
@@ -21937,25 +22022,16 @@ mod p997_tests {
     use super::*;
 
     fn text_items(doc: &PagedDocument) -> Vec<(f64, f64, String)> {
-        fn walk(items: &[FrameItem], out: &mut Vec<(f64, f64, String)>) {
-            for item in items {
-                match item {
-                    FrameItem::Text { pos, text, .. }
-                    | FrameItem::TextShaped { pos, text, .. } => {
-                        out.push((pos.x.val(), pos.y.val(), text.to_string()));
-                    }
-                    FrameItem::Semantic { items, .. }
-                    | FrameItem::Group { items, .. }
-                    | FrameItem::Link { items, .. } => {
-                        walk(items, out);
-                    }
-                    _ => {}
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. }
+                | FrameItem::TextShaped { pos, text, .. } => {
+                    Some((pos.x.val(), pos.y.val(), text.to_string()))
                 }
-            }
-        }
-        let mut out = Vec::new();
-        walk(&doc.pages[0].items, &mut out);
-        out
+                _ => None,
+            })
+            .collect()
     }
 
     #[test]

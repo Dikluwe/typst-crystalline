@@ -1,0 +1,1143 @@
+{
+  "accepted_fresh_execution": {
+    "aborted_credit": 0,
+    "command": "python3 /tmp/p1293-preseal-runner-31.py",
+    "fixture_design": "The protected oracle is referenced unchanged by three temporary crates: direct reexport baseline, duplicated facade enum for MC13, and facade wrappers for MC14. This makes MC13/MC14 executed negative witnesses rather than compile-abort credit.",
+    "fixture_source_hashes": {
+      "/tmp/p1293-preseal-facade/Cargo.lock": "f20c2a9583aa41796fd1a29f799ba55ca8944f07ffcd0de869f1845ef6da37cf",
+      "/tmp/p1293-preseal-facade/Cargo.toml": "cc9d0e2a864d2157952b7c80a78c3618633ba7a6ef984d90f92b845f734540a3",
+      "/tmp/p1293-preseal-facade/infra-base/Cargo.toml": "e3d3d73ddcd6a7098e35978a7c7a57066d241ff6e8718db571ca9b3850c96e47",
+      "/tmp/p1293-preseal-facade/infra-base/src/lib.rs": "d74bfa4e5b89da0219a081d4572fc10402a9967aa275b717de78a8b941384c74",
+      "/tmp/p1293-preseal-facade/infra-mc13/Cargo.toml": "d68cb43314293566319370966e3cffca3e2cec8fcb926f20f33131e7eebd2d9c",
+      "/tmp/p1293-preseal-facade/infra-mc13/src/lib.rs": "d2a9c9907f8bcb519bd2e6dc561ca52ef489145818f6593dc17ec80f55e29fbf",
+      "/tmp/p1293-preseal-facade/infra-mc14/Cargo.toml": "d9e34ce1f533dc70ad7fd3a75f6569a26ed264f63bdfd4366ffd7be0b7c05d87",
+      "/tmp/p1293-preseal-facade/infra-mc14/src/lib.rs": "9857c9ef7b57679931946fd3b608af2cf18c2bb3c1cc88488f2996a45170470f",
+      "/tmp/p1293-preseal-facade/oracle-base/Cargo.toml": "a84538280fcad680a28b6b65e78444547f31733b6aed09f40bf61077dedddcf7",
+      "/tmp/p1293-preseal-facade/oracle-base/src/bin/typst.rs": "f544a4a575143c084f98860bb48be6b087d424c3bb097eceb35d91468d45db86",
+      "/tmp/p1293-preseal-facade/oracle-base/tests/oracle.rs": "81fac1a2439afaf740299e0d5696495729de2866c319c71ee1393eb74cf58e06",
+      "/tmp/p1293-preseal-facade/oracle-mc13/Cargo.toml": "fa53b73325046211ab1532edc68eb5816bde09f6121fec6f5720a36b7e1f43cb",
+      "/tmp/p1293-preseal-facade/oracle-mc13/src/bin/typst.rs": "366f25d137aee65c2513b5ead75c3122953dc79430799813900d707549a9a999",
+      "/tmp/p1293-preseal-facade/oracle-mc13/tests/oracle.rs": "81fac1a2439afaf740299e0d5696495729de2866c319c71ee1393eb74cf58e06",
+      "/tmp/p1293-preseal-facade/oracle-mc14/Cargo.toml": "a622ec0fb5625c421160463b506b2f55af6fbbf315aca227e26d5bd53ae75552",
+      "/tmp/p1293-preseal-facade/oracle-mc14/src/bin/typst.rs": "366f25d137aee65c2513b5ead75c3122953dc79430799813900d707549a9a999",
+      "/tmp/p1293-preseal-facade/oracle-mc14/tests/oracle.rs": "fb290fc67df1647f1b2972f00461c36b636f6e64e6dba6036660c2e1e3e99dcb",
+      "/tmp/p1293-preseal-facade/typst-core/Cargo.toml": "afc38bbb48803190228383fb1a4b7b765ba6c422b71c73d979105736165d200c",
+      "/tmp/p1293-preseal-facade/typst-core/src/lib.rs": "24edc8097dfc4772b5b0d17de4ca8feb719affabbf7c3d6308446bc62ef0c115"
+    },
+    "proxy_sha256": "423b72a7d94249e995512bbb01eb5ec52643a11cc37f56f9fee48944d2699299",
+    "results_sha256": "ff3c008f0ad23e81b933bbb48d31fc0df6a7bc6339793d520849d0c539a78542",
+    "runner_sha256": "13a2bc55a25a6581738a958c77f26c1a95ef68ece52f6086242946e75e024e1b",
+    "temporary_oracles": [
+      {
+        "binary_sha256": "81f3db1aeeac1c0f38b7bf23649212423f75139a0b6f81c939b9cef9dc80bb5f",
+        "command": "cargo test -p oracle-base --test oracle --no-run --message-format=json",
+        "elapsed_seconds": 0.807,
+        "exit": 0,
+        "package": "oracle-base"
+      },
+      {
+        "binary_sha256": "7ca1d160f98a5bfa9c036863cf841ef4d6b8aade772e9220bf1a0ecced469613",
+        "command": "cargo test -p oracle-mc13 --test oracle --no-run --message-format=json",
+        "elapsed_seconds": 0.739,
+        "exit": 0,
+        "package": "oracle-mc13"
+      },
+      {
+        "binary_sha256": "e2021b6b937383203f36496afe12cc7289110d5a0b8c99c923dad69085f57358",
+        "command": "cargo test -p oracle-mc14 --test oracle --no-run --message-format=json",
+        "elapsed_seconds": 0.764,
+        "exit": 0,
+        "package": "oracle-mc14"
+      }
+    ]
+  },
+  "baseline": [
+    {
+      "command": "P1293_MUTANT=<unset> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --test-threads=1",
+      "elapsed_seconds": 24.252,
+      "eleven_of_eleven_passed": true,
+      "exit": 0,
+      "label": "baseline-1",
+      "ok": true,
+      "output_sha256": "b185acede6535f6115b3b4e2ccd88d8755dfc794fd6c3bbaaafbb6ff2869653e",
+      "unexpected_activation": [],
+      "unknown": false
+    },
+    {
+      "command": "P1293_MUTANT=<unset> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --test-threads=1",
+      "elapsed_seconds": 24.175,
+      "eleven_of_eleven_passed": true,
+      "exit": 0,
+      "label": "baseline-repeat",
+      "ok": true,
+      "output_sha256": "c298cd94810cd556ecd53d1e0164d5efce51f975d6faeecba18028615125f7e6",
+      "unexpected_activation": [],
+      "unknown": false
+    }
+  ],
+  "baseline_summary": {
+    "both_green": true,
+    "passed_each": "11/11",
+    "runs": 2,
+    "unexpected_mutant_activation": 0,
+    "unknown": 0
+  },
+  "capabilities": {
+    "attestation_limit": "Shared filesystem prevents technical read isolation; this receipt attests segregation by declared capabilities and artifacts.",
+    "integrated_write": [
+      "00_nucleo/diagnosticos/p1293-preseal-discrimination-c-export-facade-receipt.json"
+    ],
+    "not_written": [
+      "product",
+      "L0",
+      "oracle",
+      "contract",
+      "seal",
+      "manifest",
+      "verdict"
+    ],
+    "temporary_write": [
+      "/tmp/p1293-preseal-*"
+    ]
+  },
+  "classification": {
+    "equivalent": 0,
+    "executions": 62,
+    "forward_rejected": 31,
+    "order_stable": true,
+    "reverse_rejected": 31,
+    "score": 1.0,
+    "survivors": [],
+    "unknown": 0,
+    "valid": 31
+  },
+  "discarded_attempts": [],
+  "discriminatory_gate_verdict": "PASS_READY_FOR_SEPARATE_SEALER",
+  "final_verdict_issued": false,
+  "gate_kind": "fresh-preseal-discrimination-after-c-p08-semantic-neutrality-reauthoring",
+  "gates": {
+    "V15": "PASS",
+    "V26": "PASS",
+    "V5": "PASS",
+    "git_diff_check": "PASS",
+    "oracle_canonical_body": "PASS",
+    "oracle_raw_hash": "PASS",
+    "protected_pins_before_after": "PASS",
+    "registry_31_distinct": "PASS",
+    "results_JSON": "PASS"
+  },
+  "generated_at": "2026-09-02T15:14:45.632724-03:00",
+  "inputs": {
+    "canonical_contract_sha256": "2bb10fa308558a82b75acabb1a188c0832ad6708e5ff0b8246af3ced52707072",
+    "contract_receipt": {
+      "path": "00_nucleo/diagnosticos/p1293-contract-receipt.md",
+      "sha256": "2da9111c107cc8f1f2395c2d37674454e71c69dd4500d6b3859b7cdf44d43634"
+    },
+    "facade_red_receipt": {
+      "path": "00_nucleo/diagnosticos/p1293-red-tests-receipt-c-export-facade.md",
+      "sha256": "a536c667cffcdc5c8f3756fe40198ffae12e11347b030497499d08c093c2e245"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1293-manifest.json",
+      "sha256": "a53cdb82874f38200835b75ef1e88019e11bc26c12665cfe726ccaa0846562de"
+    },
+    "oracle": {
+      "canonical_body_sha256": "b07eb8d6eb6bfa0a892c06bb1f5599d8e2e188963dcca821d83f4a34badfb13a",
+      "path": "04_wiring/tests/p1293_contract.rs",
+      "raw_sha256": "ed3e0b57c703a1c4dbdbeda187fcf74dcf46476f60a2c850e48a9ef8f0b2df1e",
+      "registry_block_sha256": "417d82202439b39388d223fe46c9dc193e41b705a951dfeb19c80eddfd75bd8b"
+    },
+    "p08_semantic_neutrality_red_receipt": {
+      "path": "00_nucleo/diagnosticos/p1293-red-tests-receipt-c-p08-semantic-neutrality.md",
+      "sha256": "e5c3b771d9b65a7fea5ec33c33cabb7053db40feddbe2406459eaec004969c2d"
+    },
+    "protected_before_after": true,
+    "seal_observed_read_only": {
+      "path": "00_nucleo/diagnosticos/p1293-contract-seal.json",
+      "sha256": "6d3c1102a105e701700c74080f25ec5f379fa2b6c1f0a9f0b8ec368aefeb35bc"
+    },
+    "serialization_reopen_receipt": {
+      "path": "00_nucleo/diagnosticos/p1293-contract-reopen-c-html-serialization-receipt.md",
+      "sha256": "e5342f01d78cd4e2fb59a07fd019b87df90ef749b7c95dbff2747b388579e0bb"
+    }
+  },
+  "lineage": {
+    "especially_validated": "00_nucleo/prompts/infra/export/mod.md",
+    "ownership": "nine current C owner-consumer pairs are validated by V15; V26 PASS",
+    "pair_count": 9,
+    "pairs": [
+      {
+        "V5": "PASS",
+        "consumer": "02_shell/src/cli.rs",
+        "consumer_sha256": "d3e9fecdfce6c1aad0f9badce9000f0b4de41888e299cad63522d25223b42989",
+        "owner": "00_nucleo/prompts/shell/cli.md",
+        "owner_sha256": "a2e050633516ae486a6a00968ee8e20a28990c9006582a4b82a820a0b254f30f"
+      },
+      {
+        "V5": "PASS",
+        "consumer": "04_wiring/src/main.rs",
+        "consumer_sha256": "ca65db98f911f03c7e1772802dafc8003e50c0c3cfefcef7cc2249549c2004da",
+        "owner": "00_nucleo/prompts/wiring.md",
+        "owner_sha256": "539815d1e892117baec6e5e8e51e37a155dadcaa682e3349c11cc66dd52f623c"
+      },
+      {
+        "V5": "PASS",
+        "consumer": "03_infra/src/pipeline.rs",
+        "consumer_sha256": "72f9c080b55ca295e5b51ae45acf527c76921cd06211a64c2c43fdd010af6088",
+        "owner": "00_nucleo/prompts/infra/pipeline.md",
+        "owner_sha256": "ce6da4f623a0270869606bdf42d07dae0283f3f9e5a593258609b219424e63a8"
+      },
+      {
+        "V5": "PASS",
+        "consumer": "03_infra/src/export/html.rs",
+        "consumer_sha256": "ad761fd3678b231f805868101664dc83f389d434d4cf912d7c29f275847377c4",
+        "owner": "00_nucleo/prompts/infra/export/html.md",
+        "owner_sha256": "505895669df4a1d7ce39f4c3236d6ac4e39fc9c61ce14d8cf578b0d394a2d237"
+      },
+      {
+        "V5": "PASS",
+        "consumer": "03_infra/src/export/mod.rs",
+        "consumer_sha256": "80234564bc8e47c6e42e76ee4f6380bcd46d7a535638601ea2b461d24719a16b",
+        "owner": "00_nucleo/prompts/infra/export/mod.md",
+        "owner_sha256": "de16b4085aa8d72ace3b4a8b62087a7d9f54c7ae9fd6012891bd3160aeaa08f5"
+      },
+      {
+        "V5": "PASS",
+        "consumer": "01_core/src/compiler/eval/repr.rs",
+        "consumer_sha256": "c0c604da25f573ac14b1cdeaeb55bfe490b827f594e059d5f22a69f7e66a1149",
+        "owner": "00_nucleo/prompts/compiler/eval/repr.md",
+        "owner_sha256": "555b6df222a931991f1a521b11fe2d8d58ee185cdcf90cd3f0eaf6d3c40c9355"
+      },
+      {
+        "V5": "PASS",
+        "consumer": "01_core/src/compiler/eval/call_dispatch.rs",
+        "consumer_sha256": "75399c76d99dfaeb9b515d3152f824dcb7dc8815e693f45a2be10b3d394c2759",
+        "owner": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "owner_sha256": "e09f8d04c91c009af2bacadd2d6a06b3b314e07b42322b0e84370e7c1767f9b1"
+      },
+      {
+        "V5": "PASS",
+        "consumer": "01_core/src/compiler/stdlib/html.rs",
+        "consumer_sha256": "b6b339d0a7ef0a29a868ee1bbf671cc348c00e08cac123f0aa78f0fbe41df427",
+        "owner": "00_nucleo/prompts/compiler/stdlib/html.md",
+        "owner_sha256": "df741b13ec8a3630180d65c3b606aca20385ab2b00d3d93836e85b5fbdca9ac9"
+      },
+      {
+        "V5": "PASS",
+        "consumer": "04_wiring/tests/p1293_contract.rs",
+        "consumer_sha256": "ed3e0b57c703a1c4dbdbeda187fcf74dcf46476f60a2c850e48a9ef8f0b2df1e",
+        "owner": "00_nucleo/prompts/wiring/tests/p1293_contract.md",
+        "owner_sha256": "adf47e09192bf792ede1cf227696e6314f1b4aa059c510141d05118ebb799989"
+      }
+    ]
+  },
+  "lot_c_approved": false,
+  "mutation_matrix": [
+    {
+      "activation_actions": [
+        "is-nan-always-false"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_a_static_bound_values_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "bb8cf3cea20763fc03d48ffcb74205e7a043cf16e7ac98e7b5b78a98ff4aea1f",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MA1",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "4de3d9b403b743f7a02a8cfc3a8feba86b8ab90a0baa800f34da7c1496a2a968",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "is-nan always false",
+      "test": "p1293_a_static_bound_values_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "A-P01-P02: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "infinity-is-nan"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_a_static_bound_values_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "7272865dafb975cd67bb86c5951b80c15750c2e1f7d33a40ec9558adb59396f1",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MA2",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "8496be60ad57418013c7dbe60407d052be279a5de36f4b5ad231076a359ccec0",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "infinity treated as NaN",
+      "test": "p1293_a_static_bound_values_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "A-P01-P02: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "bound-form-diverges"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_a_static_bound_values_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "dc4df2c79e3d59e0a2131b075c21fd464db77e138fa565dc0e212771ae5ea490",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MA3",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "7d683f0076fa8fac28b756df630f8410289e074ae637375c3582589a04594c0e",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "bound form diverges",
+      "test": "p1293_a_static_bound_values_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "A-P03: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "ignore-bound-named"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_a_static_bound_values_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "b1a65f3bccd109f6a6718f8aebfb844a92c560e823d8ca739c0636c827625cfd",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MA4",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "b6449357bc2ccddc0350931955c21a9205316956c91a1a4d9e9e858622bf6e97",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "unknown named ignored",
+      "test": "p1293_a_static_bound_values_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "A-N03: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "qualified-repr"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_a_static_bound_values_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "286274eee1ddb06443237c65461eb1562d903888fdd32e0c1fe6adc6f0558c6d",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MA5",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "16c2c609ffa083ce3207ebfd2785130e6ad141fa45588739f639b397f28bce51",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "qualified public repr",
+      "test": "p1293_a_static_bound_values_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "A-P01-P02: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "attach-slots-swapped"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_b_identity_morphology_convergence_and_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "186cb1a04764a862932d1b00886374b34ac93137bd87c0347dc1c91ba8343eef",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MB1",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "04e2fe3261a4cdcc24f4d2be2be566e6638759ea9a5a233c822b429e8448aca9",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "attach slot swapped",
+      "test": "p1293_b_identity_morphology_convergence_and_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "B-P02-P03-P04-P05: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "attach-none-collapsed"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_b_identity_morphology_convergence_and_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "fcc70b20bf4f8314659a8ebd70d564b809af5981c4df0e04d60cb86e1263684c",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MB2",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "7df77e821e796e14f879b6edf82b441ac81def8ac926095a744e80de634c683e",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "explicit none collapsed",
+      "test": "p1293_b_identity_morphology_convergence_and_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "B-P02-P03-P04-P05: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "binom-fraction-rule"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_b_semantic_layout_vectors_none_and_no_fraction_rule --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "6fe0f8828606582ff5f53618cb9a420ad4e4af8e94ee04e38df9f49389ee0baf",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MB3",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "f1d55e266f96cd989803f937b601c931777d4f57cfde5ce204e3f0ea21fe9545",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "binom fraction rule",
+      "test": "p1293_b_semantic_layout_vectors_none_and_no_fraction_rule",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "drew a fraction rule"
+    },
+    {
+      "activation_actions": [
+        "binom-lower-reordered"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_b_identity_morphology_convergence_and_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "0208a74b7c0580d7f404327d6060b61d7164b55f5cb0975f8b559ce8d2e61edb",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MB4",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "936d7b4416f4521b726963475fb6c48bdc40f95dcadffe9a03236fd3c75c3d18",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "binom lower reordered",
+      "test": "p1293_b_identity_morphology_convergence_and_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "B-P02-P03-P04-P05: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "syntax-qualified-diverge"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_b_identity_morphology_convergence_and_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "84a1e0742f79bb22816746831db8a2104deb764602e2b68c2c13cc3e1caa572f",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MB5",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "fe03b1d499b4b5a7a74d809744fc847fc9819c52b15e9a947f963584504d68b1",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "syntax and qualified form diverge",
+      "test": "p1293_b_identity_morphology_convergence_and_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "B-P06: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "math-style-wrapper"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_b_identity_morphology_convergence_and_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "995b8f10b8ca5a41294151096e1ea390c966b9273492f21d94d69093882332ab",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MB6",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "f0819f5af785f422985e5cae8013385dd77d5ea4898ac97d4ae43503cc061266",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "style wrapper diverges",
+      "test": "p1293_b_identity_morphology_convergence_and_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "B-P02-P03-P04-P05: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "cramped-false-ignored"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_b_semantic_layout_vectors_none_and_no_fraction_rule --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "58acdf7d50dedcd7839857f07f818872467b74da6e261b5e62453b136eec5ad6",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MB7",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "95724d236ca207209771ba8e101ce33667d8132ac602e4311f72fdf16274a055",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "explicit cramped ignored",
+      "test": "p1293_b_semantic_layout_vectors_none_and_no_fraction_rule",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "script-cramped-false viewBox[3]"
+    },
+    {
+      "activation_actions": [
+        "accept-arbitrary-named"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_surface_all_specific_casts_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "b2151d9cf67ce379a23f8ea9e24eafd4385263d8b3b644dd8cda0275332e2d3b",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC1",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "aa6ec5fba59244b590a929fa8696d039a25247a91fc7b3696874c0b5eaed34d1",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "arbitrary named accepted",
+      "test": "p1293_c_surface_all_specific_casts_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-N-button-unknown: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "serialization-default-vanilla"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_serialization_modes_default_scope_and_non_html_neutrality --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "973bebf0028967ef5c5327f99ee31755f933e344bca4bc8a92c83be56bc29b7f",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC10",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "b39b68b0482408b0d6a602cecbf59bb390476adcbb08348791877510c9dfc92e",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "default selects vanilla serialization",
+      "test": "p1293_c_serialization_modes_default_scope_and_non_html_neutrality",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-P08 default is not crystalline"
+    },
+    {
+      "activation_actions": [
+        "serialization-modes-collapsed"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_serialization_modes_default_scope_and_non_html_neutrality --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "2f9ea485103423ccd3ca44e1ddc68e864a39c4758f2e9a505307bfb50399d057",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC11",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "3b31b937cd53d36f6fed30d36d05dc4a4fc22c7aa7c167d4ee22d5a334559eb5",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "serialization modes collapse",
+      "test": "p1293_c_serialization_modes_default_scope_and_non_html_neutrality",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-P08 the two modes collapsed"
+    },
+    {
+      "activation_actions": [
+        "preload-string-none-accepted"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_surface_all_specific_casts_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "375241f6738236e4d92d2b8da9b3e936d0d73bf4cd2e31e2da9b2710c073d31a",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC12",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "cd784a2bd7c47a7a2023818042aba152ef26193d67645e6f30420afd97ad36bb",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "string none accepted as preload",
+      "test": "p1293_c_surface_all_specific_casts_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-N-preload-none-string: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "facade-duplicates-owner-enum"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-0c17b17a923a7476 --exact protected_oracle::p1293_c_export_facade_is_public_direct_and_keeps_html_semantics_owned_below --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "30bae9ab934bea474fa18f61f98b862726f8fa0db70b699dfded26faa1c4fe9b",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC13",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "d3afae1d21d6311be88472e7fc770ff3f73e22c806e6ddcb5d4fd617cc936c88",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "facade duplicates owner enum",
+      "test": "p1293_c_export_facade_is_public_direct_and_keeps_html_semantics_owned_below",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-P10 facade duplicated HtmlSerializationMode"
+    },
+    {
+      "activation_actions": [
+        "facade-wraps-owner-functions"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-08553297bbd86e40 --exact protected_oracle::p1293_c_export_facade_is_public_direct_and_keeps_html_semantics_owned_below --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "7b0111d468f6692c15711d324643e1bcd0e81902c48e51833d5a60c6d6600bb0",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC14",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "3d270a60df515457345252e88fd7761809471c1c3c31a7a4b5f39a048e108789",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "facade wraps owner functions",
+      "test": "p1293_c_export_facade_is_public_direct_and_keeps_html_semantics_owned_below",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-P10 facade wrapped export_html"
+    },
+    {
+      "activation_actions": [
+        "presence-false-emitted"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_dom_order_void_escaping_and_nesting --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "61254ba9c8694c66e0e286b53c80d6eca5c9dcbd2de98d5c4fd29a2b7c0ae89f",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC2",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "d6245996e9e1a758d24b1eea63b863b055b7189b7bb0f9009ccceeea36db2a7f",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "Presence false emitted",
+      "test": "p1293_c_dom_order_void_escaping_and_nesting",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "wrong attribute order/omission"
+    },
+    {
+      "activation_actions": [
+        "void-accepts-body"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_surface_all_specific_casts_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "3312680074f231f06f964e791b6a56697283cda9484c88841ac81034f26f2480",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC3",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "019059a6cbdd6f0cfc6670bdcdf42da11fc7dbcb5e52b3411249b75807c165df",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "void accepts body",
+      "test": "p1293_c_surface_all_specific_casts_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-N-col-body: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "normal-body-unset"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_surface_all_specific_casts_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "3d1e40836ce2639f69269e13d37372ba2ade9ca298c8da720798e8fc2d3fda07",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC4",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "67fd041fbf00e2e4713929a24ad198e1441c77a1d89ece604e0e77acc7fd3794",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "omitted normal body becomes Unset",
+      "test": "p1293_c_surface_all_specific_casts_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-P01-P02: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "cross-tag-attribute"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_surface_all_specific_casts_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "8a295f242ca338df815789aa73a160898c1604892a2d727ab0f45dbecd9cf6bf",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC5",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "0d471501e24738a86d8a7766a4ff927b713b6502771d0b3c1c2bc42d839c8bd0",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "specific attr crosses tag",
+      "test": "p1293_c_surface_all_specific_casts_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-N-button-cross: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "open-enum"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_surface_all_specific_casts_and_closed_errors --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "a2850af9a810663f32425608d4d9c16153d0c3f9acb5205381767321f04cd6fc",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC6",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "2b67e25d7dfa54cce4a21fba7f5b48edaf67856a6b3ca0b9e68a57db88c3c918",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "enum accepts alien token",
+      "test": "p1293_c_surface_all_specific_casts_and_closed_errors",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-N-enum-cast: candidate is not Preserved"
+    },
+    {
+      "activation_actions": [
+        "target-enables-feature"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_feature_and_target_are_independent_axes --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "0ab98877b492921d436095e8374b718fa3ab6044432c367856f28a92b12c99d2",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC7",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "8425a824ff8a4ff445990e96941ec1a57e5dfb7d6e67ca56fb5b0029386ee0e5",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "target enables feature",
+      "test": "p1293_c_feature_and_target_are_independent_axes",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "C-P07 HTML target enabled feature"
+    },
+    {
+      "activation_actions": [
+        "void-end-tag"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_dom_order_void_escaping_and_nesting --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "e792cb95376cc3867dc301961c73cc4f10a14a764810275963a5fbf9f39bde85",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC8",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "bd506db986a40243dcbeea301fdd23f3aadd070022bb699a3a73bc939256a8b1",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "void receives end tag",
+      "test": "p1293_c_dom_order_void_escaping_and_nesting",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "mismatched HTML closing tag"
+    },
+    {
+      "activation_actions": [
+        "attribute-order-changed"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_c_dom_order_void_escaping_and_nesting --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "64c3e7aaddd9574aaf529454a83e46e3fa0c1430df3b0077cec355595e955768",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MC9",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "caca70bc8f76472a6da2cb281298a362ea50eed05119685135d35e8c0d4d3c2e",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "attribute order changed",
+      "test": "p1293_c_dom_order_void_escaping_and_nesting",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "wrong attribute order/omission"
+    },
+    {
+      "activation_actions": [
+        "only-three-names-short"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "62e592adf9b8e5679801ca712053104ade92d8fb9050734e5e0bb3dfec05aa9b",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MD1",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "58d8b1f36128d81c71425342040a8cf85d44e0b7a2ee7dbeb0b8c26a52452e81",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "only three names corrected",
+      "test": "p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "assertion `left == right` failed"
+    },
+    {
+      "activation_actions": [
+        "short-name-on-flat-alias"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "031883393c233d2f5c6a1699c0b49ed586e0e2a2479165587a88a095d0ae7897",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MD2",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "4af4e34d4e6db72345936936278d2cfb34a82318f853151cff9ea5069853b736",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "short name applied to flat alias",
+      "test": "p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "assertion `left == right` failed"
+    },
+    {
+      "activation_actions": [
+        "table-name-from-grid"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "de2e8257655895b54016560c245bb60a1b7f45b9369cc8b843faeb2be3b33c63",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MD3",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "52685c0dc0c7a541410b59adc19cc5dbac2bd20cf7aecaeabd6fd0ffda2af2d2",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "table receives grid name",
+      "test": "p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "assertion `left == right` failed"
+    },
+    {
+      "activation_actions": [
+        "call-payload-changed-with-name"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "8a4895be78e3f84a4ce49c838735630466440d3dc91a5cf762f4cf003b02eb47",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MD4",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "9586971f3d1ea6aa06195fb88b8c2d4fb951c9920718df0366fc2d24174e29fe",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "name and call change together",
+      "test": "p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "assertion `left == right` failed"
+    },
+    {
+      "activation_actions": [
+        "one-underscore-sibling"
+      ],
+      "command_template": "P1293_MUTANT=<ID> /tmp/p1293-preseal-p08-target/debug/deps/oracle-e325887e4265807d --exact protected_oracle::p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved --test-threads=1 --nocapture",
+      "equivalent": false,
+      "forward": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "5e5f2f25b59206c0d3fb4a8c51f9983baa33cb2274134b363f44b5d15dffc83b",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "id": "MD5",
+      "reverse": {
+        "exit": 101,
+        "one_target_test_failed": true,
+        "output_sha256": "02e501cd15177a1ee2bee7a9553143ad5c46e9fef8a226fb3e839ff95035761e",
+        "rejected": true,
+        "witness_seen": true
+      },
+      "semantic_mutation": "one sibling keeps underscore",
+      "test": "p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved",
+      "unknown": false,
+      "valid": true,
+      "witness_token": "assertion `left == right` failed"
+    }
+  ],
+  "partial_state_causal_red": {
+    "classification": "EXPECTED_CAUSAL_PRODUCT_RED_NOT_UNKNOWN",
+    "command": "cargo test -p typst-wiring --test p1293_contract p1293_c_ -- --test-threads=1",
+    "exit": 101,
+    "green_groups": [
+      "p1293_c_dom_order_void_escaping_and_nesting",
+      "p1293_c_export_facade_is_public_direct_and_keeps_html_semantics_owned_below",
+      "p1293_c_feature_and_target_are_independent_axes",
+      "p1293_c_serialization_modes_default_scope_and_non_html_neutrality"
+    ],
+    "only_red_group": "p1293_c_surface_all_specific_casts_and_closed_errors",
+    "result": "4 passed; 1 failed; 6 filtered out",
+    "unrelated_failures": 0,
+    "witness": "only C-P03..C-P05 multiline attrs morphology and C-N-none-enum diagnostic omitting the language value none"
+  },
+  "provenance": {
+    "branch": "Tekt",
+    "git_diff_head_stat_sha256": "dacd789c019337b77a1ef880f6d4139bcf7937d86dba7a3299951b85e8fe42b8",
+    "git_status_short_sha256": "733abfb625a8dc3c1a0efe78c4e12b15870f62acf0bc2d7f9018e1be4c7c93b8",
+    "head": "7dd25ff0e222b6c7c640d6bc7957b98f94227507",
+    "working_tree": "uncommitted"
+  },
+  "regime": "full-segregated-by-capabilities-and-artifacts-without-technical-read-isolation",
+  "registry": {
+    "ids": [
+      "MA1",
+      "MA2",
+      "MA3",
+      "MA4",
+      "MA5",
+      "MB1",
+      "MB2",
+      "MB3",
+      "MB4",
+      "MB5",
+      "MB6",
+      "MB7",
+      "MC1",
+      "MC2",
+      "MC3",
+      "MC4",
+      "MC5",
+      "MC6",
+      "MC7",
+      "MC8",
+      "MC9",
+      "MC10",
+      "MC11",
+      "MC12",
+      "MC13",
+      "MC14",
+      "MD1",
+      "MD2",
+      "MD3",
+      "MD4",
+      "MD5"
+    ],
+    "new_ids": [
+      "MC13",
+      "MC14"
+    ],
+    "registered": 31,
+    "required": 31,
+    "unknown_required_or_mutation": 0
+  },
+  "role": "verificador_discriminatorio_p1293",
+  "schema": "tekt.p1293.preseal-discrimination.c-p08-semantic-neutrality.v1",
+  "scope": "P1293 Lot C after semantic C-P08 reauthoring and complete protected 31-ID registry; no C approval, seal, product, L0, oracle or final verdict",
+  "seal_created": false
+}

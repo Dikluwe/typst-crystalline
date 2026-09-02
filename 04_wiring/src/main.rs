@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 1d9e10c1
+//! @prompt-hash 934a8298
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -240,6 +240,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
         input,
         output,
         output_format,
+        html_serialization,
         root,
         font_paths,
         colored,
@@ -387,9 +388,21 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
                     "warning: html export is under active development and incomplete"
                 );
             }
-            let (r, w) = typst_infra::pipeline::compile_to_html_string_with_features(
-                &world, &source, features,
-            );
+            let html_serialization = match html_serialization {
+                typst_shell::cli::HtmlSerialization::Crystalline => {
+                    typst_infra::export::HtmlSerializationMode::Crystalline
+                }
+                typst_shell::cli::HtmlSerialization::Vanilla => {
+                    typst_infra::export::HtmlSerializationMode::Vanilla
+                }
+            };
+            let (r, w) =
+                typst_infra::pipeline::compile_to_html_string_with_features_and_serialization(
+                    &world,
+                    &source,
+                    features,
+                    html_serialization,
+                );
             (r.map(String::into_bytes), w, typst_infra::pipeline::Timings::default())
         }
     };

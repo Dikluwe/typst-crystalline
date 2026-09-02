@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `compiler/layout/equation` — Layout de Equações**
-Hash do Código: 5683f846
+Hash do Código: c0c8cc69
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
@@ -511,7 +511,7 @@ isolado, `$f$` e `$underline(f)$` conservam frame/root `6.38pt`, enquanto a
 regra mede `5.39pt` bilateralmente, testemunhando o termo
 `−italics_correction=0.99pt`. Para `x`, frame e regra medem `6.292pt`.
 
-### Decisão v5 vigente
+### Decisão v5 — comparação do underline vigente; scope-out de wrapper revogado por P1293
 
 A comparação horizontal B usa pares dentro do mesmo renderer:
 
@@ -526,11 +526,12 @@ Continuam exatos os observáveis verticais Text/Display/Script/Cramped e a
 baseline/avanço de linha do amendment-3. Surface, erros, repr, identidade,
 classe, estilo, regra/espessura/cor e morfologia permanecem inalterados.
 
-O resíduo whole-wrapper é preexistente e fora do lote P1292: pertence a
-attach/fraction e talvez ao cálculo de largura do wrapper, não a equation,
-underline, cursor ou auto-page. Este contrato não cria owner, dívida executável
-nem autorização de escrita para compensá-lo; um passo futuro deve medi-lo sob
-seus próprios L0s antes de qualquer alteração.
+O enquadramento histórico que atribuía o resíduo whole-wrapper a
+attach/fraction e excluía equation/cursor/auto-page foi **refutado e revogado
+por P1293** na medição abaixo. A comparação discriminatória do underline
+continua válida para P1292, mas não pode ser usada para descartar a largura
+lógica do wrapper Formula nem para classificar a página `width:auto` apenas
+pela união material dos filhos.
 
 Inferência ADR-0107/0108: igualdade do delta e da regra demonstra preservação
 da linguagem do elemento sem exigir igualdade mecânica/absoluta do wrapper.
@@ -539,6 +540,105 @@ body mudar, qualquer altura/baseline regredir, ou o resíduo desaparecer apenas
 quando underline é removido. Não refuta B a mesma diferença absoluta presente
 bilateralmente no par base/underline; ela é scope-out explícito, nunca
 `Preserved` geral nem autorização de adaptar wrapper.
+
+## P1293 — Formula preserva o `EquationExtent` lógico no frame existente
+
+### Medição anterior à decisão
+
+O recibo independente
+`00_nucleo/diagnosticos/p1293-textitem-spacing-residual-measurement-receipt.md`,
+SHA-256 `afc6fc675765303f37f3a03228cc76d8c745347afcbacdc2edb5201e7f560a69`,
+mediu em `2026-09-01T22:42:59.184987970-03:00`, sobre HEAD
+`7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não commitada,
+que o vetor attach inline terminal em página `width:auto` mede
+`19,1521 × 9,6041pt` no candidato e `19,7681 × 9,6041pt` no vanilla:
+residual horizontal `−0,6160pt`. Os probes terminais R, K, W e RR perdem a
+mesma contribuição; advances, GSUB, IC e tamanho de glifo distintos não mudam
+o delta.
+
+O marcador `Z` logo após a fórmula começa em `x=19,7681pt` nos dois
+renderers e faz ambas as páginas medirem `26,4121pt`. Portanto
+`layout/equation.rs:495-499` já avança o cursor inline pelo
+`EquationExtent.width` integral; a fórmula math e o cursor posterior estão
+corretos enquanto vivos. A perda só aparece quando a fórmula é terminal:
+
+1. `math/layout/mod.rs:598-624` conserva `math_box.width` em
+   `EquationExtent.width`;
+2. `layout/equation.rs:454-472` envolve apenas os filhos materiais em
+   `FrameItem::Semantic::Formula`;
+3. `layout/mod.rs:2118-2138` faz o terminal flush, e
+   `cursor.rs:664-666` reinicia `cursor_x`;
+4. `layout/mod.rs:1222-1252` recompõe a largura auto por
+   `helpers::line_content_right`; `helpers.rs:46-77` mede o Semantic pela
+   união dos filhos e recupera somente `19,1521pt`.
+
+O `EquationExtent` contém o trailing lógico MATH: no witness,
+`R=736du` a `7,7pt` termina em `19,1521pt`, e
+`SpaceAfterScript=56du` a `11pt` acrescenta `0,6160pt`, fechando
+`19,7681pt`. O vanilla preserva esse tamanho num frame mesmo sem tinta na
+cauda (`math/scripts.rs:149-209`).
+
+O scope-out v5 acima fica refutado: a divergência é do produtor Formula em
+conjunto com terminal flush/auto-page, não de underline, fraction nem da soma
+de advances do attach. `helpers.md` não deve ganhar semântica específica de
+equação; `layout.md` não precisa mudar porque o estado/finalização global já
+funciona para qualquer item que preserve o próprio frame lógico.
+
+Inferência: conservar o tamanho no produtor Formula fecha tanto tinta quanto
+cauda lógica. Refutadores: o Group não sobreviver ao terminal flush; a página
+continuar em `19,1521pt`; o marcador posterior deslocar; posições de filhos
+mudar; ou alguma largura não-auto regressar. Qualquer refutador reabre este
+owner; não autoriza helper específico nem campo público.
+
+### Decisão
+
+O envelope `FrameItem::Semantic { kind: Formula, ... }` preserva a extensão
+lógica integral da equação por meio **somente** do `FrameItem::Group`
+existente e transparente:
+
+- o Semantic continua sendo a raiz morfológica Formula, com placement, alt e
+  descendência semântica inalterados;
+- seu único frame geométrico interno é um Group de transformação identidade,
+  posicionado na origem lógica já usada para integrar a equação;
+- os filhos visuais existentes são localizados relativamente a essa origem,
+  sem relayout e sem alterar suas posições absolutas/render final;
+- `inner_width = EquationExtent.width` e
+  `inner_height = EquationExtent.ascent + EquationExtent.descent`, derivados
+  do **mesmo** extent retornado pelo run que produziu os filhos; baseline/origem
+  vertical conserva ascent/descent do mesmo extent;
+- o Group torna a caixa lógica observável pelos visitantes genéricos inclusive
+  após terminal flush e em `width:auto`, mas permanece visualmente
+  transparente e não duplica items;
+- nenhum `FrameItem` novo, campo público, helper específico, segunda medição,
+  inspeção posterior de glyphs, constante de fixture ou mudança de fase é
+  permitido.
+
+O cursor inline posterior continua avançando uma única vez pelo
+`EquationExtent.width`; envolver não adiciona avanço. Preservam-se block,
+numbering e sua calha/fixups, RTL/bidi, placement/alt, morfologia Formula,
+baseline/posição dos filhos e páginas de largura finita. Equações de bloco e
+páginas não-auto não mudam sua geometria observável.
+
+### Aceitação, classificação e ownership
+
+- fórmula terminal `width:auto` conserva a extensão integral, incluindo cauda
+  lógica sem tinta; com marcador posterior, o marcador mantém a mesma posição;
+- R/K/W/RR perdem exatamente o residual derivado da própria
+  `SpaceAfterScript`; nenhum valor da fixture entra no produto;
+- filhos antes/depois do envelope têm posições/render idênticos; Formula,
+  block, numbering, RTL/bidi e páginas não-auto permanecem verdes;
+- `Unknown` é bloqueante.
+
+ADR-0107: largura de Formula, página auto e posição posterior são observáveis
+da linguagem; Group/localização é mecânica interna. ADR-0108: a decisão sucede
+a cadeia `file:line`, marca inferência e refutadores. ADR-0127: correção interna
+de paridade usando variantes/campos existentes, sem API/default/fase; fluxo
+contínuo após L0 e resselo, sem novo gate humano.
+
+Ownership 1:1 permanece
+`00_nucleo/prompts/compiler/layout/equation.md` →
+`01_core/src/compiler/layout/equation.rs`. `layout/mod.rs`, `helpers.rs`,
+`entities/layout_types.rs` e todos os outros consumers ficam fora da allowlist.
 
 
 ## P967 — cursor após equação inline inclui o espaçamento interno de classe (extent, não soma de advances)

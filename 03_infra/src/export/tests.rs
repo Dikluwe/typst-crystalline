@@ -16,6 +16,7 @@
 use super::*;
 use typst_core::compiler::layout::layout;
 use typst_core::entities::content::Content;
+use typst_core::entities::elements::math_attach::MathAttachSlot;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::layout_types::{Color, LinkTarget};
@@ -8733,10 +8734,10 @@ fn p298_math_attach_com_op_limits_renderiza_pdf_valido() {
     let doc = layout(&Content::equation(
         Content::math_attach_scripts(
             Content::math_op(Content::MathIdent("lim".into()), true),
-            None,
-            None,
-            Some(Content::MathText("x→0".into())),
-            None,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("x→0".into())),
+            MathAttachSlot::Omitted,
         ),
         true,
     ));
@@ -8757,10 +8758,10 @@ fn p298_regressao_math_ident_lim_continua_a_funcionar() {
     let doc = layout(&Content::equation(
         Content::math_attach_scripts(
             Content::MathIdent("lim".into()),
-            None,
-            None,
-            Some(Content::MathText("y".into())),
-            None,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("y".into())),
+            MathAttachSlot::Omitted,
         ),
         true,
     ));

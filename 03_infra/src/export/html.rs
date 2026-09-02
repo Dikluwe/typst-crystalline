@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html.md
-//! @prompt-hash ba8a0c7e
+//! @prompt-hash 041cf55e
 //! @layer L3
 
 use typst_core::entities::content::Content;
@@ -67,24 +67,37 @@ const REPLACED_TAGS: &[&str] =
 
 const PROTECTED_SPACE: &str = "<span style=\"white-space: pre-wrap\">&#x20;</span>";
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HtmlSerializationMode {
+    Crystalline,
+    Vanilla,
+}
+
 pub fn export_html(content: &Content) -> Result<String, SourceDiagnostic> {
+    export_html_with_serialization(content, HtmlSerializationMode::Crystalline)
+}
+
+pub fn export_html_with_serialization(
+    content: &Content,
+    mode: HtmlSerializationMode,
+) -> Result<String, SourceDiagnostic> {
     if let Some(root) = explicit_document_root(content)? {
         return if matches!(root, Content::HtmlElem(elem) if elem.tag == "html") {
-            Ok(format!("{DOCTYPE}{}", inline(root)?))
+            Ok(format!("{DOCTYPE}{}", inline(root, mode)?))
         } else {
-            Ok(format!("{AUTO_ROOT_PREFIX}{}</html>", inline(root)?))
+            Ok(format!("{AUTO_ROOT_PREFIX}{}</html>", inline(root, mode)?))
         };
     }
     let body = match content {
         Content::Empty => String::new(),
         Content::Heading(h) => {
-            format!("<h{}>{}</h{}>", h.level, inline(&h.body)?.trim(), h.level)
+            format!("<h{}>{}</h{}>", h.level, inline(&h.body, mode)?.trim(), h.level)
         }
         Content::HtmlElem(elem) if should_group_into_paragraph(elem.tag.as_str()) => {
-            format!("<p>{}</p>", inline(content)?)
+            format!("<p>{}</p>", inline(content, mode)?)
         }
-        Content::HtmlElem(_) => inline(content)?,
-        Content::Table(_) => inline(content)?,
+        Content::HtmlElem(_) => inline(content, mode)?,
+        Content::Table(_) => inline(content, mode)?,
         Content::Sequence(seq)
             if seq.iter().any(|c| {
                 matches!(
@@ -97,10 +110,10 @@ pub fn export_html(content: &Content) -> Result<String, SourceDiagnostic> {
                 )
             }) =>
         {
-            block_sequence(seq)?
+            block_sequence(seq, mode)?
         }
-        Content::Par { body } => format!("<p>{}</p>", inline(body)?.trim()),
-        other => format!("<p>{}</p>", inline(other)?.trim()),
+        Content::Par { body } => format!("<p>{}</p>", inline(body, mode)?.trim()),
+        other => format!("<p>{}</p>", inline(other, mode)?.trim()),
     };
     Ok(format!("{PREFIX}{body}</body></html>"))
 }
@@ -136,7 +149,10 @@ fn explicit_document_root(
     Ok(None)
 }
 
-fn block_sequence(seq: &[Content]) -> Result<String, SourceDiagnostic> {
+fn block_sequence(
+    seq: &[Content],
+    mode: HtmlSerializationMode,
+) -> Result<String, SourceDiagnostic> {
     let mut out = String::new();
     let mut paragraph = String::new();
     let flush = |out: &mut String, paragraph: &mut String| {
@@ -155,28 +171,28 @@ fn block_sequence(seq: &[Content]) -> Result<String, SourceDiagnostic> {
                 out.push_str(&format!(
                     "<h{}>{}</h{}>",
                     h.level,
-                    inline(&h.body)?.trim(),
+                    inline(&h.body, mode)?.trim(),
                     h.level
                 ));
             }
             Content::Par { body } => {
                 flush(&mut out, &mut paragraph);
-                out.push_str(&format!("<p>{}</p>", inline(body)?.trim()));
+                out.push_str(&format!("<p>{}</p>", inline(body, mode)?.trim()));
             }
             Content::HtmlElem(elem) => {
                 if should_group_into_paragraph(elem.tag.as_str()) {
-                    paragraph.push_str(&inline(item)?);
+                    paragraph.push_str(&inline(item, mode)?);
                 } else {
                     flush(&mut out, &mut paragraph);
-                    out.push_str(&inline(item)?);
+                    out.push_str(&inline(item, mode)?);
                 }
             }
             Content::Table(_) => {
                 flush(&mut out, &mut paragraph);
-                out.push_str(&inline(item)?);
+                out.push_str(&inline(item, mode)?);
             }
             Content::Space => paragraph.push_str(top_level_space_between(seq, index)),
-            other => paragraph.push_str(&inline(other)?),
+            other => paragraph.push_str(&inline(other, mode)?),
         }
     }
     flush(&mut out, &mut paragraph);
@@ -187,23 +203,28 @@ fn should_group_into_paragraph(tag: &str) -> bool {
     GROUPABLE_PHRASING_TAGS.contains(&tag)
 }
 
-fn inline(content: &Content) -> Result<String, SourceDiagnostic> {
+fn inline(
+    content: &Content,
+    mode: HtmlSerializationMode,
+) -> Result<String, SourceDiagnostic> {
     Ok(match content {
         Content::Empty => String::new(),
-        Content::Text(text) => escape(text),
+        Content::Text(text) => escape_text(text, mode),
         Content::Space => " ".into(),
         Content::SetPage { .. } => String::new(),
-        Content::Sequence(seq) => {
-            seq.iter().map(inline).collect::<Result<Vec<_>, _>>()?.concat()
-        }
-        Content::Strong(e) => format!("<strong>{}</strong>", inline(&e.body)?),
-        Content::Emph(e) => format!("<em>{}</em>", inline(&e.body)?),
-        Content::Styled(body, _) => inline(body)?,
+        Content::Sequence(seq) => seq
+            .iter()
+            .map(|item| inline(item, mode))
+            .collect::<Result<Vec<_>, _>>()?
+            .concat(),
+        Content::Strong(e) => format!("<strong>{}</strong>", inline(&e.body, mode)?),
+        Content::Emph(e) => format!("<em>{}</em>", inline(&e.body, mode)?),
+        Content::Styled(body, _) => inline(body, mode)?,
         Content::Linebreak(_) => "<br>".into(),
-        Content::Table(table) => html_table(table)?,
-        Content::TableCell(cell) => inline(&cell.body)?,
-        Content::TableHeader(header) => inline(&header.body)?,
-        Content::TableFooter(footer) => inline(&footer.body)?,
+        Content::Table(table) => html_table(table, mode)?,
+        Content::TableCell(cell) => inline(&cell.body, mode)?,
+        Content::TableHeader(header) => inline(&header.body, mode)?,
+        Content::TableFooter(footer) => inline(&footer.body, mode)?,
         Content::HtmlElem(elem) => {
             let mut out = String::new();
             out.push('<');
@@ -214,7 +235,7 @@ fn inline(content: &Content) -> Result<String, SourceDiagnostic> {
                     out.push_str(name.as_str());
                     if !value.is_empty() {
                         out.push_str("=\"");
-                        out.push_str(&escape(value));
+                        out.push_str(&escape_attribute(value, mode));
                         out.push('"');
                     }
                 }
@@ -233,7 +254,7 @@ fn inline(content: &Content) -> Result<String, SourceDiagnostic> {
                 if elem.tag == "title" {
                     out.push_str(&title_text(body)?);
                 } else {
-                    out.push_str(&inline_html_body(elem.tag.as_str(), body)?);
+                    out.push_str(&inline_html_body(elem.tag.as_str(), body, mode)?);
                 }
             }
             out.push_str("</");
@@ -252,6 +273,7 @@ fn inline(content: &Content) -> Result<String, SourceDiagnostic> {
 
 fn html_table(
     table: &typst_core::entities::elements::table::TableElem,
+    mode: HtmlSerializationMode,
 ) -> Result<String, SourceDiagnostic> {
     fn flatten<'a>(content: &'a Content, out: &mut Vec<&'a Content>) {
         match content {
@@ -270,6 +292,7 @@ fn html_table(
         cells: &[&Content],
         columns: usize,
         tag: &str,
+        mode: HtmlSerializationMode,
     ) -> Result<String, SourceDiagnostic> {
         let mut out = String::new();
         for chunk in cells.chunks(columns.max(1)) {
@@ -290,7 +313,7 @@ fn html_table(
                     out.push_str(&format!(" rowspan=\"{rowspan}\""));
                 }
                 out.push('>');
-                out.push_str(&inline(body)?);
+                out.push_str(&inline(body, mode)?);
                 out.push_str("</");
                 out.push_str(tag);
                 out.push('>');
@@ -306,7 +329,7 @@ fn html_table(
         let mut cells = Vec::new();
         flatten(header, &mut cells);
         out.push_str("<thead>");
-        out.push_str(&rows(&cells, columns, "th")?);
+        out.push_str(&rows(&cells, columns, "th", mode)?);
         out.push_str("</thead>");
     }
     let mut cells = Vec::new();
@@ -314,7 +337,7 @@ fn html_table(
         flatten(child, &mut cells);
     }
     out.push_str("<tbody>");
-    out.push_str(&rows(&cells, columns, "td")?);
+    out.push_str(&rows(&cells, columns, "td", mode)?);
     out.push_str("</tbody></table>");
     Ok(out)
 }
@@ -351,9 +374,10 @@ fn title_text(content: &Content) -> Result<String, SourceDiagnostic> {
 fn inline_html_body(
     parent_tag: &str,
     content: &Content,
+    mode: HtmlSerializationMode,
 ) -> Result<String, SourceDiagnostic> {
     let Content::Sequence(items) = content else {
-        return inline(content);
+        return inline(content, mode);
     };
     let first = items.iter().position(|item| !matches!(item, Content::Space));
     let Some(first) = first else { return Ok(String::new()) };
@@ -379,7 +403,7 @@ fn inline_html_body(
             }
             out.push_str(space_between(items, index));
         } else {
-            out.push_str(&inline(&items[index])?);
+            out.push_str(&inline(&items[index], mode)?);
         }
     }
     Ok(out)
@@ -503,11 +527,24 @@ fn collapses_adjacent_whitespace(content: &Content) -> bool {
     matches!(content, Content::HtmlElem(elem) if elem.tag == "br" || BLOCK_TAGS.contains(&elem.tag.as_str()))
 }
 
-fn escape(text: &str) -> String {
-    text.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
+fn escape_text(text: &str, mode: HtmlSerializationMode) -> String {
+    let escaped = text.replace('&', "&amp;").replace('<', "&lt;");
+    match mode {
+        HtmlSerializationMode::Crystalline => {
+            escaped.replace('>', "&gt;").replace('"', "&quot;")
+        }
+        HtmlSerializationMode::Vanilla => escaped,
+    }
+}
+
+fn escape_attribute(text: &str, mode: HtmlSerializationMode) -> String {
+    let escaped = text.replace('&', "&amp;").replace('"', "&quot;");
+    match mode {
+        HtmlSerializationMode::Crystalline => {
+            escaped.replace('<', "&lt;").replace('>', "&gt;")
+        }
+        HtmlSerializationMode::Vanilla => escaped,
+    }
 }
 
 #[cfg(test)]
@@ -515,6 +552,30 @@ mod tests {
     use super::*;
     use std::sync::Arc;
     use typst_core::entities::html::{HtmlAttrs, HtmlElem};
+
+    #[test]
+    fn p1293_c_modos_separam_escape_e_default_preserva_crystalline() {
+        let mut attrs = HtmlAttrs::default();
+        attrs.insert("value".into(), "x&\"<>".into());
+        let elem = Content::HtmlElem(Arc::new(HtmlElem::new(
+            "button".into(),
+            Some(attrs),
+            typst_core::entities::html::HtmlBody::Content(Box::new(Content::text("<&>"))),
+        )));
+        let default = export_html(&elem).unwrap();
+        let crystalline =
+            export_html_with_serialization(&elem, HtmlSerializationMode::Crystalline)
+                .unwrap();
+        let vanilla =
+            export_html_with_serialization(&elem, HtmlSerializationMode::Vanilla)
+                .unwrap();
+
+        assert_eq!(default, crystalline);
+        assert!(crystalline.contains("value=\"x&amp;&quot;&lt;&gt;\""));
+        assert!(crystalline.contains("&lt;&amp;&gt;"));
+        assert!(vanilla.contains("value=\"x&amp;&quot;<>\""));
+        assert!(vanilla.contains("&lt;&amp;>"));
+    }
 
     #[test]
     fn exports_plain_paragraph_like_vanilla() {

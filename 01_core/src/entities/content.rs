@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 25d896e3
+//! @prompt-hash de6f3b46
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -46,7 +46,7 @@ use crate::entities::elements::Element;
 // Lote 2 P317 — família math element-shaped (11 variantes).
 use crate::entities::elements::math_accent::MathAccentElem;
 use crate::entities::elements::math_align_point::MathAlignPointElem;
-use crate::entities::elements::math_attach::MathAttachElem;
+use crate::entities::elements::math_attach::{MathAttachElem, MathAttachSlot};
 use crate::entities::elements::math_cancel::{
     MathCancelAngle, MathCancelElem, MathCancelExplicit,
 };
@@ -1590,15 +1590,15 @@ impl Content {
     /// Construtor canónico de scripts (retrocompatibilidade com testes existentes)
     pub fn math_attach_scripts(
         base: Content,
-        tl: Option<Content>,
-        bl: Option<Content>,
-        sub: Option<Content>,
-        sup: Option<Content>,
+        tl: MathAttachSlot,
+        bl: MathAttachSlot,
+        sub: MathAttachSlot,
+        sup: MathAttachSlot,
     ) -> Self {
         Self::MathAttach(Arc::new(MathAttachElem {
             base,
-            t: None,
-            b: None,
+            t: MathAttachSlot::Omitted,
+            b: MathAttachSlot::Omitted,
             tl,
             bl,
             tr: sup,
@@ -1608,12 +1608,12 @@ impl Content {
 
     pub fn math_attach(
         base: Content,
-        t: Option<Content>,
-        b: Option<Content>,
-        tl: Option<Content>,
-        bl: Option<Content>,
-        tr: Option<Content>,
-        br: Option<Content>,
+        t: MathAttachSlot,
+        b: MathAttachSlot,
+        tl: MathAttachSlot,
+        bl: MathAttachSlot,
+        tr: MathAttachSlot,
+        br: MathAttachSlot,
     ) -> Self {
         Self::MathAttach(Arc::new(MathAttachElem { base, t, b, tl, bl, tr, br }))
     }
@@ -4250,10 +4250,10 @@ mod tests {
     fn content_math_attach_plain_text() {
         let attach = Content::math_attach_scripts(
             Content::MathIdent("x".into()),
-            None,
-            None,
-            None,
-            Some(Content::MathText("2".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("2".into())),
         );
         assert_eq!(attach.plain_text(), "x^2");
     }

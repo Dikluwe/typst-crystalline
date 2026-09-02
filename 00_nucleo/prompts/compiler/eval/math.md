@@ -1,14 +1,37 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: 15ae0c5d
+Hash do Código: 2ad201fa
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
+- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/eval/math.rs`
 **Vanilla ratificado:** `a51e02804`
 
 ## Medição e contrato
+
+### P1293 — carrier dos anexos produzidos pela sintaxe
+
+#### Medição anterior à decisão
+
+`01_core/src/compiler/eval/math.rs:422-459` avalia base/sub/sup e chama
+`Content::math_attach` com `Option<Content>`; o caminho não cria `none`
+explícito, mas é um produtor do mesmo payload público e precisa selecionar o
+estado canônico sem inventar sentinel. O recibo causal P1293 SHA-256
+`80a9543c9450f2350a42fa48df2e42cac63109bd074ebb37c2ec424cba473d5c`
+mede que a convergência sintaxe/qualificada depende de preservar a identidade
+dos estados até repr/layout.
+
+#### Decisão
+
+Todo slot ausente na sintaxe produz `MathAttachSlot::Omitted`; cada sub/sup ou
+prime efetivamente construído produz `Present(content)`. Este owner não
+fabrica `ExplicitNone`, pois a gramática desta forma não fornece esse valor;
+ele apenas o preserva se vier de reconstrução autorizada. Merge de primes,
+ordem, avaliação, spans e diagnósticos continuam os vigentes. Não mudar
+parser/AST/Args/Value, defaults ou fase. A assinatura pública foi confirmada
+sob ADR-0127 categoria 1 em `2026-09-02T08:06:37-03:00`.
 
 Converte AST em Content matemático, resolve operadores/símbolos pelo scope,
 avalia chamadas e preserva anexos, delimitadores, frações, raízes e alinhamento.
@@ -112,3 +135,41 @@ resolução pertence a `P1292.vec-region-gap` no owner de layout.
 
 Owners canónicos: `entities/elements/math_vec.md`, `entities/content.md`,
 `compiler/stdlib/structural/math.md` e `compiler/math/layout/vec.md`.
+
+## P1293 — sintaxe `attach`/`binom` converge com o módulo público
+
+### Medição anterior à decisão
+
+No baseline `7dd25ff0e222b6c7c640d6bc7957b98f94227507`,
+`01_core/src/compiler/eval/math.rs:822-929,963-1008` contém braços sintáticos
+próprios para `attach` e `binom`; o primeiro já constrói os sete slots, enquanto
+o segundo já usa `MathFrac(line:false)` e delimitadores, mas ambos repetem
+extração/validação. O vanilla ratificado medido em
+`math/ir/resolve.rs:402-415,470-570,714-768` resolve sintaxe e função para a
+mesma morfologia. As sondas P1293 confirmaram os pares sintático/qualificado
+para attach, binom, mono e script sem usar `PartialEq` ou bytes internos como
+prova.
+
+### Decisão
+
+Os braços sintáticos `attach` e `binom` avaliam cada argumento uma vez e
+delegam aos mesmos constructors puros que servem `math.attach` e `math.binom`
+no owner `compiler/stdlib/structural/math.md`. Não mantêm segunda tabela de
+defaults, casts, aridade ou fórmula de payload.
+
+Para `attach`, base é o único positional e os named fechados são `t`, `b`,
+`tl`, `bl`, `tr`, `br`. Named omitido permanece slot ausente; `none`
+explicitamente escrito permanece morfologia presente como conteúdo vazio e
+chega ao layout como caixa vazia, semanticamente equivalente à omissão no
+render. Named desconhecido, extra e cast inválido conservam mensagem e span do
+argumento; o erro não é agregado em texto ad hoc pelo call inteiro.
+
+Para `binom`, upper e todos os lowers posicionais preservam ordem; é obrigatório
+ao menos um lower. A sintaxe produz a mesma fração sem barra e os mesmos
+parênteses esticados que o caminho qualificado. `mono` e `script` continuam a
+resolver as funções do scope math, com `script.cramped` transportado; este
+owner não duplica seus estilos.
+
+Eval continua sem geometria. Novo campo, entidade ou mudança de fase não foi
+necessário. `Unknown` não é aceitação para qualquer par requerido; a adição da
+superfície qualificada permanece bloqueada pelo gate humano P1293.

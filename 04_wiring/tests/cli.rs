@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash aa5502ce
+//! @prompt-hash 7396cebb
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -1860,11 +1860,27 @@ fn p1168_html_typed_batch_repr_and_dom() {
         .unwrap();
     assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
     let repr = String::from_utf8_lossy(&eval.stdout);
-    assert!(repr.starts_with("(\n  elem(tag: \"div\", body: none),"));
-    for tag in ["span", "p", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "ul"] {
-        assert!(repr.contains(&format!("elem(tag: \"{tag}\"")), "repr sem {tag}: {repr}");
-    }
-    assert!(repr.contains("attrs: (id: \"p\", class: \"a b\", hidden: \"\")"));
+    assert_eq!(
+        repr,
+        r#"(
+  elem(tag: "div", body: none),
+  elem(tag: "span", body: [x]),
+  elem(
+    tag: "p",
+    attrs: (id: "p", class: "a b", hidden: ""),
+    body: [x],
+  ),
+  elem(tag: "h1", body: [x]),
+  elem(tag: "h2", body: [x]),
+  elem(tag: "h3", body: [x]),
+  elem(tag: "h4", body: [x]),
+  elem(tag: "h5", body: [x]),
+  elem(tag: "h6", body: [x]),
+  elem(tag: "strong", body: [x]),
+  elem(tag: "em", body: [x]),
+  elem(tag: "ul", body: [x]),
+)"#
+    );
 
     let input = temp_typ(
         "p1168-html-typed",
@@ -2075,7 +2091,11 @@ fn p1173_1_html_lote_global_only_2_e_whitespace_block() {
     assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
     assert_eq!(
         String::from_utf8_lossy(&eval.stdout),
-        "elem(tag: \"abbr\", attrs: (id: \"sigla\", hidden: \"\"), body: [A])"
+        r#"elem(
+  tag: "abbr",
+  attrs: (id: "sigla", hidden: ""),
+  body: [A],
+)"#
     );
 
     let input = temp_typ(
@@ -2120,7 +2140,11 @@ fn p1174_1_html_lote_global_only_3() {
     assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
     assert_eq!(
         String::from_utf8_lossy(&eval.stdout),
-        "elem(tag: \"mark\", attrs: (id: \"m\", hidden: \"\"), body: [M])"
+        r#"elem(
+  tag: "mark",
+  attrs: (id: "m", hidden: ""),
+  body: [M],
+)"#
     );
 
     let input = temp_typ(
@@ -2165,7 +2189,11 @@ fn p1175_1_html_lote_global_only_4_e_espaco_protegido() {
     assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
     assert_eq!(
         String::from_utf8_lossy(&eval.stdout),
-        "elem(tag: \"picture\", attrs: (id: \"pic\", hidden: \"\"), body: [P])"
+        r#"elem(
+  tag: "picture",
+  attrs: (id: "pic", hidden: ""),
+  body: [P],
+)"#
     );
 
     let input = temp_typ(
@@ -2210,7 +2238,11 @@ fn p1176_1_html_lote_residual_normal() {
     assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
     assert_eq!(
         String::from_utf8_lossy(&eval.stdout),
-        "elem(tag: \"summary\", attrs: (id: \"s\", hidden: \"\"), body: [S])"
+        r#"elem(
+  tag: "summary",
+  attrs: (id: "s", hidden: ""),
+  body: [S],
+)"#
     );
 
     let input = temp_typ(
@@ -2255,7 +2287,11 @@ fn p1177_1_html_familia_ruby() {
     assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
     assert_eq!(
         String::from_utf8_lossy(&eval.stdout),
-        "elem(tag: \"ruby\", attrs: (id: \"r\", hidden: \"\"), body: [R])"
+        r#"elem(
+  tag: "ruby",
+  attrs: (id: "r", hidden: ""),
+  body: [R],
+)"#
     );
 
     let input = temp_typ(
@@ -2300,7 +2336,11 @@ fn p1178_1_html_familia_documento() {
     assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
     assert_eq!(
         String::from_utf8_lossy(&eval.stdout),
-        "elem(tag: \"title\", attrs: (id: \"t\", hidden: \"\"), body: [T])"
+        r#"elem(
+  tag: "title",
+  attrs: (id: "t", hidden: ""),
+  body: [T],
+)"#
     );
 
     let input = temp_typ(

@@ -1,0 +1,369 @@
+{
+  "schema": "tekt.p1293.independent-adversarial-final.v1",
+  "generated_at": "2026-09-02T16:46:26-03:00",
+  "role": {
+    "identity": "atacante_p1293",
+    "sequence": 6,
+    "claim": "segregado por capacidades e artefatos, sem isolamento técnico de leitura",
+    "shared_filesystem": true,
+    "technical_read_isolation_attested": false,
+    "product_l0_oracle_manifest_seal_written": false,
+    "only_repository_writes": [
+      "00_nucleo/diagnosticos/p1293-adversarial-plan.md",
+      "00_nucleo/diagnosticos/p1293-adversarial-receipt.json"
+    ]
+  },
+  "verdict": {
+    "status": "REJECTED_FOR_FINALIZATION_CORRECTIONS_REQUIRED",
+    "step_approved": false,
+    "whole_step_closed": false,
+    "candidate_product_rejected_semantically": false,
+    "unknown_required": 0,
+    "reason": "Global infra, protected P1292 and formatting gates are red; out-of-allowlist writes and output exist; the P1293 oracle owner is semantically stale; final mandatory artifacts are absent."
+  },
+  "state": {
+    "head": "7dd25ff0e222b6c7c640d6bc7957b98f94227507",
+    "branch": "Tekt",
+    "working_tree": "uncommitted",
+    "measurement_at": "2026-09-02T16:46:26-03:00",
+    "baseline": {
+      "path": "00_nucleo/diagnosticos/p1293-baseline-status.txt",
+      "sha256": "682cad4bbef22ed6364fd0a5fcb9a8994230e7d22eb716a631f2f2fba6a294b2",
+      "tracked_diff_at_p1293_start": "empty",
+      "initial_untracked": [
+        "00_nucleo/diagnosticos/p1293-authoring-baseline-status.txt",
+        "00_nucleo/diagnosticos/p1293-manifest.json",
+        "00_nucleo/materialization/typst-passo-1293.md"
+      ]
+    },
+    "tracked_diff": {
+      "paths": 63,
+      "insertions": 6743,
+      "deletions": 778,
+      "binary_sha256": "e9aeff8f472b8308d7b8233b99147fbe7cfe7bb785ad06fa5a4dc68bcceaaa05",
+      "name_only_sha256": "6d6fb9913dafa3be6587076a92f5a19265bc45547c0541d4d9a9d52a48c9fa36",
+      "stat_sha256": "e2bd5fca7571970a1f73a3246db084496ac31960b10e4f7f4a21b769b8fc9c3c",
+      "exact_paths": [
+        "00_nucleo/prompts/compiler/eval.md",
+        "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "00_nucleo/prompts/compiler/eval/math.md",
+        "00_nucleo/prompts/compiler/eval/repr.md",
+        "00_nucleo/prompts/compiler/eval/tests.md",
+        "00_nucleo/prompts/compiler/layout/equation.md",
+        "00_nucleo/prompts/compiler/layout/helpers.md",
+        "00_nucleo/prompts/compiler/layout/text.md",
+        "00_nucleo/prompts/compiler/math/layout/_comum.md",
+        "00_nucleo/prompts/compiler/math/layout/attach.md",
+        "00_nucleo/prompts/compiler/stdlib/foundations/float.md",
+        "00_nucleo/prompts/compiler/stdlib/html.md",
+        "00_nucleo/prompts/compiler/stdlib/math_style.md",
+        "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+        "00_nucleo/prompts/entities/content.md",
+        "00_nucleo/prompts/entities/elements/math_attach.md",
+        "00_nucleo/prompts/entities/layout_types.md",
+        "00_nucleo/prompts/entities/style_chain.md",
+        "00_nucleo/prompts/infra/export/html.md",
+        "00_nucleo/prompts/infra/export/mod.md",
+        "00_nucleo/prompts/infra/font_metrics.md",
+        "00_nucleo/prompts/infra/pipeline.md",
+        "00_nucleo/prompts/infra/shaper.md",
+        "00_nucleo/prompts/shell/cli.md",
+        "00_nucleo/prompts/wiring.md",
+        "01_core/src/compiler/eval/bindings/field_access.rs",
+        "01_core/src/compiler/eval/call_dispatch.rs",
+        "01_core/src/compiler/eval/math.rs",
+        "01_core/src/compiler/eval/mod.rs",
+        "01_core/src/compiler/eval/repr.rs",
+        "01_core/src/compiler/eval/tests.rs",
+        "01_core/src/compiler/layout/equation.rs",
+        "01_core/src/compiler/layout/helpers.rs",
+        "01_core/src/compiler/layout/text.rs",
+        "01_core/src/compiler/math/layout/accent.rs",
+        "01_core/src/compiler/math/layout/attach.rs",
+        "01_core/src/compiler/math/layout/cancel.rs",
+        "01_core/src/compiler/math/layout/cases.rs",
+        "01_core/src/compiler/math/layout/frac.rs",
+        "01_core/src/compiler/math/layout/matrix.rs",
+        "01_core/src/compiler/math/layout/mod.rs",
+        "01_core/src/compiler/math/layout/root.rs",
+        "01_core/src/compiler/math/layout/spacing.rs",
+        "01_core/src/compiler/math/layout/tests.rs",
+        "01_core/src/compiler/math/layout/underover.rs",
+        "01_core/src/compiler/math/layout/vec.rs",
+        "01_core/src/compiler/stdlib/foundations/float.rs",
+        "01_core/src/compiler/stdlib/html.rs",
+        "01_core/src/compiler/stdlib/math_style.rs",
+        "01_core/src/compiler/stdlib/structural/math.rs",
+        "01_core/src/entities/content.rs",
+        "01_core/src/entities/elements/math_attach.rs",
+        "01_core/src/entities/layout_types.rs",
+        "01_core/src/entities/style_chain.rs",
+        "02_shell/src/cli.rs",
+        "03_infra/src/export/html.rs",
+        "03_infra/src/export/mod.rs",
+        "03_infra/src/export/tests.rs",
+        "03_infra/src/font_metrics.rs",
+        "03_infra/src/pipeline.rs",
+        "03_infra/src/shaper.rs",
+        "04_wiring/src/main.rs"
+      ]
+    },
+    "status_short_sha256_after_plan_before_receipt": "8a6e9517c67a40e29859b93a84dd2ea5462bb3bc5518762700cd72532be6a9b6",
+    "untracked_name_list_sha256_after_plan_before_receipt": "f9f42e9e86a074d941d738a4b4e60db2cf68aff2a3aa6c25eb0d659047ee3248"
+  },
+  "protected_inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1293-manifest.json",
+      "sha256": "0e589dd49012c781b54aea15b8e0a002ee11eefdac17306b8c724a9a43d1e52c"
+    },
+    "seal": {
+      "path": "00_nucleo/diagnosticos/p1293-contract-seal.json",
+      "sha256": "539bb6abad33152150434d585924d3ae64ea74b909a95f509c5ddeeae15c767f",
+      "active_metadata": "post_lot_d_approval_final_handoff_metadata",
+      "active_scope": "read-only final handoff; no correction authority"
+    },
+    "p1293_oracle_owner": {
+      "path": "00_nucleo/prompts/wiring/tests/p1293_contract.md",
+      "sha256": "adf47e09192bf792ede1cf227696e6314f1b4aa059c510141d05118ebb799989"
+    },
+    "p1293_oracle": {
+      "path": "04_wiring/tests/p1293_contract.rs",
+      "sha256": "ed3e0b57c703a1c4dbdbeda187fcf74dcf46476f60a2c850e48a9ef8f0b2df1e"
+    },
+    "p1292_oracle_owner": {
+      "path": "00_nucleo/prompts/wiring/tests/p1292_contract.md",
+      "sha256": "41dd2e0ed56814baf94acf565d1fa59eb64f1f11b9d11cd1ea4937a998f2d0a1"
+    },
+    "p1292_oracle": {
+      "path": "04_wiring/tests/p1292_contract.rs",
+      "sha256": "fa8f8770ea188a6bfe4e3415a6e053356d38e945dc950be8b864424b24b983aa"
+    },
+    "integration_test_owner": {
+      "path": "00_nucleo/prompts/infra/integration_tests.md",
+      "sha256": "f711e6ee409dc34ed977020788c341b45c0d0e0fc2e6c965ce003f26f16af455"
+    },
+    "integration_tests": {
+      "path": "03_infra/src/integration_tests.rs",
+      "sha256": "6377db547065c4fa912924bfae88d6c0e296b1446fd55571f57c2a43783d0086"
+    },
+    "equation_owner": {
+      "path": "00_nucleo/prompts/compiler/layout/equation.md",
+      "sha256": "9efca34585e1776267286b66dc74ed6ca213832b91568a8ffd79ccd2b8578179"
+    },
+    "equation_consumer": {
+      "path": "01_core/src/compiler/layout/equation.rs",
+      "sha256": "ea81dc9e291d29e1ac6d17a240b98929228af31dc2a2a1563efae20ba25d9e23"
+    }
+  },
+  "executed_evidence": {
+    "p1293_protected": {
+      "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-wiring --test p1293_contract",
+      "exit": 0,
+      "result": "11/11 passed",
+      "forward_reverse_lot_result": "A 1/1, B 2/2, C 5/5, D 2/2 in each order"
+    },
+    "focal": [
+      {"command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1293_ --lib", "exit": 0, "result": "50/50"},
+      {"command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1105_ --lib", "exit": 0, "result": "6/6"},
+      {"command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-infra p1293_ --lib", "exit": 0, "result": "6/6"},
+      {"command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-wiring --test p1289_float_is_infinite", "exit": 0, "result": "1/1"},
+      {"command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1290_ --lib", "exit": 0, "result": "7/7"},
+      {"command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1291_ --lib", "exit": 0, "result": "30/30"},
+      {"command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-wiring --test p1291_callback_runtime", "exit": 0, "result": "5/5"}
+    ],
+    "global_infra": {
+      "started_at": "2026-09-02T16:38:34-03:00",
+      "finished_at": "2026-09-02T16:38:40-03:00",
+      "command": "RUSTFLAGS='-Awarnings' cargo test -p typst-infra --lib -- --nocapture",
+      "exit": 101,
+      "result": "910 passed; 8 failed",
+      "log_sha256": "5c330283e23b98a36a332e459d88072a00e800a59fc093d1ef13a54a5ad327eb",
+      "failures": [
+        {"test": "p1132e_cases_conteudo_preserva_centro_da_chave_sec09", "panic_line": 4650},
+        {"test": "p1132g_binom_sec07_sem_barra_e_com_posicao_vanilla", "panic_line": 4695},
+        {"test": "p1132k_sec12_limite_unilateral_preserva_altura_vanilla", "panic_line": 4737},
+        {"test": "p1132n_sec18_chave_externa_seleciona_variante_vanilla", "panic_line": 4957},
+        {"test": "p1132o_sec18_fracao_aninhada_suprime_spacing_em_script", "panic_line": 5008},
+        {"test": "p1132p_sec10_assembly_de_bracket_usa_attachment_central", "panic_line": 5045},
+        {"test": "p1133b_sec04_dif_com_sup_preserva_altura_vanilla", "panic_line": 4795},
+        {"test": "p1136_sec17_operadores_large_alinham_conteudo_adjacente_no_eixo", "panic_line": 4892}
+      ]
+    },
+    "p1292_protected": {
+      "started_at": "2026-09-02T16:42:04-03:00",
+      "finished_at": "2026-09-02T16:42:11-03:00",
+      "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-wiring --test p1292_contract",
+      "exit": 101,
+      "result": "10 passed; 1 failed",
+      "failure": "p1292_b_plain_mixed_baselines_and_following_line_advance at 04_wiring/tests/p1292_contract.rs:422"
+    },
+    "format": {
+      "started_at": "2026-09-02T16:38:23-03:00",
+      "finished_at": "2026-09-02T16:38:25-03:00",
+      "command": "cargo fmt --all -- --check",
+      "exit": 1,
+      "distinct_files": 15
+    },
+    "architecture": {
+      "measured_at": "2026-09-02T16:40:05-03:00",
+      "equivalent_current_cli": "crystalline-lint --quiet --checks vN --fail-on warning .",
+      "V3": "PASS",
+      "V4": "PASS",
+      "V5": "PASS",
+      "V7": "PASS",
+      "V13": "PASS",
+      "V14": "PASS",
+      "V15": "PASS",
+      "V26": "PASS",
+      "hash_dry_run": "PASS: Nothing to fix",
+      "git_diff_check": "PASS",
+      "documented_fail_on_warning_syntax": "INVALID: --fail-on-warning=V* exits 2 on the installed CLI"
+    },
+    "mutation_gate_received": {
+      "path": "00_nucleo/diagnosticos/p1293-preseal-discrimination-c-p08-semantic-neutrality-receipt.json",
+      "sha256": "c2ede2169456b0517d03586412f9aa34f508f9b18d8a7347756cc2dc3c87e7cb",
+      "valid_mutations": 31,
+      "forward_rejected": 31,
+      "reverse_rejected": 31,
+      "score": 1.0,
+      "survivors": 0,
+      "unknown": 0,
+      "receipt_defect": "capabilities.integrated_write names the older export-facade receipt instead of this P08 receipt"
+    }
+  },
+  "findings": [
+    {
+      "id": "F1-INFRA-OBSERVER-LOCAL-AS-GLOBAL",
+      "severity": "blocking",
+      "lot": "B verification/preservation",
+      "owner": "00_nucleo/prompts/infra/integration_tests.md -> 03_infra/src/integration_tests.rs",
+      "product_cause": "00_nucleo/prompts/compiler/layout/equation.md -> 01_core/src/compiler/layout/equation.rs:454-485",
+      "classification": "The product Group is contract-compliant internal mechanics; frame_items_recursive ignores Group.pos/matrix and reads local coordinates as global.",
+      "required_fix": "Compose ancestor position/matrix in the test observer, retain all current expected page coordinates, rerun the eight and full infra.",
+      "reopen_product_l0": false,
+      "reopen_test_l0": false,
+      "new_human_gate": false,
+      "reopen_lot": "Lot B verification checkpoint only; product owner only if transform-aware results still differ"
+    },
+    {
+      "id": "F2-P1292-PROTECTED-TRANSPORT",
+      "severity": "blocking",
+      "lot": "P1292 preservation and P1293 Lot B preservation",
+      "owner": "00_nucleo/prompts/wiring/tests/p1292_contract.md -> 04_wiring/tests/p1292_contract.rs:144-172",
+      "classification": "svg_glyph_baselines ignores an outer translate; 2.651 + 4.862 equals the expected absolute baseline 7.513.",
+      "required_fix": "Amend the P1292 oracle L0 first, then make only the SVG parser compose nested transforms without changing expected values; reseal and issue a P1292 preservation amendment.",
+      "reopen_l0": true,
+      "reopen_seal": true,
+      "new_human_gate": false
+    },
+    {
+      "id": "F3-FMT-AND-ALLOWLIST",
+      "severity": "blocking",
+      "lot": "B",
+      "format_files": [
+        "01_core/src/compiler/math/layout/accent.rs",
+        "01_core/src/compiler/math/layout/cancel.rs",
+        "01_core/src/compiler/math/layout/cases.rs",
+        "01_core/src/compiler/math/layout/frac.rs",
+        "01_core/src/compiler/math/layout/matrix.rs",
+        "01_core/src/compiler/math/layout/mod.rs",
+        "01_core/src/compiler/math/layout/root.rs",
+        "01_core/src/compiler/math/layout/spacing.rs",
+        "01_core/src/compiler/math/layout/tests.rs",
+        "01_core/src/compiler/math/layout/underover.rs",
+        "01_core/src/compiler/math/layout/vec.rs",
+        "01_core/src/compiler/stdlib/structural/math.rs",
+        "01_core/src/entities/elements/math_attach.rs",
+        "03_infra/src/font_metrics.rs",
+        "03_infra/src/shaper.rs"
+      ],
+      "authorized_semantic_files_needing_format": [
+        "01_core/src/compiler/math/layout/mod.rs",
+        "01_core/src/compiler/math/layout/spacing.rs",
+        "01_core/src/compiler/math/layout/tests.rs",
+        "01_core/src/compiler/stdlib/structural/math.rs",
+        "01_core/src/entities/elements/math_attach.rs",
+        "03_infra/src/font_metrics.rs",
+        "03_infra/src/shaper.rs"
+      ],
+      "out_of_allowlist_import_only_files": [
+        "01_core/src/compiler/math/layout/accent.rs",
+        "01_core/src/compiler/math/layout/cancel.rs",
+        "01_core/src/compiler/math/layout/cases.rs",
+        "01_core/src/compiler/math/layout/frac.rs",
+        "01_core/src/compiler/math/layout/matrix.rs",
+        "01_core/src/compiler/math/layout/root.rs",
+        "01_core/src/compiler/math/layout/underover.rs",
+        "01_core/src/compiler/math/layout/vec.rs"
+      ],
+      "required_fix": "Under a new exact corrective allowlist, apply current rustfmt; this restores the eight import-only files to HEAD/preimage and formats the seven authorized B files.",
+      "reopen_l0": false,
+      "reopen_seal": true
+    },
+    {
+      "id": "F4-ORPHAN-OUTPUT",
+      "severity": "blocking",
+      "path": "-",
+      "sha256": "414e2d883b7561996d3986f61c9e63ff210862f0e4cfb15f773b45973da36967",
+      "bytes": 7735,
+      "mtime": "2026-09-01T19:15:45.047110808-03:00",
+      "classification": "Untracked out-of-allowlist SVG matching the P1293 B-P07 binom-display viewBox; exact author is not proven.",
+      "required_fix": "Remove it under recorded cleanup authority.",
+      "reopen_l0": false
+    },
+    {
+      "id": "F5-P1293-ORACLE-OWNER-DRIFT",
+      "severity": "blocking",
+      "owner": "00_nucleo/prompts/wiring/tests/p1293_contract.md",
+      "consumer": "04_wiring/tests/p1293_contract.rs",
+      "classification": "Owner says gate C pending, old oracle, D prohibited and 29 mutations; consumer contains C-P10, MC13/MC14 and 31 IDs. V5 passes only because the consumer header matches the stale owner hash.",
+      "required_fix": "Update L0 first to record the already-authorized protected C-P10/MC13/MC14 contract and current state; reseal lineage, supersede the stale contract receipt, rerun preserved causal RED/discrimination 31/31 and issue a replacement seal. Do not adapt expectations.",
+      "reopen_l0": true,
+      "reopen_seal": true,
+      "new_human_gate": false,
+      "stop_if": "Any new product behavior beyond the already confirmed C facade requires ADR-0127 classification and human confirmation."
+    },
+    {
+      "id": "F6-RG-INCIDENT",
+      "severity": "process-violation",
+      "classification": "PROCESS_VIOLATION_CONFIRMED_NOT_ABSOLVED",
+      "protected_oracle_exposure": "not evidenced; oracle path is outside the reported search root",
+      "absence_of_exposure_proven": false,
+      "effect": "Does not independently refute Lot C semantics, but forbids any technical-isolation or clean operational-compliance claim."
+    },
+    {
+      "id": "F7-MANDATORY-ARTIFACTS-MISSING",
+      "severity": "blocking",
+      "missing_after_this_receipt": [
+        "00_nucleo/diagnosticos/p1293-surface-default.json",
+        "00_nucleo/diagnosticos/p1293-surface-html.json",
+        "00_nucleo/diagnosticos/p1293-preservation-receipt.md",
+        "00_nucleo/diagnosticos/p1293-verification-receipt.md",
+        "00_nucleo/diagnosticos/p1293-final-certificate.json",
+        "00_nucleo/diagnosticos/typst-passo-1293-relatorio.md"
+      ]
+    }
+  ],
+  "non_findings": {
+    "html": "Default remains Crystalline; Vanilla is explicit and HTML-only; feature and target remain independent.",
+    "math_tristate": "Omitted, ExplicitNone and Present(Content) remain distinct in entity, construction, repr and layout.",
+    "lot_d": "Ten short names, ten scope keys/native pointers, six historical flat aliases and four absent hline/vline flat aliases are preserved by protected evidence.",
+    "lineage_checks": "V5, V7, V15 and V26 pass mechanically; this does not cure semantic owner drift.",
+    "survivors": "No survivor is recorded in the 31-mutant discrimination gate and no protected P1293 functional survivor was found."
+  },
+  "required_correction_order": [
+    "Invalidate or supersede the active read-only final handoff before any correction write.",
+    "Correct P1293 oracle L0/contract receipt and P1292 oracle L0 first; no expectation adaptation.",
+    "Issue a narrow corrective seal for the two test observers, 15 formatting paths and orphan-output cleanup.",
+    "Make transform-aware test-only corrections and mechanical formatting/cleanup; stop if absolute semantics differ.",
+    "Reseal headers and rerun lineage, RED provenance, 31-mutant discrimination and replacement seal.",
+    "Revalidate Lot B plus P1292 preservation, then A/C/D and protected orders.",
+    "Run release/workspace/infra/fmt/lint/diff global gates and regenerate both surfaces.",
+    "Only a separate final verifier may emit preservation, verification, report and final certificate carrying the rg violation and limited attestation."
+  ],
+  "plan": {
+    "path": "00_nucleo/diagnosticos/p1293-adversarial-plan.md",
+    "sha256": "ecc12db3e5d9826dafdb7b42653e28d5f4f8e01772a8554e6718b1ac8129e226"
+  }
+}

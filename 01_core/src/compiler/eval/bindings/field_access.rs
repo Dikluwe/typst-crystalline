@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash ec9ad96f
+//! @prompt-hash 27bf3c60
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-09-01
 //!
 //! Acesso a campo (`a.b`) sobre valores e sobre `Content`, os métodos de
 //! `Content`, e as mensagens de erro de campo e de callee não-chamável.
@@ -103,7 +103,12 @@ pub(in crate::compiler::eval) fn eval_field_access(
         }
     }
 
-    eval_value_field_access(target, field, access.span())
+    let span = if field == "is-nan" && matches!(&target, Value::Float(_)) {
+        access.field().span()
+    } else {
+        access.span()
+    };
+    eval_value_field_access(target, field, span)
 }
 
 pub(in crate::compiler::eval) fn eval_value_field_access(

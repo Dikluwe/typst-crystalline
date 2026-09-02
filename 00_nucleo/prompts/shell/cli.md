@@ -1,8 +1,9 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 84ab63b4
+Hash do Código: 26707ade
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 - 00_nucleo/prompts/_nuclei/shell/build-identity.toml sha256:a97f32705be8700feaa6a5c89440ffa49d15c11145ea83744307aefc65a50297
 
@@ -516,6 +517,33 @@ igualam o stdout vanilla; zero/múltiplos com `--one` falham; compile legado e
 
 ## P1285 — formatos estruturados, valores públicos e query genérica
 
+### P1293 — projeção semântica dos slots de `MathAttach`
+
+#### Medição anterior à decisão
+
+O inventário de call sites encontrou um oitavo consumer produtivo além dos
+sete owners centrais: `02_shell/src/cli.rs:792-805` lê `t,b,tl,bl,tr,br` ao
+converter `MathAttach` para o objeto semântico de query. Com `Option`, esse
+caminho não distingue `none` explícito de conteúdo vazio presente. A medição
+causal P1293 SHA-256
+`80a9543c9450f2350a42fa48df2e42cac63109bd074ebb37c2ec424cba473d5c`
+fecha os três estados antes desta decisão; as chamadas de constructor depois
+de `#[cfg(test)]` são testes mecânicos e não owners produtivos adicionais.
+
+#### Decisão
+
+Na serialização pública de `MathAttach`, `Omitted` não cria field;
+`ExplicitNone` preserva a projeção histórica que o serializer aplicava a
+`Some(Content::Empty)`; `Present(content)` cria field pelo serializer recursivo
+vigente, inclusive o conteúdo vazio estrutural. A normalização pública de
+`t`/`b` versus `tr`/`br` e sua precedência ficam exatamente como estão; apenas
+a seleção tipada substitui a leitura mecânica de `Option`. O serializer não
+infere estado pelo conteúdo e não usa `repr`, sentinel ou heurística.
+
+Esta adaptação é consequência do contrato público MathAttachSlot confirmado
+em `2026-09-02T08:06:37-03:00`; não altera argumentos CLI, formatos, defaults,
+target, fase nem outros tipos de Content.
+
 > **Estado do gate ADR-0127:** CONFIRMADO PELO DONO EM 2026-08-30. Esta secção
 > substitui, somente para P1285, as restrições históricas acima que adiavam
 > YAML, proibiam o fallback público por `repr` e limitavam query a headings.
@@ -866,3 +894,56 @@ consumer L4.
 - `--features html,a11y-extras` e as duas ordens repetidas produzem o mesmo set;
 - sem flag, ambos permanecem false;
 - nome desconhecido falha no parser e não alcança L1/L3/L4 como valor parcial.
+
+## P1293.reopen-C — seleção explícita de serialização HTML (PROPOSTO; STOP ADR-0127)
+
+### Medição anterior à decisão
+
+Em `2026-09-02T12:14:19-03:00`, o recibo residual independente P1293/C
+SHA-256 `4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
+mediu que o caminho HTML vigente produz uma serialização conservadora válida,
+enquanto a forma vanilla ratificada também é HTML válido e diverge apenas na
+seleção contextual de escapes. Busca read-only no estado recebido não encontrou
+`HtmlSerialization`, `html_serialization` nem `--html-serialization` em
+`02_shell/src/cli.rs`; `CompileArgs` está em `cli.rs:144` e `CompileIntent` em
+`:344`. A decisão do dono é preservar a forma cristalina como default e expor a
+forma vanilla como alternativa explícita; portanto é incorreto chamar qualquer
+uma das duas de “não padrão”.
+
+### Contrato público proposto
+
+Somente o subcomando `compile` aceita
+`--html-serialization crystalline|vanilla`. L2 representa o dado cru com enum
+público fechado, separado do enum L3:
+
+```rust
+pub enum HtmlSerialization { Crystalline, Vanilla }
+
+pub struct CompileIntent {
+    // campos existentes
+    pub html_serialization: HtmlSerialization,
+}
+```
+
+A ausência da flag resolve para `HtmlSerialization::Crystalline`. A flag é
+aceita em `compile` mesmo quando o formato final não é HTML, mas só produz
+efeito quando `output_format == OutputFormat::Html`; para PDF/PNG/SVG é neutra.
+`watch`, `eval`, `query`, `info` e os demais comandos não aceitam esta flag.
+Em particular, a reutilização interna de argumentos de compile por `watch` não
+autoriza expor a opção nesse subcomando.
+
+L2 apenas valida `crystalline|vanilla` via clap e transporta o enum. Não
+conhece `HtmlSerializationMode` de L3, não serializa HTML e não ativa feature ou
+target. Valor diferente termina como erro de argumentos; formato HTML continua
+dependente de `Feature::Html`, e selecionar qualquer modo não habilita feature.
+
+### Gate e aceitação
+
+Esta proposta acrescenta flag, enum e campo públicos e preserva deliberadamente
+um comportamento por defeito próprio. É categoria 1 e 2 do ADR-0127: nenhuma
+implementação ou resselo de lineage é autorizado antes de confirmação humana
+explícita. Após confirmação, REDs devem provar default `crystalline`, igualdade
+entre default e flag explícita, seleção distinta de `vanilla`, rejeição de valor
+alheio e ausência da flag nos outros comandos. Refutam este owner qualquer
+necessidade de lógica de escaping em L2, efeito fora de HTML ou alteração do
+eixo feature/target.

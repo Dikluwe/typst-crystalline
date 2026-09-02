@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 2e820a22
+Hash do Código: 5c55b251
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -60,3 +60,51 @@ scope-out, assim como qualquer observável SVG/PDF.
 Os testes de `eval_expression` reconstroem a `Source` code com o mesmo
 `FileId` e exigem ranges exatos para chamada inteira, positional, named e
 deslocamento por linhas. Mensagem sem range resolvível não satisfaz a prova.
+
+## P1293 — retificação test-only da regressão P1105
+
+### Medição anterior à decisão
+
+O recibo segregado `p1293-implementation-receipt-b.md`, SHA-256
+`3772126a3880a174c588dd62897e77e89bbf955fdd917dcd6218215132044eef`,
+mediu em `2026-09-01T17:14:34-03:00`, no
+`HEAD 7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não
+commitada (`git status --short` SHA-256
+`e7ce2e33d6683603012059deaf3e8254dbedee2a93c9b25663cf779b097df55a`;
+`git diff HEAD --stat` SHA-256
+`26d25cac81995d45a9c667fa181ba17259eb9f65327117d1fbaeffa0d1435b7e`):
+
+- `20/20` spans negativos B coincidentes e suites de math/repr/call verdes;
+- o filtro `p1105` com `5 passed / 1 failed / 5379 filtered`, exit `101`;
+- a única falha é
+  `p1105_attach_zero_ou_multiplos_args_posicionais_erro`: para zero
+  posicionais o teste ainda exige a frase histórica portuguesa
+  `attach espera exactamente 1 argumento, recebeu 0`, enquanto a superfície
+  P1293/vanilla exige `missing argument: base`; para dois posicionais o teste
+  ainda exige a frase histórica com contagem, enquanto a superfície exige
+  `unexpected argument`.
+
+O consumer test-only mantém header 1:1 para este prompt. A inferência é que
+a falha é expectativa regressiva obsoleta, não falha de produto. Refutaria
+esta inferência qualquer falha adicional nos outros cinco controles P1105,
+mudança das mensagens congeladas no vanilla/contrato P1293 ou divergência
+semântica, morfológica, de layout ou span no lote B; nenhuma foi medida.
+
+### Decisão e aceitação
+
+Retificar somente as duas expectativas de mensagem do teste P1105 citado:
+
+- zero posicionais exige exatamente `missing argument: base`;
+- dois posicionais exigem exatamente `unexpected argument`.
+
+As mensagens portuguesas históricas não são alternativa aceita e o produto
+não deve ser revertido nem receber fallback para satisfazê-las. Os outros
+cinco controles do filtro P1105 e todas as demais asserções permanecem
+inalterados e obrigatórios.
+
+Mensagens diagnósticas são observáveis da linguagem (ADR-0107). Esta é uma
+correção interna test-only de paridade em fluxo contínuo (ADR-0127): não
+autoriza mudança de produto, API/campo/entidade/trait/assinatura pública,
+default, compatibilidade, fase eval/layout, ordem de validação, spans,
+morfologia ou layout. O ownership permanece exatamente este prompt para
+`01_core/src/compiler/eval/tests.rs`; não se cria owner 1:N.

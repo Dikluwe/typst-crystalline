@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 8e16488f
+//! @prompt-hash 63d16887
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-09-01
 //!
 //! Dispatch de chamadas de função: avaliação de args, intercepção de method
 //! calls especiais, aplicação de nativas/plugins/elementos. Extraído de
@@ -56,6 +56,326 @@ use crate::entities::value::{Type, Value};
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 
 use super::{bindings, closures, eval_expr, rules, EvalContext};
+
+/// Metadados sintáticos privados e pontuais para os diagnósticos de
+/// `float.is-nan`. Não atravessam `entities::Args` nem sobrevivem à chamada.
+struct FloatIsNanCallSpans {
+    call: Span,
+    positional: Vec<Span>,
+    named: IndexMap<EcoString, Span, FxBuildHasher>,
+    has_spread: bool,
+}
+
+impl FloatIsNanCallSpans {
+    fn capture(call: FuncCallNode<'_>) -> Self {
+        let mut positional = Vec::new();
+        let mut named = IndexMap::default();
+        let mut has_spread = false;
+
+        for arg in call.args().items() {
+            match arg {
+                Arg::Pos(expr) => positional.push(expr.span()),
+                Arg::Named(named_arg) => {
+                    named.insert(named_arg.name().as_str().into(), named_arg.span());
+                }
+                Arg::Spread(_) => has_spread = true,
+            }
+        }
+
+        Self { call: call.span(), positional, named, has_spread }
+    }
+
+    fn anchor(&self, args: &Args, bound: bool) -> Span {
+        if let Some((name, _)) = args.named.first() {
+            return self.named.get(name.as_str()).copied().unwrap_or(args.span);
+        }
+
+        if bound {
+            if args.items.is_empty() || self.has_spread {
+                args.span
+            } else {
+                self.positional.first().copied().unwrap_or(args.span)
+            }
+        } else {
+            match args.items.len() {
+                0 => self.call,
+                1 if !self.has_spread => {
+                    self.positional.first().copied().unwrap_or(args.span)
+                }
+                2.. if !self.has_spread => {
+                    self.positional.get(1).copied().unwrap_or(args.span)
+                }
+                _ => args.span,
+            }
+        }
+    }
+}
+
+/// Identidades nativas P1293-B que exigem âncoras por argumento. A seleção é
+/// feita sobre o `FuncRepr` já resolvido, nunca sobre texto do callee.
+#[derive(Clone, Copy)]
+enum P1293MathNative {
+    Attach,
+    Binom,
+    Mono,
+    Script,
+}
+
+impl P1293MathNative {
+    fn from_func(func: &Func) -> Option<Self> {
+        let FuncRepr::Native(native) = func.repr() else {
+            return None;
+        };
+        match native.name {
+            "attach" => Some(Self::Attach),
+            "binom" => Some(Self::Binom),
+            "mono" => Some(Self::Mono),
+            "script" => Some(Self::Script),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+struct P1293NamedSpan {
+    full: Span,
+    value: Span,
+}
+
+/// Metadados sintáticos privados e transitórios para os quatro constructors
+/// math P1293-B. Não atravessam `Args` nem sobrevivem à chamada.
+struct P1293MathCallSpans {
+    call: Span,
+    positional: Vec<Span>,
+    named: IndexMap<EcoString, P1293NamedSpan, FxBuildHasher>,
+    has_spread: bool,
+}
+
+impl P1293MathCallSpans {
+    fn capture(call: FuncCallNode<'_>) -> Self {
+        let mut positional = Vec::new();
+        let mut named = IndexMap::default();
+        let mut has_spread = false;
+
+        for arg in call.args().items() {
+            match arg {
+                Arg::Pos(expr) => positional.push(expr.span()),
+                Arg::Named(named_arg) => {
+                    named.insert(
+                        named_arg.name().as_str().into(),
+                        P1293NamedSpan {
+                            full: named_arg.span(),
+                            value: named_arg.expr().span(),
+                        },
+                    );
+                }
+                Arg::Spread(_) => has_spread = true,
+            }
+        }
+
+        Self { call: call.span(), positional, named, has_spread }
+    }
+
+    fn positional(&self, index: usize, fallback: Span) -> Span {
+        self.positional.get(index).copied().unwrap_or(fallback)
+    }
+
+    fn named_full(&self, name: &str, fallback: Span) -> Span {
+        self.named.get(name).map(|span| span.full).unwrap_or(fallback)
+    }
+
+    fn named_value(&self, name: &str, fallback: Span) -> Span {
+        self.named.get(name).map(|span| span.value).unwrap_or(fallback)
+    }
+
+    fn structural_content(value: &Value) -> bool {
+        matches!(
+            value,
+            Value::Content(_)
+                | Value::LocatedContent(_, _)
+                | Value::Str(_)
+                | Value::Symbol(_)
+        )
+    }
+
+    fn style_content(value: &Value) -> bool {
+        matches!(value, Value::Content(_) | Value::Str(_))
+    }
+
+    fn anchor(&self, identity: P1293MathNative, args: &Args) -> Span {
+        if self.has_spread {
+            return args.span;
+        }
+
+        match identity {
+            P1293MathNative::Attach => {
+                match args.items.len() {
+                    0 => return self.call,
+                    2.. => return self.positional(1, args.span),
+                    _ => {}
+                }
+                if !Self::structural_content(&args.items[0]) {
+                    return self.positional(0, args.span);
+                }
+                for (name, value) in &args.named {
+                    if matches!(name.as_str(), "t" | "b" | "tl" | "bl" | "tr" | "br") {
+                        if !matches!(value, Value::None)
+                            && !Self::structural_content(value)
+                        {
+                            return self.named_value(name, args.span);
+                        }
+                    } else {
+                        return self.named_full(name, args.span);
+                    }
+                }
+            }
+            P1293MathNative::Binom => {
+                match args.items.len() {
+                    0 => {
+                        return args
+                            .named
+                            .get_key_value("upper")
+                            .map(|(name, _)| self.named_full(name, args.span))
+                            .unwrap_or(self.call);
+                    }
+                    1 => return self.call,
+                    _ => {}
+                }
+                if let Some((name, _)) = args.named.first() {
+                    return self.named_full(name, args.span);
+                }
+                for (index, value) in args.items.iter().enumerate() {
+                    if !Self::structural_content(value) {
+                        return self.positional(index, args.span);
+                    }
+                }
+            }
+            P1293MathNative::Mono => {
+                if let Some((name, _)) = args.named.first() {
+                    return self.named_full(name, args.span);
+                }
+                match args.items.len() {
+                    0 => return self.call,
+                    2.. => return self.positional(1, args.span),
+                    _ => {}
+                }
+                if !Self::style_content(&args.items[0]) {
+                    return self.positional(0, args.span);
+                }
+            }
+            P1293MathNative::Script => {
+                for (name, _) in &args.named {
+                    if name.as_str() != "cramped" {
+                        return self.named_full(name, args.span);
+                    }
+                }
+                if let Some(value) = args.named.get("cramped") {
+                    if !matches!(value, Value::Bool(_)) {
+                        return self.named_value("cramped", args.span);
+                    }
+                }
+                match args.items.len() {
+                    0 => return self.call,
+                    2.. => return self.positional(1, args.span),
+                    _ => {}
+                }
+                if !Self::style_content(&args.items[0]) {
+                    return self.positional(0, args.span);
+                }
+            }
+        }
+
+        args.span
+    }
+}
+
+#[derive(Clone, Copy)]
+enum P1293HtmlNative {
+    Normal,
+    Void,
+}
+
+impl P1293HtmlNative {
+    fn from_func(func: &Func) -> Option<Self> {
+        let name = match func.repr() {
+            FuncRepr::Native(native) => native.name,
+            _ => return None,
+        };
+        let kind = match name {
+            "button" | "iframe" | "select" | "template" | "video" => Self::Normal,
+            "col" | "wbr" => Self::Void,
+            _ => return None,
+        };
+        let module = crate::compiler::stdlib::make_html_module();
+        let Value::Func(reference) = module.scope().get(name)? else {
+            return None;
+        };
+        let (Some(actual), Some(expected)) =
+            (func.native_fn_addr(), reference.native_fn_addr())
+        else {
+            return None;
+        };
+        std::ptr::fn_addr_eq(actual, expected).then_some(kind)
+    }
+}
+
+struct P1293HtmlCallSpans {
+    kind: P1293HtmlNative,
+    positional: Vec<Span>,
+    named: IndexMap<EcoString, P1293NamedSpan, FxBuildHasher>,
+    has_spread: bool,
+}
+
+impl P1293HtmlCallSpans {
+    fn capture(call: FuncCallNode<'_>, kind: P1293HtmlNative) -> Self {
+        let mut positional = Vec::new();
+        let mut named = IndexMap::default();
+        let mut has_spread = false;
+        for arg in call.args().items() {
+            match arg {
+                Arg::Pos(expr) => positional.push(expr.span()),
+                Arg::Named(named_arg) => {
+                    named.insert(
+                        named_arg.name().as_str().into(),
+                        P1293NamedSpan {
+                            full: named_arg.span(),
+                            value: named_arg.expr().span(),
+                        },
+                    );
+                }
+                Arg::Spread(_) => has_spread = true,
+            }
+        }
+        Self { kind, positional, named, has_spread }
+    }
+
+    fn anchor(&self, args: &Args, message: &str) -> Span {
+        if self.has_spread {
+            return args.span;
+        }
+        match self.kind {
+            P1293HtmlNative::Void if !args.items.is_empty() => {
+                return self.positional.first().copied().unwrap_or(args.span)
+            }
+            P1293HtmlNative::Normal if args.items.len() > 1 => {
+                return self.positional.get(1).copied().unwrap_or(args.span)
+            }
+            P1293HtmlNative::Normal
+                if args
+                    .items
+                    .first()
+                    .is_some_and(|value| !matches!(value, Value::Content(_))) =>
+            {
+                return self.positional.first().copied().unwrap_or(args.span)
+            }
+            _ => {}
+        }
+        if let Some(name) = message.strip_prefix("unexpected argument: ") {
+            return self.named.get(name).map(|span| span.full).unwrap_or(args.span);
+        }
+        self.named.first().map(|(_, span)| span.value).unwrap_or(args.span)
+    }
+}
 
 /// Avalia a lista de argumentos de uma chamada de função.
 ///
@@ -898,7 +1218,12 @@ pub(super) fn eval_func_call(
             }
             Value::Float(value) => {
                 if crate::compiler::stdlib::is_float_instance_method(method) {
-                    let args = eval_args(call.args(), scopes, ctx, engine)?;
+                    let spans =
+                        (method == "is-nan").then(|| FloatIsNanCallSpans::capture(call));
+                    let mut args = eval_args(call.args(), scopes, ctx, engine)?;
+                    if let Some(spans) = spans {
+                        args.span = spans.anchor(&args, true);
+                    }
                     return crate::compiler::stdlib::dispatch_float_method(
                         value,
                         method,
@@ -1212,6 +1537,24 @@ pub(super) fn eval_func_call(
 
     let callee = eval_expr(call.callee(), scopes, ctx, engine)?;
 
+    let float_is_nan_spans = matches!(
+        &callee,
+        Value::Func(f)
+            if matches!(f.repr(), FuncRepr::Native(n) if n.name == "is-nan")
+    )
+    .then(|| FloatIsNanCallSpans::capture(call));
+
+    let p1293_math_spans = match &callee {
+        Value::Func(func) => P1293MathNative::from_func(func)
+            .map(|identity| (identity, P1293MathCallSpans::capture(call))),
+        _ => None,
+    };
+    let p1293_html_spans = match &callee {
+        Value::Func(func) => P1293HtmlNative::from_func(func)
+            .map(|kind| P1293HtmlCallSpans::capture(call, kind)),
+        _ => None,
+    };
+
     // **P846 (#56)** — `eval`: ancorar os erros da re-avaliação ao span do
     // **literal string** (primeiro argumento posicional), paridade com o
     // `SpanMode::Uniform` do vanilla (`foundations/mod.rs:267,318` — medido:
@@ -1231,13 +1574,25 @@ pub(super) fn eval_func_call(
     };
 
     let mut args = eval_args(call.args(), scopes, ctx, engine)?;
-    if let Some(anchor) = eval_anchor {
+    if let Some(spans) = float_is_nan_spans {
+        args.span = spans.anchor(&args, false);
+    } else if let Some((identity, spans)) = p1293_math_spans {
+        args.span = spans.anchor(identity, &args);
+    } else if let Some(anchor) = eval_anchor {
         args.span = anchor;
     }
 
     match callee {
         Value::Func(func) => {
-            let result = apply_func(func.clone(), args, scopes, ctx, engine);
+            let html_args = p1293_html_spans.as_ref().map(|_| args.clone());
+            let mut result = apply_func(func.clone(), args, scopes, ctx, engine);
+            if let (Some(spans), Some(args), Err(errors)) =
+                (p1293_html_spans.as_ref(), html_args.as_ref(), &mut result)
+            {
+                if let Some(error) = errors.first_mut() {
+                    error.span = spans.anchor(args, &error.message);
+                }
+            }
             // **P846 (#57)** — call trace: um `Tracepoint::Call` por chamada
             // cujo span não contém o erro (mirror de `call_func` +
             // `Trace::trace` do vanilla — `typst-eval/src/call.rs:166-180`,
@@ -1364,6 +1719,55 @@ mod tests {
 
     use crate::contracts::plugin_host::{PluginError, PluginHost, PluginModuleId};
     use crate::entities::bytes::Bytes;
+    use crate::entities::file_id::FileId;
+
+    fn p1293_span(start: usize) -> Span {
+        use std::num::NonZeroU16;
+        Span::from_range(FileId::from_raw(NonZeroU16::new(9).unwrap()), start..start + 1)
+    }
+
+    #[test]
+    fn p1293_c_identidades_html_e_ancoras_sao_estritas() {
+        let module = crate::compiler::stdlib::make_html_module();
+        for (name, expected_void) in [
+            ("button", false),
+            ("col", true),
+            ("iframe", false),
+            ("select", false),
+            ("template", false),
+            ("video", false),
+            ("wbr", true),
+        ] {
+            let Value::Func(func) = module.scope().get(name).unwrap() else { panic!() };
+            assert!(
+                matches!(
+                    P1293HtmlNative::from_func(func),
+                    Some(P1293HtmlNative::Void) if expected_void
+                ) || matches!(
+                    P1293HtmlNative::from_func(func),
+                    Some(P1293HtmlNative::Normal) if !expected_void
+                )
+            );
+        }
+        let fake = Func::native("video", |_ctx, _args, _world, _file| Ok(Value::None));
+        assert!(P1293HtmlNative::from_func(&fake).is_none());
+
+        let mut named = IndexMap::default();
+        named.insert(
+            EcoString::from("width"),
+            P1293NamedSpan { full: p1293_span(20), value: p1293_span(21) },
+        );
+        let spans = P1293HtmlCallSpans {
+            kind: P1293HtmlNative::Normal,
+            positional: vec![],
+            named,
+            has_spread: false,
+        };
+        let mut args = Args::positional(vec![]);
+        args.named.insert("width".into(), Value::Int(-1));
+        assert_eq!(spans.anchor(&args, "number must be at least zero"), p1293_span(21));
+        assert_eq!(spans.anchor(&args, "unexpected argument: width"), p1293_span(20));
+    }
 
     /// Host de teste (sem WASM) para o braço `call_plugin`. Conta chamadas e
     /// devolve `b"OK"`. Nomes de export únicos por teste evitam colisão no

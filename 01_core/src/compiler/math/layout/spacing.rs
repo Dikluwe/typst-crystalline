@@ -454,6 +454,7 @@ fn is_bare_pipe(content: &Content) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::entities::elements::math_attach::MathAttachSlot;
 
     #[test]
     fn p1132h_nabla_usa_classe_do_glifo_resolvido() {
@@ -930,10 +931,10 @@ mod tests {
         // `ScriptsItem::create` vanilla), não cair em Normal.
         let min_attach = Content::math_attach_scripts(
             Content::math_op(Content::text("min"), true),
-            None,
-            None,
-            Some(ident("x")),
-            None,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(ident("x")),
+            MathAttachSlot::Omitted,
         );
         let nodes = vec![min_attach, ident("f")];
         let gaps = compute_gaps(&nodes, 18.0, false, 0.0);

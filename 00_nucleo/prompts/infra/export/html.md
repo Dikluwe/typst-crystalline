@@ -1,5 +1,5 @@
 # Prompt L0 — exportação HTML semântica
-Hash do Código: b3a7ba69
+Hash do Código: 5b4f56d5
 
 **Camada:** L3  
 **Ficheiro alvo:** `03_infra/src/export/html.rs`  
@@ -256,3 +256,53 @@ elementos ou atributos.
 não agrupáveis por display none. Não acrescentar estado a `HtmlElem`, não
 validar parent no eval e não mover fase. Estas são regras internas de paridade
 L3 e foram materializadas em P1178.1 após o gate dos bindings públicos.
+
+## P1293.reopen-C — modos explícitos de serialização e escaping contextual (PROPOSTO; STOP ADR-0127)
+
+### Medição anterior à decisão
+
+O recibo residual P1293/C SHA-256
+`4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
+mede em `03_infra/src/export/html.rs:190-194,211-218,506-511` que o exporter
+vigente usa uma função única e escapa `& < > "` tanto em texto quanto em
+atributo. Para a fixture congelada, produz
+`value="x&amp;&quot;&lt;&gt;"` e texto `&lt;&amp;&gt;`. A fonte ratificada separa
+contextos em `encode.rs:99-133` e `charsets.rs:21-49`: no contexto normal,
+atributo escapa `&` e `"`, texto escapa `&` e `<`, produzindo
+`value="x&amp;&quot;<>"` e texto `&lt;&amp;>`. A validação WHATWG registrada pelo
+coordenador confirma que ambas são HTML válido: a primeira é conservadora e
+permanece o padrão cristalino; a segunda é a alternativa de paridade vanilla.
+
+### Contrato público proposto
+
+Este owner define o enum L3 único:
+
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HtmlSerializationMode { Crystalline, Vanilla }
+
+pub fn export_html_with_serialization(
+    content: &Content,
+    mode: HtmlSerializationMode,
+) -> Result<String, SourceDiagnostic>;
+```
+
+`export_html(content)` permanece API compatível e equivale exatamente a
+`export_html_with_serialization(content, HtmlSerializationMode::Crystalline)`.
+O modo `Crystalline` preserva os bytes atuais e o escape conservador `& < > "`
+nos contextos normais. O modo `Vanilla` usa a seleção contextual observada:
+atributo normal escapa `&` e `"`; texto normal escapa `&` e `<`. Isto não
+autoriza copiar whitespace, IDs ou mecânica interna do vanilla.
+
+Todos os demais contratos do exporter são comuns aos dois modos: DOM ordenado,
+atributo Presence, void, nesting, whitespace estrutural, documento explícito,
+`title` escapable-raw, diagnósticos e subset suportado. O modo não muda
+`Content`, `HtmlElem`, feature, target nem fase e não pode ser inferido por tag,
+texto, path ou variável global.
+
+A API pública nova e o default user-facing preservado exigem confirmação
+humana ADR-0127. Após confirmação, REDs devem distinguir default/Crystalline da
+forma Vanilla com a fixture medida, provar ambos como DOM equivalente e manter
+regressões de void/whitespace/title. Qualquer necessidade de campo em entidade,
+estado global ou caminho pelo layout paginado refuta esta proposta e obriga
+nova parada.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash b04bd360
+//! @prompt-hash bf2c17ba
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -22,10 +22,11 @@ use rustc_hash::FxBuildHasher;
 
 use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;
-use crate::entities::ast::expr::{Arg, ArrayItem, Expr};
+use crate::entities::ast::expr::{Arg, Args as AstArgs, ArrayItem, Expr};
 use crate::entities::ast::math::{Math, MathTextKind};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
+use crate::entities::elements::math_attach::MathAttachSlot;
 use crate::entities::engine::Engine;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -317,6 +318,52 @@ fn eval_math_arg_value(
     }
 }
 
+/// Avalia uma lista de argumentos math uma vez e preserva a forma de chamada
+/// para os constructors canônicos P1293 de `attach` e `binom`.
+fn eval_p1293_math_args(
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    call_args: AstArgs<'_>,
+) -> SourceResult<Args> {
+    let mut items = Vec::new();
+    let mut named: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+    for arg in call_args.items() {
+        match arg {
+            Arg::Pos(expr) => items.push(eval_math_arg_value(scopes, ctx, engine, expr)?),
+            Arg::Named(named_arg) => {
+                let value = eval_math_arg_value(scopes, ctx, engine, named_arg.expr())?;
+                named.insert(named_arg.name().as_str().into(), value);
+            }
+            Arg::Spread(_) => {}
+        }
+    }
+    Ok(Args { items, named, span: call_args.span() })
+}
+
+/// Aplica o binding público do módulo `math` também no caminho de sintaxe.
+/// Assim a sintaxe não mantém uma segunda validação nem uma segunda regra de
+/// construção para os constructors P1293.
+fn apply_p1293_math_constructor(
+    name: &str,
+    args: Args,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    let func = match scopes.get("math") {
+        Some(Value::Module(module)) => match module.scope().get(name) {
+            Some(Value::Func(func)) => func.clone(),
+            _ => unreachable!("P1293 binding ausente em math.{name}"),
+        },
+        _ => unreachable!("módulo math ausente durante avaliação math"),
+    };
+    match apply_func(func, args, scopes, ctx, engine)? {
+        Value::Content(content) => Ok(content),
+        _ => unreachable!("constructor math.{name} devolveu valor não-content"),
+    }
+}
+
 /// Avalia um nó de expressão em modo matemático.
 fn eval_math_expr(
     scopes: &mut Scopes<'_>,
@@ -410,7 +457,15 @@ fn eval_math_expr(
                 (None, None) => None,
             };
 
-            Ok(Content::math_attach(base, None, None, None, None, sup_final, sub))
+            Ok(Content::math_attach(
+                base,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                sup_final.map_or(MathAttachSlot::Omitted, MathAttachSlot::Present),
+                sub.map_or(MathAttachSlot::Omitted, MathAttachSlot::Present),
+            ))
         }
         Expr::MathRoot(root) => {
             // root.index() retorna Option<u8> — converter para Content::MathText se presente
@@ -819,114 +874,11 @@ fn eval_math_expr(
                     Ok(Content::math_limits_override(body, true, inline))
                 }
 
-                // **P1105** — `attach(base, t:, b:, tl:, bl:, tr:, br:)`: função matemática nativa
-                // para anexos nos 4 cantos e/ou topo/fundo.
-                // Replica o despachante de `limits`/`scripts` e produz `Content::math_attach`.
+                // P1293 — sintaxe e `math.attach` convergem na mesma validação
+                // e no mesmo constructor puro do owner estrutural.
                 "attach" => {
-                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
-                    let mut t: Option<Content> = None;
-                    let mut b: Option<Content> = None;
-                    let mut tl: Option<Content> = None;
-                    let mut bl: Option<Content> = None;
-                    let mut tr: Option<Content> = None;
-                    let mut br: Option<Content> = None;
-                    let mut errors: Vec<SourceDiagnostic> = Vec::new();
-
-                    for arg in call.args().items() {
-                        match arg {
-                            Arg::Pos(e) => pos_args.push(e),
-                            Arg::Named(n) => {
-                                let name = n.name().as_str();
-                                match name {
-                                    "t" => {
-                                        match eval_math_expr(
-                                            scopes,
-                                            ctx,
-                                            engine,
-                                            n.expr(),
-                                        ) {
-                                            Ok(c) => t = Some(c),
-                                            Err(mut e) => errors.append(&mut e),
-                                        }
-                                    }
-                                    "b" => {
-                                        match eval_math_expr(
-                                            scopes,
-                                            ctx,
-                                            engine,
-                                            n.expr(),
-                                        ) {
-                                            Ok(c) => b = Some(c),
-                                            Err(mut e) => errors.append(&mut e),
-                                        }
-                                    }
-                                    "tl" => {
-                                        match eval_math_expr(
-                                            scopes,
-                                            ctx,
-                                            engine,
-                                            n.expr(),
-                                        ) {
-                                            Ok(c) => tl = Some(c),
-                                            Err(mut e) => errors.append(&mut e),
-                                        }
-                                    }
-                                    "bl" => {
-                                        match eval_math_expr(
-                                            scopes,
-                                            ctx,
-                                            engine,
-                                            n.expr(),
-                                        ) {
-                                            Ok(c) => bl = Some(c),
-                                            Err(mut e) => errors.append(&mut e),
-                                        }
-                                    }
-                                    "tr" => {
-                                        match eval_math_expr(
-                                            scopes,
-                                            ctx,
-                                            engine,
-                                            n.expr(),
-                                        ) {
-                                            Ok(c) => tr = Some(c),
-                                            Err(mut e) => errors.append(&mut e),
-                                        }
-                                    }
-                                    "br" => {
-                                        match eval_math_expr(
-                                            scopes,
-                                            ctx,
-                                            engine,
-                                            n.expr(),
-                                        ) {
-                                            Ok(c) => br = Some(c),
-                                            Err(mut e) => errors.append(&mut e),
-                                        }
-                                    }
-                                    _ => errors.push(SourceDiagnostic::error(
-                                        n.name().span(),
-                                        format!("unexpected argument: {}", name),
-                                    )),
-                                }
-                            }
-                            Arg::Spread(_) => {}
-                        }
-                    }
-                    if !errors.is_empty() {
-                        return Err(errors);
-                    }
-                    if pos_args.len() != 1 {
-                        return Err(vec![SourceDiagnostic::error(
-                            call.span(),
-                            format!(
-                                "attach espera exactamente 1 argumento, recebeu {}",
-                                pos_args.len()
-                            ),
-                        )]);
-                    }
-                    let base = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
-                    Ok(Content::math_attach(base, t, b, tl, bl, tr, br))
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    apply_p1293_math_constructor("attach", args, scopes, ctx, engine)
                 }
 
                 "abs" | "norm" | "floor" | "ceil" | "round" | "bar" => {
@@ -960,46 +912,11 @@ fn eval_math_expr(
                     Ok(Content::math_delimited(open, body, close))
                 }
 
-                // **P899 (Parte D)** — `binom(upper, lower1, lower2, ...)`:
-                // no vanilla é uma fracção SEM barra (`resolve_binom` reusa
-                // `resolve_vertical_frac_like`, o mesmo mecanismo de
-                // `frac()`, com a barra suprimida), envolvida em parênteses
-                // esticados. Cristalino não tem um modo "sem barra" para
-                // `Content::math_frac` (`MathFracElem` desenha sempre a
-                // barra); reaproveita-se `Content::math_matrix` — já produz
-                // exactamente "pilha vertical de linhas sem barra entre
-                // elas, envolvida em delimitadores esticados" (mesmo
-                // mecanismo de `vec`/`cases`/`mat`). 2 linhas: `[upper]` e
-                // `[lower]` — os args de `lower` juntam-se numa única
-                // célula separados por `", "` (paridade vanilla: uma única
-                // sequência com vírgulas entre elementos, não colunas
-                // separadas de matriz).
+                // P1293 — mesma validação e mesmo payload canônico da função
+                // pública, preservando lower variádico e fração sem barra.
                 "binom" => {
-                    let pos_args: Vec<Expr<'_>> = call
-                        .args()
-                        .items()
-                        .filter_map(|a| match a {
-                            Arg::Pos(e) => Some(e),
-                            _ => None,
-                        })
-                        .collect();
-                    if pos_args.len() < 2 {
-                        return Err(vec![SourceDiagnostic::error(
-                            call.span(),
-                            "missing argument: lower".to_string(),
-                        )]);
-                    }
-                    let upper = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
-                    let mut lower_items: Vec<Content> = Vec::new();
-                    for (i, expr) in pos_args[1..].iter().enumerate() {
-                        if i > 0 {
-                            lower_items.push(Content::MathText(", ".into()));
-                        }
-                        lower_items.push(eval_math_expr(scopes, ctx, engine, *expr)?);
-                    }
-                    let lower = Content::MathSequence(std::sync::Arc::from(lower_items));
-                    let frac_like = Content::math_frac_unlined(upper, lower);
-                    Ok(Content::math_delimited('(', frac_like, ')'))
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    apply_p1293_math_constructor("binom", args, scopes, ctx, engine)
                 }
 
                 // **§P906** — `underbrace`/`overbrace`/`underbracket`/`overbracket`:

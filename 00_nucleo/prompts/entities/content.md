@@ -1,5 +1,37 @@
 # Prompt L0 — Content
-Hash do Código: b3d6486b
+Hash do Código: cd6bccec
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+
+## P1293 — constructors do carrier triestatal de `MathAttach`
+
+### Medição anterior à decisão
+
+No baseline confirmado, `01_core/src/entities/content.rs:1589-1618` expõe
+`math_attach_scripts` e `math_attach` com seis `Option<Content>` e constrói
+diretamente `MathAttachElem`. O inventário read-only encontrou chamadas
+produtivas nos owners de eval estrutural/sintático e duas reconstruções em
+`compiler/math/layout/mod.rs:2029-2037,2242-2250`; testes e fixtures possuem
+chamadas adicionais, mas não são novos owners produtivos. O recibo causal
+P1293 SHA-256 `80a9543c9450f2350a42fa48df2e42cac63109bd074ebb37c2ec424cba473d5c`
+prova que a assinatura binária `Option` não pode transportar os três estados.
+
+### Decisão pública confirmada
+
+`Content::math_attach` recebe `MathAttachSlot` em `t,b,tl,bl,tr,br` e preserva
+cada carrier literalmente. `math_attach_scripts` também recebe carriers para
+seus quatro slots e fixa somente `t`/`b` em `Omitted`. Toda reconstrução deve
+mapear recursivamente apenas `Present(content)`, mantendo `Omitted` e
+`ExplicitNone` sem normalização. A variante `Content::MathAttach` e a base não
+mudam; nenhuma variante nova de `Content` é criada.
+
+Esta assinatura pública foi confirmada em `2026-09-02T08:06:37-03:00`
+(`Confirmado`) sob ADR-0127 categoria 1. Não autoriza generic `Settable`,
+parser/AST/Args/Value globais, sentinel, default ou mudança de fase. Aceitação:
+constructors e reconstruções conservam `Omitted`, `ExplicitNone` e
+`Present(Content::Empty)` até os owners de repr/layout; qualquer colapso é
+refutador e bloqueia.
 
 ## P1286 — payloads públicos propostos (GATE ADR-0127)
 

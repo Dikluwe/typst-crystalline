@@ -1,0 +1,259 @@
+{
+  "schema": "tekt.p1293.lot-c-independent-verification.v1",
+  "generated_at": "2026-09-02T15:48:12-03:00",
+  "verdict": "APPROVED_READY_FOR_D_SEAL",
+  "approval_scope": "Lot C only; ready for a separate Lot D seal",
+  "not_lot_d_execution": true,
+  "not_lot_d_approval": true,
+  "not_final_p1293_approval": true,
+  "not_a_seal": true,
+  "role": {
+    "kind": "independent-final-verifier-lot-c",
+    "claim": "segregated by capabilities and artifacts, without technical read isolation",
+    "shared_filesystem": true,
+    "technical_read_isolation_attested": false,
+    "product_or_l0_written": false,
+    "oracle_manifest_or_seal_written": false,
+    "only_integrated_write": "00_nucleo/diagnosticos/p1293-lot-c-verification-receipt.json"
+  },
+  "provenance": {
+    "head": "7dd25ff0e222b6c7c640d6bc7957b98f94227507",
+    "branch": "Tekt",
+    "working_tree": "shared, non-committed",
+    "working_tree_stat": "63 files changed, 6667 insertions(+), 761 deletions(-)",
+    "measurement_time": "2026-09-02T15:48:12-03:00"
+  },
+  "protected_inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1293-manifest.json",
+      "sha256": "99f5e4a612408b0e91fcfc570e7146fffc5f5b0d5d56241bc3fae1504ec138e8"
+    },
+    "active_residual_seal": {
+      "path": "00_nucleo/diagnosticos/p1293-contract-seal.json",
+      "raw_sha256": "d8c581bc5c6b47d7cf7087570225f2d34c98c675412409b7b036132d41078553",
+      "block": "$.serial_lot_c_p08_semantic_residual",
+      "canonical_sha256": "dbb255fa970acec4cd3d56fa44dd697a37acfa13ace28a1bfc7b1099e11d26cd",
+      "canonical_recomputed": true,
+      "exactly_one_active_serial_metadata": true
+    },
+    "canonical_contract_sha256": "2bb10fa308558a82b75acabb1a188c0832ad6708e5ff0b8246af3ced52707072",
+    "protected_oracle": {
+      "path": "04_wiring/tests/p1293_contract.rs",
+      "raw_sha256": "ed3e0b57c703a1c4dbdbeda187fcf74dcf46476f60a2c850e48a9ef8f0b2df1e",
+      "canonical_body_sha256": "b07eb8d6eb6bfa0a892c06bb1f5599d8e2e188963dcca821d83f4a34badfb13a",
+      "registry_block_sha256": "417d82202439b39388d223fe46c9dc193e41b705a951dfeb19c80eddfd75bd8b",
+      "registry_distinct_ids": 31
+    },
+    "ratified_vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    },
+    "p08_red_receipt": {
+      "path": "00_nucleo/diagnosticos/p1293-red-tests-receipt-c-p08-semantic-neutrality.md",
+      "sha256": "e5c3b771d9b65a7fea5ec33c33cabb7053db40feddbe2406459eaec004969c2d"
+    },
+    "preseal_discrimination": {
+      "path": "00_nucleo/diagnosticos/p1293-preseal-discrimination-c-p08-semantic-neutrality-receipt.json",
+      "sha256": "c2ede2169456b0517d03586412f9aa34f508f9b18d8a7347756cc2dc3c87e7cb",
+      "baseline": "2x11/11",
+      "valid_mutants": 31,
+      "forward_rejected": 31,
+      "reverse_rejected": 31,
+      "score": 1.0,
+      "survivors": 0,
+      "unknown": 0,
+      "order_stable": true
+    },
+    "implementation_receipt_current": {
+      "path": "00_nucleo/diagnosticos/p1293-implementation-receipt-c.md",
+      "sha256": "6af49f8418eb15ddf9cdfe54c4e3757c3199e4dd96a2aefccbe6420565c449b3"
+    }
+  },
+  "lineage_and_preimage_audit": {
+    "adr_0129": "PASS",
+    "V5": "PASS",
+    "V15": "PASS",
+    "V26": "PASS",
+    "hash_dry_run": "PASS: Nothing to fix",
+    "owner_consumer_pairs": 9,
+    "oracle_pair_included": true,
+    "owner_prompt_sha256": {
+      "00_nucleo/prompts/compiler/eval/call_dispatch.md": "e09f8d04c91c009af2bacadd2d6a06b3b314e07b42322b0e84370e7c1767f9b1",
+      "00_nucleo/prompts/compiler/eval/repr.md": "555b6df222a931991f1a521b11fe2d8d58ee185cdcf90cd3f0eaf6d3c40c9355",
+      "00_nucleo/prompts/compiler/stdlib/html.md": "df741b13ec8a3630180d65c3b606aca20385ab2b00d3d93836e85b5fbdca9ac9",
+      "00_nucleo/prompts/shell/cli.md": "a2e050633516ae486a6a00968ee8e20a28990c9006582a4b82a820a0b254f30f",
+      "00_nucleo/prompts/infra/export/html.md": "505895669df4a1d7ce39f4c3236d6ac4e39fc9c61ce14d8cf578b0d394a2d237",
+      "00_nucleo/prompts/infra/export/mod.md": "de16b4085aa8d72ace3b4a8b62087a7d9f54c7ae9fd6012891bd3160aeaa08f5",
+      "00_nucleo/prompts/infra/pipeline.md": "ce6da4f623a0270869606bdf42d07dae0283f3f9e5a593258609b219424e63a8",
+      "00_nucleo/prompts/wiring.md": "539815d1e892117baec6e5e8e51e37a155dadcaa682e3349c11cc66dd52f623c",
+      "00_nucleo/prompts/wiring/tests/p1293_contract.md": "adf47e09192bf792ede1cf227696e6314f1b4aa059c510141d05118ebb799989"
+    },
+    "active_seal_product_preimages": [
+      {
+        "consumer": "01_core/src/compiler/eval/call_dispatch.rs",
+        "sealed_preimage": "75399c76d99dfaeb9b515d3152f824dcb7dc8815e693f45a2be10b3d394c2759",
+        "current_sha256": "75399c76d99dfaeb9b515d3152f824dcb7dc8815e693f45a2be10b3d394c2759",
+        "classification": "unchanged"
+      },
+      {
+        "consumer": "01_core/src/compiler/eval/repr.rs",
+        "sealed_preimage": "c0c604da25f573ac14b1cdeaeb55bfe490b827f594e059d5f22a69f7e66a1149",
+        "current_sha256": "ef68c178e15c5d87d74e71c9b1bf3113851b440fc3129bf074784289f88aa9c9",
+        "classification": "authorized residual: canonical multiline HtmlElem attrs morphology"
+      },
+      {
+        "consumer": "01_core/src/compiler/stdlib/html.rs",
+        "sealed_preimage": "b6b339d0a7ef0a29a868ee1bbf671cc348c00e08cac123f0aa78f0fbe41df427",
+        "current_sha256": "c6186114b04108e83b1382753bec4146aa126cf8055200e5695141881d95ff52",
+        "classification": "authorized residual: closed preload diagnostic includes none"
+      },
+      {
+        "consumer": "02_shell/src/cli.rs",
+        "sealed_preimage": "d3e9fecdfce6c1aad0f9badce9000f0b4de41888e299cad63522d25223b42989",
+        "current_sha256": "d3e9fecdfce6c1aad0f9badce9000f0b4de41888e299cad63522d25223b42989",
+        "classification": "unchanged"
+      },
+      {
+        "consumer": "03_infra/src/export/html.rs",
+        "sealed_preimage": "ad761fd3678b231f805868101664dc83f389d434d4cf912d7c29f275847377c4",
+        "current_sha256": "ad761fd3678b231f805868101664dc83f389d434d4cf912d7c29f275847377c4",
+        "classification": "unchanged"
+      },
+      {
+        "consumer": "03_infra/src/export/mod.rs",
+        "sealed_preimage": "80234564bc8e47c6e42e76ee4f6380bcd46d7a535638601ea2b461d24719a16b",
+        "current_sha256": "80234564bc8e47c6e42e76ee4f6380bcd46d7a535638601ea2b461d24719a16b",
+        "classification": "unchanged direct re-export facade"
+      },
+      {
+        "consumer": "03_infra/src/pipeline.rs",
+        "sealed_preimage": "72f9c080b55ca295e5b51ae45acf527c76921cd06211a64c2c43fdd010af6088",
+        "current_sha256": "72f9c080b55ca295e5b51ae45acf527c76921cd06211a64c2c43fdd010af6088",
+        "classification": "unchanged"
+      },
+      {
+        "consumer": "04_wiring/src/main.rs",
+        "sealed_preimage": "ca65db98f911f03c7e1772802dafc8003e50c0c3cfefcef7cc2249549c2004da",
+        "current_sha256": "ca65db98f911f03c7e1772802dafc8003e50c0c3cfefcef7cc2249549c2004da",
+        "classification": "unchanged"
+      }
+    ],
+    "post_seal_delta_confined_to_two_authorized_consumers": true
+  },
+  "executed_evidence": {
+    "protected_c_forward": {
+      "command": "cargo test -p typst-wiring --test p1293_contract p1293_c_ -- --test-threads=1 --nocapture",
+      "exit": 0,
+      "result": "5/5 passed",
+      "order": "harness lexical order"
+    },
+    "protected_c_reverse": {
+      "commands": "five --exact protected C tests, executed individually in reverse of the requested list",
+      "exits": [0, 0, 0, 0, 0],
+      "result": "5/5 passed",
+      "order": [
+        "p1293_c_feature_and_target_are_independent_axes",
+        "p1293_c_export_facade_is_public_direct_and_keeps_html_semantics_owned_below",
+        "p1293_c_serialization_modes_default_scope_and_non_html_neutrality",
+        "p1293_c_dom_order_void_escaping_and_nesting",
+        "p1293_c_surface_all_specific_casts_and_closed_errors"
+      ],
+      "order_stable": true
+    },
+    "preservation": {
+      "lot_A": "PASS: protected 1/1",
+      "lot_B": "PASS: protected 2/2",
+      "lot_D": "not executed by explicit prohibition; no D-specific product owner was changed by the post-seal C delta and no D grid/table semantic branch was added in the C diff",
+      "lot_D_execution_count": 0
+    },
+    "focal_suites": [
+      {"command": "cargo test -p typst-core p1293_c_ --lib", "exit": 0, "result": "9/9"},
+      {"command": "cargo test -p typst-core compiler::eval::repr::tests --lib", "exit": 0, "result": "67/67"},
+      {"command": "cargo test -p typst-core compiler::eval::call_dispatch::tests --lib", "exit": 0, "result": "4/4"},
+      {"command": "cargo test -p typst-infra p1293_c_ --lib", "exit": 0, "result": "2/2"},
+      {"command": "cargo test -p typst-infra export::html::tests --lib", "exit": 0, "result": "15/15"},
+      {"command": "cargo test -p typst-shell p1293_c_ --lib", "exit": 0, "result": "1/1"},
+      {"command": "cargo test -p typst-shell --lib", "exit": 0, "result": "62/62"},
+      {"command": "cargo check -p typst-wiring", "exit": 0, "result": "GREEN"}
+    ],
+    "gates": [
+      {"command": "crystalline-lint --checks v5,v15,v26 --fail-on warning .", "exit": 0, "result": "PASS"},
+      {"command": "crystalline-lint --fix-hashes --dry-run .", "exit": 0, "result": "PASS: Nothing to fix"},
+      {"command": "rustfmt --edition 2021 --check <eight C consumers>", "exit": 0, "result": "PASS"},
+      {"command": "git diff --check", "exit": 0, "result": "PASS"},
+      {"command": "git diff --check -- <eight C consumers>", "exit": 0, "result": "PASS"}
+    ]
+  },
+  "semantic_audit": {
+    "default_crystalline": "PASS: omitted mode equals explicit crystalline and differs from vanilla",
+    "vanilla_scope": "PASS: only contextual HTML text/attribute escaping changes; decoded DOM is equal",
+    "non_html_neutrality": "PASS: PDF, PNG and SVG semantic summaries are equal across modes; nondeterministic full bytes are not used as the criterion",
+    "direct_facade": "PASS: type_name/type_name_of_val prove direct re-exports from export::html, not duplicated enum or wrappers",
+    "repr_multiline": "PASS: short and canonical multiline HtmlElem attrs morphology are exercised and focal repr suite passes",
+    "constructors_attrs_casts_spans_preload": "PASS: seven constructors, 76 globals, 48 specifics, Presence/order, closed enums/lists, numeric domains, diagnostics and offending spans are exercised by protected C; preload distinguishes none, auto, and string metadata and rejects strings none/auto",
+    "feature_target_axes": "PASS: target does not enable feature; feature-on accepts paged and HTML",
+    "preservation_A_B_D": "PASS within authorized evidence: A/B executed green; D not executed and remained outside the C post-seal delta",
+    "unknown_required": 0
+  },
+  "global_blockers": {
+    "typst_infra_lib": {
+      "command": "cargo test -p typst-infra --lib",
+      "exit": 101,
+      "result": "910 passed, 8 failed",
+      "classification": "historical Lot B math/layout failures, non-causal to Lot C",
+      "failed_tests": [
+        "p1132e_cases_conteudo_preserva_centro_da_chave_sec09",
+        "p1132g_binom_sec07_sem_barra_e_com_posicao_vanilla",
+        "p1132k_sec12_limite_unilateral_preserva_altura_vanilla",
+        "p1132n_sec18_chave_externa_seleciona_variante_vanilla",
+        "p1132o_sec18_fracao_aninhada_suprime_spacing_em_script",
+        "p1132p_sec10_assembly_de_bracket_usa_attachment_central",
+        "p1133b_sec04_dif_com_sup_preserva_altura_vanilla",
+        "p1136_sec17_operadores_large_alinham_conteudo_adjacente_no_eixo"
+      ],
+      "blocks_global_green": true,
+      "blocks_lot_c_substantive_approval": false
+    },
+    "cargo_fmt_all": {
+      "command": "cargo fmt --all -- --check",
+      "exit": 1,
+      "classification": "format drift exclusively outside the eight-file Lot C allowlist, concentrated in historical Lot B math files",
+      "distinct_files": 15,
+      "lot_c_allowlist_files_in_diff": 0,
+      "blocks_global_green": true,
+      "blocks_lot_c_substantive_approval": false
+    }
+  },
+  "rg_materialization_incident": {
+    "classification": "PROCESS_VIOLATION_CONFIRMED_NOT_ABSOLVED",
+    "event": "The implementer ran rg across 00_nucleo and crossed the restricted materialization directory; the preserved records state that only lines matching the literal crystalline-lint were printed.",
+    "evidence_available": [
+      "00_nucleo/diagnosticos/p1293-implementation-receipt-c.md records the event and denies use of a step or protected input",
+      "00_nucleo/diagnosticos/p1293-manifest.json preserves the event and requires independent classification",
+      "00_nucleo/diagnosticos/p1293-contract-seal.json explicitly leaves the incident unresolved",
+      "the protected oracle source is at 04_wiring/tests/p1293_contract.rs, outside the reported rg root 00_nucleo",
+      "current matching lines in the authorized L0/diagnostic artifacts inspected by this verifier are linter commands, gate metadata or the incident record; they do not encode the protected C expectations"
+    ],
+    "missing_evidence": "The exact rg command, complete transcript and hashes of every historical file at incident time were not preserved; materialization contents were not reopened by this verifier.",
+    "protected_oracle_exposure": "not evidenced; its path is outside the reported search root",
+    "canonical_contract_exposure": "not evidenced by the preserved matching-line record, but cannot be proven impossible without the missing transcript",
+    "semantic_influence": "not evidenced: the final post-seal delta is confined to the two pre-authorized residual consumers, matches the L0 obligations, and passes the independently protected black-box witnesses in both orders",
+    "residual_risk": "non-zero epistemic risk remains because the transcript is missing; this receipt does not convert absence of evidence into proof of non-exposure",
+    "useful_independence_remains": true,
+    "why_not_disqualifying": "The violation is real, but no protected semantic input is shown to have reached the implementer; the oracle itself could not have been printed by the reported root, the mutation gate predates the candidate, and final behavior was independently challenged after integration.",
+    "technical_isolation_claim": false,
+    "required_claim": "segregated by capabilities and artifacts, without technical read isolation"
+  },
+  "decision_basis": {
+    "lot_c_substantively_complete": true,
+    "protected_forward_reverse_green": true,
+    "focal_suites_green": true,
+    "lineage_and_diff_green": true,
+    "mutation_gate_score": 1.0,
+    "mutation_survivors": 0,
+    "mutation_unknown": 0,
+    "global_failures_causal_to_lot_c": false,
+    "useful_independence_preserved_with_explicit_limitation": true,
+    "decision": "APPROVED_READY_FOR_D_SEAL"
+  }
+}

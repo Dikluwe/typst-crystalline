@@ -1,0 +1,210 @@
+{
+  "schema": "tekt.p1293.final-verification-blocker.v1",
+  "generated_at": "2026-09-02T18:45:10-03:00",
+  "verifier_role": "independent-final-verifier",
+  "verdict": "BLOCKED_NOT_READY_FOR_FINAL_CERTIFICATE",
+  "claim": "segregado por capacidades e artefatos, sem isolamento técnico de leitura",
+  "process_incident": "PROCESS_VIOLATION_CONFIRMED_NOT_ABSOLVED",
+  "state_provenance": {
+    "head": "7dd25ff0e222b6c7c640d6bc7957b98f94227507",
+    "working_tree": "uncommitted",
+    "initial_timestamp": "2026-09-02T18:23:20-03:00",
+    "final_measurement_timestamp": "2026-09-02T18:45:10-03:00",
+    "initial_status_porcelain_sha256": "d99dfb529e8e76b8fe71a6fff97291b9f6d15d27ffc1f43de864f004db26aa06",
+    "final_status_porcelain_sha256_before_this_receipt": "13cb57d54ae8b4ad83585cf76cd39b519e984a71dc113216c941ba898abcea3a",
+    "diff_head_stat_sha256": "d394f6237620b0005970f5eb6e0023c17eabf6c297027cd5c336ec445a1ae756",
+    "diff_head_stat_summary": "59 files changed, 7002 insertions(+), 711 deletions(-)"
+  },
+  "authorized_inputs": {
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1293.md",
+      "sha256": "d577a03c27731d11cdcc161a3e93646e90bdb62f0a7f9cfb8d1b4f5980a9dc3a"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1293-manifest.json",
+      "sha256": "e576ac0a84e396268fd8b2c1b8ef258712b90dd1e1a1a11132b887bfa3a5f5fa"
+    },
+    "seal_read_only": {
+      "path": "00_nucleo/diagnosticos/p1293-contract-seal.json",
+      "sha256": "435d2728681254f90d1b2d07f30d5c830de9bb7f90e9c25e18d314bb882fa6f4",
+      "final_candidate_read_only_canonical_sha256": "a2f110a631febe23e98d21f81141c81bcd0e9209bd9cf7f4df3dedb5ecebbf1c"
+    },
+    "frozen_inventory": {
+      "canonical_sha256": "c848a91d305c95f4fbbe3fc60045ecfe2bafa17db8debb2d7168f07d1dcf7e67",
+      "paths": 70,
+      "preflight_mismatches": 0,
+      "postflight_mismatches": 0,
+      "preserved": true
+    },
+    "adversarial_plan": {
+      "path": "00_nucleo/diagnosticos/p1293-adversarial-plan.md",
+      "sha256": "ecc12db3e5d9826dafdb7b42653e28d5f4f8e01772a8554e6718b1ac8129e226"
+    },
+    "adversarial_receipt": {
+      "path": "00_nucleo/diagnosticos/p1293-adversarial-receipt.json",
+      "sha256": "8c742753c64524578f08151e604668d047be23a526d9acac9088398870f79868"
+    },
+    "implementation_handoff": {
+      "path": "00_nucleo/diagnosticos/p1293-final-corrections-implementation-receipt.md",
+      "sha256": "1b35c203e861741d0a39bdfe920739f5277547d90a2f96452ffc43572f179d29"
+    }
+  },
+  "mandatory_global_gates": {
+    "cargo_build_release": {
+      "command": "cargo build --release",
+      "exit": 0,
+      "result": "PASS",
+      "elapsed_seconds": 36.41,
+      "binary_sha256": "c527b4111493f444d66e44e6d38d4823b2d09515c73d92eda1b9c4a2a86bff90"
+    },
+    "cargo_test_workspace": {
+      "command": "cargo test --workspace -q",
+      "exit": 101,
+      "result": "FAIL",
+      "typst_core_passed": 5403,
+      "typst_core_failed": 13,
+      "elapsed_seconds": 3.76,
+      "causal_classification": "test-observer-coordinate-transport-scope-gap",
+      "blocking": true
+    },
+    "cargo_fmt": {
+      "command": "cargo fmt --all -- --check",
+      "exit": 0,
+      "result": "PASS"
+    },
+    "crystalline_lint_all": {
+      "command": "crystalline-lint .",
+      "exit": 0,
+      "result": "PASS"
+    },
+    "individual_lint_gates": {
+      "command_shape": "crystalline-lint --checks vN --fail-on warning .",
+      "v3": "PASS",
+      "v4": "PASS",
+      "v5": "PASS",
+      "v7": "PASS",
+      "v13": "PASS",
+      "v14": "PASS",
+      "v15": "PASS",
+      "v26": "PASS"
+    },
+    "dry_run": {
+      "command": "crystalline-lint --fix-hashes --dry-run .",
+      "exit": 0,
+      "result": "PASS_NOTHING_TO_FIX"
+    },
+    "git_diff_check": {
+      "command": "git diff --check",
+      "exit": 0,
+      "result": "PASS"
+    }
+  },
+  "workspace_failure": {
+    "failed_tests": [
+      "compiler::layout::tests::p813_equacao_bloco::equacao_bloco_centrada_horizontalmente",
+      "compiler::layout::tests::p813_equacao_bloco::equacao_bloco_espacamento_vertical_1_2em",
+      "compiler::layout::tests::p813_equacao_bloco::equacao_bloco_no_topo_do_documento_sem_spacing_acima",
+      "compiler::layout::tests::p813_equacao_bloco::equacao_inline_sem_alteracao_de_baseline",
+      "compiler::layout::tests::p813_equacao_bloco::equacao_numerada_centragem_nao_quebra_numero",
+      "compiler::layout::tests::p813_equacao_bloco::p952_equacao_equacao_spacing_inclui_descent_da_anterior",
+      "compiler::layout::tests::p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina",
+      "compiler::layout::tests::p987_tests::p987_numero_acompanha_conteudo_em_pagina_auto",
+      "compiler::layout::tests::p997_tests::p1088_heading_para_equacao_bloco_generic_margin_collapse",
+      "compiler::layout::tests::tests_inline_baseline::equacao_inline_baseline_coincide_com_texto",
+      "compiler::layout::tests::tests_inline_baseline::if_com_math_inline_attach_baseline_coincide",
+      "compiler::layout::tests::tests_limits::sum_block_limites_empilhados_verticalmente",
+      "compiler::layout::tests::tests_limits_context::sum_inline_usa_right_scripts"
+    ],
+    "executed_witness_pattern": "flattened descendants expose local x/y such as x=0 or y approximately 7.7 where tests expect page-global coordinates such as x approximately 294.34 or y approximately 99.47",
+    "evidence": {
+      "test_consumer": "01_core/src/compiler/layout/tests.rs",
+      "consumer_sha256": "92a2239354c3f82b364671ffa2d5d6a26b4767adfe3756571f7cf73b5f4f1c6c",
+      "owner_l0": "00_nucleo/prompts/compiler/layout/tests.md",
+      "owner_l0_sha256": "deee3382705bc57fcf2f6817d0f11d03419356f002693e29fe3d919dd3780f52",
+      "lineage_header_prompt_hash": "9eaf493c",
+      "helper_lines": "31-48",
+      "helper_behavior": "frame_items_recursive descends Semantic, Group and Link while returning borrowed FrameItem leaves without composing Group.pos or any accumulated transform",
+      "same_failure_class_previously_repaired_in": "03_infra/src/integration_tests.rs",
+      "test_owner_pair_in_final_frozen_inventory": false
+    },
+    "causal_conclusion": "The common observer loses parent-group coordinate transport before assertions. This explains the shared local-coordinate witnesses across otherwise unrelated equation cases and is narrower than a product regression. Because the observer correction was not applied during this independent read-only verification, the classification is strong but deliberately does not claim counterfactual GREEN.",
+    "required_owner_action": {
+      "first": "Reopen and update 00_nucleo/prompts/compiler/layout/tests.md, then authorize only coordinate/transform composition in the test helper of 01_core/src/compiler/layout/tests.rs; keep expectations, fixtures and product frozen.",
+      "conditional_fallback": "Only if all 13 still fail under a transformation-aware observer, reopen 00_nucleo/prompts/compiler/layout/equation.md and 01_core/src/compiler/layout/equation.rs for productive diagnosis."
+    }
+  },
+  "protected_and_focal_evidence": {
+    "p1288_oracles": {
+      "command": "python3 lab/parity/matrix/p1288_oracles.py --binary target/release/typst --order both --output /tmp/p1293-final-p1288-oracles.json",
+      "exit": 0,
+      "preserved": 46,
+      "certified_opaque_scope": 4,
+      "violated": 0,
+      "order_agreement": true,
+      "output_sha256": "88b6a08cab19297e802f03a314f0f606ac190cffc30b7efe72c39457e63a9041"
+    },
+    "p1288_harness_self_tests": "10/10 plus 10/10 PASS",
+    "p1289": "1/1 PASS",
+    "p1290": "7/7 PASS",
+    "p1291_core": "30/30 PASS",
+    "p1291_wiring": "5/5 PASS",
+    "p1292_protected": "11/11 PASS normal and 11/11 PASS reverse exact order",
+    "p1293_protected": "11/11 PASS normal and 11/11 PASS reverse exact order",
+    "p1293_core_focal": "50/50 PASS",
+    "p1105_core_focal": "6/6 PASS",
+    "p1293_infra_focal": "6/6 PASS",
+    "infra_complete": "918/918 PASS"
+  },
+  "surface_measurements": {
+    "default": {
+      "path": "00_nucleo/diagnosticos/p1293-surface-default.json",
+      "sha256": "72a50909525231baafbdefbbc95e2c827eaab833f1062b01f5347636fb4d1106",
+      "total": 111,
+      "match": 99,
+      "different_or_disabled": 12,
+      "missing": 0,
+      "unverified": 0,
+      "unknown": 0,
+      "target_reproduced": true
+    },
+    "html": {
+      "path": "00_nucleo/diagnosticos/p1293-surface-html.json",
+      "sha256": "a986b41913d0f00b3ff8a8c77def9b487603dfa0c5f1eef6cfa8b4705b180314",
+      "total": 115,
+      "match": 104,
+      "different_or_disabled": 11,
+      "missing": 0,
+      "unverified": 0,
+      "unknown": 0,
+      "target_reproduced": true
+    }
+  },
+  "fresh_mutation_discrimination": {
+    "runner": "/tmp/p1293-final-observers-runner-31.py",
+    "runner_sha256": "e674a4c858b7bb415ac2f0854fd2ad625927d84df3d24b66bab3b261cee2a865",
+    "result": "/tmp/p1293-final-verification-results-31.json",
+    "result_sha256": "17233f7ae29ac5de51947ae016e1cc4d967a3d96c7fdee1c5068ce3865150f15",
+    "baseline_runs": 2,
+    "baseline_each": "11/11 PASS",
+    "valid_mutants": 31,
+    "forward_executions": 31,
+    "reverse_executions": 31,
+    "rejected_valid_mutants": 31,
+    "mutation_score": 1.0,
+    "survivors": [],
+    "unknown": 0,
+    "order_stable": true,
+    "protected_inputs_preserved": true,
+    "gate": "PASS"
+  },
+  "approval_artifacts": {
+    "p1293-preservation-verification-receipt.json": "NOT_EMITTED",
+    "p1293-final-verification-receipt.json": "NOT_EMITTED",
+    "p1293-final-report.md": "NOT_EMITTED",
+    "p1293-final-certificate.json": "NOT_EMITTED",
+    "reason": "cargo test --workspace -q is a mandatory gate and failed 13 tests; proximity, other GREEN gates and perfect mutation score do not authorize approval"
+  },
+  "lot_approval": false,
+  "seal_emitted": false,
+  "product_or_l0_edited_by_verifier": false
+}

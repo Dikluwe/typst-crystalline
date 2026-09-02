@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 35fdd87b
+//! @prompt-hash 6ec6acf5
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -23,6 +23,7 @@ use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
 
 use clap::{CommandFactory, Parser, Subcommand};
+use typst_core::entities::elements::math_attach::MathAttachSlot;
 use typst_core::entities::value::Value;
 
 /// Separador de paths em env vars estilo `PATH` (Passo 123).
@@ -219,11 +220,28 @@ struct CompileArgs {
     oracle_pdf: bool,
 }
 
+#[derive(Debug, clap::Args)]
+struct CompileCommandArgs {
+    #[command(flatten)]
+    compile: CompileArgs,
+
+    /// Select the HTML escaping profile. This only affects HTML output.
+    #[arg(long = "html-serialization", value_enum, default_value_t)]
+    html_serialization: HtmlSerialization,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum, Default)]
+pub enum HtmlSerialization {
+    #[default]
+    Crystalline,
+    Vanilla,
+}
+
 #[derive(Debug, Subcommand)]
 enum Command {
     /// Compile an input file into a supported output format.
     #[command(alias = "c")]
-    Compile(CompileArgs),
+    Compile(CompileCommandArgs),
     /// Compile continuously when the input or one of its dependencies changes.
     #[command(visible_alias = "w")]
     Watch(CompileArgs),
@@ -346,6 +364,8 @@ pub struct CompileIntent {
     pub output: PathBuf,
     /// P866 — formato de saída resolvido pela extensão ou `--format`.
     pub output_format: OutputFormat,
+    /// Raw L2 choice; L4 maps it to the L3 serializer mode.
+    pub html_serialization: HtmlSerialization,
     pub root: PathBuf,
     pub font_paths: Vec<PathBuf>,
     pub colored: bool,
@@ -452,11 +472,19 @@ pub fn parse() -> RunIntent {
     let colored = resolve_colored(&args.color);
     let cert_path = resolve_cert_path(args.cert_path, std::env::var_os("TYPST_CERT"));
     match args.command {
-        Command::Compile(compile) => {
-            RunIntent::Compile(compile_intent(compile, colored, cert_path))
-        }
+        Command::Compile(compile) => RunIntent::Compile(compile_intent(
+            compile.compile,
+            compile.html_serialization,
+            colored,
+            cert_path,
+        )),
         Command::Watch(compile) => RunIntent::Watch(WatchIntent {
-            compile: compile_intent(compile, colored, cert_path),
+            compile: compile_intent(
+                compile,
+                HtmlSerialization::Crystalline,
+                colored,
+                cert_path,
+            ),
         }),
         Command::Eval(eval) => RunIntent::Eval(EvalIntent {
             features: resolve_features(&eval.features),
@@ -511,6 +539,7 @@ pub fn build_commit() -> Option<&'static str> {
 
 fn compile_intent(
     args: CompileArgs,
+    html_serialization: HtmlSerialization,
     colored: bool,
     cert_path: Option<PathBuf>,
 ) -> CompileIntent {
@@ -557,6 +586,7 @@ fn compile_intent(
         input,
         output,
         output_format,
+        html_serialization,
         root,
         font_paths: args.font_paths,
         colored,
@@ -794,14 +824,29 @@ fn content_to_semantic(
             // The crystalline layout model separates centred limits (`t`/`b`)
             // from right scripts (`tr`/`br`). The public content surface uses
             // `t`/`b` for both; normalize that mechanical distinction here.
-            for (name, child) in [
-                ("t", attach.t.as_ref().or(attach.tr.as_ref())),
-                ("b", attach.b.as_ref().or(attach.br.as_ref())),
-                ("tl", attach.tl.as_ref()),
-                ("bl", attach.bl.as_ref()),
+            fn first_supplied<'a>(
+                primary: &'a MathAttachSlot,
+                fallback: &'a MathAttachSlot,
+            ) -> &'a MathAttachSlot {
+                match primary {
+                    MathAttachSlot::Omitted => fallback,
+                    supplied => supplied,
+                }
+            }
+            for (name, slot) in [
+                ("t", first_supplied(&attach.t, &attach.tr)),
+                ("b", first_supplied(&attach.b, &attach.br)),
+                ("tl", &attach.tl),
+                ("bl", &attach.bl),
             ] {
-                if let Some(child) = child {
-                    fields.push((name.into(), content_to_semantic(child)));
+                match slot {
+                    MathAttachSlot::Omitted => {}
+                    MathAttachSlot::ExplicitNone => {
+                        fields.push((name.into(), SemanticValue::Null));
+                    }
+                    MathAttachSlot::Present(child) => {
+                        fields.push((name.into(), content_to_semantic(child)));
+                    }
                 }
             }
         }
@@ -1236,6 +1281,49 @@ mod tests {
     }
 
     #[test]
+    fn p1293_c_html_serialization_compile_only_e_default_crystalline() {
+        let omitted = Args::try_parse_from(["typst", "compile", "in.typ"])
+            .expect("default deve parsear");
+        let explicit = Args::try_parse_from([
+            "typst",
+            "compile",
+            "in.typ",
+            "--html-serialization",
+            "vanilla",
+        ])
+        .expect("vanilla deve parsear");
+
+        let Command::Compile(omitted) = omitted.command else { panic!() };
+        let Command::Compile(explicit) = explicit.command else { panic!() };
+        assert_eq!(omitted.html_serialization, HtmlSerialization::Crystalline);
+        assert_eq!(explicit.html_serialization, HtmlSerialization::Vanilla);
+        assert!(Args::try_parse_from([
+            "typst",
+            "compile",
+            "in.typ",
+            "--html-serialization",
+            "other",
+        ])
+        .is_err());
+        assert!(Args::try_parse_from([
+            "typst",
+            "watch",
+            "in.typ",
+            "--html-serialization",
+            "vanilla",
+        ])
+        .is_err());
+        assert!(Args::try_parse_from([
+            "typst",
+            "eval",
+            "1",
+            "--html-serialization",
+            "vanilla",
+        ])
+        .is_err());
+    }
+
+    #[test]
     fn p1137_legacy_recebe_compile_implicito() {
         assert_eq!(
             normalize_legacy_args(os_args(&["typst", "main.typ", "out.pdf"])),
@@ -1652,7 +1740,8 @@ mod tests {
                 Args::try_parse_from(["typst", command, "in.typ", "--no-pdf-tags"])
                     .expect("flag deve ser aceite");
             let compile = match args.command {
-                Command::Compile(args) | Command::Watch(args) => args,
+                Command::Compile(args) => args.compile,
+                Command::Watch(args) => args,
                 _ => panic!("comando inesperado"),
             };
             assert!(compile.no_pdf_tags);
@@ -1799,12 +1888,12 @@ mod tests {
         let equation = Content::equation(
             Content::math_attach(
                 Content::MathIdent("x".into()),
-                Some(Content::MathText("2".into())),
-                None,
-                None,
-                None,
-                None,
-                None,
+                MathAttachSlot::Present(Content::MathText("2".into())),
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
             ),
             false,
         );

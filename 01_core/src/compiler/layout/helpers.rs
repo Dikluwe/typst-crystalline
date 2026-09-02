@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/helpers.md
-//! @prompt-hash b2164f22
+//! @prompt-hash ecaf33a5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -26,7 +26,15 @@ pub(crate) fn item_pos(item: &FrameItem) -> (f64, f64) {
         FrameItem::Group { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Link { .. } => (0.0, 0.0),
         FrameItem::Semantic { items, .. } => {
-            items.first().map(item_pos).unwrap_or((0.0, 0.0))
+            let Some(first) = items.first() else {
+                return (0.0, 0.0);
+            };
+            let (_, first_y) = item_pos(first);
+            let left = items
+                .iter()
+                .map(|child| item_pos(child).0)
+                .fold(f64::INFINITY, f64::min);
+            (if left.is_finite() { left } else { 0.0 }, first_y)
         }
     }
 }
@@ -452,5 +460,57 @@ pub(crate) fn item_bottom_y(item: &FrameItem) -> f64 {
         FrameItem::Semantic { items, .. } => {
             items.iter().map(item_bottom_y).fold(0.0, f64::max)
         }
+    }
+}
+
+#[cfg(test)]
+mod p1293_attach_refutator_tests {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::layout_types::{SemanticKind, SemanticPlacement, TextStyle};
+
+    fn glyph(id: u16, x: f64, y: f64, width: f64) -> FrameItem {
+        FrameItem::Glyph {
+            pos: Point { x: Pt(x), y: Pt(y) },
+            glyph_id: id,
+            x_advance: Pt(width),
+            size: Pt(12.0),
+            style: TextStyle::regular(Pt(12.0)),
+            base_char: 'x',
+        }
+    }
+
+    #[test]
+    fn p1293_semantic_mede_posicao_e_largura_no_mesmo_referencial() {
+        let semantic = FrameItem::Semantic {
+            kind: SemanticKind::Formula,
+            placement: SemanticPlacement::Inline,
+            alt: None,
+            // O primeiro filho não é o mais à esquerda. A ordem é parte da
+            // contraprova: medir não pode reordenar nem transladar filhos.
+            items: vec![glyph(10, 10.0, 7.0, 4.0), glyph(20, 2.0, 11.0, 3.0)],
+        };
+
+        assert_eq!(item_pos(&semantic), (2.0, 7.0));
+        assert_eq!(item_width(&semantic, &FixedMetrics), 12.0);
+        assert_eq!(line_content_right([&semantic], &FixedMetrics), 14.0);
+
+        let FrameItem::Semantic { items, .. } = semantic else { unreachable!() };
+        assert!(matches!(items[0], FrameItem::Glyph { glyph_id: 10, .. }));
+        assert!(matches!(items[1], FrameItem::Glyph { glyph_id: 20, .. }));
+        assert_eq!(item_pos(&items[0]), (10.0, 7.0));
+        assert_eq!(item_pos(&items[1]), (2.0, 11.0));
+    }
+
+    #[test]
+    fn p1293_semantic_vazio_conserva_posicao_e_largura_zero() {
+        let semantic = FrameItem::Semantic {
+            kind: SemanticKind::Formula,
+            placement: SemanticPlacement::Inline,
+            alt: None,
+            items: vec![],
+        };
+        assert_eq!(item_pos(&semantic), (0.0, 0.0));
+        assert_eq!(item_width(&semantic, &FixedMetrics), 0.0);
     }
 }

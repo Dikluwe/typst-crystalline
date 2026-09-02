@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/integration_tests` — suíte E2E L3
-Hash do Código: 4d50d5e2
+Hash do Código: 99985da2
 
 
 **Camada:** L3, somente `#[cfg(test)]`
@@ -26,6 +26,65 @@ estruturas observáveis dos formatos exportados. Segundo ADR-0107/0108, igualdad
 acidental de bytes, estrutura interna ou passos do algoritmo não vira contrato,
 exceto quando bytes ou estrutura são precisamente o observável do formato sob
 teste. Toda medição decisória registra proveniência reproduzível.
+
+## P1293.final — observação de `FrameItem` em coordenadas globais
+
+### Medição anterior à decisão
+
+O recibo adversarial P1293 de SHA-256
+`8c742753c64524578f08151e604668d047be23a526d9acac9088398870f79868`
+mediu `cargo test -p typst-infra --lib` em
+`2026-09-02T16:38:34-03:00`: `910` testes passaram e `8` falharam nas linhas
+`4650`, `4695`, `4737`, `4795`, `4892`, `4957`, `5008` e `5045` do consumer
+SHA-256
+`6377db547065c4fa912924bfae88d6c0e296b1446fd55571f57c2a43783d0086`.
+Todos esses casos obtêm itens pelo helper privado
+`03_infra/src/integration_tests.rs:34-51`.
+
+Esse helper atravessa `Semantic`, `Group` e `Link`, mas devolve referências aos
+filhos e deixa os consumidores lerem `pos`/`start` locais sem carregar a
+transformação ancestral. A fonte de tipos declara em
+`01_core/src/entities/layout_types.rs:484-502` que `Group.pos` está no espaço
+do pai, `matrix` é a transformação afim e seus `items` estão no espaço local.
+O exporter SVG confirma em `03_infra/src/export/svg.rs:1638-1682` a ordem
+observável `translate(Group.pos)` seguida de `matrix`. A medição causal do
+adversário mostra que o `Group` de Formula conserva o render global e tornou
+locais apenas as coordenadas dos filhos; portanto os oito valores locais não
+podem ser comparados diretamente às expectativas globais históricas.
+
+Medição, não inferência: o observador perde `Group.pos`/`matrix` durante a
+descida. Inferência: compor a transformação como o exporter restaura as
+coordenadas de página já esperadas sem alterar layout. Refutador: depois da
+composição completa, qualquer um dos oito valores globais ainda divergir,
+uma quantidade/ordem de item mudar ou uma transformação não poder ser
+representada pelo carrier existente; nesse caso o helper não mascara a falha
+e o owner produtivo causal precisa ser reaberto antes de produção.
+
+### Decisão test-only
+
+Os helpers privados que inspecionam frames devem carregar, durante toda a
+descida, a transformação afim acumulada do ancestral até o item observado.
+Ao entrar em `FrameItem::Group`, devem compor na ordem do exporter a
+translação de `Group.pos`, a `Group.matrix` e o transform já acumulado; grupos
+aninhados devem compor transitivamente. Pontos de `Text`, `TextShaped`,
+`Glyph`, `Image` e `Shape`, extremos de `Line` e qualquer coordenada usada em
+asserção devem ser projetados uma única vez nesse referencial global antes da
+comparação. `Semantic` continua envelope transparente; `Link` conserva a sua
+semântica vigente e não autoriza deslocamento inventado ou dupla aplicação.
+
+Travessias que contam ou classificam itens podem continuar a observar a
+identidade da variante, mas toda comparação geométrica usa a projeção global.
+As expectativas numéricas, fixtures, fontes, layout produtivo e ordem dos
+itens permanecem byte-conceitualmente inalterados. É proibido acomodar a
+mecânica local alterando os oito valores esperados, revertendo o `Group` de
+Formula ou tocando `compiler/layout/equation.md`/`equation.rs`.
+
+Classificação ADR-0107/0108: coordenadas globais renderizadas são o observável
+de layout; referência Rust, recursão e composição do helper são transporte de
+teste. Esta decisão decorre das linhas medidas acima. ADR-0127: correção
+test-only do observador, sem API pública, default, fase ou compatibilidade;
+fluxo contínuo após resselo. ADR-0129: este owner continua 1:1 com
+`03_infra/src/integration_tests.rs` e não legitima nenhum módulo produtivo.
 
 ## Proveniência P844
 

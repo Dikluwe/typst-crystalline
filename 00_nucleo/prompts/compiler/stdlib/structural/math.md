@@ -1,5 +1,8 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: afa01e47
+Hash do Código: 81441281
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/math.rs`
@@ -10,6 +13,31 @@ especifica **a superfície do nó**; o detalhe por marco vive no pai.
 **Vanilla**: `typst-library/src/math/{accent,cancel,op,underover,style}.rs`. Co-mudança: P290-301 e P317 movem `native_accent`, `native_cancel`, `native_op`, `native_underover`, `op_value` e `make_math_module` como bloco.
 
 ---
+
+## P1293 — captura triestatal dos seis slots de `attach`
+
+### Medição anterior à decisão
+
+O recibo causal SHA-256
+`80a9543c9450f2350a42fa48df2e42cac63109bd074ebb37c2ec424cba473d5c`
+mede `Value::None` distinto de `Value::Content(Content::Empty)` em `Args`, mas
+`01_core/src/compiler/stdlib/structural/math.rs:637-644,696-703` converte ambos
+em `Content::Empty` antes de envolvê-los em `Some`; esse é o primeiro ponto de
+colisão. Omitido já é observável separadamente pela ausência no mapa named.
+
+### Decisão confirmada
+
+Para cada `t,b,tl,bl,tr,br`, ausência do named produz
+`MathAttachSlot::Omitted`; `Value::None` produz `ExplicitNone`; conteúdo,
+string ou símbolo validamente convertido produz `Present(content)`, inclusive
+`Present(Content::Empty)`. Spans de argumentos, ordem de avaliação, casts,
+mensagens, hints, precedência positional/named e o constructor puro
+compartilhado por sintaxe/forma qualificada permanecem intactos.
+
+É proibido usar `Content::Empty` como sentinel, introduzir heurística nominal,
+alterar `Args`, `Value`, parser/AST, defaults ou fase. Esta mudança materializa
+o contrato público confirmado em `2026-09-02T08:06:37-03:00`; todo estado deve
+chegar ao constructor canônico sem colapso.
 
 ## Contexto
 
@@ -136,6 +164,99 @@ O runtime de callback de cancel permanece o selado em P1291. `math.vec`
 transporta `Rel<Length>` integral; a base percentual e a política
 `height:auto` pertencem aos owners de layout. Esta unidade não duplica layout
 nem assa região.
+
+### P1293 — `math.attach`, `math.binom`, `math.mono`, `math.script` (GATE ADR-0127)
+
+**Medição anterior à decisão:** em `2026-09-01T13:24:01-03:00`, sobre
+`7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não commitada
+registrada em `p1293-baseline-status.txt`, o recibo independente mediu no
+vanilla ratificado as quatro identidades curtas e a fonte
+`typst-library/src/math/mod.rs:42-92`. `math/attach.rs:19-49` usa o payload já
+existente de sete slots; `math/frac.rs:133-150` exige `upper` e um `lower`
+posicional variádico não vazio; `math/style.rs:134-145,208-227` define `mono`
+e `script`. `math/ir/resolve.rs:402-415,470-570,714-768` confirma que attach e
+binom permanecem na fase/payload vigentes. Não foi medido campo, entidade,
+default de produto ou fase nova.
+
+Antes do espelho `sym -> math`, `make_math_module` registra exatamente:
+
+| binding | assinatura fechada | construção canônica |
+|---|---|---|
+| `math.attach` | `attach(base, t:?, b:?, tl:?, bl:?, tr:?, br:?)` | `Content::MathAttach` de sete slots |
+| `math.binom` | `binom(upper, ..lower)` com pelo menos um lower | `MathFrac(line:false)` entre parênteses esticados |
+| `math.mono` | `mono(body)` | a mesma `native_mono` global |
+| `math.script` | `script(body, cramped:true)` | a mesma `native_script` global |
+
+`attach` aceita `Content` em `base` e em cada slot. Base é obrigatório; segundo
+positional e named desconhecido são erros. Omitir um slot é ausência. `none`
+explicitamente fornecido é morfologia presente (`t: none` no `repr`) e deve ser
+transportado como conteúdo vazio presente, não colapsado para slot omitido nem
+texto; seu layout é equivalente ao da omissão. A ordem pública dos slots é
+`t`, `b`, `tl`, `bl`, `tr`, `br`.
+
+`binom` aceita `upper` como primeiro Content e um ou mais Content posicionais
+em `lower`, preserva sua ordem e vírgulas na tupla morfológica, usa sempre
+`MathFracElem.line = false` e delimitadores extensíveis `(`/`)`. Zero
+argumentos reporta `missing argument: upper`; somente upper reporta
+`missing argument: lower`; tipo inválido, positional indevido e named
+desconhecido conservam mensagem e span do argumento medido. Não usar Matrix,
+não desenhar barra e não criar payload `Binom` paralelo.
+
+`mono` e `script` reutilizam diretamente as function pointers donas em
+`stdlib/math_style.rs`, sem wrapper ou segunda regra. Ambos exigem body Content
+posicional; `script` aceita somente `cramped: bool`, default `true`. Missing,
+extra, body named, named desconhecido e cast inválido são erros fechados. A
+identidade no módulo é `mono`/`script`, independentemente do reuso da nativa.
+
+Os constructors puros de attach/binom são a fronteira comum com a sintaxe do
+owner `compiler/eval/math.md`; ambos os caminhos devem produzir a mesma
+morfologia e semântica, sem executar layout. `Unknown` nunca satisfaz qualquer
+vetor requerido. As quatro adições são superfície pública e ficam bloqueadas
+pelo gate humano P1293 antes do código.
+
+### P1293.reopen-B-independent-RED — positional named e hints
+
+#### Medição anterior à decisão
+
+O julgamento independente posterior ao recibo final B SHA-256
+`d677c0b1e6d8796c6680787d27b3409c100ff13653ab8ff89d7154813866720c`
+confirmou para `binom(upper: ...)` a mensagem principal correta, mas rejeitou
+o diagnóstico porque faltava o hint exato `try removing upper:`. O recibo
+vanilla independente SHA-256
+`39f11f324677885ba093178fd5bc9cc40187a6dcceb67fa28fd55b247531c9a7`
+mede em `p1293-vanilla-measurement-receipt.md:162-186` que `attach.base` e
+`binom.upper` são posicionais e que `lower` é requerido, variádico e
+posicional. Este owner, em `:162-180`, fecha aridade/casts e named, mas não
+fixava os hints dos campos posicionais reconhecidos.
+
+Medido: mensagem e hint pertencem ao transcript diagnóstico observável.
+Inferência: a lacuna cabe na validação de argumentos deste owner, sem tocar
+constructor/payload. Refutam-na mensagem ou hint vanilla diferente para os
+campos enumerados, mudança de precedência/span, ou necessidade de alterar
+`Args`, call dispatch, entidade, fase ou layout.
+
+#### Decisão estreita
+
+Quando um campo posicional reconhecido é escrito como named:
+
+- `math.attach(base: ...)` emite exatamente a mensagem
+  `the argument base is positional` e o hint separado
+  `try removing base:`;
+- `math.binom(upper: ...)` emite exatamente a mensagem
+  `the argument upper is positional` e o hint separado
+  `try removing upper:`.
+
+O hint não integra a mensagem principal e não substitui o erro. Slots
+`t,b,tl,bl,tr,br` continuam named válidos; named realmente desconhecido
+continua `unexpected argument: <nome>` sem hint posicional inventado. O lower
+variádico conserva a assinatura e o comportamento medidos; esta reabertura
+não infere novo diagnóstico para uma forma não enumerada.
+
+Mensagem/hint são observáveis da linguagem (ADR-0107) e esta é correção
+interna de paridade em fluxo contínuo (ADR-0127), sem novo gate humano.
+Constructor, payload, casts, defaults, spans, precedência e quantidade/ordem
+de avaliação permanecem idênticos. Não se altera API pública, `Args`,
+entidade, compatibilidade ou fase eval/layout.
 
 ### P1140.3-A — `math.sqrt` função, não símbolo
 

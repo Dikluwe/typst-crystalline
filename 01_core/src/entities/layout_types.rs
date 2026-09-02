@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash ad66aa56
+//! @prompt-hash 82f0d3d7
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -222,6 +222,13 @@ pub struct TextStyle {
     /// coincidentemente tem tabela MATH (que a fonte de corpo por omissão,
     /// `Libertinus Serif`, não tem).
     pub math: bool,
+    /// **P1293** — proveniência interna de `TextItem` dentro de math.
+    /// `true` somente para `Content::Text` direto já em contexto
+    /// matemático; mantém `math = true` para preservar fonte/fallback/
+    /// shaping e permite excluir somente a correção itálica de
+    /// `GlyphFragment`. Não é configurável pelo utilizador. O default
+    /// `false` preserva prosa, glifos matemáticos, números e extensíveis.
+    pub math_text_item: bool,
     /// **P891** — `true` sse toda esta sequência está dentro de um
     /// script (sub/super-índice) de `MathAttach` (definido uma vez em
     /// `attach.rs` ao construir `script_style`). Consumido em
@@ -1351,6 +1358,15 @@ mod tests {
         assert!(b.bold && !b.italic);
         let i = TextStyle::italic(Pt(12.0));
         assert!(!i.bold && i.italic);
+    }
+
+    #[test]
+    fn p1293_text_style_default_expoe_proveniencia_textitem_desligada() {
+        let debug = format!("{:?}", TextStyle::default());
+        assert!(
+            debug.contains("math_text_item: false"),
+            "TextStyle::default deve transportar o novo eixo com default false: {debug}"
+        );
     }
 
     #[test]

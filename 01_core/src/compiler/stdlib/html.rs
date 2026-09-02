@@ -1,12 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html.md
-//! @prompt-hash 19720544
+//! @prompt-hash 4eb0acc7
 //! @layer L1
 
 use std::sync::Arc;
 
 use ecow::EcoString;
 
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
@@ -45,6 +46,19 @@ macro_rules! typed_tag {
             _current_file: FileId,
         ) -> SourceResult<Value> {
             native_typed_html($tag, &[], args)
+        }
+    };
+}
+
+macro_rules! typed_tag_with_attrs {
+    ($fn_name:ident, $tag:literal, $attrs:ident) => {
+        fn $fn_name(
+            _ctx: &mut EvalContext,
+            args: &Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: FileId,
+        ) -> SourceResult<Value> {
+            native_typed_html($tag, $attrs, args)
         }
     };
 }
@@ -107,6 +121,11 @@ typed_tag!(native_html_html, "html");
 typed_tag!(native_html_head, "head");
 typed_tag!(native_html_body, "body");
 typed_tag!(native_html_title, "title");
+typed_tag_with_attrs!(native_html_button, "button", BUTTON_ATTRS);
+typed_tag_with_attrs!(native_html_iframe, "iframe", IFRAME_ATTRS);
+typed_tag_with_attrs!(native_html_select, "select", SELECT_ATTRS);
+typed_tag_with_attrs!(native_html_template, "template", TEMPLATE_ATTRS);
+typed_tag_with_attrs!(native_html_video, "video", VIDEO_ATTRS);
 
 fn native_html_ol(
     _ctx: &mut EvalContext,
@@ -142,6 +161,24 @@ fn native_html_br(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     native_typed_html_void("br", &[], args)
+}
+
+fn native_html_col(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    native_typed_html_void("col", COL_ATTRS, args)
+}
+
+fn native_html_wbr(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    native_typed_html_void("wbr", WBR_ATTRS, args)
 }
 
 const TYPED_TAGS: &[(&str, NativeHtmlFunc)] = &[
@@ -207,12 +244,21 @@ const TYPED_TAGS: &[(&str, NativeHtmlFunc)] = &[
     ("head", native_html_head),
     ("body", native_html_body),
     ("title", native_html_title),
+    ("button", native_html_button),
+    ("col", native_html_col),
+    ("iframe", native_html_iframe),
+    ("select", native_html_select),
+    ("template", native_html_template),
+    ("video", native_html_video),
+    ("wbr", native_html_wbr),
 ];
 
 #[derive(Clone, Copy)]
 enum AttrKind {
     Str,
     Int,
+    PositiveInt,
+    NonNegativeInt,
     Float,
     TrueFalse,
     Presence,
@@ -232,6 +278,7 @@ enum AttrKind {
     PresenceOr(&'static [&'static str]),
     NoneOrStr,
     AutoOr(&'static [&'static str]),
+    Preload,
     NoneOrRole,
     YesNo,
 }
@@ -305,6 +352,209 @@ const A_ATTRS: &[AttrSpec] = &[
     },
     AttrSpec { name: "type", kind: AttrKind::Str },
 ];
+
+const BUTTON_COMMANDS: &[&str] = &[
+    "toggle-popover",
+    "show-popover",
+    "hide-popover",
+    "close",
+    "request-close",
+    "show-modal",
+];
+const BUTTON_ENCTYPES: &[&str] =
+    &["application/x-www-form-urlencoded", "multipart/form-data", "text/plain"];
+const BUTTON_METHODS: &[&str] = &["GET", "POST", "dialog"];
+const POPOVER_TARGET_ACTIONS: &[&str] = &["toggle", "show", "hide"];
+const BUTTON_TYPES: &[&str] = &["submit", "reset", "button"];
+const BUTTON_ATTRS: &[AttrSpec] = &[
+    AttrSpec {
+        name: "command",
+        kind: AttrKind::EnumOrStr(BUTTON_COMMANDS),
+    },
+    AttrSpec { name: "commandfor", kind: AttrKind::Str },
+    AttrSpec { name: "disabled", kind: AttrKind::Presence },
+    AttrSpec { name: "form", kind: AttrKind::Str },
+    AttrSpec { name: "formaction", kind: AttrKind::Str },
+    AttrSpec {
+        name: "formenctype",
+        kind: AttrKind::Enum(BUTTON_ENCTYPES),
+    },
+    AttrSpec {
+        name: "formmethod",
+        kind: AttrKind::Enum(BUTTON_METHODS),
+    },
+    AttrSpec { name: "formnovalidate", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "formtarget",
+        kind: AttrKind::EnumOrStr(TARGET_TYPES),
+    },
+    AttrSpec { name: "name", kind: AttrKind::Str },
+    AttrSpec { name: "popovertarget", kind: AttrKind::Str },
+    AttrSpec {
+        name: "popovertargetaction",
+        kind: AttrKind::Enum(POPOVER_TARGET_ACTIONS),
+    },
+    AttrSpec { name: "type", kind: AttrKind::Enum(BUTTON_TYPES) },
+    AttrSpec { name: "value", kind: AttrKind::Str },
+];
+
+const COL_ATTRS: &[AttrSpec] = &[AttrSpec { name: "span", kind: AttrKind::PositiveInt }];
+
+const IFRAME_LOADING: &[&str] = &["lazy", "eager"];
+const SANDBOX: &[&str] = &[
+    "allow-downloads",
+    "allow-forms",
+    "allow-modals",
+    "allow-orientation-lock",
+    "allow-pointer-lock",
+    "allow-popups",
+    "allow-popups-to-escape-sandbox",
+    "allow-presentation",
+    "allow-same-origin",
+    "allow-scripts",
+    "allow-top-navigation",
+    "allow-top-navigation-by-user-activation",
+    "allow-top-navigation-to-custom-protocols",
+];
+const IFRAME_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "allow", kind: AttrKind::Str },
+    AttrSpec { name: "allowfullscreen", kind: AttrKind::Presence },
+    AttrSpec { name: "height", kind: AttrKind::NonNegativeInt },
+    AttrSpec {
+        name: "loading",
+        kind: AttrKind::Enum(IFRAME_LOADING),
+    },
+    AttrSpec {
+        name: "name",
+        kind: AttrKind::EnumOrStr(TARGET_TYPES),
+    },
+    AttrSpec {
+        name: "referrerpolicy",
+        kind: AttrKind::NoneEmptyOrEnum(REFERRER_POLICIES),
+    },
+    AttrSpec { name: "sandbox", kind: AttrKind::EnumList(SANDBOX) },
+    AttrSpec { name: "src", kind: AttrKind::Str },
+    AttrSpec { name: "srcdoc", kind: AttrKind::Str },
+    AttrSpec { name: "width", kind: AttrKind::NonNegativeInt },
+];
+
+const AUTOCOMPLETE: &[&str] = &[
+    "shipping",
+    "billing",
+    "name",
+    "honorific-prefix",
+    "given-name",
+    "additional-name",
+    "family-name",
+    "honorific-suffix",
+    "nickname",
+    "username",
+    "new-password",
+    "current-password",
+    "one-time-code",
+    "organization-title",
+    "organization",
+    "street-address",
+    "address-line1",
+    "address-line2",
+    "address-line3",
+    "address-level4",
+    "address-level3",
+    "address-level2",
+    "address-level1",
+    "country",
+    "country-name",
+    "postal-code",
+    "cc-name",
+    "cc-given-name",
+    "cc-additional-name",
+    "cc-family-name",
+    "cc-number",
+    "cc-exp",
+    "cc-exp-month",
+    "cc-exp-year",
+    "cc-csc",
+    "cc-type",
+    "transaction-currency",
+    "transaction-amount",
+    "language",
+    "bday",
+    "bday-day",
+    "bday-month",
+    "bday-year",
+    "sex",
+    "url",
+    "photo",
+    "home",
+    "work",
+    "mobile",
+    "fax",
+    "pager",
+    "tel",
+    "tel-country-code",
+    "tel-national",
+    "tel-area-code",
+    "tel-local",
+    "tel-local-prefix",
+    "tel-local-suffix",
+    "tel-extension",
+    "email",
+    "impp",
+];
+const SELECT_ATTRS: &[AttrSpec] = &[
+    AttrSpec {
+        name: "autocomplete",
+        kind: AttrKind::EnumList(AUTOCOMPLETE),
+    },
+    AttrSpec { name: "disabled", kind: AttrKind::Presence },
+    AttrSpec { name: "form", kind: AttrKind::Str },
+    AttrSpec { name: "multiple", kind: AttrKind::Presence },
+    AttrSpec { name: "name", kind: AttrKind::Str },
+    AttrSpec { name: "required", kind: AttrKind::Presence },
+    AttrSpec { name: "size", kind: AttrKind::PositiveInt },
+];
+
+const TEMPLATE_ATTRS: &[AttrSpec] = &[
+    AttrSpec {
+        name: "shadowrootclonable",
+        kind: AttrKind::Presence,
+    },
+    AttrSpec {
+        name: "shadowrootcustomelementregistry",
+        kind: AttrKind::Presence,
+    },
+    AttrSpec {
+        name: "shadowrootdelegatesfocus",
+        kind: AttrKind::Presence,
+    },
+    AttrSpec {
+        name: "shadowrootmode",
+        kind: AttrKind::Enum(&["open", "closed"]),
+    },
+    AttrSpec {
+        name: "shadowrootserializable",
+        kind: AttrKind::Presence,
+    },
+];
+
+const VIDEO_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "autoplay", kind: AttrKind::Presence },
+    AttrSpec { name: "controls", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "crossorigin",
+        kind: AttrKind::Enum(&["anonymous", "use-credentials"]),
+    },
+    AttrSpec { name: "height", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "loop", kind: AttrKind::Presence },
+    AttrSpec { name: "muted", kind: AttrKind::Presence },
+    AttrSpec { name: "playsinline", kind: AttrKind::Presence },
+    AttrSpec { name: "poster", kind: AttrKind::Str },
+    AttrSpec { name: "preload", kind: AttrKind::Preload },
+    AttrSpec { name: "src", kind: AttrKind::Str },
+    AttrSpec { name: "width", kind: AttrKind::NonNegativeInt },
+];
+
+const WBR_ATTRS: &[AttrSpec] = &[];
 
 const MIXED: &[&str] = &["mixed"];
 const AUTOCAPITALIZE: &[&str] = &["sentences", "words", "characters"];
@@ -616,6 +866,26 @@ fn cast_attr(
             Value::Int(value) => value.to_string().into(),
             other => return type_error(span, "integer", other),
         },
+        AttrKind::PositiveInt => match value {
+            Value::Int(value) if *value > 0 => value.to_string().into(),
+            Value::Int(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "number must be positive",
+                )])
+            }
+            other => return type_error(span, "integer", other),
+        },
+        AttrKind::NonNegativeInt => match value {
+            Value::Int(value) if *value >= 0 => value.to_string().into(),
+            Value::Int(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "number must be at least zero",
+                )])
+            }
+            other => return type_error(span, "integer", other),
+        },
         AttrKind::Float => match value {
             Value::Float(value) => value.to_string().into(),
             Value::Int(value) => value.to_string().into(),
@@ -641,13 +911,32 @@ fn cast_attr(
                     .join(", ");
                 return Err(vec![SourceDiagnostic::error(
                     span,
-                    format!("expected {values}, or string, found {}", other.type_name()),
+                    format!(
+                        "expected {values}, or string, found {}",
+                        vanilla_type_name(other)
+                    ),
                 )]);
             }
         },
         AttrKind::NoneEmptyOrEnum(values) => match value {
             Value::None => "".into(),
-            _ => require_enum(value, span, values)?.into(),
+            Value::Str(value) if values.contains(&value.as_str()) => value.clone(),
+            Value::Str(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    expected_none_or_enum(values),
+                )])
+            }
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "{}, found {}",
+                        expected_none_or_enum(values),
+                        vanilla_type_name(other)
+                    ),
+                )])
+            }
         },
         AttrKind::BoolOr(values) => match value {
             Value::Bool(value) => value.to_string().into(),
@@ -691,6 +980,26 @@ fn cast_attr(
             Value::Auto => "auto".into(),
             _ => require_enum(value, span, values)?.into(),
         },
+        AttrKind::Preload => match value {
+            Value::None => "none".into(),
+            Value::Auto => "auto".into(),
+            Value::Str(value) if value == "metadata" => value.clone(),
+            Value::Str(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "expected none, auto, or \"metadata\"",
+                )])
+            }
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "expected none, auto, or \"metadata\", found {}",
+                        other.type_name()
+                    ),
+                )])
+            }
+        },
         AttrKind::NoneOrRole => match value {
             Value::None => "none".into(),
             _ => require_enum(value, span, ROLES)?.into(),
@@ -715,7 +1024,7 @@ fn require_enum<'a>(
     let Value::Str(value) = value else {
         return Err(vec![SourceDiagnostic::error(
             span,
-            format!("{}, found {}", expected_enum(values), value.type_name()),
+            format!("{}, found {}", expected_enum(values), vanilla_type_name(value)),
         )]);
     };
     let value = value.as_str();
@@ -728,6 +1037,15 @@ fn require_enum<'a>(
 
 fn expected_enum(values: &[&str]) -> String {
     format!("expected {}", expected_enum_body(values))
+}
+
+fn expected_none_or_enum(values: &[&str]) -> String {
+    let quoted = values.iter().map(|value| format!("{value:?}")).collect::<Vec<_>>();
+    if quoted.is_empty() {
+        "expected none".into()
+    } else {
+        format!("expected {}, or none", quoted.join(", "))
+    }
 }
 
 fn expected_enum_body(values: &[&str]) -> String {
@@ -785,7 +1103,7 @@ fn cast_list(
 fn type_error<T>(span: Span, expected: &str, found: &Value) -> SourceResult<T> {
     Err(vec![SourceDiagnostic::error(
         span,
-        format!("expected {expected}, found {}", found.type_name()),
+        format!("expected {expected}, found {}", vanilla_type_name(found)),
     )])
 }
 
@@ -1410,6 +1728,320 @@ mod tests {
             typed_args(&[("accesskey", Value::Str("ab".into()))], None),
         ] {
             assert!(native_typed_html("div", &[], &args).is_err());
+        }
+    }
+
+    #[test]
+    fn p1293_c_expoe_sete_bindings_com_body_normal_e_void() {
+        let module = make_html_module();
+        for tag in ["button", "col", "iframe", "select", "template", "video", "wbr"] {
+            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+        }
+
+        for (tag, specs) in [
+            ("button", BUTTON_ATTRS),
+            ("iframe", IFRAME_ATTRS),
+            ("select", SELECT_ATTRS),
+            ("template", TEMPLATE_ATTRS),
+            ("video", VIDEO_ATTRS),
+        ] {
+            let omitted =
+                elem(native_typed_html(tag, specs, &typed_args(&[], None)).unwrap());
+            assert!(matches!(omitted.body, HtmlBody::None), "{tag}");
+            let present = elem(
+                native_typed_html(tag, specs, &typed_args(&[], Some(Content::text("X"))))
+                    .unwrap(),
+            );
+            assert_eq!(present.body.content(), Some(&Content::text("X")), "{tag}");
+        }
+
+        for (tag, specs) in [("col", COL_ATTRS), ("wbr", WBR_ATTRS)] {
+            let void =
+                elem(native_typed_html_void(tag, specs, &typed_args(&[], None)).unwrap());
+            assert!(matches!(void.body, HtmlBody::Unset), "{tag}");
+            assert!(
+                native_typed_html_void(
+                    tag,
+                    specs,
+                    &typed_args(&[], Some(Content::text("X"))),
+                )
+                .is_err(),
+                "{tag} aceitou body"
+            );
+        }
+    }
+
+    #[test]
+    fn p1293_c_tabelas_tem_48_especificos_sem_duplicar_globais() {
+        let tables = [
+            BUTTON_ATTRS,
+            COL_ATTRS,
+            IFRAME_ATTRS,
+            SELECT_ATTRS,
+            TEMPLATE_ATTRS,
+            VIDEO_ATTRS,
+            WBR_ATTRS,
+        ];
+        assert_eq!(tables.iter().map(|table| table.len()).sum::<usize>(), 48);
+        assert_eq!(
+            tables.iter().map(|table| table.len()).collect::<Vec<_>>(),
+            vec![14, 1, 10, 7, 5, 11, 0]
+        );
+        for table in tables {
+            let unique: std::collections::BTreeSet<_> =
+                table.iter().map(|spec| spec.name).collect();
+            assert_eq!(unique.len(), table.len());
+            assert!(table.iter().all(|specific| GLOBAL_ATTRS
+                .iter()
+                .all(|global| global.name != specific.name)));
+        }
+    }
+
+    #[test]
+    fn p1293_c_casts_especificos_preservam_ordem_presence_e_listas() {
+        let button = elem(
+            native_typed_html(
+                "button",
+                BUTTON_ATTRS,
+                &typed_args(
+                    &[
+                        ("id", Value::Str("b".into())),
+                        ("command", Value::Str("request-close".into())),
+                        ("commandfor", Value::Str("dialog".into())),
+                        ("disabled", Value::Bool(true)),
+                        ("formnovalidate", Value::Bool(false)),
+                        ("formenctype", Value::Str("multipart/form-data".into())),
+                        ("formmethod", Value::Str("POST".into())),
+                        ("formtarget", Value::Str("named".into())),
+                        ("popovertargetaction", Value::Str("show".into())),
+                        ("type", Value::Str("submit".into())),
+                    ],
+                    None,
+                ),
+            )
+            .unwrap(),
+        );
+        assert_eq!(
+            button
+                .attrs
+                .as_ref()
+                .unwrap()
+                .iter()
+                .map(|(name, value)| (name.as_str(), value.as_str()))
+                .collect::<Vec<_>>(),
+            vec![
+                ("id", "b"),
+                ("command", "request-close"),
+                ("commandfor", "dialog"),
+                ("disabled", ""),
+                ("formenctype", "multipart/form-data"),
+                ("formmethod", "POST"),
+                ("formtarget", "named"),
+                ("popovertargetaction", "show"),
+                ("type", "submit"),
+            ]
+        );
+
+        let iframe = elem(
+            native_typed_html(
+                "iframe",
+                IFRAME_ATTRS,
+                &typed_args(
+                    &[
+                        ("height", Value::Int(0)),
+                        (
+                            "sandbox",
+                            Value::Array(vec![
+                                Value::Str("allow-scripts".into()),
+                                Value::Str("allow-forms".into()),
+                            ]),
+                        ),
+                        ("referrerpolicy", Value::None),
+                        ("allowfullscreen", Value::Bool(true)),
+                    ],
+                    None,
+                ),
+            )
+            .unwrap(),
+        );
+        let attrs = iframe.attrs.as_ref().unwrap();
+        assert_eq!(attrs.get("height").map(EcoString::as_str), Some("0"));
+        assert_eq!(
+            attrs.get("sandbox").map(EcoString::as_str),
+            Some("allow-scripts allow-forms")
+        );
+        assert_eq!(attrs.get("referrerpolicy").map(EcoString::as_str), Some(""));
+        assert_eq!(attrs.get("allowfullscreen").map(EcoString::as_str), Some(""));
+
+        let select = elem(
+            native_typed_html(
+                "select",
+                SELECT_ATTRS,
+                &typed_args(
+                    &[
+                        (
+                            "autocomplete",
+                            Value::Array(vec![
+                                Value::Str("shipping".into()),
+                                Value::Str("email".into()),
+                            ]),
+                        ),
+                        ("size", Value::Int(1)),
+                    ],
+                    None,
+                ),
+            )
+            .unwrap(),
+        );
+        assert_eq!(
+            select
+                .attrs
+                .as_ref()
+                .unwrap()
+                .get("autocomplete")
+                .map(EcoString::as_str),
+            Some("shipping email")
+        );
+    }
+
+    #[test]
+    fn p1293_c_dominios_enums_cross_tag_e_span_fechados() {
+        use std::num::NonZeroU16;
+
+        let span =
+            Span::from_range(FileId::from_raw(NonZeroU16::new(7).unwrap()), 11..19);
+        let mut errors = Vec::new();
+        for (tag, specs, name, value) in [
+            ("col", COL_ATTRS, "span", Value::Int(0)),
+            ("iframe", IFRAME_ATTRS, "width", Value::Int(-1)),
+            ("select", SELECT_ATTRS, "size", Value::Int(0)),
+            ("button", BUTTON_ATTRS, "type", Value::Str("menu".into())),
+            ("iframe", IFRAME_ATTRS, "sandbox", Value::Str("scripts".into())),
+            ("select", SELECT_ATTRS, "autocomplete", Value::Str("address".into())),
+            ("template", TEMPLATE_ATTRS, "shadowrootmode", Value::Str("auto".into())),
+            ("video", VIDEO_ATTRS, "preload", Value::Str("eager".into())),
+            ("button", BUTTON_ATTRS, "sandbox", Value::Str("allow-scripts".into())),
+            ("wbr", WBR_ATTRS, "data-x", Value::Str("x".into())),
+        ] {
+            let mut args = typed_args(&[(name, value)], None);
+            args.span = span;
+            let error = if matches!(tag, "col" | "wbr") {
+                native_typed_html_void(tag, specs, &args).unwrap_err()
+            } else {
+                native_typed_html(tag, specs, &args).unwrap_err()
+            };
+            assert_eq!(error[0].span, span, "{tag}.{name}");
+            errors.push(error[0].message.clone());
+        }
+        assert_eq!(errors[0], "number must be positive");
+        assert_eq!(errors[1], "number must be at least zero");
+        assert_eq!(errors[2], "number must be positive");
+        assert!(errors[8].contains("unexpected argument: sandbox"));
+        assert!(errors[9].contains("unexpected argument: data-x"));
+
+        for value in SANDBOX {
+            assert!(native_typed_html(
+                "iframe",
+                IFRAME_ATTRS,
+                &typed_args(&[("sandbox", Value::Str((*value).into()))], None),
+            )
+            .is_ok());
+        }
+        for value in AUTOCOMPLETE {
+            assert!(native_typed_html(
+                "select",
+                SELECT_ATTRS,
+                &typed_args(&[("autocomplete", Value::Str((*value).into()))], None),
+            )
+            .is_ok());
+        }
+    }
+
+    #[test]
+    fn p1293_c_preload_distingue_valores_de_linguagem_e_strings() {
+        for (value, expected) in [
+            (Value::None, "none"),
+            (Value::Auto, "auto"),
+            (Value::Str("metadata".into()), "metadata"),
+        ] {
+            let video = elem(
+                native_typed_html(
+                    "video",
+                    VIDEO_ATTRS,
+                    &typed_args(&[("preload", value)], None),
+                )
+                .unwrap(),
+            );
+            assert_eq!(
+                video.attrs.as_ref().unwrap().get("preload").map(EcoString::as_str),
+                Some(expected),
+            );
+        }
+        for value in [Value::Str("none".into()), Value::Str("auto".into())] {
+            let error = native_typed_html(
+                "video",
+                VIDEO_ATTRS,
+                &typed_args(&[("preload", value)], None),
+            )
+            .unwrap_err();
+            assert_eq!(error[0].message, "expected none, auto, or \"metadata\"");
+        }
+    }
+
+    #[test]
+    fn p1293_c_referrerpolicy_nomeia_none_como_literal_de_linguagem() {
+        use std::num::NonZeroU16;
+
+        let span =
+            Span::from_range(FileId::from_raw(NonZeroU16::new(11).unwrap()), 23..32);
+        let invalid_string = cast_attr(
+            AttrKind::NoneEmptyOrEnum(REFERRER_POLICIES),
+            &Value::Str("invalid".into()),
+            span,
+        )
+        .unwrap_err();
+        assert_eq!(
+            invalid_string[0].message,
+            "expected \"no-referrer\", \"no-referrer-when-downgrade\", \"same-origin\", \"origin\", \"strict-origin\", \"origin-when-cross-origin\", \"strict-origin-when-cross-origin\", \"unsafe-url\", or none",
+        );
+        assert_eq!(invalid_string[0].span, span);
+
+        let invalid_type = cast_attr(
+            AttrKind::NoneEmptyOrEnum(REFERRER_POLICIES),
+            &Value::Bool(true),
+            span,
+        )
+        .unwrap_err();
+        assert_eq!(
+            invalid_type[0].message,
+            "expected \"no-referrer\", \"no-referrer-when-downgrade\", \"same-origin\", \"origin\", \"strict-origin\", \"origin-when-cross-origin\", \"strict-origin-when-cross-origin\", \"unsafe-url\", or none, found boolean",
+        );
+        assert_eq!(invalid_type[0].span, span);
+
+        assert_eq!(
+            cast_attr(
+                AttrKind::NoneEmptyOrEnum(REFERRER_POLICIES),
+                &Value::None,
+                Span::detached(),
+            )
+            .unwrap(),
+            Some(EcoString::new()),
+        );
+    }
+
+    #[test]
+    fn p1293_c_dominios_numericos_separam_tipo_de_faixa() {
+        for (kind, value, expected) in [
+            (
+                AttrKind::PositiveInt,
+                Value::Str("1".into()),
+                "expected integer, found string",
+            ),
+            (AttrKind::PositiveInt, Value::Int(0), "number must be positive"),
+            (AttrKind::NonNegativeInt, Value::Int(-1), "number must be at least zero"),
+        ] {
+            let error = cast_attr(kind, &value, Span::detached()).unwrap_err();
+            assert_eq!(error[0].message, expected);
         }
     }
 }

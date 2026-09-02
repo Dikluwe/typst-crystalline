@@ -222,3 +222,40 @@ Consumido pelo `From<&StyleChain> for TextStyle` (campo
 `TextStyle::variations`). Não há campo tipado em `StyleDelta`: o canal
 custom é a única via (constructor `text()` e set rule convergem nele),
 seguindo o precedente F-5b (P373) para `text.<campo>`.
+
+## P1293 — default da proveniência `TextItem` no bridge (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`TextStyle` é construído aqui por um literal exaustivo em
+`01_core/src/entities/style_chain.rs:753-815`. O novo campo público
+`math_text_item` proposto por `entities/layout_types.md` tornará esse consumer
+incompilável se o bridge não definir o valor; não é uma edição opcional nem
+uma razão para criar owner compartilhado.
+
+A própria fronteira vigente já estabelece que `StyleChain` não carrega
+contexto matemático: o bridge fixa `math=false`, `math_script=false`,
+`cramped=false` e `math_size=Text` (`style_chain.rs:791-814`). A fonte vanilla
+cria `TextItem` somente durante resolução math
+(`lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:271-305`),
+nunca a partir da chain textual genérica. Portanto nenhuma propriedade da
+chain pode originar a proveniência P1293.
+
+Inferência: o único valor correto e default-preserving no bridge é
+`math_text_item=false`. Refutador: surgir uma fonte de `TextItem` anterior ao
+braço math de `_comum.md`; isso exigiria nova medição e owner, não propagação
+silenciosa pela chain.
+
+### Decisão proposta após confirmação humana
+
+`From<&StyleChain> for TextStyle` define explicitamente
+`math_text_item=false`. `StyleDelta`, resolvers, canais custom, parsing, eval e
+defaults de utilizador permanecem sem esse campo. Somente o owner
+`compiler/math/layout/_comum.md` pode promover a cópia local para `true` ao
+reconhecer `Content::Text` direto dentro de math.
+
+Ownership 1:1: este prompt legitima somente
+`01_core/src/entities/style_chain.rs`. A edição futura é a adaptação mecânica
+e default-preserving de um literal exaustivo, mas depende de novo campo público
+em entidade; integra o mesmo gate humano ADR-0127 categoria 1 e não autoriza
+código antes da confirmação.

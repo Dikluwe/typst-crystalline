@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 46a80551
+//! @prompt-hash cda75693
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -109,6 +109,21 @@ impl ShapeCache {
             "{}|{}|{}|{}|{}|ssty{:?}",
             text, slot_idx, rtl, axis_key, tracking_key, ssty_level
         )
+    }
+}
+
+/// Nível OpenType `ssty` solicitado para um sub-run matemático.
+///
+/// TextItem preserva `style.math` para família, fallback e demais eixos de
+/// shaping, mas segue a rota textual do vanilla e não seleciona `.st`/`.sts`.
+fn ssty_level_for_subrun(style: &TextStyle, text: &str) -> Option<u8> {
+    if !style.math || style.math_text_item || !ssty_eligible_text(text) {
+        return None;
+    }
+    match style.math_size {
+        typst_core::entities::layout_types::MathSize::Script => Some(1),
+        typst_core::entities::layout_types::MathSize::ScriptScript => Some(2),
+        _ => None,
     }
 }
 
@@ -522,17 +537,7 @@ fn try_shape(
                 // math (legendas de `underbrace`/`overbrace`, strings)
                 // usa o shaper de parágrafo comum, que nunca pede `ssty`
                 // com efeito nesta fonte.
-                let ssty_level = if style.math && ssty_eligible_text(&subrun.text) {
-                    match style.math_size {
-                        typst_core::entities::layout_types::MathSize::Script => Some(1u8),
-                        typst_core::entities::layout_types::MathSize::ScriptScript => {
-                            Some(2u8)
-                        }
-                        _other => None, // neutro: N16[β] — MathSize Display/Text não produz ssty level (apenas Script/ScriptScript),
-                    }
-                } else {
-                    None
-                };
+                let ssty_level = ssty_level_for_subrun(style, &subrun.text);
                 let cache_key = ShapeCache::key(
                     &subrun.text,
                     candidate.slot_idx,
@@ -1109,7 +1114,7 @@ mod tests {
     };
     use typst_core::entities::font_list::FontList;
     use typst_core::entities::layout_types::{
-        FrameItem, Length, Page, PagedDocument, Point, Pt, TextStyle,
+        FrameItem, Length, MathSize, Page, PagedDocument, Point, Pt, TextStyle,
     };
     use typst_core::entities::source::Source;
     use typst_core::entities::world_types::{
@@ -2321,6 +2326,27 @@ mod tests {
         assert!(all.is_empty(), "coverage vazio → nenhum candidato");
         // Nenhuma face foi carregada: o cache deve estar vazio.
         assert!(face_cache.map.is_empty(), "nenhuma face carregada quando bitmap exclui");
+    }
+
+    #[test]
+    fn p1293_textitem_shaper_nao_solicita_ssty_e_preserva_controles() {
+        let script_glyph = TextStyle {
+            math: true,
+            math_text_item: false,
+            math_size: MathSize::Script,
+            ..TextStyle::regular(Pt(11.0))
+        };
+        let script_textitem = TextStyle { math_text_item: true, ..script_glyph.clone() };
+        let scriptscript_glyph = TextStyle {
+            math_size: MathSize::ScriptScript,
+            ..script_glyph.clone()
+        };
+
+        assert!(script_textitem.math, "TextItem deve preservar o contexto math");
+        assert_eq!(ssty_level_for_subrun(&script_textitem, "R"), None);
+        assert_eq!(ssty_level_for_subrun(&script_glyph, "R"), Some(1));
+        assert_eq!(ssty_level_for_subrun(&scriptscript_glyph, "R"), Some(2));
+        assert_eq!(ssty_level_for_subrun(&script_glyph, "RR"), None);
     }
 }
 

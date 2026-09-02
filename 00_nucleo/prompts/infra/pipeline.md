@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 282c1f66
+Hash do Código: c3a60a77
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -615,3 +615,44 @@ Esta forma replica P240/P241/P1159: L3 realiza callbacks entre passagens e L1
 layout recebe somente dados selados. Não existe implementação L3 de trait L1,
 reentrada layout→eval ou execução em `native_math_cancel`. A ligação de fase
 continua gate ADR-0127.
+
+## P1293.reopen-C — transporte do modo de serialização HTML (PROPOSTO; STOP ADR-0127)
+
+### Medição anterior à decisão
+
+O recibo residual P1293/C SHA-256
+`4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
+mede que ambas as formas, cristalina conservadora e vanilla contextual, são
+HTML válido. No estado recebido, `03_infra/src/pipeline.rs:160` expõe
+`compile_to_html_string` e `:171` expõe
+`compile_to_html_string_with_features`; busca read-only não encontra parâmetro
+ou tipo de modo. Ambas as entry points existentes têm, portanto, comportamento
+cristalino vigente.
+
+### Contrato público proposto
+
+L3 usa o enum público único definido pelo owner do exporter,
+`HtmlSerializationMode::{Crystalline, Vanilla}`, e acrescenta uma entry point
+explícita completa:
+
+```rust
+pub fn compile_to_html_string_with_features_and_serialization(
+    world: &dyn World,
+    source: &Source,
+    features: Features,
+    mode: HtmlSerializationMode,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>);
+```
+
+Ela preserva o pipeline semântico `eval(target=html, features) → Content →
+export_html_with_serialization(content, mode)`, sem passar por layout paginado.
+As APIs públicas existentes `compile_to_html_string` e
+`compile_to_html_string_with_features` permanecem compatíveis e delegam com
+`HtmlSerializationMode::Crystalline`. Não há leitura de CLI/env, estado global,
+inferência pelo output path ou ativação de feature pelo modo.
+
+O modo afeta somente o encode HTML no fim do mesmo pipeline; warnings, errors,
+feature gate, target e conteúdo avaliado permanecem idênticos. A assinatura
+pública nova e o default preservado exigem confirmação humana ADR-0127 antes de
+código ou resselo. Refutam a forma: mudar APIs antigas, mover lógica entre
+eval/layout/export, duplicar o enum ou observar o modo em pipeline paginado.

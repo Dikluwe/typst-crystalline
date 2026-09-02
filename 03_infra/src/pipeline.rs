@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 7091a54c
+//! @prompt-hash 6d75c61f
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -161,10 +161,11 @@ pub fn compile_to_html_string(
     world: &dyn World,
     source: &Source,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    compile_to_html_string_with_features(
+    compile_to_html_string_with_features_and_serialization(
         world,
         source,
         typst_core::entities::compiler_features::Features::default(),
+        crate::export::HtmlSerializationMode::Crystalline,
     )
 }
 
@@ -172,6 +173,20 @@ pub fn compile_to_html_string_with_features(
     world: &dyn World,
     source: &Source,
     features: typst_core::entities::compiler_features::Features,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_html_string_with_features_and_serialization(
+        world,
+        source,
+        features,
+        crate::export::HtmlSerializationMode::Crystalline,
+    )
+}
+
+pub fn compile_to_html_string_with_features_and_serialization(
+    world: &dyn World,
+    source: &Source,
+    features: typst_core::entities::compiler_features::Features,
+    mode: crate::export::HtmlSerializationMode,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     if !features.contains(typst_core::entities::compiler_features::Feature::Html) {
         return (
@@ -195,7 +210,8 @@ pub fn compile_to_html_string_with_features(
     );
     let html = result.and_then(|module| {
         let content = module.content().cloned().unwrap_or(Content::Empty);
-        crate::export::export_html(&content).map_err(|error| vec![error])
+        crate::export::export_html_with_serialization(&content, mode)
+            .map_err(|error| vec![error])
     });
     (html, warnings)
 }

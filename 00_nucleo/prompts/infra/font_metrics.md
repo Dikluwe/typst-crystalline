@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: a1d371e8
+Hash do Código: 41138876
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
@@ -996,3 +996,116 @@ inalterada. Nenhum caractere especial nem valor empírico entra na produção.
 **Critério de língua**: `upright(x)`, `bold(x)` e `italic(x)` medem a bbox do
 mesmo glifo que desenham; a secção 16 coincide com o vanilla e as demais
 secções anteriormente exatas permanecem exatas.
+
+## P1293 — IC ortogonal à proveniência `TextItem` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O recibo B público SHA-256
+`bab06da4eb0db5dd0a37d2c679a6b51bef0d321c64128e56c536e5ba46bba6ce`
+mede que trocar `TextStyle.math` para `false` no `Content::Text` direto
+removeu `0,6633pt`, quando o residual anterior era `+0,0473pt`: o vetor
+attach inline passou a `-0,6160pt`. Os outros sete B-P07 ficaram GREEN. O
+resultado refuta tratar a cadeia/fonte/shaping math e a IC de `GlyphFragment`
+como um único eixo.
+
+As duas implementações vigentes somam IC quando `style.math` e o texto tem um
+único glifo-base: `FontBookMetrics::advance`
+(`03_infra/src/font_metrics.rs:495-547`) e
+`FallbackFontMetrics::advance` (`:1423-1537`). A implementação com fallback
+também usa `style.math` antes, de forma independente, para injetar a cadeia de
+fontes matemáticas (`:1428-1440`). `AdvanceWidthKey` contém `math` e
+`math_size`, mas não uma proveniência ortogonal (`:977-997,1151-1163`).
+
+No vanilla ratificado, `TextItem` segue o shaper inline
+(`typst-layout/src/math/text.rs:15-40`), enquanto `GlyphItem` segue
+`GlyphFragment`; somente este último soma `italics_correction` ao x-advance
+(`typst-layout/src/math/fragment/glyph.rs:207-215`). Logo a IC depende da
+morfologia do item, não do simples facto de o estilo estar em contexto math.
+
+Alternativas refutadas: retirar IC de todo `style.math` quebra
+MathIdent/MathText/números; desligar `style.math` altera também fallback e
+shaping; inferir `TextItem` por texto, fonte ou nome é heurística nominal; um
+parâmetro novo no trait muda assinatura pública e ainda exigiria transportar o
+dado por toda remedição. Inferência: consumir o campo
+`TextStyle.math_text_item` proposto pela entidade é a menor separação causal.
+Refutadores: a cadeia/fonte ativa mudar, a cache colidir entre os dois estados,
+ou glifos math deixarem de receber a IC. Qualquer um bloqueia o lote.
+
+### Decisão proposta após confirmação humana
+
+- `advance`, nas implementações `FontBookMetrics` e `FallbackFontMetrics`,
+  soma a IC de glifo-base singular somente quando
+  `style.math && !style.math_text_item`;
+- `style.math_text_item=true` **não** altera resolução de primárias, fallback
+  math, variações, kerning, ssty, ink bounds, cap-height, shaping ou tamanho;
+- `AdvanceWidthKey` inclui `math_text_item`, pois o avanço difere entre os dois
+  estados embora texto, tamanho, fonte, `math` e `math_size` coincidam;
+- `char_italics_correction` e `italics_correction` continuam a expor a métrica
+  canônica da fonte, sem exceção nominal; a decisão de aplicá-la ao avanço usa
+  somente a proveniência tipada;
+- o default `false` preserva byte-conceitualmente todos os callers existentes
+  e mantém P975/P977/P1132w para MathIdent, MathText, números, GlyphFragment e
+  formas extensíveis.
+
+Ownership 1:1: este prompt legitima somente
+`03_infra/src/font_metrics.rs`. Não muda o trait `FontMetrics`, nenhuma
+assinatura, entidade adicional, `FrameItem`, default de linguagem ou fase.
+Contudo depende do novo campo público proposto em
+`entities/layout_types.md`; por ADR-0127 categoria 1, nenhuma implementação é
+autorizada antes do gate humano.
+
+## P1293 — fallback métrico de `TextItem` não aplica variante `ssty` (PROPOSTO; novo gate ADR-0127)
+
+### Medição anterior à decisão
+
+O recibo independente
+`00_nucleo/diagnosticos/p1293-textitem-ic-residual-measurement-receipt.md`,
+SHA-256 `f727ddfbc4130e3f1941a67f0493d6ab69c3e52b130133e0b29a0197b772120d`,
+mediu o residual `+0,1001pt` do attach inline qualificado e o atribuiu ao
+`ssty` aplicado no shaper (`03_infra/src/shaper.rs:525-585`), não a esta rota
+de fallback. Porém a auditoria `file:line` encontrou a mesma decisão incompleta
+em `03_infra/src/font_metrics.rs:455-463`: `ssty_level_of` consulta
+`style.math`, `math_size` e `ssty_eligible_text`, mas não
+`style.math_text_item`. Se shaping/`shaped_width` não puderem produzir a
+largura, `advance` e `text_ink_bounds*` podem voltar a medir `.st/.sts` para o
+mesmo `TextItem`, reintroduzindo a divergência.
+
+A fonte vanilla ratificada separa `TextItem` de `GlyphItem` em
+`math/ir/resolve.rs:271-355`. `TextItem` usa layout inline
+(`math/text.rs:15-40`) e não ativa efetivamente a GSUB `ssty` registrada apenas
+sob script OpenType `math`; GlyphItem e cada dígito de NumberItem usam
+`GlyphFragment` (`math/text.rs:44-124`) e conservam a variante de script. A
+medição HarfBuzz `R=736du` contra `R.st=829du` comprova que o nível é uma
+diferença métrica real, não apenas escolha visual do shaper.
+
+### Decisão proposta após novo gate humano
+
+- `ssty_level_of(text, style)` devolve `None` quando
+  `style.math_text_item=true`, independentemente de o texto ser singular ou
+  numericamente elegível; a exclusão antecede P977.
+- Para `math_text_item=false`, a função e o predicado
+  `ssty_eligible_text` permanecem byte-conceitualmente iguais: MathIdent,
+  MathText, números/dígitos e GlyphFragment continuam a usar `.st/.sts` em
+  Script/ScriptScript.
+- `advance`, `text_ink_bounds` e `text_ink_bounds_signed`, nas duas
+  implementações, continuam consumindo exclusivamente o nível devolvido; não
+  duplicam a decisão nem inferem proveniência por texto, família ou nome.
+- Resolução de primárias, fallback math, variações, kerning, IC, cap-height,
+  tinta e tamanho não mudam fora da ausência da substituição `ssty` para
+  `TextItem`.
+- A cache existente já distingue `math_text_item` para o avanço e/ou inclui o
+  nível `ssty` calculado nas rotas shaped. Não se acrescenta outro bit ou chave
+  sem medição de colisão; qualquer colisão observada bloqueia a cadeia.
+
+O owner de `attach.rs` fica congelado: a diferença `br` medida é ortogonal e
+não domina o residual final; exige refutador próprio antes de qualquer L0.
+
+ADR-0107: a exclusão conserva morfologia `TextItem`; os passos de cache/GSUB
+são mecânica. ADR-0108: a decisão é posterior à medição e marca o risco de
+fallback como inferência refutável. A semântica pública vigente do campo o
+limitava a IC/cache; esta obrigação depende da ampliação proposta em
+`entities/layout_types.md`. ADR-0127 categoria 1 exige **novo gate humano antes
+de código ou resselo**. Ownership 1:1: este prompt continua legitimando
+somente `03_infra/src/font_metrics.rs`; nenhum trait, assinatura, default ou
+fase é alterado.

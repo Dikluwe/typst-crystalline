@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 4e71df02
+Hash do Código: d37b05cb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -325,3 +325,42 @@ O braço `Value::Type(Type::Float)` delega a descoberta ao owner
 `foundations::float_type_field`. Este nó não contém a fórmula, não cria
 reflexão para `Value::Float` e não intercepta a chamada ligada. Field
 desconhecido mantém `type float does not contain field "<field>"`.
+
+## P1293.reopen-A — span do campo ligado `is-nan` sem chamada
+
+### Medição anterior à decisão
+
+Em `2026-09-01T15:13:15-03:00`, sobre HEAD
+`7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não commitida, o
+recibo segregado `p1293-implementation-receipt-a.md` de SHA-256
+`14ca51a7b440ce65e46eda9dadd7b47a21e15dd7a991b193e5d103beac42ced1`
+mediu `float("NaN").is-nan` com a mensagem pública correta, mas range
+cristalino `0..19` contra `13..19` no vanilla ratificado e no contrato.
+
+No consumer vigente e ainda sem patch desta reabertura,
+`field_access.rs:106` entrega `access.span()` ao lookup comum e
+`field_access.rs:441-446` reutiliza esse span total no diagnóstico. A própria
+AST já expõe `access.field().span()` — precedente local em
+`field_access.rs:99-101` —, que corresponde exatamente ao identificador
+`is-nan` medido. Esse erro não atravessa a nativa nem `Args`; portanto este nó
+é o owner causal da quinta âncora.
+
+### Classificação e decisão
+
+O span publicado pelo diagnóstico é linguagem sob ADR-0107. A intenção P1293
+já exige o range exato; trocar somente a âncora interna é correção de paridade
+em fluxo contínuo ADR-0127, sem contrato Rust público, default ou mudança de
+fase.
+
+Quando `eval_field_access` recebe exatamente `Value::Float` e o campo
+`is-nan` como acesso ligado sem chamada, o erro vigente
+`cannot access fields on type float` deve usar `access.field().span()`, nunca
+o span total do acesso. Mensagem, severidade, hints e ausência do valor ligado
+permanecem idênticos. Todos os outros targets, fields e erros conservam a
+âncora atual; não generalizar esta regra, não criar reflexão e não fabricar um
+método como valor.
+
+É proibido alterar `entities::Args`, API pública, entidade, default, ordem de
+avaliação ou fase. Este Prompt continua proprietário 1:1 apenas de
+`01_core/src/compiler/eval/bindings/field_access.rs`; `call_dispatch` possui as
+quatro âncoras de chamadas e `stdlib/foundations/float` possui a função.

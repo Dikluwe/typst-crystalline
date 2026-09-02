@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/equation.md
-//! @prompt-hash 04a90b1b
+//! @prompt-hash f1c7240d
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -451,11 +451,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
-        let equation_items = self
+        let mut equation_items = self
             .regions
             .current
             .current_line
             .split_off(current_line_len_before_eq);
+        let ext = extent.as_ref().expect("equation extent is always measured");
+        let frame_pos = Point { x: offset_x, y: offset_y - Pt(ext.ascent) };
+        for item in &mut equation_items {
+            super::helpers::offset_frame_item(item, -frame_pos.x.0, -frame_pos.y.0);
+        }
+        let equation_frame = FrameItem::Group {
+            pos: frame_pos,
+            matrix: crate::entities::layout_types::TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: ext.width,
+            inner_height: ext.ascent + ext.descent,
+            items: equation_items,
+        };
         let alt = match self.chain.custom("equation.alt") {
             Some(crate::entities::value::Value::Str(text)) => Some(text.clone()),
             _ => None,
@@ -468,7 +481,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 SemanticPlacement::Inline
             },
             alt,
-            items: equation_items,
+            items: vec![equation_frame],
         });
 
         // **P896** — se a centragem ficou pendente, o índice inicial dos
@@ -660,9 +673,170 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
 #[cfg(test)]
 mod smoke {
+    use super::*;
+    use crate::compiler::layout::layout;
+    use crate::entities::elements::math_attach::MathAttachSlot;
+    use crate::entities::layout_types::{PageDimension, PageMarginSpec};
+
+    fn page_auto(body: Vec<Content>) -> crate::entities::layout_types::PagedDocument {
+        let mut parts = vec![Content::SetPage {
+            paper: None,
+            flipped: None,
+            binding: None,
+            width: Some(PageDimension::Auto),
+            height: Some(PageDimension::Auto),
+            margin: Some(PageMarginSpec::uniform(0.0)),
+            numbering: None,
+            number_align: None,
+            header: None,
+            header_ascent: None,
+            footer: None,
+            footer_descent: None,
+            supplement: None,
+            columns: None,
+            bleed: None,
+            fill: None,
+            background: None,
+            foreground: None,
+        }];
+        parts.extend(body);
+        layout(&Content::Sequence(parts.into()))
+    }
+
+    fn formula_group(items: &[FrameItem]) -> Option<&FrameItem> {
+        for item in items {
+            match item {
+                FrameItem::Semantic { kind: SemanticKind::Formula, items, .. } => {
+                    return items.first();
+                }
+                FrameItem::Group { items, .. }
+                | FrameItem::Semantic { items, .. }
+                | FrameItem::Link { items, .. } => {
+                    if let Some(found) = formula_group(items) {
+                        return Some(found);
+                    }
+                }
+                _ => {}
+            }
+        }
+        None
+    }
+
+    fn text_x(items: &[FrameItem], target: &str, origin_x: f64) -> Option<f64> {
+        for item in items {
+            match item {
+                FrameItem::Text { pos, text, .. }
+                | FrameItem::TextShaped { pos, text, .. }
+                    if text.as_str() == target =>
+                {
+                    return Some(origin_x + pos.x.0);
+                }
+                FrameItem::Group { pos, items, .. } => {
+                    if let Some(found) = text_x(items, target, origin_x + pos.x.0) {
+                        return Some(found);
+                    }
+                }
+                FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+                    if let Some(found) = text_x(items, target, origin_x) {
+                        return Some(found);
+                    }
+                }
+                _ => {}
+            }
+        }
+        None
+    }
+
+    fn attach_with_post(label: &str) -> Content {
+        Content::equation(
+            Content::math_attach(
+                Content::MathIdent("x".into()),
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Present(Content::Text(label.into())),
+                MathAttachSlot::Omitted,
+            ),
+            false,
+        )
+    }
+
     #[test]
     fn module_compila_e_carrega() {
         // V2 smoke test — submódulo extraído no Passo 96.7 (ADR-0037).
         // A cobertura funcional vive em `layout/tests.rs`.
+    }
+
+    #[test]
+    fn p1293_formula_terminal_auto_preserva_extent_em_group_identidade() {
+        for label in ["R", "K", "W", "RR"] {
+            let doc = page_auto(vec![attach_with_post(label)]);
+            let page = doc.pages.first().expect("página terminal");
+            assert!(page.width.is_finite() && page.height.is_finite());
+            let frame = formula_group(&page.items).expect("Semantic::Formula presente");
+            let FrameItem::Group { matrix, clip_mask, inner_width, inner_height, .. } =
+                frame
+            else {
+                panic!("Formula deve conter um único Group lógico: {frame:?}");
+            };
+            assert_eq!(
+                *matrix,
+                crate::entities::layout_types::TransformMatrix::identity()
+            );
+            assert!(clip_mask.is_none());
+            assert!(*inner_width > 0.0 && *inner_height > 0.0);
+        }
+    }
+
+    #[test]
+    fn p1293_formula_com_marcador_nao_duplica_avanco_e_pagina_finita_preserva_width() {
+        let terminal = page_auto(vec![attach_with_post("R")]);
+        let marked = page_auto(vec![attach_with_post("R"), Content::text("Z")]);
+        assert!(terminal.pages[0].width.is_finite());
+        assert!(marked.pages[0].width.is_finite());
+        let FrameItem::Group { pos, inner_width, .. } =
+            formula_group(&marked.pages[0].items).expect("Formula com marcador")
+        else {
+            panic!("Formula deve conter Group");
+        };
+        let marker_x = text_x(&marked.pages[0].items, "Z", 0.0).expect("marcador Z");
+        assert!(
+            (marker_x - (pos.x.0 + inner_width)).abs() < 1e-9,
+            "marcador seguinte deve iniciar no fim lógico da fórmula"
+        );
+
+        let finite = layout(&Content::Sequence(
+            vec![
+                Content::SetPage {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(123.0)),
+                    height: Some(PageDimension::Length(80.0)),
+                    margin: Some(PageMarginSpec::uniform(0.0)),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+                attach_with_post("R"),
+            ]
+            .into(),
+        ));
+        assert_eq!(finite.pages[0].width, 123.0);
+        assert_eq!(finite.pages[0].height, 80.0);
+        assert!(matches!(
+            formula_group(&finite.pages[0].items),
+            Some(FrameItem::Group { .. })
+        ));
     }
 }

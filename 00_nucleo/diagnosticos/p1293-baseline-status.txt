@@ -1,0 +1,55 @@
+# Baseline fresco independente — P1293
+
+role=medidor_p1293
+regime=protocolo completo; segregado por capacidades e artefatos, sem isolamento técnico de leitura
+captured_at=2026-09-01T13:24:01-03:00
+head=7dd25ff0e222b6c7c640d6bc7957b98f94227507
+branch=Tekt
+working_tree=uncommitted
+manifest_sha256=1cb2bf59d9294e71bb9e94480386e46151fd08e0facb8bb6327ac3642e428ff7
+step_sha256=d577a03c27731d11cdcc161a3e93646e90bdb62f0a7f9cfb8d1b4f5980a9dc3a
+authoring_baseline_sha256=a0b31236c089623b0cd757d1401a6e1a1b90a931cbe48e78eda009ee72087b8e
+status_sha256=6e06c61607145ee21afc7be6a7a2464040d043dafd714569e9d29d7f808519c3
+diff_head_stat_sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+candidate_binary_sha256=ed5f85e03e6fe473c1a7a9a42cceafe8c5fbe075de4dad56a7c88c07ad2c3b6f
+reference_binary_sha256=7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
+reference_revision=a51e02804
+p1292_surface_default_sha256=a827b192fc38541f9b00baa3b666fc94aa2ff6f691ca7867bf28aa3a451e5f15
+p1292_surface_html_sha256=646884f8268f74e0acab79cf19e82fc81cceebf9e4258daeeb3ec2474d0f950a
+fresh_surface_default_sha256=f8a7d54a092a4c1bcf09882492b3d2fbc46bed1780b2d96e0e0b84ceb3014c83
+fresh_surface_html_sha256=f3cc13993eaed6f92e5c6a3380d17eea32540d4bd7da05d99658ca33c43ad19e
+fresh_surface_default=111 total / 99 MATCH / 12 differences
+fresh_surface_html=115 total / 89 MATCH / 26 differences
+unknown=0
+
+## git status --short antes de qualquer escrita do medidor
+
+?? 00_nucleo/diagnosticos/p1293-authoring-baseline-status.txt
+?? 00_nucleo/diagnosticos/p1293-manifest.json
+?? 00_nucleo/materialization/typst-passo-1293.md
+
+## git diff HEAD --stat
+
+(vazio)
+
+## Comandos de captura
+
+date --iso-8601=seconds
+git rev-parse HEAD
+git branch --show-current
+git status --short
+git status --short | sha256sum
+git diff HEAD --stat
+git diff HEAD --stat | sha256sum
+sha256sum target/release/typst /usr/local/bin/typst \
+  00_nucleo/diagnosticos/p1292-surface-default.json \
+  00_nucleo/diagnosticos/p1292-surface-html.json \
+  00_nucleo/diagnosticos/p1293-manifest.json
+
+## Nota causal
+
+Este estado foi capturado antes de L0, contrato, oráculos ou código P1293. Os
+dois inventários frescos foram escritos somente em `/tmp/p1293-surface-*.json`.
+O medidor não alterou entradas normativas. A diferença face ao baseline de
+autoria é explicada pelo commit P1292 `7dd25ff0`; os três artefatos iniciais de
+P1293 continuam não rastreados e `git diff HEAD --stat` permanece vazio.

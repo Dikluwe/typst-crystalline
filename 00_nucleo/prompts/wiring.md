@@ -298,3 +298,39 @@ report é estado efetivo, não capacidade compilada.
 Uma incapacidade devolvida pelo pipeline com `a11y-extras` ativo permanece
 erro/Unknown para o harness; L4 não a converte em sucesso nem em feature
 desligada.
+
+## P1293.reopen-C — mapping do modo de serialização HTML (PROPOSTO; STOP ADR-0127)
+
+### Medição anterior à decisão
+
+O recibo residual P1293/C SHA-256
+`4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
+mede duas serializações HTML válidas: a cristalina conservadora vigente e a
+forma vanilla contextual. Busca read-only não encontrou tipo ou mapping de
+modo; `04_wiring/src/main.rs:384` contém o único braço
+`OutputFormat::Html`, e `:390` chama a pipeline com features, sem escolha de
+serialização. O target já é semântico e separado do layout paginado, conforme
+ADR-0128.
+
+### Decisão proposta
+
+No braço `OutputFormat::Html` de `RunIntent::Compile`, L4 faz o único mapping:
+
+```text
+typst_shell::cli::HtmlSerialization::Crystalline
+    -> typst_infra::export::html::HtmlSerializationMode::Crystalline
+typst_shell::cli::HtmlSerialization::Vanilla
+    -> typst_infra::export::html::HtmlSerializationMode::Vanilla
+```
+
+O valor mapeado é passado à nova entry point L3 de compilação HTML. L4 não
+inspeciona conteúdo, não implementa escaping, não altera DOM e não transforma
+modo em feature/target. Nos braços PDF/PNG/SVG, o dado cru é ignorado e todo o
+dispatch vigente permanece byte-conceitualmente igual. A ausência já chega de
+L2 como `Crystalline`; L4 não mantém segundo default oculto.
+
+Esta ligação materializa flag/campo/enums públicos e, por isso, permanece
+bloqueada pelo novo gate humano ADR-0127. Após confirmação, os dois mappings,
+o default e a neutralidade fora de HTML são testes obrigatórios. Qualquer
+necessidade de tipo próprio em L4, branch de exporter fora de HTML ou alteração
+de ordem eval→export refuta esta decisão e exige nova autoria.

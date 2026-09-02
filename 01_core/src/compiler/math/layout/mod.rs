@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 27d922bd
+//! @prompt-hash c4b5f741
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -14,6 +14,7 @@ use super::symbols;
 use crate::compiler::layout::{vanilla_defaults::PAR_LEADING, FontMetrics};
 use crate::entities::{
     content::Content,
+    elements::math_attach::MathAttachSlot,
     layout_types::{Color, FrameItem, Length, MathSize, Point, Pt, TextStyle},
     math_constants::MathConstants,
     math_style::{is_math_italic_default, map_glyph, map_glyph_vs, MathStyleKind},
@@ -664,15 +665,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_frac_with_line(&e.num, &e.den, e.line, style)
             }
 
-            Content::MathAttach(e) => self.layout_attach(
-                &e.base,
-                e.t.as_ref(),
-                e.b.as_ref(),
-                e.tl.as_ref(),
-                e.bl.as_ref(),
-                e.tr.as_ref(),
-                e.br.as_ref(),
-                style,
+            Content::MathAttach(e) => self.layout_attach_slots(
+                &e.base, &e.t, &e.b, &e.tl, &e.bl, &e.tr, &e.br, style,
             ),
 
             Content::MathRoot(e) => {
@@ -712,7 +706,17 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // P772y — `math.class(class, body)`: override de classe afecta
             // apenas espaçamento (spacing.rs); o layout do body é normal.
             Content::MathClassOverride(e) => {
-                let mut box_ = self.layout_node(&e.body, style);
+                // Um `Content::Text` diretamente promovido por
+                // `math.class` representa o GlyphFragment de P1132w, não o
+                // TextItem direto do catch-all P1293. Preserve a largura
+                // vigente aqui; a IC do fragmento é aplicada abaixo.
+                let mut box_ = if let Content::Text(text) = &e.body {
+                    let mut box_ = self.layout_text_node(text, style);
+                    box_.width = self.metrics.text_width(text, style.size, style).val();
+                    box_
+                } else {
+                    self.layout_node(&e.body, style)
+                };
                 // **P1132w** — ao transformar o GlyphItem num frame com
                 // classe explícita, o vanilla conserva a IC no avanço. O
                 // wrapper cristalino era totalmente transparente e perdia-a.
@@ -897,9 +901,24 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     // `Content::Text` é `TextItem` no vanilla e passa pelo
                     // layout inline (shaping/kerning), ao contrário das
                     // folhas `MathText`/`MathIdent`, que são glifos math.
-                    let mut text_box = self.layout_text_node(&text, style);
-                    text_box.width =
-                        self.metrics.text_width(&text, style.size, style).val();
+                    // P1293 — `Content::Text` direto é `TextItem`, não
+                    // `GlyphFragment`: projetamos o estilo efetivo inteiro,
+                    // preservamos `math = true` (fonte/fallback/shaping) e
+                    // marcamos somente a proveniência ortogonal antes de
+                    // medir e emitir. Assim avanço, tinta, MathBox e
+                    // FrameItem usam a mesma via, sem subtrair IC à mão.
+                    // MathIdent/MathText, números e containers permanecem no
+                    // caminho vigente com `math_text_item = false`.
+                    let text_style = if matches!(other, Content::Text(_)) {
+                        TextStyle { math_text_item: true, ..style.clone() }
+                    } else {
+                        style.clone()
+                    };
+                    let mut text_box = self.layout_text_node(&text, &text_style);
+                    text_box.width = self
+                        .metrics
+                        .text_width(&text, text_style.size, &text_style)
+                        .val();
                     text_box
                 }
             }
@@ -1423,9 +1442,57 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             } else {
                 filtered.clear();
             }
+            // P1293 — vista transitória de layout: um separador
+            // pontuacional `MathText` com whitespace terminal e irmão
+            // material seguinte conserva a pontuação, mas não materializa o
+            // mesmo limite duas vezes (avanço textual + gap de classe). O
+            // payload original permanece intocado.
+            let normalized: Vec<(Content, bool)> = filtered
+                .iter()
+                .enumerate()
+                .map(|(index, node)| {
+                    let has_next_material =
+                        filtered[index + 1..].iter().any(|next| !match next {
+                            Content::Empty => true,
+                            Content::HSpace(e) if e.weak => true,
+                            _ => false,
+                        });
+                    let Content::MathText(text) = node else {
+                        return (node.clone(), false);
+                    };
+                    let trimmed = text.trim_end_matches(char::is_whitespace);
+                    let is_punctuation = !trimmed.is_empty()
+                        && trimmed.chars().all(|c| {
+                            matches!(
+                                crate::entities::math_class::default_math_class(c),
+                                Some(crate::entities::math_class::MathClass::Punctuation)
+                            )
+                        });
+                    if has_next_material && trimmed.len() != text.len() && is_punctuation
+                    {
+                        (Content::MathText(trimmed.into()), true)
+                    } else {
+                        (node.clone(), false)
+                    }
+                })
+                .collect();
+            let layout_view: Vec<Content> =
+                normalized.iter().map(|(node, _)| node.clone()).collect();
+            // A vista de classes impede que o fallback de item textual
+            // reintroduza o whitespace que acabou de ser normalizado. A
+            // caixa desenhada continua a ser a original em `layout_view`.
+            let mut spacing_view = layout_view.clone();
+            for (index, (_, was_normalized)) in normalized.iter().enumerate() {
+                if !was_normalized {
+                    continue;
+                }
+                if let Some(Content::Text(text)) = spacing_view.get(index + 1).cloned() {
+                    spacing_view[index + 1] = Content::MathText(text);
+                }
+            }
             let text_space_pt = self.metrics.advance(" ", style.size, style).val();
             let gaps = spacing::compute_gaps(
-                &filtered,
+                &spacing_view,
                 style.size.val(),
                 style.math_script
                     || matches!(
@@ -1435,10 +1502,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 text_space_pt,
             );
             let mut boxes: Vec<MathBox> =
-                filtered.iter().map(|n| self.layout_node(n, style)).collect();
-            for (i, (node, text_box)) in filtered.iter().zip(boxes.iter_mut()).enumerate()
+                layout_view.iter().map(|n| self.layout_node(n, style)).collect();
+            for (i, (node, text_box)) in
+                layout_view.iter().zip(boxes.iter_mut()).enumerate()
             {
-                if should_tighten_text_frame(node, filtered.get(i + 1)) {
+                if should_tighten_text_frame(node, layout_view.get(i + 1)) {
                     text_box.width = (text_box.width - text_space_pt).max(0.0);
                 }
             }
@@ -1891,6 +1959,17 @@ pub(super) fn flatten_math_sequence_nodes(nodes: &[Content], out: &mut Vec<Conte
 /// `MathStyled` de `layout_node`, que também aplica o factor de tamanho.
 /// (Substitui o uso P809 de `apply_math_style` no topo, que consumia o
 /// wrapper e destruía display/script/sscript — P812-A.)
+fn map_attach_slot(
+    slot: &MathAttachSlot,
+    map: impl FnOnce(&Content) -> Content,
+) -> MathAttachSlot {
+    match slot {
+        MathAttachSlot::Omitted => MathAttachSlot::Omitted,
+        MathAttachSlot::ExplicitNone => MathAttachSlot::ExplicitNone,
+        MathAttachSlot::Present(content) => MathAttachSlot::Present(map(content)),
+    }
+}
+
 fn apply_math_default(body: &Content) -> Content {
     match body {
         // Wrapper explícito: não tocar — o handler dedicado trata-o.
@@ -1954,12 +2033,12 @@ fn apply_math_default(body: &Content) -> Content {
         }
         Content::MathAttach(e) => Content::math_attach(
             apply_math_default(&e.base),
-            e.t.as_ref().map(apply_math_default),
-            e.b.as_ref().map(apply_math_default),
-            e.tl.as_ref().map(apply_math_default),
-            e.bl.as_ref().map(apply_math_default),
-            e.tr.as_ref().map(apply_math_default),
-            e.br.as_ref().map(apply_math_default),
+            map_attach_slot(&e.t, apply_math_default),
+            map_attach_slot(&e.b, apply_math_default),
+            map_attach_slot(&e.tl, apply_math_default),
+            map_attach_slot(&e.bl, apply_math_default),
+            map_attach_slot(&e.tr, apply_math_default),
+            map_attach_slot(&e.br, apply_math_default),
         ),
         Content::MathRoot(e) => Content::math_root(
             e.index.as_ref().map(apply_math_default),
@@ -2167,12 +2246,12 @@ fn apply_math_style(
         }
         Content::MathAttach(e) => Content::math_attach(
             apply_math_style(&e.base, kind, bold, italic),
-            e.t.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
-            e.b.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
-            e.tl.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
-            e.bl.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
-            e.tr.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
-            e.br.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
+            map_attach_slot(&e.t, |c| apply_math_style(c, kind, bold, italic)),
+            map_attach_slot(&e.b, |c| apply_math_style(c, kind, bold, italic)),
+            map_attach_slot(&e.tl, |c| apply_math_style(c, kind, bold, italic)),
+            map_attach_slot(&e.bl, |c| apply_math_style(c, kind, bold, italic)),
+            map_attach_slot(&e.tr, |c| apply_math_style(c, kind, bold, italic)),
+            map_attach_slot(&e.br, |c| apply_math_style(c, kind, bold, italic)),
         ),
         Content::MathRoot(e) => Content::math_root(
             e.index.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
@@ -2330,10 +2409,10 @@ mod p311b_tests {
         let layouter = MathLayouter::new(&FixedMetrics, true, &style);
         let attach = Content::math_attach_scripts(
             Content::math_limits_override(Content::MathText("∑".into()), false, true),
-            None,
-            None,
-            Some(Content::MathText("1".into())),
-            Some(Content::MathText("2".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("1".into())),
+            MathAttachSlot::Present(Content::MathText("2".into())),
         );
         let items = layouter.layout_equation(&attach, &style);
         let base_x = x_of(&items, "∑");
@@ -2418,6 +2497,191 @@ mod p311b_tests {
             }
             other => panic!("esperado MathOp, obteve {other:?}"),
         }
+    }
+}
+
+#[cfg(test)]
+mod p1293_layout_owner_gap_tests {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, FontMetrics};
+
+    fn style() -> TextStyle {
+        TextStyle::regular(Pt(12.0))
+    }
+
+    #[test]
+    fn p1293_binom_separator_terminal_whitespace_tem_contribuicao_unica() {
+        let style = style();
+        let layouter = MathLayouter::new(&FixedMetrics, false, &style);
+        let measured = layouter.layout_sequence(
+            &[
+                Content::MathIdent("k".into()),
+                Content::MathText(", ".into()),
+                Content::MathIdent("j".into()),
+            ],
+            &style,
+        );
+        let canonical = layouter.layout_sequence(
+            &[
+                Content::MathIdent("k".into()),
+                Content::MathText(",".into()),
+                Content::MathIdent("j".into()),
+            ],
+            &style,
+        );
+        assert_eq!(measured.width, canonical.width);
+        assert_eq!(measured.items.len(), canonical.items.len());
+    }
+
+    #[test]
+    fn p1293_whitespace_terminal_sem_irmao_material_permanece() {
+        let style = style();
+        let layouter = MathLayouter::new(&FixedMetrics, false, &style);
+        let with_space = layouter.layout_sequence(
+            &[Content::MathIdent("k".into()), Content::MathText(", ".into())],
+            &style,
+        );
+        let without_space = layouter.layout_sequence(
+            &[Content::MathIdent("k".into()), Content::MathText(",".into())],
+            &style,
+        );
+        assert!(with_space.width > without_space.width);
+    }
+
+    #[test]
+    fn p1293_separador_normalizado_nao_reativa_fallback_de_texto_em_script() {
+        let mut style = style();
+        style.math_script = true;
+        style.math_size = MathSize::Script;
+        let layouter = MathLayouter::new(&FixedMetrics, false, &style);
+        let measured = layouter.layout_sequence(
+            &[
+                Content::Text("k".into()),
+                Content::MathText(", ".into()),
+                Content::Text("j".into()),
+            ],
+            &style,
+        );
+        let canonical = layouter.layout_sequence(
+            &[
+                Content::Text("k".into()),
+                Content::MathText(",".into()),
+                Content::MathText("j".into()),
+            ],
+            &style,
+        );
+        assert_eq!(measured.width, canonical.width);
+    }
+
+    struct MetricsComIcNoAdvance;
+
+    impl FontMetrics for MetricsComIcNoAdvance {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            let base = FixedMetrics.advance(text, size, style);
+            if style.math && !style.math_text_item && text.chars().count() == 1 {
+                base + Pt(0.5)
+            } else {
+                base
+            }
+        }
+
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(size, style)
+        }
+
+        fn char_italics_correction(&self, _c: char, _size: Pt, _style: &TextStyle) -> Pt {
+            Pt(0.5)
+        }
+    }
+
+    #[test]
+    fn p1293_content_text_direto_neutraliza_ic_sem_afetar_folhas_math() {
+        let style = TextStyle {
+            math: true,
+            cramped: true,
+            math_size: MathSize::Script,
+            ..style()
+        };
+        let layouter = MathLayouter::new(&MetricsComIcNoAdvance, false, &style);
+        let nominal = FixedMetrics.advance("x", style.size, &style).val();
+
+        let direct = layouter.layout_node(&Content::Text("x".into()), &style);
+        assert_eq!(direct.width, nominal);
+        let Some(FrameItem::Text { style: emitted, .. }) = direct.items.first() else {
+            panic!("Content::Text direto deve emitir FrameItem::Text")
+        };
+        assert!(emitted.math, "TextItem direto deve conservar o contexto math");
+        assert!(
+            emitted.math_text_item,
+            "TextItem direto deve transportar somente a nova proveniência"
+        );
+        assert_eq!(emitted.size, style.size);
+        assert_eq!(emitted.math_size, style.math_size);
+        assert_eq!(emitted.cramped, style.cramped);
+
+        for math_leaf in [
+            Content::MathIdent("x".into()),
+            Content::MathText("x".into()),
+            Content::MathText("7".into()),
+        ] {
+            let measured = layouter.layout_node(&math_leaf, &style);
+            assert_eq!(measured.width, nominal + 0.5);
+            let Some(FrameItem::Text { style: emitted, .. }) = measured.items.first()
+            else {
+                panic!("folha math deve emitir FrameItem::Text")
+            };
+            assert!(emitted.math, "folha math não pode perder a via matemática");
+            assert!(
+                !emitted.math_text_item,
+                "folha math não pode adquirir proveniência TextItem"
+            );
+        }
+    }
+
+    #[test]
+    fn p1293_ic_so_e_neutralizada_em_content_text_direto_de_um_glifo() {
+        let style = TextStyle { math: true, ..style() };
+        let layouter = MathLayouter::new(&MetricsComIcNoAdvance, false, &style);
+        let wrapped = Content::Sequence(Arc::from(
+            vec![Content::Text("x".into()), Content::Empty].into_boxed_slice(),
+        ));
+        let wrapped_box = layouter.layout_node(&wrapped, &style);
+        let wrapped_nominal =
+            MetricsComIcNoAdvance.text_width("x", style.size, &style).val();
+        assert_eq!(wrapped_box.width, wrapped_nominal);
+        let Some(FrameItem::Text { style: emitted, .. }) = wrapped_box.items.first()
+        else {
+            panic!("container textual deve emitir FrameItem::Text")
+        };
+        assert!(
+            emitted.math,
+            "container não deve ser reclassificado como TextItem direto"
+        );
+        assert!(
+            !emitted.math_text_item,
+            "container não deve adquirir proveniência de folha direta"
+        );
+
+        let multiple = layouter.layout_node(&Content::Text("xy".into()), &style);
+        let multiple_nominal =
+            MetricsComIcNoAdvance.text_width("xy", style.size, &style).val();
+        assert_eq!(multiple.width, multiple_nominal);
+        let Some(FrameItem::Text { style: emitted, .. }) = multiple.items.first() else {
+            panic!("Content::Text direto multiglifo deve emitir FrameItem::Text")
+        };
+        assert!(emitted.math, "TextItem multiglifo mantém a cadeia matemática");
+        assert!(
+            emitted.math_text_item,
+            "todo Content::Text direto deve transportar a proveniência"
+        );
     }
 }
 

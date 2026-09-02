@@ -9,6 +9,7 @@
 
 use super::*;
 use crate::compiler::layout::{FixedMetrics, FontMetrics};
+use crate::entities::elements::math_attach::MathAttachSlot;
 use crate::entities::layout_types::{Angle, PagedDocument};
 use std::sync::Arc;
 
@@ -130,10 +131,10 @@ fn math_layouter_math_attach_sem_colchetes() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        None,
-        None,
-        Some(Content::MathText("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("2".into())),
     );
     let items = ml.layout_equation(&attach, &default_style());
     for item in &items {
@@ -190,10 +191,10 @@ fn math_attach_sup_elevado() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        None,
-        None,
-        Some(Content::MathIdent("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathIdent("2".into())),
     );
     let items = ml.layout_equation(&attach, &size10_style());
     assert!(items.len() >= 2, "x^2 deve ter >= 2 items");
@@ -224,10 +225,10 @@ fn math_attach_sum_empilha_limites_em_modo_bloco() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathText("∑".into()),
-        None,
-        None,
-        Some(Content::MathText("0".into())),
-        Some(Content::MathText("1".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("0".into())),
+        MathAttachSlot::Present(Content::MathText("1".into())),
     );
     let items = ml.layout_equation(&attach, &default_style());
     let base_x = items
@@ -266,10 +267,10 @@ fn math_attach_integral_nao_empilha_limites_em_modo_bloco() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathText("∫".into()),
-        None,
-        None,
-        Some(Content::MathText("0".into())),
-        Some(Content::MathText("1".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("0".into())),
+        MathAttachSlot::Present(Content::MathText("1".into())),
     );
     let items = ml.layout_equation(&attach, &default_style());
     let base_x = items
@@ -337,10 +338,10 @@ fn math_attach_sub_baixado() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        None,
-        Some(Content::MathIdent("i".into())),
-        None,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathIdent("i".into())),
+        MathAttachSlot::Omitted,
     );
     let items = ml.layout_equation(&attach, &size10_style());
     assert!(items.len() >= 2);
@@ -372,10 +373,10 @@ fn math_attach_sub_sup_partilham_origem_x() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        None,
-        Some(Content::MathIdent("3".into())),
-        Some(Content::MathIdent("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathIdent("3".into())),
+        MathAttachSlot::Present(Content::MathIdent("2".into())),
     );
     let items = ml.layout_equation(&attach, &default_style());
 
@@ -412,10 +413,10 @@ fn math_attach_sub_sup_largura_max_nao_soma_nucleo_multi_char() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathIdent("ab".into()),
-        None,
-        None,
-        Some(Content::MathIdent("333".into())),
-        Some(Content::MathIdent("22".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathIdent("333".into())),
+        MathAttachSlot::Present(Content::MathIdent("22".into())),
     );
     let seq = Content::MathSequence(Arc::from(
         vec![attach, Content::MathIdent("z".into())].into_boxed_slice(),
@@ -1055,10 +1056,10 @@ fn attach_nao_regride_passo43() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        None,
-        None,
-        Some(Content::MathText("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("2".into())),
     );
     let items = ml.layout_equation(&attach, &default_style());
     let texts: Vec<_> = items
@@ -1131,10 +1132,10 @@ fn math_kern_default_nao_afecta_layout() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathIdent("f".into()),
-        None,
-        None,
-        None,
-        Some(Content::MathText("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("2".into())),
     );
     let items = ml.layout_equation(&attach, &default_style());
     assert!(!items.is_empty(), "attach deve produzir items");
@@ -1186,10 +1187,10 @@ fn sqrt_com_axis_height_nao_regride() {
 fn attach_com_kern_nao_regride() {
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        None,
-        None,
-        Some(Content::MathText("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("2".into())),
     );
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '𝑥'));
@@ -1200,10 +1201,10 @@ fn attach_com_kern_nao_regride() {
 fn attach_sub_com_kern_nao_regride() {
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        None,
-        Some(Content::MathIdent("i".into())),
-        None,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathIdent("i".into())),
+        MathAttachSlot::Omitted,
     );
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '𝑥'));
@@ -1394,10 +1395,10 @@ fn attach_sem_left_scripts_nao_regride() {
     // Regressão: MathAttach sem tl/bl comporta-se como antes
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        None,
-        None,
-        Some(Content::MathText("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("2".into())),
     );
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '𝑥'), "base ausente: {:?}", items);
@@ -1409,10 +1410,10 @@ fn attach_left_sup_contem_base_e_script() {
     // Pre-superscript: conteúdo do script e da base presentes
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        Some(Content::MathText("2".into())),
-        None,
-        None,
-        None,
+        MathAttachSlot::Present(Content::MathText("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
     );
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '2'), "pre-sup ausente: {:?}", items);
@@ -1424,10 +1425,10 @@ fn attach_left_sub_contem_base_e_script() {
     // Pre-subscript
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        Some(Content::MathText("1".into())),
-        None,
-        None,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("1".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
     );
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '1'), "pre-sub ausente: {:?}", items);
@@ -1439,10 +1440,10 @@ fn attach_left_e_right_juntos() {
     // Scripts nos dois lados simultaneamente
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        Some(Content::MathText("2".into())),
-        Some(Content::MathText("1".into())),
-        Some(Content::MathText("3".into())),
-        Some(Content::MathText("4".into())),
+        MathAttachSlot::Present(Content::MathText("2".into())),
+        MathAttachSlot::Present(Content::MathText("1".into())),
+        MathAttachSlot::Present(Content::MathText("3".into())),
+        MathAttachSlot::Present(Content::MathText("4".into())),
     );
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '1'), "bl ausente");
@@ -1457,10 +1458,10 @@ fn attach_left_sup_base_deslocada_para_direita() {
     // Com tl presente, a base deve aparecer a uma posição x maior do que zero
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        Some(Content::MathText("2".into())),
-        None,
-        None,
-        None,
+        MathAttachSlot::Present(Content::MathText("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
     );
     let items = layout_equation_items(&attach);
     // Encontrar a posição x do glifo "x" (base)
@@ -1491,10 +1492,10 @@ fn attach_sem_base_explicita_usa_empty() {
     // Base vazia: não deve panicar
     let attach = Content::math_attach_scripts(
         Content::Empty,
-        Some(Content::MathText("14".into())),
-        None,
-        None,
-        None,
+        MathAttachSlot::Present(Content::MathText("14".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
     );
     let items = layout_equation_items(&attach);
     // Não deve panicar; items pode estar vazio mas o programa não crasha
@@ -1509,10 +1510,10 @@ fn left_scripts_tem_posicoes_x_independentes() {
     // Com FixedMetrics os kerns são zero, por isso tl_x == bl_x é esperado.
     let attach = Content::math_attach_scripts(
         Content::MathIdent("A".into()),
-        Some(Content::MathText("x".into())),
-        Some(Content::MathText("y".into())),
-        None,
-        None,
+        MathAttachSlot::Present(Content::MathText("x".into())),
+        MathAttachSlot::Present(Content::MathText("y".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
     );
     let items = layout_equation_items(&attach);
     assert!(!items.is_empty(), "deve produzir items com tl e bl");
@@ -1527,10 +1528,10 @@ fn left_scripts_sem_bl_nao_panica() {
     // Apenas tl presente — bl_push é zero, base_offset_x = tl_push.
     let attach = Content::math_attach_scripts(
         Content::MathIdent("A".into()),
-        Some(Content::MathText("x".into())),
-        None,
-        None,
-        None,
+        MathAttachSlot::Present(Content::MathText("x".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
     );
     let items = layout_equation_items(&attach);
     assert!(!items.is_empty());
@@ -1542,10 +1543,10 @@ fn left_scripts_sem_tl_nao_panica() {
     // Apenas bl presente — tl_push é zero, base_offset_x = bl_push.
     let attach = Content::math_attach_scripts(
         Content::MathIdent("A".into()),
-        None,
-        Some(Content::MathText("y".into())),
-        None,
-        None,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("y".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
     );
     let items = layout_equation_items(&attach);
     assert!(!items.is_empty());
@@ -1557,10 +1558,10 @@ fn left_scripts_passo46_nao_regride() {
     // Regressão Passo 46: _0^n ∑ — operador grande com left-scripts.
     let attach = Content::math_attach_scripts(
         Content::MathText("∑".into()),
-        Some(Content::MathText("n".into())),
-        Some(Content::MathText("0".into())),
-        None,
-        None,
+        MathAttachSlot::Present(Content::MathText("n".into())),
+        MathAttachSlot::Present(Content::MathText("0".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
     );
     let items = layout_equation_items(&attach);
     assert!(
@@ -1743,10 +1744,10 @@ fn p813_measured_extent_sup_eleva_ascent_e_alarga_width() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach_scripts(
         Content::MathIdent("x".into()),
-        None,
-        None,
-        None,
-        Some(Content::MathText("2".into())),
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(Content::MathText("2".into())),
     );
     let (_, extent) = ml.layout_equation_measured(&attach, &default_style());
     let (_, base_extent) =
@@ -1789,8 +1790,13 @@ fn p1088_debug_attach_shifts() {
     let lambda = Content::MathIdent("lambda".into());
     let sub_i = Content::MathIdent("i".into());
     let sup_star = Content::MathIdent("*".into());
-    let attach =
-        Content::math_attach_scripts(lambda, None, None, Some(sub_i), Some(sup_star));
+    let attach = Content::math_attach_scripts(
+        lambda,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Omitted,
+        MathAttachSlot::Present(sub_i),
+        MathAttachSlot::Present(sup_star),
+    );
     let (items, ext) = ml.layout_equation_measured(&attach, &default_style());
     println!("ext: ascent={:.4}, descent={:.4}", ext.ascent, ext.descent);
 }
@@ -3511,10 +3517,10 @@ mod p906_tests {
         let sup = Content::MathIdent("2".into());
         let attach = Content::math_attach_scripts(
             base.clone(),
-            None,
-            None,
-            None,
-            Some(sup.clone()),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(sup.clone()),
         );
 
         let num_frac = ml.layout_frac(&attach, &Content::MathIdent("b".into()), &style);
@@ -3988,10 +3994,10 @@ mod p920_tests {
         // baseline própria do numerador), ao contrário de um ident simples.
         let num = Content::math_attach_scripts(
             Content::MathIdent("a".into()),
-            None,
-            None,
-            Some(Content::MathIdent("1".into())),
-            None,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathIdent("1".into())),
+            MathAttachSlot::Omitted,
         );
         let den = Content::MathIdent("b".into());
 
@@ -4070,10 +4076,10 @@ mod p920_tests {
 
         let num = Content::math_attach_scripts(
             Content::MathIdent("a".into()),
-            None,
-            None,
-            Some(Content::MathIdent("1".into())),
-            None,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathIdent("1".into())),
+            MathAttachSlot::Omitted,
         );
         let den = Content::MathIdent("b".into());
 
@@ -5180,10 +5186,10 @@ mod p945_tests {
 
         let content = Content::math_attach_scripts(
             Content::MathIdent("x".into()),
-            None,
-            None,
-            None,
-            Some(mat_2x2_digitos()),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(mat_2x2_digitos()),
         );
         let items = ml.layout_equation(&content, &style);
 
@@ -5217,17 +5223,17 @@ mod p945_tests {
 
         let inner = Content::math_attach_scripts(
             Content::MathIdent("y".into()),
-            None,
-            None,
-            None,
-            Some(mat_2x2_digitos()),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(mat_2x2_digitos()),
         );
         let content = Content::math_attach_scripts(
             Content::MathIdent("x".into()),
-            None,
-            None,
-            None,
-            Some(inner),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(inner),
         );
         let items = ml.layout_equation(&content, &style);
 
@@ -5987,10 +5993,10 @@ mod p952op_tests {
 
         let content = Content::math_attach_scripts(
             Content::MathText("∫".into()),
-            None,
-            None,
-            Some(Content::MathText("0".into())),
-            Some(Content::MathText("1".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("0".into())),
+            MathAttachSlot::Present(Content::MathText("1".into())),
         );
         let items = ml.layout_equation(&content, &style);
 
@@ -6022,10 +6028,10 @@ mod p952op_tests {
 
         let content = Content::math_attach_scripts(
             Content::MathIdent("x".into()),
-            None,
-            None,
-            None,
-            Some(Content::MathText("2".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("2".into())),
         );
         let items = ml.layout_equation(&content, &style);
 
@@ -6221,10 +6227,10 @@ mod p952op_tests {
 
         let attach = Content::math_attach_scripts(
             Content::MathIdent("∑".into()),
-            None,
-            None,
-            Some(Content::MathText("k=1".into())),
-            Some(Content::MathText("n".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("k=1".into())),
+            MathAttachSlot::Present(Content::MathText("n".into())),
         );
         let b = ml.layout_node(&attach, &style);
 
@@ -6396,10 +6402,10 @@ mod p952op_tests {
 
         let content = Content::math_attach_scripts(
             Content::MathText("∫".into()),
-            None,
-            None,
-            Some(Content::MathText("0".into())),
-            Some(Content::MathText("1".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("0".into())),
+            MathAttachSlot::Present(Content::MathText("1".into())),
         );
         let items = ml.layout_equation(&content, &style);
 
@@ -6433,10 +6439,10 @@ mod p952op_tests {
 
         let content = Content::math_attach_scripts(
             Content::MathText("∫".into()),
-            None,
-            None,
-            Some(Content::MathText("0".into())),
-            Some(Content::MathText("1".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("0".into())),
+            MathAttachSlot::Present(Content::MathText("1".into())),
         );
         let items = ml.layout_equation(&content, &style);
 
@@ -8001,10 +8007,10 @@ mod p1130_tests {
         let style = default_style();
         let radicand = Content::math_attach_scripts(
             Content::MathIdent("x".into()),
-            None,
-            None,
-            None,
-            Some(Content::MathText("2".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("2".into())),
         );
         let rad_box =
             ml.layout_node(&radicand, &TextStyle { cramped: true, ..style.clone() });
@@ -8067,7 +8073,8 @@ mod p986_tests {
         assert!(
             end.y.val() < 0.0 && start.y.val() > end.y.val(),
             "a linha tem de cruzar o corpo (end acima da baseline, start abaixo do topo): {:?} → {:?}",
-            start, end
+            start,
+            end
         );
     }
 
@@ -8494,10 +8501,10 @@ mod p992_tests {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
         let attach = Content::math_attach_scripts(
             Content::math_limits_override(Content::MathIdent("A".into()), true, true),
-            None,
-            None,
-            Some(Content::MathText("b".into())),
-            Some(Content::MathText("a".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("b".into())),
+            MathAttachSlot::Present(Content::MathText("a".into())),
         );
         let items = ml.layout_equation(&attach, &default_style());
         let (base_x, sup_x) = sup_x_e_base_x(&items, "𝐴", "𝑎");
@@ -8521,10 +8528,10 @@ mod p992_tests {
                 true,
                 true, // inline: true — força mesmo fora de bloco
             ),
-            None,
-            None,
-            Some(Content::MathText("1".into())),
-            Some(Content::MathText("2".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("1".into())),
+            MathAttachSlot::Present(Content::MathText("2".into())),
         );
         let items = ml.layout_equation(&attach, &default_style());
         let (base_x, sup_x) = sup_x_e_base_x(&items, "𝐴", "2");
@@ -8546,10 +8553,10 @@ mod p992_tests {
                 true,
                 false, // inline: false — só em modo bloco
             ),
-            None,
-            None,
-            Some(Content::MathText("1".into())),
-            Some(Content::MathText("2".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("1".into())),
+            MathAttachSlot::Present(Content::MathText("2".into())),
         );
         let items = ml.layout_equation(&attach, &default_style());
         let base_w = 12.0 * 0.6; // FixedMetrics: char_width = size * 0.6, style 12pt.
@@ -8569,10 +8576,10 @@ mod p992_tests {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style()); // block=true
         let attach = Content::math_attach_scripts(
             Content::math_limits_override(Content::MathText("∑".into()), false, true),
-            None,
-            None,
-            Some(Content::MathText("1".into())),
-            Some(Content::MathText("2".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("1".into())),
+            MathAttachSlot::Present(Content::MathText("2".into())),
         );
         let items = ml.layout_equation(&attach, &default_style());
         let base_w = 12.0 * 0.6;
@@ -8594,10 +8601,10 @@ mod p992_tests {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
         let attach = Content::math_attach_scripts(
             Content::MathText("∑".into()),
-            None,
-            None,
-            Some(Content::MathText("1".into())),
-            Some(Content::MathText("2".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("1".into())),
+            MathAttachSlot::Present(Content::MathText("2".into())),
         );
         let items = ml.layout_equation(&attach, &default_style());
         let (base_x, sup_x) = sup_x_e_base_x(&items, "∑", "2");
@@ -8618,10 +8625,10 @@ mod p992_tests {
         let ml = MathLayouter::new(&FixedMetrics, true, &style);
         let body = Content::MathSequence(Arc::from(vec![Content::math_attach_scripts(
             Content::math_limits_override(Content::MathIdent("A".into()), true, true),
-            None,
-            None,
-            Some(Content::MathText("1".into())),
-            Some(Content::MathText("2".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("1".into())),
+            MathAttachSlot::Present(Content::MathText("2".into())),
         )]));
         let content = apply_math_default(&body);
         let items = ml.layout_equation(&content, &style);

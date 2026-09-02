@@ -1,9 +1,9 @@
 # Prompt L0 — módulo público `html` feature-gated
-Hash do Código: 948866a7
+Hash do Código: 33e187a1
 
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  
-**Owners candidatos:** `compiler/stdlib/html.rs`, `compiler/eval/mod.rs`  
+**Ficheiro proprietário:** `01_core/src/compiler/stdlib/html.rs`
 **ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0128
 
 ## Medição anterior à decisão
@@ -499,6 +499,99 @@ existente e a correção L3 explicitada no seu próprio L0. Documento/raw,
 tabela, outros constructors, frame, CSS, MathML e positions permanecem fora.
 O dono aprovou exatamente este contrato em 2026-08-25.
 
+## P1293 — sete constructors tipados residuais (GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Em `2026-09-01T13:24:01-03:00`, sobre o baseline
+`7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não commitada
+registrada em `p1293-baseline-status.txt`, o recibo independente mediu 203
+casos, 624 tentativas de cast sobre 48 atributos específicos, 5 vetores DOM e
+zero `Unknown`. A fonte pinada `typst-html/src/typed.rs:30-160,162-247` define
+o dispatcher único, casts, ordem e body; `tag.rs:123-141` classifica `col` e
+`wbr` como void; `convert.rs:165-245` e `encode.rs:111-167` confirmam DOM,
+escaping e ausência de end tag. O consumer baseline
+`01_core/src/compiler/stdlib/html.rs:23-29,39-210,212-237,546-590` já possui
+dispatcher estático, `AttrKind`, os 76 globais e os dois caminhos normal/void.
+`entities/html.rs` já representa `HtmlBody::{Unset,None,Content}`; não foi
+medida necessidade de novo campo, entidade, default ou fase.
+
+### Superfície e body
+
+Sob `Feature::Html`, acrescentar exatamente as funções de nomes curtos:
+
+```text
+html.button html.col html.iframe html.select
+html.template html.video html.wbr
+```
+
+`button`, `iframe`, `select`, `template` e `video` recebem no máximo um body
+Content posicional opcional: omissão produz `HtmlBody::None`, fornecimento
+produz `HtmlBody::Content`. `col` e `wbr` não recebem body nem qualquer
+positional e usam `HtmlBody::Unset`. Chamada vazia, extra, body named e cast
+inválido conservam os erros e spans medidos; nenhum named é ignorado.
+
+Todos aceitam os 76 atributos globais já selados. Além deles, somente os 48
+específicos abaixo pertencem a cada tag:
+
+| Tag | Contrato de casts específicos |
+|---|---|
+| `button` | `command`: um de `toggle-popover|show-popover|hide-popover|close|request-close|show-modal` ou string; `commandfor`, `form`, `formaction`, `name`, `popovertarget`, `value`: string; `disabled`, `formnovalidate`: Presence; `formenctype`: `application/x-www-form-urlencoded|multipart/form-data|text/plain`; `formmethod`: `GET|POST|dialog`; `formtarget`: `_blank|_self|_parent|_top` ou string; `popovertargetaction`: `toggle|show|hide`; `type`: `submit|reset|button` |
+| `col` | `span`: inteiro estritamente positivo |
+| `iframe` | `allow`, `src`, `srcdoc`: string; `allowfullscreen`: Presence; `height`, `width`: inteiro não negativo; `loading`: `lazy|eager`; `name`: `_blank|_self|_parent|_top` ou string; `referrerpolicy`: `none` ou `no-referrer|no-referrer-when-downgrade|same-origin|origin|strict-origin|origin-when-cross-origin|strict-origin-when-cross-origin|unsafe-url`; `sandbox`: lista ordenada do conjunto fechado descrito abaixo |
+| `select` | `autocomplete`: lista ordenada do conjunto fechado descrito abaixo; `disabled`, `multiple`, `required`: Presence; `form`, `name`: string; `size`: inteiro estritamente positivo |
+| `template` | `shadowrootclonable`, `shadowrootcustomelementregistry`, `shadowrootdelegatesfocus`, `shadowrootserializable`: Presence; `shadowrootmode`: `open|closed` |
+| `video` | `autoplay`, `controls`, `loop`, `muted`, `playsinline`: Presence; `crossorigin`: `anonymous|use-credentials`; `height`, `width`: inteiro não negativo; `poster`, `src`: string; `preload`: valores de linguagem `none` ou `auto`, ou a string literal `"metadata"` |
+| `wbr` | nenhum específico |
+
+O conjunto fechado de `sandbox` é: `allow-downloads`, `allow-forms`,
+`allow-modals`, `allow-orientation-lock`, `allow-pointer-lock`, `allow-popups`,
+`allow-popups-to-escape-sandbox`, `allow-presentation`, `allow-same-origin`,
+`allow-scripts`, `allow-top-navigation`,
+`allow-top-navigation-by-user-activation`,
+`allow-top-navigation-to-custom-protocols`.
+
+O conjunto fechado de `autocomplete` é: `shipping`, `billing`, `name`,
+`honorific-prefix`, `given-name`, `additional-name`, `family-name`,
+`honorific-suffix`, `nickname`, `username`, `new-password`,
+`current-password`, `one-time-code`, `organization-title`, `organization`,
+`street-address`, `address-line1`, `address-line2`, `address-line3`,
+`address-level4`, `address-level3`, `address-level2`, `address-level1`,
+`country`, `country-name`, `postal-code`, `cc-name`, `cc-given-name`,
+`cc-additional-name`, `cc-family-name`, `cc-number`, `cc-exp`,
+`cc-exp-month`, `cc-exp-year`, `cc-csc`, `cc-type`,
+`transaction-currency`, `transaction-amount`, `language`, `bday`, `bday-day`,
+`bday-month`, `bday-year`, `sex`, `url`, `photo`, `home`, `work`, `mobile`,
+`fax`, `pager`, `tel`, `tel-country-code`, `tel-national`, `tel-area-code`,
+`tel-local`, `tel-local-prefix`, `tel-local-suffix`, `tel-extension`, `email`,
+`impp`.
+
+Presence `true` serializa valor vazio; `false` omite o atributo. Inteiro fora
+do domínio, enum inválido, tipo alheio, named desconhecido, `data-*` e atributo
+específico de outra tag são erros no span do valor/nome medido. Atributo
+omitido não é serializado. Após omissões, `repr` e DOM preservam a ordem de
+chamada; listas usam espaço entre tokens.
+
+### Feature, target e DOM
+
+Feature e target permanecem eixos ortogonais (ADR-0128): feature off rejeita o
+binding tanto em target paged quanto na exportação HTML; feature on disponibiliza
+módulo, função e chamada em target paged e HTML. Selecionar target HTML nunca
+habilita `Feature::Html`.
+
+O exporter genérico deve produzir DOM equivalente: atributos escapados; body e
+nesting preservados; `col` e `wbr` somente com start tag, sem end tag; texto de
+body escapado segundo o contrato vigente. Este lote não cria comportamento de
+browser, CSS, mídia ou rede, não cria variante de `Content`, não duplica
+`HtmlElem`, não aceita named como string livre e não materializa `html.frame`
+ou tag fora da lista.
+
+Aceitação cobre as sete funções, 48 casts específicos, globais representativos,
+body/void, ordem, escaping, nesting e os quatro quadrantes feature/target.
+`Unknown` nunca é sucesso; crash, timeout, cast ambíguo ou DOM não observado
+bloqueia o lote. A nova superfície pública fica bloqueada pelo gate humano
+P1293 antes do código.
+
 ## P1178 — família de documento (MATERIALIZADO EM P1178.1)
 
 ### Medição anterior à decisão
@@ -541,3 +634,47 @@ P1178.1 materializa somente estes quatro bindings pelo dispatcher estático e
 as correções L3 explicitadas no próprio L0. Tabela, `script`/`style`, outros
 constructors, frame, CSS, MathML e positions permanecem fora.
 O dono aprovou exatamente este contrato em 2026-08-25.
+
+## P1293.reopen-C — casts, mensagens e união exata de `video.preload`
+
+### Medição anterior à decisão
+
+O recibo residual independente P1293/C SHA-256
+`4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
+mede oito divergências textuais locais em `html.rs:864-910,969-999,1044-1052`:
+nomes curtos Rust `int`/`str` onde o observável vanilla usa
+`integer`/`string`, fusão indevida entre tipo e domínio positivo/não-negativo,
+e formatters que não distinguem valores de linguagem de strings. A fonte
+pinada `data.rs:1445-1449,1846` e `typed.rs:176-206,466-475` fecha
+`video.preload` como `none | auto | "metadata"`. Sondas bilaterais mostram:
+valores `none`/`auto` têm sucesso e serializam `"none"`/`"auto"`; strings
+`"none"`/`"auto"` falham; string `"metadata"` tem sucesso. `Unknown=0`.
+
+### Decisão estreita
+
+Os casts P1293 usam nomes públicos completos nos erros locais: `string`,
+`integer` e `boolean`. Falha de tipo permanece `expected <tipo>, found
+<tipo público>`; depois de tipo válido, zero/negativo em domínio estritamente
+positivo produz `number must be positive`, e negativo em domínio não negativo
+produz `number must be at least zero`. Enums que incluem o valor de linguagem
+`none` o listam sem aspas; não o substituem por string homônima.
+
+`video.preload` aceita exatamente três polos válidos:
+
+- `Value::None` → atributo textual `none`;
+- `Value::Auto` → atributo textual `auto`;
+- `Value::Str("metadata")` → atributo textual `metadata`.
+
+`Value::Str("none")` e `Value::Str("auto")` são inválidos. O erro fechado é
+`expected none, auto, or "metadata"`, seguido do tipo/valor conforme a
+disciplina diagnóstica medida. Não há coerção por spelling nem fallback string.
+`iframe.referrerpolicy:none` continua distinto: aceita o valor `none` e
+serializa string vazia conforme seu contrato vigente.
+
+Mensagens e aceitação são semântica observável (ADR-0107). A correção é local a
+este owner e segue fluxo contínuo ADR-0127; spans pertencem ao owner
+`call_dispatch`, e repr/export ao seus owners 1:1. Não alterar os 76 globais,
+48 específicos, ordem, body/void, feature/target, entidade, API, default ou
+fase. Refutam esta decisão qualquer aceitação das strings `"none"`/`"auto"`,
+rejeição dos valores `none`/`auto`, mudança de `"metadata"` ou efeito fora dos
+constructors P1293.

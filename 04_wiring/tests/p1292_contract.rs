@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1292_contract.md
-//! @prompt-hash 41dd2e0e
+//! @prompt-hash 05d0eea8
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -141,25 +141,144 @@ fn svg_root_size(svg: &str) -> (f64, f64) {
     (parse_pt(&tag_attr(root, "width")), parse_pt(&tag_attr(root, "height")))
 }
 
-fn svg_glyph_baselines(svg: &str) -> Vec<f64> {
-    let mut baselines = Vec::new();
-    let mut rest = svg;
-    let prefix = "<g transform=\"matrix(";
-    while let Some(start) = rest.find(prefix) {
-        rest = &rest[start + prefix.len()..];
-        let end = rest.find(")\"").expect("matrix transform end");
-        let matrix = &rest[..end];
-        let after = &rest[end + 2..];
-        let group_end = after.find("</g>").expect("glyph group end");
-        if after[..group_end].contains("<use ") {
-            let values = matrix
-                .split_whitespace()
-                .map(|value| value.parse::<f64>().expect("matrix operand"))
-                .collect::<Vec<_>>();
-            assert_eq!(values.len(), 6, "expected a six-operand SVG matrix");
-            baselines.push(values[5]);
+#[derive(Clone, Copy)]
+struct SvgTransform {
+    a: f64,
+    b: f64,
+    c: f64,
+    d: f64,
+    e: f64,
+    f: f64,
+}
+
+impl SvgTransform {
+    const IDENTITY: Self = Self { a: 1.0, b: 0.0, c: 0.0, d: 1.0, e: 0.0, f: 0.0 };
+
+    fn compose(self, inner: Self) -> Self {
+        Self {
+            a: self.a * inner.a + self.c * inner.b,
+            b: self.b * inner.a + self.d * inner.b,
+            c: self.a * inner.c + self.c * inner.d,
+            d: self.b * inner.c + self.d * inner.d,
+            e: self.a * inner.e + self.c * inner.f + self.e,
+            f: self.b * inner.e + self.d * inner.f + self.f,
         }
-        rest = &after[group_end + "</g>".len()..];
+    }
+}
+
+fn optional_tag_attr<'a>(tag: &'a str, name: &str) -> Option<&'a str> {
+    let needle = format!("{name}=\"");
+    let start = tag.find(&needle)? + needle.len();
+    let tail = &tag[start..];
+    let end = tail.find('"').expect("closed XML attribute");
+    Some(&tail[..end])
+}
+
+fn parse_svg_transform(value: &str) -> SvgTransform {
+    let mut transform = SvgTransform::IDENTITY;
+    let mut rest = value.trim();
+    while !rest.is_empty() {
+        let open = rest.find('(').expect("SVG transform opening parenthesis");
+        let name = rest[..open].trim();
+        let tail = &rest[open + 1..];
+        let close = tail.find(')').expect("SVG transform closing parenthesis");
+        let operands = tail[..close]
+            .split(|character: char| character == ',' || character.is_whitespace())
+            .filter(|operand| !operand.is_empty())
+            .map(|operand| operand.parse::<f64>().expect("SVG transform operand"))
+            .collect::<Vec<_>>();
+        let next = match name {
+            "translate" => {
+                assert!(
+                    matches!(operands.len(), 1 | 2),
+                    "translate expects one or two operands"
+                );
+                SvgTransform {
+                    e: operands[0],
+                    f: operands.get(1).copied().unwrap_or(0.0),
+                    ..SvgTransform::IDENTITY
+                }
+            }
+            "matrix" => {
+                assert_eq!(operands.len(), 6, "matrix expects six operands");
+                SvgTransform {
+                    a: operands[0],
+                    b: operands[1],
+                    c: operands[2],
+                    d: operands[3],
+                    e: operands[4],
+                    f: operands[5],
+                }
+            }
+            _ => panic!("unsupported SVG transform {name:?}"),
+        };
+        transform = transform.compose(next);
+        rest = tail[close + 1..].trim_start_matches(|character: char| {
+            character == ',' || character.is_whitespace()
+        });
+    }
+    transform
+}
+
+fn svg_glyph_baselines(svg: &str) -> Vec<f64> {
+    struct Frame {
+        transform: SvgTransform,
+        glyph_group: bool,
+        captured: bool,
+    }
+
+    let mut baselines = Vec::new();
+    let mut stack = Vec::<Frame>::new();
+    let mut cursor = 0;
+    while let Some(relative_start) = svg[cursor..].find('<') {
+        let start = cursor + relative_start;
+        let end = start + svg[start..].find('>').expect("complete SVG tag");
+        let tag = &svg[start + 1..end];
+        cursor = end + 1;
+
+        if tag.starts_with('/') {
+            stack.pop().expect("balanced SVG closing tag");
+            continue;
+        }
+        if tag.starts_with(['!', '?']) {
+            continue;
+        }
+
+        let self_closing = tag.trim_end().ends_with('/');
+        let name = tag
+            .split(|character: char| character.is_whitespace() || character == '/')
+            .next()
+            .expect("SVG tag name");
+        let raw_transform = optional_tag_attr(tag, "transform");
+        let local = raw_transform
+            .map(parse_svg_transform)
+            .unwrap_or(SvgTransform::IDENTITY);
+        let global = stack
+            .last()
+            .map(|frame| frame.transform)
+            .unwrap_or(SvgTransform::IDENTITY)
+            .compose(local);
+
+        if name == "use" {
+            if let Some(frame) = stack
+                .iter_mut()
+                .rev()
+                .find(|frame| frame.glyph_group && !frame.captured)
+            {
+                baselines.push(frame.transform.f);
+                frame.captured = true;
+            }
+        }
+
+        if !self_closing {
+            stack.push(Frame {
+                transform: global,
+                glyph_group: name == "g"
+                    && raw_transform
+                        .is_some_and(|value| value.trim_start().starts_with("matrix(")),
+                captured: false,
+            });
+        }
     }
     assert!(!baselines.is_empty(), "SVG contains no positioned glyphs");
     baselines

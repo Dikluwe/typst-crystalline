@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 2c87f3cf
+//! @prompt-hash 97d4926d
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -17,6 +17,7 @@
 
 use super::*;
 use crate::compiler::layout::FixedMetrics;
+use crate::entities::elements::math_attach::MathAttachSlot;
 use crate::entities::introspector::Introspector;
 use ecow::EcoString;
 use indexmap::IndexMap;
@@ -9331,12 +9332,30 @@ mod tests {
             Content::Equation(e) => find_mathop_in(&e.body),
             // MathAttach: a base pode ser MathOp.
             Content::MathAttach(e) => find_mathop_in(&e.base)
-                .or_else(|| e.br.as_ref().and_then(find_mathop_in))
-                .or_else(|| e.tr.as_ref().and_then(find_mathop_in))
-                .or_else(|| e.b.as_ref().and_then(find_mathop_in))
-                .or_else(|| e.t.as_ref().and_then(find_mathop_in))
-                .or_else(|| e.bl.as_ref().and_then(find_mathop_in))
-                .or_else(|| e.tl.as_ref().and_then(find_mathop_in)),
+                .or_else(|| match &e.br {
+                    MathAttachSlot::Present(c) => find_mathop_in(c),
+                    _ => None,
+                })
+                .or_else(|| match &e.tr {
+                    MathAttachSlot::Present(c) => find_mathop_in(c),
+                    _ => None,
+                })
+                .or_else(|| match &e.b {
+                    MathAttachSlot::Present(c) => find_mathop_in(c),
+                    _ => None,
+                })
+                .or_else(|| match &e.t {
+                    MathAttachSlot::Present(c) => find_mathop_in(c),
+                    _ => None,
+                })
+                .or_else(|| match &e.bl {
+                    MathAttachSlot::Present(c) => find_mathop_in(c),
+                    _ => None,
+                })
+                .or_else(|| match &e.tl {
+                    MathAttachSlot::Present(c) => find_mathop_in(c),
+                    _ => None,
+                }),
             _ => None,
         }
     }
@@ -9351,10 +9370,22 @@ mod tests {
             }
             Content::Equation(e) => find_mathident_in(&e.body),
             Content::MathAttach(e) => find_mathident_in(&e.base)
-                .or_else(|| e.br.as_ref().and_then(find_mathident_in))
-                .or_else(|| e.tr.as_ref().and_then(find_mathident_in))
-                .or_else(|| e.b.as_ref().and_then(find_mathident_in))
-                .or_else(|| e.t.as_ref().and_then(find_mathident_in)),
+                .or_else(|| match &e.br {
+                    MathAttachSlot::Present(c) => find_mathident_in(c),
+                    _ => None,
+                })
+                .or_else(|| match &e.tr {
+                    MathAttachSlot::Present(c) => find_mathident_in(c),
+                    _ => None,
+                })
+                .or_else(|| match &e.b {
+                    MathAttachSlot::Present(c) => find_mathident_in(c),
+                    _ => None,
+                })
+                .or_else(|| match &e.t {
+                    MathAttachSlot::Present(c) => find_mathident_in(c),
+                    _ => None,
+                }),
             _ => None,
         }
     }
@@ -9895,7 +9926,7 @@ mod tests {
             Content::MathAttach(e) => {
                 let mut v = p958_mathtexts(&e.base);
                 for sub in [&e.t, &e.b, &e.tl, &e.bl, &e.tr, &e.br] {
-                    if let Some(s) = sub {
+                    if let MathAttachSlot::Present(s) = sub {
                         v.extend(p958_mathtexts(s));
                     }
                 }
@@ -16668,10 +16699,24 @@ mod tests {
             Content::Equation(eq) => match &eq.body {
                 Content::MathAttach(att) => {
                     assert_eq!(att.base.plain_text(), "A");
-                    assert_eq!(att.t.as_ref().unwrap().plain_text(), "x");
-                    assert_eq!(att.b.as_ref().unwrap().plain_text(), "y");
-                    assert!(att.tl.is_none());
-                    assert!(att.bl.is_none());
+                    assert_eq!(
+                        match &att.t {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("t must be present"),
+                        }
+                        .plain_text(),
+                        "x"
+                    );
+                    assert_eq!(
+                        match &att.b {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("b must be present"),
+                        }
+                        .plain_text(),
+                        "y"
+                    );
+                    assert!(matches!(att.tl, MathAttachSlot::Omitted));
+                    assert!(matches!(att.bl, MathAttachSlot::Omitted));
                 }
                 other => panic!("esperado MathAttach, obteve {:?}", other),
             },
@@ -16689,10 +16734,38 @@ mod tests {
             Content::Equation(eq) => match &eq.body {
                 Content::MathAttach(att) => {
                     assert_eq!(att.base.plain_text(), "A");
-                    assert_eq!(att.tl.as_ref().unwrap().plain_text(), "1");
-                    assert_eq!(att.bl.as_ref().unwrap().plain_text(), "2");
-                    assert_eq!(att.tr.as_ref().unwrap().plain_text(), "3");
-                    assert_eq!(att.br.as_ref().unwrap().plain_text(), "4");
+                    assert_eq!(
+                        match &att.tl {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("tl must be present"),
+                        }
+                        .plain_text(),
+                        "1"
+                    );
+                    assert_eq!(
+                        match &att.bl {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("bl must be present"),
+                        }
+                        .plain_text(),
+                        "2"
+                    );
+                    assert_eq!(
+                        match &att.tr {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("tr must be present"),
+                        }
+                        .plain_text(),
+                        "3"
+                    );
+                    assert_eq!(
+                        match &att.br {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("br must be present"),
+                        }
+                        .plain_text(),
+                        "4"
+                    );
                 }
                 other => panic!("esperado MathAttach, obteve {:?}", other),
             },
@@ -16712,12 +16785,54 @@ mod tests {
             Content::Equation(eq) => match &eq.body {
                 Content::MathAttach(att) => {
                     assert_eq!(att.base.plain_text(), "A");
-                    assert_eq!(att.t.as_ref().unwrap().plain_text(), "α");
-                    assert_eq!(att.b.as_ref().unwrap().plain_text(), "β");
-                    assert_eq!(att.tl.as_ref().unwrap().plain_text(), "n");
-                    assert_eq!(att.tr.as_ref().unwrap().plain_text(), "m");
-                    assert_eq!(att.bl.as_ref().unwrap().plain_text(), "p");
-                    assert_eq!(att.br.as_ref().unwrap().plain_text(), "q");
+                    assert_eq!(
+                        match &att.t {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("t must be present"),
+                        }
+                        .plain_text(),
+                        "α"
+                    );
+                    assert_eq!(
+                        match &att.b {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("b must be present"),
+                        }
+                        .plain_text(),
+                        "β"
+                    );
+                    assert_eq!(
+                        match &att.tl {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("tl must be present"),
+                        }
+                        .plain_text(),
+                        "n"
+                    );
+                    assert_eq!(
+                        match &att.tr {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("tr must be present"),
+                        }
+                        .plain_text(),
+                        "m"
+                    );
+                    assert_eq!(
+                        match &att.bl {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("bl must be present"),
+                        }
+                        .plain_text(),
+                        "p"
+                    );
+                    assert_eq!(
+                        match &att.br {
+                            MathAttachSlot::Present(c) => c,
+                            _ => panic!("br must be present"),
+                        }
+                        .plain_text(),
+                        "q"
+                    );
                 }
                 other => panic!("esperado MathAttach, obteve {:?}", other),
             },
@@ -16747,15 +16862,11 @@ mod tests {
     fn p1105_attach_zero_ou_multiplos_args_posicionais_erro() {
         let errs0 = eval_math_err("$ attach() $");
         assert!(!errs0.is_empty(), "esperava erro para 0 args");
-        assert!(errs0.iter().any(|e| e
-            .message
-            .contains("attach espera exactamente 1 argumento, recebeu 0")));
+        assert!(errs0.iter().any(|e| e.message == "missing argument: base"));
 
         let errs2 = eval_math_err("$ attach(A, B) $");
         assert!(!errs2.is_empty(), "esperava erro para 2 args posicionais");
-        assert!(errs2.iter().any(|e| e
-            .message
-            .contains("attach espera exactamente 1 argumento, recebeu 2")));
+        assert!(errs2.iter().any(|e| e.message == "unexpected argument"));
     }
 
     #[test]

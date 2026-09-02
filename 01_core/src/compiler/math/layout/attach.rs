@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/attach.md
-//! @prompt-hash 476bf6c5
+//! @prompt-hash af390ac9
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -10,6 +10,7 @@
 use crate::compiler::layout::FontMetrics;
 use crate::entities::{
     content::Content,
+    elements::math_attach::MathAttachSlot,
     layout_types::{FrameItem, MathSize, Pt, TextStyle},
 };
 
@@ -17,6 +18,37 @@ use super::symbols;
 use super::{offset_item, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn layout_attach_slots(
+        &self,
+        base: &Content,
+        t: &MathAttachSlot,
+        b: &MathAttachSlot,
+        tl: &MathAttachSlot,
+        bl: &MathAttachSlot,
+        tr: &MathAttachSlot,
+        br: &MathAttachSlot,
+        style: &TextStyle,
+    ) -> MathBox {
+        fn present(slot: &MathAttachSlot) -> Option<&Content> {
+            match slot {
+                MathAttachSlot::Present(content) => Some(content),
+                MathAttachSlot::Omitted | MathAttachSlot::ExplicitNone => None,
+            }
+        }
+
+        self.layout_attach(
+            base,
+            present(t),
+            present(b),
+            present(tl),
+            present(bl),
+            present(tr),
+            present(br),
+            style,
+        )
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub(super) fn layout_attach(
         &self,
@@ -111,7 +143,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             (None, b)
         };
 
-        // Layout de todos os anexos presentes
+        // Somente `Present` cria caixa. Em particular, markup vazio continua
+        // presente e reserva `SpaceAfterScript`; `ExplicitNone` não o faz.
         let t_box = t.map(|c| self.layout_node(c, &top_style));
         let b_box = b.map(|c| self.layout_node(c, &bottom_style));
         let tl_box = tl.map(|c| self.layout_node(c, &top_style));
@@ -339,9 +372,20 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                             .italics_correction(g.glyph_id, style.size, style)
                             .val()
                     }),
-                    FrameItem::Text { text, .. } => text.chars().last().map(|c| {
-                        self.metrics.char_italics_correction(c, style.size, style).val()
-                    }),
+                    FrameItem::Text { text, style: item_style, .. } => {
+                        if item_style.math_text_item {
+                            // P1293 — Content::Text directo é FrameFragment
+                            // no modelo semântico math: a IC do fragmento é
+                            // zero, ainda que o glifo tipográfico tenha IC.
+                            Some(0.0)
+                        } else {
+                            text.chars().last().map(|c| {
+                                self.metrics
+                                    .char_italics_correction(c, style.size, style)
+                                    .val()
+                            })
+                        }
+                    }
                     _ => None,
                 })
                 .or_else(|| {
@@ -599,6 +643,233 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
 #[cfg(test)]
 mod smoke {
+    use super::super::MathLayouter;
+    use crate::compiler::layout::{FixedMetrics, FontMetrics};
+    use crate::entities::{
+        content::Content,
+        layout_types::{Pt, TextStyle},
+    };
+
+    #[derive(Clone, Copy)]
+    struct P1293IcMetrics;
+
+    impl FontMetrics for P1293IcMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(size, style)
+        }
+
+        fn char_italics_correction(&self, c: char, size: Pt, _style: &TextStyle) -> Pt {
+            let em = match c {
+                'x' => 0.016,
+                'f' => 0.079,
+                'R' => 0.024,
+                _ => 0.0,
+            };
+            size * em
+        }
+    }
+
+    fn p1293_attach_width(
+        base: Content,
+        tr: Option<Content>,
+        br: Option<Content>,
+        block: bool,
+    ) -> f64 {
+        let style = TextStyle::regular(Pt(11.0));
+        let layouter = MathLayouter::new(&P1293IcMetrics, block, &style);
+        layouter
+            .layout_attach(
+                &base,
+                None,
+                None,
+                None,
+                None,
+                tr.as_ref(),
+                br.as_ref(),
+                &style,
+            )
+            .width
+    }
+
     #[test]
     fn module_compila_e_carrega() {}
+
+    #[test]
+    fn p1293_markup_vazio_presente_recebe_um_space_after_script() {
+        let style = TextStyle::regular(Pt(12.0));
+        let layouter = MathLayouter::new(&FixedMetrics, false, &style);
+        let base = Content::MathIdent("x".into());
+        let empty_markup = Content::Sequence([].into());
+        let omitted =
+            layouter.layout_attach(&base, None, None, None, None, None, None, &style);
+        let spacing = layouter
+            .constants
+            .to_pt(layouter.constants.space_after_script, style.size)
+            .val();
+
+        for quadrant in 0..4 {
+            let slots = match quadrant {
+                0 => (Some(&empty_markup), None, None, None),
+                1 => (None, Some(&empty_markup), None, None),
+                2 => (None, None, Some(&empty_markup), None),
+                _ => (None, None, None, Some(&empty_markup)),
+            };
+            let present = layouter.layout_attach(
+                &base, None, None, slots.0, slots.1, slots.2, slots.3, &style,
+            );
+            assert!(
+                (present.width - omitted.width - spacing).abs() < 1e-9,
+                "quadrante {quadrant} deve reservar exatamente um SpaceAfterScript"
+            );
+        }
+    }
+
+    #[test]
+    fn p1293_omissao_e_none_explicito_continuam_sem_spacing() {
+        let style = TextStyle::regular(Pt(12.0));
+        let layouter = MathLayouter::new(&FixedMetrics, false, &style);
+        let base = Content::MathIdent("x".into());
+        let omitted = layouter.layout_attach_slots(
+            &base,
+            &super::MathAttachSlot::Omitted,
+            &super::MathAttachSlot::Omitted,
+            &super::MathAttachSlot::Omitted,
+            &super::MathAttachSlot::Omitted,
+            &super::MathAttachSlot::Omitted,
+            &super::MathAttachSlot::Omitted,
+            &style,
+        );
+        let explicit_none = layouter.layout_attach_slots(
+            &base,
+            &super::MathAttachSlot::Omitted,
+            &super::MathAttachSlot::Omitted,
+            &super::MathAttachSlot::Omitted,
+            &super::MathAttachSlot::Omitted,
+            &super::MathAttachSlot::ExplicitNone,
+            &super::MathAttachSlot::Omitted,
+            &style,
+        );
+        assert_eq!(explicit_none.width, omitted.width);
+        assert_eq!(explicit_none.items.len(), omitted.items.len());
+    }
+
+    #[test]
+    fn p1293_textitem_br_usa_ic_semantica_zero_e_mathident_preserva_ic_metrica() {
+        let br = || Content::MathIdent("q".into());
+        let text_zero =
+            p1293_attach_width(Content::Text("A".into()), None, Some(br()), false);
+        assert_eq!(
+            p1293_attach_width(Content::Text("1".into()), None, Some(br()), false),
+            text_zero
+        );
+
+        let style = TextStyle::regular(Pt(11.0));
+        let math_zero =
+            p1293_attach_width(Content::MathIdent("A".into()), None, Some(br()), false);
+        for c in ['x', 'f', 'R'] {
+            let text_width = p1293_attach_width(
+                Content::Text(c.to_string().into()),
+                None,
+                Some(br()),
+                false,
+            );
+            assert!(
+                (text_width - text_zero).abs() < 1e-9,
+                "TextItem {c} deve fornecer IC semântica zero"
+            );
+
+            let math_width = p1293_attach_width(
+                Content::MathIdent(c.to_string().into()),
+                None,
+                Some(br()),
+                false,
+            );
+            let metric_ic =
+                P1293IcMetrics.char_italics_correction(c, style.size, &style).val();
+            assert!(
+                (math_width - (math_zero - metric_ic)).abs() < 1e-9,
+                "MathIdent {c} deve preservar a IC métrica"
+            );
+        }
+    }
+
+    #[test]
+    fn p1293_ic_semantica_nao_compensa_tr_ausencia_e_preserva_full_display() {
+        let one = || Content::MathIdent("q".into());
+        for base in ["x", "f", "R", "K", "W", "RR"] {
+            let content = || Content::Text(base.into());
+            let no_post = p1293_attach_width(content(), None, None, false);
+            let only_tr = p1293_attach_width(content(), Some(one()), None, false);
+            let with_k = p1293_attach_width(
+                content(),
+                None,
+                Some(Content::MathIdent("K".into())),
+                false,
+            );
+            let with_w = p1293_attach_width(
+                content(),
+                None,
+                Some(Content::MathIdent("W".into())),
+                false,
+            );
+            let with_rr = p1293_attach_width(
+                content(),
+                None,
+                Some(Content::MathSequence(
+                    [Content::MathIdent("R".into()), Content::MathIdent("R".into())]
+                        .into(),
+                )),
+                false,
+            );
+            assert!(only_tr > no_post);
+            assert!(with_k > no_post && with_w > no_post && with_rr > with_k);
+        }
+
+        let full = |base: &str, block| {
+            let style = TextStyle::regular(Pt(11.0));
+            let layouter = MathLayouter::new(&P1293IcMetrics, block, &style);
+            let one = Content::MathIdent("q".into());
+            let dominant_br = Content::MathSequence(
+                [
+                    Content::MathIdent("q".into()),
+                    Content::MathIdent("q".into()),
+                    Content::MathIdent("q".into()),
+                ]
+                .into(),
+            );
+            layouter
+                .layout_attach(
+                    &Content::Text(base.into()),
+                    Some(&one),
+                    Some(&one),
+                    Some(&one),
+                    Some(&one),
+                    Some(&one),
+                    Some(&dominant_br),
+                    &style,
+                )
+                .width
+        };
+        for block in [false, true] {
+            let zero = full("A", block);
+            for base in ["x", "f", "R"] {
+                assert!(
+                    (full(base, block) - zero).abs() < 1e-9,
+                    "full attach TextItem {base} deve manter IC semântica zero"
+                );
+            }
+        }
+    }
 }

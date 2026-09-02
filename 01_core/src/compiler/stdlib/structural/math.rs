@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 1adfc1e0
+//! @prompt-hash e658276b
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -10,14 +10,13 @@
 //! Extraído de `stdlib/structural.rs` no Passo 1014 conforme ADR-0109
 //! (atomização — forma B, free function no arquivo da unidade).
 
-use crate::entities::file_id::FileId;
-use ecow::EcoString;
-
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::elements::math_attach::MathAttachSlot;
 use crate::entities::elements::math_cancel::{MathCancelAngle, MathCancelExplicit};
 use crate::entities::elements::math_vec::MathVecExplicit;
+use crate::entities::file_id::FileId;
 use crate::entities::layout_types::{Align2D, HAlign, Length};
 use crate::entities::rel::Rel;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -622,6 +621,192 @@ pub fn native_math_vec(
     Ok(Value::Content(math_vec_content(children, options)))
 }
 
+fn p1293_math_content(value: &Value, span: Span) -> SourceResult<Content> {
+    match value {
+        Value::Content(content) | Value::LocatedContent(content, _) => {
+            Ok(content.clone())
+        }
+        Value::Str(text) => Ok(Content::MathText(text.clone())),
+        Value::Symbol(symbol) => Ok(Content::MathText(symbol.value.clone())),
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected content, found {}", vanilla_type_name_class(other)),
+        )]),
+    }
+}
+
+fn p1293_math_attach_slot(value: &Value, span: Span) -> SourceResult<MathAttachSlot> {
+    match value {
+        Value::None => Ok(MathAttachSlot::ExplicitNone),
+        Value::Content(content) | Value::LocatedContent(content, _) => {
+            Ok(MathAttachSlot::Present(content.clone()))
+        }
+        Value::Str(text) => Ok(MathAttachSlot::Present(Content::MathText(text.clone()))),
+        Value::Symbol(symbol) => {
+            Ok(MathAttachSlot::Present(Content::MathText(symbol.value.clone())))
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected content or none, found {}", vanilla_type_name_class(other)),
+        )]),
+    }
+}
+
+/// Construtor puro canônico de `attach`, compartilhado por sintaxe e função.
+pub(crate) fn math_attach_content(
+    base: Content,
+    t: MathAttachSlot,
+    b: MathAttachSlot,
+    tl: MathAttachSlot,
+    bl: MathAttachSlot,
+    tr: MathAttachSlot,
+    br: MathAttachSlot,
+) -> Content {
+    Content::math_attach(base, t, b, tl, bl, tr, br)
+}
+
+/// Validação fechada e construção única de `attach` para os dois caminhos.
+pub(crate) fn math_attach_from_args(args: &Args) -> SourceResult<Content> {
+    let base = match args.items.as_slice() {
+        [base] => p1293_math_content(base, args.span)?,
+        [] if args.named.contains_key("base") => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "the argument `base` is positional".to_string(),
+            )
+            .with_hint("try removing `base:`")])
+        }
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: base".to_string(),
+            )])
+        }
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "unexpected argument".to_string(),
+            )])
+        }
+    };
+
+    let mut t = MathAttachSlot::Omitted;
+    let mut b = MathAttachSlot::Omitted;
+    let mut tl = MathAttachSlot::Omitted;
+    let mut bl = MathAttachSlot::Omitted;
+    let mut tr = MathAttachSlot::Omitted;
+    let mut br = MathAttachSlot::Omitted;
+    for (name, value) in &args.named {
+        match name.as_str() {
+            "t" => t = p1293_math_attach_slot(value, args.span)?,
+            "b" => b = p1293_math_attach_slot(value, args.span)?,
+            "tl" => tl = p1293_math_attach_slot(value, args.span)?,
+            "bl" => bl = p1293_math_attach_slot(value, args.span)?,
+            "tr" => tr = p1293_math_attach_slot(value, args.span)?,
+            "br" => br = p1293_math_attach_slot(value, args.span)?,
+            "base" => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "the argument `base` is positional".to_string(),
+                )
+                .with_hint("try removing `base:`")])
+            }
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("unexpected argument: {other}"),
+                )])
+            }
+        }
+    }
+
+    Ok(math_attach_content(base, t, b, tl, bl, tr, br))
+}
+
+/// `math.attach(base, t:, b:, tl:, bl:, tr:, br:)`.
+pub fn native_math_attach(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    math_attach_from_args(args).map(Value::Content)
+}
+
+/// Construtor puro canônico da fração sem barra de `binom`.
+pub(crate) fn math_binom_content(upper: Content, lower: Vec<Content>) -> Content {
+    debug_assert!(!lower.is_empty());
+    let mut denominator =
+        Vec::with_capacity(lower.len().saturating_mul(2).saturating_sub(1));
+    for (index, item) in lower.into_iter().enumerate() {
+        if index > 0 {
+            denominator.push(Content::MathText(", ".into()));
+        }
+        denominator.push(item);
+    }
+    Content::math_delimited(
+        '(',
+        Content::math_frac_unlined(
+            upper,
+            Content::MathSequence(std::sync::Arc::from(denominator)),
+        ),
+        ')',
+    )
+}
+
+/// Validação fechada e construção única de `binom` para os dois caminhos.
+pub(crate) fn math_binom_from_args(args: &Args) -> SourceResult<Content> {
+    let Some((upper, lower_values)) = args.items.split_first() else {
+        if args.named.contains_key("upper") {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "the argument `upper` is positional".to_string(),
+            )
+            .with_hint("try removing `upper:`")]);
+        }
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "missing argument: upper".to_string(),
+        )]);
+    };
+    if lower_values.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "missing argument: lower".to_string(),
+        )]);
+    }
+    for name in args.named.keys() {
+        if name.as_str() == "upper" {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "the argument `upper` is positional".to_string(),
+            )
+            .with_hint("try removing `upper:`")]);
+        }
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+
+    let upper = p1293_math_content(upper, args.span)?;
+    let lower = lower_values
+        .iter()
+        .map(|value| p1293_math_content(value, args.span))
+        .collect::<SourceResult<Vec<_>>>()?;
+    Ok(math_binom_content(upper, lower))
+}
+
+/// `math.binom(upper, ..lower)` com pelo menos um lower.
+pub fn native_math_binom(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    math_binom_from_args(args).map(Value::Content)
+}
+
 #[cfg(test)]
 mod p1292_c_vec_tests {
     use super::*;
@@ -1022,6 +1207,25 @@ pub fn make_math_module() -> Value {
         Value::Func(crate::entities::func::Func::native("math.vec", native_math_vec)),
     );
 
+    // P1293-B — quatro membros próprios antes do espelho sym→math.
+    dict.insert(
+        "attach".into(),
+        Value::Func(crate::entities::func::Func::native("attach", native_math_attach)),
+    );
+    dict.insert(
+        "binom".into(),
+        Value::Func(crate::entities::func::Func::native("binom", native_math_binom)),
+    );
+    for (name, native) in [
+        ("mono", crate::compiler::stdlib::math_style::native_mono as _),
+        ("script", crate::compiler::stdlib::math_style::native_script as _),
+    ] {
+        dict.insert(
+            name.into(),
+            Value::Func(crate::entities::func::Func::native(name, native)),
+        );
+    }
+
     // P795 — dif e Dif operadores em modo math (expostos no modulo math)
     // **P962** — com wrapper `upright` (`MathStyled { italic: Some(false) }`,
     // o mesmo que `upright(d)` produz): sem ele, `apply_math_default`
@@ -1394,6 +1598,356 @@ mod p1291_tests {
                 module.scope().get(name).is_none(),
                 "global extra math.{name} leaked"
             );
+        }
+    }
+
+    #[test]
+    fn p1293_b_namespace_expoe_quatro_funcoes_com_nomes_curtos() {
+        let Value::Module(module) = make_math_module() else {
+            panic!("math must be a module")
+        };
+        for name in ["attach", "binom", "mono", "script"] {
+            let Some(Value::Func(func)) = module.scope().get(name) else {
+                panic!("missing callable math.{name}")
+            };
+            assert_eq!(func.name(), Some(name), "math.{name} public name");
+        }
+    }
+
+    #[test]
+    fn p1293_b_attach_preserva_sete_slots_e_none_explicito() {
+        let values = ["x", "t", "b", "tl", "bl", "tr", "br"];
+        let mut args =
+            Args::positional(vec![Value::Content(Content::MathIdent(values[0].into()))]);
+        for (name, text) in [
+            ("t", values[1]),
+            ("b", values[2]),
+            ("tl", values[3]),
+            ("bl", values[4]),
+            ("tr", values[5]),
+            ("br", values[6]),
+        ] {
+            args.named
+                .insert(name.into(), Value::Content(Content::MathIdent(text.into())));
+        }
+        let Value::Content(Content::MathAttach(elem)) =
+            call_math("attach", args).unwrap()
+        else {
+            panic!("math.attach must produce MathAttach")
+        };
+        assert!(matches!(&elem.base, Content::MathIdent(x) if x == "x"));
+        for (actual, expected) in [
+            (&elem.t, "t"),
+            (&elem.b, "b"),
+            (&elem.tl, "tl"),
+            (&elem.bl, "bl"),
+            (&elem.tr, "tr"),
+            (&elem.br, "br"),
+        ] {
+            assert!(
+                matches!(actual, MathAttachSlot::Present(Content::MathIdent(x)) if x == expected)
+            );
+        }
+
+        let mut explicit_none = Args::positional(vec![body()]);
+        explicit_none.named.insert("t".into(), Value::None);
+        let Value::Content(Content::MathAttach(elem)) =
+            call_math("attach", explicit_none).unwrap()
+        else {
+            panic!("math.attach(t: none) must produce MathAttach")
+        };
+        assert!(matches!(elem.t, MathAttachSlot::ExplicitNone));
+        assert!(matches!(elem.b, MathAttachSlot::Omitted));
+    }
+
+    #[test]
+    fn p1293_b_attach_none_explicito_tem_layout_equivalente_ao_omitido() {
+        use crate::compiler::layout::FixedMetrics;
+        use crate::compiler::math::layout::MathLayouter;
+        use crate::entities::layout_types::{Pt, TextStyle};
+
+        let style = TextStyle::regular(Pt(12.0));
+        let layouter = MathLayouter::new(&FixedMetrics, true, &style);
+        let omitted = math_attach_content(
+            Content::MathIdent("x".into()),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+        );
+        let explicit_none = math_attach_content(
+            Content::MathIdent("x".into()),
+            MathAttachSlot::ExplicitNone,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+        );
+
+        let (omitted_items, omitted_extent) =
+            layouter.layout_equation_measured(&omitted, &style);
+        let (explicit_items, explicit_extent) =
+            layouter.layout_equation_measured(&explicit_none, &style);
+        assert_eq!(explicit_extent, omitted_extent);
+        assert_eq!(explicit_items.len(), omitted_items.len());
+    }
+
+    #[test]
+    fn p1293_b_binom_preserva_lower_variadico_e_sem_barra() {
+        let args = Args::positional(vec![
+            Value::Content(Content::MathIdent("n".into())),
+            Value::Content(Content::MathIdent("k".into())),
+            Value::Content(Content::MathIdent("j".into())),
+            Value::Content(Content::MathIdent("m".into())),
+        ]);
+        let Value::Content(Content::MathDelimited(delimited)) =
+            call_math("binom", args).unwrap()
+        else {
+            panic!("math.binom must produce stretched parentheses")
+        };
+        assert_eq!((delimited.open, delimited.close), ('(', ')'));
+        let Content::MathFrac(frac) = &delimited.body else {
+            panic!("math.binom must use the canonical fraction payload")
+        };
+        assert!(!frac.line, "binom must not draw a fraction bar");
+        assert!(matches!(&frac.num, Content::MathIdent(x) if x == "n"));
+        let Content::MathSequence(lower) = &frac.den else {
+            panic!("variadic lower must preserve comma morphology")
+        };
+        assert_eq!(lower.len(), 5);
+        assert!(matches!(&lower[0], Content::MathIdent(x) if x == "k"));
+        assert!(matches!(&lower[1], Content::MathText(x) if x == ", "));
+        assert!(matches!(&lower[2], Content::MathIdent(x) if x == "j"));
+        assert!(matches!(&lower[3], Content::MathText(x) if x == ", "));
+        assert!(matches!(&lower[4], Content::MathIdent(x) if x == "m"));
+    }
+
+    #[test]
+    fn p1293_b_mono_script_reusam_nativas_e_defaults() {
+        let expected: [(&str, NativeFn); 2] = [
+            ("mono", crate::compiler::stdlib::math_style::native_mono),
+            ("script", crate::compiler::stdlib::math_style::native_script),
+        ];
+        for (name, expected) in expected {
+            let actual = math_func(name).native_fn_addr().unwrap();
+            assert!(
+                std::ptr::fn_addr_eq(actual, expected),
+                "math.{name} must reuse its global native"
+            );
+        }
+
+        let Value::Content(Content::MathStyled(mono)) =
+            call_math("mono", Args::positional(vec![body()])).unwrap()
+        else {
+            panic!("math.mono must produce MathStyled")
+        };
+        assert_eq!(mono.kind, Some(MathStyleKind::Monospace));
+
+        for (explicit, expected) in
+            [(None, true), (Some(true), true), (Some(false), false)]
+        {
+            let mut args = Args::positional(vec![body()]);
+            if let Some(value) = explicit {
+                args.named.insert("cramped".into(), Value::Bool(value));
+            }
+            let Value::Content(Content::MathStyled(script)) =
+                call_math("script", args).unwrap()
+            else {
+                panic!("math.script must produce MathStyled")
+            };
+            assert_eq!(script.kind, Some(MathStyleKind::Script));
+            assert_eq!(script.cramped, Some(expected));
+        }
+    }
+
+    #[test]
+    fn p1293_b_oito_vetores_alcancam_o_layout_vigente() {
+        use crate::compiler::layout::FixedMetrics;
+        use crate::compiler::math::layout::MathLayouter;
+        use crate::entities::layout_types::{MathSize, Pt, TextStyle};
+
+        let inline_style = TextStyle::regular(Pt(12.0));
+        let display_style = TextStyle {
+            math_size: MathSize::Display,
+            ..inline_style.clone()
+        };
+        let display = MathLayouter::new(&FixedMetrics, true, &display_style);
+        let inline = MathLayouter::new(&FixedMetrics, false, &inline_style);
+        let attach = math_attach_content(
+            Content::MathIdent("x".into()),
+            MathAttachSlot::Present(Content::MathIdent("t".into())),
+            MathAttachSlot::Present(Content::MathIdent("b".into())),
+            MathAttachSlot::Present(Content::MathIdent("l".into())),
+            MathAttachSlot::Present(Content::MathIdent("l".into())),
+            MathAttachSlot::Present(Content::MathIdent("r".into())),
+            MathAttachSlot::Present(Content::MathIdent("r".into())),
+        );
+        let binom = math_binom_content(
+            Content::MathIdent("n".into()),
+            vec![
+                Content::MathIdent("k".into()),
+                Content::MathIdent("j".into()),
+                Content::MathIdent("m".into()),
+            ],
+        );
+        let mono = Content::math_styled(
+            Some(MathStyleKind::Monospace),
+            None,
+            None,
+            Content::MathIdent("mono".into()),
+            None,
+        );
+        let mono_in_script = Content::math_styled(
+            Some(MathStyleKind::Script),
+            None,
+            None,
+            mono.clone(),
+            Some(true),
+        );
+        let scripted_body = Content::math_attach_scripts(
+            Content::MathIdent("x".into()),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("1".into())),
+        );
+        let scripted = |cramped| {
+            Content::math_styled(
+                Some(MathStyleKind::Script),
+                None,
+                None,
+                scripted_body.clone(),
+                Some(cramped),
+            )
+        };
+        let dimensions = |layouter: &MathLayouter<'_, FixedMetrics>,
+                          content: &Content,
+                          style: &TextStyle| {
+            let (_, extent) = layouter.layout_equation_measured(content, style);
+            (extent.width, extent.ascent + extent.descent)
+        };
+
+        let vectors = [
+            dimensions(&display, &attach, &display_style),
+            dimensions(&inline, &attach, &inline_style),
+            dimensions(&display, &binom, &display_style),
+            dimensions(&inline, &binom, &inline_style),
+            dimensions(&display, &mono, &display_style),
+            dimensions(&display, &mono_in_script, &display_style),
+            dimensions(&display, &scripted(true), &display_style),
+            dimensions(&display, &scripted(false), &display_style),
+        ];
+        assert!(vectors.iter().all(|(width, height)| {
+            width.is_finite() && *width > 0.0 && height.is_finite() && *height > 0.0
+        }));
+        assert!(vectors[2].1 > vectors[3].1, "binom display versus inline: {vectors:?}");
+        assert!(vectors[5].0 < vectors[4].0, "mono dentro de script deve reduzir");
+        assert_ne!(vectors[6].1, vectors[7].1, "cramped deve permanecer observável");
+    }
+
+    #[test]
+    fn p1293_b_assinaturas_sao_fechadas() {
+        let span = Span::from_range(test_file_id(), 17..18);
+        let assert_diag = |name: &str, mut args: Args, expected: &str| {
+            args.span = span;
+            let diagnostics = call_math(name, args).unwrap_err();
+            assert_eq!(diagnostics.len(), 1, "math.{name}");
+            assert_eq!(diagnostics[0].message, expected, "math.{name}");
+            assert_eq!(diagnostics[0].span, span, "math.{name} selected span");
+        };
+
+        assert_diag("attach", Args::positional(vec![]), "missing argument: base");
+        assert_diag(
+            "attach",
+            Args::positional(vec![Value::Int(1)]),
+            "expected content, found integer",
+        );
+        assert_diag(
+            "attach",
+            Args::positional(vec![body(), body()]),
+            "unexpected argument",
+        );
+        let mut attach_unknown = Args::positional(vec![body()]);
+        attach_unknown.named.insert("unknown".into(), Value::Bool(true));
+        assert_diag("attach", attach_unknown, "unexpected argument: unknown");
+        let mut attach_bad_slot = Args::positional(vec![body()]);
+        attach_bad_slot.named.insert("t".into(), Value::Int(1));
+        assert_diag("attach", attach_bad_slot, "expected content or none, found integer");
+
+        assert_diag("binom", Args::positional(vec![]), "missing argument: upper");
+        assert_diag("binom", Args::positional(vec![body()]), "missing argument: lower");
+        assert_diag(
+            "binom",
+            Args::positional(vec![Value::Int(1), body()]),
+            "expected content, found integer",
+        );
+        let mut binom_unknown = Args::positional(vec![body(), body()]);
+        binom_unknown.named.insert("unknown".into(), Value::Bool(true));
+        assert_diag("binom", binom_unknown, "unexpected argument: unknown");
+        let mut upper_named = Args::positional(vec![]);
+        upper_named.named.insert("upper".into(), body());
+        assert_diag("binom", upper_named, "the argument `upper` is positional");
+
+        for name in ["mono", "script"] {
+            assert_diag(name, Args::positional(vec![]), "missing argument: body");
+            assert_diag(
+                name,
+                Args::positional(vec![Value::Int(1)]),
+                "expected content, found integer",
+            );
+            assert_diag(
+                name,
+                Args::positional(vec![body(), body()]),
+                "unexpected argument",
+            );
+            let mut body_named = Args::positional(vec![]);
+            body_named.named.insert("body".into(), body());
+            assert_diag(name, body_named, "the argument `body` is positional");
+        }
+
+        let mut wrong_cramped = Args::positional(vec![body()]);
+        wrong_cramped.named.insert("cramped".into(), Value::Int(1));
+        assert_diag("script", wrong_cramped, "expected boolean, found integer");
+        let mut script_unknown = Args::positional(vec![body()]);
+        script_unknown.named.insert("unknown".into(), Value::Bool(true));
+        assert_diag("script", script_unknown, "unexpected argument: unknown");
+    }
+
+    #[test]
+    fn p1293_b_independent_red_named_positional_preserva_hints() {
+        let span = Span::from_range(test_file_id(), 17..18);
+        let assert_named_positional = |name: &str, mut args: Args, parameter: &str| {
+            args.span = span;
+            let diagnostics = call_math(name, args).unwrap_err();
+            assert_eq!(diagnostics.len(), 1, "math.{name}");
+            assert_eq!(
+                diagnostics[0].message,
+                format!("the argument `{parameter}` is positional"),
+                "math.{name}"
+            );
+            assert_eq!(
+                diagnostics[0].hints,
+                vec![format!("try removing `{parameter}:`")],
+                "math.{name}"
+            );
+            assert_eq!(diagnostics[0].span, span, "math.{name} selected span");
+        };
+
+        let mut attach = Args::positional(vec![]);
+        attach.named.insert("base".into(), body());
+        assert_named_positional("attach", attach, "base");
+
+        let mut binom = Args::positional(vec![]);
+        binom.named.insert("upper".into(), body());
+        assert_named_positional("binom", binom, "upper");
+
+        for name in ["mono", "script"] {
+            let mut args = Args::positional(vec![]);
+            args.named.insert("body".into(), body());
+            assert_named_positional(name, args, "body");
         }
     }
 }

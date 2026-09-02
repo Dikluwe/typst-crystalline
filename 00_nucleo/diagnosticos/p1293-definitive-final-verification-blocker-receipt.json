@@ -1,0 +1,206 @@
+{
+  "schema": "tekt.p1293.definitive-final-verification-blocker.v1",
+  "generated_at": "2026-09-02T19:48:56-03:00",
+  "verifier_role": "independent-final-verifier",
+  "regime": "full-segregated-materialization-protocol",
+  "verdict": "BLOCKED_NOT_READY_FOR_FINAL_CERTIFICATE",
+  "claim": "segregado por capacidades e artefatos, sem isolamento técnico de leitura",
+  "process_incident": "PROCESS_VIOLATION_CONFIRMED_NOT_ABSOLVED",
+  "provenance": {
+    "head": "7dd25ff0e222b6c7c640d6bc7957b98f94227507",
+    "working_tree": "uncommitted",
+    "started_at": "2026-09-02T19:36:53.811303-03:00",
+    "postflight_at": "2026-09-02T19:48:37.865715-03:00",
+    "status_porcelain_sha256_before_verifier_receipt": "01ace9ce733479b68e5cd9801cc8075ef16a0f83191ce7516f3b19e14658385d",
+    "diff_head_stat_sha256": "e3d170410960d31d1b9fb5aff31823c58f6e3623ff9b8fc686e1a8abb304f0db",
+    "diff_head_stat_summary": "61 files changed, 7167 insertions(+), 737 deletions(-)"
+  },
+  "definitive_handoff": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1293-manifest.json",
+      "sha256": "99144113f0f0153a651b0255ae64abfdea512a86ca1397a83ac5f74a52df2e86"
+    },
+    "seal_read_only": {
+      "path": "00_nucleo/diagnosticos/p1293-contract-seal.json",
+      "sha256": "eb46d8f1cc70704fe708a90d95ecd14cad2c90dcecd9cca30a9ebe1f6cc1841d",
+      "definitive_final_candidate_read_only_canonical_sha256": "2397da695eb49ca019c17fd5b77e23a9f3ff64f7674aeb66c22ccb00ed87e680"
+    },
+    "effective_inventory": {
+      "canonical_sha256": "3ef3c81478fd2833ba2313790b37a301c8eb5fbaf4629dc88a7b307a064d9f5c",
+      "l0_and_nuclei": 31,
+      "product_test_and_oracles": 41,
+      "total_paths": 72,
+      "preflight_mismatches": 0,
+      "postflight_mismatches": 0,
+      "preserved": true
+    }
+  },
+  "global_gates": {
+    "cargo_build_release": {
+      "command": "cargo build --release",
+      "exit": 0,
+      "result": "PASS",
+      "binary_sha256": "c527b4111493f444d66e44e6d38d4823b2d09515c73d92eda1b9c4a2a86bff90"
+    },
+    "cargo_test_workspace": {
+      "command": "cargo test --workspace -q",
+      "exit": 101,
+      "result": "FAIL",
+      "core": "5417/5417 PASS",
+      "infra": "918/918 PASS",
+      "wiring_cli": "64/71 PASS; 7/71 FAIL",
+      "blocking": true
+    },
+    "cargo_fmt": {
+      "command": "cargo fmt --all -- --check",
+      "exit": 0,
+      "result": "PASS"
+    },
+    "crystalline_lint": {
+      "command": "crystalline-lint .",
+      "exit": 0,
+      "result": "PASS"
+    },
+    "individual_lint_gates": {
+      "command_shape": "crystalline-lint --checks vN --fail-on warning .",
+      "v3": "PASS",
+      "v4": "PASS",
+      "v5": "PASS",
+      "v7": "PASS",
+      "v13": "PASS",
+      "v14": "PASS",
+      "v15": "PASS",
+      "v26": "PASS"
+    },
+    "hash_dry_run": {
+      "command": "crystalline-lint --fix-hashes --dry-run .",
+      "exit": 0,
+      "result": "PASS_NOTHING_TO_FIX"
+    },
+    "git_diff_check": {
+      "command": "git diff --check",
+      "exit": 0,
+      "result": "PASS"
+    }
+  },
+  "blocking_failures": {
+    "failed_tests": [
+      "p1168_html_typed_batch_repr_and_dom",
+      "p1173_1_html_lote_global_only_2_e_whitespace_block",
+      "p1174_1_html_lote_global_only_3",
+      "p1175_1_html_lote_global_only_4_e_espaco_protegido",
+      "p1176_1_html_lote_residual_normal",
+      "p1177_1_html_familia_ruby",
+      "p1178_1_html_familia_documento"
+    ],
+    "common_witness": "The candidate emits the current multiline HtmlElem repr, while seven historical CLI assertions still require or search for a one-line elem(tag: ...) representation.",
+    "examples": [
+      {
+        "test": "p1173_1_html_lote_global_only_2_e_whitespace_block",
+        "actual_prefix": "elem followed by a newline and an indented tag field for abbr",
+        "obsolete_expected_prefix": "single-line elem with the tag field immediately after the opening parenthesis"
+      },
+      {
+        "test": "p1168_html_typed_batch_repr_and_dom",
+        "assertion": "searches for a single-line elem prefix for each tag",
+        "failure_reason": "nested HtmlElem values now put tag on the following indented line"
+      }
+    ],
+    "causal_classification": "stale-test-expectations-after-intentional-C-P08-multiline-repr",
+    "why_not_product": [
+      "P1293 protected C-P08 and DOM tests pass 11/11 in normal and reverse order.",
+      "The fresh P1293 core focal suite passes 51/51.",
+      "Both independently regenerated language surfaces match their exact targets.",
+      "The seven failures stop at repr string expectations before their later HTML DOM checks; no divergent DOM witness was produced."
+    ],
+    "exact_owner": {
+      "l0": "00_nucleo/prompts/wiring/tests/cli.md",
+      "l0_sha256": "ccd47ca2c66c6830b3e5cde505987c7731aa7a78be4b0e58e7b1c29e261413d4",
+      "consumer": "04_wiring/tests/cli.rs",
+      "consumer_sha256": "cb19a63665aa5c66feae200a03ce4537097a4f25c67489dd457c03006031b288",
+      "lineage_header_prompt_hash": "aa5502ce",
+      "pair_in_72_path_effective_inventory": false
+    },
+    "required_next_action": "Reopen the wiring/tests/cli owner pair, amend the L0 first to recognize the already-protected C-P08 multiline repr, then update only the seven stale test expectations/searches. Keep product, P1293 contract/oracle, DOM expectations, surfaces and the 72 frozen paths unchanged except through an explicit successor handoff. Rerun the complete final gate afterward.",
+    "counterfactual_green_not_claimed": true
+  },
+  "protected_and_focal_gates": {
+    "p1288_oracles": {
+      "command": "python3 lab/parity/matrix/p1288_oracles.py --binary target/release/typst --order both --output /tmp/p1293-definitive-p1288-oracles.json",
+      "exit": 0,
+      "result_sha256": "88b6a08cab19297e802f03a314f0f606ac190cffc30b7efe72c39457e63a9041",
+      "preserved": 46,
+      "certified_opaque_scope": 4,
+      "violated": 0,
+      "order_agreement": true
+    },
+    "p1288_self_tests": "10/10 plus 10/10 PASS",
+    "p1289": "1/1 PASS",
+    "p1290": "7/7 PASS",
+    "p1291_core": "30/30 PASS",
+    "p1291_wiring": "5/5 PASS",
+    "p1292_protected_normal": "11/11 PASS",
+    "p1292_protected_reverse": "11/11 PASS",
+    "p1293_protected_normal": "11/11 PASS",
+    "p1293_protected_reverse": "11/11 PASS",
+    "p1293_core_dom_math_grid_table_focal": "51/51 PASS",
+    "p1105_core_math_regression": "6/6 PASS",
+    "p1293_infra_dom_export_focal": "6/6 PASS",
+    "core_complete": "5417/5417 PASS",
+    "infra_complete": "918/918 PASS"
+  },
+  "surface_measurements": {
+    "default": {
+      "command": "python3 lab/surface-inventory/run_probes.py --profile default --vanilla-bin /usr/local/bin/typst --crystalline-bin target/release/typst --output 00_nucleo/diagnosticos/p1293-surface-default.json --probes /tmp/p1293-default-probes.json",
+      "path": "00_nucleo/diagnosticos/p1293-surface-default.json",
+      "sha256": "72a50909525231baafbdefbbc95e2c827eaab833f1062b01f5347636fb4d1106",
+      "total": 111,
+      "match": 99,
+      "different_or_disabled": 12,
+      "missing": 0,
+      "unverified": 0,
+      "unknown": 0,
+      "target_reproduced": true
+    },
+    "html": {
+      "command": "python3 lab/surface-inventory/run_probes.py --profile html --vanilla-bin /usr/local/bin/typst --crystalline-bin target/release/typst --output 00_nucleo/diagnosticos/p1293-surface-html.json --probes /tmp/p1293-html-probes.json",
+      "path": "00_nucleo/diagnosticos/p1293-surface-html.json",
+      "sha256": "a986b41913d0f00b3ff8a8c77def9b487603dfa0c5f1eef6cfa8b4705b180314",
+      "total": 115,
+      "match": 104,
+      "different_or_disabled": 11,
+      "missing": 0,
+      "unverified": 0,
+      "unknown": 0,
+      "target_reproduced": true
+    }
+  },
+  "fresh_mutation_discrimination": {
+    "runner": "/tmp/p1293-final-observers-runner-31.py",
+    "runner_sha256": "7e5f765b60d435667942ff883a46bb6ffaae882d36cebfd2ebc7ad718448f59f",
+    "result_path": "/tmp/p1293-definitive-final-results-31.json",
+    "result_sha256": "d9e48e78f01e47e8051b3720f54785c6e80a7562666888e233d6b6b3b37792be",
+    "baseline": "2x11/11 PASS",
+    "valid_mutants": 31,
+    "forward_executions": 31,
+    "reverse_executions": 31,
+    "rejected_valid_mutants": 31,
+    "mutation_score": 1.0,
+    "survivors": [],
+    "unknown": 0,
+    "order_stable": true,
+    "protected_inputs_preserved": true,
+    "result": "PASS"
+  },
+  "approval_outputs": {
+    "p1293-preservation-verification-receipt.json": "NOT_EMITTED",
+    "p1293-final-verification-receipt.json": "NOT_EMITTED",
+    "p1293-final-report.md": "NOT_EMITTED",
+    "p1293-final-certificate.json": "NOT_EMITTED",
+    "reason": "The mandatory workspace suite failed seven tests. Perfect focal, surface and mutation results do not authorize approval by proximity."
+  },
+  "lot_approved": false,
+  "seal_emitted": false,
+  "commit_created": false,
+  "verified_inputs_edited_by_verifier": false
+}

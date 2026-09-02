@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 46ec8cf7
+//! @prompt-hash c08b7ab8
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -793,6 +793,10 @@ impl From<&StyleChain> for TextStyle {
             // no `TextStyle` que passa para o motor de layout matemático,
             // por cima deste valor base).
             math: false,
+            // P1293 — a chain textual genérica não origina `TextItem`
+            // matemático; somente o braço estrutural direto no layouter
+            // math promove este eixo.
+            math_text_item: false,
             // P891 — mesmo motivo de P784: `StyleChain` não carrega contexto
             // de script; `attach.rs` põe `true` explicitamente no
             // `script_style` que constrói para sub/super-índices.

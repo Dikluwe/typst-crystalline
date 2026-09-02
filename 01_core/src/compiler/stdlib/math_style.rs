@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/math_style.md
-//! @prompt-hash 58661c6c
+//! @prompt-hash a36c31b4
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -31,26 +31,42 @@ use crate::entities::value::Value;
 /// qualquer named arg.
 fn wrap_math_style(
     args: &Args,
-    _name: &str,
+    name: &str,
     kind: Option<MathStyleKind>,
     bold: Option<bool>,
     italic: Option<bool>,
     default_cramped: Option<bool>,
 ) -> SourceResult<Value> {
+    // P1293-B-spans — somente estas duas identidades recebem do dispatcher
+    // uma âncora sintática pontual. As outras doze funções preservam a
+    // política histórica detached deste owner.
+    let diagnostic_span =
+        if matches!(name, "mono" | "script") { args.span } else { Span::detached() };
+
     let cramped = if let Some(default) = default_cramped {
         for key in args.named.keys() {
             if key.as_str() != "cramped" {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("unexpected argument: {key}"),
-                )]);
+                let diagnostic =
+                    if matches!(name, "mono" | "script") && key.as_str() == "body" {
+                        SourceDiagnostic::error(
+                            diagnostic_span,
+                            "the argument `body` is positional",
+                        )
+                        .with_hint("try removing `body:`")
+                    } else {
+                        SourceDiagnostic::error(
+                            diagnostic_span,
+                            format!("unexpected argument: {key}"),
+                        )
+                    };
+                return Err(vec![diagnostic]);
             }
         }
         match args.named.get("cramped") {
             Some(Value::Bool(b)) => Some(*b),
             Some(other) => {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    diagnostic_span,
                     format!("expected boolean, found {}", vanilla_type_name(other)),
                 )]);
             }
@@ -58,17 +74,27 @@ fn wrap_math_style(
         }
     } else {
         for key in args.named.keys() {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("unexpected argument: {key}"),
-            )]);
+            let diagnostic =
+                if matches!(name, "mono" | "script") && key.as_str() == "body" {
+                    SourceDiagnostic::error(
+                        diagnostic_span,
+                        "the argument `body` is positional",
+                    )
+                    .with_hint("try removing `body:`")
+                } else {
+                    SourceDiagnostic::error(
+                        diagnostic_span,
+                        format!("unexpected argument: {key}"),
+                    )
+                };
+            return Err(vec![diagnostic]);
         }
         None
     };
 
     if args.items.len() > 1 {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            diagnostic_span,
             "unexpected argument".to_string(),
         )]);
     }
@@ -82,7 +108,7 @@ fn wrap_math_style(
         Some(Value::Str(s)) => Content::MathText(s.as_str().into()),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                diagnostic_span,
                 format!("expected content, found {}", vanilla_type_name(other)),
             )])
         }
@@ -92,7 +118,7 @@ fn wrap_math_style(
         // PDF inválido (kid inexistente no /Pages).
         None => {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                diagnostic_span,
                 "missing argument: body".to_string(),
             )])
         }

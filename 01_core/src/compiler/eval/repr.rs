@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 643e33d3
+//! @prompt-hash a7bc8b15
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -11,6 +11,7 @@
 //! representação scope-out ("function", "module", nome do tipo).
 
 use crate::entities::content::Content;
+use crate::entities::elements::math_attach::MathAttachSlot;
 use crate::entities::func::{Func, FuncRepr};
 use crate::entities::geometry::Stroke;
 use crate::entities::gradient::Gradient;
@@ -492,6 +493,75 @@ fn repr_align(a: &Align2D) -> String {
     }
 }
 
+fn repr_math_attach(
+    attach: &crate::entities::elements::math_attach::MathAttachElem,
+) -> String {
+    let mut fields = vec![format!("base: {}", repr_p1293_math_field(&attach.base))];
+    for (name, slot) in [
+        ("t", &attach.t),
+        ("b", &attach.b),
+        ("tl", &attach.tl),
+        ("bl", &attach.bl),
+        ("tr", &attach.tr),
+        ("br", &attach.br),
+    ] {
+        match slot {
+            MathAttachSlot::Omitted => {}
+            MathAttachSlot::ExplicitNone => fields.push(format!("{name}: none")),
+            MathAttachSlot::Present(content) => {
+                fields.push(format!("{name}: {}", repr_p1293_math_field(content)))
+            }
+        }
+    }
+    format!("attach{}", pretty_array_like(&fields, false))
+}
+
+/// Projeção textual canônica de uma folha matemática direta nos campos
+/// morfológicos fechados por P1292/P1293. O payload permanece matemático;
+/// apenas a representação pública usa a forma de conteúdo `[texto]`.
+fn repr_p1293_math_field(content: &Content) -> String {
+    match content {
+        Content::MathIdent(text) | Content::MathText(text) => {
+            repr_content(&Content::Text(text.clone()))
+        }
+        other => repr_content(other),
+    }
+}
+
+fn repr_canonical_binom(
+    delimited: &crate::entities::elements::math_delimited::MathDelimitedElem,
+) -> Option<String> {
+    if (delimited.open, delimited.close) != ('(', ')') {
+        return None;
+    }
+    let Content::MathFrac(frac) = &delimited.body else {
+        return None;
+    };
+    if frac.line {
+        return None;
+    }
+    let Content::MathSequence(denominator) = &frac.den else {
+        return None;
+    };
+    if denominator.is_empty() || denominator.len() % 2 == 0 {
+        return None;
+    }
+
+    let mut lower = Vec::with_capacity(denominator.len().div_ceil(2));
+    for (index, content) in denominator.iter().enumerate() {
+        if index % 2 == 0 {
+            lower.push(repr_p1293_math_field(content));
+        } else if !matches!(content, Content::MathText(text) if text.as_str() == ", ") {
+            return None;
+        }
+    }
+    let fields = [
+        format!("upper: {}", repr_p1293_math_field(&frac.num)),
+        format!("lower: {}", pretty_array_like(&lower, lower.len() == 1)),
+    ];
+    Some(format!("binom{}", pretty_array_like(&fields, false)))
+}
+
 /// Representação de um `Content`.
 ///
 /// **P843 (F2)** — formato estrutural do vanilla para os variantes
@@ -513,9 +583,8 @@ pub fn repr_content(c: &Content) -> String {
                 let attrs = attrs
                     .iter()
                     .map(|(key, value)| format!("{}: {:?}", key, value.as_str()))
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                fields.push(format!("attrs: ({attrs})"));
+                    .collect::<Vec<_>>();
+                fields.push(format!("attrs: {}", pretty_array_like(&attrs, false)));
             }
             match &elem.body {
                 crate::entities::html::HtmlBody::Unset => {}
@@ -524,7 +593,7 @@ pub fn repr_content(c: &Content) -> String {
                     fields.push(format!("body: {}", repr_content(body)));
                 }
             }
-            format!("elem({})", fields.join(", "))
+            format!("elem{}", pretty_array_like(&fields, false))
         }
         Content::PageRun(e) => {
             let sequence = format!(
@@ -585,28 +654,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::MathFrac(f) => {
             format!("({})/({})", repr_content(&f.num), repr_content(&f.den))
         }
-        Content::MathAttach(a) => {
-            let mut out = repr_content(&a.base);
-            if let Some(tl) = &a.tl {
-                out.push_str(&format!("^({})", repr_content(tl)));
-            }
-            if let Some(bl) = &a.bl {
-                out.push_str(&format!("_({})", repr_content(bl)));
-            }
-            if let Some(t) = &a.t {
-                out.push_str(&format!("^({})", repr_content(t)));
-            }
-            if let Some(b) = &a.b {
-                out.push_str(&format!("_({})", repr_content(b)));
-            }
-            if let Some(tr) = &a.tr {
-                out.push_str(&format!("^({})", repr_content(tr)));
-            }
-            if let Some(br) = &a.br {
-                out.push_str(&format!("_({})", repr_content(br)));
-            }
-            out
-        }
+        Content::MathAttach(a) => repr_math_attach(a),
         Content::MathRoot(r) => {
             if let Some(idx) = &r.index {
                 format!("root({}, {})", repr_content(idx), repr_content(&r.radicand))
@@ -614,9 +662,8 @@ pub fn repr_content(c: &Content) -> String {
                 format!("root(radicand: {})", repr_content(&r.radicand))
             }
         }
-        Content::MathDelimited(d) => {
-            format!("{}{}{}", d.open, repr_content(&d.body), d.close)
-        }
+        Content::MathDelimited(d) => repr_canonical_binom(d)
+            .unwrap_or_else(|| format!("{}{}{}", d.open, repr_content(&d.body), d.close)),
         Content::MathAlignPoint(_) => "&".to_string(),
         Content::Linebreak(e) => {
             if e.justify_explicit {
@@ -708,8 +755,8 @@ pub fn repr_content(c: &Content) -> String {
                     // P1292-C v7: uma folha math direta continua armazenada
                     // como math (logo layout/igualdade não mudam), mas sua
                     // projeção pública é a de Content textual `[x]`.
-                    Content::MathIdent(text) | Content::MathText(text) => {
-                        repr_content(&Content::Text(text.clone()))
+                    Content::MathIdent(_) | Content::MathText(_) => {
+                        repr_p1293_math_field(child)
                     }
                     // Estruturas e markup conservam o formatter próprio; a
                     // projeção estreita não recursa nos seus descendentes.
@@ -750,6 +797,18 @@ pub fn repr_content(c: &Content) -> String {
                 format!("limits: {}", o.limits),
             ];
             format!("op{}", pretty_array_like(&fields, false))
+        }
+        Content::MathStyled(s)
+            if s.bold.is_none()
+                && s.italic.is_none()
+                && ((s.kind
+                    == Some(crate::entities::math_style::MathStyleKind::Monospace)
+                    && s.cramped.is_none())
+                    || (s.kind
+                        == Some(crate::entities::math_style::MathStyleKind::Script)
+                        && s.cramped.is_some())) =>
+        {
+            format!("styled(child: {}, ..)", repr_p1293_math_field(&s.body))
         }
         Content::MathStyled(s) => repr_content(&s.body),
         Content::Label(l) if l.auto => format!("label(\"{}\")", l.name),
@@ -1088,6 +1147,38 @@ mod tests {
     use crate::entities::label::Label;
     use crate::entities::selector::Selector;
     use crate::entities::value::Value;
+
+    #[test]
+    fn p1293_c_html_elem_usa_formatter_canonico_curto_e_multiline() {
+        use crate::entities::html::{HtmlAttrs, HtmlBody, HtmlElem};
+        use std::sync::Arc;
+
+        let mut short_attrs = HtmlAttrs::default();
+        short_attrs.insert("span".into(), "2".into());
+        short_attrs.insert("id".into(), "c".into());
+        let short = Content::HtmlElem(Arc::new(HtmlElem::new(
+            "col".into(),
+            Some(short_attrs),
+            HtmlBody::Unset,
+        )));
+        assert_eq!(
+            repr_content(&short),
+            "elem(tag: \"col\", attrs: (span: \"2\", id: \"c\"))"
+        );
+
+        let mut long_attrs = HtmlAttrs::default();
+        long_attrs.insert("value".into(), "a rather long attribute value".into());
+        long_attrs.insert("aria-label".into(), "another long value".into());
+        let long = Content::HtmlElem(Arc::new(HtmlElem::new(
+            "button".into(),
+            Some(long_attrs),
+            HtmlBody::Content(Box::new(Content::text("Body"))),
+        )));
+        assert_eq!(
+            repr_content(&long),
+            "elem(\n  tag: \"button\",\n  attrs: (\n    value: \"a rather long attribute value\",\n    aria-label: \"another long value\",\n  ),\n  body: [Body],\n)",
+        );
+    }
     use std::sync::Arc;
 
     #[test]
@@ -1868,5 +1959,143 @@ mod tests {
     #[test]
     fn p1292_d_flush_repr_is_the_zero_field_constructor() {
         assert_eq!(repr_content(&Content::flush()), "flush()");
+    }
+
+    #[test]
+    fn p1293_b_attach_repr_preserva_slots_ordem_e_none_explicito() {
+        let attach = Content::math_attach(
+            Content::text("x"),
+            MathAttachSlot::ExplicitNone,
+            MathAttachSlot::Present(Content::text("b")),
+            MathAttachSlot::Present(Content::text("tl")),
+            MathAttachSlot::Present(Content::text("bl")),
+            MathAttachSlot::Present(Content::text("tr")),
+            MathAttachSlot::Present(Content::text("br")),
+        );
+        assert_eq!(
+            repr_content(&attach),
+            "attach(\n  base: [x],\n  t: none,\n  b: [b],\n  tl: [tl],\n  bl: [bl],\n  tr: [tr],\n  br: [br],\n)"
+        );
+
+        let omitted = Content::math_attach(
+            Content::text("x"),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+        );
+        assert_eq!(repr_content(&omitted), "attach(base: [x])");
+    }
+
+    #[test]
+    fn p1293_b_binom_repr_preserva_singleton_e_lower_variadico() {
+        let singleton = Content::math_delimited(
+            '(',
+            Content::math_frac_unlined(
+                Content::text("n"),
+                Content::MathSequence(Arc::from(vec![Content::text("k")])),
+            ),
+            ')',
+        );
+        assert_eq!(repr_content(&singleton), "binom(upper: [n], lower: ([k],))");
+
+        let multiple = Content::math_delimited(
+            '(',
+            Content::math_frac_unlined(
+                Content::text("n"),
+                Content::MathSequence(Arc::from(vec![
+                    Content::text("k"),
+                    Content::MathText(", ".into()),
+                    Content::text("j"),
+                    Content::MathText(", ".into()),
+                    Content::text("m"),
+                ])),
+            ),
+            ')',
+        );
+        assert_eq!(repr_content(&multiple), "binom(upper: [n], lower: ([k], [j], [m]))");
+    }
+
+    #[test]
+    fn p1293_b_independent_red_projeta_folhas_e_preserva_styled() {
+        let attach = Content::math_attach(
+            Content::MathIdent("x".into()),
+            MathAttachSlot::Present(Content::MathIdent("T".into())),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+        );
+        assert_eq!(repr_content(&attach), "attach(base: [x], t: [T])");
+
+        let binom = Content::math_delimited(
+            '(',
+            Content::math_frac_unlined(
+                Content::MathIdent("n".into()),
+                Content::MathSequence(Arc::from(vec![
+                    Content::MathIdent("k".into()),
+                    Content::MathText(", ".into()),
+                    Content::MathIdent("j".into()),
+                ])),
+            ),
+            ')',
+        );
+        assert_eq!(repr_content(&binom), "binom(upper: [n], lower: ([k], [j]))");
+
+        let mono = Content::math_styled(
+            Some(crate::entities::math_style::MathStyleKind::Monospace),
+            None,
+            None,
+            Content::MathIdent("x".into()),
+            None,
+        );
+        let script = Content::math_styled(
+            Some(crate::entities::math_style::MathStyleKind::Script),
+            None,
+            None,
+            Content::MathIdent("x".into()),
+            Some(true),
+        );
+        assert_eq!(repr_content(&mono), "styled(child: [x], ..)");
+        assert_eq!(repr_content(&script), "styled(child: [x], ..)");
+    }
+
+    #[test]
+    fn p1293_b_binom_repr_rejeita_envelopes_nao_canonicos() {
+        let lined = Content::math_delimited(
+            '(',
+            Content::math_frac(Content::text("n"), Content::text("k")),
+            ')',
+        );
+        let wrong_delimiter = Content::math_delimited(
+            '[',
+            Content::math_frac_unlined(
+                Content::text("n"),
+                Content::MathSequence(Arc::from(vec![Content::text("k")])),
+            ),
+            ']',
+        );
+        let wrong_separator = Content::math_delimited(
+            '(',
+            Content::math_frac_unlined(
+                Content::text("n"),
+                Content::MathSequence(Arc::from(vec![
+                    Content::text("k"),
+                    Content::MathText(",".into()),
+                    Content::text("j"),
+                ])),
+            ),
+            ')',
+        );
+
+        for noncanonical in [lined, wrong_delimiter, wrong_separator] {
+            assert!(
+                !repr_content(&noncanonical).starts_with("binom("),
+                "noncanonical envelope must keep the generic representation"
+            );
+        }
     }
 }

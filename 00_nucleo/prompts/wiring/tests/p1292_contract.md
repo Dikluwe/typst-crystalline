@@ -1,8 +1,9 @@
 # Prompt L0 — `wiring/tests/p1292_contract` — oráculos black-box P1292
+Hash do Código: cf1c1953
 
-**Estado:** CONTRATO P1292 AMENDMENT-2 — consumer existente aguarda somente o
-header de lineage pelo autor independente de oráculos; sem `Hash do Código`
-até esse header ser escrito e o consumer ressellado.
+**Estado:** REOPENED-P1293-FINAL-TRANSPORT-CORRECTION — consumer materializado;
+somente o observador SVG test-only requer correção de transporte para compor
+transformações ancestrais, sem alterar expectativas ou produto P1292.
 
 **Camada:** L4 — teste de integração
 **Ficheiro alvo:** `04_wiring/tests/p1292_contract.rs`
@@ -12,10 +13,10 @@ até esse header ser escrito e o consumer ressellado.
 
 ## Medição anterior à decisão
 
-O consumer protegido SHA-256
-`3ced6be4556d5b8b7f79540cc0df12791f38d2e22e6d46a2992f38049043c2f5`
-executa o binário como caixa-preta, mas não possui `@prompt`; criar este owner
-1:1 torna o órfão explícito até o autor do oráculo adicionar o header L4.
+O consumer protegido atual SHA-256
+`fa8f8770ea188a6bfe4e3415a6e053356d38e945dc950be8b864424b24b983aa`
+executa o binário como caixa-preta e possui `@prompt-hash 41dd2e0e`; este prompt
+é seu owner exclusivo 1:1. O estado órfão anterior foi encerrado pelo resselo.
 
 Três transportes anteriores eram inválidos, apesar de suas expectativas de
 linguagem continuarem corretas:
@@ -44,6 +45,41 @@ Probes bilaterais de 2026-09-01 confirmaram os substitutos:
   y=20), `AFTER_MARKER` página 3/yMin 4.642 (âncora 7.238), `FLOAT_AFTER`
   página 3/yMin 87.404 (âncora 90); sem flush, `AFTER_MARKER` fica na página
   1/yMin 47.842 (âncora 50.438).
+
+### P1293.final — medição da baseline SVG mista
+
+O plano adversarial SHA-256
+`ecc12db3e5d9826dafdb7b42653e28d5f4f8e01772a8554e6718b1ac8129e226`
+e o recibo de execução SHA-256
+`8c742753c64524578f08151e604668d047be23a526d9acac9088398870f79868`
+mediram o teste P1292 em working tree não commitada: `10/11` casos passaram e
+somente a asserção em `04_wiring/tests/p1292_contract.rs:422` falhou. O parser
+`svg_glyph_baselines` em `:144-165` extrai apenas o sexto operando da matriz
+local do glifo (`4.862`) e ignora o `translate(10.395 2.651)` do grupo externo.
+A coordenada global congelada é `2.651 + 4.862 = 7.513`; portanto a expectativa
+`7.513` permanece correta e o valor observado `4.862` demonstra perda de
+transformação no observador, não mudança de linguagem ou layout produtivo.
+
+Medição: a árvore SVG contém transformação externa e matriz interna separadas;
+o helper atual lê somente a interna. Inferência: acumular as transformações dos
+ancestrais recompõe a baseline global que o contrato já exige. Refutadores:
+ordem SVG distinta da composição declarada, transformação não afim, baseline
+global que não resulte em `7.513`, ou alteração do produto/fixture necessária.
+Qualquer refutador bloqueia a correção e exige nova medição bilateral.
+
+### Decisão de transporte test-only
+
+O observador SVG deve percorrer os grupos ancestrais e acumular transforms na
+ordem afim do documento, incluindo ao menos `translate(...)` e `matrix(...)`,
+antes de comparar a coordenada global do glifo. Não pode selecionar por
+caractere, fonte, número de fixture ou constante sentinela. Preserva sem mudar
+as expectativas `7.513` e `21.901`, fixtures, tolerâncias, asserts e contrato
+produtivo P1292; somente o helper/parser de observação deste consumer muda.
+
+Classificação ADR-0107/0108: baseline global é observável geométrico; parsing e
+composição XML são transporte mecânico, medido antes da decisão. ADR-0127:
+correção interna test-only sem API, default, fase ou compatibilidade nova,
+portanto fluxo contínuo. ADR-0129: owner/consumer permanece estritamente 1:1.
 
 ## Contrato do consumer
 
@@ -130,18 +166,19 @@ ressella; não se adapta expectativa ao candidato.
 ## Ownership, lineage e verificação
 
 Este prompt possui exatamente o consumer `04_wiring/tests/p1292_contract.rs`
-e não legitima código produtivo nem qualquer outro teste. O autor independente
-adiciona ao consumer, sem mudar os casos até nova autorização:
+e não legitima código produtivo nem qualquer outro teste. O consumer vigente
+já contém o header abaixo com `@prompt-hash 41dd2e0e`; após esta revisão L0,
+somente esse hash fica transitoriamente desatualizado até o resselo mecânico:
 
 ```text
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1292_contract.md
-//! @prompt-hash <sha256 deste L0, 8 hex>
+//! @prompt-hash 41dd2e0e
 //! @layer L4
 //! @updated 2026-09-01
 ```
 
 Gates: teste focal, controles bilaterais registrados, V1/V5/V15/V26,
 `cargo fmt --all -- --check`, `git diff --check` e whitespace dos untracked.
-Até o header existir, somente o órfão V15 deste prompt/consumer é transitório;
-qualquer outra violação bloqueia.
+O próximo passo permitido é apenas atualizar o header e corrigir o transporte
+do parser conforme esta obrigação; qualquer outro drift bloqueia.

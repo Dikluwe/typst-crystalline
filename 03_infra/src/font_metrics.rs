@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 5f1a8078
+//! @prompt-hash 57461647
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -453,7 +453,7 @@ fn is_variation_selector(c: char) -> bool {
 /// o script, deixando o pedido genérico de `ssty` inerte. Ver correcção
 /// de escopo em `infra/font_metrics.md` §P977.
 fn ssty_level_of(style: &TextStyle, ssty_eligible: bool) -> Option<u8> {
-    if !style.math || !ssty_eligible {
+    if !style.math || style.math_text_item || !ssty_eligible {
         return None;
     }
     match style.math_size {
@@ -525,7 +525,7 @@ impl FontMetrics for FontBookMetrics<'_> {
         let mut base_chars = text.chars().filter(|c| !is_variation_selector(*c));
         let base_char = base_chars.next();
         let is_single_base = base_char.is_some() && base_chars.next().is_none();
-        if style.math && is_single_base {
+        if style.math && !style.math_text_item && is_single_base {
             let c = base_char.unwrap();
             if let Some(gid) = self.face.glyph_index(c) {
                 let gid = match ssty_level_of(style, true) {
@@ -992,6 +992,9 @@ struct AdvanceWidthKey {
     /// sem este campo, uma medição em prosa e outra em math com o mesmo
     /// texto/estilo colidiam na cache.
     math: bool,
+    /// **P1293** — em math, `TextItem` e `GlyphFragment` partilham fonte e
+    /// tamanho, mas somente o segundo recebe italics correction.
+    math_text_item: bool,
     /// **P977** — o advance muda por nível MathSize (variante ssty).
     math_size: u8,
 }
@@ -1159,6 +1162,7 @@ impl<'a> FallbackFontMetrics<'a> {
             lang: style.lang,
             axis_hash,
             math: style.math,
+            math_text_item: style.math_text_item,
             math_size: style.math_size as u8,
         })
     }
@@ -1514,11 +1518,11 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             // `x_advance += italics_correction`. Só `style.math` e só 1
             // carácter (texto math multi-carácter é run, sem o termo).
             // `infra/font_metrics.md` §P975.
-            let is_math = style.math;
+            let is_math_glyph = style.math && !style.math_text_item;
             let mut base_chars = text.chars().filter(|c| !is_variation_selector(*c));
             let is_single_base =
                 base_chars.next().is_some() && base_chars.next().is_none();
-            if is_math && is_single_base {
+            if is_math_glyph && is_single_base {
                 if let Some((slot_idx, gid)) = last_base {
                     if let Some(cached) = self.cached_face(slot_idx) {
                         let face = cached.face();
@@ -3370,5 +3374,79 @@ mod tests {
                 "variante de operador grande sem codepoint deve cair no base_char"
             );
         }
+    }
+
+    #[test]
+    fn p1293_fontbook_textitem_math_suprime_somente_ic() {
+        use typst_core::compiler::layout::FontMetrics;
+
+        let c = '\u{1D453}'; // 𝑓 — possui IC não-zero na fonte MATH embutida.
+        let data = typst_assets::fonts()
+            .find(|data| {
+                let Ok(face) = ttf_parser::Face::parse(data, 0) else { return false };
+                let Some(gid) = face.glyph_index(c) else { return false };
+                face.tables()
+                    .math
+                    .and_then(|m| m.glyph_info)
+                    .and_then(|gi| gi.italic_corrections)
+                    .and_then(|ic| ic.get(gid))
+                    .is_some_and(|value| value.value != 0)
+            })
+            .expect("fonte MATH embutida com IC não-zero para 𝑓");
+        let metrics = FontBookMetrics::from_bytes(data).expect("fonte válida");
+        let size = Pt(11.0);
+        let glyph_style = TextStyle {
+            math: true,
+            math_text_item: false,
+            ..TextStyle::regular(size)
+        };
+        let textitem_style = TextStyle { math_text_item: true, ..glyph_style.clone() };
+
+        let glyph = metrics.advance(&c.to_string(), size, &glyph_style);
+        let textitem = metrics.advance(&c.to_string(), size, &textitem_style);
+        let ic = metrics.char_italics_correction(c, size, &glyph_style);
+
+        assert!(ic.val() > 0.0, "fixture precisa de IC discriminatória");
+        assert!((glyph.val() - textitem.val() - ic.val()).abs() < 1e-9);
+        assert!(glyph > textitem);
+    }
+
+    #[test]
+    fn p1293_advance_width_key_distingue_proveniencia_textitem() {
+        let glyph_style = TextStyle {
+            math: true,
+            math_text_item: false,
+            ..TextStyle::regular(Pt(11.0))
+        };
+        let textitem_style = TextStyle { math_text_item: true, ..glyph_style.clone() };
+
+        let glyph = FallbackFontMetrics::advance_width_key("x", &glyph_style).unwrap();
+        let textitem =
+            FallbackFontMetrics::advance_width_key("x", &textitem_style).unwrap();
+        assert_ne!(glyph, textitem, "a cache não pode colidir entre glifo e TextItem");
+    }
+
+    #[test]
+    fn p1293_textitem_ssty_fallback_exclui_somente_proveniencia_textual() {
+        let script_glyph = TextStyle {
+            math: true,
+            math_text_item: false,
+            math_size: MathSize::Script,
+            ..TextStyle::regular(Pt(11.0))
+        };
+        let script_textitem = TextStyle { math_text_item: true, ..script_glyph.clone() };
+        let scriptscript_glyph = TextStyle {
+            math_size: MathSize::ScriptScript,
+            ..script_glyph.clone()
+        };
+        let scriptscript_textitem =
+            TextStyle { math_text_item: true, ..scriptscript_glyph.clone() };
+
+        assert!(script_textitem.math, "TextItem deve preservar o contexto math");
+        assert_eq!(ssty_level_of(&script_textitem, true), None);
+        assert_eq!(ssty_level_of(&scriptscript_textitem, true), None);
+        assert_eq!(ssty_level_of(&script_glyph, true), Some(1));
+        assert_eq!(ssty_level_of(&scriptscript_glyph, true), Some(2));
+        assert_eq!(ssty_level_of(&script_glyph, false), None);
     }
 }

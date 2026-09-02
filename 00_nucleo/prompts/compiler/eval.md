@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 403a8e81
+Hash do Código: c0181201
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -126,3 +126,47 @@ O diagnóstico de binding gated ausente conserva a semântica pública medida de
 feature não habilitada. O mecanismo concreto pode ser scope filtrado ou lookup
 condicional; igualdade estrutural do scope não é contrato. Não criar binding
 stub nem registrar só uma das três funções.
+
+## P1293 — identidades públicas curtas nos namespaces `grid` e `table`
+
+### Medição anterior à decisão
+
+Em `2026-09-01T13:24:01-03:00`, no baseline
+`7dd25ff0e222b6c7c640d6bc7957b98f94227507` com working tree não commitada,
+`01_core/src/compiler/eval/mod.rs:1804-1827,2059-2078` instalava os dez fields
+corretos, mas passava nomes `grid_*`/`table_*` a `Func::native`. Os aliases flat
+separados permanecem em `:2083-2110`. A fonte vanilla pinada
+`layout/grid/mod.rs:422-438,574-677,767-768` e
+`model/table.rs:289-305,494-613,732-733` declara nomes curtos. O recibo P1293
+mediu chamadas diretas e via `.with` para os dez siblings e confirmou que a
+causa da diferença pública é somente o primeiro argumento textual da instância
+namespaced.
+
+### Decisão
+
+Cada instância anexada ao namespace usa exatamente este nome público:
+
+| Namespace | members e `repr` |
+|---|---|
+| `grid` | `cell`, `header`, `footer`, `hline`, `vline` |
+| `table` | `cell`, `header`, `footer`, `hline`, `vline` |
+
+Chaves de scope, function pointers, argumentos, payloads e chamada direta ou
+via `.with(...)` permanecem os vigentes. Os seis aliases flat cristalinos
+`grid_cell`, `grid_header`, `grid_footer`, `table_cell`, `table_header` e
+`table_footer` conservam seus nomes históricos; P1293 não cria aliases flat
+`*_hline`/`*_vline` nem renomeia símbolos Rust.
+
+O baseline também mediu uma divergência preexistente fora das 15 diferenças
+de superfície: `grid/table.header` e `footer` cristalinos exigem pelo menos uma
+célula, enquanto o vanilla aceita zero ou vários children, e algumas aridades
+extras alcançam serializer/diagnóstico diferente. P1293 **não** corrige nem
+reivindica paridade dessa aridade/diagnóstico; os calls atuais devem ser
+preservados byte a byte quanto a function pointer e comportamento. Uma mudança
+nessa divergência exige medição e L0 próprios.
+
+Aceitação exige os dez nomes curtos, os mesmos tipos de conteúdo, `.with`
+preservado e aliases flat intactos. Algum sibling com underscore, pointer/call
+alterado ou divergência fora de escopo relaxada bloqueia o lote. `Unknown`
+nunca é sucesso. A mudança de identidade pública fica bloqueada pelo gate
+humano P1293 antes do código.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 6058051a
+//! @prompt-hash 79a8abaf
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1805,19 +1805,15 @@ fn make_stdlib_with_features(
     {
         let mut grid_namespace = Scope::new();
         grid_namespace
-            .define("cell", Value::Func(Func::native("grid_cell", native_grid_cell)));
-        grid_namespace.define(
-            "header",
-            Value::Func(Func::native("grid_header", native_grid_header)),
-        );
-        grid_namespace.define(
-            "footer",
-            Value::Func(Func::native("grid_footer", native_grid_footer)),
-        );
+            .define("cell", Value::Func(Func::native("cell", native_grid_cell)));
         grid_namespace
-            .define("hline", Value::Func(Func::native("grid_hline", native_grid_hline)));
+            .define("header", Value::Func(Func::native("header", native_grid_header)));
         grid_namespace
-            .define("vline", Value::Func(Func::native("grid_vline", native_grid_vline)));
+            .define("footer", Value::Func(Func::native("footer", native_grid_footer)));
+        grid_namespace
+            .define("hline", Value::Func(Func::native("hline", native_grid_hline)));
+        grid_namespace
+            .define("vline", Value::Func(Func::native("vline", native_grid_vline)));
         scope.define(
             "grid",
             Value::Func(Func::native_with_namespace(
@@ -2060,15 +2056,14 @@ fn make_stdlib_with_features(
     // P512 — adiciona table.hline / table.vline.
     let mut table_namespace = Scope::new();
     table_namespace
-        .define("header", Value::Func(Func::native("table_header", native_table_header)));
+        .define("header", Value::Func(Func::native("header", native_table_header)));
     table_namespace
-        .define("footer", Value::Func(Func::native("table_footer", native_table_footer)));
+        .define("footer", Value::Func(Func::native("footer", native_table_footer)));
+    table_namespace.define("cell", Value::Func(Func::native("cell", native_table_cell)));
     table_namespace
-        .define("cell", Value::Func(Func::native("table_cell", native_table_cell)));
+        .define("hline", Value::Func(Func::native("hline", native_table_hline)));
     table_namespace
-        .define("hline", Value::Func(Func::native("table_hline", native_table_hline)));
-    table_namespace
-        .define("vline", Value::Func(Func::native("table_vline", native_table_vline)));
+        .define("vline", Value::Func(Func::native("vline", native_table_vline)));
     scope.define(
         "table",
         Value::Func(Func::native_with_namespace(
@@ -2200,6 +2195,70 @@ mod p1292_d_tests {
 
         let with = place.clone().with(Args::positional(Vec::new()));
         assert!(with.namespace().unwrap().get("flush").is_some());
+    }
+}
+#[cfg(test)]
+mod p1293_d_tests {
+    use super::*;
+    use crate::entities::args::Args;
+
+    fn assert_short_namespace_names(namespace_name: &str) {
+        let stdlib = make_stdlib(&SysInputs::default());
+        let Value::Func(container) = stdlib.get(namespace_name).unwrap() else {
+            panic!("{namespace_name} must remain callable");
+        };
+        let namespace = container.namespace().expect("namespace must exist");
+        let with_container = container.clone().with(Args::positional(Vec::new()));
+        let with_namespace =
+            with_container.namespace().expect("with must preserve namespace");
+
+        for expected in ["cell", "header", "footer", "hline", "vline"] {
+            let Value::Func(member) = namespace.get(expected).unwrap() else {
+                panic!("{namespace_name}.{expected} must remain callable");
+            };
+            assert_eq!(member.name(), Some(expected));
+            assert_eq!(
+                member.clone().with(Args::positional(Vec::new())).name(),
+                Some(expected),
+            );
+
+            let Value::Func(with_member) = with_namespace.get(expected).unwrap() else {
+                panic!("{namespace_name}.with(...).{expected} must remain callable");
+            };
+            assert_eq!(with_member.name(), Some(expected));
+        }
+    }
+
+    #[test]
+    fn p1293_d_grid_namespace_uses_short_names_direct_and_with() {
+        assert_short_namespace_names("grid");
+    }
+
+    #[test]
+    fn p1293_d_table_namespace_uses_short_names_direct_and_with() {
+        assert_short_namespace_names("table");
+    }
+
+    #[test]
+    fn p1293_d_flat_aliases_keep_historical_names_and_lines_stay_namespaced() {
+        let stdlib = make_stdlib(&SysInputs::default());
+        for alias in [
+            "grid_cell",
+            "grid_header",
+            "grid_footer",
+            "table_cell",
+            "table_header",
+            "table_footer",
+        ] {
+            let Value::Func(function) = stdlib.get(alias).unwrap() else {
+                panic!("{alias} must remain callable");
+            };
+            assert_eq!(function.name(), Some(alias));
+        }
+
+        for absent in ["grid_hline", "grid_vline", "table_hline", "table_vline"] {
+            assert!(stdlib.get(absent).is_none(), "{absent} must stay namespaced");
+        }
     }
 }
 #[cfg(test)]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text.md
-//! @prompt-hash 218dd82f
+//! @prompt-hash f23d45b2
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -185,6 +185,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P784 — herda do style corrente (regular ou math); este merge não
         // é math-específico, só reflecte o valor já activo no layouter.
         math: layouter.style.math,
+        // P1293 — preserva a proveniência já escolhida pelo layouter math;
+        // este merge textual não sintetiza nem apaga `TextItem`.
+        math_text_item: layouter.style.math_text_item,
         // P891 — mesmo motivo: herda o valor já activo, este merge não é
         // script-específico.
         math_script: layouter.style.math_script,

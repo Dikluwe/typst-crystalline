@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash a181f89d
+//! @prompt-hash 050dfb36
 //! @layer L3
 //! @updated 2026-07-23
 
@@ -531,7 +531,23 @@ pub fn export_pdf_oracle(
 
 // ── Exportação PNG/SVG (P870) ──────────────────────────────────────────────
 
-pub use self::html::export_html;
+pub use self::html::{
+    export_html, export_html_with_serialization, HtmlSerializationMode,
+};
+
+#[cfg(test)]
+mod p1293_tests {
+    use super::{export_html, export_html_with_serialization, HtmlSerializationMode};
+
+    #[test]
+    fn p1293_c_facade_reexporta_api_sem_duplicar_tipo() {
+        let _old = export_html;
+        let _new = export_html_with_serialization;
+        let _mode = HtmlSerializationMode::Crystalline;
+        assert!(std::any::type_name::<HtmlSerializationMode>()
+            .ends_with("export::html::HtmlSerializationMode"));
+    }
+}
 pub use self::render::{
     render_document_to_png, render_page_to_png, render_page_to_png_with_fonts, FontKey,
     RenderOptions,

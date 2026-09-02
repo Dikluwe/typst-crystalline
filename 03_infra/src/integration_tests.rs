@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash b920414e
+//! @prompt-hash 75a971ae
 //! @layer L3
 //! @updated 2026-04-03 (Passo 34)
 
@@ -34,20 +34,66 @@ mod integration {
     fn frame_items_recursive(
         items: &[typst_core::entities::layout_types::FrameItem],
     ) -> Vec<&typst_core::entities::layout_types::FrameItem> {
-        use typst_core::entities::layout_types::FrameItem;
-        fn walk<'a>(items: &'a [FrameItem], out: &mut Vec<&'a FrameItem>) {
+        use typst_core::entities::layout_types::{FrameItem, Point, Pt, TransformMatrix};
+
+        fn project_point(transform: TransformMatrix, point: Point) -> Point {
+            let (x, y) = transform.apply(point.x.0, point.y.0);
+            Point { x: Pt(x), y: Pt(y) }
+        }
+
+        fn project_item<'a>(
+            item: &'a FrameItem,
+            transform: TransformMatrix,
+        ) -> &'a FrameItem {
+            if transform == TransformMatrix::identity() {
+                return item;
+            }
+
+            let mut projected = item.clone();
+            match &mut projected {
+                FrameItem::Text { pos, .. }
+                | FrameItem::TextShaped { pos, .. }
+                | FrameItem::Glyph { pos, .. }
+                | FrameItem::Image { pos, .. }
+                | FrameItem::Shape { pos, .. }
+                | FrameItem::Group { pos, .. }
+                | FrameItem::Link { pos, .. } => *pos = project_point(transform, *pos),
+                FrameItem::Line { start, end, .. } => {
+                    *start = project_point(transform, *start);
+                    *end = project_point(transform, *end);
+                }
+                FrameItem::Semantic { .. } => {}
+            }
+
+            // O helper preserva a API histórica de referências usada pela
+            // suíte. As cópias projetadas vivem até ao fim do processo de
+            // teste; não entram em produto nem em estado persistente.
+            Box::leak(Box::new(projected))
+        }
+
+        fn walk<'a>(
+            items: &'a [FrameItem],
+            transform: TransformMatrix,
+            out: &mut Vec<&'a FrameItem>,
+        ) {
             for item in items {
-                out.push(item);
+                out.push(project_item(item, transform));
                 match item {
-                    FrameItem::Semantic { items, .. }
-                    | FrameItem::Group { items, .. }
-                    | FrameItem::Link { items, .. } => walk(items, out),
+                    FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+                        walk(items, transform, out)
+                    }
+                    FrameItem::Group { pos, matrix, items, .. } => {
+                        let group_transform = transform
+                            .concat(&TransformMatrix::translate(pos.x.0, pos.y.0))
+                            .concat(matrix);
+                        walk(items, group_transform, out);
+                    }
                     _ => {}
                 }
             }
         }
         let mut out = Vec::new();
-        walk(items, &mut out);
+        walk(items, TransformMatrix::identity(), &mut out);
         out
     }
 
