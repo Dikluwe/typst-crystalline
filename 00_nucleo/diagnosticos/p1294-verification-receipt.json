@@ -1,0 +1,568 @@
+{
+  "schema": "tekt.p1294.verification-receipt.v1",
+  "step": 1294,
+  "role": "S3_INDEPENDENT_VERIFIER_AND_CERTIFIER",
+  "phase": "S3_VERIFICATION_BLOCKED_NO_CERTIFICATE",
+  "started_at": "2026-09-02T21:54:37-03:00",
+  "finished_at": "2026-09-02T22:06:54-03:00",
+  "timezone": "America/Sao_Paulo",
+  "regime": "full-segregated-by-capabilities-and-artifacts-without-technical-read-isolation",
+  "verdict": "BLOCKED",
+  "certificate_authorized": false,
+  "report_authorized": false,
+  "authoritative_step": {
+    "path": "00_nucleo/materialization/typst-passo-1294.md",
+    "sha256": "10d6393ad9615f0ed38bc7ad8192d167a5bf91388e52cf38a1acb4271b1cc2e4"
+  },
+  "role_authority": {
+    "read_inputs": "authoritative step, frozen P1294 manifest and seal, frozen P1293 artifacts and baseline tree, required gate outputs",
+    "repository_write_allowlist_this_phase": [
+      "00_nucleo/diagnosticos/p1294-verification-receipt.json"
+    ],
+    "repository_files_written_by_s3": [
+      "00_nucleo/diagnosticos/p1294-verification-receipt.json"
+    ],
+    "manifest_or_seal_written_by_s3": false,
+    "product_l0_nucleus_test_oracle_lab_or_p1293_written_by_s3": false,
+    "git_add_commit_or_index_mutation_performed": false,
+    "technical_read_isolation_claimed": false
+  },
+  "runtime": {
+    "python": "Python 3.12.3",
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+    "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+    "working_directory": "/repos/Antigravity/typst-crystalline",
+    "integrity_helper": {
+      "path": "/tmp/p1294-s3-integrity.py",
+      "sha256": "c0f5f305e66455bf09b117e7480609f9dffc0d4daf99ff6cef0359e24c9ee742"
+    },
+    "surface_runner": {
+      "path": "lab/surface-inventory/run_probes.py",
+      "sha256": "3bd082751fbd05c89f24a312353d81f74f2882902db5a203180e5ee5fb2c10cf"
+    },
+    "frozen_base_surface_probes": {
+      "path": "lab/surface-inventory/probes.json",
+      "sha256": "1e7534a0cc8ebcfa1f5ed6652918711b738d7471d94a883a500becf297357b78"
+    }
+  },
+  "tree_state": {
+    "baseline_commit": "5079a0cdfaedc406b7c036ac61e40d7f6a1264d6",
+    "baseline_commit_date": "2026-09-02T20:55:50-03:00",
+    "baseline_subject": "feat: close parity work through step 1293",
+    "head_during_all_gates": "5079a0cdfaedc406b7c036ac61e40d7f6a1264d6",
+    "branch": "Tekt",
+    "pre_receipt_measured_at": "2026-09-02T22:05:50-03:00",
+    "pre_receipt_status_porcelain_v2": [
+      "? 00_nucleo/diagnosticos/p1294-sanitization-manifest.json",
+      "? 00_nucleo/diagnosticos/p1294-terminal-seal.json",
+      "? 00_nucleo/materialization/typst-passo-1294.md"
+    ],
+    "expected_immediate_post_receipt_untracked_addition": "00_nucleo/diagnosticos/p1294-verification-receipt.json",
+    "tracked_diff_against_baseline_count": 0,
+    "renames_against_baseline": 0,
+    "deletions_against_baseline": 0,
+    "differences_outside_whole_step_allowlist": 0,
+    "certificate_or_report_present_at_freeze": false,
+    "command": "git status --porcelain=v2 --untracked-files=all; git diff --name-status 5079a0cdfaedc406b7c036ac61e40d7f6a1264d6; git diff --summary 5079a0cdfaedc406b7c036ac61e40d7f6a1264d6; git diff HEAD --stat",
+    "exit_code": 0,
+    "log": "/tmp/p1294-s3-tree-state-pre-receipt.log",
+    "log_bytes": 583,
+    "log_sha256": "4f494d2446e84230d9b05917079957fc5f8236af4824c048942878f44e4fb8cb"
+  },
+  "frozen_raw_sha256": {
+    "00_nucleo/diagnosticos/p1294-sanitization-manifest.json": "0d3f24c9ac3f5691d4f07c1658440b58134bb9e94fd5d7e47f42ff84bedf7c41",
+    "00_nucleo/diagnosticos/p1294-terminal-seal.json": "352ad6184b4c25c3ec5136ff56cca7ec8600885f69f89d248506fa698d4546a0",
+    "00_nucleo/diagnosticos/p1293-manifest.json": "6c8571c03437749598d736025296b190a4e3839730eec68be6368e4b5479b03c",
+    "00_nucleo/diagnosticos/p1293-contract-seal.json": "02701249dfeb7eaf0130c71b87393345bf93dfdefd87a72b489f897f5aba723c",
+    "00_nucleo/diagnosticos/p1293-final-certificate.json": "52d9f7f2d0aef71b697453c46c55aefdb695754470f0dd45f5f7ce85df378660",
+    "00_nucleo/diagnosticos/p1293-final-verification-receipt.json": "2ade14a5fc97b240e7c419925c6c3361b05c45e0315bc2f9ffadb244eefe87a6",
+    "00_nucleo/diagnosticos/p1293-preservation-verification-receipt.json": "396c05a5319df8549e934a3764f3a0c42183fb3fa2174b346783bf430f7aa1b5",
+    "00_nucleo/diagnosticos/p1293-final-report.md": "698362737ed9f1ffa2169a3d1ad519ad43a2bfa0513b2c39ebe59a7a2c092206",
+    "04_wiring/tests/p1292_contract.rs": "5104b48ff89766e9910cd3a39eef3706fe0c8539a0fa6cb7dafcb3cf66a7484a",
+    "04_wiring/tests/p1293_contract.rs": "2505aa34538067c743530f4a15feaf0a1b937c24bb51e2abdd64c1bc4151c7cb"
+  },
+  "integrity_gate": {
+    "canonicalization": "json.dumps(object, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False).encode(\"utf-8\")",
+    "strict_json_without_duplicate_keys": {
+      "p1294_manifest": true,
+      "p1294_seal": true
+    },
+    "sanitized_terminal": {
+      "json_path": "$.sanitized_terminal",
+      "canonical_bytes": 7870,
+      "canonical_sha256": "6238a84f546d7b15c18b64f6a9402008d2b4c59d719f189ef6f828aaf21d8868",
+      "metadata_equal": true
+    },
+    "historical_predecessor": {
+      "json_path": "$.updated_definitive_final_candidate_read_only",
+      "canonical_bytes": 5719,
+      "canonical_sha256": "04460e7920e9f87269b2594829aeb7e9cb878bd4373d1c94cb85ded45f2e8fbc"
+    },
+    "historical_terminal": {
+      "json_path": "$.final_complete_read_only",
+      "canonical_bytes": 4588,
+      "canonical_sha256": "077559cc1632cdd684532c2dec1638a9f57277b806b8263e519cadad7e50f045",
+      "metadata_declared_sha256": "077559cc1632cdd684532c2dec1638a9f57277b806b8263e519cadad7e50f045",
+      "metadata_equal": true,
+      "refuted_digest_claim": "dcb5a0911cb9e9f7c1ecd8cb89a1697b8a058972b92bfd052be95ef24d5ff394",
+      "refuted_digest_produced_by_required_algorithm": false,
+      "status": "VALID_UNCHANGED"
+    },
+    "historical_duplicate_key": {
+      "json_path": "$.contract_reopening_attach_ic_b.replacement_serial_seal",
+      "all_duplicate_key_paths_in_document": [
+        {
+          "path": "$.contract_reopening_attach_ic_b.replacement_serial_seal",
+          "occurrence_count": 2
+        }
+      ],
+      "occurrence_count": 2,
+      "object_pairs_detection": true,
+      "silent_last_wins_used_as_proof": false,
+      "ordered_occurrences": [
+        {
+          "textual_index": 1,
+          "canonical_bytes": 864,
+          "canonical_sha256": "181f102cb6c57b4a3d33e0ec3891f6e53e5683eee5a9f9d13140ca8a458c6679"
+        },
+        {
+          "textual_index": 2,
+          "canonical_bytes": 581,
+          "canonical_sha256": "029fcf801a8ff169b2aba3024873fed28d5b45949247f104ba87135c39e50fb2"
+        }
+      ],
+      "materialized_values_equal_manifest_and_seal": true,
+      "historical_bytes_rewritten": false
+    },
+    "effective_inventory": {
+      "base_paths": 70,
+      "additions": 4,
+      "l0_and_nuclei": 32,
+      "product_tests_and_oracles": 42,
+      "total": 74,
+      "present": 74,
+      "missing": 0,
+      "divergent": 0,
+      "canonical_bytes": 8083,
+      "canonical_sha256": "33fe3dcd9cd287b24a82e255f7dffd2728cc76aab969ad5b049d35bbcf7b9c42",
+      "base_plus_additions_equals_materialized_inventory": true
+    },
+    "six_final_p1293_artifact_hashes_match": true,
+    "p1292_and_p1293_oracles_byte_identical": true,
+    "repetitions": [
+      {
+        "command": "python3 /tmp/p1294-s3-integrity.py",
+        "exit_code": 0,
+        "order": "document_object_insertion",
+        "log": "/tmp/p1294-s3-integrity-normal-1.log",
+        "log_bytes": 2932,
+        "log_sha256": "133a8ba9da04f439cc0077b7d91e9f5703675f0601c7ba24c2d8b179bd413c3e"
+      },
+      {
+        "command": "python3 /tmp/p1294-s3-integrity.py",
+        "exit_code": 0,
+        "order": "document_object_insertion_new_process",
+        "log": "/tmp/p1294-s3-integrity-normal-2.log",
+        "log_bytes": 2932,
+        "log_sha256": "133a8ba9da04f439cc0077b7d91e9f5703675f0601c7ba24c2d8b179bd413c3e"
+      },
+      {
+        "command": "python3 /tmp/p1294-s3-integrity.py --reverse-object-order",
+        "exit_code": 0,
+        "order": "reverse_recursive_object_insertion_new_process",
+        "log": "/tmp/p1294-s3-integrity-reverse-final.log",
+        "log_bytes": 2941,
+        "log_sha256": "a6c34b721381a7665494945cbbc64e2d86f756c2fd17897ac11caef5bc7e99b9"
+      },
+      {
+        "command": "python3 /tmp/p1294-s3-integrity.py",
+        "exit_code": 0,
+        "order": "final_preservation_recheck_after_all_executed_gates",
+        "log": "/tmp/p1294-s3-integrity-final.log",
+        "log_bytes": 2932,
+        "log_sha256": "133a8ba9da04f439cc0077b7d91e9f5703675f0601c7ba24c2d8b179bd413c3e"
+      }
+    ],
+    "verdict": "PASS"
+  },
+  "architecture_gates": [
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-cargo-fmt.log",
+      "log_bytes": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verdict": "PASS"
+    },
+    {
+      "command": "crystalline-lint .",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-lint-full.log",
+      "log_bytes": 266140,
+      "log_sha256": "022d8ee994430ca2dc4811538629909afc600975d6a0d3e25de50d4eaa365ca8",
+      "verdict": "PASS_EXIT_ZERO"
+    },
+    {
+      "command": "crystalline-lint --checks v3 --fail-on warning .",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-lint-v3.log",
+      "log_bytes": 24,
+      "log_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "verdict": "PASS_NO_VIOLATIONS"
+    },
+    {
+      "command": "crystalline-lint --checks v4 --fail-on warning .",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-lint-v4.log",
+      "log_bytes": 24,
+      "log_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "verdict": "PASS_NO_VIOLATIONS"
+    },
+    {
+      "command": "crystalline-lint --checks v5 --fail-on warning .",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-lint-v5.log",
+      "log_bytes": 24,
+      "log_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "verdict": "PASS_NO_VIOLATIONS"
+    },
+    {
+      "command": "crystalline-lint --checks v7 --fail-on warning .",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-lint-v7.log",
+      "log_bytes": 24,
+      "log_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "verdict": "PASS_NO_VIOLATIONS"
+    },
+    {
+      "command": "crystalline-lint --checks v13 --fail-on warning .",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-lint-v13.log",
+      "log_bytes": 24,
+      "log_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "verdict": "PASS_NO_VIOLATIONS"
+    },
+    {
+      "command": "crystalline-lint --checks v14 --fail-on warning .",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-lint-v14.log",
+      "log_bytes": 24,
+      "log_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "verdict": "PASS_NO_VIOLATIONS"
+    },
+    {
+      "command": "crystalline-lint --checks v15 --fail-on warning .",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-lint-v15.log",
+      "log_bytes": 24,
+      "log_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "verdict": "PASS_NO_VIOLATIONS"
+    },
+    {
+      "command": "crystalline-lint --checks v26 --fail-on warning .",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-lint-v26.log",
+      "log_bytes": 24,
+      "log_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "verdict": "PASS_NO_VIOLATIONS"
+    },
+    {
+      "command": "crystalline-lint --fix-hashes --dry-run .",
+      "exit_code": 0,
+      "stdout_exact": "Nothing to fix\n",
+      "log": "/tmp/p1294-s3-fix-hashes-dry-run.log",
+      "log_bytes": 15,
+      "log_sha256": "bf3511c5c7cb1a9202071d8a2d60204a30f29cc11ee58ff2963a063a9f835b25",
+      "verdict": "PASS_NOTHING_TO_FIX"
+    }
+  ],
+  "protected_contract_orders": [
+    {
+      "sequence": 1,
+      "order": "P1292_THEN_P1293",
+      "runs": [
+        {
+          "command": "cargo test -p typst-wiring --test p1292_contract -- --nocapture",
+          "exit_code": 0,
+          "passed": 11,
+          "failed": 0,
+          "log": "/tmp/p1294-s3-order-forward-p1292.log",
+          "log_bytes": 33567,
+          "log_sha256": "c8d40c670b08eeff8bd6b1dda9ad0587fa2a5606499a162996038722aa7a8dcd",
+          "verdict": "PASS_11_OF_11"
+        },
+        {
+          "command": "cargo test -p typst-wiring --test p1293_contract -- --nocapture",
+          "exit_code": 0,
+          "passed": 11,
+          "failed": 0,
+          "log": "/tmp/p1294-s3-order-forward-p1293.log",
+          "log_bytes": 33510,
+          "log_sha256": "5abba28487be9fa598d7d525c1800025b30475d5f015698c14d8fb99ad0dec17",
+          "verdict": "PASS_11_OF_11"
+        }
+      ]
+    },
+    {
+      "sequence": 2,
+      "order": "P1293_THEN_P1292",
+      "runs": [
+        {
+          "command": "cargo test -p typst-wiring --test p1293_contract -- --nocapture",
+          "exit_code": 0,
+          "passed": 11,
+          "failed": 0,
+          "log": "/tmp/p1294-s3-order-reverse-p1293.log",
+          "log_bytes": 33428,
+          "log_sha256": "2c1053c856abc215fb4dbf986ec33cd5603055aa777c45d98fd52e0d872cd03a",
+          "verdict": "PASS_11_OF_11"
+        },
+        {
+          "command": "cargo test -p typst-wiring --test p1292_contract -- --nocapture",
+          "exit_code": 0,
+          "passed": 11,
+          "failed": 0,
+          "log": "/tmp/p1294-s3-order-reverse-p1292.log",
+          "log_bytes": 33405,
+          "log_sha256": "da21a0fd3475c51f7da7db6fea573d33370d24d16498543e104a7060d46b2059",
+          "verdict": "PASS_11_OF_11"
+        }
+      ]
+    }
+  ],
+  "workspace_repetitions": [
+    {
+      "repetition": 1,
+      "command": "cargo test --workspace -q",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-workspace-1.log",
+      "log_bytes": 261277,
+      "log_sha256": "b76ed32ce7c6ba27834f8a383f94ef2692a85256834267e42a697bcebe07d401",
+      "failed_tests": 0,
+      "verdict": "PASS"
+    },
+    {
+      "repetition": 2,
+      "command": "cargo test --workspace -q",
+      "exit_code": 101,
+      "log": "/tmp/p1294-s3-workspace-2.log",
+      "log_bytes": 260699,
+      "log_sha256": "4f0993225a7d7b2b1efed6d45c6911483438e3be0e98feff560ecbc3f4190d06",
+      "failed_tests": 1,
+      "failed_test": "p1137_watch_dependencias_recuperacao_e_filtro",
+      "failure": "condition was not met within 20s",
+      "failing_binary_summary": "70 passed; 1 failed; finished in 23.07s",
+      "later_green_run_used_to_erase_failure": false,
+      "causally_attributed_to_p1293": false,
+      "historical_flake_absolved": false,
+      "verdict": "FAIL_BLOCKING"
+    }
+  ],
+  "release_build": {
+    "command": "cargo build --release",
+    "exit_code": 0,
+    "log": "/tmp/p1294-s3-release-build.log",
+    "log_bytes": 32630,
+    "log_sha256": "b498b1858bae6e697b3aa2021a82e5bf4a88af64548a6b5cac1a14f96a570b99",
+    "expected_binary_sha256": "c527b4111493f444d66e44e6d38d4823b2d09515c73d92eda1b9c4a2a86bff90",
+    "actual_binary_sha256_after_build": "10fd9cf488be69cfc35796f4535e3efab71a970be874d5bbfee194e7c4460151",
+    "binary_hash_match": false,
+    "binary_version_output": "typst 0.15.1 (5079a0cd)",
+    "verdict": "FAIL_BLOCKING_BINARY_HASH_MISMATCH"
+  },
+  "surfaces": {
+    "probe_materialization": {
+      "method": "For each profile, derive an exact immutable probe vector from every frozen P1293 result by removing only run-generated fields profile, features, vanilla, crystalline, same and verdict; retain id, expression, profiles, path, classification and access_form when present.",
+      "command": "python3 - <<'PY' # exact frozen probe vector extraction recorded by log",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-surface-probes-exact-build.log",
+      "log_bytes": 21,
+      "log_sha256": "c31749327f67f0f73df433932c1b2710acc5521ecdcb0a125e7c9a43e066a5c6",
+      "default_probe_count": 111,
+      "default_probe_vector_path": "/tmp/p1294-s3-probes-default-exact.json",
+      "default_probe_vector_sha256": "3b162e4bbc58b4855cbb2ed4831922b71827cbbad2645c6403ea45627c93ef16",
+      "html_probe_count": 115,
+      "html_probe_vector_path": "/tmp/p1294-s3-probes-html-exact.json",
+      "html_probe_vector_sha256": "d91e9a1e5cbe71118798378ec85829b18585247164596012fdc33cc2bd58d4e2"
+    },
+    "reference_binary": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    },
+    "candidate_binary": {
+      "path": "target/release/typst",
+      "sha256": "10fd9cf488be69cfc35796f4535e3efab71a970be874d5bbfee194e7c4460151"
+    },
+    "default": {
+      "command": "python3 lab/surface-inventory/run_probes.py --profile default --vanilla-bin /usr/local/bin/typst --crystalline-bin target/release/typst --probes /tmp/p1294-s3-probes-default-exact.json --output /tmp/p1294-s3-surface-default-exact.json",
+      "exit_code": 0,
+      "run_log": "/tmp/p1294-s3-surface-default-exact-run.log",
+      "run_log_bytes": 56,
+      "run_log_sha256": "537a8b69ad07adb74c293e72c5da5fe6a39a5d9d96838166bf9100a36f7b6092",
+      "output_path": "/tmp/p1294-s3-surface-default-exact.json",
+      "output_sha256": "3be54ad82a73d13728997dea44fb2bdce5c98033884cf7be60f1bf0d0727e191",
+      "frozen_path": "00_nucleo/diagnosticos/p1293-surface-default.json",
+      "frozen_sha256": "72a50909525231baafbdefbbc95e2c827eaab833f1062b01f5347636fb4d1106",
+      "counts": {
+        "total": 111,
+        "match": 99,
+        "different_or_disabled": 12,
+        "missing": 0,
+        "unverified": 0,
+        "unknown": 0
+      },
+      "result_object_mismatches": 0,
+      "byte_compare_command": "cmp -s /tmp/p1294-s3-surface-default-exact.json 00_nucleo/diagnosticos/p1293-surface-default.json",
+      "byte_compare_exit_code": 1,
+      "json_path_mismatches": 1,
+      "only_mismatch": {
+        "json_path": "$.binaries.crystalline.sha256",
+        "frozen": "c527b4111493f444d66e44e6d38d4823b2d09515c73d92eda1b9c4a2a86bff90",
+        "regenerated": "10fd9cf488be69cfc35796f4535e3efab71a970be874d5bbfee194e7c4460151"
+      },
+      "verdict": "FAIL_BLOCKING_NOT_BYTE_IDENTICAL"
+    },
+    "html": {
+      "command": "python3 lab/surface-inventory/run_probes.py --profile html --vanilla-bin /usr/local/bin/typst --crystalline-bin target/release/typst --probes /tmp/p1294-s3-probes-html-exact.json --output /tmp/p1294-s3-surface-html-exact.json",
+      "exit_code": 0,
+      "run_log": "/tmp/p1294-s3-surface-html-exact-run.log",
+      "run_log_bytes": 57,
+      "run_log_sha256": "33d1f48d2fa53d74a084d2048b9512dcb36030aa9a3dada4fe0c16206d482029",
+      "output_path": "/tmp/p1294-s3-surface-html-exact.json",
+      "output_sha256": "058d37f047ea3c57b2d8249f5301b161afd3c1c14db4522786f9ca26252715b2",
+      "frozen_path": "00_nucleo/diagnosticos/p1293-surface-html.json",
+      "frozen_sha256": "a986b41913d0f00b3ff8a8c77def9b487603dfa0c5f1eef6cfa8b4705b180314",
+      "counts": {
+        "total": 115,
+        "match": 104,
+        "different_or_disabled": 11,
+        "missing": 0,
+        "unverified": 0,
+        "unknown": 0
+      },
+      "result_object_mismatches": 0,
+      "byte_compare_command": "cmp -s /tmp/p1294-s3-surface-html-exact.json 00_nucleo/diagnosticos/p1293-surface-html.json",
+      "byte_compare_exit_code": 1,
+      "json_path_mismatches": 1,
+      "only_mismatch": {
+        "json_path": "$.binaries.crystalline.sha256",
+        "frozen": "c527b4111493f444d66e44e6d38d4823b2d09515c73d92eda1b9c4a2a86bff90",
+        "regenerated": "10fd9cf488be69cfc35796f4535e3efab71a970be874d5bbfee194e7c4460151"
+      },
+      "verdict": "FAIL_BLOCKING_NOT_BYTE_IDENTICAL"
+    },
+    "comparison_analysis": {
+      "command": "python3 - <<'PY' # recursive exact JSON comparison recorded by log",
+      "exit_code": 0,
+      "log": "/tmp/p1294-s3-surface-exact-compare.log",
+      "log_bytes": 830,
+      "log_sha256": "238c2bdb8ca2f455b40ce5e9558331aeb6a318fdf789d7b23523565c9cd81724"
+    },
+    "verdict": "FAIL_BLOCKING_TWO_BYTE_COMPARISONS"
+  },
+  "preserved_mutation_evidence": {
+    "mutants_rerun_by_s3": false,
+    "command": "python3 - <<'PY' # existence, SHA-256, AST and result-content assertions recorded by log",
+    "exit_code": 0,
+    "log": "/tmp/p1294-s3-mutation-evidence.log",
+    "log_bytes": 587,
+    "log_sha256": "7142c5e2fcc5b581639ea763a6e8c0c881e6c2da2e831bbd5be3454a8eee32ce",
+    "runner": {
+      "path": "/tmp/p1293-final-observers-runner-31.py",
+      "exists": true,
+      "sha256": "300b6e5cf5f65cdc3727bfa9cf781f324d75d7ba93420eb0beeb73074168d70f",
+      "python_ast_valid": true
+    },
+    "result": {
+      "path": "/tmp/p1293-final-74-results-31.json",
+      "exists": true,
+      "sha256": "a2ae8c75b7792201c902e8c8d38e6ec2071328ebbcb10a6e09f6d7372a051e55",
+      "baseline_runs": 2,
+      "baseline_green": 2,
+      "baseline_each": "11/11",
+      "forward": 31,
+      "reverse": 31,
+      "unique_valid_mutants": 31,
+      "rejected_valid_mutants": 31,
+      "mutation_score": 1.0,
+      "survivors": 0,
+      "unknown": 0,
+      "order_stable": true,
+      "reverse_order_entries": 31,
+      "protected_inputs_preserved": true
+    },
+    "verdict": "PASS_PRESERVED_NOT_RERUN"
+  },
+  "p1294_existing_file_hygiene_before_receipt": {
+    "scope": [
+      "00_nucleo/diagnosticos/p1294-sanitization-manifest.json",
+      "00_nucleo/diagnosticos/p1294-terminal-seal.json"
+    ],
+    "trailing_whitespace_lines": 0,
+    "files_without_exactly_one_newline_at_eof": 0,
+    "carriage_return_bytes": 0,
+    "command": "python3 - <<'PY' # byte-level whitespace and EOF assertions recorded by log",
+    "exit_code": 0,
+    "log": "/tmp/p1294-s3-whitespace-pre-receipt.log",
+    "log_bytes": 549,
+    "log_sha256": "ea78bf3b7042a4fb0393f982adef4b059611f8e7c82f78bb3fe859159b523bdd",
+    "verdict": "PASS"
+  },
+  "explicit_totals": {
+    "inventory_total": 74,
+    "inventory_present": 74,
+    "inventory_missing": 0,
+    "inventory_divergent": 0,
+    "integrity_mismatches": 0,
+    "frozen_p1293_artifact_hash_mismatches": 0,
+    "protected_oracle_byte_mismatches": 0,
+    "protected_contract_test_failures": 0,
+    "workspace_failed_repetitions": 1,
+    "release_binary_hash_mismatches": 1,
+    "surface_byte_mismatches": 2,
+    "surface_json_path_mismatches": 2,
+    "surface_result_object_mismatches": 0,
+    "surface_missing": 0,
+    "surface_unverified": 0,
+    "unknown": 0,
+    "survivors": 0,
+    "required_gate_failures": 4
+  },
+  "blocking_findings": [
+    {
+      "id": "WORKSPACE_REPETITION_2_FAILED",
+      "gate": "cargo test --workspace -q repetition 2",
+      "evidence": "exit 101; p1137_watch_dependencias_recuperacao_e_filtro did not meet its condition within 20s",
+      "cannot_be_erased_by_later_green": true
+    },
+    {
+      "id": "RELEASE_BINARY_HASH_MISMATCH",
+      "gate": "cargo build --release followed by SHA-256",
+      "expected": "c527b4111493f444d66e44e6d38d4823b2d09515c73d92eda1b9c4a2a86bff90",
+      "actual": "10fd9cf488be69cfc35796f4535e3efab71a970be874d5bbfee194e7c4460151"
+    },
+    {
+      "id": "DEFAULT_SURFACE_NOT_BYTE_IDENTICAL",
+      "gate": "regenerated default surface byte comparison",
+      "mismatch_count": 1,
+      "mismatch_path": "$.binaries.crystalline.sha256"
+    },
+    {
+      "id": "HTML_SURFACE_NOT_BYTE_IDENTICAL",
+      "gate": "regenerated HTML surface byte comparison",
+      "mismatch_count": 1,
+      "mismatch_path": "$.binaries.crystalline.sha256"
+    }
+  ],
+  "incident_and_claim_limits": {
+    "process_incident": "PROCESS_VIOLATION_CONFIRMED_NOT_ABSOLVED",
+    "process_incident_absolved": false,
+    "historical_watch_flake_absolved": false,
+    "general_functional_equivalence_claimed": false,
+    "technical_read_isolation_claimed": false,
+    "perfect_operational_compliance_claimed": false,
+    "p1293_functional_approval_revoked": false,
+    "maximum_permitted_claim_emitted": false
+  },
+  "next_action": "Return the blocked receipt to the coordinator. Do not issue p1294-certificate.json or p1294-final-report.md. Any retry requires a new S3 verification sequence whose receipt preserves this failed workspace repetition rather than overwriting it."
+}
