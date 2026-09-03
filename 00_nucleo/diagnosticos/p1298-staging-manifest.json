@@ -1,0 +1,186 @@
+{
+  "schema": "tekt-staging-manifest/v1",
+  "step": "P1298",
+  "phase": "P3-staging-manifest-author",
+  "generated_at": "2026-09-03T17:28:52,854506485-03:00",
+  "verdict": "PASS",
+  "terminal_state": "P1297_CERTIFICATE_PRESERVED_P1298_STAGING_MANIFEST_FROZEN_P4_AUTHORIZED",
+  "protocol": {
+    "regime": "tekt-materializacao-segregada/evidential-sealing-append-only",
+    "unknown_policy": "Any absent identity, unreproducible hash, ambiguous relation or unclassified path is Unknown and blocks the commit.",
+    "unexpected_unknown_count": 0,
+    "filesystem_read_isolation_claimed": false,
+    "general_functional_equivalence_claimed": false,
+    "product_semantics_changed": false,
+    "mutation_testing_applicable_to_p1298": false
+  },
+  "capabilities": {
+    "executor": "Codex subagent /root/p1298_p3_staging_manifest",
+    "environment": "/repos/Antigravity/typst-crystalline shared workspace",
+    "role": "P3 staging manifest author",
+    "context_conversational_inherited": "Parent-delegated P3 instruction, repository AGENTS.md, and the authorized P1298 causal inputs.",
+    "repository_read_paths": [
+      "00_nucleo/materialization/typst-passo-1298.md",
+      "00_nucleo/diagnosticos/p1298-manifest.json",
+      "00_nucleo/diagnosticos/p1298-audit-receipt.json",
+      "00_nucleo/diagnosticos/p1298-terminal-ledger.json"
+    ],
+    "materialization_paths_read": [
+      "00_nucleo/materialization/typst-passo-1298.md"
+    ],
+    "materialization_or_context_directory_listed": false,
+    "context_paths_read": [],
+    "repository_write_allowlist": [
+      "00_nucleo/diagnosticos/p1298-staging-manifest.json"
+    ],
+    "repository_paths_written": [
+      "00_nucleo/diagnosticos/p1298-staging-manifest.json"
+    ],
+    "out_of_allowlist_writes": [],
+    "input_or_index_edited": false,
+    "staging_performed": false,
+    "lint_test_build_or_commit_performed": false
+  },
+  "causal_inputs": {
+    "authoritative_step": {
+      "path": "00_nucleo/materialization/typst-passo-1298.md",
+      "sha256": "f56220dfb38e4222502391c5d6e429d988214006edffc5bd6d1934eb715a3033"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1298-manifest.json",
+      "sha256": "176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"
+    },
+    "audit_receipt": {
+      "path": "00_nucleo/diagnosticos/p1298-audit-receipt.json",
+      "sha256": "75f0ae65c55870486a4b707c3bb13f941255e23c63476d6c166b88e7fe94e0cc",
+      "verdict": "PASS"
+    },
+    "terminal_ledger": {
+      "path": "00_nucleo/diagnosticos/p1298-terminal-ledger.json",
+      "sha256": "834d58022563ffb3f35fa6ff04a21816160a65a6a21357067b7327ab462a8138",
+      "verdict": "PASS",
+      "ready_for_p3": true
+    }
+  },
+  "pre_write_measurement": {
+    "measured_at": "2026-09-03T17:28:52,854506485-03:00",
+    "head": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "commit_subject": "docs: record blocked step 1294 verification",
+    "working_tree_status_entries": 44,
+    "group_a_hashes_checked": 22,
+    "group_a_hash_mismatches": 0,
+    "group_a_status_mismatches": 0,
+    "group_b_hashes_checked": 18,
+    "group_b_hash_mismatches": 0,
+    "group_b_status_mismatches": 0,
+    "existing_group_c_untracked_status_mismatches": 0,
+    "future_group_c_paths_present": 0,
+    "causal_input_hash_mismatches": 0
+  },
+  "expected_count": 48,
+  "counts": {
+    "group_a": 22,
+    "group_b": 18,
+    "group_c": 8,
+    "total": 48
+  },
+  "initial_index": {
+    "expected_path_count": 22,
+    "names_sha256": "83cf1db8b37e229f8fe2d9e6276a28f3306f23c2991f9826afe71caad26ca384",
+    "binary_patch_sha256": "65d890b79c83bee191dbbf5d24f38bf180dc0f9135e23cc3a179f3a17d3f1314",
+    "equals_group_a_in_manifest_order": true,
+    "missing": [],
+    "extra": [],
+    "must_remain_unchanged_until_p6_literal_add": true
+  },
+  "commit_policy": {
+    "exact_message": "fix: seal causal watch recovery through step 1298",
+    "literal_add_rule": "P6 must execute git add with the literal list of exactly these 48 paths; glob and git add . are forbidden.",
+    "required_command_shape": "git add -- <48 literal paths from entries in manifest order>",
+    "git_add_dot_forbidden": true,
+    "glob_forbidden": true,
+    "staging_authorized_at_p3": false,
+    "commit_authorized_at_p3": false
+  },
+  "entries": [
+    {"ordinal": 1, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-certificate.json", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "b7d429d76fd691238eef6ad2a67c8bf7631a5e91fa48b042d2d4f947f6ddac2b", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 2, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-final-report.md", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "e0175e76d01ce86114996f2abbb59408226f739aa5ebfa960e740999ea89722b", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 3, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-implementation-receipt.md", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "7b23e0c2de48343debfa9ae684202729db450f5adbfe15a000dcb24495e228cb", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 4, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-manifest.json", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "5bf3f29e353403006b90971e05f786ad2548648c053b9db59f879841aecdf322", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 5, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-r1-adversarial-plan.md", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "6118b7c23db150753e7601e2fb03322a1d27743cf13ad3b67bffda9a8d55b5de", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 6, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-r1-contract-seal.json", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "2710fbbbe8748176764d37be40b40c30d93d39f1442e02064f32c7ff31348e92", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 7, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-r1-discrimination-receipt.json", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "e48473149010ef7b20d91d0315bce6b0cbafa2d516dd2cab5594d4b21982caab", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 8, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-r1-l0-gate-receipt.md", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "11777b20d0fc62256077339c35b86c559ba90cce167da2aee2ca081a9bd446e2", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 9, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-r1-red-tests-receipt.json", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "2b6a89b1fb1eca99f516470c5c339f9c2321234180e2cee86ef3249e117285be", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 10, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-redesign-ledger.json", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "bfc87da5047004f1cce67df0a14a7f6b9e1fb341a77169fc6ac1af8faaa91db0", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 11, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-surface-default.json", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "f8e36e6a38e97aa570da3905021a029321aaffa214e5b3fa78b489e9504312eb", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 12, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-surface-html.json", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "407570734adae8e7920f7780f9cdd5c9083bf3d4307577efd2d44e508ae7fa2e", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 13, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/diagnosticos/p1297-verification-receipt.json", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "c9dd6046ebea9c90397212c1fce2ec3e00d5e473df0211f3cecef9c0c50ba111", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 14, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/materialization/typst-passo-1297.md", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "5116ffc535bb8cbd33ca8fb449b492ddfcf9e133246d7143c27a97960748c682", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 15, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "4b30a7da9310892ad639ba2483fd8d995f6cae4adb4f5ec959247b7911f583e8", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 16, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/prompts/shell/watch.md", "observed_porcelain": "M ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "0988aae004f94b52730c1b605b20249e261bdeac70249b7f99d2f0deeee23483", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 17, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/prompts/wiring.md", "observed_porcelain": "M ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "4e0661d71303fc367d9f29992809e21ecc3b66fcb6e4869eb45d705f8fe5876d", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 18, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "00_nucleo/prompts/wiring/tests/cli.md", "observed_porcelain": "M ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "a1190628c91f0f8c958bad2babe68e5f425931e7f885e8d97bc8b95f9ecc13ad", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 19, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "03_infra/src/watch.rs", "observed_porcelain": "M ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "34188c0a3bdc129abc5c3eb9636a5fc5a701fc68f61c530c7a7f08a80a961b3c", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 20, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "03_infra/tests/p1297_watch_capability_contract.rs", "observed_porcelain": "A ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "9721cfb5fce6dc5bb9c41d004495a0838069c2f9ae2492731fde30b53827f089", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 21, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "04_wiring/src/main.rs", "observed_porcelain": "M ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "40a7885a2d4aa6c9a02921461be44928f14e75f072bcda203433c55d1771a6f7", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 22, "group": "A", "classification": "P1297_ALREADY_STAGED", "path": "04_wiring/tests/cli.rs", "observed_porcelain": "M ", "producer": "P1297", "identity": {"state": "KNOWN_SHA256", "sha256": "56d989a4f79112d59558a71b0dbf609aa4022f9df0290e56afebc1b2b218a42b", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 23, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1294-blocked-report.md", "observed_porcelain": "??", "producer": "P1294", "identity": {"state": "KNOWN_SHA256", "sha256": "b87dfe26f22bf46dd20e80a568a34b8f9da26138616932b3a84e6e522a8f959b", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 24, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/materialization/typst-passo-1295.md", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "e0328b02cecdfefb8dc7acc29d3faff50a2ce5ab1cf92d8cd2d77a0c6e0f0663", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 25, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1295-manifest.json", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "545c3c661dd11685ff152d889dab7e796bda0659d91ca447c6d3db3794fc2999", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 26, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1295-l0-gate-receipt.md", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "155f2c22359b98739b66507e6fc7c678d187a1d8030a3f7b7ed70a1f31b68d78", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 27, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1295-red-tests-receipt.json", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "ac9a8fb41675026bafc884575b387998c45b8318f110508293e99faca1ec4d05", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 28, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1295-adversarial-plan.md", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "4788f57715e193527bf2e0a1ab86bf1fceee955e7f5933ace51cbb3291e48487", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 29, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1295-discrimination-receipt.json", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "30392dda4a3f639d39b18d693118feb42182f5f35e0cb615cb7b09d77c75ca51", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 30, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1295-contract-seal.json", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "cdd0f5ddc9740808fdee4c0c24d9d05d50c3243bab124678f9d6fba83b86d021", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 31, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1295-implementation-receipt.md", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "c02546962521a58c945114249b39d3a3d9959e91f7a1fd77a4505a17eb3f8bdc", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 32, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1295-verification-receipt.json", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 33, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/prompts/infra/tests/p1295_watch_contract.md", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "e39d5206b63b883f9a886a01ba2aaa7ff94259542a33693d5927a0a20445b233", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 34, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "03_infra/tests/p1295_watch_contract.rs", "observed_porcelain": "??", "producer": "P1295", "identity": {"state": "KNOWN_SHA256", "sha256": "8dae68ffc12f2708b6bbe3d503a7d0d90a2cb92681762ff5a992ca3f178c7abf", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 35, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/materialization/typst-passo-1296.md", "observed_porcelain": "??", "producer": "P1296", "identity": {"state": "KNOWN_SHA256", "sha256": "5a7f7c5d364fa6a373c1d411b8710131c68198bfeaaa4b19ec53fb17f7b8c00b", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 36, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1296-manifest.json", "observed_porcelain": "??", "producer": "P1296", "identity": {"state": "KNOWN_SHA256", "sha256": "7c9e2f75aab348ce434c293ea0b38259fc8c42b39360d6ca3b63a17491edd7d0", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 37, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1296-l0-receipt.md", "observed_porcelain": "??", "producer": "P1296", "identity": {"state": "KNOWN_SHA256", "sha256": "224dd65d269f3a81b132f2679b2c373ab5bcf910d0ed21e94b554dbe761924a2", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 38, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1296-test-receipt.json", "observed_porcelain": "??", "producer": "P1296", "identity": {"state": "KNOWN_SHA256", "sha256": "be8aaf3537bb068aab8eff1c5b656fe74c56cec8bd144f22e48a12b486d3e8a0", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 39, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1296-adversarial-plan.md", "observed_porcelain": "??", "producer": "P1296", "identity": {"state": "KNOWN_SHA256", "sha256": "8b8a8435ff794f7d0d8ba5ecc0c0af2c8f88ac2b3133bc05dd8eaa2c2eb9ce6b", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 40, "group": "B", "classification": "UNTRACKED_CAUSAL_PREDECESSOR", "path": "00_nucleo/diagnosticos/p1296-discrimination-receipt.json", "observed_porcelain": "??", "producer": "P1296", "identity": {"state": "KNOWN_SHA256", "sha256": "51073959b26cc834f1f1dbe69b5c4e70b5e7f1c71d28282b7424e0306e641525", "source": "p1298-manifest@176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"}},
+    {"ordinal": 41, "group": "C", "classification": "P1298_EXISTING_CAUSAL_INPUT", "path": "00_nucleo/materialization/typst-passo-1298.md", "observed_porcelain": "??", "producer": "P0_OBLIGATION_AUTHOR", "identity": {"state": "KNOWN_SHA256", "sha256": "f56220dfb38e4222502391c5d6e429d988214006edffc5bd6d1934eb715a3033", "source": "p1298-terminal-ledger@834d58022563ffb3f35fa6ff04a21816160a65a6a21357067b7327ab462a8138"}},
+    {"ordinal": 42, "group": "C", "classification": "P1298_EXISTING_CAUSAL_INPUT", "path": "00_nucleo/diagnosticos/p1298-manifest.json", "observed_porcelain": "??", "producer": "P0_MANIFEST_AUTHOR", "identity": {"state": "KNOWN_SHA256", "sha256": "176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c", "source": "p1298-terminal-ledger@834d58022563ffb3f35fa6ff04a21816160a65a6a21357067b7327ab462a8138"}},
+    {"ordinal": 43, "group": "C", "classification": "P1298_EXISTING_CAUSAL_INPUT", "path": "00_nucleo/diagnosticos/p1298-audit-receipt.json", "observed_porcelain": "??", "producer": "P1_INDEPENDENT_GRAPH_AUDITOR", "identity": {"state": "KNOWN_SHA256", "sha256": "75f0ae65c55870486a4b707c3bb13f941255e23c63476d6c166b88e7fe94e0cc", "source": "p1298-terminal-ledger@834d58022563ffb3f35fa6ff04a21816160a65a6a21357067b7327ab462a8138"}},
+    {"ordinal": 44, "group": "C", "classification": "P1298_EXISTING_CAUSAL_INPUT", "path": "00_nucleo/diagnosticos/p1298-terminal-ledger.json", "observed_porcelain": "??", "producer": "P2_TERMINAL_LEDGER_AUTHOR", "identity": {"state": "KNOWN_SHA256", "sha256": "834d58022563ffb3f35fa6ff04a21816160a65a6a21357067b7327ab462a8138", "source": "P3 owner delegation causal handoff"}},
+    {"ordinal": 45, "group": "C", "classification": "P1298_SELF_OUTPUT", "path": "00_nucleo/diagnosticos/p1298-staging-manifest.json", "observed_porcelain": "SELF_OUTPUT", "producer": "P3_STAGING_MANIFEST_AUTHOR", "identity": {"state": "SELF_OUTPUT", "sha256_recorded": false, "freeze_when": "P4 must compute and freeze this file's SHA-256 before verifying any other P1298 relation; P3 must not invent or embed a self-hash."}},
+    {"ordinal": 46, "group": "C", "classification": "P1298_FUTURE_CAUSAL_OUTPUT", "path": "00_nucleo/diagnosticos/p1298-verification-receipt.json", "observed_porcelain": "NOT_YET_CREATED_AT_P3_INPUT", "producer": "P4_INDEPENDENT_VERIFIER", "identity": {"state": "PENDING_CAUSAL_OUTPUT", "sha256_recorded": false, "freeze_when": "Immediately after P4 writes and validates the verification receipt, before P5 starts."}},
+    {"ordinal": 47, "group": "C", "classification": "P1298_FUTURE_CAUSAL_OUTPUT", "path": "00_nucleo/diagnosticos/p1298-certificate.json", "observed_porcelain": "NOT_YET_CREATED_AT_P3_INPUT", "producer": "P5_DOCUMENTARY_SEALER", "identity": {"state": "PENDING_CAUSAL_OUTPUT", "sha256_recorded": false, "freeze_when": "Immediately after P5 writes and validates the certificate, before P5 authors the final report."}},
+    {"ordinal": 48, "group": "C", "classification": "P1298_FUTURE_CAUSAL_OUTPUT", "path": "00_nucleo/diagnosticos/p1298-final-report.md", "observed_porcelain": "NOT_YET_CREATED_AT_P3_INPUT", "producer": "P5_DOCUMENTARY_SEALER", "identity": {"state": "PENDING_CAUSAL_OUTPUT", "sha256_recorded": false, "freeze_when": "Immediately after P5 writes and validates the final report, before P6 revalidates all 48 paths and performs literal staging."}}
+  ],
+  "set_validation": {
+    "entry_count": 48,
+    "unique_path_count": 48,
+    "duplicate_paths": [],
+    "ordinals_contiguous_1_through_48": true,
+    "group_counts_match_expected": true,
+    "ordered_paths_equal_authoritative_step_allowlist": true,
+    "group_a_equals_initial_index": true,
+    "group_b_equals_untracked_causal_predecessors": true,
+    "group_c_equals_p1298_planned_artifacts": true,
+    "unclassified_paths": [],
+    "unexpected_unknown_paths": []
+  },
+  "authorization": {
+    "ready_for_p4": true,
+    "exclusive_next_authority": "P4_INDEPENDENT_VERIFIER",
+    "authorized_path": "00_nucleo/diagnosticos/p1298-verification-receipt.json",
+    "p5_authorized_by_this_manifest": false,
+    "p6_authorized_by_this_manifest": false,
+    "staging_authorized": false,
+    "commit_authorized": false,
+    "claim": "The exact ordered 48-path staging allowlist is classified without unexpected Unknown values; only P4 may verify the frozen causal inputs and this SELF_OUTPUT before any later authority begins."
+  },
+  "limitations": [
+    "No technical filesystem read isolation is claimed.",
+    "No general functional equivalence is claimed.",
+    "P3 did not stage, lint, test, build or commit.",
+    "The SELF_OUTPUT intentionally contains no invented self-hash; P4 must freeze its external SHA-256.",
+    "Future P4/P5 outputs are explicit PENDING_CAUSAL_OUTPUT identities and are not Unknown.",
+    "P1294, P1295 and P1296 remain BLOCKED, byte-preserved and not absolved."
+  ]
+}

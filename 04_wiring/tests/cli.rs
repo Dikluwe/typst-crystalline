@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash 7396cebb
+//! @prompt-hash cf02a8f0
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -57,6 +57,20 @@ fn cleanup(paths: &[&PathBuf]) {
 
 struct WatchedChild(Child);
 
+impl WatchedChild {
+    fn assert_alive(&mut self, phase: &str) {
+        match self.0.try_wait() {
+            Ok(None) => {}
+            Ok(Some(status)) => {
+                panic!("watch terminou durante {phase} com status {status}")
+            }
+            Err(error) => {
+                panic!("não foi possível consultar watch durante {phase}: {error}")
+            }
+        }
+    }
+}
+
 impl Drop for WatchedChild {
     fn drop(&mut self) {
         let _ = self.0.kill();
@@ -64,15 +78,30 @@ impl Drop for WatchedChild {
     }
 }
 
-fn wait_until(timeout: Duration, mut condition: impl FnMut() -> bool) {
+fn wait_until(
+    watch: &mut WatchedChild,
+    phase: &str,
+    timeout: Duration,
+    mut condition: impl FnMut() -> bool,
+) {
     let deadline = Instant::now() + timeout;
     while Instant::now() < deadline {
+        watch.assert_alive(phase);
         if condition() {
             return;
         }
         thread::sleep(Duration::from_millis(50));
     }
-    panic!("condition was not met within {timeout:?}");
+    watch.assert_alive(phase);
+    panic!("timeout durante {phase} após {timeout:?}");
+}
+
+struct WatchFixture(PathBuf);
+
+impl Drop for WatchFixture {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir_all(&self.0);
+    }
 }
 
 #[test]
@@ -95,11 +124,13 @@ fn p1137_watch_help_alias_e_stdout_rejeitado() {
 #[test]
 fn p1137_watch_dependencias_recuperacao_e_filtro() {
     let root = env::temp_dir().join(format!("typst-watch-{}", std::process::id()));
+    let _ = fs::remove_dir_all(&root);
     let input = root.join("main.typ");
     let asset = root.join("data.txt");
     let irrelevant = root.join("irrelevant.txt");
     let output = root.join("main.pdf");
     fs::create_dir_all(&root).unwrap();
+    let _fixture = WatchFixture(root.clone());
     fs::write(&asset, "first").unwrap();
     fs::write(&irrelevant, "ignored").unwrap();
     fs::write(&input, "#read(\"data.txt\")").unwrap();
@@ -112,32 +143,53 @@ fn p1137_watch_dependencias_recuperacao_e_filtro() {
         .stderr(Stdio::null())
         .spawn()
         .unwrap();
-    let _watch = WatchedChild(child);
+    let child_pid = child.id();
+    let staging = output.with_file_name(format!(
+        ".{}.crystalline-watch-{child_pid}.tmp",
+        output.file_name().unwrap().to_string_lossy()
+    ));
+    let mut watch = WatchedChild(child);
 
-    wait_until(Duration::from_secs(20), || output.exists());
+    watch.assert_alive("publicação inicial");
+    wait_until(&mut watch, "publicação inicial", Duration::from_secs(20), || {
+        output.exists()
+    });
     let first = fs::read(&output).unwrap();
 
-    fs::write(&irrelevant, "changed but not observed").unwrap();
-    thread::sleep(Duration::from_millis(400));
-    assert_eq!(fs::read(&output).unwrap(), first);
-
     fs::write(&asset, "second").unwrap();
-    wait_until(Duration::from_secs(20), || {
+    wait_until(&mut watch, "recompilação por asset", Duration::from_secs(20), || {
         fs::read(&output).map(|bytes| bytes != first).unwrap_or(false)
     });
     let second = fs::read(&output).unwrap();
 
+    watch.assert_alive("filtro de ficheiro irrelevante");
+    fs::write(&irrelevant, "changed but not observed").unwrap();
+    thread::sleep(Duration::from_millis(400));
+    watch.assert_alive("filtro de ficheiro irrelevante");
+    assert_eq!(fs::read(&output).unwrap(), second);
+
+    watch.assert_alive("erro transitório");
+    fs::write(
+        &staging,
+        format!("p1296-recovery-sentinel-{}-{child_pid}", std::process::id()),
+    )
+    .unwrap();
     fs::write(&input, "#unknown-watch-name").unwrap();
-    thread::sleep(Duration::from_millis(500));
+    wait_until(
+        &mut watch,
+        "armamento após erro transitório",
+        Duration::from_secs(20),
+        || !staging.exists(),
+    );
+    watch.assert_alive("preservação após erro transitório");
     assert_eq!(fs::read(&output).unwrap(), second);
 
     fs::write(&input, "Recovered").unwrap();
-    wait_until(Duration::from_secs(20), || {
+    wait_until(&mut watch, "recuperação", Duration::from_secs(20), || {
         fs::read(&output).map(|bytes| bytes != second).unwrap_or(false)
     });
 
-    drop(_watch);
-    let _ = fs::remove_dir_all(root);
+    drop(watch);
 }
 
 #[test]

@@ -1,0 +1,429 @@
+{
+  "schema": "tekt-r1-discrimination-receipt/v1",
+  "step": "P1297",
+  "redesign": "R1_CAPABILITY",
+  "phase": "P3-R1-independent-adversary-calibrator",
+  "generated_at": "2026-09-03T09:47:38.219793795-03:00",
+  "verdict": "P1297_R1_DISCRIMINATION_PASS_READY_FOR_P4_R1_ONLY",
+  "terminal_state_preserved": "P1294_BLOCKED_P1295_BLOCKED_P1296_BLOCKED_P1297_NOT_CERTIFIED",
+  "protocol": {
+    "regime": "tekt-materializacao-segregada/full",
+    "role": "P3-R1 independent adversary and calibrator",
+    "segregation_basis": [
+      "frozen causal inputs",
+      "write capabilities",
+      "role ordering",
+      "canonical artifacts"
+    ],
+    "filesystem_read_isolation_claimed": false,
+    "candidate_implementation_existed_or_was_read": false,
+    "general_functional_equivalence_claimed": false,
+    "unknown_policy": "Unknown never succeeds or receives mutation credit; every unexpected Unknown blocks R1."
+  },
+  "canonical_inputs": {
+    "authoritative_step": {
+      "path": "00_nucleo/materialization/typst-passo-1297.md",
+      "sha256": "5116ffc535bb8cbd33ca8fb449b492ddfcf9e133246d7143c27a97960748c682"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1297-manifest.json",
+      "sha256": "5bf3f29e353403006b90971e05f786ad2548648c053b9db59f879841aecdf322"
+    },
+    "redesign_ledger": {
+      "path": "00_nucleo/diagnosticos/p1297-redesign-ledger.json",
+      "sha256": "f0959318cd00b9801d22268e608d063ba9d924d1d5362a52614cb84e8f764a93"
+    },
+    "human_gate_receipt": {
+      "path": "00_nucleo/diagnosticos/p1297-r1-l0-gate-receipt.md",
+      "sha256": "11777b20d0fc62256077339c35b86c559ba90cce167da2aee2ca081a9bd446e2",
+      "scope": "R1 only"
+    },
+    "red_receipt": {
+      "path": "00_nucleo/diagnosticos/p1297-r1-red-tests-receipt.json",
+      "sha256": "2b6a89b1fb1eca99f516470c5c339f9c2321234180e2cee86ef3249e117285be"
+    },
+    "confirmed_l0": {
+      "00_nucleo/prompts/shell/watch.md": "0988aae004f94b52730c1b605b20249e261bdeac70249b7f99d2f0deeee23483",
+      "00_nucleo/prompts/wiring.md": "4e0661d71303fc367d9f29992809e21ecc3b66fcb6e4869eb45d705f8fe5876d",
+      "00_nucleo/prompts/wiring/tests/cli.md": "a1190628c91f0f8c958bad2babe68e5f425931e7f885e8d97bc8b95f9ecc13ad"
+    },
+    "r1_contract": {
+      "owner": {
+        "path": "00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md",
+        "sha256": "4b30a7da9310892ad639ba2483fd8d995f6cae4adb4f5ec959247b7911f583e8"
+      },
+      "consumer": {
+        "path": "03_infra/tests/p1297_watch_capability_contract.rs",
+        "sha256": "9721cfb5fce6dc5bb9c41d004495a0838069c2f9ae2492731fde30b53827f089"
+      }
+    },
+    "productive_baseline": {
+      "03_infra/src/watch.rs": "0232f1baa3b06bde809941938ea0633982a78ec066ce8e38466f346e63403a35",
+      "04_wiring/src/main.rs": "03dfc017bb832264b16d50c6314c1e0d48304f657f2054af378032944c747678",
+      "04_wiring/tests/cli.rs": "56d989a4f79112d59558a71b0dbf609aa4022f9df0290e56afebc1b2b218a42b"
+    },
+    "preserved_boundaries": {
+      "00_nucleo/prompts/infra/tests/p1295_watch_contract.md": "e39d5206b63b883f9a886a01ba2aaa7ff94259542a33693d5927a0a20445b233",
+      "03_infra/tests/p1295_watch_contract.rs": "8dae68ffc12f2708b6bbe3d503a7d0d90a2cb92681762ff5a992ca3f178c7abf",
+      "00_nucleo/diagnosticos/p1295-verification-receipt.json": "06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573",
+      "00_nucleo/diagnosticos/p1296-test-receipt.json": "be8aaf3537bb068aab8eff1c5b656fe74c56cec8bd144f22e48a12b486d3e8a0",
+      "00_nucleo/diagnosticos/p1296-discrimination-receipt.json": "51073959b26cc834f1f1dbe69b5c4e70b5e7f1c71d28282b7424e0306e641525"
+    },
+    "adversarial_plan": {
+      "path": "00_nucleo/diagnosticos/p1297-r1-adversarial-plan.md",
+      "sha256": "6118b7c23db150753e7601e2fb03322a1d27743cf13ad3b67bffda9a8d55b5de",
+      "materialization_note": "The canonical plan was written after execution from the design frozen before the campaign; this receipt does not claim that its file timestamp independently attests pre-execution authorship."
+    }
+  },
+  "capabilities": {
+    "repository_write_allowlist": [
+      "00_nucleo/diagnosticos/p1297-r1-adversarial-plan.md",
+      "00_nucleo/diagnosticos/p1297-r1-discrimination-receipt.json"
+    ],
+    "temporary_write_root": "/tmp/p1297-r1-calibration-9RxrYE",
+    "out_of_allowlist_repository_writes": [],
+    "forbidden_restricted_reads": [
+      "00_nucleo/context/",
+      "all materialization entries except explicitly authorized 00_nucleo/materialization/typst-passo-1297.md"
+    ],
+    "product_contract_l0_header_manifest_ledger_predecessor_seal_certificate_writes": false,
+    "candidate_p5_read": false
+  },
+  "temporary_environment": {
+    "copy": "source copy excluded .git, target, 00_nucleo/materialization, and 00_nucleo/context",
+    "target_seed": "repository target copied by reflink under /tmp",
+    "variant_targets": "isolated target-control and target-r1m1 through target-r1m4; cargo clean -p typst-infra executed once before first use",
+    "runner_path": "/tmp/p1297-r1-calibration-9RxrYE/run-suite.sh",
+    "runner_sha256": "bcbd099c893d42056cf1d14ebb0bc7416a0a0872331446a23cad514f043ac231",
+    "control": {
+      "description": "ArmedWatch owns an already materialized snapshot; arm captures; consuming publish/abandon return that snapshot; raw helpers are private; L4 composes compile-normalize-arm-finalize-evict-wait.",
+      "body_disclosed_or_promoted": false,
+      "control_patch_sha256": "f55de2c5e8a841152b56f6aa00568648bb655dc68b19a6fdd2bda2d32a958639",
+      "watch_rs_sha256": "34afc56ff3b676d8f8cbb27f3f89c91dc41d2c531df6dea3db285b467057bc79",
+      "main_rs_sha256": "40a7885a2d4aa6c9a02921461be44928f14e75f072bcda203433c55d1771a6f7",
+      "cli_rs_sha256": "56d989a4f79112d59558a71b0dbf609aa4022f9df0290e56afebc1b2b218a42b"
+    },
+    "mutants": {
+      "R1M1": {
+        "watch_rs_sha256": "7c230fc583973574c2558d206c2f157f051644c7e9d90b13b068558ff48f4bb9",
+        "patch_sha256": "acf46884128293c40e0d1784e2770213cb2df6a573b7eb03a658ef23987aa9cb"
+      },
+      "R1M2": {
+        "watch_rs_sha256": "7b84d794021fa51d672963c2754c691251ceaf0ea5eff1d02c2ce4ec3eaa046f",
+        "patch_sha256": "555cf428beaa8320d957e934737712656efa95481550476cdbe07734b7157a4b"
+      },
+      "R1M3": {
+        "watch_rs_sha256": "6e1f71d60dc073720f452b3e6e632c5ea74586fafcce553f6983779181673aea",
+        "main_rs_sha256": "256fa15103f17987d10e8dd44dcd9b2b1de5d82b3f350811de246eeb85afc566",
+        "patch_sha256": "4b4f5f1bd2db78dcf8b13dc5e2c46b6ae1c933fe19635d024110e66fbb1aab88"
+      },
+      "R1M4": {
+        "watch_rs_sha256": "8a2b8bff976b2731fb6eeecec127900d097434e5da81e500f88376adcffed315",
+        "patch_sha256": "be93f55114a1c2b03b936c2480b807f021e42b46c394e50fc9cbad9ef00b71dd"
+      }
+    },
+    "contract_bytes_preserved_in_all_five_copies": {
+      "p1297_consumer_sha256": "9721cfb5fce6dc5bb9c41d004495a0838069c2f9ae2492731fde30b53827f089",
+      "p1295_consumer_sha256": "8dae68ffc12f2708b6bbe3d503a7d0d90a2cb92681762ff5a992ca3f178c7abf",
+      "p1137_cli_consumer_sha256": "56d989a4f79112d59558a71b0dbf609aa4022f9df0290e56afebc1b2b218a42b"
+    }
+  },
+  "mechanical_calibration": {
+    "budget": "one focal mechanical correction",
+    "corrections_used": 1,
+    "incident": {
+      "reason_code": "SHARED_TARGET_CARGO_MTIME_ALIAS",
+      "invalid_attempt": "R1M1 returned the control binary without compiling typst-infra because the shared target was reused across source copies with preserved mtimes.",
+      "invalid_log_sha256": "8e733230643257aadc26544b091e82f337a27c742ff8059e811a0dede5c8fa04",
+      "classification": "invalid execution; neither Survived nor Unknown; excluded from numerator and denominator",
+      "correction": "isolated target per variant plus scoped cargo clean -p typst-infra before first use",
+      "corrected_control_exit": 0,
+      "corrected_control_log_sha256": "841352e92c19e197a90764e631a1a2c395afbd1ec3b188978e42899a64f83824",
+      "corrected_r1m1_exit": 101,
+      "corrected_r1m1_log_sha256": "5327141c3552a7b64b1049f6e0bf14f7ca77594b521bd414f52040555b197ca2"
+    },
+    "non_campaign_preflight": {
+      "description": "An optional generic direct-binary resolver matched three cli binaries and exited before running any test.",
+      "exit_code": 2,
+      "log_sha256": "5e265771221908ab2b41009d4f1c0e1b4d1b5a4cdcf5eae496fa264bd6399980",
+      "effect": "none; no vector, corpus mutation, classification, or protocol revision; the already validated canonical runner was used for that control"
+    },
+    "additional_correction_authorized": false
+  },
+  "focal_gate": {
+    "control": "Preserved",
+    "mutants": {
+      "R1M1": {
+        "classification": "Killed",
+        "exit_code": 101,
+        "witness": "abandon Some-to-None waiter timed out because lazy capture stored None",
+        "log_sha256": "5327141c3552a7b64b1049f6e0bf14f7ca77594b521bd414f52040555b197ca2"
+      },
+      "R1M2": {
+        "classification": "Killed",
+        "exit_code": 101,
+        "witness": "publish staging Some-to-None waiter timed out because capture occurred after rename",
+        "log_sha256": "d83045b9d4953ffb6f65685384213d854388c307dbc1bf52b07a0473b64a62ef"
+      },
+      "R1M3": {
+        "classification": "Killed",
+        "exit_code": 101,
+        "witness": "rustdoc JSON inventory reported public raw commit_output callable by L4",
+        "log_sha256": "de8282f3b863d91e248b8beeeeae66c40b428a35d61feafbb9a12ef5d02e3af3"
+      },
+      "R1M4": {
+        "classification": "Killed",
+        "exit_code": 101,
+        "witness": "abandon Some-to-None waiter timed out after wait_for_change_since replaced the received baseline",
+        "log_sha256": "151b722da2645b6d9eb525345c4d4bc43c87a29ff5bc5f6e840a33d5c0fccf09"
+      }
+    },
+    "unknown": 0,
+    "result": "PASS_TO_FULL_CORPUS"
+  },
+  "full_corpus": {
+    "commands": {
+      "build_and_run": "CARGO_TARGET_DIR=<isolated-target> CARGO_NET_OFFLINE=true /tmp/p1297-r1-calibration-9RxrYE/run-suite.sh",
+      "r1": "cargo test -p typst-infra --test p1297_watch_capability_contract -- --nocapture --test-threads=1",
+      "p1295": "cargo test -p typst-infra --test p1295_watch_contract -- --nocapture --test-threads=1",
+      "p1137": "cargo test -p typst-wiring --test cli p1137_watch_ -- --nocapture --test-threads=1",
+      "repeat": "the exact built integration-test binaries, pinned below, with the same filters and --test-threads=1"
+    },
+    "expected_control_counts": {
+      "r1": "7 passed, 0 failed",
+      "p1295": "6 passed, 0 failed",
+      "p1137": "2 passed, 0 failed"
+    },
+    "direct_order": [
+      {
+        "case": "initial-control",
+        "vector": [0, 0, 0],
+        "started": "2026-09-03T09:29:02-03:00",
+        "finished": "2026-09-03T09:30:36-03:00",
+        "log_sha256": "94f159d8655b462a4f8a1a6ffb22c142f59ea611399b978cef5776d7fe6ae38f"
+      },
+      {
+        "case": "R1M1",
+        "vector": [101, 0, 0],
+        "classification": "Killed",
+        "started": "2026-09-03T09:30:53-03:00",
+        "finished": "2026-09-03T09:32:37-03:00",
+        "log_sha256": "dc7863d5af3463f36551153cd51e6f2dea4acb19ebc5a9266fe8f0ca9c660f39"
+      },
+      {
+        "case": "control-after-R1M1",
+        "vector": [0, 0, 0],
+        "started": "2026-09-03T09:32:42-03:00",
+        "finished": "2026-09-03T09:33:53-03:00",
+        "log_sha256": "12698d363eda8afdcc712692e3815d22ae06f24524fe8c0b7cb4f5a4f0d04cc3"
+      },
+      {
+        "case": "R1M2",
+        "vector": [101, 0, 0],
+        "classification": "Killed",
+        "started": "2026-09-03T09:34:24-03:00",
+        "finished": "2026-09-03T09:35:45-03:00",
+        "log_sha256": "2184ae32a51ee9fda489bafd57d06e60473f3802577746fa370b8d14fdc51b18"
+      },
+      {
+        "case": "control-after-R1M2",
+        "vector": [0, 0, 0],
+        "started": "2026-09-03T09:36:12-03:00",
+        "finished": "2026-09-03T09:37:28-03:00",
+        "log_sha256": "fbd5b3aefa34a499f5654afe2c188d4392b75683f67bc6294f64bc8cc57598b8"
+      },
+      {
+        "case": "R1M3",
+        "vector": [101, 0, 0],
+        "classification": "Killed",
+        "started": "2026-09-03T09:37:33-03:00",
+        "finished": "2026-09-03T09:39:10-03:00",
+        "log_sha256": "1b641a2b529eb2668eabaee1032f81712f7ad1af9f2d7402d9065408095aa4a4"
+      },
+      {
+        "case": "control-after-R1M3",
+        "vector": [0, 0, 0],
+        "started": "2026-09-03T09:39:27-03:00",
+        "finished": "2026-09-03T09:39:44-03:00",
+        "log_sha256": "dd3cc1b7fd8e65057d3bcaa82ddbb475a88f3a9e8dcb5d7fae1bf7b6cbec993e"
+      },
+      {
+        "case": "R1M4",
+        "vector": [101, 101, 0],
+        "classification": "Killed",
+        "started": "2026-09-03T09:39:50-03:00",
+        "finished": "2026-09-03T09:41:25-03:00",
+        "log_sha256": "b6adf7ebb0180828758f594904100ebb7fe842d46079f1bb6fd31e3491f306ef"
+      },
+      {
+        "case": "control-after-R1M4",
+        "vector": [0, 0, 0],
+        "started": "2026-09-03T09:41:34-03:00",
+        "finished": "2026-09-03T09:41:42-03:00",
+        "log_sha256": "1e5f14e3a675d8c2f5b5fe03615f17bee6e110050c2e7ac63a75b91b3e6e1e79"
+      }
+    ],
+    "inverse_order": [
+      {
+        "case": "R1M4",
+        "vector": [101, 101, 0],
+        "classification": "Killed",
+        "started": "2026-09-03T09:42:00-03:00",
+        "finished": "2026-09-03T09:42:27-03:00",
+        "log_sha256": "4c0be17f5cb5549bd325fc6cceda9f9d8a14038f5eecb5a0ab3bcd94d31a69cc"
+      },
+      {
+        "case": "control-after-R1M4",
+        "vector": [0, 0, 0],
+        "started": "2026-09-03T09:42:35-03:00",
+        "finished": "2026-09-03T09:42:43-03:00",
+        "log_sha256": "c4dd95d22227b55bf78855168174c8c181d7cc25c0e1506a256bd8162819eb8a"
+      },
+      {
+        "case": "R1M3",
+        "vector": [101, 0, 0],
+        "classification": "Killed",
+        "started": "2026-09-03T09:42:52-03:00",
+        "finished": "2026-09-03T09:43:09-03:00",
+        "log_sha256": "9d0476be657d0dcf5f65b0471dc08b78b999c39d5eb26e62ff5603001dec3035"
+      },
+      {
+        "case": "control-after-R1M3",
+        "vector": [0, 0, 0],
+        "started": "2026-09-03T09:43:17-03:00",
+        "finished": "2026-09-03T09:43:25-03:00",
+        "log_sha256": "69a58b9184545c94572342e035554909315725506f527cc588a13b0ed5724307"
+      },
+      {
+        "case": "R1M2",
+        "vector": [101, 0, 0],
+        "classification": "Killed",
+        "started": "2026-09-03T09:43:33-03:00",
+        "finished": "2026-09-03T09:43:52-03:00",
+        "log_sha256": "8ea866686cbe5ff0a7f52cef5ff5ef4d7cd821291be6d68095337f0465420288"
+      },
+      {
+        "case": "control-after-R1M2",
+        "vector": [0, 0, 0],
+        "started": "2026-09-03T09:44:00-03:00",
+        "finished": "2026-09-03T09:44:08-03:00",
+        "log_sha256": "095d90ade16e05e776f37b52e83c274d6fd665210bbdf7dac8cb11f5391e8e5a"
+      },
+      {
+        "case": "R1M1",
+        "vector": [101, 0, 0],
+        "classification": "Killed",
+        "started": "2026-09-03T09:44:17-03:00",
+        "finished": "2026-09-03T09:44:36-03:00",
+        "log_sha256": "1d28f9eda9cf0d7afa53facd8d24835197fe824b89abde1ae575af460f3f7142"
+      },
+      {
+        "case": "final-control",
+        "vector": [0, 0, 0],
+        "started": "2026-09-03T09:44:45-03:00",
+        "finished": "2026-09-03T09:44:53-03:00",
+        "log_sha256": "3a740f4912a348cd1dc5b1a7b5a6e6f48b86f92cf14eaa8d3912ef53846df96c"
+      }
+    ],
+    "control_runs": 9,
+    "control_aggregate": "135 passed, 0 failed across R1/P1295/P1137 control executions",
+    "mutant_runs": 8,
+    "mutant_aggregate": "104 passed and 16 expected failing tests; every run carried its required R1 witness",
+    "order_invariance": true,
+    "unexpected_timeout_or_external_command_timeout": false
+  },
+  "classification_matrix": {
+    "R1M1": {
+      "direct": "Killed",
+      "inverse": "Killed",
+      "witness": "abandon transition Some-to-None timed out only in the mutant"
+    },
+    "R1M2": {
+      "direct": "Killed",
+      "inverse": "Killed",
+      "witness": "publish staging transition Some-to-None timed out only in the mutant"
+    },
+    "R1M3": {
+      "direct": "Killed",
+      "inverse": "Killed",
+      "witness": "pinned public inventory rejected raw commit_output; runtime and P1295 boundaries remained preserved"
+    },
+    "R1M4": {
+      "direct": "Killed",
+      "inverse": "Killed",
+      "witness": "both R1 completed transitions and three P1295 pre-wait transitions were lost after recapture"
+    }
+  },
+  "mutation_score": {
+    "valid_mutations": 4,
+    "killed": 4,
+    "survived": 0,
+    "unknown": 0,
+    "score": 1.0,
+    "required": 1.0
+  },
+  "binary_provenance": {
+    "control": {
+      "r1": "cb14493dc6296a5f5463af23e4f75ca01eb2d57105fd60c670aa040f98a8ae6b",
+      "p1295": "c37a29dd3fecbdd53feb13ae3d8c4377fe31bab5790ce74d710b45a575f8efab",
+      "p1137": "55446b9d92ef8ca068e556b92a885c8d58b550665d654dba02eff50f3e818853"
+    },
+    "R1M1": {
+      "r1": "0161916c1e0b2a7c730b0f87743d812efe21a94feba26b7cde94f37e2f0e3ffe",
+      "p1295": "bb89e46ec22e0d99e1b65fb270646c0a6334e79699eea6750055ee2572c6bfd0",
+      "p1137": "09ab140c377648d40bcc75ee276e472c4ee744ddc59a3e74bbdda04ad7fc6867"
+    },
+    "R1M2": {
+      "r1": "8629ec44c29d156fb4b60e25ea663653291ffb1ffd2060691c1480fcf5d0296e",
+      "p1295": "bf9fd11f8ed0b9b13d80501723f28724b03616a1d8be16937229e58f63165aa0",
+      "p1137": "45ee699e5b0a53ef3ae05f62f96b97a1c9e7dab6beca76b3f2917b7e3811e14a"
+    },
+    "R1M3": {
+      "r1": "47c6e671b53bb25575cd9fde43c69a1b1cbcb905eae5261083e7210263078c20",
+      "p1295": "0267c7025de45a6ed97ca6fc08c8c0c05ea0ed582e9e92bb7437f0e36617565e",
+      "p1137": "7401c18bd53ca00da2f9623b214a05654ec84d071c5482c21c33a1e73c4f800d"
+    },
+    "R1M4": {
+      "r1": "52a61ad1f8dd31df3b5f316bb88212d4de88bb100731d595765015707785784a",
+      "p1295": "91141811f26305901fa781ae4de34e124c09481810710c5146797461b89f4c40",
+      "p1137": "3d0f75a2dce24a7e3ada1826c6acfa70e7683829f3c0e7bb9d47d47b74cf3246"
+    }
+  },
+  "toolchain": {
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+    "rustc_commit_hash": "ded5c06cf21d2b93bffd5d884aa6e96934ee4234",
+    "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+    "rustdoc_schema": 56,
+    "network": "offline"
+  },
+  "repository_preservation_before_receipt": {
+    "measured_at": "2026-09-03T09:45:26.328505052-03:00",
+    "head": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "working_tree": "uncommitted predecessor/P1297 chain preserved",
+    "status_porcelain_entries_before_plan": 31,
+    "status_porcelain_sha256_before_plan": "44b6eb598a5babc2115d969911f61e8dbc12fb5c4685c11c68b69c14cae1d098",
+    "status_porcelain_entries_after_plan_before_receipt": 32,
+    "status_porcelain_sha256_after_plan_before_receipt": "ccf4b829bc8a7caad8db1e708dce63bcfee21cb96472db30b6601aab5aec77e7",
+    "tracked_diff_stat_sha256": "ef79219437e7ed01ed4db348e9f15c39d6dc3bcb062d2461cd76110eedfe8ab3",
+    "tracked_diff_stat": "6 files changed, 630 insertions(+), 106 deletions(-)",
+    "staged_paths": 0,
+    "protected_hashes_match_frozen_inputs": true
+  },
+  "limitations": [
+    "No technical filesystem read isolation is claimed.",
+    "The temporary logs and calibrator sources are intentionally outside the repository under /tmp, as required by the role capability.",
+    "The canonical plan file timestamp does not independently prove that the design preceded execution; ordering is attested by this role and by the frozen inputs, commands, source hashes, and logs.",
+    "The receipt proves discrimination only for R1M1-R1M4 and the recorded P1295/P1137 boundaries, not general watch equivalence.",
+    "The calibration control is not a candidate implementation and its body must not be disclosed or delivered to P5."
+  ],
+  "authorization": {
+    "r1_seal_authority": "P4-R1 only",
+    "p5_implementation_authorized": false,
+    "r2_transition_authorized": false,
+    "r3_transition_authorized": false,
+    "predecessors_absolved": false,
+    "seal_certificate_or_final_report_created": false
+  },
+  "next_authority": "P4_R1_INDEPENDENT_SEALER",
+  "next_gate": "P4-R1 must independently verify frozen hashes, allowlists, RED, score 1.0, order invariance, preservation, and this receipt before any R1 seal."
+}

@@ -1,0 +1,159 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "step": "P1295",
+  "protocol": {
+    "regime": "full",
+    "segregation": "capabilities-and-artifacts",
+    "filesystem_read_isolation_attested": false,
+    "unknown_policy": "Unknown never succeeds, receives no credit, and blocks a seal or certificate except for an explicitly opaque case that validates the Unknown class."
+  },
+  "frozen_at": "2026-09-02T22:50:58-03:00",
+  "baseline": {
+    "head": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "commit_subject": "docs: record blocked step 1294 verification",
+    "commit_date": "2026-09-02T22:23:37-03:00",
+    "tracked_diff_stat_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "initial_status_porcelain_sha256": "3cdf66b7911b6b12e8b414fc2b54d6da4e6138f025004f566a87db5d9b67ef3b",
+    "initial_untracked": [
+      {
+        "path": "00_nucleo/diagnosticos/p1294-blocked-report.md",
+        "sha256": "b87dfe26f22bf46dd20e80a568a34b8f9da26138616932b3a84e6e522a8f959b"
+      },
+      {
+        "path": "00_nucleo/materialization/typst-passo-1295.md",
+        "sha256": "e0328b02cecdfefb8dc7acc29d3faff50a2ce5ab1cf92d8cd2d77a0c6e0f0663"
+      }
+    ]
+  },
+  "authoritative_step": {
+    "path": "00_nucleo/materialization/typst-passo-1295.md",
+    "sha256": "e0328b02cecdfefb8dc7acc29d3faff50a2ce5ab1cf92d8cd2d77a0c6e0f0663"
+  },
+  "frozen_p1294": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1294.md",
+      "sha256": "10d6393ad9615f0ed38bc7ad8192d167a5bf91388e52cf38a1acb4271b1cc2e4"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1294-sanitization-manifest.json",
+      "sha256": "0d3f24c9ac3f5691d4f07c1658440b58134bb9e94fd5d7e47f42ff84bedf7c41"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1294-terminal-seal.json",
+      "sha256": "352ad6184b4c25c3ec5136ff56cca7ec8600885f69f89d248506fa698d4546a0"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1294-verification-receipt.json",
+      "sha256": "0d31aa9b1e31440552c1d52f571923b40d68f7c65027bd093417c906c04535d1"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1294-blocked-report.md",
+      "sha256": "b87dfe26f22bf46dd20e80a568a34b8f9da26138616932b3a84e6e522a8f959b"
+    }
+  ],
+  "l0_inputs": [
+    {
+      "path": "00_nucleo/prompts/shell/watch.md",
+      "sha256": "a40e3a6214da0cbc79b1cdd6fd6ad7305704e2054deae915348ff6acb4bb091d",
+      "consumer": "03_infra/src/watch.rs",
+      "consumer_sha256": "33c74822afe34e0eb70f6b211a77c86231e2cf69c52e98cd1ab2687d7d36e2a9"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring.md",
+      "sha256": "539815d1e892117baec6e5e8e51e37a155dadcaa682e3349c11cc66dd52f623c",
+      "consumer": "04_wiring/src/main.rs",
+      "consumer_sha256": "ca65db98f911f03c7e1772802dafc8003e50c0c3cfefcef7cc2249549c2004da"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/cli.md",
+      "sha256": "7f48645d50982a0adc2bdeabbc5b62b40390da795d8ee9f2caca4c793e351e7b",
+      "consumer": "04_wiring/tests/cli.rs",
+      "consumer_sha256": "6a0075c7021f01de3888b1e50f40ee35c8e03a4d507f90b62ae2524e9aafaaca"
+    }
+  ],
+  "frozen_build_inputs": [
+    {
+      "path": "02_shell/build.rs",
+      "sha256": "8fa42b2aecdaa6d8cbd31dfcfe901cef27474ab14cc42c0c05fe27d20fe175b5"
+    },
+    {
+      "path": "00_nucleo/prompts/shell/cli.md",
+      "sha256": "a2e050633516ae486a6a00968ee8e20a28990c9006582a4b82a820a0b254f30f"
+    }
+  ],
+  "required_observables": [
+    "An opaque L3 snapshot captures observed paths and fingerprints once before publication.",
+    "Waiting since a supplied snapshot detects same-length content change, creation, and removal without recapturing the baseline.",
+    "L4 normalizes the dependency set and captures the snapshot before commit_output or discard_output.",
+    "The P1137 CLI observer changes the asset once after first publication, distinguishes timeout phases, verifies child liveness, and preserves irrelevant-file, transient-error, last-artifact, and recovery checks.",
+    "A build SHA-256 identifies the artifact built at its recorded HEAD and is not cross-commit semantic equality."
+  ],
+  "roles": {
+    "P1": {
+      "executor": "primary Codex session",
+      "environment": "shared workspace; no technical read isolation",
+      "read_basis": "P1295 step, current ADRs, current L0s, frozen baseline and measurements",
+      "write_allowlist": [
+        "00_nucleo/prompts/shell/watch.md",
+        "00_nucleo/prompts/wiring.md",
+        "00_nucleo/prompts/wiring/tests/cli.md",
+        "03_infra/src/watch.rs (lineage header only)",
+        "04_wiring/src/main.rs (lineage header only)",
+        "04_wiring/tests/cli.rs (lineage header only)",
+        "00_nucleo/diagnosticos/p1295-manifest.json",
+        "00_nucleo/diagnosticos/p1295-l0-gate-receipt.md"
+      ],
+      "must_stop_after": "P1295_L0_AUTHORED_AWAITING_HUMAN_GATE"
+    },
+    "P2": {
+      "starts_after": "explicit human confirmation",
+      "must_not_read": "candidate implementation",
+      "write_allowlist": [
+        "00_nucleo/prompts/infra/tests/p1295_watch_contract.md",
+        "03_infra/tests/p1295_watch_contract.rs",
+        "04_wiring/tests/cli.rs (strictly test-only P1137 adjustments)",
+        "00_nucleo/diagnosticos/p1295-red-tests-receipt.json"
+      ]
+    },
+    "P3": {
+      "starts_after": "explicit human confirmation",
+      "must_not_read": "candidate implementation",
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1295-adversarial-plan.md",
+        "temporary mutation runner",
+        "00_nucleo/diagnosticos/p1295-discrimination-receipt.json"
+      ]
+    },
+    "P4": {
+      "starts_after": "RED and discrimination gate",
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1295-contract-seal.json"
+      ]
+    },
+    "P5": {
+      "starts_after": "valid contract seal",
+      "must_not_receive": "private oracle or adversary output",
+      "write_allowlist": [
+        "03_infra/src/watch.rs (body)",
+        "04_wiring/src/main.rs (body)",
+        "00_nucleo/diagnosticos/p1295-implementation-receipt.md"
+      ]
+    },
+    "P6": {
+      "starts_after": "candidate implementation",
+      "must_not_edit": "verified inputs or candidate",
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1295-surface-default.json",
+        "00_nucleo/diagnosticos/p1295-surface-html.json",
+        "00_nucleo/diagnosticos/p1295-verification-receipt.json",
+        "00_nucleo/diagnosticos/p1295-certificate.json",
+        "00_nucleo/diagnosticos/p1295-final-report.md"
+      ]
+    }
+  },
+  "human_gate": {
+    "required": true,
+    "reason": "W1 adds a public L3-to-L4 API and W2 changes persistent watch behavior.",
+    "status": "pending"
+  }
+}

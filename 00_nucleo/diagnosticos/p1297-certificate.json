@@ -1,0 +1,162 @@
+{
+  "schema": "tekt-final-certificate/v1",
+  "step": "P1297",
+  "generated_at": "2026-09-03T16:48:53.910197044-03:00",
+  "verdict": "CERTIFIED",
+  "winning_redesign": "R1_CAPABILITY",
+  "scope": "Armamento e finalização causal do ciclo watch para os artefatos, versões e observáveis pinados.",
+  "maximal_claim_literal_from_step": "Armamento e finalização causal do ciclo watch verificados pelo redesenho\nvencedor registrado, para os artefatos, versões e observáveis pinados, sem\nisolamento técnico de leitura e sem alegação de equivalência funcional geral.",
+  "process_incident": "PROCESS_VIOLATION_CONFIRMED_NOT_ABSOLVED",
+  "attestation_limits": {
+    "filesystem_read_isolation_claimed": false,
+    "general_functional_equivalence_claimed": false,
+    "predecessor_absolution_claimed": false,
+    "prior_p6_attempt_absolution_claimed": false
+  },
+  "causal_chain": {
+    "authoritative_step": {
+      "path": "00_nucleo/materialization/typst-passo-1297.md",
+      "sha256": "5116ffc535bb8cbd33ca8fb449b492ddfcf9e133246d7143c27a97960748c682"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1297-manifest.json",
+      "sha256": "5bf3f29e353403006b90971e05f786ad2548648c053b9db59f879841aecdf322"
+    },
+    "redesign_ledger": {
+      "path": "00_nucleo/diagnosticos/p1297-redesign-ledger.json",
+      "sha256": "bfc87da5047004f1cce67df0a14a7f6b9e1fb341a77169fc6ac1af8faaa91db0"
+    },
+    "human_gate": {
+      "path": "00_nucleo/diagnosticos/p1297-r1-l0-gate-receipt.md",
+      "sha256": "11777b20d0fc62256077339c35b86c559ba90cce167da2aee2ca081a9bd446e2",
+      "scope": "R1_CAPABILITY only",
+      "result": "PASS"
+    },
+    "r1_red": {
+      "path": "00_nucleo/diagnosticos/p1297-r1-red-tests-receipt.json",
+      "sha256": "2b6a89b1fb1eca99f516470c5c339f9c2321234180e2cee86ef3249e117285be"
+    },
+    "r1_adversarial_plan": {
+      "path": "00_nucleo/diagnosticos/p1297-r1-adversarial-plan.md",
+      "sha256": "6118b7c23db150753e7601e2fb03322a1d27743cf13ad3b67bffda9a8d55b5de"
+    },
+    "r1_discrimination": {
+      "path": "00_nucleo/diagnosticos/p1297-r1-discrimination-receipt.json",
+      "sha256": "e48473149010ef7b20d91d0315bce6b0cbafa2d516dd2cab5594d4b21982caab",
+      "mutation_score": 1.0,
+      "valid_mutants": 4,
+      "killed": 4,
+      "survivors": 0,
+      "unknown": 0,
+      "order_invariant": true
+    },
+    "r1_seal": {
+      "path": "00_nucleo/diagnosticos/p1297-r1-contract-seal.json",
+      "sha256": "2710fbbbe8748176764d37be40b40c30d93d39f1442e02064f32c7ff31348e92",
+      "verdict": "P1297_R1_CONTRACT_SEALED_P5_R1_AUTHORIZED"
+    },
+    "implementation": {
+      "path": "00_nucleo/diagnosticos/p1297-implementation-receipt.md",
+      "sha256": "7b23e0c2de48343debfa9ae684202729db450f5adbfe15a000dcb24495e228cb",
+      "watch_consumer_sha256": "34188c0a3bdc129abc5c3eb9636a5fc5a701fc68f61c530c7a7f08a80a961b3c",
+      "wiring_consumer_sha256": "40a7885a2d4aa6c9a02921461be44928f14e75f072bcda203433c55d1771a6f7",
+      "cli_consumer_sha256": "56d989a4f79112d59558a71b0dbf609aa4022f9df0290e56afebc1b2b218a42b"
+    },
+    "final_verification": {
+      "path": "00_nucleo/diagnosticos/p1297-verification-receipt.json",
+      "sha256": "c9dd6046ebea9c90397212c1fce2ec3e00d5e473df0211f3cecef9c0c50ba111",
+      "verdict": "PASS_READY_FOR_CERTIFICATE"
+    }
+  },
+  "previous_p6_attempts": {
+    "attempt_1": {
+      "sha256": "f226cc3a86d138cf2b5b8d402109ccfae2bb54e9fd6447ba89118c0823177049",
+      "verdict": "BLOCKED",
+      "absolved": false
+    },
+    "attempt_2": {
+      "sha256": "a36470ab02c0cb337eb93d85e75de1086351142ff6c0d895e4d8ec826a8bfef2",
+      "verdict": "BLOCKED",
+      "absolved": false,
+      "exact_bytes_embedded_in_final_receipt": true,
+      "decode_sha256_confirmed": true
+    },
+    "statement": "Both earlier attempts remain terminally BLOCKED and are not absolved by this certificate."
+  },
+  "predecessors": {
+    "p1294": {
+      "step_sha256": "10d6393ad9615f0ed38bc7ad8192d167a5bf91388e52cf38a1acb4271b1cc2e4",
+      "verification_receipt_sha256": "0d31aa9b1e31440552c1d52f571923b40d68f7c65027bd093417c906c04535d1",
+      "verdict": "BLOCKED",
+      "byte_preserved": true,
+      "absolved": false
+    },
+    "p1295": {
+      "step_sha256": "e0328b02cecdfefb8dc7acc29d3faff50a2ce5ab1cf92d8cd2d77a0c6e0f0663",
+      "verification_receipt_sha256": "06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573",
+      "verdict": "BLOCKED",
+      "byte_preserved": true,
+      "absolved": false
+    },
+    "p1296": {
+      "step_sha256": "5a7f7c5d364fa6a373c1d411b8710131c68198bfeaaa4b19ec53fb17f7b8c00b",
+      "test_receipt_sha256": "be8aaf3537bb068aab8eff1c5b656fe74c56cec8bd144f22e48a12b486d3e8a0",
+      "discrimination_receipt_sha256": "51073959b26cc834f1f1dbe69b5c4e70b5e7f1c71d28282b7424e0306e641525",
+      "verdict": "BLOCKED_OBSERVER_INSUFFICIENT_AFTER_REVISION_2",
+      "byte_preserved": true,
+      "absolved": false
+    }
+  },
+  "verification_summary": {
+    "r1_contract": "2/2 runs; 7/7 each",
+    "p1295_contract": "2/2 runs; 6/6 each",
+    "p1292": "11/11 direct and 11/11 inverse",
+    "p1293": "11/11 direct and 11/11 inverse",
+    "p1137": "2/2 focal plus 20/20 consecutive fixed runs",
+    "cli_full": "2/2 runs; 71/71 each",
+    "workspace": "2/2 runs; exit 0 each",
+    "fmt": "PASS",
+    "lint_full": "PASS",
+    "lint_individual": "V3,V4,V5,V7,V13,V14,V15,V26 all PASS with --fail-on warning",
+    "fix_hashes_dry_run": "PASS: Nothing to fix",
+    "diff": "PASS; index empty; no staging performed",
+    "r2_started": false,
+    "r3_started": false,
+    "mutation_testing_performed_by_p6": false
+  },
+  "build": {
+    "head": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "cargo_target_dir": "/dev/shm/typst-crystalline-p1297-p6.7lbVHi/target",
+    "tmpdir_tmp_temp_overridden": false,
+    "typst_commit_sha": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "binary_path": "/dev/shm/typst-crystalline-p1297-p6.7lbVHi/target/release/typst",
+    "binary_sha256": "9b9ac843317c766ddd2aa664caf6cbf8f6a8adee5810b0ebf696bbc4b12bebd8",
+    "version": "typst 0.15.1 (76fb7336)",
+    "cargo_lock_sha256": "6ab63c71323c0c8b3c1dd1f4036f0eecaf79c7b929456b1acd13b36e93343db7",
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+    "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+    "rust_source_inventory": "473 paths; sha256 3d556c34f6e5425e55e0ef8bcf08faca1f4d188cb1ac77c07de716adb2454cd1",
+    "font_inventory": "1323 fc-list entries; sha256 7f3a56b9c5bba9921d10d8cac9c8f9078a614a41f704ccf3d94ae014433432af"
+  },
+  "surfaces": {
+    "default": {
+      "path": "00_nucleo/diagnosticos/p1297-surface-default.json",
+      "sha256": "f8e36e6a38e97aa570da3905021a029321aaffa214e5b3fa78b489e9504312eb",
+      "counts": "111/99/12",
+      "missing": 0,
+      "unverified": 0,
+      "unknown": 0
+    },
+    "html": {
+      "path": "00_nucleo/diagnosticos/p1297-surface-html.json",
+      "sha256": "407570734adae8e7920f7780f9cdd5c9083bf3d4307577efd2d44e508ae7fa2e",
+      "counts": "115/104/11",
+      "missing": 0,
+      "unverified": 0,
+      "unknown": 0
+    },
+    "comparison_to_p1293": "All results are identical; the sole difference is $.binaries.crystalline.sha256.",
+    "embedded_crystalline_sha_matches_real_binary": true
+  },
+  "state": "P1294_BLOCKED_P1295_BLOCKED_P1296_BLOCKED_P1297_CERTIFIED"
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 934a8298
+//! @prompt-hash 248c887e
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -93,29 +93,32 @@ fn run_watch(intent: WatchIntent) -> ExitCode {
         let mut compile = intent.compile.clone();
         compile.output = staging.clone();
         let (exit_code, dependencies) = run_compile_observed(compile);
-        if exit_code == ExitCode::SUCCESS {
-            if let Err(error) = typst_infra::watch::commit_output(&staging, &destination)
-            {
-                typst_infra::watch::discard_output(&staging);
-                eprintln!(
-                    "error: failed to replace {} atomically: {}",
-                    destination.display(),
-                    error
-                );
-                return ExitCode::from(2);
-            }
-        } else {
-            typst_infra::watch::discard_output(&staging);
-        }
-
         let dependencies = if dependencies.is_empty() {
             vec![intent.compile.input.clone()]
         } else {
             dependencies
         };
+        let armed = typst_infra::watch::arm(&dependencies);
+
+        let snapshot = if exit_code == ExitCode::SUCCESS {
+            match armed.publish(&staging, &destination) {
+                Ok(snapshot) => snapshot,
+                Err(error) => {
+                    eprintln!(
+                        "error: failed to replace {} atomically: {}",
+                        destination.display(),
+                        error
+                    );
+                    return ExitCode::from(2);
+                }
+            }
+        } else {
+            armed.abandon(&staging)
+        };
+
         eviction::crystalline_evict(10);
-        typst_infra::watch::wait_for_change(
-            &dependencies,
+        typst_infra::watch::wait_for_change_since(
+            snapshot,
             std::time::Duration::from_millis(100),
         );
     }

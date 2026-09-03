@@ -1,0 +1,261 @@
+{
+  "schema": "tekt-evidence-closure-verification-receipt/v1",
+  "step": "P1298",
+  "phase": "P4-independent-verifier",
+  "generated_at": "2026-09-03T17:39:03,443654822-03:00",
+  "executor": {
+    "identity": "Codex subagent /root/p1298_p4_verifier",
+    "environment": "/repos/Antigravity/typst-crystalline shared workspace",
+    "role": "P4 independent verifier"
+  },
+  "verdict": "PASS",
+  "terminal_state": "P1297_CERTIFICATE_PRESERVED_P1298_EVIDENCE_CLOSURE_READY_NOT_COMMITTED",
+  "no_commit_yet": true,
+  "protocol": {
+    "regime": "tekt-materializacao-segregada/evidential-sealing-append-only",
+    "segregation_basis": [
+      "frozen causal inputs",
+      "write capabilities",
+      "role ordering",
+      "canonical artifacts"
+    ],
+    "unknown_policy": "Any absent identity, unreproducible hash, ambiguous relation or unclassified path is Unknown and blocks the commit.",
+    "unexpected_unknown_count": 0,
+    "filesystem_read_isolation_claimed": false,
+    "general_functional_equivalence_claimed": false,
+    "product_semantics_changed": false,
+    "mutation_testing_applicable_to_p1298": false,
+    "p1297_functional_gates_reexecuted": false
+  },
+  "capabilities": {
+    "read_allowlist": "P1298 step and frozen P1298 inputs; exact P1295/P1296/P1297 materialization paths and P1294-P1297 causal artifacts only where authorized by the step; repository and Git evidence needed by the proportional gates",
+    "materialization_paths_read": [
+      "00_nucleo/materialization/typst-passo-1298.md"
+    ],
+    "materialization_or_context_directory_listed": false,
+    "context_paths_read": [],
+    "repository_write_allowlist": [
+      "00_nucleo/diagnosticos/p1298-verification-receipt.json"
+    ],
+    "repository_paths_written": [
+      "00_nucleo/diagnosticos/p1298-verification-receipt.json"
+    ],
+    "out_of_allowlist_writes": [],
+    "verified_input_edited": false,
+    "predecessor_product_test_l0_contract_surface_or_index_edited": false,
+    "cargo_test_build_or_mutant_run": false,
+    "staging_performed": false,
+    "commit_performed": false
+  },
+  "method_inputs": {
+    "skill": {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    "roles_reference": {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    "gates_reference": {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    },
+    "authoritative_step": {
+      "path": "00_nucleo/materialization/typst-passo-1298.md",
+      "sha256": "f56220dfb38e4222502391c5d6e429d988214006edffc5bd6d1934eb715a3033"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1298-manifest.json",
+      "sha256": "176c5d7b59268febb0091d1107faaa2a3737cb64855f0a3d34eba25d4fdb038c"
+    },
+    "audit_receipt": {
+      "path": "00_nucleo/diagnosticos/p1298-audit-receipt.json",
+      "sha256": "75f0ae65c55870486a4b707c3bb13f941255e23c63476d6c166b88e7fe94e0cc",
+      "verdict": "PASS"
+    },
+    "terminal_ledger": {
+      "path": "00_nucleo/diagnosticos/p1298-terminal-ledger.json",
+      "sha256": "834d58022563ffb3f35fa6ff04a21816160a65a6a21357067b7327ab462a8138",
+      "verdict": "PASS"
+    },
+    "staging_manifest": {
+      "path": "00_nucleo/diagnosticos/p1298-staging-manifest.json",
+      "sha256": "8527e3fb28cae67c1b93b48264b2e6f4b23345f6b702db92f22cb264e1b0f1c2",
+      "verdict": "PASS"
+    }
+  },
+  "pre_staging_index_gate": {
+    "observed_before_any_p1298_staging": true,
+    "path_count": 22,
+    "names_sha256": "83cf1db8b37e229f8fe2d9e6276a28f3306f23c2991f9826afe71caad26ca384",
+    "binary_patch_sha256": "65d890b79c83bee191dbbf5d24f38bf180dc0f9135e23cc3a179f3a17d3f1314",
+    "equals_manifest_group_a": true,
+    "git_diff_cached_check_exit_code": 0,
+    "git_diff_cached_check_output": "",
+    "staging_performed_after_gate": false
+  },
+  "verification_gates": {
+    "json_hash_reference_identity_and_canonicalization": {
+      "command": "ruby -rjson -rdigest -rbase64 -ropen3 -rset -e <inline P4 independent verifier>",
+      "result": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.13,
+      "output": "PASS json=21 manifest_hashes=40 identities=48 groups=22/18/8 ledger_edges=8 embedded_receipts=2 unexpected_unknown=0 audit_tuple=mismatch_consistent index=22",
+      "json_documents_parsed_and_roundtripped": 21,
+      "manifest_group_a_b_hashes_reproduced": 40,
+      "identity_count": 48,
+      "unique_identity_paths": 48,
+      "known_current_identities": 45,
+      "pending_future_causal_outputs": 3,
+      "pending_future_outputs_are_not_unknown": true,
+      "group_counts": {
+        "A": 22,
+        "B": 18,
+        "C": 8
+      },
+      "ordered_paths_equal_authoritative_allowlist": true,
+      "canonical_embedded_receipts_strict_base64_decoded": 2,
+      "canonical_attempt_1_sha256": "f226cc3a86d138cf2b5b8d402109ccfae2bb54e9fd6447ba89118c0823177049",
+      "canonical_attempt_2_sha256": "a36470ab02c0cb337eb93d85e75de1086351142ff6c0d895e4d8ec826a8bfef2"
+    },
+    "audit_tuple_and_documentary_mismatch": {
+      "result": "PASS",
+      "finding": "DOCUMENTARY_FIELD_LABEL_MISMATCH_NON_RETROACTIVE",
+      "actual_receipt_verdict": "PASS",
+      "actual_ready_for_certificate": true,
+      "actual_terminal_state_suffix": "P1297_PASS_READY_FOR_CERTIFICATE",
+      "certificate_nested_label": "PASS_READY_FOR_CERTIFICATE",
+      "field_value_equal": false,
+      "semantic_authorization_consistent": true,
+      "p1297_final_receipt_sha256": "c9dd6046ebea9c90397212c1fce2ec3e00d5e473df0211f3cecef9c0c50ba111",
+      "p1297_certificate_sha256": "b7d429d76fd691238eef6ad2a67c8bf7631a5e91fa48b042d2d4f947f6ddac2b",
+      "third_execution_real_gate_failures": 0
+    },
+    "terminal_ledger": {
+      "result": "PASS",
+      "append_only_edges": 8,
+      "sequence_contiguous_1_through_8": true,
+      "edge_continuity": true,
+      "all_path_hash_references_reproduced": true,
+      "r1_sealed": true,
+      "r1_candidate_promoted": true,
+      "r2_started": false,
+      "r3_started": false
+    },
+    "cargo_fmt": {
+      "command": "cargo fmt --all -- --check",
+      "result": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 2.17,
+      "output": ""
+    },
+    "crystalline_lint_full": {
+      "command": "crystalline-lint .",
+      "result": "PASS_EXIT_0",
+      "exit_code": 0,
+      "elapsed_seconds": 0.72,
+      "output_summary": "Warnings and informational diagnostics were emitted by the non-strict full scan; no fatal violation caused a non-zero exit. Strict ownership/hash/nucleus gates are recorded separately."
+    },
+    "crystalline_lint_v5": {
+      "command": "crystalline-lint --checks v5 --fail-on warning .",
+      "result": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.77,
+      "output": "No violations found"
+    },
+    "crystalline_lint_v15": {
+      "command": "crystalline-lint --checks v15 --fail-on warning .",
+      "result": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.79,
+      "output": "No violations found"
+    },
+    "crystalline_lint_v26": {
+      "command": "crystalline-lint --checks v26 --fail-on warning .",
+      "result": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.75,
+      "output": "No violations found"
+    },
+    "fix_hashes_dry_run": {
+      "command": "crystalline-lint --fix-hashes --dry-run .",
+      "result": "PASS_NOTHING_TO_FIX",
+      "exit_code": 0,
+      "elapsed_seconds": 0.80,
+      "output": "Nothing to fix"
+    },
+    "git_diff_check": {
+      "command": "git diff --check",
+      "result": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.00,
+      "output": ""
+    }
+  },
+  "post_gate_revalidation": {
+    "measured_after_gates_at": "2026-09-03T17:38:35,104674172-03:00",
+    "command": "ruby -rjson -rdigest -ropen3 -e <inline P4 frozen-input and Git-state revalidator>",
+    "result": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.12,
+    "output": "PASS revalidated_inputs=5 manifest_identities=40 forbidden_terminal_present=0 head=76fb7336311bdb6497456ab5fdc0a8ce355ff39b index_paths=22 names_sha256=83cf1db8b37e229f8fe2d9e6276a28f3306f23c2991f9826afe71caad26ca384 patch_sha256=65d890b79c83bee191dbbf5d24f38bf180dc0f9135e23cc3a179f3a17d3f1314 cached_check=PASS status_entries=45 status_sha256=5ad25a427c20ae6d5078fdde6327c4afaa967632683387492e4123f7b267038a",
+    "head": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "causal_inputs_revalidated": 5,
+    "manifest_group_a_b_identities_revalidated": 40,
+    "forbidden_predecessor_terminal_artifacts_present": 0,
+    "index_paths": 22,
+    "index_names_sha256": "83cf1db8b37e229f8fe2d9e6276a28f3306f23c2991f9826afe71caad26ca384",
+    "index_binary_patch_sha256": "65d890b79c83bee191dbbf5d24f38bf180dc0f9135e23cc3a179f3a17d3f1314",
+    "git_diff_cached_check": "PASS",
+    "working_tree_status_entries_before_p4_receipt": 45,
+    "working_tree_status_sha256_before_p4_receipt": "5ad25a427c20ae6d5078fdde6327c4afaa967632683387492e4123f7b267038a"
+  },
+  "predecessor_disposition": {
+    "P1294": {
+      "status": "BLOCKED",
+      "absolved": false
+    },
+    "P1295": {
+      "status": "BLOCKED",
+      "absolved": false
+    },
+    "P1296": {
+      "status": "BLOCKED",
+      "absolved": false
+    },
+    "P1297": {
+      "status": "CERTIFIED_PRESERVED",
+      "certificate_sha256": "b7d429d76fd691238eef6ad2a67c8bf7631a5e91fa48b042d2d4f947f6ddac2b"
+    },
+    "process_incident": "PROCESS_VIOLATION_CONFIRMED_NOT_ABSOLVED"
+  },
+  "authorization": {
+    "ready_for_p5": true,
+    "exclusive_next_authority": "P5_DOCUMENTARY_SEALER",
+    "authorized_paths": [
+      "00_nucleo/diagnosticos/p1298-certificate.json",
+      "00_nucleo/diagnosticos/p1298-final-report.md"
+    ],
+    "staging_authorized_now": false,
+    "staging_conditioned_after_p5": true,
+    "staging_conditions": [
+      "P5 certificate and final report are created in causal order without rewriting any P4 input or this receipt",
+      "P5 certificate pins this receipt and authorizes only literal staging of the exact 48-path allowlist",
+      "P6 revalidates all 48 path identities, the 22-path initial index names and binary patch hashes, cached diff, exact set equality and absence of unstaged changes in the 48 paths",
+      "P6 performs no content write and creates only the single authorized commit"
+    ],
+    "p6_authorized_by_this_receipt": false,
+    "commit_authorized_by_this_receipt": false,
+    "predecessors_absolved": false,
+    "p1297_certificate_preserved": true,
+    "claim": "P4 verified the append-only evidence closure for the frozen artifacts, hashes and proportional gates. Only P5 may seal the pre-commit certificate and final report next; staging remains forbidden until the P5 artifacts exist and all P6 preconditions are revalidated."
+  },
+  "limitations": [
+    "No technical filesystem read isolation is claimed.",
+    "No general functional equivalence is claimed.",
+    "P1298 did not rerun or reopen R1, R2, R3, product tests, workspace tests, release builds, stress campaigns or mutation campaigns.",
+    "P1294, P1295 and P1296 remain BLOCKED, byte-preserved and not absolved.",
+    "The P1297 certificate remains preserved with field_value_equal=false and semantic_authorization_consistent=true.",
+    "This receipt authorizes only P5 documentary sealing; no staging or commit has occurred."
+  ]
+}

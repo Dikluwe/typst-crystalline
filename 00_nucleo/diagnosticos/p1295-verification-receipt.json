@@ -1,0 +1,266 @@
+{
+  "schema": "tekt.p1295.verification-receipt.v1",
+  "step": "P1295",
+  "role": "P6-independent-final-verifier",
+  "generated_at": "2026-09-03T00:15:15.912031989-03:00",
+  "verdict": "BLOCKED",
+  "terminal_state": "P1294_BLOCKED_P1295_NOT_CERTIFIED",
+  "certificate_authorized": false,
+  "report_authorized": false,
+  "staging_authorized": false,
+  "protocol": {
+    "regime": "full",
+    "segregation": "capabilities-and-artifacts",
+    "environment": "shared workspace; no technical filesystem read isolation",
+    "verified_inputs_edited": false,
+    "unknown_policy": "Unknown never succeeds, receives no credit, and cannot authorize a certificate.",
+    "attestation_limit": "This blocked receipt records only the frozen inputs and gates actually observed. It does not claim general functional equivalence or successful completion of P1295."
+  },
+  "authority": {
+    "write_allowlist_exercised": [
+      "00_nucleo/diagnosticos/p1295-verification-receipt.json"
+    ],
+    "repository_writes_before_this_receipt": [],
+    "repository_writes_after_this_receipt": [],
+    "surfaces_created": false,
+    "certificate_created": false,
+    "final_report_created": false,
+    "staging_performed": false,
+    "stop_reason": "The first full CLI suite failed. The coordinating authority then required immediate stop and explicitly prohibited workspace, build, surface, certificate, report, and staging work."
+  },
+  "causal_predecessor": {
+    "head": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "authoritative_step": {
+      "path": "00_nucleo/materialization/typst-passo-1295.md",
+      "sha256": "e0328b02cecdfefb8dc7acc29d3faff50a2ce5ab1cf92d8cd2d77a0c6e0f0663"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1295-manifest.json",
+      "sha256": "545c3c661dd11685ff152d889dab7e796bda0659d91ca447c6d3db3794fc2999"
+    },
+    "human_gate": {
+      "path": "00_nucleo/diagnosticos/p1295-l0-gate-receipt.md",
+      "sha256": "155f2c22359b98739b66507e6fc7c678d187a1d8030a3f7b7ed70a1f31b68d78",
+      "response": "Continue",
+      "confirmed_at": "2026-09-02T22:57:37-03:00",
+      "scope": ["W1", "W2", "W3", "B1"]
+    },
+    "contract_seal": {
+      "path": "00_nucleo/diagnosticos/p1295-contract-seal.json",
+      "sha256": "cdd0f5ddc9740808fdee4c0c24d9d05d50c3243bab124678f9d6fba83b86d021",
+      "verdict": "P1295_CONTRACT_SEALED_P5_AUTHORIZED"
+    },
+    "implementation_receipt": {
+      "path": "00_nucleo/diagnosticos/p1295-implementation-receipt.md",
+      "sha256": "c02546962521a58c945114249b39d3a3d9959e91f7a1fd77a4505a17eb3f8bdc"
+    }
+  },
+  "input_integrity": {
+    "measured_after_stop_at": "2026-09-03T00:14:31.839587627-03:00",
+    "head_match": true,
+    "index_empty_before_verification": true,
+    "index_empty_after_stop": true,
+    "direct_raw_hashes_matched": "30/30",
+    "p1295": [
+      {"path":"00_nucleo/diagnosticos/p1295-manifest.json","sha256":"545c3c661dd11685ff152d889dab7e796bda0659d91ca447c6d3db3794fc2999"},
+      {"path":"00_nucleo/diagnosticos/p1295-l0-gate-receipt.md","sha256":"155f2c22359b98739b66507e6fc7c678d187a1d8030a3f7b7ed70a1f31b68d78"},
+      {"path":"00_nucleo/prompts/shell/watch.md","sha256":"f39a63e6a1e2025d3539b61b34b46ffa3a3b0ea2aa64711ed7699abf3e3f7332"},
+      {"path":"00_nucleo/prompts/wiring.md","sha256":"81db17f53cdb344cfbee0a5aee230ae1e480cab1856618f846a5a43a9551e0b5"},
+      {"path":"00_nucleo/prompts/wiring/tests/cli.md","sha256":"5800231392fa0e8a5311a6a5d2664f0f06f85c80b273ffbe80c8fb5e04ed5d1c"},
+      {"path":"00_nucleo/prompts/infra/tests/p1295_watch_contract.md","sha256":"e39d5206b63b883f9a886a01ba2aaa7ff94259542a33693d5927a0a20445b233"},
+      {"path":"03_infra/tests/p1295_watch_contract.rs","sha256":"8dae68ffc12f2708b6bbe3d503a7d0d90a2cb92681762ff5a992ca3f178c7abf"},
+      {"path":"04_wiring/tests/cli.rs","sha256":"cfd6ec5294f410c3625f7a6183db6ad5af776e4b3f8c5af25a96c284b7d5789f"},
+      {"path":"00_nucleo/diagnosticos/p1295-red-tests-receipt.json","sha256":"ac9a8fb41675026bafc884575b387998c45b8318f110508293e99faca1ec4d05"},
+      {"path":"00_nucleo/diagnosticos/p1295-adversarial-plan.md","sha256":"4788f57715e193527bf2e0a1ab86bf1fceee955e7f5933ace51cbb3291e48487"},
+      {"path":"00_nucleo/diagnosticos/p1295-discrimination-receipt.json","sha256":"30392dda4a3f639d39b18d693118feb42182f5f35e0cb615cb7b09d77c75ca51"},
+      {"path":"00_nucleo/diagnosticos/p1295-contract-seal.json","sha256":"cdd0f5ddc9740808fdee4c0c24d9d05d50c3243bab124678f9d6fba83b86d021"},
+      {"path":"00_nucleo/diagnosticos/p1295-implementation-receipt.md","sha256":"c02546962521a58c945114249b39d3a3d9959e91f7a1fd77a4505a17eb3f8bdc"},
+      {"path":"03_infra/src/watch.rs","sha256":"d543b1c32844b6f63085635ae34fa2beb01ba989c4ebed7f789bb5ae77e9ee41"},
+      {"path":"04_wiring/src/main.rs","sha256":"e119a46479e1d2e7b3f0052df2b57ab5d31be573969bbe841dd8ee2d0e3e9c48"}
+    ],
+    "p1294": {
+      "raw_hashes_preserved": [
+        {"path":"00_nucleo/materialization/typst-passo-1294.md","sha256":"10d6393ad9615f0ed38bc7ad8192d167a5bf91388e52cf38a1acb4271b1cc2e4"},
+        {"path":"00_nucleo/diagnosticos/p1294-sanitization-manifest.json","sha256":"0d3f24c9ac3f5691d4f07c1658440b58134bb9e94fd5d7e47f42ff84bedf7c41"},
+        {"path":"00_nucleo/diagnosticos/p1294-terminal-seal.json","sha256":"352ad6184b4c25c3ec5136ff56cca7ec8600885f69f89d248506fa698d4546a0"},
+        {"path":"00_nucleo/diagnosticos/p1294-verification-receipt.json","sha256":"0d31aa9b1e31440552c1d52f571923b40d68f7c65027bd093417c906c04535d1"},
+        {"path":"00_nucleo/diagnosticos/p1294-blocked-report.md","sha256":"b87dfe26f22bf46dd20e80a568a34b8f9da26138616932b3a84e6e522a8f959b"}
+      ],
+      "sanitized_terminal_canonical_bytes": 7870,
+      "sanitized_terminal_canonical_sha256": "6238a84f546d7b15c18b64f6a9402008d2b4c59d719f189ef6f828aaf21d8868",
+      "canonical_recalculation_match": true,
+      "receipt_verdict": "BLOCKED",
+      "receipt_certificate_authorized": false,
+      "receipt_report_authorized": false,
+      "certificate_absent": true,
+      "final_report_absent": true,
+      "process_incident": "PROCESS_VIOLATION_CONFIRMED_NOT_ABSOLVED"
+    },
+    "p1293": {
+      "frozen_evidence_artifact_hashes_preserved": true,
+      "surface_default_sha256": "72a50909525231baafbdefbbc95e2c827eaab833f1062b01f5347636fb4d1106",
+      "surface_html_sha256": "a986b41913d0f00b3ff8a8c77def9b487603dfa0c5f1eef6cfa8b4705b180314",
+      "effective_inventory_canonical_sha256": "33fe3dcd9cd287b24a82e255f7dffd2728cc76aab969ad5b049d35bbcf7b9c42",
+      "effective_inventory_expected": 74,
+      "frozen_inventory_registered_cardinality": "74/74",
+      "frozen_inventory_artifact_and_evidence_preserved": true,
+      "diagnostic_comparison_against_candidate_tree": {
+        "matched_legacy_p1293_hashes": 70,
+        "total_legacy_p1293_hashes": 74,
+        "classification": "NOT_A_GATE_BECAUSE_P1295_AUTHORIZES_THE_FOUR_CHANGED_PATHS",
+        "expected_p1295_changes": [
+        {"path":"00_nucleo/prompts/wiring.md","p1293_sha256":"539815d1e892117baec6e5e8e51e37a155dadcaa682e3349c11cc66dd52f623c","current_p1295_sha256":"81db17f53cdb344cfbee0a5aee230ae1e480cab1856618f846a5a43a9551e0b5"},
+        {"path":"00_nucleo/prompts/wiring/tests/cli.md","p1293_sha256":"7f48645d50982a0adc2bdeabbc5b62b40390da795d8ee9f2caca4c793e351e7b","current_p1295_sha256":"5800231392fa0e8a5311a6a5d2664f0f06f85c80b273ffbe80c8fb5e04ed5d1c"},
+        {"path":"04_wiring/src/main.rs","p1293_sha256":"ca65db98f911f03c7e1772802dafc8003e50c0c3cfefcef7cc2249549c2004da","current_p1295_sha256":"e119a46479e1d2e7b3f0052df2b57ab5d31be573969bbe841dd8ee2d0e3e9c48"},
+        {"path":"04_wiring/tests/cli.rs","p1293_sha256":"6a0075c7021f01de3888b1e50f40ee35c8e03a4d507f90b62ae2524e9aafaaca","current_p1295_sha256":"cfd6ec5294f410c3625f7a6183db6ad5af776e4b3f8c5af25a96c284b7d5789f"}
+        ]
+      },
+      "inventory_gate_verdict": "PASS_FROZEN_EVIDENCE_AND_REGISTERED_74_OF_74_PRESERVED",
+      "inventory_note": "The P1293 preservation requirement applies to its frozen artifact/evidence and recorded 74/74 cardinality. It does not require the four paths deliberately authorized and measured by P1295 to retain their P1293 bytes; treating the 70/74 legacy-byte comparison against the candidate tree as a gate would contradict P1295 itself.",
+      "mutation_evidence_rerun": false,
+      "mutation_result_path": "/tmp/p1293-final-74-results-31.json",
+      "mutation_result_sha256": "a2ae8c75b7792201c902e8c8d38e6ec2071328ebbcb10a6e09f6d7372a051e55",
+      "mutation_baselines_green": "2/2, each 11/11",
+      "mutation_score": 1.0,
+      "valid_mutants": 31,
+      "rejected_valid_mutants": 31,
+      "survivors": 0,
+      "unknown": 0,
+      "order_stable": true
+    }
+  },
+  "tree_witness": {
+    "measured_at": "2026-09-03T00:15:02.701103265-03:00",
+    "head": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "working_tree": "uncommitted",
+    "git_diff_head_stat_sha256": "66da996e80de412c507db6c54f28f137588d5551f5a9b7e79f4525dd800c71e2",
+    "git_diff_head_stat": "6 files changed, 309 insertions(+), 92 deletions(-)",
+    "git_status_porcelain_sha256_before_receipt": "e5cb2da88038af238e24a8e736239f056cc61f5a7dec0016329ccfffb597f6f5",
+    "cargo_lock_sha256": "6ab63c71323c0c8b3c1dd1f4036f0eecaf79c7b929456b1acd13b36e93343db7",
+    "rustc_vv": "rustc 1.92.0 (ded5c06cf 2025-12-08); commit-hash ded5c06cf21d2b93bffd5d884aa6e96934ee4234; host x86_64-unknown-linux-gnu; LLVM 21.1.3",
+    "cargo_v": "cargo 1.92.0 (344c4567c 2025-10-21)"
+  },
+  "gates": {
+    "a_p1295_contract": {
+      "command": "cargo test -p typst-infra --test p1295_watch_contract -- --nocapture",
+      "required_witnessed_runs": 2,
+      "runs": [
+        {"run":1,"started_at":"2026-09-03T00:07:02.350492539-03:00","finished_at":"2026-09-03T00:07:27.489078651-03:00","duration_ms":25130,"exit_code":0,"passed":6,"failed":0,"unknown":0},
+        {"run":2,"started_at":"2026-09-03T00:08:23.557103953-03:00","finished_at":"2026-09-03T00:09:02.598724163-03:00","duration_ms":39030,"exit_code":0,"passed":6,"failed":0,"unknown":0}
+      ],
+      "noncredited_capture_event": {
+        "started_at": "2026-09-03T00:07:31.852486837-03:00",
+        "result": "terminal session ended without the final exit record being retained by the orchestrator",
+        "used_as_success_credit": false,
+        "used_to_erase_failure": false
+      },
+      "verdict": "PASS_2_OF_2"
+    },
+    "a_protected_orders": [
+      {"order":"P1292_THEN_P1293","test":"P1292","command":"cargo test -p typst-wiring --test p1292_contract -- --nocapture","started_at":"2026-09-03T00:09:14.005665596-03:00","finished_at":"2026-09-03T00:09:41.577757175-03:00","duration_ms":27569,"exit_code":0,"passed":11,"failed":0,"log":"/tmp/p1295-p6-order-direct-p1292.log","log_bytes":36298,"log_sha256":"b1b6f566e4cbbcef0581e545d8ca6e220c39b30951338a91107fef9212bcc6a2"},
+      {"order":"P1292_THEN_P1293","test":"P1293","command":"cargo test -p typst-wiring --test p1293_contract -- --nocapture","started_at":"2026-09-03T00:09:48.196129171-03:00","finished_at":"2026-09-03T00:10:14.945154361-03:00","duration_ms":26746,"exit_code":0,"passed":11,"failed":0,"log":"/tmp/p1295-p6-order-direct-p1293.log","log_bytes":33510,"log_sha256":"6a136cd3385982ede4ad3b5436ed874d7087243cfe847416d922abb635be7b81"},
+      {"order":"P1293_THEN_P1292","test":"P1293","command":"cargo test -p typst-wiring --test p1293_contract -- --nocapture","started_at":"2026-09-03T00:10:21.799205355-03:00","finished_at":"2026-09-03T00:10:47.093983080-03:00","duration_ms":25292,"exit_code":0,"passed":11,"failed":0,"log":"/tmp/p1295-p6-order-reverse-p1293.log","log_bytes":33428,"log_sha256":"72aee5e156a6147102504426d14b3f728cac46ad760d7f2c754402f31315fe7e"},
+      {"order":"P1293_THEN_P1292","test":"P1292","command":"cargo test -p typst-wiring --test p1292_contract -- --nocapture","started_at":"2026-09-03T00:10:53.548018769-03:00","finished_at":"2026-09-03T00:11:00.206137832-03:00","duration_ms":6655,"exit_code":0,"passed":11,"failed":0,"log":"/tmp/p1295-p6-order-reverse-p1292.log","log_bytes":33405,"log_sha256":"1ec31dbfd4d16e20e43c214b5c11f1db5d474d16ed330053b8e529c63067d739"}
+    ],
+    "b_p1137_stress": {
+      "command": "cargo test -p typst-wiring --test cli p1137_watch_dependencias_recuperacao_e_filtro -- --exact --nocapture",
+      "execution_policy": "fixed 20 consecutive isolated executions; no loop-until-pass",
+      "started_at": "2026-09-03T00:11:22.908225498-03:00",
+      "finished_at": "2026-09-03T00:12:06.198880743-03:00",
+      "total_duration_ms": 43288,
+      "passed": 20,
+      "failed": 0,
+      "summary_path": "/tmp/p1295-p6-stress.tsv",
+      "summary_sha256": "08653334da6f7243cfc78f210d0f4708d438046c3c19205ce5cb4073da249612",
+      "summary_bytes": 3060,
+      "runs": [
+        {"run":1,"duration_ms":2742,"exit_code":0,"log_sha256":"41ea2be2a99879a900a2d85d3eb6e5f8bae36659f97b7a5a44a2f62cd26ec202"},
+        {"run":2,"duration_ms":2103,"exit_code":0,"log_sha256":"21b948ffa3019d8d871fc90980c32ec7de7c886930a789b832e24c009a593cef"},
+        {"run":3,"duration_ms":2195,"exit_code":0,"log_sha256":"82f882835a6859f7378ce0736bd8ed613a79fb1a4b4a0334b89cdd2189c3fb5b"},
+        {"run":4,"duration_ms":2106,"exit_code":0,"log_sha256":"21b948ffa3019d8d871fc90980c32ec7de7c886930a789b832e24c009a593cef"},
+        {"run":5,"duration_ms":2201,"exit_code":0,"log_sha256":"4f5c2d3d5cf548a475378698900f727500236d55c1940d86515656d786ae9b66"},
+        {"run":6,"duration_ms":2098,"exit_code":0,"log_sha256":"4306e54dea442674050c8ec82be530ccbdc35482f81fedf5727698b64abc23f8"},
+        {"run":7,"duration_ms":2109,"exit_code":0,"log_sha256":"d50cbe63e4da7c860e7817054468a54a41a4c2985abeffeb4ed3a370413559ee"},
+        {"run":8,"duration_ms":2054,"exit_code":0,"log_sha256":"36a2cbd682e1824d9ab820033d2b0f224004587986d72a5aa7b584e8bc67ec09"},
+        {"run":9,"duration_ms":2099,"exit_code":0,"log_sha256":"21b948ffa3019d8d871fc90980c32ec7de7c886930a789b832e24c009a593cef"},
+        {"run":10,"duration_ms":2098,"exit_code":0,"log_sha256":"21b948ffa3019d8d871fc90980c32ec7de7c886930a789b832e24c009a593cef"},
+        {"run":11,"duration_ms":2101,"exit_code":0,"log_sha256":"21b948ffa3019d8d871fc90980c32ec7de7c886930a789b832e24c009a593cef"},
+        {"run":12,"duration_ms":2044,"exit_code":0,"log_sha256":"6da74fcdcd226dcd35251f83f553a8af3655f6f79fa4ecce3a07f6235a5da874"},
+        {"run":13,"duration_ms":2111,"exit_code":0,"log_sha256":"d50cbe63e4da7c860e7817054468a54a41a4c2985abeffeb4ed3a370413559ee"},
+        {"run":14,"duration_ms":2125,"exit_code":0,"log_sha256":"b8560c867956dc2f936906ffb681889e7ea02f060332ecc4715475afd1730714"},
+        {"run":15,"duration_ms":2100,"exit_code":0,"log_sha256":"4306e54dea442674050c8ec82be530ccbdc35482f81fedf5727698b64abc23f8"},
+        {"run":16,"duration_ms":2158,"exit_code":0,"log_sha256":"c3ab0185711740f03210082de1746624a6b3ecbfc75225a67bcdb13bfd0c3488"},
+        {"run":17,"duration_ms":2217,"exit_code":0,"log_sha256":"509c6cf181ad8457d3471aa2161f244bc7b5a435dd9db54810e50ae63347c119"},
+        {"run":18,"duration_ms":2116,"exit_code":0,"log_sha256":"d50cbe63e4da7c860e7817054468a54a41a4c2985abeffeb4ed3a370413559ee"},
+        {"run":19,"duration_ms":2158,"exit_code":0,"log_sha256":"c3ab0185711740f03210082de1746624a6b3ecbfc75225a67bcdb13bfd0c3488"},
+        {"run":20,"duration_ms":2119,"exit_code":0,"log_sha256":"d50cbe63e4da7c860e7817054468a54a41a4c2985abeffeb4ed3a370413559ee"}
+      ],
+      "verdict": "PASS_20_OF_20"
+    },
+    "c_cli_full": {
+      "command": "cargo test -p typst-wiring --test cli -- --nocapture",
+      "runs": [
+        {
+          "run": 1,
+          "started_at": "2026-09-03T00:12:23.509571555-03:00",
+          "finished_at": "2026-09-03T00:12:46.480917758-03:00",
+          "duration_ms": 22968,
+          "exit_code": 101,
+          "passed": 70,
+          "failed": 1,
+          "failed_test": "p1137_watch_dependencias_recuperacao_e_filtro",
+          "failure": "timeout durante recuperação após 20s",
+          "log": "/tmp/p1295-p6-cli-1.log",
+          "log_bytes": 36492,
+          "log_sha256": "919d16a5b6bb24050dcb6dcef20ef57ac8b9cd8f4fb82d018c31d130e6dd508b",
+          "verdict": "FAIL_BLOCKING"
+        },
+        {
+          "run": 2,
+          "started_at": "2026-09-03T00:13:09.863888493-03:00",
+          "finished_at": "2026-09-03T00:13:15.130320803-03:00",
+          "duration_ms": 5263,
+          "exit_code": 0,
+          "passed": 71,
+          "failed": 0,
+          "log": "/tmp/p1295-p6-cli-2.log",
+          "log_bytes": 36128,
+          "log_sha256": "63416ab6ee82d75ef63adc88f52909b136da84fc6e8bb3786a159bda35e242a7",
+          "verdict": "PASS_NON_ABSOLVING_AFTER_RED",
+          "note": "This fixed second run was started before the verifier received the coordinating authority's stop instruction. It does not erase, downgrade, or retry the first failure."
+        }
+      ],
+      "verdict": "FAIL_BLOCKING_1_OF_2_REQUIRED_RUNS_FAILED"
+    },
+    "d_workspace_twice": {"status":"NOT_RUN_AFTER_BLOCKING_CLI_FAILURE","success_credit":false},
+    "e_architecture_and_diff": {"status":"NOT_RUN_AFTER_BLOCKING_CLI_FAILURE","success_credit":false},
+    "f_release_build_witness": {"status":"NOT_RUN_AFTER_BLOCKING_CLI_FAILURE","success_credit":false,"binary_sha256":null,"source_inventory_sha256":null},
+    "g_surfaces": {"status":"NOT_RUN_AFTER_BLOCKING_CLI_FAILURE","success_credit":false,"surface_default_created":false,"surface_html_created":false},
+    "h_preservation": {"status":"PASS_FROZEN_P1293_P1294_EVIDENCE_AND_REGISTERED_INVENTORY_74_OF_74_PRESERVED","p1294_preserved":true,"p1293_evidence_files_preserved":true,"p1293_registered_inventory":"74/74","legacy_hash_comparison_against_four_intentionally_changed_p1295_paths_is_gate":false,"p1293_mutation_evidence_preserved":true},
+    "i_staging": {"status":"NOT_AUTHORIZED_AFTER_BLOCKING_RECEIPT","staging_performed":false}
+  },
+  "blocking_findings": [
+    {
+      "id": "P1295_CLI_FULL_RUN_1_P1137_RECOVERY_TIMEOUT",
+      "first_observed_at": "2026-09-03T00:12:46.480917758-03:00",
+      "gate": "C",
+      "evidence": "/tmp/p1295-p6-cli-1.log",
+      "evidence_sha256": "919d16a5b6bb24050dcb6dcef20ef57ac8b9cd8f4fb82d018c31d130e6dd508b",
+      "reason": "One of the two mandatory full CLI suites failed; the step explicitly makes any such failure blocking.",
+      "later_green_absolves": false
+    }
+  ],
+  "non_outputs": {
+    "p1295_surface_default": "ABSENT_NOT_CREATED",
+    "p1295_surface_html": "ABSENT_NOT_CREATED",
+    "p1295_certificate": "ABSENT_NOT_AUTHORIZED",
+    "p1295_final_report": "ABSENT_NOT_AUTHORIZED",
+    "p1294_certificate": "ABSENT_PRESERVED",
+    "p1294_final_report": "ABSENT_PRESERVED"
+  },
+  "conclusion": {
+    "ready_for_certificate": false,
+    "claim": "P1295 remains blocked exclusively because the first full CLI suite failed in P1137 during recovery. Frozen P1293/P1294 evidence and the registered P1293 inventory cardinality 74/74 remain preserved.",
+    "next_action": "A new authorized corrective step must diagnose the P1137 recovery timeout. This verifier has no authority to edit the candidate or protected inputs."
+  }
+}

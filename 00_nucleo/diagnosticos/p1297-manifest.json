@@ -1,0 +1,197 @@
+{
+  "schema": "tekt-segregated-materialization-manifest/v1",
+  "step": "P1297",
+  "regime": "full",
+  "generated_at": "2026-09-03T08:37:28.527159031-03:00",
+  "status": "P1296_BLOCKED_P1297_R1_P0_FROZEN_READY_FOR_L0",
+  "attestation": {
+    "filesystem_read_isolation_claimed": false,
+    "segregation_basis": [
+      "causal inputs",
+      "write capabilities",
+      "role ordering",
+      "canonical artifacts"
+    ],
+    "general_functional_equivalence_claimed": false
+  },
+  "baseline": {
+    "head": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "commit_subject": "docs: record blocked step 1294 verification",
+    "commit_date": "2026-09-02T22:23:37-03:00",
+    "working_tree": "uncommitted P1294/P1295/P1296 chain plus the owner-supplied P1297 step",
+    "status_porcelain_entries": 25,
+    "status_porcelain_sha256": "27c163e9f8716e719e1f53506c145a6a58cfd5406c578c6c5bb1acebd3033d41",
+    "tracked_diff_stat": "6 files changed, 388 insertions(+), 93 deletions(-)",
+    "tracked_diff_stat_sha256": "d7552c82635cd0f81f6995b0454860eb98fca3e0f6fe7649ea5eb91bc3943582",
+    "staged_paths": 0
+  },
+  "authoritative_step": {
+    "path": "00_nucleo/materialization/typst-passo-1297.md",
+    "sha256": "5116ffc535bb8cbd33ca8fb449b492ddfcf9e133246d7143c27a97960748c682",
+    "provided_by_owner": true
+  },
+  "preserved_predecessors": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1295.md",
+      "sha256": "e0328b02cecdfefb8dc7acc29d3faff50a2ce5ab1cf92d8cd2d77a0c6e0f0663"
+    },
+    {
+      "path": "00_nucleo/materialization/typst-passo-1296.md",
+      "sha256": "5a7f7c5d364fa6a373c1d411b8710131c68198bfeaaa4b19ec53fb17f7b8c00b"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1295-verification-receipt.json",
+      "sha256": "06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573",
+      "verdict": "BLOCKED"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1296-manifest.json",
+      "sha256": "7c9e2f75aab348ce434c293ea0b38259fc8c42b39360d6ca3b63a17491edd7d0"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1296-l0-receipt.md",
+      "sha256": "224dd65d269f3a81b132f2679b2c373ab5bcf910d0ed21e94b554dbe761924a2"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1296-test-receipt.json",
+      "sha256": "be8aaf3537bb068aab8eff1c5b656fe74c56cec8bd144f22e48a12b486d3e8a0",
+      "verdict": "BLOCKED_OBSERVER_INSUFFICIENT_AFTER_REVISION_2"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1296-adversarial-plan.md",
+      "sha256": "8b8a8435ff794f7d0d8ba5ecc0c0af2c8f88ac2b3133bc05dd8eaa2c2eb9ce6b"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1296-discrimination-receipt.json",
+      "sha256": "51073959b26cc834f1f1dbe69b5c4e70b5e7f1c71d28282b7424e0306e641525",
+      "historical_p2_revision_1_sha256": "b958974c3d9dd895a10cfd736eb64fd230d6a5fb98c284eb4aa906ba89b88768"
+    }
+  ],
+  "r1_frozen_inputs": [
+    {
+      "role": "L3 L0",
+      "path": "00_nucleo/prompts/shell/watch.md",
+      "sha256": "f39a63e6a1e2025d3539b61b34b46ffa3a3b0ea2aa64711ed7699abf3e3f7332"
+    },
+    {
+      "role": "L3 consumer",
+      "path": "03_infra/src/watch.rs",
+      "sha256": "d543b1c32844b6f63085635ae34fa2beb01ba989c4ebed7f789bb5ae77e9ee41"
+    },
+    {
+      "role": "L4 L0",
+      "path": "00_nucleo/prompts/wiring.md",
+      "sha256": "81db17f53cdb344cfbee0a5aee230ae1e480cab1856618f846a5a43a9551e0b5"
+    },
+    {
+      "role": "L4 consumer",
+      "path": "04_wiring/src/main.rs",
+      "sha256": "e119a46479e1d2e7b3f0052df2b57ab5d31be573969bbe841dd8ee2d0e3e9c48"
+    },
+    {
+      "role": "CLI test L0",
+      "path": "00_nucleo/prompts/wiring/tests/cli.md",
+      "sha256": "ac81dcf4404d505cd10db05964351b35f5ba0e9b959d83ef903fd4b34241a49b"
+    },
+    {
+      "role": "CLI test consumer",
+      "path": "04_wiring/tests/cli.rs",
+      "sha256": "addf970325c6b9df11482b6d7f28bd1099cbb0d225080044268e3dc3a304206b"
+    },
+    {
+      "role": "P1295 external contract L0",
+      "path": "00_nucleo/prompts/infra/tests/p1295_watch_contract.md",
+      "sha256": "e39d5206b63b883f9a886a01ba2aaa7ff94259542a33693d5927a0a20445b233"
+    },
+    {
+      "role": "P1295 external contract consumer",
+      "path": "03_infra/tests/p1295_watch_contract.rs",
+      "sha256": "8dae68ffc12f2708b6bbe3d503a7d0d90a2cb92681762ff5a992ca3f178c7abf"
+    }
+  ],
+  "active_redesign": {
+    "id": "R1_CAPABILITY",
+    "public_contract": "ArmedWatch captures a WatchSnapshot at arm time and is consumed by publish or abandon before waiting",
+    "human_gate_required": true,
+    "human_gate_confirmed": false,
+    "r2_authorized": false,
+    "r3_authorized": false
+  },
+  "roles": {
+    "P0": {
+      "authority": "primary session",
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1297-manifest.json",
+        "00_nucleo/diagnosticos/p1297-redesign-ledger.json"
+      ]
+    },
+    "P1_R1": {
+      "authority": "independent L0 author",
+      "read_scope": "step, manifest, ledger, applicable ADRs, current L0s/consumers, preserved red receipts",
+      "write_allowlist": [
+        "00_nucleo/prompts/shell/watch.md",
+        "00_nucleo/prompts/wiring.md",
+        "00_nucleo/prompts/wiring/tests/cli.md",
+        "lineage header only in 03_infra/src/watch.rs",
+        "lineage header only in 04_wiring/src/main.rs",
+        "lineage header only in 04_wiring/tests/cli.rs",
+        "00_nucleo/diagnosticos/p1297-r1-l0-gate-receipt.md"
+      ],
+      "forbidden": "contract consumer, test body, mutant, candidate product body, seal, certificate"
+    },
+    "P2_R1": {
+      "authority": "independent contract/oracle author after human gate",
+      "write_allowlist": [
+        "00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md",
+        "03_infra/tests/p1297_watch_capability_contract.rs",
+        "00_nucleo/diagnosticos/p1297-r1-red-tests-receipt.json"
+      ]
+    },
+    "P3_R1": {
+      "authority": "independent adversary/calibrator after valid RED",
+      "repository_write_allowlist": [
+        "00_nucleo/diagnosticos/p1297-r1-adversarial-plan.md",
+        "00_nucleo/diagnosticos/p1297-r1-discrimination-receipt.json"
+      ],
+      "mutants_and_candidates": "/tmp only"
+    },
+    "P4_R1": {
+      "authority": "independent sealer after score 1.0",
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1297-r1-contract-seal.json"
+      ]
+    },
+    "P5_R1": {
+      "authority": "implementer after seal",
+      "write_allowlist": [
+        "03_infra/src/watch.rs productive body",
+        "04_wiring/src/main.rs productive body",
+        "04_wiring/tests/cli.rs only if required by the sealed R1 contract",
+        "00_nucleo/diagnosticos/p1297-implementation-receipt.md"
+      ]
+    },
+    "P6": {
+      "authority": "independent final verifier",
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1297-surface-default.json",
+        "00_nucleo/diagnosticos/p1297-surface-html.json",
+        "00_nucleo/diagnosticos/p1297-verification-receipt.json",
+        "00_nucleo/diagnosticos/p1297-certificate.json",
+        "00_nucleo/diagnosticos/p1297-final-report.md"
+      ]
+    }
+  },
+  "unknown_policy": "Unknown never succeeds or receives mutation credit; any unexpected Unknown blocks the active redesign.",
+  "calibration_budget": {
+    "active_redesigns_at_once": 1,
+    "mechanical_corrections_per_redesign": 1,
+    "full_corpus_before_focal_green": 0,
+    "forbidden_gain": [
+      "larger timeout",
+      "readiness sleep",
+      "retry-until-pass",
+      "poll-count tuning",
+      "artificial load"
+    ]
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "schema": "tekt-test-materialization-receipt/v2",
+  "step": "P1296",
+  "role": "P2 independent test-only observer materializer",
+  "verdict": "BLOCKED_OBSERVER_INSUFFICIENT_AFTER_REVISION_2",
+  "terminal_state": "P1295_BLOCKED_P1296_NOT_CERTIFIED",
+  "claim_scope": "P1137 recovery observer O1 only; no product change, seal, certificate, or general functional-equivalence claim",
+  "protocol": {
+    "regime": "full",
+    "segregation": "capabilities-and-artifacts",
+    "filesystem_read_isolation_attested": false,
+    "p3_public_outputs_read": true,
+    "p3_private_runner_or_copies_read": false,
+    "unknown_policy": "Unknown never succeeds, receives no credit, and blocks a seal or certificate except for an explicitly opaque case that validates the Unknown class.",
+    "unknown_credit_granted": false
+  },
+  "capacity": {
+    "new_public_read_inputs": [
+      {
+        "path": "00_nucleo/diagnosticos/p1296-adversarial-plan.md",
+        "sha256": "8b8a8435ff794f7d0d8ba5ecc0c0af2c8f88ac2b3133bc05dd8eaa2c2eb9ce6b"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1296-discrimination-receipt.json",
+        "sha256": "51073959b26cc834f1f1dbe69b5c4e70b5e7f1c71d28282b7424e0306e641525"
+      }
+    ],
+    "write_allowlist": [
+      "04_wiring/tests/cli.rs P1137 body and local test infrastructure only",
+      "00_nucleo/diagnosticos/p1296-test-receipt.json"
+    ],
+    "writes_outside_allowlist": false,
+    "product_write_performed": false,
+    "l0_or_lineage_header_write_performed": false,
+    "prior_evidence_write_performed": false
+  },
+  "causal_inputs": {
+    "authoritative_step": {
+      "path": "00_nucleo/materialization/typst-passo-1296.md",
+      "sha256": "5a7f7c5d364fa6a373c1d411b8710131c68198bfeaaa4b19ec53fb17f7b8c00b"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1296-manifest.json",
+      "sha256": "7c9e2f75aab348ce434c293ea0b38259fc8c42b39360d6ca3b63a17491edd7d0"
+    },
+    "l0": {
+      "path": "00_nucleo/prompts/wiring/tests/cli.md",
+      "sha256": "ac81dcf4404d505cd10db05964351b35f5ba0e9b959d83ef903fd4b34241a49b"
+    },
+    "p1_receipt": {
+      "path": "00_nucleo/diagnosticos/p1296-l0-receipt.md",
+      "sha256": "224dd65d269f3a81b132f2679b2c373ab5bcf910d0ed21e94b554dbe761924a2"
+    },
+    "p2_revision_1_receipt_sha256": "b958974c3d9dd895a10cfd736eb64fd230d6a5fb98c284eb4aa906ba89b88768",
+    "p1295_red_receipt": {
+      "path": "00_nucleo/diagnosticos/p1295-verification-receipt.json",
+      "sha256": "06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573",
+      "preserved": true
+    }
+  },
+  "revision_history": [
+    {
+      "revision": 1,
+      "reason_code": "O1_TEMPORAL_RECOVERY_ARMING",
+      "consumer_sha256": "addf970325c6b9df11482b6d7f28bd1099cbb0d225080044268e3dc3a304206b",
+      "control": "PASS_2_OF_2",
+      "public_adversarial_result": {
+        "vector": ["Survived", "Killed", "Killed"],
+        "survivor": "MO1",
+        "mutation_score": 0.6666666666666666,
+        "unknown_count": 0,
+        "dominant_reason_code": "O1_MO1_REMOVAL_DOES_NOT_PROVE_PRIOR_SNAPSHOT_UNDER_ORDER_MUTATION"
+      }
+    },
+    {
+      "revision": 2,
+      "reason_code": "O1_MO1_REMOVAL_DOES_NOT_PROVE_PRIOR_SNAPSHOT_UNDER_ORDER_MUTATION",
+      "hypothesis": "A test-only FIFO dependency and causal barriers could make the erroneous discard-before-snapshot order capture the single recovery write as its baseline while preserving the correct snapshot-before-discard order.",
+      "candidate_scope": "P1137 body and fixture-local child/FIFO infrastructure only",
+      "candidate_retained": false,
+      "failure": "The first exact control timed out during asset recompilation; the FIFO changed the positive dependency-observation boundary and therefore was not a valid preserving observer.",
+      "delta": {
+        "mo1_discrimination": "NOT_RUN_BECAUSE_CONTROL_FAILED",
+        "positive_controls_regressed": ["asset recompilation"],
+        "positive_controls_preserved": [],
+        "opaque_controls": "none",
+        "gain_observed": false
+      }
+    }
+  ],
+  "revision_budget": {
+    "maximum_revisions_for_reason_code": 2,
+    "revisions_consumed": 2,
+    "additional_local_revision_authorized": false,
+    "stop_reason": "Revision 2 regressed a positive control; no deterministic public test-only observer was validated within the frozen scope and budget. Further work requires redesign of the observable or explicit new authority."
+  },
+  "focal_command": "cargo test -p typst-wiring --test cli p1137_watch_dependencias_recuperacao_e_filtro -- --exact --nocapture",
+  "revision_2_focal_controls": [
+    {
+      "run": 1,
+      "started_at": "2026-09-03T02:40:54,378434963-03:00",
+      "finished_at": "2026-09-03T02:41:15,390909058-03:00",
+      "duration_ms": 21012,
+      "exit_code": 101,
+      "result": "0 passed; 1 failed",
+      "failure_phase": "recompilação por asset",
+      "failure_timeout_seconds": 20,
+      "log_path": "/tmp/p1296-p2-r2-focal-1.log",
+      "log_sha256": "f37e0dfeb739964757dcae793d04d7598d27ca45b2e3bb9c27028aeca27f2c2e"
+    },
+    {
+      "run": 2,
+      "status": "NOT_RUN_AFTER_BLOCKING_FIRST_CONTROL_FAILURE",
+      "credit": false,
+      "reason": "A later green cannot absolve the first failure, and the protocol forbids repeat-until-pass after the revision budget is exhausted."
+    }
+  ],
+  "consumer": {
+    "path": "04_wiring/tests/cli.rs",
+    "revision_1_sha256": "addf970325c6b9df11482b6d7f28bd1099cbb0d225080044268e3dc3a304206b",
+    "final_sha256_after_revision_2_rollback": "addf970325c6b9df11482b6d7f28bd1099cbb0d225080044268e3dc3a304206b",
+    "revision_1_restored_byte_for_byte": true,
+    "prompt_hash_preserved": "58c349d6",
+    "final_changed_scope_relative_to_revision_1": "none"
+  },
+  "frozen_inputs_preserved": [
+    {
+      "path": "04_wiring/src/main.rs",
+      "expected_sha256": "e119a46479e1d2e7b3f0052df2b57ab5d31be573969bbe841dd8ee2d0e3e9c48",
+      "observed_sha256": "e119a46479e1d2e7b3f0052df2b57ab5d31be573969bbe841dd8ee2d0e3e9c48",
+      "preserved": true
+    },
+    {
+      "path": "03_infra/src/watch.rs",
+      "expected_sha256": "d543b1c32844b6f63085635ae34fa2beb01ba989c4ebed7f789bb5ae77e9ee41",
+      "observed_sha256": "d543b1c32844b6f63085635ae34fa2beb01ba989c4ebed7f789bb5ae77e9ee41",
+      "preserved": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1295-verification-receipt.json",
+      "expected_sha256": "06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573",
+      "observed_sha256": "06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573",
+      "preserved": true
+    }
+  ],
+  "working_tree_measurement": {
+    "measured_at": "2026-09-03T02:42:00-03:00",
+    "head": "76fb7336311bdb6497456ab5fdc0a8ce355ff39b",
+    "state": "working tree uncommitted; revision 1 consumer restored and P1294/P1295/P1296 public chain preserved",
+    "git_diff_head_stat": "6 files changed, 388 insertions(+), 93 deletions(-)",
+    "git_diff_head_stat_sha256": "d7552c82635cd0f81f6995b0454860eb98fca3e0f6fe7649ea5eb91bc3943582",
+    "git_status_porcelain_v1_sha256_before_receipt_overwrite": "aa39f054caa0f1ee1196996e0a472e06148962ac2535cfa80ed0be2617ed09c5"
+  },
+  "gates": {
+    "revision_2_control": "FAIL_BLOCKING",
+    "revision_2_second_control": "NOT_RUN_NO_CREDIT",
+    "consumer_revision_1_restoration": "PASS",
+    "frozen_input_preservation": "PASS",
+    "rustfmt_check_consumer": "PASS",
+    "git_diff_check_p2_paths": "PASS",
+    "json_parse": "PASS_WITH_PYTHON3_STDLIB"
+  },
+  "next_authority": "Human/owner must redesign or narrow the observable before a new P2/P3 chain; P4 seal remains unauthorized."
+}
