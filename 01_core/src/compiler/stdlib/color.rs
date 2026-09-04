@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/color.md
-//! @prompt-hash 5696ce76
+//! @prompt-hash ed8337be
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -37,8 +37,8 @@ fn err_typed<T>(msg: impl Into<String>) -> SourceResult<T> {
 /// access em `Value::Type` (`eval/bindings.rs`), que delega aqui.
 ///
 /// **P742 — 17 fields** (paridade do inventário medido P736): 8 constructors
-/// (as mesmas nativas registadas globalmente: `rgb`, `linear-rgb`, `luma`,
-/// `cmyk`, `hsl`, `hsv`, `oklab`, `oklch`) + 9 operadores. Os nomes das
+/// (cinco também globais: `rgb`, `luma`, `cmyk`, `oklab`, `oklch`; três somente
+/// qualificados: `linear-rgb`, `hsl`, `hsv`) + 9 operadores. Os nomes das
 /// funcs são os **nomes plain do vanilla** — medido: `repr(color.rgb)` →
 /// `rgb`, `repr(color.lighten)` → `lighten`; `color.rgb == rgb` → `true`
 /// (igualdade por nome, `entities/func.rs`). `None` para campo inexistente

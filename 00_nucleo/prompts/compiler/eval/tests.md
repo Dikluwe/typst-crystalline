@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 5c55b251
+Hash do Código: 343763db
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -16,6 +16,94 @@ morfologia e mensagens, não mecânica Rust incidental.
 ## Aceitação
 
 Regressões têm controles e proveniência do vanilla quando decidem paridade.
+
+## P1300 — regressão dos constructors globais de cor
+
+### Medição anterior à decisão
+
+Em `2026-09-03T19:01:51.133010-03:00`–`19:01:55.717850-03:00`, no baseline
+`1f082370e59939de7b57992e137a9f74bfb6758f`, a matriz bilateral
+`00_nucleo/diagnosticos/p1300-pre-gate-measurement.json` (SHA-256
+`1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe`)
+mediu `hsl`, `hsv`, `linear_rgb` e seus três pares sob `std` somente no
+cristalino, mas preservou bilateralmente `color.hsl`, `color.hsv`,
+`color.linear-rgb` e os cinco constructors globais ratificados. Os resultados
+foram iguais nos perfis `default`, `html`, `a11y` e `html+a11y`, sem
+`EXECUTION_UNKNOWN`.
+
+É inferência que regressões negativas e controles positivos no mesmo teste
+distinguem remoção dos aliases de apagamento das nativas ou de uma única
+projeção root/`std`. Um perfil em que a disponibilidade varie, uma rota
+qualificada ausente ou um global ratificado ausente refutaria a inferência.
+
+### Decisão e aceitação
+
+Após confirmação humana do gate ADR-0127, regressões permanentes devem:
+
+- exigir que `hsl`, `hsv` e `linear_rgb` falhem como variáveis desconhecidas
+  nos quatro perfis;
+- exigir que `std.hsl`, `std.hsv` e `std.linear_rgb` falhem como fields
+  ausentes nos quatro perfis;
+- comparar classe, mensagem, hints e span público de cada erro negativo com o
+  vanilla ratificado;
+- exigir que `color.hsl`, `color.hsv` e `color.linear-rgb` continuem funções
+  chamáveis, com os valores e repr vigentes;
+- exigir que `rgb`, `luma`, `cmyk`, `oklab` e `oklch`, tanto bare quanto sob
+  `std`, continuem funções nos quatro perfis;
+- impedir que a correção apague `native_hsl`, `native_hsv` ou
+  `native_linear_rgb`, esconda qualquer rota qualificada, ou corrija somente
+  uma das projeções root/`std`.
+
+Esses testes observam superfície da linguagem e diagnósticos públicos, não
+ordem interna de inserção, endereço de function pointer ou estrutura Rust.
+Antes da confirmação humana, este contrato não autoriza escrever o teste RED.
+
+## P1301 — retificação independente dos diagnósticos `Module`
+
+### Medição anterior à decisão
+
+O verificador P8 demonstrou que o GREEN P1300 era insuficiente: os testes
+esperavam a mensagem cristalina `module 'std' does not contain field "…"` e o
+span da expressão inteira, enquanto a matriz bilateral registrou `12`
+`DIFFERENT_DIAGNOSTIC`. A medição P1301 em
+`00_nucleo/diagnosticos/p1301-pre-gate-measurement.json` ampliou o controle a
+`calc.nope`, `sym.nope` e `color.map.nope`: todos usam no vanilla a mensagem
+``module `<nome>` does not contain `<field>` `` e ancoram apenas o field.
+
+É inferência que testar a categoria `Module`, e não apenas os três aliases de
+cor, discrimina uma correção sem blacklist. Sobreviver a mensagem antiga, ao
+span total ou ao nome público `std` refutaria a suficiência do teste. A
+divergência separada de `repr(std)` não é critério deste consumer.
+
+### Decisão e aceitação
+
+Os testes P1300 negativos continuam a exigir ausência dos seis aliases nos
+quatro perfis, mas a expectativa de `std.hsl`, `std.hsv` e `std.linear_rgb`
+passa a ser derivada do oracle vanilla:
+
+- mensagens exatas ``module `global` does not contain `<field>` ``;
+- hints vazios;
+- span interno somente no identificador à direita do ponto;
+- mesma classe em `default`, `html`, `a11y` e `html+a11y`.
+
+Adicionar controles de field inexistente em módulos independentes `calc`,
+`sym` e `color.map`, esperando os nomes públicos `calc`, `sym` e `map`, além
+de ao menos um lookup de módulo existente que preserve valor/kind. Preservar
+um controle não-`Module` cuja âncora continue a expressão inteira para impedir
+generalização indevida contra P1293.
+
+O teste RED deve falhar no baseline pré-candidato pelas expectativas novas de
+mensagem/span, sem ler o patch de implementação. O GREEN só é válido se os
+casos `Module` e todos os controles passarem; teste interno isolado não
+substitui a matriz bilateral CLI selada. Mutantes mínimos obrigatórios:
+mensagem antiga, span total, `std` em vez de `global`, regra restrita aos três
+fields de cor, alteração do sucesso e generalização do span para targets não
+`Module`.
+
+Esta retificação é test-only e não autoriza mudar API, entidade, default,
+fase, `repr(std)` nem os owners dos módulos. O dono autorizou a reabertura em
+`2026-09-03`; a cadeia segregada P1301 começa de novos hashes e não ressela ou
+reinterpreta os artefatos P1300.
 
 P1250B retifica o oracle P744 depois de P1253: as constantes públicas
 nomeadas preservam literais `f32`, portanto `red.mix(blue, space: rgb)` expõe

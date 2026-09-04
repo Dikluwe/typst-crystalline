@@ -1,0 +1,111 @@
+{
+  "schema_version": "p1301-pre-gate-measurement-v1",
+  "step": "P1301",
+  "measured_at": "2026-09-03T20:57:32.863761582-03:00",
+  "repository": {
+    "head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "working_tree": "uncommitted",
+    "git_status_short_sha256": "f9e371cbdd4f037a5ede671a48dfbbaf82723d07000a91e559927ffc01c0f793",
+    "git_diff_head_stat_sha256": "9ed4946a1d81d75b72470e270ba2c31d0708b9b404fe15fea56793595e509dc5"
+  },
+  "binaries": {
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    },
+    "crystalline_pre_candidate": {
+      "path_during_measurement": "/dev/shm/typst-crystalline-p1301-baseline/release/typst",
+      "sha256": "799546de530c98aa56e1e434c94473c59d3e2b16302a66e7ab009637c3c6c81f",
+      "lifetime": "ephemeral sandbox namespace; build and probes ran in the same process"
+    }
+  },
+  "source_inputs": [
+    {
+      "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "sha256": "7873e47635ad2e99df9132bae9b13472581f5026a3f3a671f2f48de8a3b15497",
+      "relevant_lines": [106, 107, 108, 109, 110, 111, 373, 374, 375, 376, 377, 378, 379]
+    },
+    {
+      "path": "lab/typst-original/crates/typst-eval/src/code.rs",
+      "sha256": "807f20641f9b3145a46fd160a192c2b83ec2a12bb33a21a519736aad0dd0effc",
+      "relevant_lines": [347, 348, 349, 350, 351, 352, 353, 358, 359, 360, 361, 362, 363, 364, 365, 366]
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/module.rs",
+      "sha256": "b577e71f25d6e23f4f185838c1a68816feb0b753b3b6166d94de8b77a572d75a",
+      "relevant_lines": [139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150]
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/lib.rs",
+      "sha256": "0f43c11dd22fc2da64e6f526d20f4257f8e324b087c70b7986d13694f5abb5ee",
+      "relevant_lines": [221, 222, 223, 224, 225, 374]
+    }
+  ],
+  "prior_evidence": {
+    "feature_matrix_path": "00_nucleo/diagnosticos/p1300-feature-matrix.json",
+    "feature_matrix_sha256": "69d0dad6bb14f3f98db8847355c6e2836ac62c205d809f0a68cc78eb7f05a28a",
+    "final_report_path": "00_nucleo/diagnosticos/p1300-final-report.md",
+    "final_report_sha256": "754663ba88d37e750c822d71966d29e6c176e35ae500ebc22237cfbee9b6de20",
+    "negative_coordinates": 24,
+    "exact_bare_diagnostics": 12,
+    "different_std_member_diagnostics": 12,
+    "unknown": 0
+  },
+  "fresh_probes": {
+    "comparisons": 8,
+    "processes": 16,
+    "unknown": 0,
+    "cases": [
+      {
+        "expression": "repr(std)",
+        "profile": "default",
+        "classification": "DIFFERENT_VALUE",
+        "vanilla": "<module global>",
+        "crystalline": "module(std)",
+        "scope": "measured but excluded; representation has a different owner"
+      },
+      {
+        "expression": "repr(type(std.hsl))",
+        "profiles": ["default", "html", "a11y", "html+a11y"],
+        "classification": "DIFFERENT_DIAGNOSTIC",
+        "vanilla_message": "module `global` does not contain `hsl`",
+        "crystalline_message": "module 'std' does not contain field \"hsl\"",
+        "vanilla_anchor": "field hsl only",
+        "crystalline_anchor": "whole std.hsl access"
+      },
+      {
+        "expression": "repr(type(calc.nope))",
+        "profile": "default",
+        "classification": "DIFFERENT_DIAGNOSTIC",
+        "vanilla_message": "module `calc` does not contain `nope`",
+        "crystalline_message": "module 'calc' does not contain field \"nope\"",
+        "vanilla_anchor": "field nope only",
+        "crystalline_anchor": "whole calc.nope access"
+      },
+      {
+        "expression": "repr(type(sym.nope))",
+        "profile": "default",
+        "classification": "DIFFERENT_DIAGNOSTIC",
+        "vanilla_message": "module `sym` does not contain `nope`",
+        "crystalline_message": "module 'sym' does not contain field \"nope\"",
+        "vanilla_anchor": "field nope only",
+        "crystalline_anchor": "whole sym.nope access"
+      },
+      {
+        "expression": "repr(type(color.map.nope))",
+        "profile": "default",
+        "classification": "DIFFERENT_DIAGNOSTIC",
+        "vanilla_message": "module `map` does not contain `nope`",
+        "crystalline_message": "module 'map' does not contain field \"nope\"",
+        "vanilla_anchor": "field nope only",
+        "crystalline_anchor": "whole color.map.nope access"
+      }
+    ]
+  },
+  "classification": {
+    "language_or_mechanics": "public diagnostic message and source anchor are language observables under ADR-0107; Rust control flow and internal module label are mechanics",
+    "intent": "converge to the ratified vanilla diagnostic, not introduce a product-specific behavior",
+    "inference": "one category-level Module rule can repair std and independent module controls without a per-field blacklist",
+    "refutation": "a module missing-field case whose vanilla message or field-only anchor differs, or a required API/phase change, refutes the proposed category rule"
+  }
+}

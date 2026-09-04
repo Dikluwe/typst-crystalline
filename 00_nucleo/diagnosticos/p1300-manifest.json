@@ -1,0 +1,163 @@
+{
+  "schema": "p1300-segregated-materialization-manifest/v1",
+  "step": "P1300",
+  "phase": "POST_L0_GATE_FROZEN",
+  "created_at": "2026-09-03T19:08:05.765418-03:00",
+  "regime": {
+    "kind": "full_segregated_materialization_protocol",
+    "reason": "public language-surface removal with compatibility break, independent contract, mutation discrimination, A/B tests and final refinement verdict",
+    "attestation_level": "executed_without_technical_isolation_attestation",
+    "limitation": "Agents share one filesystem. Context and write authority are constrained by explicit role allowlists, but filesystem-level read isolation cannot be proven."
+  },
+  "baseline": {
+    "head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "branch": "Tekt",
+    "working_tree": "uncommitted; exact pre-P1300 status is pinned in the L0 gate receipt",
+    "l0_gate_receipt": {
+      "path": "00_nucleo/diagnosticos/p1300-l0-gate-receipt.md",
+      "sha256": "347dcaed2462d85c5b7f49d581e92b13287a60a3bd4afe089c2e73ae7f37ffd7",
+      "human_confirmation": "Continue",
+      "confirmed_at": "2026-09-03T19:08:05.765418-03:00"
+    },
+    "product_consumers": {
+      "01_core/src/compiler/eval/mod.rs": "cafdcbf690f5ad8020bbe3da4457a759397c29ac091dc1624f33e14f5127c5b4",
+      "01_core/src/compiler/stdlib/color.rs": "d40197461efdee472734ef850e7a681821eb490624856bf15510d1b8a9336fed",
+      "01_core/src/compiler/eval/tests.rs": "b6b87d6786874a39b3071c667476d062a4fc41a9298c6519d9434e0ae637df20"
+    }
+  },
+  "confirmed_l0": {
+    "00_nucleo/prompts/compiler/stdlib/color.md": "8115021062602c8a3663797b3fcfe0f17eb423f54a8ae7b437b260804ad58462",
+    "00_nucleo/prompts/compiler/eval.md": "3bf911a0882e35f713cf8742f70ea921086a9a95ede6b02b8b938ab92becfc96",
+    "00_nucleo/prompts/compiler/eval/tests.md": "d4d6382d351e084869445fe58e1cb484e762d5b5dfc843b7974cd21149289104"
+  },
+  "protected_ancestry": {
+    "00_nucleo/materialization/typst-passo-1300.md": "7cd1f371dcd38c6af8c96028c82656c90c652d1ff6dac2fb18b148f2605bb5f4",
+    "00_nucleo/diagnosticos/p1299-certificate.json": "c9d18805b081e55b34caaf02e39ddfc15fd76c5d48849dd82ca112552cdac754",
+    "00_nucleo/diagnosticos/p1299-decision-report.md": "332425ce95df73ce8ea8e54e84aec31d37286a6dec8b07ce9b6b5f77e33eeb2e",
+    "00_nucleo/diagnosticos/p1299-owner-ledger.tsv": "79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69",
+    "00_nucleo/diagnosticos/p1299-feature-matrix.json": "58f08430c479ba5dea093945301785a89e77f20e9af0809ae05c6641a7ecdc11",
+    "00_nucleo/diagnosticos/p1300-pre-gate-measurement.json": "1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe"
+  },
+  "vanilla": {
+    "revision": "a51e02804",
+    "binary": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "scope": {
+    "removed_public_paths": [
+      "hsl",
+      "hsv",
+      "linear_rgb",
+      "std.hsl",
+      "std.hsv",
+      "std.linear_rgb"
+    ],
+    "preserved_qualified_routes": [
+      "color.hsl",
+      "color.hsv",
+      "color.linear-rgb"
+    ],
+    "preserved_global_constructors": [
+      "rgb",
+      "luma",
+      "cmyk",
+      "oklab",
+      "oklch",
+      "std.rgb",
+      "std.luma",
+      "std.cmyk",
+      "std.oklab",
+      "std.oklch"
+    ],
+    "profiles": {
+      "default": [],
+      "html": ["html"],
+      "a11y": ["a11y-extras"],
+      "html+a11y": ["html,a11y-extras"]
+    },
+    "preserved_surfaces": [
+      "color.space for HSL, HSV and Linear RGB",
+      "color.map",
+      "18 ratified predefined colors",
+      "crystalline compatibility globals cyan, magenta and none",
+      "color operators, native implementations, parser, targets and pipeline phase"
+    ],
+    "maximum_claim": "The three P1299 color-constructor aliases are absent bare and under std in the pinned profiles while qualified routes and ratified globals are preserved; no general stdlib or color parity is claimed."
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1300-contract.json",
+    "required_observables": [
+      "exit code",
+      "stdout",
+      "stderr including diagnostic message, hints and rendered span",
+      "function type and repr",
+      "representative call value",
+      "color.space identity",
+      "feature-profile invariance"
+    ],
+    "unknown_policy": {
+      "Preserved": "every required public observable is complete and equals the pinned oracle",
+      "Violated": "at least one complete public observable contradicts the pinned oracle and includes a witness",
+      "Unknown": "timeout, missing product, ambiguous identity, unsupported parser construction or incomplete observation",
+      "rule": "Unknown never counts as success except for an explicitly opaque calibration case whose expected result is Unknown."
+    }
+  },
+  "calibration_budget": {
+    "maximum_complete_revisions": 2,
+    "maximum_full_discrimination_runs_per_revision": 2,
+    "maximum_bilateral_processes": 512,
+    "focal_before_full": true,
+    "stop_rule": "Two consecutive revisions without discriminatory gain for the same cause stop as P1300_BLOCKED_CONTRACT_DESIGN."
+  },
+  "roles": {
+    "P1_contract_author": {
+      "read_allowlist": ["p1300-manifest.json", "three confirmed L0 prompts", "p1300-pre-gate-measurement.json", "ratified vanilla source and binary"],
+      "write_allowlist": ["p1300-contract.json", "p1300-contract-author-receipt.md"],
+      "forbidden": ["candidate implementation", "permanent tests", "contract seal", "final verdict"],
+      "context": "fresh agent context without candidate patch"
+    },
+    "P2_oracle_author": {
+      "read_allowlist": ["manifest", "confirmed L0", "contract candidate", "ratified vanilla binary"],
+      "write_allowlist": ["p1300-vanilla-measurement-receipt.md", "p1300-oracle-suite.json"],
+      "forbidden": ["candidate implementation", "permanent tests", "adapting oracle to patch"],
+      "context": "fresh agent context after contract hash is frozen"
+    },
+    "P3_adversary": {
+      "read_allowlist": ["manifest", "confirmed L0", "contract candidate", "baseline consumer hashes"],
+      "write_allowlist": ["p1300-adversarial-plan.md", "p1300-mutants.json"],
+      "forbidden": ["correcting candidate", "editing contract or oracle", "production code"],
+      "context": "fresh agent context after contract hash is frozen"
+    },
+    "P4_discrimination_sealer": {
+      "read_allowlist": ["manifest", "contract", "oracles", "mutants", "role receipts"],
+      "write_allowlist": ["p1300-contract-runner.py", "p1300-discrimination-receipt.json", "p1300-contract-seal.json"],
+      "forbidden": ["production code", "permanent tests", "relaxing expectations"],
+      "context": "fresh agent context after oracle and adversarial artifacts are frozen"
+    },
+    "P5_AB_tester": {
+      "read_allowlist": ["manifest", "confirmed tests L0", "contract seal", "baseline eval/tests.rs"],
+      "write_allowlist": ["01_core/src/compiler/eval/tests.rs", "p1300-red-tests-receipt.md"],
+      "forbidden": ["candidate implementation", "contract", "oracles", "changing expectations after RED"],
+      "context": "fresh agent context started before implementation candidate exists"
+    },
+    "P6_implementer": {
+      "read_allowlist": ["manifest", "confirmed eval/color L0", "contract seal", "baseline eval/mod.rs and stdlib/color.rs"],
+      "write_allowlist": ["01_core/src/compiler/eval/mod.rs", "01_core/src/compiler/stdlib/color.rs", "p1300-implementation-receipt.md"],
+      "forbidden": ["contract", "oracles", "mutants", "permanent tests"],
+      "context": "fresh agent context started independently from P5"
+    },
+    "P7_integrator": {
+      "read_allowlist": ["all frozen role outputs and candidate files"],
+      "write_allowlist": ["mechanical integration", "lineage hashes", "post-integration surface artifacts"],
+      "forbidden": ["relaxing contract or tests", "expanding scope"]
+    },
+    "P8_verifier": {
+      "read_allowlist": ["all frozen inputs and integrated candidate"],
+      "write_allowlist": ["verification receipts", "surface outputs", "final report", "certificate"],
+      "forbidden": ["editing product, tests, contract, oracle, mutants or seal"],
+      "context": "fresh agent context after integration is frozen"
+    }
+  },
+  "index_policy": "No staging, commit or push. Existing index must remain unchanged.",
+  "invalidation_rule": "Any change to confirmed L0, baseline, manifest, contract, oracle or seal after its freeze invalidates downstream artifacts and restarts from the first affected phase."
+}

@@ -1,0 +1,384 @@
+{
+  "schema_version": "tekt-observable-contract-v1",
+  "step": "P1301",
+  "title": "Binding-free observable contract for missing fields on modules",
+  "protocol_regime": "complete",
+  "attestation": {
+    "technical_isolation_attested": false,
+    "language": "executado sem atestação de isolamento técnico"
+  },
+  "frozen_inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1301-manifest.json",
+      "sha256": "074fabeda17f741f064fe1d561ad6a78ad81e45654861825586664a9646f05a8"
+    },
+    "field_access_prompt": {
+      "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "sha256": "38d6f5cdee302491ec059577174d4f6dc6d3c28e3d2da2748f61c05853cc0c16"
+    },
+    "tests_prompt": {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "a4ade7eda600891465c62c320d80b7c2182c30dbb5f456de210c4a823b3e609a"
+    },
+    "measurement": {
+      "path": "00_nucleo/diagnosticos/p1301-pre-gate-measurement.json",
+      "sha256": "1202c06723e948f5586e10345c5f653f57b075e3ea41297f996fd5a27abb77cd"
+    },
+    "baseline": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "ratified_upstream_commit": "a51e02804"
+    }
+  },
+  "binding_free_boundary": {
+    "allowed_inputs": [
+      "Typst source expression",
+      "public CLI profile arguments",
+      "process exit code",
+      "stdout bytes",
+      "stderr bytes",
+      "public diagnostic class, message, hints, and source span"
+    ],
+    "forbidden_dependencies": [
+      "Rust symbol names",
+      "function or pointer identity",
+      "internal module storage name",
+      "lookup control flow",
+      "candidate implementation",
+      "candidate tests",
+      "per-field implementation blacklist"
+    ],
+    "runner_command": [
+      "<typst-binary>",
+      "--color",
+      "never",
+      "eval",
+      "<profile-argv...>",
+      "--diagnostic-format",
+      "short",
+      "<expression>"
+    ],
+    "span_model": "zero-based, half-open UTF-8 byte range within the expression; the short diagnostic column equals span.start",
+    "comparison": "byte-exact for stdout and rendered stderr; exact equality for exit_code, diagnostic class, message, ordered hints, and span"
+  },
+  "categorical_rule": {
+    "domain": "every public field access whose evaluated target is semantically a module and whose requested field is absent",
+    "missing_field": {
+      "diagnostic_class": "error",
+      "message_template": "module `<public-module-name>` does not contain `<field>`",
+      "hints": [],
+      "span": "only the field identifier to the right of the final dot",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "the exact short-format diagnostic line plus only profile-mandated warnings"
+    },
+    "public_name_projection": {
+      "ordinary_module": "the module's public name",
+      "standard_module_reached_as_std": "global",
+      "prohibition": "the std-to-global projection is semantic identity, never a list or test of field names"
+    },
+    "existing_field": "preserve the resolved value and its public kind, exit successfully, and emit no error diagnostic",
+    "non_module": "preserve its pre-P1301 diagnostic span and behavior, except independent rules already frozen by their own L0",
+    "prohibitions": [
+      "no public API, entity, default, compatibility, evaluation-order, or pipeline-phase change",
+      "no reflection, wrapper, fallback, or field blacklist",
+      "no repair of repr(std)"
+    ]
+  },
+  "profiles": {
+    "default": {
+      "argv": [],
+      "stderr_suffix": ""
+    },
+    "html": {
+      "argv": ["--target", "html", "--features", "html"],
+      "stderr_suffix": "warning: html export is under active development and incomplete\n"
+    },
+    "a11y": {
+      "argv": ["--features", "a11y-extras"],
+      "stderr_suffix": ""
+    },
+    "html+a11y": {
+      "argv": ["--target", "html", "--features", "html,a11y-extras"],
+      "stderr_suffix": "warning: html export is under active development and incomplete\n"
+    }
+  },
+  "required_cases": [
+    {
+      "id": "N-STD-default-hsl",
+      "role": "negative_module",
+      "profile": "default",
+      "expression": "repr(type(std.hsl))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsl`\n"}
+    },
+    {
+      "id": "N-STD-default-hsv",
+      "role": "negative_module",
+      "profile": "default",
+      "expression": "repr(type(std.hsv))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsv`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsv`\n"}
+    },
+    {
+      "id": "N-STD-default-linear_rgb",
+      "role": "negative_module",
+      "profile": "default",
+      "expression": "repr(type(std.linear_rgb))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `linear_rgb`", "hints": [], "span_bytes": [14, 24], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `linear_rgb`\n"}
+    },
+    {
+      "id": "N-STD-html-hsl",
+      "role": "negative_module",
+      "profile": "html",
+      "expression": "repr(type(std.hsl))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsl`\nwarning: html export is under active development and incomplete\n"}
+    },
+    {
+      "id": "N-STD-html-hsv",
+      "role": "negative_module",
+      "profile": "html",
+      "expression": "repr(type(std.hsv))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsv`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsv`\nwarning: html export is under active development and incomplete\n"}
+    },
+    {
+      "id": "N-STD-html-linear_rgb",
+      "role": "negative_module",
+      "profile": "html",
+      "expression": "repr(type(std.linear_rgb))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `linear_rgb`", "hints": [], "span_bytes": [14, 24], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `linear_rgb`\nwarning: html export is under active development and incomplete\n"}
+    },
+    {
+      "id": "N-STD-a11y-hsl",
+      "role": "negative_module",
+      "profile": "a11y",
+      "expression": "repr(type(std.hsl))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsl`\n"}
+    },
+    {
+      "id": "N-STD-a11y-hsv",
+      "role": "negative_module",
+      "profile": "a11y",
+      "expression": "repr(type(std.hsv))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsv`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsv`\n"}
+    },
+    {
+      "id": "N-STD-a11y-linear_rgb",
+      "role": "negative_module",
+      "profile": "a11y",
+      "expression": "repr(type(std.linear_rgb))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `linear_rgb`", "hints": [], "span_bytes": [14, 24], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `linear_rgb`\n"}
+    },
+    {
+      "id": "N-STD-html+a11y-hsl",
+      "role": "negative_module",
+      "profile": "html+a11y",
+      "expression": "repr(type(std.hsl))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsl`\nwarning: html export is under active development and incomplete\n"}
+    },
+    {
+      "id": "N-STD-html+a11y-hsv",
+      "role": "negative_module",
+      "profile": "html+a11y",
+      "expression": "repr(type(std.hsv))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsv`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsv`\nwarning: html export is under active development and incomplete\n"}
+    },
+    {
+      "id": "N-STD-html+a11y-linear_rgb",
+      "role": "negative_module",
+      "profile": "html+a11y",
+      "expression": "repr(type(std.linear_rgb))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `linear_rgb`", "hints": [], "span_bytes": [14, 24], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `linear_rgb`\nwarning: html export is under active development and incomplete\n"}
+    },
+    {
+      "id": "N-CALC-nope",
+      "role": "negative_module_category_control",
+      "profile": "default",
+      "expression": "repr(type(calc.nope))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `calc` does not contain `nope`", "hints": [], "span_bytes": [15, 19], "rendered_stderr": "<input-expression>:1:15: error: module `calc` does not contain `nope`\n"}
+    },
+    {
+      "id": "N-SYM-nope",
+      "role": "negative_module_category_control",
+      "profile": "default",
+      "expression": "repr(type(sym.nope))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `sym` does not contain `nope`", "hints": [], "span_bytes": [14, 18], "rendered_stderr": "<input-expression>:1:14: error: module `sym` does not contain `nope`\n"}
+    },
+    {
+      "id": "N-COLOR-MAP-nope",
+      "role": "negative_module_category_control",
+      "profile": "default",
+      "expression": "repr(type(color.map.nope))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `map` does not contain `nope`", "hints": [], "span_bytes": [20, 24], "rendered_stderr": "<input-expression>:1:20: error: module `map` does not contain `nope`\n"}
+    },
+    {
+      "id": "P-STD-rgb",
+      "role": "positive_existing_module_field",
+      "profile": "default",
+      "expression": "repr(type(std.rgb))",
+      "expected": {"exit_code": 0, "stdout": "\"function\"\n", "stderr": "", "public_kind": "function"}
+    },
+    {
+      "id": "P-CALC-abs",
+      "role": "positive_existing_module_field",
+      "profile": "default",
+      "expression": "repr(type(calc.abs))",
+      "expected": {"exit_code": 0, "stdout": "\"function\"\n", "stderr": "", "public_kind": "function"}
+    },
+    {
+      "id": "P-SYM-arrow",
+      "role": "positive_existing_module_field",
+      "profile": "default",
+      "expression": "repr(type(sym.arrow))",
+      "expected": {"exit_code": 0, "stdout": "\"symbol\"\n", "stderr": "", "public_kind": "symbol"}
+    },
+    {
+      "id": "P-COLOR-MAP-turbo",
+      "role": "positive_existing_module_field",
+      "profile": "default",
+      "expression": "repr(type(color.map.turbo))",
+      "expected": {"exit_code": 0, "stdout": "\"array\"\n", "stderr": "", "public_kind": "array"}
+    },
+    {
+      "id": "P-COLOR-hsl",
+      "role": "positive_qualified_color_control",
+      "profile": "default",
+      "expression": "repr(type(color.hsl))",
+      "expected": {"exit_code": 0, "stdout": "\"function\"\n", "stderr": "", "public_kind": "function"}
+    },
+    {
+      "id": "P-COLOR-hsv",
+      "role": "positive_qualified_color_control",
+      "profile": "default",
+      "expression": "repr(type(color.hsv))",
+      "expected": {"exit_code": 0, "stdout": "\"function\"\n", "stderr": "", "public_kind": "function"}
+    },
+    {
+      "id": "P-COLOR-linear-rgb",
+      "role": "positive_qualified_color_control",
+      "profile": "default",
+      "expression": "repr(type(color.linear-rgb))",
+      "expected": {"exit_code": 0, "stdout": "\"function\"\n", "stderr": "", "public_kind": "function"}
+    },
+    {
+      "id": "S-NONMODULE-dictionary-whole-span",
+      "role": "non_module_span_sentinel",
+      "profile": "default",
+      "expression": "repr(type((a: 1).nope))",
+      "expected": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "dictionary does not contain key \"nope\"", "hints": [], "span_bytes": [10, 21], "anchor_kind": "whole field-access expression", "rendered_stderr": "<input-expression>:1:10: error: dictionary does not contain key \"nope\"\n"},
+      "note": "This is a preservation sentinel for the crystalline pre-P1301 behavior, not a claim that the ratified vanilla uses the same span."
+    }
+  ],
+  "deliberately_opaque_cases": [
+    {
+      "id": "O-AMBIGUOUS-PRIMARY",
+      "input_kind": "synthetic public observation envelope",
+      "fixture": {
+        "parse_status": "ambiguous",
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostics": [
+          {"class": "error", "message": "module `calc` does not contain `nope`", "span_bytes": [15, 19]},
+          {"class": "error", "message": "module `sym` does not contain `nope`", "span_bytes": [14, 18]}
+        ],
+        "primary_diagnostic_index": null
+      },
+      "expected_verdict": "Unknown",
+      "reason_code": "AMBIGUOUS_PRIMARY_DIAGNOSTIC"
+    },
+    {
+      "id": "O-UNMAPPABLE-SPAN",
+      "input_kind": "synthetic public observation envelope",
+      "fixture": {
+        "parse_status": "unsupported-span-encoding",
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostic": {"class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": null},
+        "source_bytes_available": false
+      },
+      "expected_verdict": "Unknown",
+      "reason_code": "SPAN_CANNOT_BE_MAPPED_WITH_PUBLIC_INPUT"
+    }
+  ],
+  "verdict_function": {
+    "required_case": [
+      "return Preserved only when every expected observable equals the actual observable",
+      "return Violated with the first differing observable as witness when execution completed and comparison is decidable",
+      "return Unknown only when the observation cannot be decided from public inputs; Unknown still fails the required-case gate"
+    ],
+    "opaque_case": [
+      "return Unknown only for an id listed in deliberately_opaque_cases and only with its exact reason_code",
+      "Preserved or Violated on an opaque fixture fails the opacity-control gate"
+    ],
+    "default_unknown_handling": "FAIL",
+    "execution_unknown_handling": "FAIL",
+    "semantic_unknown_in_required_case": "FAIL"
+  },
+  "order_invariance": {
+    "normal": [
+      "N-STD-default-hsl", "N-STD-default-hsv", "N-STD-default-linear_rgb",
+      "N-STD-html-hsl", "N-STD-html-hsv", "N-STD-html-linear_rgb",
+      "N-STD-a11y-hsl", "N-STD-a11y-hsv", "N-STD-a11y-linear_rgb",
+      "N-STD-html+a11y-hsl", "N-STD-html+a11y-hsv", "N-STD-html+a11y-linear_rgb",
+      "N-CALC-nope", "N-SYM-nope", "N-COLOR-MAP-nope",
+      "P-STD-rgb", "P-CALC-abs", "P-SYM-arrow", "P-COLOR-MAP-turbo",
+      "P-COLOR-hsl", "P-COLOR-hsv", "P-COLOR-linear-rgb",
+      "S-NONMODULE-dictionary-whole-span"
+    ],
+    "inverted": [
+      "S-NONMODULE-dictionary-whole-span",
+      "P-COLOR-linear-rgb", "P-COLOR-hsv", "P-COLOR-hsl",
+      "P-COLOR-MAP-turbo", "P-SYM-arrow", "P-CALC-abs", "P-STD-rgb",
+      "N-COLOR-MAP-nope", "N-SYM-nope", "N-CALC-nope",
+      "N-STD-html+a11y-linear_rgb", "N-STD-html+a11y-hsv", "N-STD-html+a11y-hsl",
+      "N-STD-a11y-linear_rgb", "N-STD-a11y-hsv", "N-STD-a11y-hsl",
+      "N-STD-html-linear_rgb", "N-STD-html-hsv", "N-STD-html-hsl",
+      "N-STD-default-linear_rgb", "N-STD-default-hsv", "N-STD-default-hsl"
+    ],
+    "acceptance": "case-id-keyed verdict and observable maps must be identical in both orders; every required case must be Preserved and no required case may be Unknown"
+  },
+  "mutation_gate": {
+    "formula": "valid_mutants_with_at_least_one_Violated_witness / valid_mutants",
+    "required_score": 1.0,
+    "minimum_valid_mutants": 8,
+    "declared_valid_mutants": 12,
+    "survivors_allowed": 0,
+    "unknown_mutant_verdict": "survivor and gate failure",
+    "score_status": "acceptance threshold; achieved score must be recorded by the later independent discrimination receipt",
+    "nominal_mutants": [
+      {"id": "M01-OLD-MESSAGE", "mutation": "emit module '<name>' does not contain field \"<field>\"", "killed_by": ["N-STD-default-hsl", "N-CALC-nope"]},
+      {"id": "M02-WHOLE-MODULE-SPAN", "mutation": "anchor every missing Module field to the whole access", "killed_by": ["N-STD-default-hsl", "N-CALC-nope", "N-COLOR-MAP-nope"]},
+      {"id": "M03-STD-NAME", "mutation": "publish std instead of global for the standard module", "killed_by": ["N-STD-default-hsl", "N-STD-a11y-hsv"]},
+      {"id": "M04-THREE-ALIAS-WHITELIST", "mutation": "repair only hsl, hsv, and linear_rgb instead of the Module category", "killed_by": ["N-CALC-nope", "N-SYM-nope", "N-COLOR-MAP-nope"]},
+      {"id": "M05-BREAK-EXISTING-LOOKUP", "mutation": "change or reject a present Module field", "killed_by": ["P-STD-rgb", "P-CALC-abs", "P-SYM-arrow", "P-COLOR-MAP-turbo"]},
+      {"id": "M06-GENERALIZE-NONMODULE-SPAN", "mutation": "apply the field-only span rule to a missing dictionary key", "killed_by": ["S-NONMODULE-dictionary-whole-span"]},
+      {"id": "M07-ADD-HINT", "mutation": "attach a hint to a missing Module field", "killed_by": ["N-STD-default-hsl", "N-SYM-nope"]},
+      {"id": "M08-ZERO-EXIT-ON-ERROR", "mutation": "return exit code 0 for a missing Module field", "killed_by": ["N-STD-default-hsl", "N-CALC-nope"]},
+      {"id": "M09-POLLUTE-STDOUT", "mutation": "write any bytes to stdout for a missing Module field", "killed_by": ["N-STD-default-hsl", "N-COLOR-MAP-nope"]},
+      {"id": "M10-DROP-HTML-WARNING", "mutation": "omit the profile-mandated HTML warning from rendered stderr", "killed_by": ["N-STD-html-hsl", "N-STD-html+a11y-linear_rgb"]},
+      {"id": "M11-DEFAULT-PROFILE-ONLY", "mutation": "repair only the default profile", "killed_by": ["N-STD-html-hsl", "N-STD-a11y-hsv", "N-STD-html+a11y-linear_rgb"]},
+      {"id": "M12-GLOBAL-FOR-EVERY-MODULE", "mutation": "publish global for calc, sym, or map", "killed_by": ["N-CALC-nope", "N-SYM-nope", "N-COLOR-MAP-nope"]}
+    ]
+  },
+  "scope_out": {
+    "repr_std": {
+      "expression": "repr(std)",
+      "status": "explicitly excluded",
+      "measured_divergence": {"vanilla": "<module global>", "crystalline_pre_candidate": "module(std)"},
+      "rule": "must not be executed, compared, repaired, or used to kill a P1301 mutant"
+    },
+    "also_excluded": [
+      "Module entity representation",
+      "module construction names",
+      "new public APIs or entities",
+      "any non-Module behavior other than preservation sentinels"
+    ]
+  },
+  "overall_acceptance": [
+    "all frozen input hashes still match before every gate",
+    "all 23 required cases are Preserved in normal and inverted order",
+    "both deliberate opaque cases are Unknown with their exact reason codes",
+    "no required case is Unknown and no execution is Unknown",
+    "all 12 declared valid mutants have at least one Violated witness",
+    "mutation_score equals 1.0 with zero survivors",
+    "repr(std) remains outside every verdict"
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "attestation_language": "executado sem atestação de isolamento técnico",
+  "authorization": {
+    "authorized_commit_message": "fix: seal color globals and module diagnostics through step 1302",
+    "authorized_role": "P4_stager_committer_only",
+    "commit_authorized_only_after_exact_staging_validation": true,
+    "content_writes_by_p4_prohibited": true,
+    "scope": "exact literal 83-path allowlist from the pinned staging manifest",
+    "staging_authorized": true,
+    "staging_refresh_after_owner_authorized_sanitization": true
+  },
+  "captured_at": "2026-09-04T00:12:28.823198902-03:00",
+  "chain": {
+    "blocking_diagnostic_divergence_resolved": true,
+    "equation": "P1300_BLOCKED_IMPLEMENTATION + P1301R2_CERTIFIED(blocking_diagnostic_divergence_resolved=true) = current chain closable without rewriting the P1300 verdict",
+    "p1299": "P1299_PASS_P1300_COHORT_SELECTED",
+    "p1300_certificate_issued": false,
+    "p1300_historical": "P1300_BLOCKED_IMPLEMENTATION",
+    "p1300_historical_verdict_preserved": true,
+    "p1301_revision_2": "P1301R2_CERTIFIED",
+    "scope_limit": "No general functional parity is claimed."
+  },
+  "hash_policy": {
+    "artifact_dag": [
+      "00_nucleo/diagnosticos/p1302-staging-manifest.json",
+      "00_nucleo/diagnosticos/p1302-certificate.json",
+      "00_nucleo/diagnosticos/p1302-final-report.md"
+    ],
+    "certificate_own_identity": "detached SHA-256 and size are measured after creation and handed to P4 out of band; neither is embedded here",
+    "final_report_identity": "downstream detached SHA-256 and size are measured after creation and handed to P4 out of band",
+    "mode": "detached_non_recursive",
+    "no_artifact_edited_after_being_pinned": true,
+    "no_false_or_placeholder_digest": true
+  },
+  "inputs": {
+    "byte_identical_to_p1_baseline_before_owner_authorized_sanitization": true,
+    "byte_identical_after_sanitization_except_declared_mechanical_delta": true,
+    "count": 76,
+    "p2_before_after_vectors_equal": true,
+    "p2_vector_sha256": "1416c41f1f8219a489a6b24739186b6ad4fa5f8bd22304ef185711f2205d2556"
+  },
+  "owner_authorized_mechanical_sanitization": {
+    "authorization": "The repository owner explicitly authorized P1302 to correct the staging whitespace failure and make it clear in the diagnostics report.",
+    "date": "2026-09-04",
+    "preceding_verdict": "P1302_BLOCKED_STAGING_MISMATCH",
+    "preceding_cached_patch_sha256": "96d83bef15bd18aa3fbc3f60593f9f662fa430e888598be7941383150b1e66a3",
+    "change": "removed exactly 33 trailing horizontal whitespace occurrences from seven Markdown inputs",
+    "semantic_change": false,
+    "p1_p2_receipts_are_historical_pre_sanitization_evidence": true,
+    "required_post_sanitization_gates": [
+      "rehash all 83 allowlisted paths against the revised staging manifest and detached P1302 pins",
+      "cargo fmt --all -- --check",
+      "crystalline-lint --fix-hashes --dry-run . returns Nothing to fix",
+      "git diff --check and git diff --cached --check return exit 0",
+      "cached name set equals the 83-path allowlist and no unstaged changes remain"
+    ]
+  },
+  "issuance_state": {
+    "commit_already_created": false,
+    "head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "index_empty_before_first_staging_attempt": true,
+    "first_staging_attempt_blocked_before_commit": true,
+    "staging_already_performed": true,
+    "staging_requires_refresh_after_authorized_sanitization": true,
+    "status_path_count_before_certificate": 81,
+    "terminal_status_path_count_expected_after_report": 83,
+    "tracked_worktree_binary_patch_sha256": "1084021e1c2a0da30f3befa7baa1acd34a076b0c5ffe570cfec40df15f22b5ad"
+  },
+  "maximum_claim": "A cadeia P1299–P1301r2 foi revalidada e selada no commit informado, preservando o bloqueio histórico P1300 e o certificado posterior que resolveu sua causa; não se alega paridade funcional geral.",
+  "p4_mandatory_rules": [
+    "Do not write or modify file content.",
+    "Before refreshing staging, rehash all 76 inputs and every P1302 artifact against the revised manifest and detached identities; require the real index to contain exactly the same 83 paths left by the blocked first attempt.",
+    "Refresh staging only by git add -- with all 83 literal path arguments from the pinned manifest; no glob, directory, git add ., or git add -A.",
+    "Require the cached name set to equal the 83-path allowlist and the unstaged name set to be empty.",
+    "Require git diff --cached --check to pass, then measure and report the cached binary patch SHA-256.",
+    "Create one commit only with the exact authorized commit message; do not use -a, amend, rebase, reset, destructive checkout, stash, cleanup, or push.",
+    "Require exactly 83 paths in the commit and a clean working tree and index; report the real commit hash without writing a post-commit artifact.",
+    "Stop without commit on any mismatch and report the exact mismatched set."
+  ],
+  "pins": {
+    "p1302_baseline_manifest": {
+      "path": "00_nucleo/diagnosticos/p1302-baseline-manifest.json",
+      "sha256": "8c4a82d48a47a729c83a58f807929be615e2da142de891a2cf43d54847cdc5bf",
+      "size_bytes": 71475
+    },
+    "p1302_chain_audit": {
+      "path": "00_nucleo/diagnosticos/p1302-chain-audit.json",
+      "sha256": "f04800cde99f9c48e359bf14ef8103bdb14a9815bc9c7defddc8cdbbab89b46f",
+      "size_bytes": 38601
+    },
+    "p1302_staging_manifest": {
+      "path": "00_nucleo/diagnosticos/p1302-staging-manifest.json",
+      "sha256": "00d9dab73cb55be6a4797b2f42b4608199e9db6c545c6621d840e9bfb089236a",
+      "size_bytes": 28909
+    },
+    "p1302_verification_receipt": {
+      "path": "00_nucleo/diagnosticos/p1302-verification-receipt.json",
+      "sha256": "2886a165d8b4e107f5d28b3ad62e26c7e07ac8cbbf1895be209e91b5902a85fc",
+      "size_bytes": 55356
+    },
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1302.md",
+      "sha256": "3e28a0c8b418626fa3348ecb423d988be6a702f37afb3ff04814932d421cc625",
+      "size_bytes": 15993
+    }
+  },
+  "schema_version": "p1302-certificate/v1",
+  "status": "PASS",
+  "technical_isolation_attested": false,
+  "verdict": "P1302_READY_FOR_EXACT_STAGING_AND_COMMIT_AFTER_OWNER_AUTHORIZED_SANITIZATION"
+}

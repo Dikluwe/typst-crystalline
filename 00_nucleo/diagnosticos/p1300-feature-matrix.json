@@ -1,0 +1,1990 @@
+{
+  "baseline_head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+  "binaries": {
+    "crystalline": {
+      "path": "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+      "sha256": "799546de530c98aa56e1e434c94473c59d3e2b16302a66e7ab009637c3c6c81f"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  },
+  "captured_at": {
+    "completed": "2026-09-03T20:18:30.368410-03:00",
+    "started": "2026-09-03T20:18:25.682134-03:00"
+  },
+  "catalog": {
+    "probe_count": 11,
+    "sha256": null
+  },
+  "counts": {
+    "by_profile": {
+      "a11y": {
+        "DIFFERENT_DIAGNOSTIC": 3,
+        "MATCH_DIAGNOSTIC": 3,
+        "MATCH_VALUE": 5
+      },
+      "default": {
+        "DIFFERENT_DIAGNOSTIC": 3,
+        "MATCH_DIAGNOSTIC": 3,
+        "MATCH_VALUE": 5
+      },
+      "html": {
+        "DIFFERENT_DIAGNOSTIC": 3,
+        "MATCH_DIAGNOSTIC": 3,
+        "MATCH_VALUE": 5
+      },
+      "html+a11y": {
+        "DIFFERENT_DIAGNOSTIC": 3,
+        "MATCH_DIAGNOSTIC": 3,
+        "MATCH_VALUE": 5
+      }
+    },
+    "by_runtime_class": {
+      "DIFFERENT_DIAGNOSTIC": 12,
+      "MATCH_DIAGNOSTIC": 12,
+      "MATCH_VALUE": 20
+    },
+    "total": 44
+  },
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "delta": {
+    "CRYSTALLINE_ONLY": -24,
+    "MATCH_DIAGNOSTIC": 12,
+    "MATCH_VALUE": 0
+  },
+  "expected": {
+    "execution_unknown": 0,
+    "qualified_routes_and_ratified_globals": "MATCH_VALUE",
+    "removed_aliases": "MATCH_DIAGNOSTIC"
+  },
+  "phase": "POST_INTEGRATION",
+  "pre_gate_counts": {
+    "by_profile": {
+      "a11y": {
+        "CRYSTALLINE_ONLY": 6,
+        "MATCH_VALUE": 5
+      },
+      "default": {
+        "CRYSTALLINE_ONLY": 6,
+        "MATCH_VALUE": 5
+      },
+      "html": {
+        "CRYSTALLINE_ONLY": 6,
+        "MATCH_VALUE": 5
+      },
+      "html+a11y": {
+        "CRYSTALLINE_ONLY": 6,
+        "MATCH_VALUE": 5
+      }
+    },
+    "by_runtime_class": {
+      "CRYSTALLINE_ONLY": 24,
+      "MATCH_VALUE": 20
+    },
+    "total": 44
+  },
+  "profiles": [
+    {
+      "feature_argv": [],
+      "name": "default"
+    },
+    {
+      "feature_argv": [
+        "--features",
+        "html"
+      ],
+      "name": "html"
+    },
+    {
+      "feature_argv": [
+        "--features",
+        "a11y-extras"
+      ],
+      "name": "a11y"
+    },
+    {
+      "feature_argv": [
+        "--features",
+        "html,a11y-extras"
+      ],
+      "name": "html+a11y"
+    }
+  ],
+  "results": [
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(hsl))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 94066777,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsl`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(hsl))",
+      "features": [],
+      "id": "bare-hsl",
+      "path": "bare-hsl",
+      "profile": "default",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(hsl))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 6226814,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsl`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(hsv))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 93864430,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsv`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(hsv))",
+      "features": [],
+      "id": "bare-hsv",
+      "path": "bare-hsv",
+      "profile": "default",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(hsv))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 6471159,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsv`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(linear_rgb))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 94706209,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `linear_rgb`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(linear_rgb))",
+      "features": [],
+      "id": "bare-linear_rgb",
+      "path": "bare-linear_rgb",
+      "profile": "default",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(linear_rgb))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 5874748,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `linear_rgb`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.hsl))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 99183351,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.hsl))",
+      "features": [],
+      "id": "qualified-color-hsl",
+      "path": "qualified-color-hsl",
+      "profile": "default",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.hsl))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 6110658,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.hsv))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 97971393,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.hsv))",
+      "features": [],
+      "id": "qualified-color-hsv",
+      "path": "qualified-color-hsv",
+      "profile": "default",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.hsv))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 6317363,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.linear-rgb))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 96331687,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.linear-rgb))",
+      "features": [],
+      "id": "qualified-color-linear-rgb",
+      "path": "qualified-color-linear-rgb",
+      "profile": "default",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.linear-rgb))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 6379358,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 95227599,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"hsl\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.hsl))\n  │           ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.hsl))",
+      "features": [],
+      "id": "std-hsl",
+      "path": "std-hsl",
+      "profile": "default",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 5763280,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 97555157,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"hsv\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.hsv))\n  │           ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.hsv))",
+      "features": [],
+      "id": "std-hsv",
+      "path": "std-hsv",
+      "profile": "default",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 5865410,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 95140277,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"linear_rgb\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.linear_rgb))\n  │           ^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.linear_rgb))",
+      "features": [],
+      "id": "std-linear_rgb",
+      "path": "std-linear_rgb",
+      "profile": "default",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 5966058,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 99682181,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      },
+      "expression": "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+      "features": [],
+      "id": "ratified-globals",
+      "path": "ratified-globals",
+      "profile": "default",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 6361355,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 105175628,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      },
+      "expression": "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+      "features": [],
+      "id": "ratified-std-globals",
+      "path": "ratified-std-globals",
+      "profile": "default",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+          "--format",
+          "json"
+        ],
+        "complete": true,
+        "duration_ns": 6691450,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 95095764,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsl`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(hsl))",
+      "features": [
+        "html"
+      ],
+      "id": "bare-hsl",
+      "path": "bare-hsl",
+      "profile": "html",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 6407160,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsl`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 100384550,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsv`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(hsv))",
+      "features": [
+        "html"
+      ],
+      "id": "bare-hsv",
+      "path": "bare-hsv",
+      "profile": "html",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 5887061,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsv`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 100901974,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `linear_rgb`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(linear_rgb))",
+      "features": [
+        "html"
+      ],
+      "id": "bare-linear_rgb",
+      "path": "bare-linear_rgb",
+      "profile": "html",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 6388325,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `linear_rgb`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 101060570,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.hsl))",
+      "features": [
+        "html"
+      ],
+      "id": "qualified-color-hsl",
+      "path": "qualified-color-hsl",
+      "profile": "html",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 6171581,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 96024114,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.hsv))",
+      "features": [
+        "html"
+      ],
+      "id": "qualified-color-hsv",
+      "path": "qualified-color-hsv",
+      "profile": "html",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 6511354,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.linear-rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 100148801,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.linear-rgb))",
+      "features": [
+        "html"
+      ],
+      "id": "qualified-color-linear-rgb",
+      "path": "qualified-color-linear-rgb",
+      "profile": "html",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.linear-rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 5889275,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 96769442,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"hsl\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.hsl))\n  │           ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.hsl))",
+      "features": [
+        "html"
+      ],
+      "id": "std-hsl",
+      "path": "std-hsl",
+      "profile": "html",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 6307825,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 99592814,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"hsv\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.hsv))\n  │           ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.hsv))",
+      "features": [
+        "html"
+      ],
+      "id": "std-hsv",
+      "path": "std-hsv",
+      "profile": "html",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 6328243,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 99056916,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"linear_rgb\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.linear_rgb))\n  │           ^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.linear_rgb))",
+      "features": [
+        "html"
+      ],
+      "id": "std-linear_rgb",
+      "path": "std-linear_rgb",
+      "profile": "html",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 6031209,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 108038603,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      },
+      "expression": "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+      "features": [
+        "html"
+      ],
+      "id": "ratified-globals",
+      "path": "ratified-globals",
+      "profile": "html",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 7759460,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 101993157,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      },
+      "expression": "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+      "features": [
+        "html"
+      ],
+      "id": "ratified-std-globals",
+      "path": "ratified-std-globals",
+      "profile": "html",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "complete": true,
+        "duration_ns": 6502307,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(hsl))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 97107773,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsl`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(hsl))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "bare-hsl",
+      "path": "bare-hsl",
+      "profile": "a11y",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(hsl))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6136275,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsl`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(hsv))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 99518686,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsv`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(hsv))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "bare-hsv",
+      "path": "bare-hsv",
+      "profile": "a11y",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(hsv))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 5740407,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsv`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 97210564,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `linear_rgb`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(linear_rgb))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "bare-linear_rgb",
+      "path": "bare-linear_rgb",
+      "profile": "a11y",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 5819785,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `linear_rgb`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 97742847,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.hsl))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "qualified-color-hsl",
+      "path": "qualified-color-hsl",
+      "profile": "a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6337269,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 99809959,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.hsv))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "qualified-color-hsv",
+      "path": "qualified-color-hsv",
+      "profile": "a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 7107966,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.linear-rgb))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 98377839,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.linear-rgb))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "qualified-color-linear-rgb",
+      "path": "qualified-color-linear-rgb",
+      "profile": "a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.linear-rgb))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 8178170,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 97222627,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"hsl\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.hsl))\n  │           ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.hsl))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "std-hsl",
+      "path": "std-hsl",
+      "profile": "a11y",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6146194,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 99611478,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"hsv\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.hsv))\n  │           ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.hsv))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "std-hsv",
+      "path": "std-hsv",
+      "profile": "a11y",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6610459,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 100090250,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"linear_rgb\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.linear_rgb))\n  │           ^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.linear_rgb))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "std-linear_rgb",
+      "path": "std-linear_rgb",
+      "profile": "a11y",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6520061,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 97721146,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      },
+      "expression": "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "ratified-globals",
+      "path": "ratified-globals",
+      "profile": "a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6872718,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 99362134,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      },
+      "expression": "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+      "features": [
+        "a11y-extras"
+      ],
+      "id": "ratified-std-globals",
+      "path": "ratified-std-globals",
+      "profile": "a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6722527,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 97276266,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsl`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(hsl))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "bare-hsl",
+      "path": "bare-hsl",
+      "profile": "html+a11y",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 5947504,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsl`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 98918367,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsv`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(hsv))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "bare-hsv",
+      "path": "bare-hsv",
+      "profile": "html+a11y",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6337951,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `hsv`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 99985004,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `linear_rgb`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(linear_rgb))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "bare-linear_rgb",
+      "path": "bare-linear_rgb",
+      "profile": "html+a11y",
+      "runtime_class": "MATCH_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6404154,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: unknown variable `linear_rgb`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 99416274,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.hsl))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "qualified-color-hsl",
+      "path": "qualified-color-hsl",
+      "profile": "html+a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6319737,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 97426967,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.hsv))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "qualified-color-hsv",
+      "path": "qualified-color-hsv",
+      "profile": "html+a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6368047,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(color.linear-rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 97016923,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      },
+      "expression": "repr(type(color.linear-rgb))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "qualified-color-linear-rgb",
+      "path": "qualified-color-linear-rgb",
+      "profile": "html+a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.linear-rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6490345,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"function\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 97191529,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"hsl\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.hsl))\n  │           ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.hsl))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "std-hsl",
+      "path": "std-hsl",
+      "profile": "html+a11y",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6000803,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 96963273,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"hsv\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.hsv))\n  │           ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.hsv))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "std-hsv",
+      "path": "std-hsv",
+      "profile": "html+a11y",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6174496,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 100769746,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module 'std' does not contain field \"linear_rgb\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(std.linear_rgb))\n  │           ^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expression": "repr(type(std.linear_rgb))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "std-linear_rgb",
+      "path": "std-linear_rgb",
+      "profile": "html+a11y",
+      "runtime_class": "DIFFERENT_DIAGNOSTIC",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 5914682,
+        "exit_code": 1,
+        "failure": null,
+        "stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "stdout": ""
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 98606474,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      },
+      "expression": "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "ratified-globals",
+      "path": "ratified-globals",
+      "profile": "html+a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 6637819,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      }
+    },
+    {
+      "crystalline": {
+        "argv": [
+          "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+          "eval",
+          "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 99741449,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      },
+      "expression": "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+      "features": [
+        "html,a11y-extras"
+      ],
+      "id": "ratified-std-globals",
+      "path": "ratified-std-globals",
+      "profile": "html+a11y",
+      "runtime_class": "MATCH_VALUE",
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "complete": true,
+        "duration_ns": 8000960,
+        "exit_code": 0,
+        "failure": null,
+        "stderr": "",
+        "stdout": "\"(function, function, function, function, function)\"\n"
+      }
+    }
+  ],
+  "schema_version": "p1300-feature-matrix-v1",
+  "sealed_contract_sha256": "c5eace73e5ff07ab49057ec1741283543408accf132ca2f4431a1ad3827a3e37",
+  "step": "P1300"
+}

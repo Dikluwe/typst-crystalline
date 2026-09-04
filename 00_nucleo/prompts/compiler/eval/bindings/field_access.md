@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: d37b05cb
+Hash do Código: 2d102890
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -364,3 +364,75 @@ método como valor.
 avaliação ou fase. Este Prompt continua proprietário 1:1 apenas de
 `01_core/src/compiler/eval/bindings/field_access.rs`; `call_dispatch` possui as
 quatro âncoras de chamadas e `stdlib/foundations/float` possui a função.
+
+## P1301 — diagnóstico de field ausente em `Module`
+
+### Medição anterior à decisão
+
+Em `2026-09-03T20:57:32.863761582-03:00`, no HEAD
+`1f082370e59939de7b57992e137a9f74bfb6758f` e working tree não commitida,
+`00_nucleo/diagnosticos/p1301-pre-gate-measurement.json` mediu o vanilla
+ratificado (`7b4f40c5…`) contra o cristalino pré-candidato (`799546de…`). A
+matriz P1300 já continha `12/12` divergências para `std.hsl`, `std.hsv` e
+`std.linear_rgb` nos quatro perfis. A nova sonda confirmou a mesma classe em
+`calc.nope`, `sym.nope` e `color.map.nope`, sem `Unknown`:
+
+- o vanilla recebe `field.span()` em
+  `lab/typst-original/crates/typst-eval/src/code.rs:347-366` e ancora somente o
+  identificador à direita do ponto;
+- `Module::field` forma ``module `<nome>` does not contain `<field>` `` em
+  `lab/typst-original/crates/typst-library/src/foundations/module.rs:139-150`;
+- o módulo que alimenta o binding `std` é construído como `global` em
+  `lab/typst-original/crates/typst-library/src/lib.rs:221-225,374`;
+- o cristalino entrega `access.span()` em
+  `01_core/src/compiler/eval/bindings/field_access.rs:106-111` e forma
+  `module '<nome>' does not contain field "<field>"` em
+  `01_core/src/compiler/eval/bindings/field_access.rs:373-379`.
+
+Mensagem e âncora são observáveis públicos da linguagem sob ADR-0107; o nome
+interno do módulo e o modo de obtê-los são mecânica. É inferência que uma regra
+por categoria `Module`, com projeção semântica do binding padrão `std` para o
+nome público `global`, corrige a classe inteira sem blacklist por field. Um
+módulo ausente cujo vanilla use outra forma/âncora, ou a necessidade de mudar
+API pública ou fase, refutaria essa inferência.
+
+`repr(std)` também foi medido como diferente (`<module global>` contra
+`module(std)`), mas pertence à representação/construção do módulo e fica
+explicitamente fora deste consumer e deste passo. Não usar a correção de
+diagnóstico para mascarar essa divergência separada.
+
+### Decisão e aceitação
+
+Quando `eval_field_access` avalia um `Value::Module`, deve passar
+`access.field().span()` ao lookup de field; sucesso continua a devolver o
+binding sem alterar valor, kind ou avaliação. Se o field não existir,
+`eval_value_field_access` emite exatamente:
+
+```text
+module `<nome-público>` does not contain `<field>`
+```
+
+O diagnóstico é erro, não possui hints e ancora somente o identificador do
+field. Para módulos ordinários, `<nome-público>` é `Module::name()`. Para o
+módulo padrão alcançado pelo binding `std`, o nome público é `global`, embora a
+representação cristalina interna ainda use `std`; esta projeção é da identidade
+semântica do módulo padrão, não uma lista de fields. É proibido listar `hsl`,
+`hsv`, `linear_rgb` ou qualquer outro field na implementação.
+
+A regra vale para qualquer field ausente de `Module` e deve ser verificada ao
+menos em `std`, `calc`, `sym` e `color.map`, além de um field existente de
+controle. Os quatro perfis `default`, `html`, `a11y` e `html+a11y` devem manter
+o mesmo resultado para o fragmento P1300. Ordem normal e invertida devem gerar
+o mesmo vetor; `Unknown` não satisfaz aceitação.
+
+A exceção P1293 para `Value::Float` + `is-nan` permanece. Targets que não são
+`Module` preservam a âncora vigente, salvo decisões próprias já escritas neste
+L0. Não alterar `Module`, `Scope`, assinatura pública, entidade, default,
+ordem de avaliação ou fase; não criar wrapper, fallback reflexivo, blacklist
+por field nem correção de `repr(std)` neste passo.
+
+Classificação: correção de paridade em fluxo contínuo ADR-0127. O dono ainda
+autorizou explicitamente a reabertura dedicada em `2026-09-03`, após o
+veredito `P1300_BLOCKED_IMPLEMENTATION`. O gate funcional é RED→GREEN contra o
+oracle vanilla, seguido de nova cadeia segregada e resselo; a cadeia P1300 não
+é reutilizada.

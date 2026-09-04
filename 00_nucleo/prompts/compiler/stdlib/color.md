@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: dfc7912c
+Hash do Código: 356f1537
 
 ## Módulo
 `01_core/src/compiler/stdlib/color.rs`
@@ -20,10 +20,14 @@ Histórico: até P736, `color` era `Value::Dict` (P476, módulo de 4
 operadores; P477 aumentou para 6).
 
 Fields do tipo (20): constructors `rgb`, `linear-rgb`, `luma`, `cmyk`,
-`hsl`, `hsv`, `oklab`, `oklch` (as mesmas funções nativas registadas
-globalmente) + operadores `lighten`, `darken`, `mix`, `negate`,
+`hsl`, `hsv`, `oklab`, `oklch` + operadores `lighten`, `darken`, `mix`, `negate`,
 `saturate`, `desaturate`, `rotate`, `components`, `space` (P742) +
 `to-hex`, `transparentize`, `opacify` (P744).
+
+Dos oito constructors do tipo, somente `rgb`, `luma`, `cmyk`, `oklab` e
+`oklch` também pertencem ao scope global. `linear-rgb`, `hsl` e `hsv` são
+exclusivamente qualificados por `color.*`; este owner não define a composição
+do scope raiz, que pertence a `00_nucleo/prompts/compiler/eval.md`.
 
 **P1143:** o namespace contém ainda as 18 cores predefinidas ratificadas,
 totalizando 38 fields. As cores e os bindings globais consultam uma única
@@ -41,6 +45,42 @@ Medições vanilla que fundamentam (P736):
 
 P476 — fecho parcial ADR-0083 §"Operadores cor" scope-out:
 4 dos 6 operadores implementados (`saturate`/`desaturate` scope-out futuro P477).
+
+## P1300 — constructors qualificados e fronteira do owner
+
+### Medição anterior à decisão
+
+Em `2026-09-03T19:01:51.133010-03:00`–`19:01:55.717850-03:00`, no baseline
+`1f082370e59939de7b57992e137a9f74bfb6758f`, a matriz bilateral
+`00_nucleo/diagnosticos/p1300-pre-gate-measurement.json` (SHA-256
+`1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe`)
+mediu nos perfis `default`, `html`, `a11y` e `html+a11y`:
+
+- `color.hsl`, `color.hsv` e `color.linear-rgb` como funções com valor público
+  coincidente nos dois produtos;
+- os correspondentes nomes bare e sob `std` somente no cristalino;
+- os cinco constructors globais ratificados presentes nos dois produtos.
+
+A fonte vanilla pinada `a51e02804`, em
+`lab/typst-original/crates/typst-library/src/lib.rs:397-401`, registra
+globalmente apenas `luma`, `oklab`, `oklch`, `rgb` e `cmyk`. É inferência que
+os três aliases cristalinos são publicação indevida, não extensão deliberada.
+A inferência seria refutada se o vanilla pinado aceitasse algum desses aliases
+ou se uma rota qualificada deixasse de coincidir; nenhuma refutação ocorreu.
+
+### Decisão
+
+`color_type_field` conserva exatamente os oito constructors `rgb`,
+`linear-rgb`, `luma`, `cmyk`, `hsl`, `hsv`, `oklab` e `oklch`, com as nativas,
+nomes públicos, argumentos, valores, repr e semântica vigentes. A publicação
+global fica fechada nos cinco nomes ratificados e é contrato do owner
+`compiler/eval`; `linear-rgb`, `hsl` e `hsv` permanecem acessíveis somente
+como `color.linear-rgb`, `color.hsl` e `color.hsv`.
+
+P1300 não altera `color_type_field`, nativas, `color.space()`, operadores,
+`color.map`, cores predefinidas ou métodos de instância. A remoção dos aliases
+globais é quebra de compatibilidade e permanece bloqueada pelo gate humano
+ADR-0127 antes de qualquer código.
 
 ## Função de despacho de fields (P736)
 

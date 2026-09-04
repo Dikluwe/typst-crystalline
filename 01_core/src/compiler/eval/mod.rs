@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 79a8abaf
+//! @prompt-hash f914a7c9
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1542,14 +1542,11 @@ fn make_stdlib_with_features(
         native_here,
         native_hide,
         native_highlight,
-        native_hsl,
-        native_hsv,
         native_image,
         native_inline,
         native_json,
         native_layout,
         native_line,
-        native_linear_rgb,
         native_linebreak,
         native_link,
         // P470 — list/enum com marcadores configuráveis.
@@ -1640,18 +1637,13 @@ fn make_stdlib_with_features(
     scope.define("type", Value::Type(Type::Type));
     scope.define("repr", Value::Func(Func::native("repr", native_repr)));
     scope.define("range", Value::Func(Func::native("range", native_range)));
+    // P1300 — cinco constructors globais ratificados: `rgb`, `luma`, `cmyk`,
+    // `oklab` e `oklch`; `linear-rgb`, `hsl` e `hsv` são somente `color.*`.
     scope.define("rgb", Value::Func(Func::native("rgb", native_rgb)));
     scope.define("luma", Value::Func(Func::native("luma", native_luma)));
-    // P257 (ADR-0083 PROPOSTO) — 6 stdlib funcs novas para espaços
-    // de cor materializados (paridade vanilla `oklab`/`oklch`/
-    // `linear-rgb`/`cmyk`/`color.hsl`/`color.hsv`).
     scope.define("oklab", Value::Func(Func::native("oklab", native_oklab)));
     scope.define("oklch", Value::Func(Func::native("oklch", native_oklch)));
-    scope
-        .define("linear_rgb", Value::Func(Func::native("linear_rgb", native_linear_rgb)));
     scope.define("cmyk", Value::Func(Func::native("cmyk", native_cmyk)));
-    scope.define("hsl", Value::Func(Func::native("hsl", native_hsl)));
-    scope.define("hsv", Value::Func(Func::native("hsv", native_hsv)));
     // P685 — `str`, `int`, `float` são valores-tipo chamáveis. Os campos
     // `str.from-unicode` e `int.min`/`int.max` são agora resolvidos por field
     // access em `Value::Type` (ver `eval_field_access` em bindings.rs).

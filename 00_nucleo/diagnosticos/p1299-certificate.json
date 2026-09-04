@@ -1,0 +1,98 @@
+{
+  "schema": "p1299-certificate/v1",
+  "step": "P1299",
+  "verdict": "P1299_PASS_P1300_COHORT_SELECTED",
+  "baseline": {
+    "head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "branch": "Tekt",
+    "captured_at": "2026-09-03T18:08:58,106215151-03:00",
+    "completed_at": "2026-09-03T18:42:38,401117633-03:00",
+    "product_or_l0_modified": false,
+    "staged_or_committed": false
+  },
+  "inputs": {
+    "00_nucleo/materialization/typst-passo-1299.md": "574c0f77207a86bbe656bf191120c9603924d0c555e5b411760756a6b303b158",
+    "lab/surface-inventory/probes.json": "1e7534a0cc8ebcfa1f5ed6652918711b738d7471d94a883a500becf297357b78",
+    "lab/surface-inventory/run_probes.py": "3bd082751fbd05c89f24a312353d81f74f2882902db5a203180e5ee5fb2c10cf",
+    "lab/surface-inventory/src/main.rs": "1f56149b1be5d93c24d686259186314708d806b69279e70097eec755ce828056",
+    "lab/surface-inventory/merge.py": "dcca5437dc8ab3829f8896b5b4f08f76fdaa49f3bf0973a62721d0b33610e329",
+    "lab/surface-inventory/extra_seeds.json": "ec398902ad74aa7f7d21b733674e3712ed47ee84e6f79fd12fbdca5293d87623",
+    "00_nucleo/diagnosticos/p1282-vanilla-default.json": "2f70d832f2b24f8c8eae8ffb15dd1e2770c667b9bfb24fcadefdcad43b4cfb27",
+    "00_nucleo/diagnosticos/p1282-vanilla-html.json": "2ef941beab9ef3e2859de83c8bcfadc7a4482af417db23029b1bec0997f22c61",
+    "00_nucleo/diagnosticos/p1297-surface-default.json": "f8e36e6a38e97aa570da3905021a029321aaffa214e5b3fa78b489e9504312eb",
+    "00_nucleo/diagnosticos/p1297-surface-html.json": "407570734adae8e7920f7780f9cdd5c9083bf3d4307577efd2d44e508ae7fa2e",
+    "00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d",
+    "00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405",
+    "00_nucleo/adr/typst-adr-0127-gate-l0-paragem-vs-fluxo.md": "5e8581b5f9ebb0798d4213e59e39ee8dfcd4f41b34d4ca639b00b1f287699ad9",
+    "00_nucleo/adr/typst-adr-0129-nucleos-tekt-l0-compartilhado.md": "64756b81ce58ca62e1a166b3776303759bc7af507a1c97a4e3ad91a8dc5b906e",
+    "00_nucleo/prompts/compiler/stdlib/color.md": "fecc619d1b336a6f8ca8c39c22a302babdec4daf22d3387ce97ce28e36d87dc3",
+    "01_core/src/compiler/eval/mod.rs": "cafdcbf690f5ad8020bbe3da4457a759397c29ac091dc1624f33e14f5127c5b4",
+    "lab/typst-original/crates/typst-library/src/lib.rs": "0f43c11dd22fc2da64e6f526d20f4257f8e324b087c70b7986d13694f5abb5ee",
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "/tmp/p1299.k5gKsy/target/release/typst": "104bd664494b34b301c91022e3eb4efa8a8eca3278e90f17990dbebdbd08dc1a"
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1299-baseline-status.txt": "e7629860ba7eaa72a74dc343842327338a9633062bae739e1a36df62b13aca3b",
+    "00_nucleo/diagnosticos/p1299-manifest.json": "557e158413b63e1fdfcc65465f54ad5db8377301ffcb551fb1cc62ffc4bd6b8b",
+    "00_nucleo/diagnosticos/p1299-crystalline-default.json": "58f8ae65a8a008d9e8b380a545b4bc7aeabf7ad6404b099472d5a5fb547c5287",
+    "00_nucleo/diagnosticos/p1299-crystalline-html.json": "26fdb6a49bf438e6211e400f5e64185b0af7cbbbcc17a469f1861e68f5461478",
+    "00_nucleo/diagnosticos/p1299-inventory-default.json": "12fcda046d8a2574a77307a9154874e33a2bff664437248db56237a94aa996d5",
+    "00_nucleo/diagnosticos/p1299-inventory-html.json": "f22b9cdf11e54abee9ac7fd2faf04c247d8b4a8a5e83027ab5ded06ada0b97c5",
+    "00_nucleo/diagnosticos/p1299-probe-catalog.json": "649dd46f05e67d376a8096756a31207a6a7d4087acf5fcbdd6688a59c4f934ae",
+    "00_nucleo/diagnosticos/p1299-run-matrix.py": "1e1a196ea17c0f8c4632e2cbd4ba38c1693b09dff2f21d85025dcd9abbb3b1a0",
+    "00_nucleo/diagnosticos/test_p1299_run_matrix.py": "54f67f3d2d1f1f4f0de5dfeb9116e629ffc9537c0e5c40b47cd74b11343678f1",
+    "00_nucleo/diagnosticos/p1299-feature-matrix.json": "58f08430c479ba5dea093945301785a89e77f20e9af0809ae05c6641a7ecdc11",
+    "00_nucleo/diagnosticos/p1299-owner-ledger.tsv": "79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69",
+    "00_nucleo/diagnosticos/p1299-decision-report.md": "332425ce95df73ce8ea8e54e84aec31d37286a6dec8b07ce9b6b5f77e33eeb2e"
+  },
+  "certificate_self_hash_policy": "The certificate cannot contain its own SHA-256 without a recursive fixed point; its detached SHA-256 is reported after creation and no pinned artifact is modified afterward.",
+  "counts": {
+    "inventory": {
+      "default": {"MATCH": 1552, "EXTRA_BINDING": 45, "MISSING_MEMBER": 56, "UNVERIFIED_METADATA": 401, "UNKNOWN": 0, "blocked_by_ancestor": 6, "provenance_errors": 0},
+      "html": {"MATCH": 1553, "EXTRA_BINDING": 45, "MISSING_MEMBER": 100, "UNVERIFIED_METADATA": 471, "UNKNOWN": 0, "blocked_by_ancestor": 6, "provenance_errors": 0}
+    },
+    "matrix": {
+      "probe_count": 626,
+      "observation_count": 2504,
+      "by_profile": {
+        "default": {"MATCH_VALUE": 390, "MATCH_DIAGNOSTIC": 115, "CRYSTALLINE_ONLY": 45, "VANILLA_ONLY": 62, "DIFFERENT_VALUE": 11, "DIFFERENT_DIAGNOSTIC": 3, "EXECUTION_UNKNOWN": 0},
+        "html": {"MATCH_VALUE": 461, "MATCH_DIAGNOSTIC": 0, "CRYSTALLINE_ONLY": 45, "VANILLA_ONLY": 106, "DIFFERENT_VALUE": 11, "DIFFERENT_DIAGNOSTIC": 3, "EXECUTION_UNKNOWN": 0},
+        "a11y": {"MATCH_VALUE": 393, "MATCH_DIAGNOSTIC": 115, "CRYSTALLINE_ONLY": 45, "VANILLA_ONLY": 62, "DIFFERENT_VALUE": 11, "DIFFERENT_DIAGNOSTIC": 0, "EXECUTION_UNKNOWN": 0},
+        "html+a11y": {"MATCH_VALUE": 464, "MATCH_DIAGNOSTIC": 0, "CRYSTALLINE_ONLY": 45, "VANILLA_ONLY": 106, "DIFFERENT_VALUE": 11, "DIFFERENT_DIAGNOSTIC": 0, "EXECUTION_UNKNOWN": 0}
+      },
+      "by_runtime_class": {"MATCH_VALUE": 1708, "MATCH_DIAGNOSTIC": 230, "CRYSTALLINE_ONLY": 180, "VANILLA_ONLY": 336, "DIFFERENT_VALUE": 44, "DIFFERENT_DIAGNOSTIC": 6, "EXECUTION_UNKNOWN": 0}
+    },
+    "ledger": {"rows": 166, "EXPECTED_FEATURE_DISABLED": 1, "DIAGNOSTIC_SPAN_DIVERGENCE": 3, "LEAKED_PUBLIC_ALIAS": 0, "INTENTIONAL_PRODUCT_EXTENSION": 42, "L0_CONTRADICTION": 3, "MISSING_LANGUAGE_MEMBER": 106, "WRONG_PUBLIC_KIND_OR_IDENTITY": 11, "UNRESOLVED": 0}
+  },
+  "p1300_selection": {
+    "cohort": "color-global-constructors",
+    "priority_class": "L0_CONTRADICTION",
+    "included_paths": ["hsl", "hsv", "linear_rgb"],
+    "excluded_path_count": 163,
+    "canonical_routes": ["color.hsl", "color.hsv", "color.linear-rgb"],
+    "canonical_routes_all_profiles": "MATCH_VALUE",
+    "owner_prompt": "00_nucleo/prompts/compiler/stdlib/color.md",
+    "owner_prompt_declared_code_hash": "dfc7912c",
+    "owner_prompt_sha256": "fecc619d1b336a6f8ca8c39c22a302babdec4daf22d3387ce97ce28e36d87dc3",
+    "human_gate": "P1300 must remeasure the cohort, update L0 first, present the L0 diff, and STOP for human ADR-0127 confirmation before RED tests or product code."
+  },
+  "unknown_policy_result": {
+    "input_unknown": 0,
+    "invalid_provenance": 0,
+    "execution_unknown": 0,
+    "unresolved_ledger_rows": 0,
+    "blocked_ancestor_entries": 12,
+    "blocked_ancestor_resolution": "All six distinct paths were reobserved bilaterally and classified VANILLA_ONLY; none remains unknown."
+  },
+  "verification": {
+    "python_unittest": {"exit_code": 0, "passed": 29},
+    "cargo_build": {"exit_code": 0, "target": "/dev/shm/p1299-gates.m5JPjk"},
+    "cargo_test_workspace": {"exit_code": 0, "target": "/dev/shm/p1299-gates.m5JPjk"},
+    "cargo_fmt_check": {"exit_code": 0},
+    "crystalline_lint": {"exit_code": 0},
+    "crystalline_lint_fix_hashes_dry_run": {"exit_code": 0, "stdout": "Nothing to fix\n"},
+    "git_diff_check": {"exit_code": 0}
+  },
+  "blockers": [],
+  "maximum_claim": "A superfície pública foi reenumerada no baseline P1298, as divergências observadas foram classificadas por perfil, owner e natureza de linguagem, e um lote causal foi selecionado para um passo posterior; não se alega paridade funcional geral."
+}

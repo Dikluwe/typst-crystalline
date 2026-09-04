@@ -1,0 +1,461 @@
+{
+  "schema_version": "tekt-oracle-suite-v1",
+  "step": "P1301",
+  "role": "oracle_author",
+  "executor": "fresh sub-agent P2 /root/p1301_oracles",
+  "protocol_regime": "complete",
+  "attestation": {
+    "technical_isolation_attested": false,
+    "language": "executado sem atestação de isolamento técnico"
+  },
+  "frozen_inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1301-manifest.json",
+      "sha256": "074fabeda17f741f064fe1d561ad6a78ad81e45654861825586664a9646f05a8"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1301-contract.json",
+      "sha256": "2d8d7a141d63c13473681abdefa24ed9370e03925824a9cae74ca26305ea85f5"
+    },
+    "field_access_prompt": {
+      "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "sha256": "38d6f5cdee302491ec059577174d4f6dc6d3c28e3d2da2748f61c05853cc0c16"
+    },
+    "tests_prompt": {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "a4ade7eda600891465c62c320d80b7c2182c30dbb5f456de210c4a823b3e609a"
+    },
+    "baseline": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "ratified_upstream_commit": "a51e02804"
+    }
+  },
+  "repository_provenance_from_manifest": {
+    "head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "working_tree": "uncommitted",
+    "git_status_short_sha256_before_manifest": "3ea93237c50446334d7008832632dc262cceb3bf8e3cc25da1c1d91e3e6b8d4f",
+    "git_diff_head_stat_sha256_before_manifest": "df861a696777f2714969a76128a6c5deafd7383537223c9dbb1efc2f1f1e12b6"
+  },
+  "runner": {
+    "runner_pid": 3,
+    "started_at": "2026-09-04T00:10:29.396435Z",
+    "finished_at": "2026-09-04T00:10:29.755237Z",
+    "environment": {
+      "LC_ALL": "C.UTF-8",
+      "LANG": "C.UTF-8",
+      "TZ": "UTC"
+    },
+    "command_template": [
+      "/usr/local/bin/typst",
+      "--color",
+      "never",
+      "eval",
+      "<profile-argv...>",
+      "--diagnostic-format",
+      "short",
+      "<expression>"
+    ],
+    "process_model": "one fresh vanilla child process per required case per order; stdout and stderr captured as UTF-8 bytes; exit code captured directly",
+    "span_extraction": "The short diagnostic supplies the zero-based start column. The half-open end is mapped from the final field identifier in the public source expression. For S-NONMODULE the observed start 17 maps to the public token nope at 17..21; no expected crystalline span is used to move that start.",
+    "profiles": {
+      "default": [],
+      "html": ["--target", "html", "--features", "html"],
+      "a11y": ["--features", "a11y-extras"],
+      "html+a11y": ["--target", "html", "--features", "html,a11y-extras"]
+    },
+    "hash_gates": [
+      {
+        "gate": "before-normal",
+        "at": "2026-09-04T00:10:29.396468Z",
+        "all_frozen_inputs_match": true
+      },
+      {
+        "gate": "before-inverted",
+        "at": "2026-09-04T00:10:29.577620Z",
+        "all_frozen_inputs_match": true
+      },
+      {
+        "gate": "after-inverted",
+        "at": "2026-09-04T00:10:29.755242Z",
+        "all_frozen_inputs_match": true
+      }
+    ]
+  },
+  "required_cases": [
+    {
+      "id": "N-STD-default-hsl",
+      "role": "negative_module",
+      "profile": "default",
+      "expression": "repr(type(std.hsl))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(std.hsl))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsl`\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-default-hsv",
+      "role": "negative_module",
+      "profile": "default",
+      "expression": "repr(type(std.hsv))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(std.hsv))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsv`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsv`\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-default-linear_rgb",
+      "role": "negative_module",
+      "profile": "default",
+      "expression": "repr(type(std.linear_rgb))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(std.linear_rgb))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `linear_rgb`", "hints": [], "span_bytes": [14, 24], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `linear_rgb`\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-html-hsl",
+      "role": "negative_module",
+      "profile": "html",
+      "expression": "repr(type(std.hsl))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--target", "html", "--features", "html", "--diagnostic-format", "short", "repr(type(std.hsl))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsl`\nwarning: html export is under active development and incomplete\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-html-hsv",
+      "role": "negative_module",
+      "profile": "html",
+      "expression": "repr(type(std.hsv))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--target", "html", "--features", "html", "--diagnostic-format", "short", "repr(type(std.hsv))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsv`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsv`\nwarning: html export is under active development and incomplete\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-html-linear_rgb",
+      "role": "negative_module",
+      "profile": "html",
+      "expression": "repr(type(std.linear_rgb))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--target", "html", "--features", "html", "--diagnostic-format", "short", "repr(type(std.linear_rgb))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `linear_rgb`", "hints": [], "span_bytes": [14, 24], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `linear_rgb`\nwarning: html export is under active development and incomplete\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-a11y-hsl",
+      "role": "negative_module",
+      "profile": "a11y",
+      "expression": "repr(type(std.hsl))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--features", "a11y-extras", "--diagnostic-format", "short", "repr(type(std.hsl))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsl`\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-a11y-hsv",
+      "role": "negative_module",
+      "profile": "a11y",
+      "expression": "repr(type(std.hsv))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--features", "a11y-extras", "--diagnostic-format", "short", "repr(type(std.hsv))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsv`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsv`\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-a11y-linear_rgb",
+      "role": "negative_module",
+      "profile": "a11y",
+      "expression": "repr(type(std.linear_rgb))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--features", "a11y-extras", "--diagnostic-format", "short", "repr(type(std.linear_rgb))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `linear_rgb`", "hints": [], "span_bytes": [14, 24], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `linear_rgb`\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-html+a11y-hsl",
+      "role": "negative_module",
+      "profile": "html+a11y",
+      "expression": "repr(type(std.hsl))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--target", "html", "--features", "html,a11y-extras", "--diagnostic-format", "short", "repr(type(std.hsl))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsl`\nwarning: html export is under active development and incomplete\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-html+a11y-hsv",
+      "role": "negative_module",
+      "profile": "html+a11y",
+      "expression": "repr(type(std.hsv))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--target", "html", "--features", "html,a11y-extras", "--diagnostic-format", "short", "repr(type(std.hsv))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `hsv`", "hints": [], "span_bytes": [14, 17], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `hsv`\nwarning: html export is under active development and incomplete\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-STD-html+a11y-linear_rgb",
+      "role": "negative_module",
+      "profile": "html+a11y",
+      "expression": "repr(type(std.linear_rgb))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--target", "html", "--features", "html,a11y-extras", "--diagnostic-format", "short", "repr(type(std.linear_rgb))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `global` does not contain `linear_rgb`", "hints": [], "span_bytes": [14, 24], "rendered_stderr": "<input-expression>:1:14: error: module `global` does not contain `linear_rgb`\nwarning: html export is under active development and incomplete\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-CALC-nope",
+      "role": "negative_module_category_control",
+      "profile": "default",
+      "expression": "repr(type(calc.nope))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(calc.nope))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `calc` does not contain `nope`", "hints": [], "span_bytes": [15, 19], "rendered_stderr": "<input-expression>:1:15: error: module `calc` does not contain `nope`\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-SYM-nope",
+      "role": "negative_module_category_control",
+      "profile": "default",
+      "expression": "repr(type(sym.nope))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(sym.nope))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `sym` does not contain `nope`", "hints": [], "span_bytes": [14, 18], "rendered_stderr": "<input-expression>:1:14: error: module `sym` does not contain `nope`\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "N-COLOR-MAP-nope",
+      "role": "negative_module_category_control",
+      "profile": "default",
+      "expression": "repr(type(color.map.nope))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(color.map.nope))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "module `map` does not contain `nope`", "hints": [], "span_bytes": [20, 24], "rendered_stderr": "<input-expression>:1:20: error: module `map` does not contain `nope`\n"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "P-STD-rgb",
+      "role": "positive_existing_module_field",
+      "profile": "default",
+      "expression": "repr(type(std.rgb))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(std.rgb))"],
+      "actual": {"exit_code": 0, "stdout": "\"function\"\n", "rendered_stderr": "", "public_kind": "function"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "P-CALC-abs",
+      "role": "positive_existing_module_field",
+      "profile": "default",
+      "expression": "repr(type(calc.abs))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(calc.abs))"],
+      "actual": {"exit_code": 0, "stdout": "\"function\"\n", "rendered_stderr": "", "public_kind": "function"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "P-SYM-arrow",
+      "role": "positive_existing_module_field",
+      "profile": "default",
+      "expression": "repr(type(sym.arrow))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(sym.arrow))"],
+      "actual": {"exit_code": 0, "stdout": "\"symbol\"\n", "rendered_stderr": "", "public_kind": "symbol"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "P-COLOR-MAP-turbo",
+      "role": "positive_existing_module_field",
+      "profile": "default",
+      "expression": "repr(type(color.map.turbo))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(color.map.turbo))"],
+      "actual": {"exit_code": 0, "stdout": "\"array\"\n", "rendered_stderr": "", "public_kind": "array"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "P-COLOR-hsl",
+      "role": "positive_qualified_color_control",
+      "profile": "default",
+      "expression": "repr(type(color.hsl))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(color.hsl))"],
+      "actual": {"exit_code": 0, "stdout": "\"function\"\n", "rendered_stderr": "", "public_kind": "function"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "P-COLOR-hsv",
+      "role": "positive_qualified_color_control",
+      "profile": "default",
+      "expression": "repr(type(color.hsv))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(color.hsv))"],
+      "actual": {"exit_code": 0, "stdout": "\"function\"\n", "rendered_stderr": "", "public_kind": "function"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "P-COLOR-linear-rgb",
+      "role": "positive_qualified_color_control",
+      "profile": "default",
+      "expression": "repr(type(color.linear-rgb))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type(color.linear-rgb))"],
+      "actual": {"exit_code": 0, "stdout": "\"function\"\n", "rendered_stderr": "", "public_kind": "function"},
+      "normal_verdict": "Preserved",
+      "inverted_verdict": "Preserved"
+    },
+    {
+      "id": "S-NONMODULE-dictionary-whole-span",
+      "role": "non_module_span_sentinel",
+      "oracle_source": "contract_pre_candidate_invariant",
+      "profile": "default",
+      "expression": "repr(type((a: 1).nope))",
+      "command": ["/usr/local/bin/typst", "--color", "never", "eval", "--diagnostic-format", "short", "repr(type((a: 1).nope))"],
+      "actual": {"exit_code": 1, "stdout": "", "diagnostic_class": "error", "message": "dictionary does not contain key \"nope\"", "hints": [], "span_bytes": [17, 21], "rendered_stderr": "<input-expression>:1:17: error: dictionary does not contain key \"nope\"\n"},
+      "normal_verdict": "Violated",
+      "inverted_verdict": "Violated",
+      "candidate_gate_expected_span_bytes": [10, 21],
+      "witness": {
+        "observable": "span_bytes",
+        "contract_expected": [10, 21],
+        "vanilla_actual": [17, 21],
+        "rendered_stderr_expected": "<input-expression>:1:10: error: dictionary does not contain key \"nope\"\n",
+        "rendered_stderr_actual": "<input-expression>:1:17: error: dictionary does not contain key \"nope\"\n"
+      }
+    }
+  ],
+  "executions": {
+    "normal": {
+      "order": ["N-STD-default-hsl", "N-STD-default-hsv", "N-STD-default-linear_rgb", "N-STD-html-hsl", "N-STD-html-hsv", "N-STD-html-linear_rgb", "N-STD-a11y-hsl", "N-STD-a11y-hsv", "N-STD-a11y-linear_rgb", "N-STD-html+a11y-hsl", "N-STD-html+a11y-hsv", "N-STD-html+a11y-linear_rgb", "N-CALC-nope", "N-SYM-nope", "N-COLOR-MAP-nope", "P-STD-rgb", "P-CALC-abs", "P-SYM-arrow", "P-COLOR-MAP-turbo", "P-COLOR-hsl", "P-COLOR-hsv", "P-COLOR-linear-rgb", "S-NONMODULE-dictionary-whole-span"],
+      "processes": [
+        {"id":"N-STD-default-hsl","pid":4,"started_at":"2026-09-04T00:10:29.430407Z","finished_at":"2026-09-04T00:10:29.437670Z","duration_ns":7245015},
+        {"id":"N-STD-default-hsv","pid":21,"started_at":"2026-09-04T00:10:29.437998Z","finished_at":"2026-09-04T00:10:29.444848Z","duration_ns":6838839},
+        {"id":"N-STD-default-linear_rgb","pid":38,"started_at":"2026-09-04T00:10:29.444974Z","finished_at":"2026-09-04T00:10:29.451926Z","duration_ns":6941150},
+        {"id":"N-STD-html-hsl","pid":55,"started_at":"2026-09-04T00:10:29.452016Z","finished_at":"2026-09-04T00:10:29.457342Z","duration_ns":5318835},
+        {"id":"N-STD-html-hsv","pid":56,"started_at":"2026-09-04T00:10:29.457424Z","finished_at":"2026-09-04T00:10:29.462823Z","duration_ns":5390809},
+        {"id":"N-STD-html-linear_rgb","pid":57,"started_at":"2026-09-04T00:10:29.462903Z","finished_at":"2026-09-04T00:10:29.468398Z","duration_ns":5486457},
+        {"id":"N-STD-a11y-hsl","pid":58,"started_at":"2026-09-04T00:10:29.468531Z","finished_at":"2026-09-04T00:10:29.475286Z","duration_ns":6747029},
+        {"id":"N-STD-a11y-hsv","pid":75,"started_at":"2026-09-04T00:10:29.475378Z","finished_at":"2026-09-04T00:10:29.481344Z","duration_ns":5957882},
+        {"id":"N-STD-a11y-linear_rgb","pid":92,"started_at":"2026-09-04T00:10:29.481441Z","finished_at":"2026-09-04T00:10:29.487078Z","duration_ns":5627519},
+        {"id":"N-STD-html+a11y-hsl","pid":109,"started_at":"2026-09-04T00:10:29.487166Z","finished_at":"2026-09-04T00:10:29.492753Z","duration_ns":5579770},
+        {"id":"N-STD-html+a11y-hsv","pid":110,"started_at":"2026-09-04T00:10:29.492861Z","finished_at":"2026-09-04T00:10:29.498954Z","duration_ns":6083867},
+        {"id":"N-STD-html+a11y-linear_rgb","pid":111,"started_at":"2026-09-04T00:10:29.499065Z","finished_at":"2026-09-04T00:10:29.504896Z","duration_ns":5820487},
+        {"id":"N-CALC-nope","pid":112,"started_at":"2026-09-04T00:10:29.505026Z","finished_at":"2026-09-04T00:10:29.512587Z","duration_ns":7551424},
+        {"id":"N-SYM-nope","pid":129,"started_at":"2026-09-04T00:10:29.512715Z","finished_at":"2026-09-04T00:10:29.518614Z","duration_ns":5888474},
+        {"id":"N-COLOR-MAP-nope","pid":146,"started_at":"2026-09-04T00:10:29.518715Z","finished_at":"2026-09-04T00:10:29.525749Z","duration_ns":7026729},
+        {"id":"P-STD-rgb","pid":163,"started_at":"2026-09-04T00:10:29.525831Z","finished_at":"2026-09-04T00:10:29.532014Z","duration_ns":6175146},
+        {"id":"P-CALC-abs","pid":180,"started_at":"2026-09-04T00:10:29.532097Z","finished_at":"2026-09-04T00:10:29.538663Z","duration_ns":6557187},
+        {"id":"P-SYM-arrow","pid":197,"started_at":"2026-09-04T00:10:29.538743Z","finished_at":"2026-09-04T00:10:29.544933Z","duration_ns":6182771},
+        {"id":"P-COLOR-MAP-turbo","pid":214,"started_at":"2026-09-04T00:10:29.545006Z","finished_at":"2026-09-04T00:10:29.551047Z","duration_ns":6034014},
+        {"id":"P-COLOR-hsl","pid":231,"started_at":"2026-09-04T00:10:29.551120Z","finished_at":"2026-09-04T00:10:29.557502Z","duration_ns":6374827},
+        {"id":"P-COLOR-hsv","pid":248,"started_at":"2026-09-04T00:10:29.557581Z","finished_at":"2026-09-04T00:10:29.563837Z","duration_ns":6246389},
+        {"id":"P-COLOR-linear-rgb","pid":265,"started_at":"2026-09-04T00:10:29.563908Z","finished_at":"2026-09-04T00:10:29.571036Z","duration_ns":7118539},
+        {"id":"S-NONMODULE-dictionary-whole-span","pid":282,"started_at":"2026-09-04T00:10:29.571133Z","finished_at":"2026-09-04T00:10:29.577503Z","duration_ns":6360591}
+      ],
+      "counts": {"Preserved": 22, "Violated": 1, "Unknown": 0, "execution_unknown": 0}
+    },
+    "inverted": {
+      "order": ["S-NONMODULE-dictionary-whole-span", "P-COLOR-linear-rgb", "P-COLOR-hsv", "P-COLOR-hsl", "P-COLOR-MAP-turbo", "P-SYM-arrow", "P-CALC-abs", "P-STD-rgb", "N-COLOR-MAP-nope", "N-SYM-nope", "N-CALC-nope", "N-STD-html+a11y-linear_rgb", "N-STD-html+a11y-hsv", "N-STD-html+a11y-hsl", "N-STD-a11y-linear_rgb", "N-STD-a11y-hsv", "N-STD-a11y-hsl", "N-STD-html-linear_rgb", "N-STD-html-hsv", "N-STD-html-hsl", "N-STD-default-linear_rgb", "N-STD-default-hsv", "N-STD-default-hsl"],
+      "processes": [
+        {"id":"S-NONMODULE-dictionary-whole-span","pid":299,"started_at":"2026-09-04T00:10:29.611090Z","finished_at":"2026-09-04T00:10:29.617429Z","duration_ns":6322170},
+        {"id":"P-COLOR-linear-rgb","pid":316,"started_at":"2026-09-04T00:10:29.617545Z","finished_at":"2026-09-04T00:10:29.623846Z","duration_ns":6292104},
+        {"id":"P-COLOR-hsv","pid":333,"started_at":"2026-09-04T00:10:29.623932Z","finished_at":"2026-09-04T00:10:29.630317Z","duration_ns":6377472},
+        {"id":"P-COLOR-hsl","pid":350,"started_at":"2026-09-04T00:10:29.630392Z","finished_at":"2026-09-04T00:10:29.636512Z","duration_ns":6111408},
+        {"id":"P-COLOR-MAP-turbo","pid":367,"started_at":"2026-09-04T00:10:29.636608Z","finished_at":"2026-09-04T00:10:29.644669Z","duration_ns":8052386},
+        {"id":"P-SYM-arrow","pid":384,"started_at":"2026-09-04T00:10:29.644753Z","finished_at":"2026-09-04T00:10:29.651010Z","duration_ns":6250336},
+        {"id":"P-CALC-abs","pid":401,"started_at":"2026-09-04T00:10:29.651100Z","finished_at":"2026-09-04T00:10:29.656997Z","duration_ns":5891218},
+        {"id":"P-STD-rgb","pid":418,"started_at":"2026-09-04T00:10:29.657106Z","finished_at":"2026-09-04T00:10:29.664577Z","duration_ns":7462128},
+        {"id":"N-COLOR-MAP-nope","pid":435,"started_at":"2026-09-04T00:10:29.664654Z","finished_at":"2026-09-04T00:10:29.671083Z","duration_ns":6421544},
+        {"id":"N-SYM-nope","pid":452,"started_at":"2026-09-04T00:10:29.671188Z","finished_at":"2026-09-04T00:10:29.677906Z","duration_ns":6709801},
+        {"id":"N-CALC-nope","pid":469,"started_at":"2026-09-04T00:10:29.678006Z","finished_at":"2026-09-04T00:10:29.683939Z","duration_ns":5925623},
+        {"id":"N-STD-html+a11y-linear_rgb","pid":486,"started_at":"2026-09-04T00:10:29.684022Z","finished_at":"2026-09-04T00:10:29.689337Z","duration_ns":5308395},
+        {"id":"N-STD-html+a11y-hsv","pid":487,"started_at":"2026-09-04T00:10:29.689425Z","finished_at":"2026-09-04T00:10:29.695083Z","duration_ns":5649470},
+        {"id":"N-STD-html+a11y-hsl","pid":488,"started_at":"2026-09-04T00:10:29.695180Z","finished_at":"2026-09-04T00:10:29.701434Z","duration_ns":6244876},
+        {"id":"N-STD-a11y-linear_rgb","pid":489,"started_at":"2026-09-04T00:10:29.701553Z","finished_at":"2026-09-04T00:10:29.708163Z","duration_ns":6600146},
+        {"id":"N-STD-a11y-hsv","pid":506,"started_at":"2026-09-04T00:10:29.708250Z","finished_at":"2026-09-04T00:10:29.714220Z","duration_ns":5964054},
+        {"id":"N-STD-a11y-hsl","pid":523,"started_at":"2026-09-04T00:10:29.714310Z","finished_at":"2026-09-04T00:10:29.720579Z","duration_ns":6262258},
+        {"id":"N-STD-html-linear_rgb","pid":540,"started_at":"2026-09-04T00:10:29.720673Z","finished_at":"2026-09-04T00:10:29.725999Z","duration_ns":5318684},
+        {"id":"N-STD-html-hsv","pid":541,"started_at":"2026-09-04T00:10:29.726084Z","finished_at":"2026-09-04T00:10:29.731535Z","duration_ns":5442716},
+        {"id":"N-STD-html-hsl","pid":542,"started_at":"2026-09-04T00:10:29.731617Z","finished_at":"2026-09-04T00:10:29.736863Z","duration_ns":5237074},
+        {"id":"N-STD-default-linear_rgb","pid":543,"started_at":"2026-09-04T00:10:29.736978Z","finished_at":"2026-09-04T00:10:29.743158Z","duration_ns":6173613},
+        {"id":"N-STD-default-hsv","pid":560,"started_at":"2026-09-04T00:10:29.743248Z","finished_at":"2026-09-04T00:10:29.749288Z","duration_ns":6031840},
+        {"id":"N-STD-default-hsl","pid":577,"started_at":"2026-09-04T00:10:29.749385Z","finished_at":"2026-09-04T00:10:29.755154Z","duration_ns":5758993}
+      ],
+      "counts": {"Preserved": 22, "Violated": 1, "Unknown": 0, "execution_unknown": 0}
+    }
+  },
+  "order_invariance": {
+    "actual_observable_maps_identical_by_case_id": true,
+    "verdict_maps_identical_by_case_id": true,
+    "same_23_case_ids": true,
+    "acceptance_satisfied": false,
+    "failure": "S-NONMODULE-dictionary-whole-span is deterministically Violated in both orders"
+  },
+  "deliberately_opaque_cases": [
+    {
+      "id": "O-AMBIGUOUS-PRIMARY",
+      "input_kind": "synthetic public observation envelope",
+      "fixture": {
+        "parse_status": "ambiguous",
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostics": [
+          {"class": "error", "message": "module `calc` does not contain `nope`", "span_bytes": [15, 19]},
+          {"class": "error", "message": "module `sym` does not contain `nope`", "span_bytes": [14, 18]}
+        ],
+        "primary_diagnostic_index": null
+      },
+      "verdict": "Unknown",
+      "reason_code": "AMBIGUOUS_PRIMARY_DIAGNOSTIC"
+    },
+    {
+      "id": "O-UNMAPPABLE-SPAN",
+      "input_kind": "synthetic public observation envelope",
+      "fixture": {
+        "parse_status": "unsupported-span-encoding",
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostic": {"class": "error", "message": "module `global` does not contain `hsl`", "hints": [], "span_bytes": null},
+        "source_bytes_available": false
+      },
+      "verdict": "Unknown",
+      "reason_code": "SPAN_CANNOT_BE_MAPPED_WITH_PUBLIC_INPUT"
+    }
+  ],
+  "contract_divergences": [
+    {
+      "case_id": "S-NONMODULE-dictionary-whole-span",
+      "orders": ["normal", "inverted"],
+      "first_differing_observable": "span_bytes",
+      "contract_expected": [10, 21],
+      "vanilla_actual": [17, 21],
+      "also_changes_rendered_stderr_column": {"expected": 10, "actual": 17},
+      "classification": "contract expectation disagrees with the ratified vanilla baseline; expectation was not adapted"
+      ,
+      "oracle_source": "contract_pre_candidate_invariant",
+      "effect": "informative vanilla divergence only; the later candidate gate still requires 10..21"
+    }
+  ],
+  "scope_exclusions": {
+    "repr_std_executed": false,
+    "candidate_implementation_read": false,
+    "candidate_tests_read": false,
+    "pre_candidate_rust_read": false,
+    "p1300_artifacts_read": false,
+    "adversary_outputs_read": false
+  },
+  "overall": {
+    "required_case_count": 23,
+    "process_count": 46,
+    "profiles_per_order": {"default": 14, "html": 3, "a11y": 3, "html+a11y": 3},
+    "required_preserved_per_order": 22,
+    "required_violated_per_order": 1,
+    "required_unknown_per_order": 0,
+    "opaque_unknown_exact": 2,
+    "vanilla_oracle_partition": {"case_count": 22, "Preserved": 22, "Violated": 0, "Unknown": 0},
+    "contract_pre_candidate_invariant_partition": {"case_count": 1, "case_id": "S-NONMODULE-dictionary-whole-span", "vanilla_execution_verdict": "Violated", "candidate_gate_expected_span_bytes": [10, 21]},
+    "contract_vector_against_vanilla": "22_Preserved_1_Violated",
+    "opacity_control_gate": "PASS",
+    "order_invariance_gate": "PASS_FOR_OBSERVATIONS_AND_VERDICTS_BUT_OVERALL_ACCEPTANCE_FAILS",
+    "oracle_status": "P1301_ORACLE_COMPLETE_WITH_INFORMATIVE_VANILLA_DIVERGENCE"
+  }
+}

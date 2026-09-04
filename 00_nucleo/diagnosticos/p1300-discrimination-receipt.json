@@ -1,0 +1,281 @@
+{
+  "$schema": "p1300-discrimination-receipt/v1",
+  "schema_version": 1,
+  "step": "P1300",
+  "artifact_kind": "independent_discrimination_receipt",
+  "revision": 1,
+  "role": "P4_discrimination_sealer",
+  "executor": "Codex agent /root/p1300_sealer",
+  "completed_at": "2026-09-03T19:41:25-03:00",
+  "regime": "full_segregated_materialization_protocol",
+  "attestation_level": "executed_without_technical_isolation_attestation",
+  "limitation": "All agents share one filesystem. This receipt proves content-addressed inputs, declared read/write capabilities, deterministic public-observation discrimination and observed command results, but it does not prove filesystem-level read isolation or general functional equivalence.",
+  "context_and_capabilities": {
+    "context": "Fresh P4 task after P1-P3 artifacts were frozen. Repository instructions and the mandatory Tekt skill instructions were inherited; no candidate patch or P5-P8 conclusion was received.",
+    "repository_read_allowlist": [
+      "00_nucleo/diagnosticos/p1300-manifest.json",
+      "00_nucleo/diagnosticos/p1300-contract.json",
+      "00_nucleo/diagnosticos/p1300-contract-author-receipt.md",
+      "00_nucleo/diagnosticos/p1300-oracle-suite.json",
+      "00_nucleo/diagnosticos/p1300-vanilla-measurement-receipt.md",
+      "00_nucleo/diagnosticos/p1300-mutants.json",
+      "00_nucleo/diagnosticos/p1300-adversarial-plan.md"
+    ],
+    "external_instruction_reads": [
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md"
+    ],
+    "repository_write_allowlist": [
+      "00_nucleo/diagnosticos/p1300-contract-runner.py",
+      "00_nucleo/diagnosticos/p1300-discrimination-receipt.json",
+      "00_nucleo/diagnosticos/p1300-contract-seal.json"
+    ],
+    "forbidden_inputs_observed": [],
+    "statement": "No 01_core/**/*.rs, candidate patch, permanent test or P5-P8 output was read. No production code, permanent test, frozen P1-P3 input, index or commit was written."
+  },
+  "frozen_inputs_verified": {
+    "00_nucleo/diagnosticos/p1300-manifest.json": "c3e946e1330ccab108dba2f9a438fd6a8d4c3a2af7fca3307842dbd7403feed8",
+    "00_nucleo/diagnosticos/p1300-contract.json": "c5eace73e5ff07ab49057ec1741283543408accf132ca2f4431a1ad3827a3e37",
+    "00_nucleo/diagnosticos/p1300-contract-author-receipt.md": "a5e6bb2a6ab270f65fa6befb6446e0a3444741fb30fdbb4918e729a25c451e53",
+    "00_nucleo/diagnosticos/p1300-oracle-suite.json": "a9a519a8230e39c55fa07223e306a7156d6c2b07bd71ef2926cc9e43f1ce8278",
+    "00_nucleo/diagnosticos/p1300-vanilla-measurement-receipt.md": "491d07c4411597951fd47bd18431337a375319a345cf2b45a82174c3ace61959",
+    "00_nucleo/diagnosticos/p1300-mutants.json": "cefa2fb00d6ad5adb81783b86b94f2450c9b0366591e42637d926adc7e598501",
+    "00_nucleo/diagnosticos/p1300-adversarial-plan.md": "2ae106a071888a4da9a96f54d8f1391dfa0104d352ac7941dbfb125a29edc166"
+  },
+  "runner": {
+    "path": "00_nucleo/diagnosticos/p1300-contract-runner.py",
+    "sha256": "85fe95a2f6e7c48d613221d201e4aefe88ba8a0a270752073c45fe48122bad43",
+    "model": "binding-free, data-driven, in-memory public-observation DSL",
+    "input_mutability": "Frozen inputs and materialized expectations are hash-checked before and after discrimination; operations apply only to fresh candidate clones.",
+    "harness_error_policy": "Missing selector, missing field, null, oracle erasure, incomplete observation, ambiguous selector, witness failure and operation failure are harness_error and block sealing; none is converted to Unknown."
+  },
+  "provenance": {
+    "git_head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "branch_from_manifest": "Tekt",
+    "working_tree": "uncommitted",
+    "decision_state": "The measured numbers derive only from the seven content-addressed frozen inputs and the content-addressed runner. No unlisted working-tree content was consulted.",
+    "baseline_measurement": {
+      "path": "00_nucleo/diagnosticos/p1300-pre-gate-measurement.json",
+      "sha256": "1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe"
+    }
+  },
+  "revision_record": {
+    "revision": 1,
+    "hypothesis": "The frozen contract distinguishes each of the 14 public-language mutations while preserving every complete semantic positive and keeping only the four deliberately opaque fixtures Unknown with their exact public reasons.",
+    "predecessor": "Unmeasured discrimination state declared by P1-P3.",
+    "delta": {
+      "correctly_violated": "+14 (unmeasured to 14/14)",
+      "positive_regressions": 0,
+      "opaque_regressions": 0,
+      "surviving_mutants": 0,
+      "mutation_score": "unmeasured to 1.0",
+      "dominant_reason_code": "none"
+    },
+    "cost": {
+      "complete_runner_executions": 2,
+      "full_runs_budget": "2 of 2 for revision 1",
+      "normal_duration_ns": 5426002804,
+      "inverted_duration_ns": 5508197471,
+      "total_measured_runner_duration_ns": 10934200275,
+      "product_processes": 0,
+      "python_harness_processes": 2,
+      "semantic_artifact_evaluations": 180,
+      "note": "All product observations were already frozen by P2; P4 discrimination is in-memory and launches no bilateral product process."
+    }
+  },
+  "candidate_vectors": {
+    "underlying_oracle_probe_catalog_count": 233,
+    "underlying_oracle_profile_expansion_count": 932,
+    "contract_aggregate_coordinates_added": 8,
+    "materialized_coordinate_count": 940,
+    "expected_sha256": "f505de4849adc3f6f90d515b92b7657376a1d304df802c6b1291d7d080907b4b",
+    "final_positive_sha256": "f505de4849adc3f6f90d515b92b7657376a1d304df802c6b1291d7d080907b4b",
+    "expected_equals_final_positive": true,
+    "source": "Exact P2 oracle observations plus L0-owned compatibility expectations embedded in the frozen contract/oracle artifacts; confirmed L0 files were not opened by P4."
+  },
+  "execution_matrix": {
+    "orders": [
+      "canonical",
+      "reverse",
+      "Fisher-Yates seed 1300"
+    ],
+    "repetitions_per_order": 2,
+    "runs_per_artifact_per_runner_execution": 6,
+    "positive_runs_per_runner_execution": 6,
+    "mutant_runs_per_runner_execution": 84,
+    "outer_input_orders": [
+      "normal",
+      "inverted"
+    ],
+    "normal_output_sha256": "d7bebf284caad0c95cb71a7fec495a57231cb4e97a4fd0e0901e7a35691411e1",
+    "inverted_output_sha256": "931f3c0fcb785d9fb5c47ccbcdc689a100d35ceb134a940207b86d32d36c3974",
+    "invariant_result_sha256": "7c3966dedccf507cdb9596784f2de482969bc0b67dfe7a200495c5ef44cadcda",
+    "classification_and_observation_invariance": "PASS"
+  },
+  "anti_erasure_self_tests": [
+    {
+      "id": "reject_missing_selector",
+      "outcome": "harness_error_rejected",
+      "reason_code": "missing_selector",
+      "classification": "not_emitted"
+    },
+    {
+      "id": "reject_missing_field",
+      "outcome": "harness_error_rejected",
+      "reason_code": "missing_required_field",
+      "classification": "not_emitted"
+    },
+    {
+      "id": "reject_null",
+      "outcome": "harness_error_rejected",
+      "reason_code": "null_required_field",
+      "classification": "not_emitted"
+    },
+    {
+      "id": "reject_oracle_erasure",
+      "outcome": "harness_error_rejected",
+      "reason_code": "oracle_erasure",
+      "classification": "not_emitted"
+    }
+  ],
+  "positive_control": {
+    "id": "P1300-C00-unmutated",
+    "classification": "Preserved",
+    "expanded_semantic_coordinates_preserved": 940,
+    "semantic_unknown_count": 0,
+    "result_vector_sha256": "5ac5a55c5fd7b7c705d3753efe7c637e1bbfe7c69e47426e3f4f7fa13195f8a0"
+  },
+  "opaque_controls": [
+    {
+      "id": "opaque-timeout",
+      "classification": "Unknown",
+      "reason_code": "timeout"
+    },
+    {
+      "id": "opaque-missing-product",
+      "classification": "Unknown",
+      "reason_code": "missing_product"
+    },
+    {
+      "id": "opaque-ambiguous-identity",
+      "classification": "Unknown",
+      "reason_code": "ambiguous_product_identity"
+    },
+    {
+      "id": "opaque-unsupported-parser",
+      "classification": "Unknown",
+      "reason_code": "unsupported_parser_construction"
+    }
+  ],
+  "mutant_results": [
+    {
+      "id": "P1300-M01-keep-global-hsl",
+      "classification": "Violated",
+      "witness_count": 56,
+      "witnesses_sha256": "12d3c24e532ba5c6077d9adca904a1e2bdc048758d26c305dd1cdee6ca59e420"
+    },
+    {
+      "id": "P1300-M02-keep-global-hsv",
+      "classification": "Violated",
+      "witness_count": 56,
+      "witnesses_sha256": "4ae21aa8a71a5bc59f64c07efa885993947bd817c6f2cfd167b8e9736adabba0"
+    },
+    {
+      "id": "P1300-M03-keep-global-linear_rgb",
+      "classification": "Violated",
+      "witness_count": 56,
+      "witnesses_sha256": "e30840ff8726ff61f081af250e0740b36db1c236f890ab7af1510ad6c9607b43"
+    },
+    {
+      "id": "P1300-M04-hide-bare-keep-std",
+      "classification": "Violated",
+      "witness_count": 84,
+      "witnesses_sha256": "e2bad55a10ded8bde087a7b55192792d8357affd0692aec270e5659d0a42a4b4"
+    },
+    {
+      "id": "P1300-M05-default-only-feature-leak",
+      "classification": "Violated",
+      "witness_count": 25,
+      "witnesses_sha256": "8348e262110dc74aa8086078b0adac4cf25369514e96f78b923e2df9ca81dea1"
+    },
+    {
+      "id": "P1300-M06-break-qualified-color-hsl",
+      "classification": "Violated",
+      "witness_count": 116,
+      "witnesses_sha256": "06201cf420e5e9a190d7055b9bece885aa9d63876bb067473dfd25bf048626fe"
+    },
+    {
+      "id": "P1300-M07-break-qualified-color-hsv",
+      "classification": "Violated",
+      "witness_count": 116,
+      "witnesses_sha256": "8ae45f706fc663a65a8522dceb299257e3f8b80e4fed0ad982cd3ab6df1484ef"
+    },
+    {
+      "id": "P1300-M08-break-or-rename-qualified-color-linear-rgb",
+      "classification": "Violated",
+      "witness_count": 116,
+      "witnesses_sha256": "85d950d3035df85cef1439e72cfdaa654811ced53278e00bb3b451042060109e"
+    },
+    {
+      "id": "P1300-M09-remove-ratified-global",
+      "classification": "Violated",
+      "witness_count": 88,
+      "witnesses_sha256": "18a388650894706ccf024a7f623db9030123ae9d115223771731a423e20fff8f"
+    },
+    {
+      "id": "P1300-M10-invent-global-linear-rgb",
+      "classification": "Violated",
+      "witness_count": 60,
+      "witnesses_sha256": "e7143faf13ee7d6d795659a91ed975a86b1980ef3d0db4a657eb541118f4d29e"
+    },
+    {
+      "id": "P1300-M11-change-qualified-func-name-repr",
+      "classification": "Violated",
+      "witness_count": 8,
+      "witnesses_sha256": "474397e2f8693310489fdf5592b73713d149cbbd534c0c5313c5e585dda0bc42"
+    },
+    {
+      "id": "P1300-M12-remove-native-instead-of-publication",
+      "classification": "Violated",
+      "witness_count": 60,
+      "witnesses_sha256": "235330e789732c69d3dc32b19bab7052f04d48e72f97879c5bb35c7cd5d88113"
+    },
+    {
+      "id": "P1300-M13-make-color-space-alias-dependent",
+      "classification": "Violated",
+      "witness_count": 28,
+      "witnesses_sha256": "50c4277f09019e05671abc283cb20c84f4434352c5255cd33a0b992bc8896b8b"
+    },
+    {
+      "id": "P1300-M14-collateral-unrelated-color-surface",
+      "classification": "Violated",
+      "witness_count": 28,
+      "witnesses_sha256": "4f36699fe51b98543a4fab6e2caea190772cedea6a055e9aff3e8e5549e72d5e"
+    }
+  ],
+  "gate": {
+    "semantic_positives": "Preserved",
+    "opaque_unknown_with_exact_reason": "4/4",
+    "valid_mutants_violated_with_witness": "14/14",
+    "mutation_score": 1.0,
+    "surviving_mutants": [],
+    "semantic_unknown_count": 0,
+    "harness_error_count": 0,
+    "verdict": "CONTRACT_DISCRIMINATES",
+    "seal_eligible": true
+  },
+  "commands": [
+    "sha256sum 00_nucleo/diagnosticos/p1300-manifest.json 00_nucleo/diagnosticos/p1300-contract.json 00_nucleo/diagnosticos/p1300-contract-author-receipt.md 00_nucleo/diagnosticos/p1300-oracle-suite.json 00_nucleo/diagnosticos/p1300-vanilla-measurement-receipt.md 00_nucleo/diagnosticos/p1300-mutants.json 00_nucleo/diagnosticos/p1300-adversarial-plan.md",
+    "PYTHONPYCACHEPREFIX=/tmp/p1300-pycache python3 -m py_compile 00_nucleo/diagnosticos/p1300-contract-runner.py",
+    "python3 00_nucleo/diagnosticos/p1300-contract-runner.py --input-order normal --output /tmp/p1300-normal.json",
+    "python3 00_nucleo/diagnosticos/p1300-contract-runner.py --input-order inverted --output /tmp/p1300-inverted.json",
+    "python3 -m json.tool 00_nucleo/diagnosticos/p1300-discrimination-receipt.json >/dev/null",
+    "python3 -m json.tool 00_nucleo/diagnosticos/p1300-contract-seal.json >/dev/null",
+    "git diff --check -- 00_nucleo/diagnosticos/p1300-contract-runner.py 00_nucleo/diagnosticos/p1300-discrimination-receipt.json 00_nucleo/diagnosticos/p1300-contract-seal.json",
+    "git diff --no-index --check /dev/null 00_nucleo/diagnosticos/p1300-contract-runner.py",
+    "git diff --no-index --check /dev/null 00_nucleo/diagnosticos/p1300-discrimination-receipt.json",
+    "git diff --no-index --check /dev/null 00_nucleo/diagnosticos/p1300-contract-seal.json"
+  ],
+  "maximum_claim": "The frozen P1300 observable contract discriminates the 14 declared public-observation mutations and preserves its declared positive and opaque controls. This is not a claim of general stdlib or color equivalence."
+}

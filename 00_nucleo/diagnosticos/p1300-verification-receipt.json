@@ -1,0 +1,280 @@
+{
+  "$schema": "p1300-verification-receipt/v1",
+  "schema_version": 1,
+  "step": "P1300",
+  "artifact_kind": "independent_final_verification_receipt",
+  "role": "P8_verifier",
+  "executor": "Codex agent /root/p1300_verifier",
+  "completed_at": "2026-09-03T20:25:00-03:00",
+  "verdict": "P1300_BLOCKED_IMPLEMENTATION",
+  "certificate_issued": false,
+  "regime": "full_segregated_materialization_protocol",
+  "attestation_level": "executed_without_technical_isolation_attestation",
+  "limitation": "All agents share one filesystem. P8 independently rehashed and audited the frozen artifacts and integrated candidate, but cannot attest filesystem-level read isolation. The post-integration candidate binary recorded by the matrix had already been removed before P8, so P8 validated and reclassified the content-addressed matrix in normal and reverse order instead of rerunning that exact binary.",
+  "context_and_capabilities": {
+    "context": "Fresh P8 task after P1-P7 outputs were frozen. No success conclusion was inherited.",
+    "repository_read_scope": [
+      "all frozen P1300 diagnostics named below",
+      "the three confirmed/current P1300 L0 prompts",
+      "the three integrated candidate files",
+      "the causally implicated field_access owner and L0",
+      "git metadata and diffs"
+    ],
+    "repository_write_allowlist": [
+      "00_nucleo/diagnosticos/p1300-verification-receipt.json",
+      "00_nucleo/diagnosticos/p1300-final-report.md"
+    ],
+    "forbidden_writes_observed": [],
+    "index_policy": "No staging, commit or push. Product, permanent tests, L0, contract, oracle, mutants, seal and P1-P7 outputs were not edited by P8.",
+    "materialization_read_limitation": "P8 did not open or enumerate 00_nucleo/materialization or 00_nucleo/context. The repository instruction requires an explicit full path from the requester; the protected-ancestry digest for the step document is therefore transported from the manifest, not claimed as an independent P8 rehash."
+  },
+  "provenance": {
+    "git_head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "working_tree": "uncommitted",
+    "branch_from_manifest": "Tekt",
+    "verification_window": {
+      "matrix_reclassification_completed_before": "2026-09-03T20:22:27.616838497-03:00",
+      "focal_tests_started": "2026-09-03T20:22:27.616838497-03:00",
+      "focal_tests_completed": "2026-09-03T20:23:29.446288531-03:00",
+      "final_rehash_snapshot": "2026-09-03T20:24:44.867837327-03:00"
+    },
+    "pre_output_git_status_short_sha256": "7c8966d7831e35443cab800ced6db91d93819e04b66cf2ce0f578270f69c18d8",
+    "pre_output_git_diff_head_stat_sha256": "9ed4946a1d81d75b72470e270ba2c31d0708b9b404fe15fea56793595e509dc5",
+    "index_stat_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_clean": true
+  },
+  "frozen_artifact_rehash": {
+    "00_nucleo/diagnosticos/p1300-manifest.json": {
+      "expected_sha256": "c3e946e1330ccab108dba2f9a438fd6a8d4c3a2af7fca3307842dbd7403feed8",
+      "observed_sha256": "c3e946e1330ccab108dba2f9a438fd6a8d4c3a2af7fca3307842dbd7403feed8",
+      "status": "PASS"
+    },
+    "00_nucleo/diagnosticos/p1300-contract.json": {
+      "expected_sha256": "c5eace73e5ff07ab49057ec1741283543408accf132ca2f4431a1ad3827a3e37",
+      "observed_sha256": "c5eace73e5ff07ab49057ec1741283543408accf132ca2f4431a1ad3827a3e37",
+      "status": "PASS"
+    },
+    "00_nucleo/diagnosticos/p1300-oracle-suite.json": {
+      "expected_sha256": "a9a519a8230e39c55fa07223e306a7156d6c2b07bd71ef2926cc9e43f1ce8278",
+      "observed_sha256": "a9a519a8230e39c55fa07223e306a7156d6c2b07bd71ef2926cc9e43f1ce8278",
+      "status": "PASS"
+    },
+    "00_nucleo/diagnosticos/p1300-mutants.json": {
+      "expected_sha256": "cefa2fb00d6ad5adb81783b86b94f2450c9b0366591e42637d926adc7e598501",
+      "observed_sha256": "cefa2fb00d6ad5adb81783b86b94f2450c9b0366591e42637d926adc7e598501",
+      "status": "PASS"
+    },
+    "00_nucleo/diagnosticos/p1300-contract-runner.py": {
+      "expected_sha256": "85fe95a2f6e7c48d613221d201e4aefe88ba8a0a270752073c45fe48122bad43",
+      "observed_sha256": "85fe95a2f6e7c48d613221d201e4aefe88ba8a0a270752073c45fe48122bad43",
+      "status": "PASS"
+    },
+    "00_nucleo/diagnosticos/p1300-discrimination-receipt.json": {
+      "expected_sha256": "9be1840e0837af8baafce7c2253ad882acc7c1e4d1a890ec2fdb89eb05c885a4",
+      "observed_sha256": "9be1840e0837af8baafce7c2253ad882acc7c1e4d1a890ec2fdb89eb05c885a4",
+      "status": "PASS"
+    },
+    "00_nucleo/diagnosticos/p1300-contract-seal.json": {
+      "expected_sha256": "c8cb9cbfad604e6f5c638c63dfb1dc8c91a36f3bf6f50601624ed27de2439956",
+      "observed_sha256": "c8cb9cbfad604e6f5c638c63dfb1dc8c91a36f3bf6f50601624ed27de2439956",
+      "status": "PASS"
+    }
+  },
+  "additional_artifact_rehash": {
+    "00_nucleo/diagnosticos/p1300-feature-matrix.json": "69d0dad6bb14f3f98db8847355c6e2836ac62c205d809f0a68cc78eb7f05a28a",
+    "00_nucleo/diagnosticos/p1300-surface-default.json": "53c146d92bdb9b1163ac0e8c427811465532d1d7dade91ce287624f4b1f5be53",
+    "00_nucleo/diagnosticos/p1300-surface-html.json": "e3ed942ba193c2afbab403eb78b9cc5e2948e1db02096e75f54ea7dd260389aa",
+    "00_nucleo/diagnosticos/p1300-red-tests-receipt.md": "1037657e123652b5f704a91cfcfec2806ee1f40596e8fb5a974af1c6ba3ae895",
+    "00_nucleo/diagnosticos/p1300-implementation-receipt.md": "8326394defed54dd3b5e4da032a89071368f36922c65585206e654c7815f33a1",
+    "00_nucleo/diagnosticos/p1300-p5-public-api-note.md": "869adc77a4611965864dc103c418a1c63229f4340fb25cd0e7c720c86c50825f",
+    "00_nucleo/diagnosticos/p1300-vanilla-measurement-receipt.md": "491d07c4411597951fd47bd18431337a375319a345cf2b45a82174c3ace61959",
+    "00_nucleo/diagnosticos/p1300-contract-author-receipt.md": "a5e6bb2a6ab270f65fa6befb6446e0a3444741fb30fdbb4918e729a25c451e53",
+    "00_nucleo/diagnosticos/p1300-adversarial-plan.md": "2ae106a071888a4da9a96f54d8f1391dfa0104d352ac7941dbfb125a29edc166",
+    "00_nucleo/diagnosticos/p1300-pre-gate-measurement.json": "1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe",
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "protected_input_integrity": {
+    "status": "FAIL_INPUT_DRIFT",
+    "rule": "The manifest and seal say any byte change to a confirmed L0 after freeze invalidates downstream artifacts; neither text contains an exception for P7 lineage resealing.",
+    "role_conflict": "The manifest also allows P7 to write mechanical lineage hashes. That permission conflicts with the unconditional invalidation rule and does not itself waive it.",
+    "confirmed_l0": [
+      {
+        "path": "00_nucleo/prompts/compiler/eval.md",
+        "sealed_sha256": "3bf911a0882e35f713cf8742f70ea921086a9a95ede6b02b8b938ab92becfc96",
+        "current_sha256": "ce02b7d257e29742071497f112f1ea42ed734a93989e8fbb1332f1c09590f5e2",
+        "exact_post_seal_delta": "Hash do Código: c0181201 -> 38aa5e89",
+        "reconstructed_sealed_sha256": "3bf911a0882e35f713cf8742f70ea921086a9a95ede6b02b8b938ab92becfc96"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/tests.md",
+        "sealed_sha256": "d4d6382d351e084869445fe58e1cb484e762d5b5dfc843b7974cd21149289104",
+        "current_sha256": "a0e613fdaf6b650da23a66b2c53d6aeea53cc0d20ddf99cf34efc0d36332fed7",
+        "exact_post_seal_delta": "Hash do Código: 5c55b251 -> c82a31ba",
+        "reconstructed_sealed_sha256": "d4d6382d351e084869445fe58e1cb484e762d5b5dfc843b7974cd21149289104"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/stdlib/color.md",
+        "sealed_sha256": "8115021062602c8a3663797b3fcfe0f17eb423f54a8ae7b437b260804ad58462",
+        "current_sha256": "60de24ea6496a1c95fcc4af1883278164a2cd031351ef59278e654d7d485ff01",
+        "exact_post_seal_delta": "Hash do Código: dfc7912c -> 356f1537",
+        "reconstructed_sealed_sha256": "8115021062602c8a3663797b3fcfe0f17eb423f54a8ae7b437b260804ad58462"
+      }
+    ],
+    "interpretation": "The drift is mechanically limited to the three Hash do Código lines, but it is still byte drift under the sealed rule. A success certificate is forbidden until a human resolves the protocol conflict and a valid downstream seal is re-established."
+  },
+  "integrated_candidate": {
+    "current_hashes": {
+      "01_core/src/compiler/eval/mod.rs": "abb252ab84880a629ab3894c5fbdc0e8cf63d6459733c8985975b2f476f1adf7",
+      "01_core/src/compiler/eval/tests.rs": "a870b5870dc38ed2aa7292c6371f92e6de8490bc573fcf5228c8431359950327",
+      "01_core/src/compiler/stdlib/color.rs": "4bbff0858e5da0224e628d9ea6996fd0c511e2763c646e1374ee7c04d058b362"
+    },
+    "lineage_only_delta_from_role_outputs": {
+      "01_core/src/compiler/eval/mod.rs": {
+        "role_output_sha256": "2b805a20d6345f637a5a15d4eb43748583607aff677bde7ed28ebb38ac8cafd2",
+        "delta": "@prompt-hash 79a8abaf -> f914a7c9",
+        "reconstruction_matches": true
+      },
+      "01_core/src/compiler/eval/tests.rs": {
+        "role_output_sha256": "41b7f7aea339e4e4de8ae33c1e3be9d2ada5799161d2bd500365468b9746606b",
+        "delta": "@prompt-hash 97d4926d -> ac42f559",
+        "reconstruction_matches": true
+      },
+      "01_core/src/compiler/stdlib/color.rs": {
+        "role_output_sha256": "97f0fc77a3895dfb9ce28703bb2ef400e98123b4c97e0c09a13ed1d7164487fe",
+        "delta": "@prompt-hash 5696ce76 -> ed8337be",
+        "reconstruction_matches": true
+      }
+    }
+  },
+  "focal_matrix_verification": {
+    "input": {
+      "path": "00_nucleo/diagnosticos/p1300-feature-matrix.json",
+      "sha256": "69d0dad6bb14f3f98db8847355c6e2836ac62c205d809f0a68cc78eb7f05a28a",
+      "recorded_candidate_binary": "/dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+      "recorded_candidate_binary_sha256": "799546de530c98aa56e1e434c94473c59d3e2b16302a66e7ab009637c3c6c81f",
+      "candidate_binary_present_at_p8": false,
+      "vanilla_binary_present_and_rehashed": true
+    },
+    "method": "P8 parsed all 44 matrix rows, recomputed runtime_class from complete/exit/stdout/stderr, selected the 24 six-negative-by-four-profile rows, compared both sides byte-for-byte to the frozen contract, and repeated classification over normal and reversed input order.",
+    "normal_order": {
+      "MATCH_DIAGNOSTIC": 12,
+      "DIFFERENT_DIAGNOSTIC": 12,
+      "EXECUTION_UNKNOWN": 0,
+      "candidate_exact_to_contract": 12,
+      "candidate_not_exact_to_contract": 12
+    },
+    "reverse_order": {
+      "MATCH_DIAGNOSTIC": 12,
+      "DIFFERENT_DIAGNOSTIC": 12,
+      "EXECUTION_UNKNOWN": 0,
+      "candidate_exact_to_contract": 12,
+      "candidate_not_exact_to_contract": 12
+    },
+    "order_invariant_sorted_vector_sha256": "ee1296eecd331abd0c6319d67215b35fcf747fbb4ff10423c4e357804c95fedb",
+    "per_profile": {
+      "default": {
+        "bare_exact": 3,
+        "std_different": 3
+      },
+      "html": {
+        "bare_exact": 3,
+        "std_different": 3
+      },
+      "a11y": {
+        "bare_exact": 3,
+        "std_different": 3
+      },
+      "html+a11y": {
+        "bare_exact": 3,
+        "std_different": 3
+      }
+    },
+    "observable_audit": {
+      "exit_code": "24/24 exact",
+      "stdout": "24/24 exact and empty",
+      "hints": "24/24 exact and empty",
+      "message": "12/24 exact; all 12 std.* coordinates differ",
+      "rendered_span": "12/24 exact; all 12 std.* coordinates differ",
+      "stderr": "12/24 exact; all 12 std.* coordinates differ",
+      "six_negatives_by_four_profiles_satisfy_exact_contract": false
+    },
+    "representative_witness": {
+      "profile": "default",
+      "expression": "repr(type(std.hsl))",
+      "vanilla_message": "module `global` does not contain `hsl`",
+      "vanilla_rendered_anchor": "<input-expression>:1:14, field-only `hsl`",
+      "candidate_message": "module 'std' does not contain field \"hsl\"",
+      "candidate_rendered_anchor": "<input-expression>:1:10, whole `std.hsl`",
+      "same_pattern": "std.hsv and std.linear_rgb, in all four profiles"
+    },
+    "verdict": "FOCAL_FAIL_DIFFERENT_DIAGNOSTIC"
+  },
+  "p5_test_audit": {
+    "command": "CARGO_TARGET_DIR=/dev/shm/typst-crystalline-p1300-p5 RUSTFLAGS=-Awarnings CARGO_TERM_COLOR=never cargo test -p typst-core p1300 -- --test-threads=1",
+    "exit_code": 0,
+    "result": {
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0,
+      "filtered_out": 5417,
+      "test_execution_seconds": 0.24,
+      "wall_window": "2026-09-03T20:22:27.616838497-03:00--2026-09-03T20:23:29.446288531-03:00"
+    },
+    "finding": "The green suite does not prove the frozen vanilla diagnostic contract. p1300_assert_negative constructs only hsl/std.hsl-like expressions, calls the internal eval_expression_with_features API, and explicitly expects the crystalline message module 'std' does not contain field \"...\" plus the whole-expression span. It never invokes vanilla, never uses the P2 oracle, and does not assert CLI exit/stdout/stderr rendering.",
+    "l0_conflict": "00_nucleo/prompts/compiler/eval/tests.md requires class, message, hints and public span of every negative error to be compared with ratified vanilla. The P5 tests instead preserve the known crystalline divergence for all three std.* cases.",
+    "what_it_does_prove": "The tests prove alias absence in the four runtime profiles, preserve selected qualified/global values, and freeze the current internal diagnostic behavior. They do not prove bilateral vanilla parity for the negative CLI fragment."
+  },
+  "allowlist_and_owner_audit": {
+    "p1300_product_allowlist": [
+      "01_core/src/compiler/eval/mod.rs",
+      "01_core/src/compiler/stdlib/color.rs"
+    ],
+    "p1300_permanent_test_allowlist": [
+      "01_core/src/compiler/eval/tests.rs"
+    ],
+    "causal_owner": {
+      "l0": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "consumer": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "l0_sha256": "3e5b96f5d62a693cb8291f63cd656a73ba19ebd69e29446858d36e475bff4a60",
+      "consumer_sha256": "7873e47635ad2e99df9132bae9b13472581f5026a3f3a671f2f48de8a3b15497",
+      "evidence": [
+        "field_access.rs:106-111 selects access.span() for ordinary field errors",
+        "field_access.rs:373-379 formats Value::Module misses as module '<name>' does not contain field \"<field>\"",
+        "eval/mod.rs:324 and 562 construct the std module under the name std"
+      ]
+    },
+    "classification": "REQUIRES_NEW_OWNER_AND_SCOPE",
+    "reason": "An exact fix needs the field-access owner to publish the vanilla module-miss message and field-only anchor. That consumer and L0 are outside the sealed P1300 allowlist. Changing only eval/mod.rs/color.rs/tests.rs cannot correct both observables without a name-specific blacklist, wrapper or special branch, all expressly forbidden by the P1300 scope.",
+    "test_follow_up": "A fresh independent A/B test output must replace the three std.* expectations with vanilla-derived message/span and must not treat an internal crystalline-only diagnostic as the oracle."
+  },
+  "decreasing_returns": {
+    "trigger": "The focal matrix has 12 deterministic DIFFERENT_DIAGNOSTIC coordinates and the focal permanent tests are shown to be false-green against the bilateral contract.",
+    "skipped_due_to_focal_failure": [
+      "workspace cargo build/check/test",
+      "crystalline-lint final gate",
+      "full contract-runner replay",
+      "expensive rebuild of the removed post-integration release binary"
+    ],
+    "lint_cli_note": "If lint is run after the focal defect is repaired, the real selector is --checks. The textual --check form in the step is incompatible and must not be reported as an executed valid command."
+  },
+  "terminal": {
+    "verdict": "P1300_BLOCKED_IMPLEMENTATION",
+    "blocking_witnesses": [
+      "12/24 negative candidate coordinates are DIFFERENT_DIAGNOSTIC, exactly the three std.* probes in all four profiles",
+      "P5 is false-green because it asserts the crystalline message/span instead of the frozen vanilla oracle",
+      "the exact repair belongs to field_access.md/field_access.rs outside the P1300 allowlist",
+      "the three sealed L0 byte hashes drifted after sealing; the manifest's unconditional invalidation rule has no lineage exception"
+    ],
+    "next_human_gate": "The owner must decide whether to expand/reopen P1300 or create a dedicated field-access parity scope. That decision must authorize L0-first work on compiler/eval/bindings/field_access.md and its 1:1 consumer, authorize independent correction of the P5 tests, resolve the post-seal lineage-hash/invalidation conflict, then rebuild the candidate, rerun the six negatives in four profiles in normal and reverse order, require 24/24 exact diagnostics with zero Unknown, and only then run --checks lint/workspace gates and issue a certificate.",
+    "maximum_claim": "P1300 successfully removes the three aliases and preserves the selected positive routes in the recorded matrix, but does not meet the sealed exact diagnostic contract and is not certifiable."
+  },
+  "commands": [
+    "sha256sum 00_nucleo/diagnosticos/p1300-*",
+    "sha256sum 00_nucleo/prompts/compiler/eval.md 00_nucleo/prompts/compiler/eval/tests.md 00_nucleo/prompts/compiler/stdlib/color.md 01_core/src/compiler/eval/mod.rs 01_core/src/compiler/eval/tests.rs 01_core/src/compiler/stdlib/color.rs /usr/local/bin/typst /dev/shm/p1300-pre-gate.hSBewa/target/release/typst",
+    "python3 inline JSON parser and matrix reclassifier over p1300-feature-matrix.json and p1300-contract.json, normal then reversed",
+    "CARGO_TARGET_DIR=/dev/shm/typst-crystalline-p1300-p5 RUSTFLAGS=-Awarnings CARGO_TERM_COLOR=never cargo test -p typst-core p1300 -- --test-threads=1",
+    "python3 -m json.tool over every p1300-*.json",
+    "git diff --cached --quiet",
+    "git diff --check"
+  ]
+}

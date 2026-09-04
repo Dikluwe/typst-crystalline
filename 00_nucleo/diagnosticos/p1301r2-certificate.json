@@ -1,0 +1,62 @@
+{
+  "schema_version": "tekt-materialization-certificate-v2",
+  "step": "P1301",
+  "revision": 2,
+  "status": "P1301R2_CERTIFIED",
+  "attestation_language": "executado sem atestação de isolamento técnico",
+  "scope": "missing Module-field diagnostics on the sealed common CLI envelope, positive controls, two declared opaque cases, and the separate crystalline dictionary-span sentinel",
+  "claim_limit": "This certificate does not claim general functional equivalence.",
+  "repository_head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+  "working_tree": "uncommitted",
+  "git_status_short_sha256_after_outputs": "1715eb1ae1eae4c923a88358de66e33df73ac017f209584ea08ec06b520b3573",
+  "contract_seal": {
+    "path": "00_nucleo/diagnosticos/p1301r2-contract-seal.json",
+    "sha256": "760846d4be24e6422b3284ae0853bc7647114cdfa25a92909207b1b10de9dcca"
+  },
+  "verification_receipt": {
+    "path": "00_nucleo/diagnosticos/p1301r2-verification-receipt.json",
+    "sha256": "9b7bcdefdb65ecca2a1d1cccc3fe6dea958328c494e47a52f31c8dc0645c5e0d"
+  },
+  "candidate": {
+    "productive_source": "01_core/src/compiler/eval/bindings/field_access.rs",
+    "productive_source_sha256": "29abd27cc01b347da9fbc12a93f05265882c043d36cd9a03cff5e6487a96e024",
+    "test_source": "01_core/src/compiler/eval/tests.rs",
+    "test_source_sha256": "5437bd761f48bef79b2eedd5c2e920bcba310e41c0e85346afaf6db6a2e68af9",
+    "fresh_release_binary_sha256": "ab61ce31cc6eac3ca672608643d312989c597bc3698d3459f966f0fd11304909"
+  },
+  "prompts": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "full_sha256_post": "de81ef3bf6572a1777f9057655e8433c6f2b393e8846f1fbdb66bcd1c8f81df9",
+      "semantic_sha256": "d6a3d67c1b7d2f23783cb85ec81a4520b50a2a39cb792d56fdc3663755656233",
+      "consumer": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "ownership": "1:1"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "full_sha256_post": "5ca2ad1e4bcf3f6fe30909be21f42bb2a2a5939a6efcbdfc136dba5b44e7a8d1",
+      "semantic_sha256": "bf0d711419ebe33ce7bc7b54c6bd187798ef94c64747e6a50a0aa5674905924a",
+      "consumer": "01_core/src/compiler/eval/tests.rs",
+      "ownership": "1:1"
+    }
+  ],
+  "evidence": {
+    "frozen_hashes": "PASS",
+    "mutation_score": "12/12 = 1.0; zero survivors, invalid mutants, or unsupported operations",
+    "candidate_normal": "20 Preserved, 2 declared opaque Unknown, 0 Violated, 0 FAIL",
+    "candidate_inverted": "20 Preserved, 2 declared opaque Unknown, 0 Violated, 0 FAIL",
+    "candidate_order_invariant": true,
+    "required_cases_zero_violated_unknown": true,
+    "sentinel_separate_preserved": true,
+    "common_cli_no_forbidden_flags": true,
+    "p1300_tests": "10 passed, 0 failed",
+    "p1301_tests": "4 passed, 0 failed",
+    "cargo_build": "PASS",
+    "crystalline_lint": "PASS with non-blocking advisory warnings",
+    "strict_architectural_checks": "V3,V4,V5,V13,V14,V15,V26: zero violations",
+    "lineage_dry_run": "Nothing to fix",
+    "git_diff_check": "PASS"
+  },
+  "p1300_unblocked": true,
+  "issued_at": "2026-09-03T22:57:48.896991337-03:00"
+}

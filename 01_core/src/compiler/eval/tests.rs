@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 97d4926d
+//! @prompt-hash 4afb0873
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -162,6 +162,7 @@ mod tests {
     use super::*;
     use crate::compiler::scopes::Scopes;
     use crate::contracts::world::World;
+    use crate::entities::compiler_features::{Feature, Features};
     use crate::entities::counter::CounterKey;
     use crate::entities::element_kind::ElementKind;
     use crate::entities::file_id::FileId;
@@ -17464,5 +17465,366 @@ mod tests {
     #[test]
     fn p1215_bytes_span_acompanha_deslocamento() {
         assert_eq!(p1215_eval_error_range("\n\n  bytes((1,2,3)).at(\"1\")"), 22..25);
+    }
+
+    // ── P1300 — remoção dos aliases globais de constructors de cor ─────────
+
+    fn p1300_profiles() -> [(&'static str, Features); 4] {
+        let default = Features::empty();
+        let html = Features::html();
+        let mut a11y = Features::empty();
+        a11y.enable(Feature::A11yExtras);
+        let mut html_a11y = Features::html();
+        html_a11y.enable(Feature::A11yExtras);
+        [("default", default), ("html", html), ("a11y", a11y), ("html+a11y", html_a11y)]
+    }
+
+    fn p1300_assert_negative(name: &str, under_std: bool) {
+        let expression = if under_std { format!("std.{name}") } else { name.to_string() };
+        let world = MockWorld::new("");
+        let source = Source::new_with_parser(
+            world.main(),
+            expression.clone(),
+            crate::compiler::parse::parse_code,
+        );
+        let mut unexpectedly_present = Vec::new();
+
+        for (profile, features) in p1300_profiles() {
+            let (result, side_diagnostics) =
+                eval_expression_with_features(&world, &expression, features);
+            assert!(
+                side_diagnostics.is_empty(),
+                "{profile}/{expression}: diagnostics laterais inesperados: {side_diagnostics:?}"
+            );
+            let diagnostics = match result {
+                Ok(_) => {
+                    unexpectedly_present.push(profile);
+                    continue;
+                }
+                Err(diagnostics) => diagnostics,
+            };
+            assert_eq!(diagnostics.len(), 1, "{profile}/{expression}: {diagnostics:?}");
+            let diagnostic = &diagnostics[0];
+            let expected_message = if under_std {
+                format!("module `global` does not contain `{name}`")
+            } else {
+                format!("unknown variable `{name}`")
+            };
+            let expected_span_start = if under_std { "std.".len() } else { 0 };
+            assert_eq!(diagnostic.message, expected_message, "{profile}/{expression}");
+            assert!(
+                diagnostic.hints.is_empty(),
+                "{profile}/{expression}: {:?}",
+                diagnostic.hints
+            );
+            assert_eq!(
+                source.span_to_line_col(diagnostic.span),
+                Some((1, expected_span_start as u32)),
+                "{profile}/{expression}"
+            );
+            assert_eq!(
+                source.span_byte_range(diagnostic.span),
+                Some(expected_span_start..expression.len()),
+                "{profile}/{expression}"
+            );
+        }
+
+        assert!(
+            unexpectedly_present.is_empty(),
+            "P1300: `{expression}` ainda está disponível nos perfis {unexpectedly_present:?}"
+        );
+    }
+
+    #[test]
+    fn p1300_controle_diagnosticos_negativos_exatos_nos_quatro_perfis() {
+        p1300_assert_negative("__p1300_unknown_control", false);
+        p1300_assert_negative("__p1300_unknown_control", true);
+    }
+
+    #[test]
+    fn p1300_hsl_bare_unknown_variable() {
+        p1300_assert_negative("hsl", false);
+    }
+
+    #[test]
+    fn p1300_hsv_bare_unknown_variable() {
+        p1300_assert_negative("hsv", false);
+    }
+
+    #[test]
+    fn p1300_linear_rgb_bare_unknown_variable() {
+        p1300_assert_negative("linear_rgb", false);
+    }
+
+    #[test]
+    fn p1300_std_hsl_missing_field() {
+        p1300_assert_negative("hsl", true);
+    }
+
+    #[test]
+    fn p1300_std_hsv_missing_field() {
+        p1300_assert_negative("hsv", true);
+    }
+
+    #[test]
+    fn p1300_std_linear_rgb_missing_field() {
+        p1300_assert_negative("linear_rgb", true);
+    }
+
+    #[test]
+    fn p1300_rotas_color_preservam_funcoes_chamadas_repr_e_space() {
+        let expression = "(\
+            (type(color.hsl), type(color.hsv), type(color.linear-rgb)), \
+            (repr(color.hsl), repr(color.hsv), repr(color.linear-rgb)), \
+            color.hsl(120deg, 50%, 40%), \
+            color.hsv(240deg, 50%, 80%), \
+            color.linear-rgb(10%, 20%, 30%), \
+            (repr(color.hsl(120deg, 50%, 40%)), repr(color.hsv(240deg, 50%, 80%)), repr(color.linear-rgb(10%, 20%, 30%))), \
+            (repr(color.space(color.hsl(120deg, 50%, 40%))), repr(color.space(color.hsv(240deg, 50%, 80%))), repr(color.space(color.linear-rgb(10%, 20%, 30%)))), \
+            (color.space(color.hsl(120deg, 50%, 40%)) == color.hsl, color.space(color.hsv(240deg, 50%, 80%)) == color.hsv, color.space(color.linear-rgb(10%, 20%, 30%)) == color.linear-rgb)\
+        )";
+        let world = MockWorld::new("");
+        for (profile, features) in p1300_profiles() {
+            let (result, diagnostics) =
+                eval_expression_with_features(&world, expression, features);
+            assert!(diagnostics.is_empty(), "{profile}: {diagnostics:?}");
+            let Value::Array(values) = result
+                .unwrap_or_else(|error| panic!("{profile}: rotas color.*: {error:?}"))
+            else {
+                panic!("{profile}: resultado deve ser array");
+            };
+            assert_eq!(values.len(), 8, "{profile}");
+            assert_eq!(values[0], Value::Array(vec![Value::Type(Type::Function); 3]));
+            assert_eq!(
+                values[1],
+                Value::Array(vec![
+                    Value::Str("hsl".into()),
+                    Value::Str("hsv".into()),
+                    Value::Str("linear-rgb".into()),
+                ])
+            );
+            assert!(values[2..=4].iter().all(|value| matches!(value, Value::Color(_))));
+            assert_eq!(
+                values[5],
+                Value::Array(vec![
+                    Value::Str("color.hsl(120deg, 50%, 40%)".into()),
+                    Value::Str("color.hsv(240deg, 50%, 80%)".into()),
+                    Value::Str("color.linear-rgb(10%, 20%, 30%)".into()),
+                ])
+            );
+            assert_eq!(
+                values[6],
+                Value::Array(vec![
+                    Value::Str("hsl".into()),
+                    Value::Str("hsv".into()),
+                    Value::Str("linear-rgb".into()),
+                ])
+            );
+            assert_eq!(values[7], Value::Array(vec![Value::Bool(true); 3]));
+        }
+    }
+
+    #[test]
+    fn p1300_cinco_globals_bare_preservam_funcoes_e_chamadas() {
+        let expression = "(\
+            (type(rgb), type(luma), type(cmyk), type(oklab), type(oklch)), \
+            (rgb(0, 0, 0), luma(0%), cmyk(0%, 0%, 0%, 100%), oklab(0%, 0, 0), oklch(0%, 0, 0deg))\
+        )";
+        p1300_assert_preserved_globals(expression, "bare");
+    }
+
+    #[test]
+    fn p1300_cinco_globals_std_preservam_funcoes_e_chamadas() {
+        let expression = "(\
+            (type(std.rgb), type(std.luma), type(std.cmyk), type(std.oklab), type(std.oklch)), \
+            (std.rgb(0, 0, 0), std.luma(0%), std.cmyk(0%, 0%, 0%, 100%), std.oklab(0%, 0, 0), std.oklch(0%, 0, 0deg))\
+        )";
+        p1300_assert_preserved_globals(expression, "std");
+    }
+
+    fn p1300_assert_preserved_globals(expression: &str, route: &str) {
+        let world = MockWorld::new("");
+        for (profile, features) in p1300_profiles() {
+            let (result, diagnostics) =
+                eval_expression_with_features(&world, expression, features);
+            assert!(diagnostics.is_empty(), "{profile}/{route}: {diagnostics:?}");
+            let Value::Array(values) =
+                result.unwrap_or_else(|error| panic!("{profile}/{route}: {error:?}"))
+            else {
+                panic!("{profile}/{route}: resultado deve ser array");
+            };
+            assert_eq!(values.len(), 2, "{profile}/{route}");
+            assert_eq!(
+                values[0],
+                Value::Array(vec![Value::Type(Type::Function); 5]),
+                "{profile}/{route}"
+            );
+            let Value::Array(calls) = &values[1] else {
+                panic!("{profile}/{route}: calls deve ser array de cores");
+            };
+            assert_eq!(calls.len(), 5, "{profile}/{route}");
+            assert!(
+                calls.iter().all(|value| matches!(value, Value::Color(_))),
+                "{profile}/{route}: {calls:?}"
+            );
+        }
+    }
+
+    // ── P1301 — diagnósticos de field inexistente em `Module` ─────────
+
+    fn p1301_missing_module_field_mismatch(
+        expression: &str,
+        features: Features,
+        expected_message: &str,
+        expected_span: std::ops::Range<usize>,
+    ) -> Option<String> {
+        let world = MockWorld::new("");
+        let source = Source::new_with_parser(
+            world.main(),
+            expression.to_string(),
+            crate::compiler::parse::parse_code,
+        );
+        let (result, side_diagnostics) =
+            eval_expression_with_features(&world, expression, features);
+        let diagnostics = match result {
+            Ok(value) => {
+                return Some(format!(
+                    "esperado erro, obtido sucesso {value:?}; diagnostics laterais: {side_diagnostics:?}"
+                ));
+            }
+            Err(diagnostics) => diagnostics,
+        };
+
+        let mut mismatches = Vec::new();
+        if !side_diagnostics.is_empty() {
+            mismatches.push(format!(
+                "cardinalidade lateral esperada 0, obtida {}: {side_diagnostics:?}",
+                side_diagnostics.len()
+            ));
+        }
+        if diagnostics.len() != 1 {
+            mismatches.push(format!(
+                "cardinalidade primária esperada 1, obtida {}: {diagnostics:?}",
+                diagnostics.len()
+            ));
+        } else {
+            let diagnostic = &diagnostics[0];
+            if diagnostic.message != expected_message {
+                mismatches.push(format!(
+                    "mensagem esperada {expected_message:?}, obtida {:?}",
+                    diagnostic.message
+                ));
+            }
+            if !diagnostic.hints.is_empty() {
+                mismatches
+                    .push(format!("hints esperados [], obtidos {:?}", diagnostic.hints));
+            }
+            let observed_span = source.span_byte_range(diagnostic.span);
+            if observed_span != Some(expected_span.clone()) {
+                mismatches.push(format!(
+                    "span esperado {expected_span:?}, obtido {observed_span:?}"
+                ));
+            }
+        }
+
+        (!mismatches.is_empty()).then(|| mismatches.join("; "))
+    }
+
+    #[test]
+    fn p1301_std_aliases_mensagem_vanilla_e_span_field_only_nos_quatro_perfis() {
+        let cases = [
+            ("hsl", "module `global` does not contain `hsl`", 14..17),
+            ("hsv", "module `global` does not contain `hsv`", 14..17),
+            ("linear_rgb", "module `global` does not contain `linear_rgb`", 14..24),
+        ];
+        let mut mismatches = Vec::new();
+        for (profile, features) in p1300_profiles() {
+            for (field, expected_message, expected_span) in &cases {
+                let expression = format!("repr(type(std.{field}))");
+                if let Some(mismatch) = p1301_missing_module_field_mismatch(
+                    &expression,
+                    features.clone(),
+                    expected_message,
+                    expected_span.clone(),
+                ) {
+                    mismatches.push(format!("{profile}/{field}: {mismatch}"));
+                }
+            }
+        }
+        assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
+    }
+
+    #[test]
+    fn p1301_modulos_independentes_mensagem_vanilla_e_span_field_only() {
+        let cases = [
+            (
+                "calc.nope",
+                "repr(type(calc.nope))",
+                "module `calc` does not contain `nope`",
+                15..19,
+            ),
+            (
+                "sym.nope",
+                "repr(type(sym.nope))",
+                "module `sym` does not contain `nope`",
+                14..18,
+            ),
+            (
+                "color.map.nope",
+                "repr(type(color.map.nope))",
+                "module `map` does not contain `nope`",
+                20..24,
+            ),
+        ];
+        let mut mismatches = Vec::new();
+        for (case, expression, expected_message, expected_span) in cases {
+            if let Some(mismatch) = p1301_missing_module_field_mismatch(
+                expression,
+                Features::empty(),
+                expected_message,
+                expected_span,
+            ) {
+                mismatches.push(format!("{case}: {mismatch}"));
+            }
+        }
+        assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
+    }
+
+    #[test]
+    fn p1301_lookups_de_modulo_existentes_preservam_valor_e_kind() {
+        let cases = [
+            ("std.rgb", "repr(type(std.rgb))", "function"),
+            ("calc.abs", "repr(type(calc.abs))", "function"),
+            ("sym.arrow", "repr(type(sym.arrow))", "symbol"),
+            ("color.map.turbo", "repr(type(color.map.turbo))", "array"),
+        ];
+        let world = MockWorld::new("");
+        for (case, expression, expected_kind) in cases {
+            let (result, side_diagnostics) =
+                eval_expression_with_features(&world, expression, Features::empty());
+            assert!(
+                side_diagnostics.is_empty(),
+                "{case}: diagnostics laterais inesperados: {side_diagnostics:?}"
+            );
+            assert_eq!(
+                result.unwrap_or_else(|diagnostics| panic!("{case}: {diagnostics:?}")),
+                Value::Str(expected_kind.into()),
+                "{case}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1301_controle_nao_module_dicionario_preserva_span_total() {
+        let expression = "repr(type((:).missing))";
+        let mismatch = p1301_missing_module_field_mismatch(
+            expression,
+            Features::empty(),
+            "dictionary does not contain key \"missing\"",
+            10..21,
+        );
+        if let Some(mismatch) = mismatch {
+            panic!("{mismatch}");
+        }
     }
 }

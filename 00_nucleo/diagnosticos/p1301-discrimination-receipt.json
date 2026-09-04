@@ -1,0 +1,150 @@
+{
+  "schema_version": "tekt-discrimination-receipt-v1",
+  "step": "P1301",
+  "role": "independent_sealer_P4",
+  "status": "PASS",
+  "seal_eligible": true,
+  "verdict": "P1301_CONTRACT_DISCRIMINATORY_AND_SEALABLE",
+  "attestation": {
+    "technical_isolation_attested": false,
+    "language": "executado sem atestação de isolamento técnico",
+    "limitation": "A segregação foi lógica; o filesystem e o ambiente de processos foram compartilhados e não houve isolamento técnico atestado. Este recibo discrimina envelopes públicos sintéticos e o oracle congelado, mas não prova que uma implementação candidata passe."
+  },
+  "frozen_input_hashes": {
+    "manifest": "074fabeda17f741f064fe1d561ad6a78ad81e45654861825586664a9646f05a8",
+    "field_access_prompt": "38d6f5cdee302491ec059577174d4f6dc6d3c28e3d2da2748f61c05853cc0c16",
+    "tests_prompt": "a4ade7eda600891465c62c320d80b7c2182c30dbb5f456de210c4a823b3e609a",
+    "contract": "2d8d7a141d63c13473681abdefa24ed9370e03925824a9cae74ca26305ea85f5",
+    "oracle_suite": "4182575a0c11e39aed01f05c827d3cb59522f69ab1795f017523586f4c19d012",
+    "mutants": "ee3c6c4d19e410850e56e26a984a8d53662056f8a4cba39da746fdb56c2ed18e",
+    "vanilla": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "hash_gates": [
+    {
+      "label": "before-discrimination",
+      "at": "2026-09-04T00:20:28.893188Z",
+      "all_frozen_inputs_match": true,
+      "mismatches": {}
+    },
+    {
+      "label": "after-discrimination",
+      "at": "2026-09-04T00:20:28.928721Z",
+      "all_frozen_inputs_match": true,
+      "mismatches": {}
+    }
+  ],
+  "runner": {
+    "path": "00_nucleo/diagnosticos/p1301-contract-runner.py",
+    "sha256": "ac3054e1c861704a564c50d4b0ad0136ff5ed82d5650b59a0c45b6bced8391c3",
+    "pid": 2,
+    "started_at": "2026-09-04T00:20:28.859202Z",
+    "finished_at": "2026-09-04T00:20:28.928739Z",
+    "duration_ns": 69512088,
+    "python": "3.12.3",
+    "process_model": "um processo Python, zero filhos; somente envelopes públicos congelados"
+  },
+  "partitions": {
+    "vanilla_oracle": {
+      "case_count": 22,
+      "normal": {"Preserved": 22, "Violated": 0, "Unknown": 0},
+      "inverted": {"Preserved": 22, "Violated": 0, "Unknown": 0},
+      "status": "PASS"
+    },
+    "contract_candidate_gate": {
+      "case_count": 23,
+      "normal_template": {"Preserved": 23, "Violated": 0, "Unknown": 0},
+      "inverted_template": {"Preserved": 23, "Violated": 0, "Unknown": 0},
+      "includes_non_module_sentinel": true,
+      "status": "PASS_AS_GATE_TEMPLATE_NOT_AS_CANDIDATE_EXECUTION"
+    },
+    "non_module_sentinel": {
+      "case_id": "S-NONMODULE-dictionary-whole-span",
+      "oracle_source": "contract_pre_candidate_invariant",
+      "candidate_gate_expected_span_bytes": [10, 21],
+      "vanilla_informative_span_bytes": [17, 21],
+      "vanilla_informative_verdict": "Violated",
+      "included_in_candidate_gate": true,
+      "included_in_vanilla_preserved_partition": false,
+      "status": "PASS_CORRECTLY_PARTITIONED"
+    },
+    "opaque_controls": {
+      "normal": {
+        "O-AMBIGUOUS-PRIMARY": {"verdict": "Unknown", "reason_code": "AMBIGUOUS_PRIMARY_DIAGNOSTIC"},
+        "O-UNMAPPABLE-SPAN": {"verdict": "Unknown", "reason_code": "SPAN_CANNOT_BE_MAPPED_WITH_PUBLIC_INPUT"}
+      },
+      "inverted": {
+        "O-UNMAPPABLE-SPAN": {"verdict": "Unknown", "reason_code": "SPAN_CANNOT_BE_MAPPED_WITH_PUBLIC_INPUT"},
+        "O-AMBIGUOUS-PRIMARY": {"verdict": "Unknown", "reason_code": "AMBIGUOUS_PRIMARY_DIAGNOSTIC"}
+      },
+      "status": "PASS"
+    }
+  },
+  "mutation_gate": {
+    "valid_mutants": 12,
+    "minimum_valid_mutants": 8,
+    "killed_mutants": 12,
+    "survivors": [],
+    "mutation_score": 1.0,
+    "required_score": 1.0,
+    "unknown_mutant_case_count": 0,
+    "normal_and_inverted": {
+      "M01-OLD-MESSAGE": {"killed": true, "killed_by": ["N-STD-default-hsl", "N-CALC-nope"], "counts": {"Preserved": 21, "Violated": 2, "Unknown": 0}},
+      "M02-WHOLE-MODULE-SPAN": {"killed": true, "killed_by": ["N-COLOR-MAP-nope"], "counts": {"Preserved": 22, "Violated": 1, "Unknown": 0}},
+      "M03-STD-NAME": {"killed": true, "killed_by": ["N-STD-a11y-hsv"], "counts": {"Preserved": 22, "Violated": 1, "Unknown": 0}},
+      "M04-THREE-ALIAS-WHITELIST": {"killed": true, "killed_by": ["N-CALC-nope", "N-SYM-nope", "N-COLOR-MAP-nope"], "counts": {"Preserved": 20, "Violated": 3, "Unknown": 0}},
+      "M05-BREAK-EXISTING-LOOKUP": {"killed": true, "killed_by": ["P-CALC-abs"], "counts": {"Preserved": 22, "Violated": 1, "Unknown": 0}},
+      "M06-GENERALIZE-NONMODULE-SPAN": {"killed": true, "killed_by": ["S-NONMODULE-dictionary-whole-span"], "counts": {"Preserved": 22, "Violated": 1, "Unknown": 0}},
+      "M07-ADD-HINT": {"killed": true, "killed_by": ["N-SYM-nope"], "counts": {"Preserved": 22, "Violated": 1, "Unknown": 0}},
+      "M08-ZERO-EXIT-ON-ERROR": {"killed": true, "killed_by": ["N-STD-default-hsl"], "counts": {"Preserved": 22, "Violated": 1, "Unknown": 0}},
+      "M09-POLLUTE-STDOUT": {"killed": true, "killed_by": ["N-COLOR-MAP-nope"], "counts": {"Preserved": 22, "Violated": 1, "Unknown": 0}},
+      "M10-DROP-HTML-WARNING": {"killed": true, "killed_by": ["N-STD-html-hsl", "N-STD-html+a11y-linear_rgb"], "counts": {"Preserved": 21, "Violated": 2, "Unknown": 0}},
+      "M11-DEFAULT-PROFILE-ONLY": {"killed": true, "killed_by": ["N-STD-html-hsl", "N-STD-a11y-hsv", "N-STD-html+a11y-linear_rgb"], "counts": {"Preserved": 20, "Violated": 3, "Unknown": 0}},
+      "M12-GLOBAL-FOR-EVERY-MODULE": {"killed": true, "killed_by": ["N-CALC-nope", "N-SYM-nope", "N-COLOR-MAP-nope"], "counts": {"Preserved": 20, "Violated": 3, "Unknown": 0}}
+    },
+    "status": "PASS"
+  },
+  "order_invariance": {
+    "candidate_contract_verdict_maps_identical": true,
+    "vanilla_oracle_verdict_maps_identical": true,
+    "opaque_verdict_maps_identical": true,
+    "all_mutant_verdict_and_observable_maps_identical": true,
+    "status": "PASS"
+  },
+  "unknown_accounting": {
+    "required_or_oracle_or_mutant": 0,
+    "opaque_expected": 4,
+    "opaque_expected_basis": "dois controles opacos declarados em cada uma das duas ordens",
+    "unexpected": 0,
+    "status": "PASS"
+  },
+  "cost": {
+    "runner_processes": 1,
+    "child_processes": 0,
+    "vanilla_executions": 0,
+    "candidate_executions": 0,
+    "candidate_files_read": 0,
+    "classification_evaluations": 646,
+    "classification_breakdown": {
+      "vanilla_oracle": 44,
+      "candidate_contract_template": 46,
+      "opaque": 4,
+      "mutants_full_corpus": 552
+    },
+    "full_corpus_mutant_trials": 24
+  },
+  "scope_guards": {
+    "binding_free": true,
+    "candidate_implementation_read": false,
+    "candidate_tests_read": false,
+    "p1300_read": false,
+    "private_outputs_read": false,
+    "repr_std_executed": false,
+    "solution_implemented": false
+  },
+  "repository_provenance_from_manifest": {
+    "head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "working_tree": "uncommitted",
+    "git_status_short_sha256_before_manifest": "3ea93237c50446334d7008832632dc262cceb3bf8e3cc25da1c1d91e3e6b8d4f",
+    "git_diff_head_stat_sha256_before_manifest": "df861a696777f2714969a76128a6c5deafd7383537223c9dbb1efc2f1f1e12b6"
+  }
+}

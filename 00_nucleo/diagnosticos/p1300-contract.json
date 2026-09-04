@@ -1,0 +1,662 @@
+{
+  "$schema": "p1300-observable-contract/v1",
+  "schema_version": 1,
+  "step": "P1300",
+  "artifact_kind": "segregated_observable_contract_candidate",
+  "contract_revision": 1,
+  "contract_style": "binding_free_data_driven",
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1300-manifest.json",
+    "sha256": "c3e946e1330ccab108dba2f9a438fd6a8d4c3a2af7fca3307842dbd7403feed8"
+  },
+  "confirmed_l0": [
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/color.md",
+      "sha256": "8115021062602c8a3663797b3fcfe0f17eb423f54a8ae7b437b260804ad58462"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "3bf911a0882e35f713cf8742f70ea921086a9a95ede6b02b8b938ab92becfc96"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "d4d6382d351e084869445fe58e1cb484e762d5b5dfc843b7974cd21149289104"
+    }
+  ],
+  "baseline": {
+    "kind": "crystalline_pre_p1300",
+    "git_head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "working_tree": "uncommitted",
+    "measurement_path": "00_nucleo/diagnosticos/p1300-pre-gate-measurement.json",
+    "measurement_sha256": "1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe"
+  },
+  "vanilla": {
+    "kind": "ratified_language_oracle",
+    "revision": "a51e02804",
+    "binary": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "profiles": [
+    {
+      "id": "default",
+      "features": [],
+      "argv_suffix": []
+    },
+    {
+      "id": "html",
+      "features": ["html"],
+      "argv_suffix": ["--features", "html"]
+    },
+    {
+      "id": "a11y",
+      "features": ["a11y-extras"],
+      "argv_suffix": ["--features", "a11y-extras"]
+    },
+    {
+      "id": "html+a11y",
+      "features": ["html", "a11y-extras"],
+      "argv_suffix": ["--features", "html,a11y-extras"]
+    }
+  ],
+  "execution_protocol": {
+    "command_template": [
+      "{product_binary}",
+      "eval",
+      "{expression}",
+      "--format",
+      "json",
+      "{profile.argv_suffix...}"
+    ],
+    "working_directory": "fresh temporary directory",
+    "environment_policy": "same explicit environment for oracle and candidate; do not inherit product-selecting variables",
+    "timeout_ms": 10000,
+    "encoding": "UTF-8",
+    "comparison": "byte_exact_after_no_normalization",
+    "binding_free_rule": "Only CLI exit status and public language output are observed. No source file, Rust symbol, scope storage, function pointer, insertion order or internal binding identity may be inspected."
+  },
+  "required_observables": [
+    "process_completion",
+    "exit_code",
+    "stdout_bytes",
+    "stderr_bytes",
+    "diagnostic_class",
+    "diagnostic_message",
+    "diagnostic_hints_in_order",
+    "rendered_span_bytes",
+    "public_type",
+    "public_repr",
+    "representative_call_value",
+    "color_space_identity",
+    "feature_profile_invariance"
+  ],
+  "expectation_sources": {
+    "pre_gate_measurement": {
+      "path": "00_nucleo/diagnosticos/p1300-pre-gate-measurement.json",
+      "sha256": "1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe",
+      "use": "Only outputs literally present in this file may be pinned here."
+    },
+    "confirmed_l0": {
+      "use": "Closed inventories, values and digests explicitly ratified by the confirmed L0 may be pinned here."
+    },
+    "oracle_suite": {
+      "producer": "P2_oracle_author",
+      "state": "required_not_yet_frozen",
+      "rule": "P2 must execute the declared probe parameters against the pinned vanilla binary and publish exact observations. Until that suite is complete and hashed, the affected case is Unknown and cannot satisfy a seal."
+    }
+  },
+  "classification_policy": {
+    "result_enum": ["Preserved", "Violated", "Unknown"],
+    "closed": true,
+    "Preserved": {
+      "when": "The product completed and every required observable for the case is present and exactly equals its frozen expectation, including ordered hints and rendered span bytes.",
+      "witness_required": false
+    },
+    "Violated": {
+      "when": "The product completed sufficiently to expose at least one required observable that contradicts a frozen expectation.",
+      "witness_required": true,
+      "witness_fields": ["case_id", "profile", "observable", "expected", "actual"]
+    },
+    "Unknown": {
+      "when": "The product or oracle is missing, timed out, has ambiguous identity, uses an unsupported parser construction, lacks a required observable, or depends on an oracle-suite expectation that is not yet frozen.",
+      "witness_required": true,
+      "allowed_reason_codes": [
+        "timeout",
+        "missing_product",
+        "ambiguous_product_identity",
+        "unsupported_parser_construction",
+        "incomplete_observation",
+        "oracle_not_frozen"
+      ]
+    },
+    "priority": [
+      "deliberately_opaque_fixture_with_matching_reason_is_Unknown",
+      "contradiction_with_complete_frozen_expectation_is_Violated",
+      "all_complete_frozen_expectations_equal_is_Preserved",
+      "otherwise_is_Unknown"
+    ],
+    "success_rule": "Only Preserved is success for semantic cases. Unknown is success only for a case listed in opaque_calibration_cases whose expected classification is Unknown and whose reason code matches exactly."
+  },
+  "negative_alias_cases": [
+    {
+      "id": "negative-bare-hsl",
+      "profiles": "all",
+      "expression": "repr(type(hsl))",
+      "expectation_source": "pre_gate_measurement",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostic_class": "unknown_variable",
+        "message": "unknown variable `hsl`",
+        "hints": [],
+        "rendered_span": "  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n",
+        "stderr": "error: unknown variable `hsl`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsl))\n  │           ^^^\n\n"
+      }
+    },
+    {
+      "id": "negative-bare-hsv",
+      "profiles": "all",
+      "expression": "repr(type(hsv))",
+      "expectation_source": "pre_gate_measurement",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostic_class": "unknown_variable",
+        "message": "unknown variable `hsv`",
+        "hints": [],
+        "rendered_span": "  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n",
+        "stderr": "error: unknown variable `hsv`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(hsv))\n  │           ^^^\n\n"
+      }
+    },
+    {
+      "id": "negative-bare-linear_rgb",
+      "profiles": "all",
+      "expression": "repr(type(linear_rgb))",
+      "expectation_source": "pre_gate_measurement",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostic_class": "unknown_variable",
+        "message": "unknown variable `linear_rgb`",
+        "hints": [],
+        "rendered_span": "  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n",
+        "stderr": "error: unknown variable `linear_rgb`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(linear_rgb))\n  │           ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "negative-std-hsl",
+      "profiles": "all",
+      "expression": "repr(type(std.hsl))",
+      "expectation_source": "pre_gate_measurement",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostic_class": "missing_module_field",
+        "message": "module `global` does not contain `hsl`",
+        "hints": [],
+        "rendered_span": "  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n",
+        "stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n"
+      }
+    },
+    {
+      "id": "negative-std-hsv",
+      "profiles": "all",
+      "expression": "repr(type(std.hsv))",
+      "expectation_source": "pre_gate_measurement",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostic_class": "missing_module_field",
+        "message": "module `global` does not contain `hsv`",
+        "hints": [],
+        "rendered_span": "  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n",
+        "stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n"
+      }
+    },
+    {
+      "id": "negative-std-linear_rgb",
+      "profiles": "all",
+      "expression": "repr(type(std.linear_rgb))",
+      "expectation_source": "pre_gate_measurement",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "diagnostic_class": "missing_module_field",
+        "message": "module `global` does not contain `linear_rgb`",
+        "hints": [],
+        "rendered_span": "  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n",
+        "stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "negative-std-linear-rgb-alternate-spelling",
+      "profiles": "all",
+      "expression": "repr(type(std.linear-rgb))",
+      "expectation_source": "oracle_suite",
+      "probe_parameters": {
+        "reason": "The confirmed eval L0 closes alternate std spellings, but its exact vanilla diagnostic was not present in the pre-gate measurement.",
+        "capture": ["exit_code", "stdout", "stderr", "diagnostic_class", "message", "hints", "rendered_span"]
+      }
+    },
+    {
+      "id": "negative-bare-linear-rgb-alternate-spelling",
+      "profiles": "all",
+      "expression": "repr(type(linear-rgb))",
+      "expectation_source": "oracle_suite",
+      "probe_parameters": {
+        "reason": "The confirmed eval L0 forbids inventing the alternate global spelling, but its exact vanilla parse/binding diagnostic was not present in the pre-gate measurement.",
+        "capture": ["exit_code", "stdout", "stderr", "diagnostic_class", "message", "hints", "rendered_span"]
+      }
+    }
+  ],
+  "qualified_constructor_cases": [
+    {
+      "id": "qualified-color-hsl",
+      "profiles": "all",
+      "path": "color.hsl",
+      "type_probe": {
+        "expression": "repr(type(color.hsl))",
+        "expectation_source": "pre_gate_measurement",
+        "expected": {"exit_code": 0, "stdout": "\"function\"\n", "stderr": ""}
+      },
+      "repr_probe": {
+        "expression": "repr(color.hsl)",
+        "expectation_source": "oracle_suite"
+      },
+      "call_probe": {
+        "expression": "repr(color.hsl(120deg, 50%, 25%))",
+        "expectation_source": "oracle_suite",
+        "capture": ["exit_code", "stdout", "stderr", "public_repr", "value"]
+      }
+    },
+    {
+      "id": "qualified-color-hsv",
+      "profiles": "all",
+      "path": "color.hsv",
+      "type_probe": {
+        "expression": "repr(type(color.hsv))",
+        "expectation_source": "pre_gate_measurement",
+        "expected": {"exit_code": 0, "stdout": "\"function\"\n", "stderr": ""}
+      },
+      "repr_probe": {
+        "expression": "repr(color.hsv)",
+        "expectation_source": "oracle_suite"
+      },
+      "call_probe": {
+        "expression": "repr(color.hsv(120deg, 50%, 25%))",
+        "expectation_source": "oracle_suite",
+        "capture": ["exit_code", "stdout", "stderr", "public_repr", "value"]
+      }
+    },
+    {
+      "id": "qualified-color-linear-rgb",
+      "profiles": "all",
+      "path": "color.linear-rgb",
+      "type_probe": {
+        "expression": "repr(type(color.linear-rgb))",
+        "expectation_source": "pre_gate_measurement",
+        "expected": {"exit_code": 0, "stdout": "\"function\"\n", "stderr": ""}
+      },
+      "repr_probe": {
+        "expression": "repr(color.linear-rgb)",
+        "expectation_source": "oracle_suite"
+      },
+      "call_probe": {
+        "expression": "repr(color.linear-rgb(10%, 20%, 30%))",
+        "expectation_source": "oracle_suite",
+        "capture": ["exit_code", "stdout", "stderr", "public_repr", "value"]
+      }
+    }
+  ],
+  "ratified_global_constructor_cases": {
+    "profiles": "all",
+    "namespaces": ["bare", "std"],
+    "expected_type": "function",
+    "aggregate_type_measurement": {
+      "bare_expression": "repr((type(rgb), type(luma), type(oklab), type(oklch), type(cmyk)))",
+      "std_expression": "repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.cmyk)))",
+      "expectation_source": "pre_gate_measurement",
+      "expected": {"exit_code": 0, "stdout": "\"(function, function, function, function, function)\"\n", "stderr": ""}
+    },
+    "entries": [
+      {
+        "name": "rgb",
+        "bare_repr_expression": "repr(rgb)",
+        "std_repr_expression": "repr(std.rgb)",
+        "bare_call_expression": "repr(rgb(10, 20, 30))",
+        "std_call_expression": "repr(std.rgb(10, 20, 30))",
+        "expectation_source": "oracle_suite"
+      },
+      {
+        "name": "luma",
+        "bare_repr_expression": "repr(luma)",
+        "std_repr_expression": "repr(std.luma)",
+        "bare_call_expression": "repr(luma(40%))",
+        "std_call_expression": "repr(std.luma(40%))",
+        "expectation_source": "oracle_suite"
+      },
+      {
+        "name": "cmyk",
+        "bare_repr_expression": "repr(cmyk)",
+        "std_repr_expression": "repr(std.cmyk)",
+        "bare_call_expression": "repr(cmyk(10%, 20%, 30%, 40%))",
+        "std_call_expression": "repr(std.cmyk(10%, 20%, 30%, 40%))",
+        "expectation_source": "oracle_suite"
+      },
+      {
+        "name": "oklab",
+        "bare_repr_expression": "repr(oklab)",
+        "std_repr_expression": "repr(std.oklab)",
+        "bare_call_expression": "repr(oklab(50%, 0%, 0%))",
+        "std_call_expression": "repr(std.oklab(50%, 0%, 0%))",
+        "expectation_source": "oracle_suite"
+      },
+      {
+        "name": "oklch",
+        "bare_repr_expression": "repr(oklch)",
+        "std_repr_expression": "repr(std.oklch)",
+        "bare_call_expression": "repr(oklch(50%, 0%, 0deg))",
+        "std_call_expression": "repr(std.oklch(50%, 0%, 0deg))",
+        "expectation_source": "oracle_suite"
+      }
+    ],
+    "per_entry_capture": ["exit_code", "stdout", "stderr", "public_type", "public_repr", "representative_call_value"]
+  },
+  "color_space_cases": [
+    {
+      "id": "space-hsl",
+      "profiles": "all",
+      "expression": "repr(color.hsl(120deg, 50%, 25%).space())",
+      "expected_identity": "hsl",
+      "expectation_source": "oracle_suite"
+    },
+    {
+      "id": "space-hsv",
+      "profiles": "all",
+      "expression": "repr(color.hsv(120deg, 50%, 25%).space())",
+      "expected_identity": "hsv",
+      "expectation_source": "oracle_suite"
+    },
+    {
+      "id": "space-linear-rgb",
+      "profiles": "all",
+      "expression": "repr(color.linear-rgb(10%, 20%, 30%).space())",
+      "expected_identity": "linear-rgb",
+      "expectation_source": "oracle_suite"
+    }
+  ],
+  "color_map_control": {
+    "id": "color-map-closed-inventory-and-values",
+    "profiles": "all",
+    "public_root": "color.map",
+    "expected_root_kind": "module",
+    "expectation_source": "confirmed_l0",
+    "canonicalization": "For each public child array, convert each color to lowercase 0xrrggbbaa with eight hex digits, join tokens with comma and no whitespace, then SHA-256 the UTF-8 bytes.",
+    "closed_inventory": true,
+    "entries": [
+      {"name": "turbo", "count": 256, "first": "0x23171bff", "last": "0x900c00ff", "sha256": "7909421397bc2bef00faf5a1064d7356ad4cab112ec1fd5e290b124a13529a3e"},
+      {"name": "cividis", "count": 256, "first": "0x002051ff", "last": "0xfdea45ff", "sha256": "dece34103d5266311558bb44f96f02df7090edf8977744fc9a1213b2213b2f79"},
+      {"name": "rainbow", "count": 256, "first": "0x7c4bbbff", "last": "0x7c4bbbff", "sha256": "74fe385a692d3da43ff8afc8f61896f76bc87a1a766f05f4897f5e8164db4ed7"},
+      {"name": "spectral", "count": 11, "first": "0x9e0142ff", "last": "0x5e4fa2ff", "sha256": "1c62ea2e765ddf6d6b1c5189e772605e0203d6116bf384597df0cfa4cdab5f17"},
+      {"name": "viridis", "count": 9, "first": "0x440154ff", "last": "0xfee825ff", "sha256": "3b9d02b0685ec2ae62958a287c4cdd68fdb08f642339aabaa8d96e60aeaf999b"},
+      {"name": "inferno", "count": 11, "first": "0x000004ff", "last": "0xfcffa4ff", "sha256": "20de1b5440e58c3727d645e6f8444d9e6d1c73fb09f9e905a49c314dc58496da"},
+      {"name": "magma", "count": 11, "first": "0x000004ff", "last": "0xfcfdbfff", "sha256": "c634397325d83383609535f10e2d964efd899be34a2cef337379a5368b09fa79"},
+      {"name": "plasma", "count": 11, "first": "0x0d0887ff", "last": "0xf0f921ff", "sha256": "f0ddd8a6d9e12c3c3b5d705dfa2e7c5f7929ce242c8d94ab5e4a0f6b2e0d9f2d"},
+      {"name": "rocket", "count": 256, "first": "0x03051aff", "last": "0xfaebddff", "sha256": "b3d6e7d7762c8e4d3b27d86aa41391cf8d5093df122b328bc6482f2d37a1497b"},
+      {"name": "mako", "count": 256, "first": "0x0b0405ff", "last": "0xdef5e5ff", "sha256": "f74edb89a1207308a4534b6648d32f54439e0057fb5b4cb0346151610131da77"},
+      {"name": "coolwarm", "count": 256, "first": "0x3b4cc0ff", "last": "0xb40426ff", "sha256": "13161dddf6ad860268eece02ce446b1025d3ab95871cc1a484a93aa05da4aed2"},
+      {"name": "vlag", "count": 256, "first": "0x2369bdff", "last": "0xa9373bff", "sha256": "d015c8a4cb87aaebc49d0416edf430e5c76392e772602ca1234ce6fe748db81d"},
+      {"name": "icefire", "count": 256, "first": "0xbde7dbff", "last": "0xffd4acff", "sha256": "0de0d1c2a9dd6a8a03cd3155b872ea4a2eeaa74a5454df8f511632aa5d91e55f"},
+      {"name": "flare", "count": 256, "first": "0xedb081ff", "last": "0x4b2362ff", "sha256": "03f70bedc78f4fb3e22b3f7ed06a680d56d721321eca69218ab746d4c803f595"},
+      {"name": "crest", "count": 256, "first": "0xa5cd90ff", "last": "0x2c3172ff", "sha256": "660b6381c0f53156c07b4f0f86988a280c06578f46a44b734c1f388cadeaeb98"}
+    ],
+    "probe_parameters_for_oracle_suite": {
+      "capture": ["root_kind", "ordered_child_names", "child_kind", "count", "first", "last", "canonical_sha256"],
+      "public_surface_only": true
+    }
+  },
+  "ratified_predefined_color_controls": {
+    "profiles": "all",
+    "expectation_source": "confirmed_l0_and_oracle_suite",
+    "per_entry_probe_template": {
+      "expressions": [
+        "repr(type({name}))",
+        "repr(type(color.{name}))",
+        "repr({name} == color.{name})",
+        "repr({name})",
+        "repr({name}.space())",
+        "repr({name}.components())"
+      ],
+      "oracle_required_for_exact_output": ["public_repr", "components"],
+      "expected_type": "color",
+      "expected_global_equals_qualified": true
+    },
+    "entries": [
+      {"name": "black", "canonical_srgb": "#000000", "space": "luma"},
+      {"name": "gray", "canonical_srgb": "#AAAAAA", "space": "luma"},
+      {"name": "silver", "canonical_srgb": "#DDDDDD", "space": "luma"},
+      {"name": "white", "canonical_srgb": "#FFFFFF", "space": "luma"},
+      {"name": "navy", "canonical_srgb": "#001F3F", "space": "rgb"},
+      {"name": "blue", "canonical_srgb": "#0074D9", "space": "rgb"},
+      {"name": "aqua", "canonical_srgb": "#7FDBFF", "space": "rgb"},
+      {"name": "teal", "canonical_srgb": "#39CCCC", "space": "rgb"},
+      {"name": "eastern", "canonical_srgb": "#239DAD", "space": "rgb"},
+      {"name": "purple", "canonical_srgb": "#B10DC9", "space": "rgb"},
+      {"name": "fuchsia", "canonical_srgb": "#F012BE", "space": "rgb"},
+      {"name": "maroon", "canonical_srgb": "#85144B", "space": "rgb"},
+      {"name": "red", "canonical_srgb": "#FF4136", "space": "rgb", "precision_rule": "preserve ratified f32 literals"},
+      {"name": "orange", "canonical_srgb": "#FF851B", "space": "rgb"},
+      {"name": "yellow", "canonical_srgb": "#FFDC00", "space": "rgb"},
+      {"name": "olive", "canonical_srgb": "#3D9970", "space": "rgb"},
+      {"name": "green", "canonical_srgb": "#2ECC40", "space": "rgb"},
+      {"name": "lime", "canonical_srgb": "#01FF70", "space": "rgb"}
+    ],
+    "closed_count": 18
+  },
+  "crystalline_compatibility_global_controls": {
+    "profiles": "all",
+    "qualified_namespace_membership": false,
+    "entries": [
+      {
+        "name": "cyan",
+        "scope": "bare_only",
+        "expected_type": "color",
+        "ratified_value": "rgb(0x00,0xB3,0xB3)",
+        "expressions": ["repr(type(cyan))", "repr(cyan)", "repr(cyan == rgb(0, 179, 179))"],
+        "expectation_source": "confirmed_l0_and_oracle_suite"
+      },
+      {
+        "name": "magenta",
+        "scope": "bare_only",
+        "expected_type": "color",
+        "ratified_value": "rgb(0xE5,0x00,0xE5)",
+        "expressions": ["repr(type(magenta))", "repr(magenta)", "repr(magenta == rgb(229, 0, 229))"],
+        "expectation_source": "confirmed_l0_and_oracle_suite"
+      },
+      {
+        "name": "none",
+        "scope": "bare_only",
+        "expected_type": "none",
+        "ratified_value": "none",
+        "expressions": ["repr(type(none))", "repr(none)"],
+        "expectation_source": "confirmed_l0_and_oracle_suite"
+      }
+    ]
+  },
+  "color_operator_controls": {
+    "profiles": "all",
+    "expectation_source": "oracle_suite",
+    "rule": "These are public-language controls against collateral mutation; no algorithm, function pointer or Rust representation is observed.",
+    "per_entry_capture": ["exit_code", "stdout", "stderr", "public_type", "public_repr", "representative_call_value"],
+    "entries": [
+      {"name": "lighten", "type_expression": "repr(type(color.lighten))", "repr_expression": "repr(color.lighten)", "call_expression": "repr(color.lighten(red, 20%))"},
+      {"name": "darken", "type_expression": "repr(type(color.darken))", "repr_expression": "repr(color.darken)", "call_expression": "repr(color.darken(red, 20%))"},
+      {"name": "mix", "type_expression": "repr(type(color.mix))", "repr_expression": "repr(color.mix)", "call_expression": "repr(color.mix(red, blue))"},
+      {"name": "negate", "type_expression": "repr(type(color.negate))", "repr_expression": "repr(color.negate)", "call_expression": "repr(color.negate(red))"},
+      {"name": "saturate", "type_expression": "repr(type(color.saturate))", "repr_expression": "repr(color.saturate)", "call_expression": "repr(color.saturate(red, 20%))"},
+      {"name": "desaturate", "type_expression": "repr(type(color.desaturate))", "repr_expression": "repr(color.desaturate)", "call_expression": "repr(color.desaturate(red, 20%))"},
+      {"name": "rotate", "type_expression": "repr(type(color.rotate))", "repr_expression": "repr(color.rotate)", "call_expression": "repr(color.rotate(red, 90deg))"},
+      {"name": "components", "type_expression": "repr(type(color.components))", "repr_expression": "repr(color.components)", "call_expression": "repr(color.components(red))"},
+      {"name": "space", "type_expression": "repr(type(color.space))", "repr_expression": "repr(color.space)", "call_expression": "repr(color.space(red))"},
+      {"name": "to-hex", "type_expression": "repr(type(color.to-hex))", "repr_expression": "repr(color.to-hex)", "call_expression": "repr(color.to-hex(red))"},
+      {"name": "transparentize", "type_expression": "repr(type(color.transparentize))", "repr_expression": "repr(color.transparentize)", "call_expression": "repr(color.transparentize(red, 20%))"},
+      {"name": "opacify", "type_expression": "repr(type(color.opacify))", "repr_expression": "repr(color.opacify)", "call_expression": "repr(color.opacify(red, 20%))"}
+    ]
+  },
+  "opaque_calibration_cases": [
+    {
+      "id": "opaque-timeout",
+      "fixture_kind": "harness_control",
+      "construction": {"forced_timeout_ms": 0},
+      "expected_classification": "Unknown",
+      "expected_reason_code": "timeout",
+      "must_not_run_as_product_semantics": true
+    },
+    {
+      "id": "opaque-missing-product",
+      "fixture_kind": "harness_control",
+      "construction": {"product_binary": "deliberately_absent"},
+      "expected_classification": "Unknown",
+      "expected_reason_code": "missing_product",
+      "must_not_run_as_product_semantics": true
+    },
+    {
+      "id": "opaque-ambiguous-identity",
+      "fixture_kind": "harness_control",
+      "construction": {"product_sha256": null, "product_revision": null},
+      "expected_classification": "Unknown",
+      "expected_reason_code": "ambiguous_product_identity",
+      "must_not_run_as_product_semantics": true
+    },
+    {
+      "id": "opaque-unsupported-parser",
+      "fixture_kind": "harness_control",
+      "construction": {"expression": "color.linear-rgb(", "adapter_support": "deliberately_disabled"},
+      "expected_classification": "Unknown",
+      "expected_reason_code": "unsupported_parser_construction",
+      "must_not_run_as_product_semantics": true
+    }
+  ],
+  "repetition_and_order_requirements": {
+    "semantic_case_expansion": "Expand every profiles=all case across exactly the four pinned profiles.",
+    "minimum_repetitions_per_order": 2,
+    "orders": [
+      {"id": "canonical", "definition": "contract declaration order"},
+      {"id": "reverse", "definition": "exact reverse of canonical order"},
+      {"id": "seeded_shuffle", "definition": "Fisher-Yates over expanded case IDs with seed 1300"}
+    ],
+    "invariance": "For each product, every repeated case must yield the same classification and byte-identical complete observables in every order.",
+    "duplicate_policy": "Case identity includes case_id, profile and probe subtype; no result may be overwritten or deduplicated.",
+    "failure": "Any order or repetition divergence is Violated when complete contradictory observations exist, otherwise Unknown; neither can seal."
+  },
+  "minimum_mutations": [
+    {
+      "id": "P1300-M01-keep-global-hsl",
+      "mutation": "Keep hsl published as a global alias.",
+      "must_classify": "Violated",
+      "required_witness_ids": ["negative-bare-hsl", "negative-std-hsl"]
+    },
+    {
+      "id": "P1300-M02-keep-global-hsv",
+      "mutation": "Keep hsv published as a global alias.",
+      "must_classify": "Violated",
+      "required_witness_ids": ["negative-bare-hsv", "negative-std-hsv"]
+    },
+    {
+      "id": "P1300-M03-keep-global-linear_rgb",
+      "mutation": "Keep linear_rgb published as a global alias.",
+      "must_classify": "Violated",
+      "required_witness_ids": ["negative-bare-linear_rgb", "negative-std-linear_rgb"]
+    },
+    {
+      "id": "P1300-M04-hide-bare-keep-std",
+      "mutation": "Hide the three bare aliases but retain their std projections.",
+      "must_classify": "Violated",
+      "required_witness_ids": ["negative-std-hsl", "negative-std-hsv", "negative-std-linear_rgb"]
+    },
+    {
+      "id": "P1300-M05-default-only-feature-leak",
+      "mutation": "Hide the aliases only in the default profile and leak one or more under html, a11y or html+a11y.",
+      "must_classify": "Violated",
+      "required_witness": "The matching negative case in the divergent profile."
+    },
+    {
+      "id": "P1300-M06-break-qualified-color-hsl",
+      "mutation": "Delete color.hsl or make it non-function/non-callable.",
+      "must_classify": "Violated",
+      "required_witness_ids": ["qualified-color-hsl", "space-hsl"]
+    },
+    {
+      "id": "P1300-M07-break-qualified-color-hsv",
+      "mutation": "Delete color.hsv or make it non-function/non-callable.",
+      "must_classify": "Violated",
+      "required_witness_ids": ["qualified-color-hsv", "space-hsv"]
+    },
+    {
+      "id": "P1300-M08-break-or-rename-qualified-color-linear-rgb",
+      "mutation": "Delete, break or rename color.linear-rgb.",
+      "must_classify": "Violated",
+      "required_witness_ids": ["qualified-color-linear-rgb", "space-linear-rgb"]
+    },
+    {
+      "id": "P1300-M09-remove-ratified-global",
+      "mutation": "Remove any one of rgb, luma, cmyk, oklab or oklch from either the bare or std projection.",
+      "must_classify": "Violated",
+      "required_witness_families": ["ratified_global_constructor_cases"]
+    },
+    {
+      "id": "P1300-M10-invent-global-linear-rgb",
+      "mutation": "Incorrectly create the alternate global spelling linear-rgb.",
+      "must_classify": "Violated",
+      "required_witness_ids": ["negative-bare-linear-rgb-alternate-spelling", "negative-std-linear-rgb-alternate-spelling"]
+    },
+    {
+      "id": "P1300-M11-change-qualified-func-name-repr",
+      "mutation": "Change Func::name as observed through public repr for any qualified route.",
+      "must_classify": "Violated",
+      "required_witness": "The repr_probe of color.hsl, color.hsv or color.linear-rgb."
+    },
+    {
+      "id": "P1300-M12-remove-native-instead-of-publication",
+      "mutation": "Remove or disable a native constructor instead of removing only its global publication.",
+      "must_classify": "Violated",
+      "required_witness": "The matching qualified call_probe and color.space case."
+    },
+    {
+      "id": "P1300-M13-make-color-space-alias-dependent",
+      "mutation": "Make color.space for HSL, HSV or Linear RGB depend on a removed global alias.",
+      "must_classify": "Violated",
+      "required_witness_families": ["color_space_cases"]
+    },
+    {
+      "id": "P1300-M14-collateral-unrelated-color-surface",
+      "mutation": "Change predefined colors, color.map or unrelated color operators as collateral damage.",
+      "must_classify": "Violated",
+      "required_witness_families": ["ratified_predefined_color_controls", "color_map_control", "color_operator_controls"]
+    }
+  ],
+  "discrimination_gate": {
+    "valid_mutation_count": 14,
+    "required_mutation_score": 1.0,
+    "formula": "valid mutations classified Violated with a witness / 14",
+    "positive_requirement": "Every non-opaque semantic control classifies Preserved in the intended candidate after oracle-suite expectations are frozen.",
+    "opaque_requirement": "Every opaque calibration case classifies Unknown with its exact reason code.",
+    "seal_blockers": [
+      "any surviving valid mutation",
+      "any semantic Unknown",
+      "any unexpected Unknown reason",
+      "any profile omission",
+      "any repetition or order divergence",
+      "unfrozen oracle_suite expectation"
+    ]
+  },
+  "scope_exclusions": [
+    "general stdlib parity",
+    "general color parity",
+    "color.spot and color.spot.tint",
+    "parser color names in string literals",
+    "color operator algorithm or Rust equality",
+    "function pointers, insertion order and internal data structures",
+    "targets and pipeline phases outside the named observables"
+  ],
+  "maximum_claim": "The three P1299 color-constructor aliases are absent bare and under std in the pinned profiles while qualified routes and ratified globals are preserved; no general stdlib or color parity is claimed."
+}

@@ -1,0 +1,265 @@
+{
+  "schema_version": "tekt-terminal-verification-receipt-v2",
+  "step": "P1301",
+  "revision": 2,
+  "role": "P8-r2 independent terminal verifier",
+  "status": "PASS",
+  "verdict": "P1301R2_CERTIFIED",
+  "protocol_regime": "complete",
+  "attestation_language": "executado sem atestação de isolamento técnico",
+  "scope_limit": "Certifica somente o fragmento observável selado de diagnósticos de field ausente em Module, preservação dos controles e a sentinela não-Module; não declara equivalência funcional geral.",
+  "verifier_capabilities": {
+    "repository_reads": "allowlist P1301r2 concedida pelo root; P1301 v1 limitado aos dois documentos de calibração explicitamente permitidos; P1300 limitado a final-report, verification-receipt e contract",
+    "repository_writes": [
+      "00_nucleo/diagnosticos/p1301r2-verification-receipt.json",
+      "00_nucleo/diagnosticos/p1301r2-certificate.json",
+      "00_nucleo/diagnosticos/p1301r2-final-report.md"
+    ],
+    "verified_inputs_edited": false,
+    "candidate_edited": false,
+    "materialization_or_context_content_read": false,
+    "technical_isolation_attested": false
+  },
+  "repository": {
+    "head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "working_tree": "uncommitted",
+    "snapshot_before_verifier_outputs_at": "2026-09-03T22:53:27.496635895-03:00",
+    "git_status_short_sha256_before_outputs": "7b108b8c36bfe3000cd7aed13546611de26a0a7ea9add983fb84027deee47d55",
+    "git_status_short_lines_before_outputs": 73,
+    "git_diff_head_stat_sha256": "8984b3b7f1c8cc961b67d22b597f6d7a05e2fa72ea8821dca5cfc474b702c296",
+    "git_diff_head_stat": [
+      "00_nucleo/prompts/compiler/eval.md                 |  39 ++-",
+      ".../prompts/compiler/eval/bindings/field_access.md |  74 ++++-",
+      "00_nucleo/prompts/compiler/eval/tests.md           |  90 ++++-",
+      "00_nucleo/prompts/compiler/stdlib/color.md         |  46 ++-",
+      "01_core/src/compiler/eval/bindings/field_access.rs |   9 +-",
+      "01_core/src/compiler/eval/mod.rs                   |  14 +-",
+      "01_core/src/compiler/eval/tests.rs                 | 364 ++++++++++++++++++++-",
+      "01_core/src/compiler/stdlib/color.rs               |   6 +-",
+      "8 files changed, 618 insertions(+), 24 deletions(-)"
+    ],
+    "tracked_modified_paths": [
+      "00_nucleo/prompts/compiler/eval.md",
+      "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "00_nucleo/prompts/compiler/eval/tests.md",
+      "00_nucleo/prompts/compiler/stdlib/color.md",
+      "01_core/src/compiler/eval/bindings/field_access.rs",
+      "01_core/src/compiler/eval/mod.rs",
+      "01_core/src/compiler/eval/tests.rs",
+      "01_core/src/compiler/stdlib/color.rs"
+    ],
+    "untracked_paths_before_outputs": 65,
+    "verifier_output_delta": [
+      "?? 00_nucleo/diagnosticos/p1301r2-certificate.json",
+      "?? 00_nucleo/diagnosticos/p1301r2-final-report.md",
+      "?? 00_nucleo/diagnosticos/p1301r2-verification-receipt.json"
+    ],
+    "git_status_short_sha256_after_outputs": "1715eb1ae1eae4c923a88358de66e33df73ac017f209584ea08ec06b520b3573"
+  },
+  "frozen_artifact_audit": {
+    "status": "PASS",
+    "all_nine_sealed_hashes_match": true,
+    "artifacts": {
+      "p1301r2-manifest.json": "1526dc81e08a36ce0153fe7639dd2558c220a85d44c4b1de7098a59c099a5712",
+      "p1301r2-contract.json": "69e852d38636afd0ce996f10a64cbf0e6dc0be12dca453a65ee3e0d515c88fad",
+      "p1301r2-contract-author-receipt.md": "34c777fa06897e6dffe0efa40abc4cdcae67bcff151722113abef08b40b68318",
+      "p1301r2-oracle-suite.json": "4c1cbbafd5e81517061a2c369186a41d6de30a41abc29ff122ee9e77ed64b3ac",
+      "p1301r2-oracle-author-receipt.md": "49811af01fbcca2e6faede7f094f5cf0d16ac70df9087d6f4e1099097ba97bf4",
+      "p1301r2-mutants.json": "a9a99fcf1e714f0e54390ba87fb9afcd8054c2cb258e68e70bc14f65a2fb4c10",
+      "p1301r2-mutation-plan.json": "c6d55f995788d25ed4e6b8b9ed881efa621a12f60daacd4d5ca6d134f0dde0b8",
+      "p1301r2-contract-runner.py": "622a97b86121d8b7843710e0c54d9133c9cfe123fabcc82497cdad0fe7eac3fb",
+      "p1301r2-discrimination-receipt.json": "f0aedefc6bda955e6df3b68876164df8b290d42dd1b85c76d648b45d6ea7a66c"
+    },
+    "ratified_vanilla_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "v1_separation": {
+    "status": "PASS",
+    "calibration_receipt_sha256": "b1e70f97ba4a9559ee1bd18014fa7fe41b7fb5360f2f20fa0f7f192b9893ec86",
+    "calibration_verdict": "REOPEN_CONTRACT_HARNESS_SURFACE",
+    "v1_runner_sha256": "30989db6d6fdbf8f2cb8c4cdc8c9693d91c26d72c23ff5fb5657cef3ab63b5de",
+    "r2_runner_sha256": "622a97b86121d8b7843710e0c54d9133c9cfe123fabcc82497cdad0fe7eac3fb",
+    "runner_hashes_differ": true,
+    "r2_runner_references_v1_runner": false,
+    "v1_contract_or_seal_in_r2_frozen_input_set": false,
+    "finding": "A cadeia r2 usa somente os sete inputs internos r2 do runner e os nove artefactos do selo r2. O candidato release foi recompilado do estado corrente em target novo de /dev/shm. O binário recompilado tem o mesmo hash de conteúdo do candidato transitório v1, ab61ce31..., mas nenhum ficheiro/binário v1 foi usado como entrada; a igualdade é resultado do rebuild determinístico da implementação semanticamente igual, não reutilização do artefacto v1."
+  },
+  "discrimination_reexecution": {
+    "started_at": "2026-09-03T22:43:00.359414762-03:00",
+    "finished_at": "2026-09-03T22:43:00.530651566-03:00",
+    "self_check_command": "python3 00_nucleo/diagnosticos/p1301r2-contract-runner.py self-check --output <ephemeral-/dev/shm>",
+    "self_check_exit": 0,
+    "self_check_output_sha256": "d2d8ff45592f1fac4ce6b25c6d53da1fc221afacec865d05be2df432d690202e",
+    "discriminate_command": "python3 00_nucleo/diagnosticos/p1301r2-contract-runner.py discriminate --output <ephemeral-/dev/shm>",
+    "discriminate_exit": 0,
+    "discriminate_output_sha256": "b488ef19fd363eb311d2ce170e825d04c8642601a4b33db92e716e92a788990e",
+    "valid_mutants": 12,
+    "killed_mutants": 12,
+    "mutation_score": 1.0,
+    "survivors": 0,
+    "invalid_mutants": 0,
+    "unsupported_operations": 0,
+    "operation_sets_equal": true,
+    "per_order_per_repetition": {
+      "normal": {"Preserved": 20, "Violated": 0, "Unknown": 2, "FAIL": 0},
+      "inverted": {"Preserved": 20, "Violated": 0, "Unknown": 2, "FAIL": 0}
+    },
+    "opaque_reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY",
+    "sentinel": "C23-dictionary-crystalline-span-sentinel preserved as a separate contractual control at bytes 10..21",
+    "baseline_order_identity": true,
+    "baseline_repetition_identity": true,
+    "forbidden_argument_self_checks": ["--diagnostic-format", "--target"]
+  },
+  "lineage_audit": {
+    "status": "PASS",
+    "field_access_prompt": {
+      "full_sha256_pre": "38d6f5cdee302491ec059577174d4f6dc6d3c28e3d2da2748f61c05853cc0c16",
+      "semantic_sha256_pre_and_post": "d6a3d67c1b7d2f23783cb85ec81a4520b50a2a39cb792d56fdc3663755656233",
+      "full_sha256_post": "de81ef3bf6572a1777f9057655e8433c6f2b393e8846f1fbdb66bcd1c8f81df9",
+      "only_changed_line": 2,
+      "line_before": "Hash do Código: d37b05cb",
+      "line_after": "Hash do Código: 2d102890",
+      "consumer_sha256_final": "29abd27cc01b347da9fbc12a93f05265882c043d36cd9a03cff5e6487a96e024",
+      "consumer_prompt_header": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "consumer_prompt_hash": "adcb180b"
+    },
+    "tests_prompt": {
+      "full_sha256_pre": "a4ade7eda600891465c62c320d80b7c2182c30dbb5f456de210c4a823b3e609a",
+      "semantic_sha256_pre_and_post": "bf0d711419ebe33ce7bc7b54c6bd187798ef94c64747e6a50a0aa5674905924a",
+      "full_sha256_post": "5ca2ad1e4bcf3f6fe30909be21f42bb2a2a5939a6efcbdfc136dba5b44e7a8d1",
+      "only_changed_line": 2,
+      "line_before": "Hash do Código: c82a31ba",
+      "line_after": "Hash do Código: 343763db",
+      "consumer_sha256_final": "5437bd761f48bef79b2eedd5c2e920bcba310e41c0e85346afaf6db6a2e68af9",
+      "consumer_prompt_header": "00_nucleo/prompts/compiler/eval/tests.md",
+      "consumer_prompt_hash": "4afb0873"
+    },
+    "pre_hashes_reconstructed_from_documented_old_line": true,
+    "semantic_digests_recomputed": true,
+    "exactly_one_hash_line_per_prompt": true,
+    "exactly_one_fix_hashes_write_application_documented": true,
+    "documented_application_output": "Applied field_access.rs hash-a=adcb180b hash-b=2d102890; Applied tests.rs hash-a=4afb0873 hash-b=343763db; 0 drift warnings remaining",
+    "post_repair_dry_run": "Nothing to fix",
+    "post_repair_dry_run_exit": 0,
+    "headers_exact": true,
+    "ownership_1_to_1": "PASS via exact headers and strict V15/V26 lint with zero violations"
+  },
+  "candidate_repair_audit": {
+    "receipt_sha256": "9fa774846c14f53eeb1077788921ae9cae0f3826dcb1b1b8f1ca7c2ff8c93233",
+    "status": "PASS",
+    "written_consumer": "01_core/src/compiler/eval/tests.rs",
+    "consumer_sha256_before": "e32228e6cf9929f42ae4664c8c1bfb70bc69d7e126c809f376ca321789fd1d67",
+    "consumer_sha256_after": "5437bd761f48bef79b2eedd5c2e920bcba310e41c0e85346afaf6db6a2e68af9",
+    "productive_consumer_unchanged_by_repair": true,
+    "contract_and_seal_unchanged": true,
+    "prompt_full_and_semantic_hash_unchanged": true,
+    "change_class": "test-only expectations for the old P1300 under_std helper were aligned with the already frozen P1301 obligation: public name global, field-only start at byte 4, and field-only range",
+    "new_derivation_required": false,
+    "evidence": "The current assertions match the pre-existing P1301 section of tests.md; the repair receipt limits its write to tests.rs; both P1300/P1301 filters pass and the linter reports no lineage drift."
+  },
+  "candidate_execution": {
+    "valid_run_started_at": "2026-09-03T22:46:18.941473508-03:00",
+    "valid_run_finished_at": "2026-09-03T22:48:53.360033855-03:00",
+    "environment": "fresh mktemp directory under /dev/shm; TMPDIR and CARGO_TARGET_DIR both under that directory; deleted after hashes and summaries were extracted",
+    "build_command": "cargo build --release --locked --bin typst",
+    "build_exit": 0,
+    "execution_mechanism": "the sealed runner was imported by exact path/hash and run_candidate was called for normal then inverted inside the same Python process and same shell command",
+    "candidate_binary_sha256": "ab61ce31cc6eac3ca672608643d312989c597bc3698d3459f966f0fd11304909",
+    "normal_receipt_sha256": "fbc4805f0c2697354fdff484131f7f0f8dbd0085c2a9a36ffa9f844d73f1facf",
+    "inverted_receipt_sha256": "4b0d2820292c55c4d735dbc5b37d4b43af8aaf3d8cce652df53847b7da15a34d",
+    "canonical_order_independent_vector_sha256": "0c9578b97272e9a61f7b200251582cb5d15ff62ce2271616fceba03d0b5f278d",
+    "order_independent": true,
+    "normal_counts": {"Preserved": 20, "Violated": 0, "Unknown": 2, "FAIL": 0},
+    "inverted_counts": {"Preserved": 20, "Violated": 0, "Unknown": 2, "FAIL": 0},
+    "required_cases": 20,
+    "required_cases_zero_violated_unknown": true,
+    "opaque_cases": 2,
+    "opaque_cases_exact_unknown_allowed": true,
+    "opaque_reason_exact": true,
+    "sentinel_separate_and_preserved": true,
+    "common_cli_only": true,
+    "forbidden_arguments_observed": [],
+    "ephemeral_artifacts_used_after_process": false,
+    "preparatory_invalid_attempt": "A preceding fresh release build completed, and both run_candidate calls were evaluated, but the verifier-owned summary wrapper then raised NameError while printing. It was discarded and the entire build/runner sequence was repeated from a new /dev/shm directory; only the clean second sequence is gate evidence."
+  },
+  "final_gates": [
+    {
+      "command": "cargo test -p typst-core p1300",
+      "started_at": "2026-09-03T22:49:18.084365213-03:00",
+      "finished_at": "2026-09-03T22:51:28.720834520-03:00",
+      "exit": 0,
+      "result": "10 passed; 0 failed; 0 ignored; 0 measured; 5421 filtered out",
+      "output_sha256": "10cb6851f39d5fad72195ac0a065c4d735ef6a90b4ea8a304c52906edfdd793b",
+      "warning_lines": 676,
+      "warnings": "non-blocking repository-wide Rust warnings; cargo summary reports typst-core lib test generated 675 warnings"
+    },
+    {
+      "command": "cargo test -p typst-core p1301",
+      "started_at": "2026-09-03T22:51:28.720834520-03:00",
+      "finished_at": "2026-09-03T22:51:29.243819570-03:00",
+      "exit": 0,
+      "result": "4 passed; 0 failed; 0 ignored; 0 measured; 5427 filtered out",
+      "output_sha256": "8fd3475fd39d184ddf3224d5b6e975cce50497fc130e62ecece4088d9685b039",
+      "warning_lines": 676,
+      "warnings": "same non-blocking repository-wide Rust warnings; cargo summary reports typst-core lib test generated 675 warnings"
+    },
+    {
+      "command": "cargo build",
+      "started_at": "2026-09-03T22:51:29.243819570-03:00",
+      "finished_at": "2026-09-03T22:52:14.354537460-03:00",
+      "exit": 0,
+      "output_sha256": "329d9f3d10fc18d1120e8035159a7e02f418579afb77d61e7586884d82cbadb9",
+      "warning_lines": 114,
+      "warnings": "non-blocking; cargo summaries include 72 typst-core lib warnings and 40 typst-infra lib warnings"
+    },
+    {
+      "command": "crystalline-lint .",
+      "started_at": "2026-09-03T22:52:32.678078175-03:00",
+      "finished_at": "2026-09-03T22:52:33.369921107-03:00",
+      "exit": 0,
+      "output_sha256": "c97f24422e4515e894a7d6baa21289954b89a90f572e859bde85be83b3cd33ef",
+      "output_lines": 5209,
+      "warning_lines": 236,
+      "info_lines": 1132,
+      "error_lines": 0,
+      "warnings": "non-blocking V16 and other repository-wide advisory findings"
+    },
+    {
+      "command": "crystalline-lint --fail-on warning --checks v3,v4,v5,v13,v14,v15,v26 .",
+      "started_at": "2026-09-03T22:52:33.369921107-03:00",
+      "finished_at": "2026-09-03T22:52:34.049168944-03:00",
+      "exit": 0,
+      "output": "✓ No violations found",
+      "output_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac"
+    },
+    {
+      "command": "crystalline-lint --fix-hashes --dry-run .",
+      "started_at": "2026-09-03T22:52:34.049168944-03:00",
+      "finished_at": "2026-09-03T22:52:34.740073901-03:00",
+      "exit": 0,
+      "output": "Nothing to fix",
+      "output_sha256": "bf3511c5c7cb1a9202071d8a2d60204a30f29cc11ee58ff2963a063a9f835b25"
+    },
+    {
+      "command": "git diff --check",
+      "started_at": "2026-09-03T22:52:34.740073901-03:00",
+      "finished_at": "2026-09-03T22:52:34.766110517-03:00",
+      "exit": 0,
+      "output": "",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "p1300_resolution": {
+    "predecessor_final_report_sha256": "754663ba88d37e750c822d71966d29e6c176e35ae500ebc22237cfbee9b6de20",
+    "predecessor_verification_receipt_sha256": "51a1339d95e18d15d9b0f4f110ee540051ebff21905ac7eeac50c50ee08a84c3",
+    "predecessor_verdict": "P1300_BLOCKED_IMPLEMENTATION",
+    "reopened_by_p1301": true,
+    "blocking_diagnostic_divergence_resolved": true,
+    "p1300_regressions_now_pass": "10/10",
+    "finding": "P1301 resolves the exact Module diagnostic/message/span blocker that prevented P1300 certification. This does not retroactively rewrite the P1300 receipt; it unlocks the previously blocked regression fragment under the new P1301r2 chain."
+  },
+  "terminal_decision": {
+    "all_required_gates_passed": true,
+    "certificate_authorized": true,
+    "final_report_status": "P1301R2_CERTIFIED"
+  }
+}

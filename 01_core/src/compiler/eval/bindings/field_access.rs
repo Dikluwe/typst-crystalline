@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 27bf3c60
+//! @prompt-hash adcb180b
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -103,7 +103,9 @@ pub(in crate::compiler::eval) fn eval_field_access(
         }
     }
 
-    let span = if field == "is-nan" && matches!(&target, Value::Float(_)) {
+    let span = if matches!(&target, Value::Module(_))
+        || field == "is-nan" && matches!(&target, Value::Float(_))
+    {
         access.field().span()
     } else {
         access.span()
@@ -372,9 +374,10 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
         },
         // P679 — Field access em Value::Module
         Value::Module(m) => m.scope().get(field).cloned().ok_or_else(|| {
+            let name = if m.name() == "std" { "global" } else { m.name() };
             vec![SourceDiagnostic::error(
                 span,
-                format!("module '{}' does not contain field \"{field}\"", m.name()),
+                format!("module `{name}` does not contain `{field}`"),
             )]
         }),
         // P765a — Field access em Value::Symbol

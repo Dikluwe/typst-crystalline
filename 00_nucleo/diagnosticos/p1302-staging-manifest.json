@@ -1,0 +1,702 @@
+{
+  "allowlist": {
+    "count": 83,
+    "entries": [
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-baseline-status.txt",
+        "sha256": "e7629860ba7eaa72a74dc343842327338a9633062bae739e1a36df62b13aca3b",
+        "size_bytes": 2058,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-certificate.json",
+        "sha256": "c9d18805b081e55b34caaf02e39ddfc15fd76c5d48849dd82ca112552cdac754",
+        "size_bytes": 7832,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-crystalline-default.json",
+        "sha256": "58f8ae65a8a008d9e8b380a545b4bc7aeabf7ad6404b099472d5a5fb547c5287",
+        "size_bytes": 1017282,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-crystalline-html.json",
+        "sha256": "26fdb6a49bf438e6211e400f5e64185b0af7cbbbcc17a469f1861e68f5461478",
+        "size_bytes": 1041495,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-decision-report.md",
+        "sha256": "332425ce95df73ce8ea8e54e84aec31d37286a6dec8b07ce9b6b5f77e33eeb2e",
+        "size_bytes": 8653,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-feature-matrix.json",
+        "sha256": "58f08430c479ba5dea093945301785a89e77f20e9af0809ae05c6641a7ecdc11",
+        "size_bytes": 3446321,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-inventory-default.json",
+        "sha256": "12fcda046d8a2574a77307a9154874e33a2bff664437248db56237a94aa996d5",
+        "size_bytes": 3461277,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-inventory-html.json",
+        "sha256": "f22b9cdf11e54abee9ac7fd2faf04c247d8b4a8a5e83027ab5ded06ada0b97c5",
+        "size_bytes": 5729693,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-manifest.json",
+        "sha256": "557e158413b63e1fdfcc65465f54ad5db8377301ffcb551fb1cc62ffc4bd6b8b",
+        "size_bytes": 9898,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-owner-ledger.tsv",
+        "sha256": "79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69",
+        "size_bytes": 119162,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-probe-catalog.json",
+        "sha256": "649dd46f05e67d376a8096756a31207a6a7d4087acf5fcbdd6688a59c4f934ae",
+        "size_bytes": 283818,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1299-run-matrix.py",
+        "sha256": "1e1a196ea17c0f8c4632e2cbd4ba38c1693b09dff2f21d85025dcd9abbb3b1a0",
+        "size_bytes": 26499,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-adversarial-plan.md",
+        "sha256": "2ae106a071888a4da9a96f54d8f1391dfa0104d352ac7941dbfb125a29edc166",
+        "size_bytes": 9816,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-contract-author-receipt.md",
+        "sha256": "a5e6bb2a6ab270f65fa6befb6446e0a3444741fb30fdbb4918e729a25c451e53",
+        "size_bytes": 7670,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-contract-runner.py",
+        "sha256": "85fe95a2f6e7c48d613221d201e4aefe88ba8a0a270752073c45fe48122bad43",
+        "size_bytes": 43538,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-contract-seal.json",
+        "sha256": "c8cb9cbfad604e6f5c638c63dfb1dc8c91a36f3bf6f50601624ed27de2439956",
+        "size_bytes": 6139,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-contract.json",
+        "sha256": "c5eace73e5ff07ab49057ec1741283543408accf132ca2f4431a1ad3827a3e37",
+        "size_bytes": 30802,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-discrimination-receipt.json",
+        "sha256": "9be1840e0837af8baafce7c2253ad882acc7c1e4d1a890ec2fdb89eb05c885a4",
+        "size_bytes": 13327,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-feature-matrix.json",
+        "sha256": "69d0dad6bb14f3f98db8847355c6e2836ac62c205d809f0a68cc78eb7f05a28a",
+        "size_bytes": 56140,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-final-report.md",
+        "sha256": "754663ba88d37e750c822d71966d29e6c176e35ae500ebc22237cfbee9b6de20",
+        "size_bytes": 7759,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-implementation-receipt.md",
+        "sha256": "8326394defed54dd3b5e4da032a89071368f36922c65585206e654c7815f33a1",
+        "size_bytes": 9052,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-l0-gate-receipt.md",
+        "sha256": "354cf31fa362a5fe4a379710a445393286885796f11c54f8d751fdf19eb47bf6",
+        "size_bytes": 16204,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-manifest.json",
+        "sha256": "c3e946e1330ccab108dba2f9a438fd6a8d4c3a2af7fca3307842dbd7403feed8",
+        "size_bytes": 8518,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-mutants.json",
+        "sha256": "cefa2fb00d6ad5adb81783b86b94f2450c9b0366591e42637d926adc7e598501",
+        "size_bytes": 27195,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-oracle-suite.json",
+        "sha256": "a9a519a8230e39c55fa07223e306a7156d6c2b07bd71ef2926cc9e43f1ce8278",
+        "size_bytes": 462836,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-p5-public-api-note.md",
+        "sha256": "d0b5f18b1526b9ef6424e4db50f48a3384536d7afa2fc1fa3579630e9a3f4093",
+        "size_bytes": 1822,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-pre-gate-measurement.json",
+        "sha256": "1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe",
+        "size_bytes": 55105,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-red-tests-receipt.md",
+        "sha256": "f73f5b0adb933ec8a86e2416ccf46c99855d6ab4ca8c9349bbf36b77453dacf0",
+        "size_bytes": 5670,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-surface-default.json",
+        "sha256": "53c146d92bdb9b1163ac0e8c427811465532d1d7dade91ce287624f4b1f5be53",
+        "size_bytes": 142324,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-surface-html.json",
+        "sha256": "e3ed942ba193c2afbab403eb78b9cc5e2948e1db02096e75f54ea7dd260389aa",
+        "size_bytes": 147106,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-vanilla-measurement-receipt.md",
+        "sha256": "491d07c4411597951fd47bd18431337a375319a345cf2b45a82174c3ace61959",
+        "size_bytes": 11271,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1300-verification-receipt.json",
+        "sha256": "51a1339d95e18d15d9b0f4f110ee540051ebff21905ac7eeac50c50ee08a84c3",
+        "size_bytes": 17778,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-adversarial-plan.md",
+        "sha256": "b6cfccc3fbbbaabe048c4590dbdeda4e37b563b4de7b22876d07a4459ab886d6",
+        "size_bytes": 8868,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-calibration-revision-1.md",
+        "sha256": "b1e70f97ba4a9559ee1bd18014fa7fe41b7fb5360f2f20fa0f7f192b9893ec86",
+        "size_bytes": 2946,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-candidate-runner.py",
+        "sha256": "30989db6d6fdbf8f2cb8c4cdc8c9693d91c26d72c23ff5fb5657cef3ab63b5de",
+        "size_bytes": 6321,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-contract-author-receipt.md",
+        "sha256": "d55bce2278748a5867d373c77b1a423fe13d499eaf0953ef3a84de0ba3e817f7",
+        "size_bytes": 6964,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-contract-runner.py",
+        "sha256": "ac3054e1c861704a564c50d4b0ad0136ff5ed82d5650b59a0c45b6bced8391c3",
+        "size_bytes": 16279,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-contract-seal.json",
+        "sha256": "658fe879eaf7dce5b0a6372f686e376e7cc652f621d298c817628b03e16f82fb",
+        "size_bytes": 4260,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-contract.json",
+        "sha256": "2d8d7a141d63c13473681abdefa24ed9370e03925824a9cae74ca26305ea85f5",
+        "size_bytes": 19892,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-discrimination-receipt.json",
+        "sha256": "17dec257c9e17df0f3bcb199b4349002c80300b64682a1ebf830ababdeeb69d2",
+        "size_bytes": 7212,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-implementation-receipt.md",
+        "sha256": "016ea3c66d7adc39da6423d8850ec51c0f85fa25ce928207bd5e75f60eb3a435",
+        "size_bytes": 5144,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-l0-gate-receipt.md",
+        "sha256": "0c25e3acca8f2b37c44cf0a4e4834242eabe2392d5446bdb789dcf220f0170f4",
+        "size_bytes": 1643,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-manifest.json",
+        "sha256": "074fabeda17f741f064fe1d561ad6a78ad81e45654861825586664a9646f05a8",
+        "size_bytes": 6538,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-mutants.json",
+        "sha256": "ee3c6c4d19e410850e56e26a984a8d53662056f8a4cba39da746fdb56c2ed18e",
+        "size_bytes": 27523,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-oracle-suite.json",
+        "sha256": "4182575a0c11e39aed01f05c827d3cb59522f69ab1795f017523586f4c19d012",
+        "size_bytes": 29338,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-pre-gate-measurement.json",
+        "sha256": "1202c06723e948f5586e10345c5f653f57b075e3ea41297f996fd5a27abb77cd",
+        "size_bytes": 5035,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-red-tests-receipt.md",
+        "sha256": "ff41c1c44b6abb2cc6b0f150b59f757037ebec4ec5a0ff73ae3ef50d7eeb1865",
+        "size_bytes": 7238,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301-vanilla-oracle-receipt.md",
+        "sha256": "9240d6ca25a630603e2bc8aaf36924796127397aa821652d96ae1a72336e5582",
+        "size_bytes": 7447,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-candidate-repair-1.md",
+        "sha256": "9fa774846c14f53eeb1077788921ae9cae0f3826dcb1b1b8f1ca7c2ff8c93233",
+        "size_bytes": 6221,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-certificate.json",
+        "sha256": "3e78d10bc0d45843371ba8a607ce26a7d3bb43c28c711312e01731c26e053b4a",
+        "size_bytes": 3130,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-contract-author-receipt.md",
+        "sha256": "34c777fa06897e6dffe0efa40abc4cdcae67bcff151722113abef08b40b68318",
+        "size_bytes": 6655,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-contract-runner.py",
+        "sha256": "622a97b86121d8b7843710e0c54d9133c9cfe123fabcc82497cdad0fe7eac3fb",
+        "size_bytes": 53343,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-contract-seal.json",
+        "sha256": "760846d4be24e6422b3284ae0853bc7647114cdfa25a92909207b1b10de9dcca",
+        "size_bytes": 9253,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-contract.json",
+        "sha256": "69e852d38636afd0ce996f10a64cbf0e6dc0be12dca453a65ee3e0d515c88fad",
+        "size_bytes": 23221,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-discrimination-receipt.json",
+        "sha256": "f0aedefc6bda955e6df3b68876164df8b290d42dd1b85c76d648b45d6ea7a66c",
+        "size_bytes": 265967,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-final-report.md",
+        "sha256": "817a202f07a19c0657557466d34b958b63a43764a31a28c70d73a7cfc359602f",
+        "size_bytes": 4388,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-implementation-receipt.md",
+        "sha256": "6a04cf44da87861f4eb55774eba5102683739118298b07bc67da9ae85f5a00eb",
+        "size_bytes": 5117,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-lineage-resell-receipt.md",
+        "sha256": "ce6181e48d7af48587507f0774fd4d9b8f81b4795b98d6e9bb0fd8cd8c417630",
+        "size_bytes": 4780,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-manifest.json",
+        "sha256": "1526dc81e08a36ce0153fe7639dd2558c220a85d44c4b1de7098a59c099a5712",
+        "size_bytes": 7676,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-mutants.json",
+        "sha256": "a9a99fcf1e714f0e54390ba87fb9afcd8054c2cb258e68e70bc14f65a2fb4c10",
+        "size_bytes": 23907,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-mutation-plan.json",
+        "sha256": "c6d55f995788d25ed4e6b8b9ed881efa621a12f60daacd4d5ca6d134f0dde0b8",
+        "size_bytes": 15502,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-oracle-author-receipt.md",
+        "sha256": "49811af01fbcca2e6faede7f094f5cf0d16ac70df9087d6f4e1099097ba97bf4",
+        "size_bytes": 5463,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-oracle-suite.json",
+        "sha256": "4c1cbbafd5e81517061a2c369186a41d6de30a41abc29ff122ee9e77ed64b3ac",
+        "size_bytes": 76043,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-red-tests-receipt.md",
+        "sha256": "4a34b2006daebea10ee250ef6c249acc2ad06b5ed36b67ac965a48f87f7c6913",
+        "size_bytes": 6401,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1301r2-verification-receipt.json",
+        "sha256": "9b7bcdefdb65ecca2a1d1cccc3fe6dea958328c494e47a52f31c8dc0645c5e0d",
+        "size_bytes": 15389,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1302-baseline-manifest.json",
+        "sha256": "8c4a82d48a47a729c83a58f807929be615e2da142de891a2cf43d54847cdc5bf",
+        "size_bytes": 71475,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "detached_non_recursive_downstream_reported_after_creation",
+        "path": "00_nucleo/diagnosticos/p1302-certificate.json",
+        "sha256": null,
+        "size_bytes": null,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1302-chain-audit.json",
+        "sha256": "f04800cde99f9c48e359bf14ef8103bdb14a9815bc9c7defddc8cdbbab89b46f",
+        "size_bytes": 38601,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "detached_non_recursive_downstream_reported_after_creation",
+        "path": "00_nucleo/diagnosticos/p1302-final-report.md",
+        "sha256": null,
+        "size_bytes": null,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "detached_non_recursive_self_reported_after_creation",
+        "path": "00_nucleo/diagnosticos/p1302-staging-manifest.json",
+        "sha256": null,
+        "size_bytes": null,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/p1302-verification-receipt.json",
+        "sha256": "2886a165d8b4e107f5d28b3ad62e26c7e07ac8cbbf1895be209e91b5902a85fc",
+        "size_bytes": 55356,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/diagnosticos/test_p1299_run_matrix.py",
+        "sha256": "54f67f3d2d1f1f4f0de5dfeb9116e629ffc9537c0e5c40b47cd74b11343678f1",
+        "size_bytes": 3721,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/materialization/typst-passo-1299.md",
+        "sha256": "e2d5dfd5bd3ee8cf2040b651138910675646b8edffb4c54b7b46c44d60002be4",
+        "size_bytes": 14638,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/materialization/typst-passo-1300.md",
+        "sha256": "6cf42c7e635df45d291d8a30d963d220449593b831dd061363e8a7d16d76354e",
+        "size_bytes": 20329,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/materialization/typst-passo-1302.md",
+        "sha256": "3e28a0c8b418626fa3348ecb423d988be6a702f37afb3ff04814932d421cc625",
+        "size_bytes": 15993,
+        "status_expected": "??"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/prompts/compiler/eval.md",
+        "sha256": "ce02b7d257e29742071497f112f1ea42ed734a93989e8fbb1332f1c09590f5e2",
+        "size_bytes": 10166,
+        "status_expected": " M"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+        "sha256": "de81ef3bf6572a1777f9057655e8433c6f2b393e8846f1fbdb66bcd1c8f81df9",
+        "size_bytes": 21728,
+        "status_expected": " M"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/prompts/compiler/eval/tests.md",
+        "sha256": "5ca2ad1e4bcf3f6fe30909be21f42bb2a2a5939a6efcbdfc136dba5b44e7a8d1",
+        "size_bytes": 9909,
+        "status_expected": " M"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "00_nucleo/prompts/compiler/stdlib/color.md",
+        "sha256": "60de24ea6496a1c95fcc4af1883278164a2cd031351ef59278e654d7d485ff01",
+        "size_bytes": 23359,
+        "status_expected": " M"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+        "sha256": "29abd27cc01b347da9fbc12a93f05265882c043d36cd9a03cff5e6487a96e024",
+        "size_bytes": 35871,
+        "status_expected": " M"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "sha256": "abb252ab84880a629ab3894c5fbdc0e8cf63d6459733c8985975b2f476f1adf7",
+        "size_bytes": 104153,
+        "status_expected": " M"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "01_core/src/compiler/eval/tests.rs",
+        "sha256": "5437bd761f48bef79b2eedd5c2e920bcba310e41c0e85346afaf6db6a2e68af9",
+        "size_bytes": 718550,
+        "status_expected": " M"
+      },
+      {
+        "identity_policy": "embedded_exact",
+        "path": "01_core/src/compiler/stdlib/color.rs",
+        "sha256": "4bbff0858e5da0224e628d9ea6996fd0c511e2763c646e1374ee7c04d058b362",
+        "size_bytes": 29274,
+        "status_expected": " M"
+      }
+    ],
+    "lexicographically_sorted": true,
+    "record_vector_sha256": "a6bb01c1aa1c716cdf4f8a89955178d334f75131bf1c8fe0a1638ef913b941b9",
+    "status_counts_expected": {
+      " M": 8,
+      "??": 75
+    }
+  },
+  "attestation_language": "executado sem atestação de isolamento técnico",
+  "authorization": {
+    "authorized_commit_message": "fix: seal color globals and module diagnostics through step 1302",
+    "commit_after_exact_staging_validation": true,
+    "content_writes_by_p4": false,
+    "next_role": "P4_stager_committer_only",
+    "scope": "exact literal 83-path allowlist only",
+    "staging_and_single_commit_authorized": true
+  },
+  "captured_at": "2026-09-04T00:12:28.823198902-03:00",
+  "chain": {
+    "blocking_diagnostic_divergence_resolved": true,
+    "p1299": "P1299_PASS_P1300_COHORT_SELECTED",
+    "p1300_historical": "P1300_BLOCKED_IMPLEMENTATION",
+    "p1300_retroactively_promoted": false,
+    "p1301_revision_2": "P1301R2_CERTIFIED"
+  },
+  "hash_policy": {
+    "artifact_dag": [
+      "00_nucleo/diagnosticos/p1302-staging-manifest.json",
+      "00_nucleo/diagnosticos/p1302-certificate.json",
+      "00_nucleo/diagnosticos/p1302-final-report.md"
+    ],
+    "false_or_placeholder_digest_used": false,
+    "mode": "detached_non_recursive",
+    "rule": "The staging manifest is frozen before the certificate, and the certificate is frozen before the final report. To prevent self-reference and backward edges, size_bytes and sha256 are null for all three P3 outputs in this allowlist. Their exact detached size and SHA-256 are measured only after each artifact is created and are handed to P4 out of band; no P3 artifact is edited after a downstream artifact pins it.",
+    "staging_manifest_pins_certificate_or_report": false
+  },
+  "p4_rules": {
+    "forbidden": [
+      "edit any file content",
+      "use git add ., git add -A, a glob, or a directory target",
+      "use git commit -a, amend, rebase, reset, destructive checkout, stash, cleanup, or push",
+      "continue after any mismatch"
+    ],
+    "required_order": [
+      "Rehash this staging manifest, the P1302 certificate, the P1302 final report, both P1 outputs, the P2 verification receipt, the step, and all 76 frozen inputs against the P3 handoff pins.",
+      "Require the final report verdict and the certificate authorization to permit P4 only.",
+      "Confirm HEAD remains 1f082370e59939de7b57992e137a9f74bfb6758f and the real Git index is empty.",
+      "Run git add -- followed by the 83 paths from allowlist.entries as literal separate argv values, with no glob or directory.",
+      "Compare git diff --cached --name-only as an exact set against the 83-path allowlist and require git diff --name-only to be empty.",
+      "Run git diff --cached --check and require exit 0 with no output.",
+      "Measure and report the cached binary patch SHA-256 and require exactly 83 cached paths.",
+      "Run git commit -m with the exact authorized_commit_message once.",
+      "Confirm the new commit contains exactly the 83 allowlisted paths and that working tree and index are empty.",
+      "Report the real commit hash to the owner without creating or editing any post-commit artifact."
+    ]
+  },
+  "pins": {
+    "p1302_baseline_manifest": {
+      "path": "00_nucleo/diagnosticos/p1302-baseline-manifest.json",
+      "sha256": "8c4a82d48a47a729c83a58f807929be615e2da142de891a2cf43d54847cdc5bf",
+      "size_bytes": 71475
+    },
+    "p1302_chain_audit": {
+      "path": "00_nucleo/diagnosticos/p1302-chain-audit.json",
+      "sha256": "f04800cde99f9c48e359bf14ef8103bdb14a9815bc9c7defddc8cdbbab89b46f",
+      "size_bytes": 38601
+    },
+    "p1302_verification_receipt": {
+      "path": "00_nucleo/diagnosticos/p1302-verification-receipt.json",
+      "sha256": "2886a165d8b4e107f5d28b3ad62e26c7e07ac8cbbf1895be209e91b5902a85fc",
+      "size_bytes": 55356
+    },
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1302.md",
+      "sha256": "3e28a0c8b418626fa3348ecb423d988be6a702f37afb3ff04814932d421cc625",
+      "size_bytes": 15993
+    }
+  },
+  "prewrite_gate": {
+    "index_empty": true,
+    "input_count": 76,
+    "inputs_byte_identical_before_authorized_sanitization": true,
+    "status_path_count": 80,
+    "status_porcelain_v1_z_sha256": "8b519ebaaebdf2287c83d52723f9ae833ddaa41f0bf131f75b3aea9ef87a3f85",
+    "status_short_sha256": "66a6b9372ab602a9c20d74299aa3df00b489e31bd2ebc6b759390f86daedd54c",
+    "tracked_worktree_binary_patch_sha256": "1084021e1c2a0da30f3befa7baa1acd34a076b0c5ffe570cfec40df15f22b5ad"
+  },
+  "authorized_mechanical_sanitization": {
+    "authorized_by": "repository owner in the Codex conversation",
+    "authorized_at_local_date": "2026-09-04",
+    "reason": "P4's first exact staging exposed trailing whitespace in previously untracked Markdown files that git diff --check could not inspect before staging",
+    "preceding_verdict": "P1302_BLOCKED_STAGING_MISMATCH",
+    "preceding_cached_patch_sha256": "96d83bef15bd18aa3fbc3f60593f9f662fa430e888598be7941383150b1e66a3",
+    "scope": "remove trailing horizontal whitespace only",
+    "occurrence_count": 33,
+    "path_count": 7,
+    "semantic_change": false,
+    "p1_p2_receipts_preserved_as_pre_sanitization_evidence": true,
+    "paths": [
+      "00_nucleo/diagnosticos/p1300-l0-gate-receipt.md",
+      "00_nucleo/diagnosticos/p1300-p5-public-api-note.md",
+      "00_nucleo/diagnosticos/p1300-red-tests-receipt.md",
+      "00_nucleo/diagnosticos/p1301-implementation-receipt.md",
+      "00_nucleo/materialization/typst-passo-1299.md",
+      "00_nucleo/materialization/typst-passo-1300.md",
+      "00_nucleo/materialization/typst-passo-1302.md"
+    ]
+  },
+  "repository": {
+    "branch": "Tekt",
+    "head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "working_tree": "uncommitted"
+  },
+  "schema_version": "p1302-staging-manifest/v1",
+  "status": "PASS_AFTER_OWNER_AUTHORIZED_MECHANICAL_SANITIZATION",
+  "technical_isolation_attested": false
+}

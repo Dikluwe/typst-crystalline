@@ -1,0 +1,2457 @@
+{
+  "schema_version": "tekt-oracle-suite-v2",
+  "step": "P1301",
+  "revision": 2,
+  "artifact_kind": "independent-vanilla-oracle-suite",
+  "status": "ORACLE_SUITE_MEASURED",
+  "protocol_regime": "complete",
+  "attestation_language": "executado sem atestação de isolamento técnico",
+  "role": {
+    "executor": "fresh/restricted P2-r2",
+    "authority": "oracle_author",
+    "read_allowlist": [
+      "00_nucleo/diagnosticos/p1301r2-manifest.json",
+      "00_nucleo/diagnosticos/p1301r2-contract.json",
+      "00_nucleo/diagnosticos/p1301r2-contract-author-receipt.md",
+      "/usr/local/bin/typst"
+    ],
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1301r2-oracle-suite.json",
+      "00_nucleo/diagnosticos/p1301r2-oracle-author-receipt.md"
+    ],
+    "forbidden_inputs_not_read": [
+      "candidate implementation",
+      "candidate Rust tests",
+      "P1301 v1 artifacts",
+      "00_nucleo/materialization/",
+      "00_nucleo/context/"
+    ],
+    "context_inherited": "restricted P2-r2 task, repository AGENTS.md supplied by orchestrator, and operational tekt-materializacao-segregada skill references outside the repository"
+  },
+  "frozen_inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1301r2-manifest.json",
+      "sha256": "1526dc81e08a36ce0153fe7639dd2558c220a85d44c4b1de7098a59c099a5712"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1301r2-contract.json",
+      "sha256": "69e852d38636afd0ce996f10a64cbf0e6dc0be12dca453a65ee3e0d515c88fad"
+    },
+    "contract_author_receipt": {
+      "path": "00_nucleo/diagnosticos/p1301r2-contract-author-receipt.md",
+      "sha256": "34c777fa06897e6dffe0efa40abc4cdcae67bcff151722113abef08b40b68318"
+    }
+  },
+  "baseline": {
+    "path": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "ratified_upstream_commit": "a51e02804"
+  },
+  "measurement_provenance": {
+    "measured_at": "2026-09-03T21:54:36.744011-03:00",
+    "repository_head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "working_tree": "uncommitted",
+    "git_status_capture": "SHA-256 only; raw status was not persisted because it enumerated paths in restricted namespaces",
+    "git_status_short_sha256": "bf0d5851b95ae8b2bbc7f734b633198cd6e687cd7e9c4ab1ac44c749da5aedbc",
+    "git_diff_head_stat": " 00_nucleo/prompts/compiler/eval.md                 |  39 +++-\n .../prompts/compiler/eval/bindings/field_access.md |  72 ++++++++\n 00_nucleo/prompts/compiler/eval/tests.md           |  90 ++++++++-\n 00_nucleo/prompts/compiler/stdlib/color.md         |  46 ++++-\n 01_core/src/compiler/eval/mod.rs                   |  14 +-\n 01_core/src/compiler/eval/tests.rs                 | 205 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/color.rs               |   6 +-\n 7 files changed, 452 insertions(+), 20 deletions(-)\n",
+    "git_diff_head_stat_sha256": "df861a696777f2714969a76128a6c5deafd7383537223c9dbb1efc2f1f1e12b6"
+  },
+  "execution_policy": {
+    "surface": "[binary, eval, <expression>, --format, json] plus only the contracted feature-profile suffix",
+    "forbidden_arguments_observed": [],
+    "vanilla_logical_cases": 22,
+    "orders_executed": [
+      "normal",
+      "inverted"
+    ],
+    "process_executions": 44,
+    "adapter": "vanilla_ratified_human_v1 / native_human_single_primary_ascii_v1",
+    "raw_stderr": "stored byte-for-byte as UTF-8 plus SHA-256; excluded from cross-renderer equality",
+    "semantic_normalization": "none"
+  },
+  "runs": {
+    "normal": [
+      {
+        "case_id": "V01-std-hsl-default",
+        "expression": "repr(type(std.hsl))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "bedf80206b390d6ef769553f835a6901e43189bfecd9a6e9e3654d27212a9c04",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V02-std-hsl-html",
+        "expression": "repr(type(std.hsl))",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "bedf80206b390d6ef769553f835a6901e43189bfecd9a6e9e3654d27212a9c04",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V03-std-hsl-a11y",
+        "expression": "repr(type(std.hsl))",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "bedf80206b390d6ef769553f835a6901e43189bfecd9a6e9e3654d27212a9c04",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V04-std-hsl-html-a11y",
+        "expression": "repr(type(std.hsl))",
+        "profile": "html+a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "bedf80206b390d6ef769553f835a6901e43189bfecd9a6e9e3654d27212a9c04",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V05-std-hsv-default",
+        "expression": "repr(type(std.hsv))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "4fba0b9e9275fc4dd245eba436c1266acf0f3c3920f2d38276234455dbdbb72a",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V06-std-hsv-html",
+        "expression": "repr(type(std.hsv))",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "4fba0b9e9275fc4dd245eba436c1266acf0f3c3920f2d38276234455dbdbb72a",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V07-std-hsv-a11y",
+        "expression": "repr(type(std.hsv))",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "4fba0b9e9275fc4dd245eba436c1266acf0f3c3920f2d38276234455dbdbb72a",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V08-std-hsv-html-a11y",
+        "expression": "repr(type(std.hsv))",
+        "profile": "html+a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "4fba0b9e9275fc4dd245eba436c1266acf0f3c3920f2d38276234455dbdbb72a",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V09-std-linear-rgb-default",
+        "expression": "repr(type(std.linear_rgb))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "raw_stderr_sha256": "6c6b47af2602f983ff8185a45ee1bf570560dbb9931f6c7b471845a63d2d2a27",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V10-std-linear-rgb-html",
+        "expression": "repr(type(std.linear_rgb))",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "raw_stderr_sha256": "6c6b47af2602f983ff8185a45ee1bf570560dbb9931f6c7b471845a63d2d2a27",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V11-std-linear-rgb-a11y",
+        "expression": "repr(type(std.linear_rgb))",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "raw_stderr_sha256": "6c6b47af2602f983ff8185a45ee1bf570560dbb9931f6c7b471845a63d2d2a27",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V12-std-linear-rgb-html-a11y",
+        "expression": "repr(type(std.linear_rgb))",
+        "profile": "html+a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "raw_stderr_sha256": "6c6b47af2602f983ff8185a45ee1bf570560dbb9931f6c7b471845a63d2d2a27",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V13-calc-nope-default",
+        "expression": "repr(type(calc.nope))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(calc.nope))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr(type(calc.nope))\n  │                ^^^^\n\n",
+        "raw_stderr_sha256": "f6742eba3ded4327e7e624897723f10fdb65ab59b794c8a455ca321248a2c46b",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `calc` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            15,
+            19
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `calc` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            15,
+            19
+          ]
+        }
+      },
+      {
+        "case_id": "V14-sym-nope-default",
+        "expression": "repr(type(sym.nope))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(sym.nope))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `sym` does not contain `nope`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(sym.nope))\n  │               ^^^^\n\n",
+        "raw_stderr_sha256": "df543302ba4eeb1ff4abdd106ad9b7782565c612dd80170f6acf4be485a74ed8",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `sym` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            18
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `sym` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            18
+          ]
+        }
+      },
+      {
+        "case_id": "V15-color-map-nope-default",
+        "expression": "repr(type(color.map.nope))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.map.nope))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:20\n  │\n1 │ repr(type(color.map.nope))\n  │                     ^^^^\n\n",
+        "raw_stderr_sha256": "a40dcbc9f9de38cb49255b272783d5cddfcfe240bc024d0802d883002cd8dbfe",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `map` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            20,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `map` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            20,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V16-std-rgb-success",
+        "expression": "repr(type(std.rgb))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.rgb))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 0,
+        "stdout_raw": "\"function\"\n",
+        "raw_stderr": "",
+        "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contract_expected": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V17-calc-abs-success",
+        "expression": "repr(type(calc.abs))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(calc.abs))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 0,
+        "stdout_raw": "\"function\"\n",
+        "raw_stderr": "",
+        "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contract_expected": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V18-sym-arrow-success",
+        "expression": "repr(type(sym.arrow))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(sym.arrow))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 0,
+        "stdout_raw": "\"symbol\"\n",
+        "raw_stderr": "",
+        "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contract_expected": {
+          "exit_code": 0,
+          "stdout": "\"symbol\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"symbol\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V19-color-map-turbo-success",
+        "expression": "repr(type(color.map.turbo))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.map.turbo))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 0,
+        "stdout_raw": "\"array\"\n",
+        "raw_stderr": "",
+        "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contract_expected": {
+          "exit_code": 0,
+          "stdout": "\"array\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"array\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V20-dictionary-vanilla-reference",
+        "expression": "repr(type((:).missing))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type((:).missing))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: dictionary does not contain key \"missing\"\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type((:).missing))\n  │               ^^^^^^^\n\n",
+        "raw_stderr_sha256": "ae0d72e9fea265a5b3b96656cdf968697ca9bc5793e3726af419cd8c6e28e1b1",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "dictionary does not contain key \"missing\"",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            21
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "dictionary does not contain key \"missing\"",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            21
+          ]
+        }
+      },
+      {
+        "case_id": "V21-opaque-two-diagnostics-adjacent",
+        "expression": "repr(type(std.\\nhsl))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.\\nhsl))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: the character `\\` is not valid in code\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.\\nhsl))\n  │               ^\n\nerror: expected comma\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr(type(std.\\nhsl))\n  │                ^\n\n",
+        "raw_stderr_sha256": "6e11480596d71db82b76be088f49d1106d9bc2969e7fac73c8343730d1ab5888",
+        "contract_expected": {
+          "classification": "Unknown",
+          "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY"
+        },
+        "classification": "Unknown",
+        "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY",
+        "exact_axis": null,
+        "envelope": null
+      },
+      {
+        "case_id": "V22-opaque-two-diagnostics-bracketed",
+        "expression": "repr(type(\\nstd.hsl\\n))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(\\nstd.hsl\\n))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: the character `\\` is not valid in code\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(\\nstd.hsl\\n))\n  │           ^\n\nerror: the character `\\` is not valid in code\n  ┌─ <input-expression>:1:19\n  │\n1 │ repr(type(\\nstd.hsl\\n))\n  │                    ^\n\n",
+        "raw_stderr_sha256": "4bc718de1fbbabd3430e8921526e289b636c43784efc38a5cda643c4605f4a7e",
+        "contract_expected": {
+          "classification": "Unknown",
+          "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY"
+        },
+        "classification": "Unknown",
+        "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY",
+        "exact_axis": null,
+        "envelope": null
+      }
+    ],
+    "inverted": [
+      {
+        "case_id": "V22-opaque-two-diagnostics-bracketed",
+        "expression": "repr(type(\\nstd.hsl\\n))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(\\nstd.hsl\\n))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: the character `\\` is not valid in code\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(\\nstd.hsl\\n))\n  │           ^\n\nerror: the character `\\` is not valid in code\n  ┌─ <input-expression>:1:19\n  │\n1 │ repr(type(\\nstd.hsl\\n))\n  │                    ^\n\n",
+        "raw_stderr_sha256": "4bc718de1fbbabd3430e8921526e289b636c43784efc38a5cda643c4605f4a7e",
+        "contract_expected": {
+          "classification": "Unknown",
+          "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY"
+        },
+        "classification": "Unknown",
+        "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY",
+        "exact_axis": null,
+        "envelope": null
+      },
+      {
+        "case_id": "V21-opaque-two-diagnostics-adjacent",
+        "expression": "repr(type(std.\\nhsl))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.\\nhsl))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: the character `\\` is not valid in code\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.\\nhsl))\n  │               ^\n\nerror: expected comma\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr(type(std.\\nhsl))\n  │                ^\n\n",
+        "raw_stderr_sha256": "6e11480596d71db82b76be088f49d1106d9bc2969e7fac73c8343730d1ab5888",
+        "contract_expected": {
+          "classification": "Unknown",
+          "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY"
+        },
+        "classification": "Unknown",
+        "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY",
+        "exact_axis": null,
+        "envelope": null
+      },
+      {
+        "case_id": "V20-dictionary-vanilla-reference",
+        "expression": "repr(type((:).missing))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type((:).missing))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: dictionary does not contain key \"missing\"\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type((:).missing))\n  │               ^^^^^^^\n\n",
+        "raw_stderr_sha256": "ae0d72e9fea265a5b3b96656cdf968697ca9bc5793e3726af419cd8c6e28e1b1",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "dictionary does not contain key \"missing\"",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            21
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "dictionary does not contain key \"missing\"",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            21
+          ]
+        }
+      },
+      {
+        "case_id": "V19-color-map-turbo-success",
+        "expression": "repr(type(color.map.turbo))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.map.turbo))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 0,
+        "stdout_raw": "\"array\"\n",
+        "raw_stderr": "",
+        "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contract_expected": {
+          "exit_code": 0,
+          "stdout": "\"array\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"array\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V18-sym-arrow-success",
+        "expression": "repr(type(sym.arrow))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(sym.arrow))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 0,
+        "stdout_raw": "\"symbol\"\n",
+        "raw_stderr": "",
+        "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contract_expected": {
+          "exit_code": 0,
+          "stdout": "\"symbol\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"symbol\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V17-calc-abs-success",
+        "expression": "repr(type(calc.abs))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(calc.abs))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 0,
+        "stdout_raw": "\"function\"\n",
+        "raw_stderr": "",
+        "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contract_expected": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V16-std-rgb-success",
+        "expression": "repr(type(std.rgb))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.rgb))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 0,
+        "stdout_raw": "\"function\"\n",
+        "raw_stderr": "",
+        "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "contract_expected": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V15-color-map-nope-default",
+        "expression": "repr(type(color.map.nope))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(color.map.nope))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:20\n  │\n1 │ repr(type(color.map.nope))\n  │                     ^^^^\n\n",
+        "raw_stderr_sha256": "a40dcbc9f9de38cb49255b272783d5cddfcfe240bc024d0802d883002cd8dbfe",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `map` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            20,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `map` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            20,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V14-sym-nope-default",
+        "expression": "repr(type(sym.nope))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(sym.nope))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `sym` does not contain `nope`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(sym.nope))\n  │               ^^^^\n\n",
+        "raw_stderr_sha256": "df543302ba4eeb1ff4abdd106ad9b7782565c612dd80170f6acf4be485a74ed8",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `sym` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            18
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `sym` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            18
+          ]
+        }
+      },
+      {
+        "case_id": "V13-calc-nope-default",
+        "expression": "repr(type(calc.nope))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(calc.nope))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr(type(calc.nope))\n  │                ^^^^\n\n",
+        "raw_stderr_sha256": "f6742eba3ded4327e7e624897723f10fdb65ab59b794c8a455ca321248a2c46b",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `calc` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            15,
+            19
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `calc` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            15,
+            19
+          ]
+        }
+      },
+      {
+        "case_id": "V12-std-linear-rgb-html-a11y",
+        "expression": "repr(type(std.linear_rgb))",
+        "profile": "html+a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "raw_stderr_sha256": "6c6b47af2602f983ff8185a45ee1bf570560dbb9931f6c7b471845a63d2d2a27",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V11-std-linear-rgb-a11y",
+        "expression": "repr(type(std.linear_rgb))",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "raw_stderr_sha256": "6c6b47af2602f983ff8185a45ee1bf570560dbb9931f6c7b471845a63d2d2a27",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V10-std-linear-rgb-html",
+        "expression": "repr(type(std.linear_rgb))",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "raw_stderr_sha256": "6c6b47af2602f983ff8185a45ee1bf570560dbb9931f6c7b471845a63d2d2a27",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V09-std-linear-rgb-default",
+        "expression": "repr(type(std.linear_rgb))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.linear_rgb))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `linear_rgb`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.linear_rgb))\n  │               ^^^^^^^^^^\n\n",
+        "raw_stderr_sha256": "6c6b47af2602f983ff8185a45ee1bf570560dbb9931f6c7b471845a63d2d2a27",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V08-std-hsv-html-a11y",
+        "expression": "repr(type(std.hsv))",
+        "profile": "html+a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "4fba0b9e9275fc4dd245eba436c1266acf0f3c3920f2d38276234455dbdbb72a",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V07-std-hsv-a11y",
+        "expression": "repr(type(std.hsv))",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "4fba0b9e9275fc4dd245eba436c1266acf0f3c3920f2d38276234455dbdbb72a",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V06-std-hsv-html",
+        "expression": "repr(type(std.hsv))",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "4fba0b9e9275fc4dd245eba436c1266acf0f3c3920f2d38276234455dbdbb72a",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V05-std-hsv-default",
+        "expression": "repr(type(std.hsv))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsv))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsv`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsv))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "4fba0b9e9275fc4dd245eba436c1266acf0f3c3920f2d38276234455dbdbb72a",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V04-std-hsl-html-a11y",
+        "expression": "repr(type(std.hsl))",
+        "profile": "html+a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "bedf80206b390d6ef769553f835a6901e43189bfecd9a6e9e3654d27212a9c04",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V03-std-hsl-a11y",
+        "expression": "repr(type(std.hsl))",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "bedf80206b390d6ef769553f835a6901e43189bfecd9a6e9e3654d27212a9c04",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V02-std-hsl-html",
+        "expression": "repr(type(std.hsl))",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json",
+          "--features",
+          "html"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "bedf80206b390d6ef769553f835a6901e43189bfecd9a6e9e3654d27212a9c04",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V01-std-hsl-default",
+        "expression": "repr(type(std.hsl))",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(type(std.hsl))",
+          "--format",
+          "json"
+        ],
+        "exit_code_raw": 1,
+        "stdout_raw": "",
+        "raw_stderr": "error: module `global` does not contain `hsl`\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(std.hsl))\n  │               ^^^\n\n",
+        "raw_stderr_sha256": "bedf80206b390d6ef769553f835a6901e43189bfecd9a6e9e3654d27212a9c04",
+        "contract_expected": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        },
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      }
+    ]
+  },
+  "canonical_order_check": {
+    "canonicalization": "sort by case_id; retain case_id, classification, reason_code, envelope; UTF-8 JSON with sort_keys=true and separators comma/colon",
+    "normal_vector": [
+      {
+        "case_id": "V01-std-hsl-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V02-std-hsl-html",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V03-std-hsl-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V04-std-hsl-html-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V05-std-hsv-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V06-std-hsv-html",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V07-std-hsv-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V08-std-hsv-html-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V09-std-linear-rgb-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V10-std-linear-rgb-html",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V11-std-linear-rgb-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V12-std-linear-rgb-html-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V13-calc-nope-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `calc` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            15,
+            19
+          ]
+        }
+      },
+      {
+        "case_id": "V14-sym-nope-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `sym` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            18
+          ]
+        }
+      },
+      {
+        "case_id": "V15-color-map-nope-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `map` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            20,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V16-std-rgb-success",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V17-calc-abs-success",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V18-sym-arrow-success",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"symbol\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V19-color-map-turbo-success",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"array\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V20-dictionary-vanilla-reference",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "dictionary does not contain key \"missing\"",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            21
+          ]
+        }
+      },
+      {
+        "case_id": "V21-opaque-two-diagnostics-adjacent",
+        "classification": "Unknown",
+        "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY",
+        "envelope": null
+      },
+      {
+        "case_id": "V22-opaque-two-diagnostics-bracketed",
+        "classification": "Unknown",
+        "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY",
+        "envelope": null
+      }
+    ],
+    "normal_sha256": "d9da688b205bec20d6548a59017df64b53845681566b76700c30f7f0b1d3d31e",
+    "inverted_vector": [
+      {
+        "case_id": "V01-std-hsl-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V02-std-hsl-html",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V03-std-hsl-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V04-std-hsl-html-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsl`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V05-std-hsv-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V06-std-hsv-html",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V07-std-hsv-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V08-std-hsv-html-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `hsv`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            17
+          ]
+        }
+      },
+      {
+        "case_id": "V09-std-linear-rgb-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V10-std-linear-rgb-html",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V11-std-linear-rgb-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V12-std-linear-rgb-html-a11y",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `global` does not contain `linear_rgb`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V13-calc-nope-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `calc` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            15,
+            19
+          ]
+        }
+      },
+      {
+        "case_id": "V14-sym-nope-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `sym` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            18
+          ]
+        }
+      },
+      {
+        "case_id": "V15-color-map-nope-default",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "module `map` does not contain `nope`",
+          "ordered_hints": [],
+          "span_bytes": [
+            20,
+            24
+          ]
+        }
+      },
+      {
+        "case_id": "V16-std-rgb-success",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V17-calc-abs-success",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"function\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V18-sym-arrow-success",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"symbol\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V19-color-map-turbo-success",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 0,
+          "stdout": "\"array\"\n",
+          "diagnostic_class": null,
+          "message": null,
+          "ordered_hints": [],
+          "span_bytes": null
+        }
+      },
+      {
+        "case_id": "V20-dictionary-vanilla-reference",
+        "classification": "Preserved",
+        "reason_code": null,
+        "envelope": {
+          "exit_code": 1,
+          "stdout": "",
+          "diagnostic_class": "error",
+          "message": "dictionary does not contain key \"missing\"",
+          "ordered_hints": [],
+          "span_bytes": [
+            14,
+            21
+          ]
+        }
+      },
+      {
+        "case_id": "V21-opaque-two-diagnostics-adjacent",
+        "classification": "Unknown",
+        "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY",
+        "envelope": null
+      },
+      {
+        "case_id": "V22-opaque-two-diagnostics-bracketed",
+        "classification": "Unknown",
+        "reason_code": "UNSUPPORTED_DIAGNOSTIC_CARDINALITY",
+        "envelope": null
+      }
+    ],
+    "inverted_sha256": "d9da688b205bec20d6548a59017df64b53845681566b76700c30f7f0b1d3d31e",
+    "byte_identical": true
+  },
+  "counts": {
+    "normal": {
+      "total": 22,
+      "Preserved": 20,
+      "Violated": 0,
+      "Unknown": 2
+    },
+    "inverted": {
+      "total": 22,
+      "Preserved": 20,
+      "Violated": 0,
+      "Unknown": 2
+    }
+  },
+  "crystalline_sentinel": {
+    "case_id": "C23-dictionary-crystalline-span-sentinel",
+    "expression": "repr(type((:).missing))",
+    "profile": "default",
+    "oracle_source": "crystalline_pre_candidate_obligation_from_manifest_and_measurement",
+    "vanilla_execution": "NOT_RUN_NON_DECISORY",
+    "contract_expected": {
+      "exit_code": 1,
+      "stdout": "",
+      "diagnostic_class": "error",
+      "message": "dictionary does not contain key \"missing\"",
+      "ordered_hints": [],
+      "span_bytes": [
+        10,
+        21
+      ]
+    },
+    "note": "kept outside the vanilla partition; the contractual 10..21 expectation is preserved without a decisive vanilla execution"
+  },
+  "oracle_verdict": {
+    "required_nonopaque_cases": "Preserved",
+    "declared_opaque_cases": "Unknown",
+    "order_independence": "PASS",
+    "overall": "PASS"
+  },
+  "limits": [
+    "This suite establishes only the frozen observable fragment.",
+    "Raw native renderer text is evidence for reproduction and is not a cross-renderer equality field.",
+    "No equivalence between renderers or general functional equivalence is claimed.",
+    "Opaque cases remain Unknown as to the exact diagnostic axis."
+  ]
+}

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: c0181201
+Hash do Código: 38aa5e89
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -50,6 +50,43 @@ metadados, target, features e `FlowEvent`, sem estado global mutável. Conteúdo
 de introspecção pré-show e conteúdo final pós-show permanecem distintos;
 evento residual no entrypoint é erro. Mudança pública, de default ou fase para
 no gate ADR-0127.
+
+### P1300 — conjunto global fechado de constructors de cor
+
+#### Medição anterior à decisão
+
+Em `2026-09-03T19:01:51.133010-03:00`–`19:01:55.717850-03:00`, no baseline
+`1f082370e59939de7b57992e137a9f74bfb6758f`, a matriz bilateral
+`00_nucleo/diagnosticos/p1300-pre-gate-measurement.json` (SHA-256
+`1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe`)
+classificou, nos quatro perfis `default`, `html`, `a11y` e `html+a11y`, os
+nomes bare `hsl`, `hsv`, `linear_rgb` e seus pares sob `std` como
+`CRYSTALLINE_ONLY`. No mesmo corpus, `color.hsl`, `color.hsv`,
+`color.linear-rgb` e os cinco globals ratificados, bare e sob `std`, foram
+`MATCH_VALUE`, sem `EXECUTION_UNKNOWN`.
+
+A fonte vanilla pinada `a51e02804`, em
+`lab/typst-original/crates/typst-library/src/lib.rs:397-401`, registra somente
+`luma`, `oklab`, `oklch`, `rgb` e `cmyk` no scope global. É inferência que a
+causa da assimetria é o conjunto extra registrado no scope base cristalino.
+Aceitação vanilla de algum alias, ou regressão de uma rota qualificada,
+refutaria a inferência; nenhuma foi observada.
+
+#### Decisão
+
+`make_stdlib_with_features` registra exatamente cinco constructors globais de
+cor: `rgb`, `luma`, `cmyk`, `oklab` e `oklch`. Não registra `hsl`, `hsv` ou
+`linear_rgb`, nem inventa o spelling global `linear-rgb`.
+
+Como `std` projeta a mesma stdlib não sombreada, `std.hsl`, `std.hsv`,
+`std.linear_rgb` e qualquer spelling alternativo `std.linear-rgb` também não
+constituem bindings. Esta regra independe das features `html` e
+`a11y-extras`.
+
+O conjunto global não altera os oito fields qualificados de `color`, suas
+nativas, cores predefinidas, operadores ou `color.space()`. A remoção dos três
+aliases públicos é quebra de compatibilidade e permanece bloqueada pelo gate
+humano ADR-0127 antes de qualquer código.
 
 ## Aceitação
 

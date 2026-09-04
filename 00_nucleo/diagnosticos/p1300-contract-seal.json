@@ -1,0 +1,135 @@
+{
+  "$schema": "p1300-contract-seal/v1",
+  "schema_version": 1,
+  "step": "P1300",
+  "artifact_kind": "segregated_observable_contract_seal",
+  "seal_revision": 1,
+  "created_at": "2026-09-03T19:43:20-03:00",
+  "role": "P4_discrimination_sealer",
+  "regime": "full_segregated_materialization_protocol",
+  "attestation_level": "executed_without_technical_isolation_attestation",
+  "seal_status": "SEALED",
+  "verdict": "CONTRACT_DISCRIMINATES",
+  "sealed_inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1300-manifest.json",
+      "sha256": "c3e946e1330ccab108dba2f9a438fd6a8d4c3a2af7fca3307842dbd7403feed8"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1300-contract.json",
+      "sha256": "c5eace73e5ff07ab49057ec1741283543408accf132ca2f4431a1ad3827a3e37"
+    },
+    "contract_author_receipt": {
+      "path": "00_nucleo/diagnosticos/p1300-contract-author-receipt.md",
+      "sha256": "a5e6bb2a6ab270f65fa6befb6446e0a3444741fb30fdbb4918e729a25c451e53"
+    },
+    "oracle_suite": {
+      "path": "00_nucleo/diagnosticos/p1300-oracle-suite.json",
+      "sha256": "a9a519a8230e39c55fa07223e306a7156d6c2b07bd71ef2926cc9e43f1ce8278"
+    },
+    "vanilla_measurement_receipt": {
+      "path": "00_nucleo/diagnosticos/p1300-vanilla-measurement-receipt.md",
+      "sha256": "491d07c4411597951fd47bd18431337a375319a345cf2b45a82174c3ace61959"
+    },
+    "mutants": {
+      "path": "00_nucleo/diagnosticos/p1300-mutants.json",
+      "sha256": "cefa2fb00d6ad5adb81783b86b94f2450c9b0366591e42637d926adc7e598501"
+    },
+    "adversarial_plan": {
+      "path": "00_nucleo/diagnosticos/p1300-adversarial-plan.md",
+      "sha256": "2ae106a071888a4da9a96f54d8f1391dfa0104d352ac7941dbfb125a29edc166"
+    },
+    "runner": {
+      "path": "00_nucleo/diagnosticos/p1300-contract-runner.py",
+      "sha256": "85fe95a2f6e7c48d613221d201e4aefe88ba8a0a270752073c45fe48122bad43"
+    },
+    "discrimination_receipt": {
+      "path": "00_nucleo/diagnosticos/p1300-discrimination-receipt.json",
+      "sha256": "9be1840e0837af8baafce7c2253ad882acc7c1e4d1a890ec2fdb89eb05c885a4"
+    }
+  },
+  "baseline": {
+    "kind": "crystalline_pre_p1300",
+    "git_head": "1f082370e59939de7b57992e137a9f74bfb6758f",
+    "branch": "Tekt",
+    "working_tree": "uncommitted; exact pre-P1300 status is content-addressed by the frozen L0 gate receipt referenced from the manifest",
+    "measurement": {
+      "path": "00_nucleo/diagnosticos/p1300-pre-gate-measurement.json",
+      "sha256": "1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe"
+    },
+    "consumer_hashes_from_frozen_manifest_only": {
+      "01_core/src/compiler/eval/mod.rs": "cafdcbf690f5ad8020bbe3da4457a759397c29ac091dc1624f33e14f5127c5b4",
+      "01_core/src/compiler/stdlib/color.rs": "d40197461efdee472734ef850e7a681821eb490624856bf15510d1b8a9336fed",
+      "01_core/src/compiler/eval/tests.rs": "b6b87d6786874a39b3071c667476d062a4fc41a9298c6519d9434e0ae637df20"
+    }
+  },
+  "confirmed_l0": [
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/color.md",
+      "sha256": "8115021062602c8a3663797b3fcfe0f17eb423f54a8ae7b437b260804ad58462"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "3bf911a0882e35f713cf8742f70ea921086a9a95ede6b02b8b938ab92becfc96"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "d4d6382d351e084869445fe58e1cb484e762d5b5dfc843b7974cd21149289104"
+    }
+  ],
+  "vanilla_oracle": {
+    "revision": "a51e02804",
+    "binary": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "discrimination": {
+    "revision": 1,
+    "hypothesis": "The frozen observable contract rejects every declared semantic mutation while preserving all complete positive coordinates and limiting Unknown to the four explicit opaque controls.",
+    "expected_candidate_vector_sha256": "f505de4849adc3f6f90d515b92b7657376a1d304df802c6b1291d7d080907b4b",
+    "final_positive_candidate_vector_sha256": "f505de4849adc3f6f90d515b92b7657376a1d304df802c6b1291d7d080907b4b",
+    "materialized_coordinate_count": 940,
+    "positive_control": "Preserved",
+    "opaque_controls": {
+      "Unknown_with_exact_reason": 4,
+      "unexpected_reason_count": 0
+    },
+    "valid_mutations": 14,
+    "violated_with_witness": 14,
+    "mutation_score": 1.0,
+    "surviving_mutants": [],
+    "semantic_unknown_count": 0,
+    "harness_error_count": 0,
+    "anti_erasure_rejections": [
+      "missing_selector",
+      "missing_required_field",
+      "null_required_field",
+      "oracle_erasure"
+    ],
+    "orders": [
+      "canonical",
+      "reverse",
+      "Fisher-Yates seed 1300"
+    ],
+    "repetitions_per_order": 2,
+    "outer_input_orders": [
+      "normal",
+      "inverted"
+    ],
+    "invariant_result_sha256": "7c3966dedccf507cdb9596784f2de482969bc0b67dfe7a200495c5ef44cadcda"
+  },
+  "immutability": {
+    "state": "FROZEN_FOR_DOWNSTREAM_P1300_MATERIALIZATION",
+    "rule": "Every path and digest in sealed_inputs, baseline.measurement, confirmed_l0 and vanilla_oracle is immutable for downstream P1300 roles. Any byte change invalidates this seal and requires restart from the first affected phase.",
+    "contract_relaxation": "forbidden",
+    "oracle_adaptation_to_candidate": "forbidden",
+    "mutant_or_witness_weakening": "forbidden",
+    "unknown_coercion": "forbidden",
+    "index_policy": "No staging, commit or push was performed by P4."
+  },
+  "downstream_authorization": {
+    "state": "CONTRACT_SEALED_FOR_P5_P6",
+    "constraint": "Downstream work may claim only the named P1300 observable fragment and must re-check all sealed hashes before use."
+  },
+  "maximum_claim": "The three P1299 color-constructor aliases are absent bare and under std in the pinned profiles while qualified routes and ratified globals are preserved; no general stdlib or color parity is claimed.",
+  "limitation": "This seal is executed without technical isolation attestation because the filesystem is shared. It attests the declared input/output discipline and discrimination evidence, not general equivalence or hidden implementation properties."
+}
