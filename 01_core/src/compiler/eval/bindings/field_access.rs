@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash adcb180b
+//! @prompt-hash 73f15bd4
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -88,7 +88,7 @@ pub(in crate::compiler::eval) fn eval_field_access(
                 .contains(crate::entities::compiler_features::Feature::A11yExtras)
         {
             return Err(vec![SourceDiagnostic::error(
-                access.span(),
+                access.field().span(),
                 format!(
                     "cannot access field `{field}` because the `a11y-extras` feature is not enabled"
                 ),

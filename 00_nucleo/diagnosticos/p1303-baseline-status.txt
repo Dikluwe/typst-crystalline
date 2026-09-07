@@ -1,0 +1,40 @@
+P1303 BASELINE STATUS
+schema_version: 1
+captured_at: 2026-09-04T00:29:29,144306984-03:00
+timezone: America/Sao_Paulo (-03:00)
+
+git rev-parse HEAD
+5b4a0d0438a535c54fdb5e74b28903c1313f5bc2
+
+git status --short --untracked-files=all
+?? 00_nucleo/materialization/typst-passo-1303.md
+
+git diff HEAD --stat
+<empty>
+
+git diff --cached --stat
+<empty>
+
+baseline_verdict: PASS
+baseline_note: A arvore estava limpa exceto pelo proprio passo P1303, conforme permitido.
+
+SHA-256 AND SIZE BYTES
+de81ef3bf6572a1777f9057655e8433c6f2b393e8846f1fbdb66bcd1c8f81df9 21728 00_nucleo/prompts/compiler/eval/bindings/field_access.md
+5ca2ad1e4bcf3f6fe30909be21f42bb2a2a5939a6efcbdfc136dba5b44e7a8d1 9909 00_nucleo/prompts/compiler/eval/tests.md
+29abd27cc01b347da9fbc12a93f05265882c043d36cd9a03cff5e6487a96e024 35871 01_core/src/compiler/eval/bindings/field_access.rs
+5437bd761f48bef79b2eedd5c2e920bcba310e41c0e85346afaf6db6a2e68af9 718550 01_core/src/compiler/eval/tests.rs
+7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8 51851160 /usr/local/bin/typst
+58f08430c479ba5dea093945301785a89e77f20e9af0809ae05c6641a7ecdc11 3446321 00_nucleo/diagnosticos/p1299-feature-matrix.json
+79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69 119162 00_nucleo/diagnosticos/p1299-owner-ledger.tsv
+332425ce95df73ce8ea8e54e84aec31d37286a6dec8b07ce9b6b5f77e33eeb2e 8653 00_nucleo/diagnosticos/p1299-decision-report.md
+e421db23565da3fe60f1c1fed689d2bfa56e1380827b2b7e73f37d9ba9346211 2638 00_nucleo/diagnosticos/p1302-final-report.md
+f1db5c02b7e6af5ef461900c213e928a8d16bbed156d8eba7ff5c6b32c584fe9 16143 00_nucleo/materialization/typst-passo-1303.md
+
+INPUT CLASSIFICATION
+- allowlist L0/product: four files, all frozen at capture;
+- vanilla oracle: /usr/local/bin/typst, hash ratified;
+- P1299 selection inputs used: feature matrix, owner ledger, decision report;
+- predecessor closure input: p1302-final-report.md;
+- process input: typst-passo-1303.md.
+
+This receipt records pre-write state. Its own creation and later authorized p1303-* artifacts are expected untracked additions.

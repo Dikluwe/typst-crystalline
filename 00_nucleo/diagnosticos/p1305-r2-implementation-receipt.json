@@ -1,0 +1,47 @@
+{
+  "schema": "p1305-r2-implementation-receipt-v1",
+  "author": "/root",
+  "regime": "executado sem atestação de isolamento técnico",
+  "manifest_sha256": "b470b9f132ee2b5714e40a9e11ca5acaa4fad1f246bf0fcbb3670868de9ca635",
+  "seal_sha256": "39e9f8dddd2e3e2fe1b5634ce5d0c79d3052f5f8a26bbdebf1132a0251108aa3",
+  "head": "8eb41b769eb840c7ab1063f981f98fdd4047952b",
+  "working_tree": "não commitado",
+  "at": "2026-09-07T14:12:53.877752+00:00",
+  "pins": [
+    {
+      "path": "01_core/src/compiler/eval/repr.rs",
+      "sha256": "0dde543205c04eeedc0896961d505ba315f1573d55fd17498e8b1b5544f9af8c"
+    },
+    {
+      "path": "01_core/src/compiler/eval/modules.rs",
+      "sha256": "a855f51063310ec00a1106e6447f7a6a3e753ef8ccbb5e17f37a2319da1c3594"
+    },
+    {
+      "path": "01_core/src/compiler/eval/mod.rs",
+      "sha256": "6ccb0a0a89fb932bca3feebab24f536f79225535def4a7464ca0e65194716bce"
+    },
+    {
+      "path": "01_core/src/compiler/eval/tests.rs",
+      "sha256": "d31bf513c616430c87e422338c7280ce6b3817561e3bdc4c37b3a55eab468f3e"
+    }
+  ],
+  "diff_sha256": "a6a964ac05ef32c26cca69e478af130ce3068a015182b034e1cc360bab5a8ae5",
+  "diff_stat": " 00_nucleo/prompts/compiler/eval.md                 |   47 +\n .../prompts/compiler/eval/bindings/field_access.md |   80 +\n 00_nucleo/prompts/compiler/eval/modules.md         |   85 +-\n 00_nucleo/prompts/compiler/eval/repr.md            |   83 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |  176 ++-\n 01_core/src/compiler/eval/bindings/field_access.rs |    4 +-\n 01_core/src/compiler/eval/mod.rs                   |    6 +-\n 01_core/src/compiler/eval/modules.rs               |   22 +-\n 01_core/src/compiler/eval/repr.rs                  |   11 +-\n 01_core/src/compiler/eval/tests.rs                 | 1625 +++++++++++++++++++-\n 10 files changed, 2118 insertions(+), 21 deletions(-)\n",
+  "protected_all_raw_identical": true,
+  "changes": [
+    "Array projects first40 ordered values and appends exact omission count; no data writes or generic formatter changes.",
+    "Module repr projects stored name directly; global stored name changed at existing expression/document/imported-file constructors, binding std unchanged.",
+    "Bare Module import uses existing AST lexical name and exact dynamic-source diagnostic only without as/items/wildcard; ordinary file and explicit binding routes unchanged."
+  ],
+  "independent_tests": {
+    "fragment_sha256": "9c1bcfd3c079de5f507afab9a3123180a6e857fd787a8aaab94e7018a7737d65",
+    "exact_occurrences": 1,
+    "legacy_expectation": "Only independently prescribed repr_value_module expected literal retification; no independent oracle edits.",
+    "red": "Immutable p1305-r2-red.log:38executed16pass22contractedfail; independent author receipt final.",
+    "green": "p1305-r2-build.log entry0: cargo test -p typst-core p1305 -- --test-threads=1; 38passed0failed; started2026-09-07T14:10:45.867611+00:00, duration19568436774ns; diff unchanged before/after."
+  },
+  "lineage": "Deterministic fix-hashes after candidate returned Nothing to fix; every protected raw L0 remains identical. Eight-digit normalization allowance was not needed.",
+  "preservation": "P1303 field_access owner and consumer exact baseline pins unchanged; all old diagnostics and original step untouched. No API, entities, encoders, plugin anonymity, warnings, layout/export or commit.",
+  "status": "CANDIDATE_GREEN_AWAITING_INDEPENDENT_FINAL_GATES",
+  "remaining": "Fresh release measurements, full workspace/build/fmt/lint, real compiled source mutants and independent final certificate. This implementation receipt makes no final acceptance claim."
+}

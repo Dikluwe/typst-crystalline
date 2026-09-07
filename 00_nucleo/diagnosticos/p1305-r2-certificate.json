@@ -1,0 +1,110 @@
+{
+  "schema": "p1305-r2-transformation-certificate-v1",
+  "issuer": "/root/p1305_verifier",
+  "generated_at": "2026-09-07T14:37:05.261Z",
+  "verdict": "P1305_R2_PASS_WITH_RECORDED_LIMITATIONS",
+  "regime": "executado sem atestação de isolamento técnico",
+  "technical_isolation_attested": false,
+  "manifest_sha256": "b470b9f132ee2b5714e40a9e11ca5acaa4fad1f246bf0fcbb3670868de9ca635",
+  "preimplementation_seal_sha256": "39e9f8dddd2e3e2fe1b5634ce5d0c79d3052f5f8a26bbdebf1132a0251108aa3",
+  "refinement_successor_seal_sha256": "19ebb40660f58bc0ccd26cf51959155850d3af8b7870f8f549c5015104c2fa0c",
+  "verification_receipt": {
+    "path": "00_nucleo/diagnosticos/p1305-r2-verification-receipt.json",
+    "sha256": "d90dcd9edfa99e8b5c18af3b261bae3582ec76081367cd096860fcbb77646e6d"
+  },
+  "verification_log": {
+    "path": "00_nucleo/diagnosticos/p1305-r2-verification.log",
+    "sha256": "bfcd5a7f90002f60ecc07a44da4dc331c64dcb268107fc8007940a7ff390bb17"
+  },
+  "baseline": {
+    "head": "8eb41b769eb840c7ab1063f981f98fdd4047952b",
+    "uncommitted_tracked_diff_sha256": "fca8f14b7fcad814ca954d8933c05a6e2644683c9a4529d9f169bcfb5d1c2a49",
+    "binary_sha256": "4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d"
+  },
+  "implementation": {
+    "head": "8eb41b769eb840c7ab1063f981f98fdd4047952b",
+    "uncommitted_tracked_diff_sha256": "a6a964ac05ef32c26cca69e478af130ce3068a015182b034e1cc360bab5a8ae5",
+    "binary_sha256": "be51045f1df75ac42ee081801ddf7f738f709029e3694b9205473ba5fa8b31d4",
+    "receipt_sha256": "eac7fa031d2284246dcd22f2554e086bb37ce04726957bc95e2b58ed44f9df87",
+    "source_pins": {
+      "01_core/src/compiler/eval/repr.rs": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/repr.rs",
+        "sha256": "0dde543205c04eeedc0896961d505ba315f1573d55fd17498e8b1b5544f9af8c",
+        "bytes": 80423
+      },
+      "01_core/src/compiler/eval/modules.rs": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/modules.rs",
+        "sha256": "a855f51063310ec00a1106e6447f7a6a3e753ef8ccbb5e17f37a2319da1c3594",
+        "bytes": 13459
+      },
+      "01_core/src/compiler/eval/mod.rs": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/mod.rs",
+        "sha256": "6ccb0a0a89fb932bca3feebab24f536f79225535def4a7464ca0e65194716bce",
+        "bytes": 104159
+      },
+      "01_core/src/compiler/eval/tests.rs": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/tests.rs",
+        "sha256": "d31bf513c616430c87e422338c7280ce6b3817561e3bdc4c37b3a55eab468f3e",
+        "bytes": 763603
+      }
+    }
+  },
+  "reference": {
+    "ratified_upstream": "a51e02804",
+    "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "judgments": {
+    "contract": "Preserved",
+    "refinement": "Preserved",
+    "functional": "Preserved",
+    "architecture_strict_checks": "Preserved",
+    "compiled_mutations": {
+      "valid": 27,
+      "rejected": 27,
+      "score": 1,
+      "required_unknown": 0,
+      "survivors": 0
+    },
+    "protected_inputs": "All 14 original raw inputs unchanged; 4 normative L0 unchanged, no metadata delta. Auxiliary adapter reopened causally with successor seal, originals preserved."
+  },
+  "certified_fragment": [
+    "All Value::Array representations use first 40 elements, exact len-40 omission marker, existing formatting rules and recursive nesting; complete actual arrays preserved.",
+    "Named Module public wrapper and global stored name across expression, document and imported-file routes; ordinary imported filenames and aliases preserved.",
+    "Bare Module imports bind lexical identifier/field names, not public Module.name; unnamed Dynamic imports produce exact source diagnostic and hint, explicit as/items/wildcard remain valid.",
+    "Exactly 12 selected corpus paths improve to MATCH_VALUE in all 4 profiles; all remaining corpus stdout/stderr/exit channels unchanged.",
+    "All 15 color-map complete component vectors, RGBA8 tokens, lengths and boundary indices preserved, repr and structured observations match vanilla in 240 valid final measurements.",
+    "P1290/P1300/P1301/P1303 controls, existing module lookups and pdf feature gates protected."
+  ],
+  "evidence": {
+    "focal_sha256": "e5c0e14497c61ad44facea387c2f47853a3cad750eeab4dd945a97088e21ecfd",
+    "corpus_sha256": "395c728c25235376243d19ed2b483f1b5d7b77b166af95255e4ae84a6035d185",
+    "color_refinement_sha256": "e164d5681d7627c3baa5cd3298cee4e0e06a601cb1efe0da7a2af3e8cea68539",
+    "compiled_mutant_ledger_sha256": "4947430f6b8fd38ca0bb5d269f09cf7b30747aa004f0afe292a2c2953035f635",
+    "build_and_gates_sha256": "83e63f62d113e1c08bb8ac1e9a564bfb2286899abcf6f4caeeaf41f14a169373"
+  },
+  "retained_limitations": {
+    "original_P1305_blocked_certificate_sha256": "008be227d322a764f56b368f42291b5fe4a057b3cc41f67ff4fc5fc2776442b4",
+    "original_scope_blocker_not_retracted": true,
+    "original_invalid_color_observations": 120,
+    "invalid_attempt_disposition": "Unknown; preserved, not product RED/PASS. r1 replaced only failed observation adapter after independent baseline calibration and discrimination.",
+    "mutant_operational_mismatches": 2,
+    "mutant_mismatch_disposition": "Initial expression/document source occurrence mapping inverted. Outcomes retained; correct declared route mutants both killed. 29 executions, 27 required families.",
+    "historical_corpus_availability_mismatches": 504,
+    "general_lint": {
+      "errors": 0,
+      "warnings": 236,
+      "info": 1133,
+      "multiset_unchanged_from_pinned_historical_lint": true
+    },
+    "workspace_ignored_tests": 3,
+    "scope_excludes": [
+      "whole-language equivalence",
+      "technical isolation attestation",
+      "anonymous/plugin Module API",
+      "encoding/layout/export readiness",
+      "historical warning and field-access debts"
+    ]
+  },
+  "causal_dag": "Original obligation/baseline -> original manifest/contract/oracles -> original preimplementation seal -> candidate. Auxiliary observation failure -> independent oracle revision -> verifier successor seal -> final refinement. Both seals + all final gates -> verifier receipt -> this certificate. No self/cyclic hash; final coordinator report is downstream and intentionally not pinned.",
+  "commit_or_staging_authorized": false
+}

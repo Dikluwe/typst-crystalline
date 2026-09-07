@@ -1,0 +1,186 @@
+P1304 — BASELINE COMPOSTO HEAD + CANDIDATO P1303
+
+{
+  "captured_at": "2026-09-04T23:26:57.069771-03:00",
+  "head": "5b4a0d0438a535c54fdb5e74b28903c1313f5bc2",
+  "status_short": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/tests.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/eval/tests.rs\n?? 00_nucleo/diagnosticos/p1303-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1303-adversarial-revision-1.md\n?? 00_nucleo/diagnosticos/p1303-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1303-candidate-runner.py\n?? 00_nucleo/diagnosticos/p1303-certificate.json\n?? 00_nucleo/diagnosticos/p1303-contract.md\n?? 00_nucleo/diagnosticos/p1303-final-measurement.json\n?? 00_nucleo/diagnosticos/p1303-final-report.md\n?? 00_nucleo/diagnosticos/p1303-implementation-receipt.md\n?? 00_nucleo/diagnosticos/p1303-l0-gate-receipt.md\n?? 00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md\n?? 00_nucleo/diagnosticos/p1303-manifest.json\n?? 00_nucleo/diagnosticos/p1303-mutant-ledger.json\n?? 00_nucleo/diagnosticos/p1303-oracle-receipt.md\n?? 00_nucleo/diagnosticos/p1303-pre-measurement.json\n?? 00_nucleo/diagnosticos/p1303-red-tests-receipt.md\n?? 00_nucleo/diagnosticos/p1303-verification-receipt.json\n?? 00_nucleo/materialization/typst-passo-1303.md\n?? 00_nucleo/materialization/typst-passo-1304.md\n",
+  "diff_head_stat": " .../prompts/compiler/eval/bindings/field_access.md |  80 +++++\n 00_nucleo/prompts/compiler/eval/tests.md           | 100 +++++-\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 382 ++++++++++++++++++++-\n 4 files changed, 562 insertions(+), 4 deletions(-)\n",
+  "diff_cached_stat": "",
+  "diff_binary_sha256": "fca8f14b7fcad814ca954d8933c05a6e2644683c9a4529d9f169bcfb5d1c2a49",
+  "tracked_paths": [
+    "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+    "00_nucleo/prompts/compiler/eval/tests.md",
+    "01_core/src/compiler/eval/bindings/field_access.rs",
+    "01_core/src/compiler/eval/tests.rs"
+  ],
+  "current_dirty_paths": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "sha256": "92aa897909abfb6095ab59191614b0fd87c0d648e8e593ed8f0702176c2a542e",
+      "bytes": 26427
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479",
+      "bytes": 15340
+    },
+    {
+      "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "sha256": "6b82a38b7c953ebe9dcbe96857dd9cb689aaaf69e95df153afa5de668ef89486",
+      "bytes": 35879
+    },
+    {
+      "path": "01_core/src/compiler/eval/tests.rs",
+      "sha256": "ab57d8c30dd54e1f8d638fcad4ab52e3c2c4bf9c4b3f674816806fe5ba8824b0",
+      "bytes": 732366
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-adversarial-plan.md",
+      "sha256": "ebaaad08d475a53fc2dc6fe41ea69c901069f302633b7e41ba0f5293031057b8",
+      "bytes": 20907
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-adversarial-revision-1.md",
+      "sha256": "0bb015a2a99f06a848889482be38c4e473502c2455eea74935cc8b892d5924c8",
+      "bytes": 12122
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-baseline-status.txt",
+      "sha256": "8e06d7deba171604986f5ae3eca4d9c2c964a2aaf6d2a0f1971f7aa27574d9a8",
+      "bytes": 2066
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-candidate-runner.py",
+      "sha256": "8d89d0d7189e3b5fa145cd9fad9e89541dc5667125dfaa7b964101b676cde53f",
+      "bytes": 14300
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-certificate.json",
+      "sha256": "77d209164fa3e2c9af5d5df69ee8ad7d72db8a5fc829e7469a827efcbc46fb90",
+      "bytes": 8425
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-contract.md",
+      "sha256": "837cb4bd1f38428d93cdadf9216c0182c69e3d8bfa8eb489ed52a710e2bbdf8a",
+      "bytes": 17189
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-final-measurement.json",
+      "sha256": "e56622f54973981c294233c3d1a3a12df4ef0bee13c91347fb1c343dd2d35ed7",
+      "bytes": 100277
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-final-report.md",
+      "sha256": "c4aa69ab55dc9dcfce69c305d57a74a87cd7690cdc3cbe52300f39c7f5a47bc8",
+      "bytes": 6972
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-implementation-receipt.md",
+      "sha256": "ccbfa2ea7644d6a6f4a7f779ceef15b116828077d277dc6a7388c014bbc37ef2",
+      "bytes": 6427
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-l0-gate-receipt.md",
+      "sha256": "98ae55dcc62a8b1d29e2ab7133997e06c3b6587354b5851d21cca70e657dbe15",
+      "bytes": 6011
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md",
+      "sha256": "bb7f015edc3a257472f210a3041d3067cd6c47c78e882682dcdce4f6836e53f4",
+      "bytes": 4658
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-manifest.json",
+      "sha256": "1ec694b8e9247fdd6eda821e2ab8a66b925d8e5b2386277d2402f7108618923a",
+      "bytes": 12980
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-mutant-ledger.json",
+      "sha256": "815993f122f0e303c1961b489db24e9f83c0bc7efc413664862f8b0714903f25",
+      "bytes": 439547
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-oracle-receipt.md",
+      "sha256": "f23960b7c5a59f0586fda5378588d52de7546ff8551a5c6787c322af6f652289",
+      "bytes": 5869
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-pre-measurement.json",
+      "sha256": "ef3a4eb0b6fcb3fb0e9b1d8ec54bfbfa8f1a4f7b58dd7c675cbf677bada573d4",
+      "bytes": 102006
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-red-tests-receipt.md",
+      "sha256": "d1d20e0510f328b1ee505c3344287d70e8d28f56ed2e4608943118f871806e4a",
+      "bytes": 228115
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1303-verification-receipt.json",
+      "sha256": "73243cecb10eb26ba4c7c5631939f7e5a8315134fcd9cf68a64221f3925e9e39",
+      "bytes": 2517115
+    },
+    {
+      "path": "00_nucleo/materialization/typst-passo-1303.md",
+      "sha256": "f1db5c02b7e6af5ef461900c213e928a8d16bbed156d8eba7ff5c6b32c584fe9",
+      "bytes": 16143
+    },
+    {
+      "path": "00_nucleo/materialization/typst-passo-1304.md",
+      "sha256": "1f4e33810c34afbdf86d675862fc495d391f417e875f86684d0154eb03f5695f",
+      "bytes": 17807
+    }
+  ],
+  "inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1299-probe-catalog.json",
+      "sha256": "649dd46f05e67d376a8096756a31207a6a7d4087acf5fcbdd6688a59c4f934ae",
+      "bytes": 283818
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1299-feature-matrix.json",
+      "sha256": "58f08430c479ba5dea093945301785a89e77f20e9af0809ae05c6641a7ecdc11",
+      "bytes": 3446321
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1299-owner-ledger.tsv",
+      "sha256": "79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69",
+      "bytes": 119162
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1299-decision-report.md",
+      "sha256": "332425ce95df73ce8ea8e54e84aec31d37286a6dec8b07ce9b6b5f77e33eeb2e",
+      "bytes": 8653
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "555b6df222a931991f1a521b11fe2d8d58ee185cdcf90cd3f0eaf6d3c40c9355",
+      "bytes": 23388
+    },
+    {
+      "path": "00_nucleo/prompts/entities/module.md",
+      "sha256": "17d75e8c05e28546b7212ae232fa5d9e0474eda2b5bd7b67740e54ec3c1659a9",
+      "bytes": 2292
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/color.md",
+      "sha256": "60de24ea6496a1c95fcc4af1883278164a2cd031351ef59278e654d7d485ff01",
+      "bytes": 23359
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/loading.md",
+      "sha256": "d6cf9cd85c0c25dc3f7a5f6c3a9f47cf956d9fd6e998932ca87ab5b1e58e2c72",
+      "bytes": 16143
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "ce02b7d257e29742071497f112f1ea42ed734a93989e8fbb1332f1c09590f5e2",
+      "bytes": 10166
+    },
+    {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "bytes": 51851160
+    }
+  ]
+}
+

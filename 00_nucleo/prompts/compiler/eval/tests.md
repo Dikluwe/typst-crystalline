@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 343763db
+Hash do Código: e2f2a9f6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -196,3 +196,177 @@ autoriza mudança de produto, API/campo/entidade/trait/assinatura pública,
 default, compatibilidade, fase eval/layout, ordem de validação, spans,
 morfologia ou layout. O ownership permanece exatamente este prompt para
 `01_core/src/compiler/eval/tests.rs`; não se cria owner 1:N.
+
+## P1303 — regressões dos spans dos gates `pdf.*`
+
+### Medição fresca anterior à decisão
+
+Em `2026-09-04T00:38:07.847942-03:00`–`00:38:10.279557-03:00`, no HEAD
+`5b4a0d0438a535c54fdb5e74b28903c1313f5bc2` e working tree não commitada
+sem diff tracked ou staged, a matriz bilateral fresca
+`00_nucleo/diagnosticos/p1303-pre-measurement.json` (SHA-256
+`ef3a4eb0b6fcb3fb0e9b1d8ec54bfbfa8f1a4f7b58dd7c675cbf677bada573d4`)
+executou `48` runs e `24` comparações em ordem normal e invertida. Nos perfis
+`default` e `html`, cada um de `pdf.data-cell`, `pdf.header-cell` e
+`pdf.table-summary` coincidiu bilateralmente em exit `1`, stdout vazio, um erro
+primário, zero laterais, mensagem e dois hints ordenados, mas divergiu somente
+no span: vanilla field-only `14..23`, `14..25`, `14..27`; cristalino total
+`10..23`, `10..25`, `10..27`. Nos perfis `a11y` e `html+a11y`, os três casos
+foram `MATCH_VALUE` com kind `function` e nomes/`repr` `data-cell`,
+`header-cell`, `table-summary`. O vetor normal foi `3` divergências em cada
+perfil negativo e `3` matches em cada positivo; nas duas ordens houve `12`
+`DIFFERENT_DIAGNOSTIC`, `12` `MATCH_VALUE`, `0` Unknown e `0` divergências de
+repetição.
+
+Mensagens, hints, cardinalidade, spans, disponibilidade por feature, kind,
+nome/`repr` e morfologia de chamada são observáveis da linguagem sob ADR-0107;
+estrutura Rust, helper, layout do enum, ponteiros e passos do algoritmo não são
+critérios. É inferência que regressões negativas exatas, controles positivos
+e sentinelas de fronteira distinguem a correção local de uma generalização ou
+de uma mudança do gate. Refutam-na um mutante aplicável sobrevivente,
+`Unknown`, divergência por ordem/repetição, falha positiva, ou regressão de
+mensagem/hints/cardinalidade/sentinela.
+
+### Classificação e obrigações
+
+Classificação: `ADR-0127_CONTINUOUS_DIAGNOSTIC_PARITY`. As regressões são
+test-only e protegem uma correção interna de paridade; não acrescentam API,
+entidade, trait, assinatura, default, compatibilidade ou fase. Após L0-first e
+resselo, o gate é RED→GREEN mais revalidação, sem nova paragem humana.
+
+As regressões negativas devem cobrir os três fields nos perfis `default` e
+`html` e, para cada um, exigir cumulativamente: falha bilateral; stdout vazio;
+exatamente um erro primário de severidade `error`; zero diagnósticos laterais;
+mensagem exata
+``cannot access field `<field>` because the `a11y-extras` feature is not enabled``;
+exatamente os dois hints seguintes, nessa ordem:
+
+```text
+try enabling the `a11y-extras` feature
+see https://typst.app/help/compiler-features for more details
+```
+
+Devem ainda exigir span half-open resolvível e field-only `14..23`, `14..25`
+ou `14..27`, stderr CLI byte-idêntico ao vanilla e classificação
+`MATCH_DIAGNOSTIC`. O span não pode incluir `pdf`, o ponto ou qualquer byte
+vizinho.
+
+As regressões positivas devem cobrir os três fields nos perfis `a11y` e
+`html+a11y` e exigir exit `0`, stderr vazio, nenhum diagnóstico/hint, kind
+`function`, nome/`repr` exato e `MATCH_VALUE`. Uma chamada representativa de
+cada função preserva a morfologia P1288: `table-summary` substitui somente o
+summary semântico; `header-cell` e `data-cell` aceitam conteúdo cru ou
+`table.cell`, preservam os demais fields e mantêm suas classificações/defaults.
+
+### Sentinelas e poder discriminatório
+
+As mesmas regressões devem preservar:
+
+- `std.nope`, `calc.nope`, `sym.nope` e `color.map.nope` com mensagens
+  P1301r2, zero hints e span somente em `nope`, inclusive `std` projetado como
+  `global`;
+- um lookup existente em cada módulo — `std.rgb`, `calc.abs`, `sym.alpha` e
+  `color.map.viridis` — com valor e kind preservados;
+- o dicionário ausente com mensagem
+  `dictionary does not contain key "nope"` e span da expressão completa;
+- `float("NaN").is-nan` sem chamada com
+  `cannot access fields on type float` e span somente em `is-nan`;
+- `pdf.attach` e `pdf.artifact` acessíveis sem `a11y-extras`, com kind,
+  nome/`repr`, valor e chamada preservados;
+- o trio inacessível sem `a11y-extras` e acessível com a feature nos dois
+  perfis positivos;
+- `html` sem a feature HTML como `EXPECTED_FEATURE_DISABLED`.
+
+O corpus deve produzir o mesmo mapa por chave `(perfil, probe)` em ordem
+normal, repetição da normal e ordem integralmente invertida. `Unknown` e
+`EXECUTION_UNKNOWN` nunca contam como sucesso. Os testes devem matar, com
+testemunha observável, span total, span sobre `pdf`, inclusão do ponto, início
+um byte à esquerda, fim um byte à direita, correção parcial por field ou
+perfil, hints removidos/reordenados, mensagem alterada, exposição sem feature,
+ocultação com feature, generalização ao dicionário, regressão `global` →
+`std` e remoção do sucesso de `pdf.attach`/`pdf.artifact`. O gate adversarial
+exige `14/14` mutantes aplicáveis mortos, `mutation_score = 1.0`.
+
+Este consumer test-only não autoriza alterar o produto, o contrato funcional
+de `pdf`, API/entidades/traits/assinaturas, defaults, features, pipeline, CLI,
+exportadores, wiring, lab, `color.map`, extensões cristalinas, `repr(std)` ou
+membros residuais P1299. A aceitação limita-se aos três spans e sentinelas
+enumeradas; não prova equivalência funcional geral. Se o RED falhar por motivo
+além dos seis spans previstos, o teste/contrato volta à medição; não se adapta
+o produto nem se converte estado opaco em PASS.
+
+## P1305-r2 — regressões de arrays, nomes públicos e imports
+
+### Medição anterior à decisão
+
+A medição independente `00_nucleo/diagnosticos/p1305-r2-pre-measurement.json`,
+SHA-256 `fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0`,
+preserva fixtures, argv/cwd, binários, stdout/stderr completos, exit e horários
+entre `2026-09-07T13:48:28.580684+00:00` e
+`2026-09-07T13:51:19.266604+00:00`. Proveniência: HEAD
+`8eb41b769eb840c7ab1063f981f98fdd4047952b` mais diff P1303 não commitado,
+status/diff/stat registrados no artefato; baseline fresco SHA-256
+`4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d` e
+vanilla ratificado `a51e02804` SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+
+O baseline representa integralmente arrays longos (`repr.rs:36-41`) e
+Module como `module(nome)` (`:56`). O global usa nome `std` nos caminhos
+`eval/mod.rs:324,562` e `eval/modules.rs:66`. O bare import Module usa esse
+nome público como ligação (`eval/modules.rs:184-213`), enquanto a fonte
+vanilla `typst-eval/src/import.rs:82-105` e os controles medidos exigem nome
+lexical. A medição também distingue bare dinâmico inválido de fonte dinâmica
+com rename/items/wildcard válidos. Essas diferenças são linguagem e
+morfologia; identidade de ponteiro não é critério de paridade.
+
+### Decisão e aceitação
+
+Após L0-first e resselo dos owners autorizados, regressões independentes
+P1305 devem exigir:
+
+- arrays de 0, 1, 39, 40, 41, 42, 81 e 256 itens; limite geral 40, marcador
+  exato `.. (N items omitted)`, quantidade exata, pontuação, singleton,
+  forma curta/multilinha e reindentação; números, strings, nesting, item
+  multiline e item distinto no índice 40;
+- dados integrais preservados depois de repr: comprimento, ordem, sequência
+  completa, índices 39, 40, penúltimo e último quando existentes; o marker
+  não serve de prova de igualdade dos dados. A serialização estruturada
+  pública continua integral; o fallback textual de Module usa a nova repr;
+- P1290 ASCII 49/50/51, escaping, conteúdo e listas genéricas integrais;
+  não exigir mudança da dívida de forma em args/dict/sequences já medida;
+- global com nome público `global` nos três caminhos reais de construção,
+  exercidos nos perfis default/html/a11y/html+a11y; aliases conservam nome,
+  kind, valores e lookup. `color.map`, calc, sym, pdf e módulos ordinários
+  usam seu nome próprio e wrapper `<module nome>`;
+- imports de `std.typ`, `global.typ`, `map.typ`, outro nome e reexport
+  integral `std: *`, com aliases, não são reconhecidos pelo conteúdo;
+- bare import de identificador/alias/field Module liga sob nome lexical,
+  sem introduzir `global`; literal-file, `as`, items e wildcard permanecem
+  válidos e preservam valores. Fonte dinâmica com `as`, items ou wildcard
+  não recebe o guard do modo bare;
+- bare Module dinâmico sem nome/lista falha na expressão fonte com
+  `dynamic import requires an explicit name`, hint único
+  ``you can name the import with `as` `` e span exato medido. Não aceitar
+  erro posterior `unknown variable` como equivalente nem sucesso;
+- sentinelas P1300/P1301r2/P1303 e os três gates pdf permanecem preservados
+  nos quatro perfis; sem novo diagnóstico lateral ou warning.
+
+Para bare identifiers, o warning vanilla `this import has no effect` já
+ausente no baseline é dívida explícita. Exigir stdout/resultado ou erro
+primário/hints/span exatos e preservar os laterais cristalinos do baseline;
+não remover warnings genericamente do comparador. Os casos dinâmicos medidos
+não têm essa exceção: exigir diagnóstico integral correspondente.
+
+O autor independente também retifica a expectativa existente
+`repr_value_module` em `repr.rs` para `<module mylib>`. Testes não podem
+calcular suas expectativas pela função candidata. RED tem causa semântica
+contratada; erro de build, harness, fixture ou import inválido num positivo
+não conta. Mutantes obrigatórios cobrem limites 39/41, elisão ausente ou só
+de mapas, quantidade errada, dados truncados/reordenados/omitido alterado,
+singleton/indentação, helper genérico elidido, wrapper antigo, global `std`,
+todo módulo global, rename nominal de std.typ, rota global parcialmente
+corrigida, ligação pelo nome público, guard dinâmico ausente ou aplicado a
+modo válido, e alteração de lookup/feature gate. Mutantes válidos devem
+ser rejeitados semanticamente; `Unknown` e execuções inválidas não são
+sucesso. Oráculos ficam congelados antes de ler candidato; este owner
+test-only não autoriza editar os outros owners ou ampliar escopo.

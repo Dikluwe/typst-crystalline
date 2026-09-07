@@ -1,0 +1,79 @@
+{
+  "schema": "p1305-r2-oracle-receipt-v1",
+  "role": "Independent oracle/test/adversarial author /root/p1305_r2_oracle",
+  "regime": "executado sem atestação de isolamento técnico",
+  "authority": {
+    "reads": "authorized P1305 step; immutable P1303/P1304/P1305 diagnostics; preflight/reopening; baseline eval/module/helper APIs before candidate; ratified vanilla; public R2 contract",
+    "writes": [
+      "p1305-r2-runner.py",
+      "p1305-r2-pre-measurement.json",
+      "p1305-r2-oracle-tests.rs",
+      "p1305-r2-oracle-receipt.json",
+      "p1305-r2-adversarial-plan.json"
+    ],
+    "forbidden": "No productive/L0 edits, no candidate patch read, no verdict or certificate",
+    "context": "Fresh role message from coordinator; no candidate existed. Subsequent verifier feedback concerned baseline fixture APIs and test discrimination only."
+  },
+  "inputs": {
+    "preflight_manifest_sha256": "dc295b83e5604eee55734168a1a3f13e58dba48b6b40b9715c191c381dd88366",
+    "contract_sha256": "0dff1413e9b47401a0ef8b0e298ad9f9f38810264889e23869503d560cf3e963",
+    "measurement_sha256": "fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0",
+    "vanilla_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "baseline_sha256": "4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d"
+  },
+  "outputs": {
+    "runner_sha256": "cae3778bbab25cda5cb9d35fc6650463d6a62e28b25c4f603de6031be334bd00",
+    "oracle_tests_sha256": "9c1bcfd3c079de5f507afab9a3123180a6e857fd787a8aaab94e7018a7737d65"
+  },
+  "oracle_derivation": "33 literal success snapshots transcribed mechanically from normal/default successful pinned-vanilla JSON values, then exercised in all4profiles. No expectation invokes product repr. Full-array equality uses known range integer sequence. Flat Content::Sequence41 control uses public expected sequence syntax, preserving all41children; baseline known Args formatting is protected separately. Existing P1290/P1300/P1301/P1303 suites remain required.",
+  "test_count": 38,
+  "explicit_existing_test_retification": {
+    "path": "01_core/src/compiler/eval/repr.rs",
+    "test": "repr_value_module",
+    "baseline_expected": "module(mylib)",
+    "authorized_expected": "<module mylib>",
+    "instruction": "Integrator changes only this string after L0-first; expectation independently authored now from named-module category. Focused baseline rg found no other old named-module repr test constants in eval."
+  },
+  "measurement": {
+    "runs": 1042,
+    "repeat_pairs": 520,
+    "complete": true,
+    "stable": true,
+    "provenance": "Exact HEAD, dirty stat/diff hash, binary hashes, argv/cwd/source fixtures, UTC times, durations and raw output hashes in canonical measurement. Two disjoint supplements retained complete predecessor values and pins; no existing probes repeated by supplements.",
+    "policy_refinement": "Contract supersedes historical global-dynamic-unnamed preserve-baseline annotation. All unnamed dynamic forms require vanilla exact error,hint,source span. Bare lexical warnings alone retain explicit baseline debt; no new side diagnostics permitted. JSON null is successful data when exit0 and parsed, not Unknown."
+  },
+  "calibration": {
+    "fixture": "Initial bare-global guess refuted bilaterally; lexical/no-new-global controls retained separately. Positive imported fixtures changed to explicit rename. Focal revision1 passed before full baseline set. Then only disjoint lexical-field and legal dynamic-import controls added from measured source API.",
+    "rust_fixture": "Verifier identified MockWorld lacking include_source before any integration or candidate. Oracle changed to existing ImportMockWorld; no expected output changed.",
+    "syntax": "rustfmt --edition2024 --config-path repo/rustfmt.toml succeeded; runner py_compile succeeded."
+  },
+  "status": "ORACLES_FROZEN_AFTER_VALID_BASELINE_RED",
+  "baseline_red": {
+    "path": "00_nucleo/diagnosticos/p1305-r2-red.log",
+    "sha256": "603f03c5ebfec41a3c4f1e2477a192f067a3d7e0b1e4c4778f69479b1041e86f",
+    "argv": ["cargo", "test", "-p", "typst-core", "p1305", "--", "--test-threads=1"],
+    "started_at": "2026-09-07T13:58:57.018984+00:00",
+    "duration_ns": 52732383496,
+    "head": "8eb41b769eb840c7ab1063f981f98fdd4047952b",
+    "working_tree_diff_before_and_after_sha256": "5cfadf2d25d50c5d7bf3d06ba1659f77f57b7e28d1a4b4d8d4a4361129daa60c",
+    "executed": 38,
+    "passed": 16,
+    "failed": 22,
+    "exit_code": 101,
+    "source_exposure": "Only baseline RED stdout/stderr and metadata read. No candidate existed. Productive changes in diff are lineage metadata and independently authorized legacy test expectation; no new productive implementation was delivered to oracle.",
+    "failure_classification": {
+      "array_repr_and_nesting_elision": 9,
+      "named_module_repr_and_global_constructors": 11,
+      "lexical_field_binding": 1,
+      "dynamic_bare_import_primary_diagnostic": 1
+    },
+    "analysis": "All22 failures match the frozen contract: omitted tail absent from repr, old module(name) wrapper/global std, missing saved lexical binding, and wrong primary error for unnamed dynamic import. Array distinct-after-boundary shows all actual data and hidden -777 unchanged; only repr differs. Document/imported routes resolve fixtures and return expected values with old wrappers.16 controls pass, including full data, flat Content::Sequence41, args, empty/singleton/39/40, ASCII49/50/51, escaping, content, items and wildcard imports. No compilation or fixture error; the sole stderr error is cargo reporting failed tests. No oracle revision was needed after integration."
+  },
+  "remaining": "No oracle-author work remains. Tests, runner, measurements and adversarial plan are frozen. The independent verifier owns discrimination/seal and subsequent candidate verdict; this receipt is neither a product PASS nor a mutation score.",
+  "final_commands": [
+    "python3 00_nucleo/diagnosticos/p1305-r2-runner.py --crystalline <fresh-candidate> --output 00_nucleo/diagnosticos/p1305-r2-final-measurement.json",
+    "python3 00_nucleo/diagnosticos/p1305-r2-runner.py --mode matrix --crystalline <fresh-candidate> --output 00_nucleo/diagnosticos/p1305-r2-matrix.json",
+    "python3 00_nucleo/diagnosticos/p1305-r2-runner.py --mode refinement --crystalline <fresh-candidate> --output 00_nucleo/diagnosticos/p1305-r2-repr-refinement.json"
+  ],
+  "final_scope": "One627x4 corpus via pinned historical runner;15 map full-component/hex digests+repr in4profiles normal/inverted;65 focal probes in4profiles normal/inverted plus default document query; Rust38 cases includes all-profile document route. Final runner is mechanical and emits no acceptance verdict."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/modules.md
-//! @prompt-hash 1c7676c8
+//! @prompt-hash d5d3ad4f
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -63,7 +63,7 @@ fn eval_imported_file(
     // `std.length` para aceder à versão não-sombreada, exactamente como o
     // documento principal (`eval/mod.rs::run_pass`). Mesmo mecanismo — clone
     // tirado antes de `stdlib` ser espalhado neste scope.
-    global.define("std", Value::Module(Module::new("std", stdlib.clone())));
+    global.define("std", Value::Module(Module::new("global", stdlib.clone())));
     for (n, binding) in stdlib.iter() {
         global.define(n, binding.value().clone());
     }
@@ -126,7 +126,7 @@ pub(super) fn eval_module_import(
     //  - qualquer outra expressão que avalie para `Value::Module` (P683) — ex.:
     //    `#import util: x` (identificador) ou `#import deps.oxifmt: strfmt`
     //    (field-access sobre um módulo já ligado) → usa o módulo directamente;
-    //    nome = `Module::name()`.
+    //    ligação bare = nome lexical da AST, não o nome público do objeto.
     let source_expr = import.source();
     let source_span = source_expr.span();
 
@@ -184,7 +184,18 @@ pub(super) fn eval_module_import(
             let value = eval_expr(source_expr, scopes, ctx, engine)?;
             match value {
                 Value::Module(m) => {
-                    let name = m.name().to_string();
+                    let name =
+                        if import.new_name().is_none() && import.imports().is_none() {
+                            import.bare_name().map_err(|_| {
+                                vec![SourceDiagnostic::error(
+                                    source_span,
+                                    "dynamic import requires an explicit name",
+                                )
+                                .with_hint("you can name the import with `as`")]
+                            })?
+                        } else {
+                            m.name().to_string()
+                        };
                     (m, name)
                 }
                 other => {
@@ -204,8 +215,7 @@ pub(super) fn eval_module_import(
     match import.imports() {
         None => {
             // Bare import: liga o módulo sob `new_name` (`as`) ou o nome por
-            // omissão (`bare_name` para ficheiro/pacote; `Module::name()` para
-            // fonte-módulo, P683).
+            // omissão (`bare_name` lexical, independente do nome do objeto).
             let bind = import
                 .new_name()
                 .map(|i| i.get().to_string())

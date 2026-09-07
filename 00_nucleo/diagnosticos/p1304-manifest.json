@@ -1,0 +1,915 @@
+{
+  "schema": "p1304-manifest-v1",
+  "protocol": "A/B bilateral with separate classification and independent verdict",
+  "regime": "executado sem atestação de isolamento técnico",
+  "baseline": {
+    "captured_at": "2026-09-04T23:26:57.069771-03:00",
+    "head": "5b4a0d0438a535c54fdb5e74b28903c1313f5bc2",
+    "status_short": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/tests.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/eval/tests.rs\n?? 00_nucleo/diagnosticos/p1303-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1303-adversarial-revision-1.md\n?? 00_nucleo/diagnosticos/p1303-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1303-candidate-runner.py\n?? 00_nucleo/diagnosticos/p1303-certificate.json\n?? 00_nucleo/diagnosticos/p1303-contract.md\n?? 00_nucleo/diagnosticos/p1303-final-measurement.json\n?? 00_nucleo/diagnosticos/p1303-final-report.md\n?? 00_nucleo/diagnosticos/p1303-implementation-receipt.md\n?? 00_nucleo/diagnosticos/p1303-l0-gate-receipt.md\n?? 00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md\n?? 00_nucleo/diagnosticos/p1303-manifest.json\n?? 00_nucleo/diagnosticos/p1303-mutant-ledger.json\n?? 00_nucleo/diagnosticos/p1303-oracle-receipt.md\n?? 00_nucleo/diagnosticos/p1303-pre-measurement.json\n?? 00_nucleo/diagnosticos/p1303-red-tests-receipt.md\n?? 00_nucleo/diagnosticos/p1303-verification-receipt.json\n?? 00_nucleo/materialization/typst-passo-1303.md\n?? 00_nucleo/materialization/typst-passo-1304.md\n",
+    "diff_head_stat": " .../prompts/compiler/eval/bindings/field_access.md |  80 +++++\n 00_nucleo/prompts/compiler/eval/tests.md           | 100 +++++-\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 382 ++++++++++++++++++++-\n 4 files changed, 562 insertions(+), 4 deletions(-)\n",
+    "diff_cached_stat": "",
+    "diff_binary_sha256": "fca8f14b7fcad814ca954d8933c05a6e2644683c9a4529d9f169bcfb5d1c2a49",
+    "tracked_paths": [
+      "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "00_nucleo/prompts/compiler/eval/tests.md",
+      "01_core/src/compiler/eval/bindings/field_access.rs",
+      "01_core/src/compiler/eval/tests.rs"
+    ],
+    "current_dirty_paths": [
+      {
+        "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+        "sha256": "92aa897909abfb6095ab59191614b0fd87c0d648e8e593ed8f0702176c2a542e",
+        "bytes": 26427
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/tests.md",
+        "sha256": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479",
+        "bytes": 15340
+      },
+      {
+        "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+        "sha256": "6b82a38b7c953ebe9dcbe96857dd9cb689aaaf69e95df153afa5de668ef89486",
+        "bytes": 35879
+      },
+      {
+        "path": "01_core/src/compiler/eval/tests.rs",
+        "sha256": "ab57d8c30dd54e1f8d638fcad4ab52e3c2c4bf9c4b3f674816806fe5ba8824b0",
+        "bytes": 732366
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-adversarial-plan.md",
+        "sha256": "ebaaad08d475a53fc2dc6fe41ea69c901069f302633b7e41ba0f5293031057b8",
+        "bytes": 20907
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-adversarial-revision-1.md",
+        "sha256": "0bb015a2a99f06a848889482be38c4e473502c2455eea74935cc8b892d5924c8",
+        "bytes": 12122
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-baseline-status.txt",
+        "sha256": "8e06d7deba171604986f5ae3eca4d9c2c964a2aaf6d2a0f1971f7aa27574d9a8",
+        "bytes": 2066
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-candidate-runner.py",
+        "sha256": "8d89d0d7189e3b5fa145cd9fad9e89541dc5667125dfaa7b964101b676cde53f",
+        "bytes": 14300
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-certificate.json",
+        "sha256": "77d209164fa3e2c9af5d5df69ee8ad7d72db8a5fc829e7469a827efcbc46fb90",
+        "bytes": 8425
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-contract.md",
+        "sha256": "837cb4bd1f38428d93cdadf9216c0182c69e3d8bfa8eb489ed52a710e2bbdf8a",
+        "bytes": 17189
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-final-measurement.json",
+        "sha256": "e56622f54973981c294233c3d1a3a12df4ef0bee13c91347fb1c343dd2d35ed7",
+        "bytes": 100277
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-final-report.md",
+        "sha256": "c4aa69ab55dc9dcfce69c305d57a74a87cd7690cdc3cbe52300f39c7f5a47bc8",
+        "bytes": 6972
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-implementation-receipt.md",
+        "sha256": "ccbfa2ea7644d6a6f4a7f779ceef15b116828077d277dc6a7388c014bbc37ef2",
+        "bytes": 6427
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-l0-gate-receipt.md",
+        "sha256": "98ae55dcc62a8b1d29e2ab7133997e06c3b6587354b5851d21cca70e657dbe15",
+        "bytes": 6011
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md",
+        "sha256": "bb7f015edc3a257472f210a3041d3067cd6c47c78e882682dcdce4f6836e53f4",
+        "bytes": 4658
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-manifest.json",
+        "sha256": "1ec694b8e9247fdd6eda821e2ab8a66b925d8e5b2386277d2402f7108618923a",
+        "bytes": 12980
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-mutant-ledger.json",
+        "sha256": "815993f122f0e303c1961b489db24e9f83c0bc7efc413664862f8b0714903f25",
+        "bytes": 439547
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-oracle-receipt.md",
+        "sha256": "f23960b7c5a59f0586fda5378588d52de7546ff8551a5c6787c322af6f652289",
+        "bytes": 5869
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-pre-measurement.json",
+        "sha256": "ef3a4eb0b6fcb3fb0e9b1d8ec54bfbfa8f1a4f7b58dd7c675cbf677bada573d4",
+        "bytes": 102006
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-red-tests-receipt.md",
+        "sha256": "d1d20e0510f328b1ee505c3344287d70e8d28f56ed2e4608943118f871806e4a",
+        "bytes": 228115
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-verification-receipt.json",
+        "sha256": "73243cecb10eb26ba4c7c5631939f7e5a8315134fcd9cf68a64221f3925e9e39",
+        "bytes": 2517115
+      },
+      {
+        "path": "00_nucleo/materialization/typst-passo-1303.md",
+        "sha256": "f1db5c02b7e6af5ef461900c213e928a8d16bbed156d8eba7ff5c6b32c584fe9",
+        "bytes": 16143
+      },
+      {
+        "path": "00_nucleo/materialization/typst-passo-1304.md",
+        "sha256": "1f4e33810c34afbdf86d675862fc495d391f417e875f86684d0154eb03f5695f",
+        "bytes": 17807
+      }
+    ],
+    "inputs": [
+      {
+        "path": "00_nucleo/diagnosticos/p1299-probe-catalog.json",
+        "sha256": "649dd46f05e67d376a8096756a31207a6a7d4087acf5fcbdd6688a59c4f934ae",
+        "bytes": 283818
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1299-feature-matrix.json",
+        "sha256": "58f08430c479ba5dea093945301785a89e77f20e9af0809ae05c6641a7ecdc11",
+        "bytes": 3446321
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1299-owner-ledger.tsv",
+        "sha256": "79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69",
+        "bytes": 119162
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1299-decision-report.md",
+        "sha256": "332425ce95df73ce8ea8e54e84aec31d37286a6dec8b07ce9b6b5f77e33eeb2e",
+        "bytes": 8653
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/repr.md",
+        "sha256": "555b6df222a931991f1a521b11fe2d8d58ee185cdcf90cd3f0eaf6d3c40c9355",
+        "bytes": 23388
+      },
+      {
+        "path": "00_nucleo/prompts/entities/module.md",
+        "sha256": "17d75e8c05e28546b7212ae232fa5d9e0474eda2b5bd7b67740e54ec3c1659a9",
+        "bytes": 2292
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/stdlib/color.md",
+        "sha256": "60de24ea6496a1c95fcc4af1883278164a2cd031351ef59278e654d7d485ff01",
+        "bytes": 23359
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/stdlib/loading.md",
+        "sha256": "d6cf9cd85c0c25dc3f7a5f6c3a9f47cf956d9fd6e998932ca87ab5b1e58e2c72",
+        "bytes": 16143
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval.md",
+        "sha256": "ce02b7d257e29742071497f112f1ea42ed734a93989e8fbb1332f1c09590f5e2",
+        "bytes": 10166
+      },
+      {
+        "path": "/usr/local/bin/typst",
+        "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+        "bytes": 51851160
+      }
+    ]
+  },
+  "roles": {
+    "coordinator": "root: freeze baseline/build, manifest and handoff only",
+    "runner": "separate context; catalog/profiles/output envelope only; no cohort preference",
+    "refinement": "separate context; observable repr and encoding experiments",
+    "classifier": "separate context; read owners, classify ledger and rank cohorts",
+    "verifier": "separate context; read-only verification; certificate author"
+  },
+  "unknown_policy": {
+    "execution_unknown": "blocking",
+    "ownership": "UNRESOLVED_OWNERSHIP is not selectable",
+    "truncated_repr": "not evidence of content equality",
+    "opacity": "only explicitly declared controls may be Unknown"
+  },
+  "write_allowlist": [
+    "00_nucleo/materialization/typst-passo-1304.md",
+    "00_nucleo/diagnosticos/p1304-baseline-status.txt",
+    "00_nucleo/diagnosticos/p1304-manifest.json",
+    "00_nucleo/diagnosticos/p1304-probe-catalog.json",
+    "00_nucleo/diagnosticos/p1304-feature-matrix.json",
+    "00_nucleo/diagnosticos/p1304-run-matrix.py",
+    "00_nucleo/diagnosticos/p1304-repr-refinement.json",
+    "00_nucleo/diagnosticos/p1304-encode-readiness.json",
+    "00_nucleo/diagnosticos/p1304-owner-ledger.tsv",
+    "00_nucleo/diagnosticos/p1304-verification-receipt.json",
+    "00_nucleo/diagnosticos/p1304-decision-report.md",
+    "00_nucleo/diagnosticos/p1304-certificate.json",
+    "00_nucleo/diagnosticos/p1304-prebuild.log",
+    "00_nucleo/diagnosticos/p1304-build.log",
+    "00_nucleo/diagnosticos/p1304-refinement.log",
+    "00_nucleo/diagnosticos/p1304-verification.log"
+  ],
+  "planned_commands": {
+    "prebuild": [
+      "cargo test -p typst-core p1303 -- --test-threads=1",
+      "crystalline-lint --fix-hashes --dry-run .",
+      "git diff --check"
+    ],
+    "build": "CARGO_TARGET_DIR=<fresh exclusive temp> cargo build --release --bin typst",
+    "verification": [
+      "cargo fmt --all -- --check",
+      "cargo test -p typst-core p1300 -- --test-threads=1",
+      "cargo test -p typst-core p1301 -- --test-threads=1",
+      "cargo test -p typst-core p1303 -- --test-threads=1",
+      "cargo build",
+      "crystalline-lint .",
+      "crystalline-lint --fail-on warning --checks v3,v4,v5,v13,v14,v15,v26 .",
+      "crystalline-lint --fix-hashes --dry-run .",
+      "git diff --check"
+    ]
+  },
+  "supplementary_sentinels": {
+    "reason": "Fase C requires eight controls absent from the historical 626-probe catalog; execute separately without changing the 627-probe main corpus.",
+    "paths": [
+      "calc.nope",
+      "color.map.nope",
+      "std.hsl",
+      "std.hsv",
+      "std.linear_rgb",
+      "std.rgb",
+      "sym.arrow",
+      "sym.nope"
+    ],
+    "profiles": 4,
+    "orders": [
+      "normal",
+      "inverted"
+    ],
+    "bilateral_comparisons": 64,
+    "binary_runs": 128
+  },
+  "build": {
+    "argv": [
+      "cargo",
+      "build",
+      "--release",
+      "--bin",
+      "typst"
+    ],
+    "cwd": "/repos/Antigravity/typst-crystalline",
+    "environment": {
+      "CARGO_TARGET_DIR": "/dev/shm/p1304-build.3xt5tH"
+    },
+    "started_at": "2026-09-04T23:28:46.094535-03:00",
+    "duration_ns": 187891797134,
+    "exit_code": 0,
+    "output_sha256": "849103c4c552e01ae742d74851be813bb478c5887a131e89f0b431cb027fbfce",
+    "binary": {
+      "path": "/dev/shm/p1304-build.3xt5tH/release/typst",
+      "sha256": "a31da4d06bf6f51e1d690a2c186c39bb78fd46a7a06de607d25168474c533668",
+      "bytes": 47597848,
+      "mode": "0555",
+      "version": "typst 0.15.1 (5b4a0d04)"
+    },
+    "log": {
+      "path": "00_nucleo/diagnosticos/p1304-build.log",
+      "sha256": "9dfabed9d8d00b0bf3c1a3afe5febd7aa423503143a0126cc5fddad9060ca3f2",
+      "bytes": 42175
+    }
+  },
+  "artifact_hash_policy": "Frozen evidence and baseline -> manifest -> independent verification receipt/certificate -> final decision report. No self-hash and no cycle. Manifest does not pin evolving verification outputs or report. Certificate must not pin the final report; report pins certificate after verdict.",
+  "state": "frozen_for_independent_verdict",
+  "frozen_at": "2026-09-05T03:00:35.863429+00:00",
+  "measured_source_inputs": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "ce02b7d257e29742071497f112f1ea42ed734a93989e8fbb1332f1c09590f5e2",
+      "bytes": 10166
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "555b6df222a931991f1a521b11fe2d8d58ee185cdcf90cd3f0eaf6d3c40c9355",
+      "bytes": 23388
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479",
+      "bytes": 15340
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "sha256": "3d009e06bd08828518297aed8a9b3e5bc580b32a6bcbad65a4b4554aa94f1d1e",
+      "bytes": 5592
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/color.md",
+      "sha256": "60de24ea6496a1c95fcc4af1883278164a2cd031351ef59278e654d7d485ff01",
+      "bytes": 23359
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/loading.md",
+      "sha256": "d6cf9cd85c0c25dc3f7a5f6c3a9f47cf956d9fd6e998932ca87ab5b1e58e2c72",
+      "bytes": 16143
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/plugin.md",
+      "sha256": "7b8f7feb04481b909114c351c52bfe8cca8b1c7095bebd2e6cee3ee170eab58a",
+      "bytes": 27893
+    },
+    {
+      "path": "00_nucleo/prompts/entities/module.md",
+      "sha256": "17d75e8c05e28546b7212ae232fa5d9e0474eda2b5bd7b67740e54ec3c1659a9",
+      "bytes": 2292
+    },
+    {
+      "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "sha256": "6b82a38b7c953ebe9dcbe96857dd9cb689aaaf69e95df153afa5de668ef89486",
+      "bytes": 35879
+    },
+    {
+      "path": "01_core/src/compiler/eval/mod.rs",
+      "sha256": "abb252ab84880a629ab3894c5fbdc0e8cf63d6459733c8985975b2f476f1adf7",
+      "bytes": 104153
+    },
+    {
+      "path": "01_core/src/compiler/eval/modules.rs",
+      "sha256": "2bc2bef67c9b23e7044736cdfaf1684c877d6cfd523a10cc615b0d3c3bfa5d78",
+      "bytes": 12877
+    },
+    {
+      "path": "01_core/src/compiler/eval/repr.rs",
+      "sha256": "ef68c178e15c5d87d74e71c9b1bf3113851b440fc3129bf074784289f88aa9c9",
+      "bytes": 80284
+    },
+    {
+      "path": "01_core/src/compiler/eval/tests.rs",
+      "sha256": "ab57d8c30dd54e1f8d638fcad4ab52e3c2c4bf9c4b3f674816806fe5ba8824b0",
+      "bytes": 732366
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/color.rs",
+      "sha256": "4bbff0858e5da0224e628d9ea6996fd0c511e2763c646e1374ee7c04d058b362",
+      "bytes": 29274
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/color_maps.hex",
+      "sha256": "05023885f0562856c5bbd32d6fc2776d2e71bd0fe9b5c739ae18d12a7d819ba1",
+      "bytes": 23623
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/loading.rs",
+      "sha256": "e9c768910a948d02142c87df4eb2c8117272eafd86fa32527b334193184b8730",
+      "bytes": 50271
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/mod.rs",
+      "sha256": "22b9ae3ff9efec1260e91c158eac00a7201f7bd86e04fa7c8653543eb94190d4",
+      "bytes": 504517
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/plugin.rs",
+      "sha256": "26eeeca158a44c4ff0551e45443d5695798e2bc18e3ef8ff14da342aa6024c91",
+      "bytes": 22256
+    },
+    {
+      "path": "01_core/src/entities/module.rs",
+      "sha256": "da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f",
+      "bytes": 5755
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/array.rs",
+      "sha256": "f1a920156cd2eb93f1da9a914307873b8895698c7c25ce9e2a678bae1bf5d35d",
+      "bytes": 44399
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/module.rs",
+      "sha256": "b577e71f25d6e23f4f185838c1a68816feb0b753b3b6166d94de8b77a572d75a",
+      "bytes": 5345
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/plugin.rs",
+      "sha256": "36e6685eec97bac085becef9899ea19ea8db7ec80c5dbe727bf43d9b0a66e717",
+      "bytes": 22945
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/value.rs",
+      "sha256": "c25a2bdb0a96c707414f1138f34bcc21c63ac06c507a32c81f029f6a374da885",
+      "bytes": 23892
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/lib.rs",
+      "sha256": "0f43c11dd22fc2da64e6f526d20f4257f8e324b087c70b7986d13694f5abb5ee",
+      "bytes": 13196
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/loading/json.rs",
+      "sha256": "e3a37d154e291210a3a8682a51a71a2134967a4a1fe4be9e3cdb81a7c3695688",
+      "bytes": 4244
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/loading/toml.rs",
+      "sha256": "29f521ca1f1ba38d40daeca6e5c18cd7d0885274bb364fe2b4479f06cadb4bb6",
+      "bytes": 3732
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/loading/yaml.rs",
+      "sha256": "f89e9d05a469946033bd80d2dc12854499cd751fa69845aa1c6561305afe5703",
+      "bytes": 3848
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/visualize/color.rs",
+      "sha256": "80473eba7460cb0f398e7937946e6412c1a8cb1cadffe00580aea9b48f6c0713",
+      "bytes": 122837
+    }
+  ],
+  "audited_owner_pairs": [
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/eval.md",
+        "sha256": "ce02b7d257e29742071497f112f1ea42ed734a93989e8fbb1332f1c09590f5e2",
+        "bytes": 10166
+      },
+      "declared_code_hash": "38aa5e89",
+      "consumer": {
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "sha256": "abb252ab84880a629ab3894c5fbdc0e8cf63d6459733c8985975b2f476f1adf7",
+        "bytes": 104153
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+        "sha256": "92aa897909abfb6095ab59191614b0fd87c0d648e8e593ed8f0702176c2a542e",
+        "bytes": 26427
+      },
+      "declared_code_hash": "2d102890",
+      "consumer": {
+        "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+        "sha256": "6b82a38b7c953ebe9dcbe96857dd9cb689aaaf69e95df153afa5de668ef89486",
+        "bytes": 35879
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/eval/repr.md",
+        "sha256": "555b6df222a931991f1a521b11fe2d8d58ee185cdcf90cd3f0eaf6d3c40c9355",
+        "bytes": 23388
+      },
+      "declared_code_hash": "d91654f3",
+      "consumer": {
+        "path": "01_core/src/compiler/eval/repr.rs",
+        "sha256": "ef68c178e15c5d87d74e71c9b1bf3113851b440fc3129bf074784289f88aa9c9",
+        "bytes": 80284
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/eval/tests.md",
+        "sha256": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479",
+        "bytes": 15340
+      },
+      "declared_code_hash": "44131ec1",
+      "consumer": {
+        "path": "01_core/src/compiler/eval/tests.rs",
+        "sha256": "ab57d8c30dd54e1f8d638fcad4ab52e3c2c4bf9c4b3f674816806fe5ba8824b0",
+        "bytes": 732366
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/calc.md",
+        "sha256": "0fc04b14b3cca19a203823ef392b56509d7ea2ff12a43550b2654fa2bb120f81",
+        "bytes": 16186
+      },
+      "declared_code_hash": "4f58eb82",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/calc.rs",
+        "sha256": "091b5db1fa5e00b0ee05f09578c909fd75642b3fb4a255e56b0c75f9c6715580",
+        "bytes": 54643
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/color.md",
+        "sha256": "60de24ea6496a1c95fcc4af1883278164a2cd031351ef59278e654d7d485ff01",
+        "bytes": 23359
+      },
+      "declared_code_hash": "356f1537",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/color.rs",
+        "sha256": "4bbff0858e5da0224e628d9ea6996fd0c511e2763c646e1374ee7c04d058b362",
+        "bytes": 29274
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+        "sha256": "a4802f75d7437152b3f738c90552db359e7a27efb71187636821eed8d407d27f",
+        "bytes": 13155
+      },
+      "declared_code_hash": "d19229e2",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/counter.rs",
+        "sha256": "873aa133447ba6402cf7949b900d562dc513f32397a84ca7ee0784dd6c1dd4e7",
+        "bytes": 28250
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/foundations/float.md",
+        "sha256": "f28cb58e46ced68ddb29335a35e8ade4f03a7c30a573c7e79a86b1ef3bc99107",
+        "bytes": 7844
+      },
+      "declared_code_hash": "c95f8eb6",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/foundations/float.rs",
+        "sha256": "b47b42e83b0aa56c07af41dab207ea1dd886a1f6f75d5b0f6ff54a811ad31e5c",
+        "bytes": 9171
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/foundations/selector.md",
+        "sha256": "1a603e05d436e5f2359f77e3e71c0e233478ecf13209f71801fb45ae40214799",
+        "bytes": 3346
+      },
+      "declared_code_hash": "38a8528f",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/foundations/selector.rs",
+        "sha256": "b8c1460f1ddd97b70b20a00366d1a5e8c2cd76e37cefb295e1baf757b1cdd179",
+        "bytes": 11560
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/html.md",
+        "sha256": "df741b13ec8a3630180d65c3b606aca20385ab2b00d3d93836e85b5fbdca9ac9",
+        "bytes": 34206
+      },
+      "declared_code_hash": "33e187a1",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/html.rs",
+        "sha256": "c6186114b04108e83b1382753bec4146aa126cf8055200e5695141881d95ff52",
+        "bytes": 67094
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/loading.md",
+        "sha256": "d6cf9cd85c0c25dc3f7a5f6c3a9f47cf956d9fd6e998932ca87ab5b1e58e2c72",
+        "bytes": 16143
+      },
+      "declared_code_hash": "9379f85f",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/loading.rs",
+        "sha256": "e9c768910a948d02142c87df4eb2c8117272eafd86fa32527b334193184b8730",
+        "bytes": 50271
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+        "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+        "bytes": 12994
+      },
+      "declared_code_hash": "56b9e300",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/math_style.rs",
+        "sha256": "6624abb69bbdc0dc71e0b879b160afa0642ffd23ddbb67952db710da52ead961",
+        "bytes": 9850
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/panic.md",
+        "sha256": "9e9003e0c322847298a227f78f58dda7e6f7d635f6525d1dad0d38d9d69bb012",
+        "bytes": 2331
+      },
+      "declared_code_hash": "277f949d",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/panic.rs",
+        "sha256": "e568e7bb3a8ba5e7b505f68593b078095fba6f5ed3f41b92a8d74d6ec49fca3c",
+        "bytes": 1486
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/plugin.md",
+        "sha256": "7b8f7feb04481b909114c351c52bfe8cca8b1c7095bebd2e6cee3ee170eab58a",
+        "bytes": 27893
+      },
+      "declared_code_hash": "6fec5b48",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/plugin.rs",
+        "sha256": "26eeeca158a44c4ff0551e45443d5695798e2bc18e3ef8ff14da342aa6024c91",
+        "bytes": 22256
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/primitives-constructors/version.md",
+        "sha256": "6e775351938a8480df7f2fbd1658cdd3d8ae7b5908c4ee8dc34e46a778ce4e5c",
+        "bytes": 1635
+      },
+      "declared_code_hash": "76701aae",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/primitives_constructors/version.rs",
+        "sha256": "ea53bd989c8ad1ffcde6f387df1f5ae522816fda9ec72adad0631ac4ccab4c1d",
+        "bytes": 12655
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/shapes.md",
+        "sha256": "389f4f7905fcdaa2d5f61040475c04571c489cef0720f7ef453f14e36e61ed17",
+        "bytes": 19950
+      },
+      "declared_code_hash": "6a9b5568",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/shapes.rs",
+        "sha256": "8827d5a10e7c1e96b68ba406a470e48b3e1ece3ef28be3d04053d2f742f689df",
+        "bytes": 48525
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+        "sha256": "daf180d5e77f0a9d307b8b1a2b148741a6ac82a776ab17a510f107c5bff42eb1",
+        "bytes": 10217
+      },
+      "declared_code_hash": "22d3e6d3",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/state.rs",
+        "sha256": "6e2f9441a9f619b730d5ea963151526e9ab1e0a481d44c0981f95e0b8d207f6a",
+        "bytes": 20585
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+        "sha256": "81e66889454d8f397ab5eafbd4c6a5e0f8a27993e15d2f3c81d307e804ff3b12",
+        "bytes": 64172
+      },
+      "declared_code_hash": "08c5c5f3",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/structural/mod.rs",
+        "sha256": "5670368128ee8477c9ee418cff4af1c6f9bc6140cf3a8f65b7bc24fe3ebdf832",
+        "bytes": 34258
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural/document.md",
+        "sha256": "efeabfeb8286212f9c29ad97caf225efc38977139671cb74a6813dc744ee1a92",
+        "bytes": 2242
+      },
+      "declared_code_hash": "093b7ea0",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/structural/document.rs",
+        "sha256": "ddf6a1c0b212acbe87dfe937f826c4be3c53d6673a01dfad092c008e799d8657",
+        "bytes": 5225
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+        "sha256": "18b2fb0d9a3e1f6a0ff9cd8fb2e25047b4c9f2185cb6a511ae022e7a9c4e80a2",
+        "bytes": 22110
+      },
+      "declared_code_hash": "81441281",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/structural/math.rs",
+        "sha256": "3e9ed614fd93d472f261f57a98bfc63d3ded706c11b2ea78a4fded944576a4a1",
+        "bytes": 75253
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+        "sha256": "e8dc3b96fd9a03ae21f87f602d85bb7b0b5b6eb95d6267dcbfe280a80d3b0632",
+        "bytes": 5851
+      },
+      "declared_code_hash": "01b891e9",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/structural/outline.rs",
+        "sha256": "4c494e4abca686e7a5713b01c5148cb9bba323ba87f0efd282da42792b2886e6",
+        "bytes": 7077
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+        "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd",
+        "bytes": 4192
+      },
+      "declared_code_hash": "d4d8c07e",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+        "sha256": "859b1305cb8912a32ef5a7f656caad9fbc3cb000b2706f6dd14acac1fd672ee2",
+        "bytes": 38043
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/sym.md",
+        "sha256": "42a2127215e9a37d69c90695e1be66a61320fa086ffd36b51a1ac3441c816f3d",
+        "bytes": 6823
+      },
+      "declared_code_hash": "9bfa8e7f",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/sym.rs",
+        "sha256": "8f45dc0953e591b8b058370b6a935a7982dcf25aeb3dcf625bcdf05898fa256f",
+        "bytes": 34535
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/text.md",
+        "sha256": "1dadbba93127f2b62a8728bf0a92c5378c8f52b15bff5aa9152290faf0ac72a5",
+        "bytes": 10400
+      },
+      "declared_code_hash": "a8732f7f",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/text/mod.rs",
+        "sha256": "876a4170bdc3c79e0f0d6b92dea175ead2420d66420c5023fe052fa27ecfb61a",
+        "bytes": 1118
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/text/case.md",
+        "sha256": "b40155505b65b4ff0d9b41c7c9ecaff1c51b467bdfab7fc356ac808288adbc2c",
+        "bytes": 3527
+      },
+      "declared_code_hash": "4382da9f",
+      "consumer": {
+        "path": "01_core/src/compiler/stdlib/text/case.rs",
+        "sha256": "a6dc97b1d230b74ac4807ae94f136e0d7ac817f378190a916e50fde7acc96578",
+        "bytes": 4936
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/entities/func.md",
+        "sha256": "52b6f6e7ca7714027d4e3a883f6e5ae888a48e4a5c67e45651b63b86d9811908",
+        "bytes": 17376
+      },
+      "declared_code_hash": "c57c2de2",
+      "consumer": {
+        "path": "01_core/src/entities/func.rs",
+        "sha256": "0287c1e122c15af282e98162d3f38f8bcd7e5747d5529b08d5186fc0bc8e80b9",
+        "bytes": 21986
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/entities/module.md",
+        "sha256": "17d75e8c05e28546b7212ae232fa5d9e0474eda2b5bd7b67740e54ec3c1659a9",
+        "bytes": 2292
+      },
+      "declared_code_hash": "3afc4142",
+      "consumer": {
+        "path": "01_core/src/entities/module.rs",
+        "sha256": "da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f",
+        "bytes": 5755
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/shell/diagnostic.md",
+        "sha256": "12f4ba4bf76930aec336bcc18965f62e61efd63f7c83dbcf0c95da82aae85575",
+        "bytes": 3855
+      },
+      "declared_code_hash": "0096c215",
+      "consumer": {
+        "path": "02_shell/src/diagnostic.rs",
+        "sha256": "40f2ef922f4f5dbc355a4c1b0242bc12bebb8e30d4e5e1def36bce16fd3a274d",
+        "bytes": 11144
+      }
+    },
+    {
+      "prompt": {
+        "path": "00_nucleo/prompts/wiring.md",
+        "sha256": "4e0661d71303fc367d9f29992809e21ecc3b66fcb6e4869eb45d705f8fe5876d",
+        "bytes": 23226
+      },
+      "declared_code_hash": "0d0307f2",
+      "consumer": {
+        "path": "04_wiring/src/main.rs",
+        "sha256": "40a7885a2d4aa6c9a02921461be44928f14e75f072bcda203433c55d1771a6f7",
+        "bytes": 23533
+      }
+    }
+  ],
+  "frozen_evidence": [
+    {
+      "path": "00_nucleo/diagnosticos/p1304-baseline-status.txt",
+      "sha256": "c94a8b6ec122ed6317d8019e0f357087cda679ba9124b8a0c9a60ceb720f3dda",
+      "bytes": 8130
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-prebuild.log",
+      "sha256": "47f33604e51e8871f1be60d1c75bb0f9e8ac68bf40d753c4e6c047477144df91",
+      "bytes": 225280
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-build.log",
+      "sha256": "9dfabed9d8d00b0bf3c1a3afe5febd7aa423503143a0126cc5fddad9060ca3f2",
+      "bytes": 42175
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-run-matrix.py",
+      "sha256": "6c9f60029d2e7cb422d73afcc98c9970dbde9b04723046459f70aec065f82ebc",
+      "bytes": 15646
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-probe-catalog.json",
+      "sha256": "78f2422d0b2dbf0b6ef65231a17db273775ddb269eef7cf002d36a38496b1661",
+      "bytes": 281941
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-feature-matrix.json",
+      "sha256": "7679f2438f59a3fdf3d17760f1398b3058b130b7c79f6234b86932fbecb810fb",
+      "bytes": 13390122
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-repr-refinement.json",
+      "sha256": "6b300e95e456fd36828e68f8b15889af2a8184e514ee5be57ad2c8c1c0b4f6d2",
+      "bytes": 23597943
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-encode-readiness.json",
+      "sha256": "156f56b9f65ad5fd4310aa7785d4667c1f2c20e13f3f5c8be43b280700e7b950",
+      "bytes": 854084
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-refinement.log",
+      "sha256": "622af79aec2da88f8e1b5a3c1b2fc95eca417870a43c048790d4c940fd9f90d1",
+      "bytes": 1986
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-owner-ledger.tsv",
+      "sha256": "01e038177dde246c3196af79bdb36eb13eb2e03364b0b091056cb2af8f4d6770",
+      "bytes": 155069
+    }
+  ],
+  "execution_scope": {
+    "fresh_release_builds": 1,
+    "full_main_corpus_runs": 1,
+    "main_probes": 627,
+    "profiles": [
+      "default",
+      "html",
+      "a11y",
+      "html+a11y"
+    ],
+    "normal_bilateral_pairs": 2508,
+    "inverted_bilateral_pairs": 768,
+    "supplementary_bilateral_pairs": 64,
+    "total_matrix_processes": 6680,
+    "repr_refinement_focal_revisions": 1,
+    "encode_probes": 114,
+    "independent_spotcheck_bilateral_pairs": 20,
+    "workspace_tests": "reuse P1303 final receipt only while exact product/L0 baseline pins remain unchanged",
+    "product_l0_test_edits": false,
+    "staging": false,
+    "commit": false
+  },
+  "classifier_selection": {
+    "cohort": "repr-module-and-large-array",
+    "priority": 4,
+    "productive_owner": "00_nucleo/prompts/compiler/eval/repr.md",
+    "paths": [
+      "repr(std)",
+      "color.map",
+      "color.map.cividis",
+      "color.map.coolwarm",
+      "color.map.crest",
+      "color.map.flare",
+      "color.map.icefire",
+      "color.map.mako",
+      "color.map.rainbow",
+      "color.map.rocket",
+      "color.map.turbo",
+      "color.map.vlag"
+    ],
+    "expected_gate": "ADR-0127_CONTINUOUS_PARITY_CORRECTION",
+    "gate_condition": "Only internal public-repr parity correction in the existing formatter; any new public entity/API/default/phase/compatibility change requires ADR-0127 human gate.",
+    "loading_encoders_priority": 5,
+    "loading_encoders_reason": "One semantic owner and available representation; additional productive glue owners count in tie-break, not category priority.",
+    "status": "selection proposed by independent classifier; verdict owned by verifier"
+  },
+  "downstream_outputs_unpinned": [
+    "00_nucleo/diagnosticos/p1304-verification.log",
+    "00_nucleo/diagnosticos/p1304-verification-receipt.json",
+    "00_nucleo/diagnosticos/p1304-certificate.json",
+    "00_nucleo/diagnosticos/p1304-decision-report.md"
+  ]
+}

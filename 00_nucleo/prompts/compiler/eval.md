@@ -207,3 +207,50 @@ preservado e aliases flat intactos. Algum sibling com underscore, pointer/call
 alterado ou divergência fora de escopo relaxada bloqueia o lote. `Unknown`
 nunca é sucesso. A mudança de identidade pública fica bloqueada pelo gate
 humano P1293 antes do código.
+
+## P1305-r2 — nome público do módulo global
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/eval/mod.rs:324` e `:562` constroem o global com
+`Module::new("std", stdlib.clone())`, enquanto o vanilla ratificado
+`a51e02804` constrói `Module::new("global", global)` em
+`lab/typst-original/crates/typst-library/src/lib.rs:374`. O nome do binding
+e o nome público do objeto são distintos no vanilla.
+
+A medição independente `00_nucleo/diagnosticos/p1305-r2-pre-measurement.json`,
+SHA-256 `fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0`,
+registra HEAD `8eb41b769eb840c7ab1063f981f98fdd4047952b` mais diff P1303
+não commitado, status/diff/stat, fixtures e saídas completas entre
+`2026-09-07T13:48:28.580684+00:00` e
+`2026-09-07T13:51:19.266604+00:00`. O baseline fresco tem SHA-256
+`4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d`;
+o vanilla, `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+`named-modules`, `named-aliases` e `document-route` medem `module(std)`
+contra `<module global>`, preservando lookup. A contraprova de import
+`std.typ` com reexport integral impede corrigir isso somente no formatter.
+O dono respondeu `Autorizado` à ampliação de construção neste owner e em
+`compiler/eval/modules`; `p1305-r2-reopening.md` registra essa exceção.
+
+### Decisão
+
+Nos entrypoints de expressão e documento, o objeto Module que transporta a
+stdlib não sombreada guarda exatamente o nome público `global`, usando o
+constructor e carrier existentes. O binding no scope base continua `std`;
+nenhum binding global chamado `global` é criado como efeito dessa mudança.
+Scope, valores, ordem, features, inputs e mecanismo de clonagem permanecem
+os vigentes. Aliases transportam o mesmo nome público do objeto.
+
+O owner de imports preserva separadamente o nome lexical do binding,
+conforme seu contrato P1305-r2. Este owner não muda import, Module, APIs,
+diagnósticos, serialização, defaults, fases ou render. Não acrescentar flags
+de origem nem reconhecer o conteúdo da stdlib para recuperar identidade.
+O formatter projeta o nome já guardado sob seu próprio L0.
+
+Aceitação cobre expressão, documento e sua equivalência com a construção
+do global dentro de imports, nos perfis default/html/a11y/html+a11y, com
+aliases, `std.rgb`, `std.calc` e gates existentes preservados. Refutam-na
+uma rota ainda nomeada `std`, binding `global` introduzido, mudança de
+lookup/feature ou necessidade de novo carrier. É correção de morfologia da
+linguagem em fluxo contínuo ADR-0127, na ampliação explicitamente autorizada;
+não corresponde a nova política de produto. `Unknown` obrigatório bloqueia.

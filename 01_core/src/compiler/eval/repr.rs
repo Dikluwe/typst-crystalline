@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash a7bc8b15
+//! @prompt-hash d9ff5309
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -34,7 +34,10 @@ pub fn repr_value(v: &Value) -> String {
         Value::Str(s) => format!("\"{}\"", s.as_str().escape_debug()),
         Value::Content(c) | Value::LocatedContent(c, _) => repr_content(c),
         Value::Array(arr) => {
-            let items: Vec<String> = arr.iter().map(repr_value).collect();
+            let mut items: Vec<String> = arr.iter().take(40).map(repr_value).collect();
+            if arr.len() > 40 {
+                items.push(format!(".. ({} items omitted)", arr.len() - 40));
+            }
             // P801 — array de exactamente 1 elemento leva vírgula final
             // (paridade vanilla `pretty_array_like(_, len == 1)`),
             // distinguindo-o de parênteses de agrupamento: `(5,)` ≠ `(5)`.
@@ -53,7 +56,7 @@ pub fn repr_value(v: &Value) -> String {
                 .collect();
             format!("({})", items.join(", "))
         }
-        Value::Module(m) => format!("module({})", m.name()),
+        Value::Module(m) => format!("<module {}>", m.name()),
         Value::Datetime(d) => repr_datetime(d),
         Value::Func(f) => {
             // **P744** — paridade vanilla medida: closures (anónimas ou
@@ -1306,7 +1309,7 @@ mod tests {
     fn repr_value_module() {
         use crate::entities::{module::Module, scope::Scope};
         let m = Module::new("mylib", Scope::new());
-        assert_eq!(repr_value(&Value::Module(m)), "module(mylib)");
+        assert_eq!(repr_value(&Value::Module(m)), "<module mylib>");
     }
 
     #[test]

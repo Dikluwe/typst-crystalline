@@ -1,0 +1,235 @@
+{
+  "schema": "p1305-r2-adversarial-plan-v1",
+  "author": "/root/p1305_r2_oracle",
+  "preflight_manifest_sha256": "dc295b83e5604eee55734168a1a3f13e58dba48b6b40b9715c191c381dd88366",
+  "contract_sha256": "0dff1413e9b47401a0ef8b0e298ad9f9f38810264889e23869503d560cf3e963",
+  "oracle_tests_sha256": "9c1bcfd3c079de5f507afab9a3123180a6e857fd787a8aaab94e7018a7737d65",
+  "pre_measurement_sha256": "fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0",
+  "candidate_exposure": "none; plan authored against baseline, vanilla and public contract",
+  "mutants": [
+    {
+      "id": "array-limit-39",
+      "mutation": "Represent only first39 values, count len-39",
+      "witness": "array-repr-40",
+      "rust_test": "p1305_array_repr_40",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "array-limit-41",
+      "mutation": "Represent first41 values rather than40",
+      "witness": "array-repr-41",
+      "rust_test": "p1305_array_repr_41",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "array-no-elision",
+      "mutation": "Restore all-item representation",
+      "witness": "array-repr-256",
+      "rust_test": "p1305_array_repr_256",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "array-wrong-omission-count",
+      "mutation": "Print len-39 with first40 values",
+      "witness": "array-repr-42",
+      "rust_test": "p1305_array_repr_42",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "array-data-truncated",
+      "mutation": "Truncate actual array to40 as side-effect of representation",
+      "witness": "array-data-256",
+      "rust_test": "p1305_full_array_values_survive_repr",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "array-data-reordered",
+      "mutation": "Reverse actual array or swap positions39 and40",
+      "witness": "array-data-81",
+      "rust_test": "p1305_full_array_values_survive_repr",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "array-hidden-item-replaced",
+      "mutation": "Replace actual hidden index40 -777 with0",
+      "witness": "array-distinct-after-boundary",
+      "rust_test": "p1305_array_distinct_after_boundary",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "array-known-maps-only",
+      "mutation": "Apply new repr only to arrays of known map colors; ordinary numeric/string arrays remain full",
+      "witness": "array-repr-41",
+      "rust_test": "p1305_array_repr_41",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "array-singleton-comma-lost",
+      "mutation": "Drop singleton trailing comma",
+      "witness": "array-repr-1",
+      "rust_test": "p1305_array_repr_1",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "array-indentation-lost",
+      "mutation": "Do not reindent an inner array multiline representation",
+      "witness": "nested-inner",
+      "rust_test": "p1305_nested_inner",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "helper-global-elision",
+      "mutation": "Install take40+marker in generic pretty_array_like instead of Array branch",
+      "witness": "direct-flat-content-sequence-41",
+      "rust_test": "p1305_content_sequence_does_not_inherit_array_elision",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "module-old-wrapper",
+      "mutation": "Restore module(name) wrapper for all named modules",
+      "witness": "named-modules",
+      "rust_test": "p1305_named_modules",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "global-expression-old-name",
+      "mutation": "Only expression constructor retains std object name",
+      "witness": "named-modules",
+      "rust_test": "p1305_named_modules",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "global-document-old-name",
+      "mutation": "Only document constructor retains std object name",
+      "witness": "document-route",
+      "rust_test": "p1305_document_global_constructor_all_profiles",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "global-imported-old-name",
+      "mutation": "Only imported-file constructor retains std object name",
+      "witness": "imported-route",
+      "rust_test": "p1305_imported_route",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "module-all-global",
+      "mutation": "Format every Module as <module global>",
+      "witness": "ordinary-collisions",
+      "rust_test": "p1305_ordinary_collisions",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "module-std-nominal-map",
+      "mutation": "Rewrite stored name std to global in formatter, including ordinary std.typ",
+      "witness": "ordinary-collisions",
+      "rust_test": "p1305_ordinary_collisions",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "import-bare-public-name",
+      "mutation": "Bind bare identifier Module by module.name, exposing global",
+      "witness": "global-bare-unbound",
+      "rust_test": "p1305_import_binding_negatives_and_dynamic_spans",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "import-field-public-name",
+      "mutation": "Bind holder.saved by object name instead of lexical saved",
+      "witness": "global-field-bare",
+      "rust_test": "p1305_global_field_bare",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "import-dynamic-accepted",
+      "mutation": "Omit Dynamic guard for unnamed parentheses/block/call",
+      "witness": "global-dynamic-block",
+      "rust_test": "p1305_import_binding_negatives_and_dynamic_spans",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "import-dynamic-hint-or-span",
+      "mutation": "Keep error text but lose hint or point outside full source expression",
+      "witness": "global-dynamic-unnamed",
+      "rust_test": "p1305_import_binding_negatives_and_dynamic_spans",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "import-dynamic-reject-as",
+      "mutation": "Apply Dynamic guard even with explicit as",
+      "witness": "global-dynamic-named",
+      "rust_test": "p1305_global_dynamic_named",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "import-dynamic-reject-items",
+      "mutation": "Apply Dynamic guard even with explicit items",
+      "witness": "global-dynamic-items",
+      "rust_test": "p1305_global_dynamic_items",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "import-dynamic-reject-wildcard",
+      "mutation": "Apply Dynamic guard even with wildcard list",
+      "witness": "global-dynamic-wildcard",
+      "rust_test": "p1305_global_dynamic_wildcard",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "module-reexport-lookup-removed",
+      "mutation": "Erase calc from ordinary std:* reexport to hide collision",
+      "witness": "reexport-collision",
+      "rust_test": "p1305_reexport_collision",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "lookup-removed",
+      "mutation": "Remove existing std.rgb or calc.abs to suppress representative observable",
+      "witness": "sentinel-lookups",
+      "rust_test": "p1301_lookups_de_modulo_existentes_preservam_valor_e_kind",
+      "expected": "Violated",
+      "required": true
+    },
+    {
+      "id": "feature-gate-bypassed",
+      "mutation": "Expose pdf.data-cell in default profile or hide it with a11y-extras",
+      "witness": "sentinel-pdf.data-cell",
+      "rust_test": "p1303_negativos_pdf_exatos_nos_perfis_sem_a11y",
+      "expected": "Violated",
+      "required": true
+    }
+  ],
+  "execution_policy": {
+    "preseal": "Verifier may calibrate public observable output transformations; these are not falsely labelled compiled product mutants. Demonstrate every applicable semantic negative is distinguished before sealing.",
+    "postcandidate": "Apply each source-level mutant in isolated temporary candidate copy; restore exact original bytes between mutants. Validate applicability and compile-success before claiming semantic kill. Rust test failure must identify listed public witness; compilation/fixture failures are Unknown and block.",
+    "scope": "Temporary adversarial changes to dependent producers may model actual-data/gate corruption; they are not authorized permanent product edits.",
+    "positive": "All intended measured values, unchanged structured data and explicit feature distinctions must remain Preserved. Baseline defects designated corrected are expected RED only until implementation.",
+    "opaque": "No actual opaque case required for this finite observed fragment. Plugin anonymity and unavailable encoders remain explicit scope-out, never synthetic Unknown controls or counted PASS.",
+    "budget": "At most2 unsuccessful focal revisions on same dominant cause; no repeated full627 corpus until focal positive/candidate gates pass."
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "schema": "p1304-certificate-v1",
+  "step": "P1304",
+  "generated_at": "2026-09-05T03:06:32.308108+00:00",
+  "issuer": "/root/p1304_verifier — INDEPENDENT_VERIFIER_H",
+  "regime": "executado sem atestação de isolamento técnico",
+  "technical_isolation_attested": false,
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1304-manifest.json",
+    "sha256": "eeeb675a6496860dc8a12a681d64b086574fb2d7264011ac162a45b43583d862",
+    "bytes": 34693
+  },
+  "verification_receipt": {
+    "path": "00_nucleo/diagnosticos/p1304-verification-receipt.json",
+    "sha256": "9c5b1800afcde5157905c99f71aeaad72972c735d6bca0327167d8a2a55d4a19",
+    "bytes": 20617
+  },
+  "verification_log": {
+    "path": "00_nucleo/diagnosticos/p1304-verification.log",
+    "sha256": "3025741f62f1ff84f6093878e246158dc3748705eb0b96408f556aba63316fc6",
+    "bytes": 1185442
+  },
+  "baseline": {
+    "head": "5b4a0d0438a535c54fdb5e74b28903c1313f5bc2",
+    "state": "HEAD + uncommitted certified P1303 candidate",
+    "tracked_diff_sha256": "fca8f14b7fcad814ca954d8933c05a6e2644683c9a4529d9f169bcfb5d1c2a49",
+    "tracked_paths": [
+      "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "00_nucleo/prompts/compiler/eval/tests.md",
+      "01_core/src/compiler/eval/bindings/field_access.rs",
+      "01_core/src/compiler/eval/tests.rs"
+    ],
+    "product_l0_hashes": {
+      "00_nucleo/prompts/compiler/eval/bindings/field_access.md": "92aa897909abfb6095ab59191614b0fd87c0d648e8e593ed8f0702176c2a542e",
+      "00_nucleo/prompts/compiler/eval/tests.md": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479",
+      "01_core/src/compiler/eval/bindings/field_access.rs": "6b82a38b7c953ebe9dcbe96857dd9cb689aaaf69e95df153afa5de668ef89486",
+      "01_core/src/compiler/eval/tests.rs": "ab57d8c30dd54e1f8d638fcad4ab52e3c2c4bf9c4b3f674816806fe5ba8824b0"
+    },
+    "source_unchanged_between_gates_and_final_manifest_audit": true,
+    "staging_empty": true,
+    "commit_created": false
+  },
+  "binaries": {
+    "crystalline": {
+      "path": "/dev/shm/p1304-build.3xt5tH/release/typst",
+      "sha256": "a31da4d06bf6f51e1d690a2c186c39bb78fd46a7a06de607d25168474c533668"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  },
+  "verdict": "P1304_PASS_P1305_COHORT_SELECTED",
+  "selected_cohort": {
+    "cohort": "repr-module-and-large-array",
+    "priority": 4,
+    "paths": [
+      "color.map",
+      "color.map.cividis",
+      "color.map.coolwarm",
+      "color.map.crest",
+      "color.map.flare",
+      "color.map.icefire",
+      "color.map.mako",
+      "color.map.rainbow",
+      "color.map.rocket",
+      "color.map.turbo",
+      "color.map.vlag",
+      "repr(std)"
+    ],
+    "productive_owners": [
+      "00_nucleo/prompts/compiler/eval/repr.md"
+    ],
+    "gate": "ADR-0127_CONTINUOUS_PARITY_CORRECTION",
+    "gate_limit": "Existing formatter only; new public entity/API/default/phase/compatibility change requires human gate. No implementation authorized.",
+    "why": "No measured temporal regression or eligible priority-2 contradiction remains. Matrix B has no divergent failure diagnostic; encoder E errors are consequences of absent members. Public repr defects are independently isolated by equal full map values and stable public module names, within one formatter owner. Encoders are priority 5 with one semantic owner and available carriers; registration glue affects tie-break, not priority.",
+    "tie_break": "Unique priority-4 cohort under the mandatory grouping of the step; no tie-break required. Two formatting projections, not one universal causal algorithm.",
+    "auxiliary_scope": [
+      "Named module repr controls corroborate formatter but do not inflate 12 scored paths.",
+      "Anonymous plugin identity and its message conflict with explicit plugin/Module contract; no existing canonical anonymous carrier is demonstrated. Priority-2 eligibility is absent.",
+      "External diagnostic path difference follows explicit L0 prefix-stripping/fallback contract; no demonstrated existing canonical alternative, so lower-priority contract debt.",
+      "Query successful warning differs, but successful bilateral classification compares values. Warning contract is outside frozen module observable; no warning parity claimed.",
+      "Panic was an adapter for divergent repr. Complete stderr differs, including anchor; no separately frozen paired equal-message panic control establishes an independent diagnostic cohort. Recorded as auxiliary limitation, not erased."
+    ]
+  },
+  "evidence_summary": {
+    "ordered_H_gates_passed": 9,
+    "ordered_H_gates_total": 9,
+    "workspace_tests": "P1303 receipt reused after complete product/L0 identity verification",
+    "normal_bilateral_pairs": 2508,
+    "inverted_bilateral_pairs": 768,
+    "supplementary_bilateral_pairs": 64,
+    "normal_runtime_classes": {
+      "CRYSTALLINE_ONLY": 168,
+      "MATCH_VALUE": 1708,
+      "VANILLA_ONLY": 336,
+      "DIFFERENT_VALUE": 48,
+      "MATCH_DIAGNOSTIC": 248
+    },
+    "unknown": 0,
+    "repetition_disagreements": 0,
+    "fresh_independent_bilateral_sample_pairs": 20,
+    "ledger_paths": 167,
+    "ledger_counts": {
+      "INTENTIONAL_PRODUCT_EXTENSION": 42,
+      "MISSING_LANGUAGE_MEMBER": 106,
+      "WRONG_PUBLIC_REPR": 12,
+      "CLOSED_CONFIRMED": 6,
+      "EXPECTED_FEATURE_DISABLED": 1
+    },
+    "residual_paths_preserved": 160,
+    "added_repr_std": 1,
+    "closed_historical_controls": 6,
+    "owner_pairs_verified_one_to_one": 29,
+    "all_15_map_data_digests_equal": true,
+    "all_3_encoders_vanilla_only": true,
+    "selection_unique": true,
+    "allowlist_pass": true,
+    "staging_empty": true,
+    "commit_created": false
+  },
+  "frozen_evidence": [
+    {
+      "path": "00_nucleo/diagnosticos/p1304-baseline-status.txt",
+      "sha256": "c94a8b6ec122ed6317d8019e0f357087cda679ba9124b8a0c9a60ceb720f3dda",
+      "bytes": 8130
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-prebuild.log",
+      "sha256": "47f33604e51e8871f1be60d1c75bb0f9e8ac68bf40d753c4e6c047477144df91",
+      "bytes": 225280
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-build.log",
+      "sha256": "9dfabed9d8d00b0bf3c1a3afe5febd7aa423503143a0126cc5fddad9060ca3f2",
+      "bytes": 42175
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-run-matrix.py",
+      "sha256": "6c9f60029d2e7cb422d73afcc98c9970dbde9b04723046459f70aec065f82ebc",
+      "bytes": 15646
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-probe-catalog.json",
+      "sha256": "78f2422d0b2dbf0b6ef65231a17db273775ddb269eef7cf002d36a38496b1661",
+      "bytes": 281941
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-feature-matrix.json",
+      "sha256": "7679f2438f59a3fdf3d17760f1398b3058b130b7c79f6234b86932fbecb810fb",
+      "bytes": 13390122
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-repr-refinement.json",
+      "sha256": "6b300e95e456fd36828e68f8b15889af2a8184e514ee5be57ad2c8c1c0b4f6d2",
+      "bytes": 23597943
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-encode-readiness.json",
+      "sha256": "156f56b9f65ad5fd4310aa7785d4667c1f2c20e13f3f5c8be43b280700e7b950",
+      "bytes": 854084
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-refinement.log",
+      "sha256": "622af79aec2da88f8e1b5a3c1b2fc95eca417870a43c048790d4c940fd9f90d1",
+      "bytes": 1986
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1304-owner-ledger.tsv",
+      "sha256": "01e038177dde246c3196af79bdb36eb13eb2e03364b0b091056cb2af8f4d6770",
+      "bytes": 155069
+    }
+  ],
+  "claim_limit": "Certifies only rebaseline of the 627-probe/four-profile surface, recorded sentinels/refinements and deterministic selection of one P1305 cohort. It does not certify general functional parity, anonymous-module parity, warning/span/path parity, implementation, an updated L0 or permission to implement.",
+  "detached_dag": {
+    "direction": "manifest -> verification log/receipt -> certificate -> final report",
+    "no_self_hash": true,
+    "final_report_not_pinned": true,
+    "instruction": "The final decision report may pin this certificate after issuance. Any frozen-input drift invalidates the relevant chain."
+  }
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash f914a7c9
+//! @prompt-hash 2493828f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -321,7 +321,7 @@ pub fn eval_expression_with_features(
     let inputs = world.inputs();
     let mut global = Scope::new();
     let stdlib = make_stdlib_with_features(&inputs, features);
-    global.define("std", Value::Module(Module::new("std", stdlib.clone())));
+    global.define("std", Value::Module(Module::new("global", stdlib.clone())));
     for (name, binding) in stdlib.iter() {
         global.define(name, binding.value().clone());
     }
@@ -559,7 +559,7 @@ pub fn eval_with_full_error_target_and_features(
         // `Library::std = Binding::detached(global.clone())`). Sombreável
         // como qualquer outro nome (medido: `#let std = "oops"` funciona
         // no vanilla) — por isso um binding normal, sem mecanismo especial.
-        global.define("std", Value::Module(Module::new("std", stdlib.clone())));
+        global.define("std", Value::Module(Module::new("global", stdlib.clone())));
         for (name, binding) in stdlib.iter() {
             global.define(name, binding.value().clone());
         }

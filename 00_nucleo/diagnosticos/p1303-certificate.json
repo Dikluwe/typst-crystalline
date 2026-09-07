@@ -1,0 +1,238 @@
+{
+  "artifact": {
+    "path": "00_nucleo/diagnosticos/p1303-certificate.json",
+    "self_hash": null,
+    "self_hash_policy": "forbidden: this certificate is identified externally and pinned by p1303-final-report.md"
+  },
+  "baseline_commit": "5b4a0d0438a535c54fdb5e74b28903c1313f5bc2",
+  "certified_at": "2026-09-04T01:50:14.711833513-03:00",
+  "claim": {
+    "fields": [
+      "pdf.data-cell",
+      "pdf.header-cell",
+      "pdf.table-summary"
+    ],
+    "limit": "Certification is limited to the three feature-gated spans and the explicit C-P1303-v1 sentinels; it is not a claim of general functional equivalence.",
+    "verdict": "P1303_CERTIFIED"
+  },
+  "evidence_summary": {
+    "final_bilateral_matrix": {
+      "comparison_count": 24,
+      "different_diagnostic": 0,
+      "execution_unknown": 0,
+      "per_order": {
+        "a11y": {
+          "MATCH_VALUE": 3
+        },
+        "default": {
+          "MATCH_DIAGNOSTIC": 3
+        },
+        "html": {
+          "MATCH_DIAGNOSTIC": 3
+        },
+        "html+a11y": {
+          "MATCH_VALUE": 3
+        }
+      },
+      "repeat_mismatches": 0,
+      "run_count": 48,
+      "unknown_runs": 0
+    },
+    "fresh_p8_checks": {
+      "cargo_fmt_check": "PASS",
+      "crystalline_lint_fix_hashes_dry_run": "PASS: Nothing to fix",
+      "git_diff_check": "PASS",
+      "p1303_focal": "PASS: 5 passed, 0 failed"
+    },
+    "l0_first": "PASS",
+    "mutation_gate": {
+      "applicable": 14,
+      "invalid_attempt": "M10-A: INVALID_MUTANT_EXECUTION, zero credit",
+      "killed": 14,
+      "m10_b": "valid synchronized execution, KILLED and restored",
+      "score": 1.0,
+      "unknown": 0
+    },
+    "ordered_p7_gates": "11/11 PASS",
+    "red": "exactly six span mismatches and no other mismatch",
+    "restoration": "all mutants restored; candidate and untouched pdf.rs hashes match"
+  },
+  "manifest": {
+    "bytes": 12980,
+    "path": "00_nucleo/diagnosticos/p1303-manifest.json",
+    "sha256": "1ec694b8e9247fdd6eda821e2ab8a66b925d8e5b2386277d2402f7108618923a"
+  },
+  "pinned_files": [
+    {
+      "bytes": 19017,
+      "path": "AGENTS.md",
+      "sha256": "bc50c0c6d54c0e301a5fe3c5c5869dbeef8fdf624096b0fa20185122c64d7da0"
+    },
+    {
+      "bytes": 4318,
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "bytes": 1798,
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "bytes": 4314,
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    },
+    {
+      "bytes": 16143,
+      "path": "00_nucleo/materialization/typst-passo-1303.md",
+      "sha256": "f1db5c02b7e6af5ef461900c213e928a8d16bbed156d8eba7ff5c6b32c584fe9"
+    },
+    {
+      "bytes": 3446321,
+      "path": "00_nucleo/diagnosticos/p1299-feature-matrix.json",
+      "sha256": "58f08430c479ba5dea093945301785a89e77f20e9af0809ae05c6641a7ecdc11"
+    },
+    {
+      "bytes": 119162,
+      "path": "00_nucleo/diagnosticos/p1299-owner-ledger.tsv",
+      "sha256": "79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69"
+    },
+    {
+      "bytes": 8653,
+      "path": "00_nucleo/diagnosticos/p1299-decision-report.md",
+      "sha256": "332425ce95df73ce8ea8e54e84aec31d37286a6dec8b07ce9b6b5f77e33eeb2e"
+    },
+    {
+      "bytes": 2638,
+      "path": "00_nucleo/diagnosticos/p1302-final-report.md",
+      "sha256": "e421db23565da3fe60f1c1fed689d2bfa56e1380827b2b7e73f37d9ba9346211"
+    },
+    {
+      "bytes": 2066,
+      "path": "00_nucleo/diagnosticos/p1303-baseline-status.txt",
+      "sha256": "8e06d7deba171604986f5ae3eca4d9c2c964a2aaf6d2a0f1971f7aa27574d9a8"
+    },
+    {
+      "bytes": 102006,
+      "path": "00_nucleo/diagnosticos/p1303-pre-measurement.json",
+      "sha256": "ef3a4eb0b6fcb3fb0e9b1d8ec54bfbfa8f1a4f7b58dd7c675cbf677bada573d4"
+    },
+    {
+      "bytes": 5869,
+      "path": "00_nucleo/diagnosticos/p1303-oracle-receipt.md",
+      "sha256": "f23960b7c5a59f0586fda5378588d52de7546ff8551a5c6787c322af6f652289"
+    },
+    {
+      "bytes": 17189,
+      "path": "00_nucleo/diagnosticos/p1303-contract.md",
+      "sha256": "837cb4bd1f38428d93cdadf9216c0182c69e3d8bfa8eb489ed52a710e2bbdf8a"
+    },
+    {
+      "bytes": 20907,
+      "path": "00_nucleo/diagnosticos/p1303-adversarial-plan.md",
+      "sha256": "ebaaad08d475a53fc2dc6fe41ea69c901069f302633b7e41ba0f5293031057b8"
+    },
+    {
+      "bytes": 12122,
+      "path": "00_nucleo/diagnosticos/p1303-adversarial-revision-1.md",
+      "sha256": "0bb015a2a99f06a848889482be38c4e473502c2455eea74935cc8b892d5924c8"
+    },
+    {
+      "bytes": 6011,
+      "path": "00_nucleo/diagnosticos/p1303-l0-gate-receipt.md",
+      "sha256": "98ae55dcc62a8b1d29e2ab7133997e06c3b6587354b5851d21cca70e657dbe15"
+    },
+    {
+      "bytes": 228115,
+      "path": "00_nucleo/diagnosticos/p1303-red-tests-receipt.md",
+      "sha256": "d1d20e0510f328b1ee505c3344287d70e8d28f56ed2e4608943118f871806e4a"
+    },
+    {
+      "bytes": 6427,
+      "path": "00_nucleo/diagnosticos/p1303-implementation-receipt.md",
+      "sha256": "ccbfa2ea7644d6a6f4a7f779ceef15b116828077d277dc6a7388c014bbc37ef2"
+    },
+    {
+      "bytes": 4658,
+      "path": "00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md",
+      "sha256": "bb7f015edc3a257472f210a3041d3067cd6c47c78e882682dcdce4f6836e53f4"
+    },
+    {
+      "bytes": 439547,
+      "path": "00_nucleo/diagnosticos/p1303-mutant-ledger.json",
+      "sha256": "815993f122f0e303c1961b489db24e9f83c0bc7efc413664862f8b0714903f25"
+    },
+    {
+      "bytes": 14300,
+      "path": "00_nucleo/diagnosticos/p1303-candidate-runner.py",
+      "sha256": "8d89d0d7189e3b5fa145cd9fad9e89541dc5667125dfaa7b964101b676cde53f"
+    },
+    {
+      "bytes": 100277,
+      "path": "00_nucleo/diagnosticos/p1303-final-measurement.json",
+      "sha256": "e56622f54973981c294233c3d1a3a12df4ef0bee13c91347fb1c343dd2d35ed7"
+    },
+    {
+      "bytes": 2517115,
+      "path": "00_nucleo/diagnosticos/p1303-verification-receipt.json",
+      "sha256": "73243cecb10eb26ba4c7c5631939f7e5a8315134fcd9cf68a64221f3925e9e39"
+    },
+    {
+      "bytes": 26427,
+      "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "sha256": "92aa897909abfb6095ab59191614b0fd87c0d648e8e593ed8f0702176c2a542e"
+    },
+    {
+      "bytes": 15340,
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479"
+    },
+    {
+      "bytes": 6988,
+      "path": "00_nucleo/prompts/compiler/stdlib/pdf.md",
+      "sha256": "33cd1462491b6e94801d13d04a5b4cca9d223b008542fb835d5c4932f58d495a"
+    },
+    {
+      "bytes": 880,
+      "path": "00_nucleo/prompts/_nuclei/eval/core.toml",
+      "sha256": "b25c19c1f2a1af23f8bead57ad57a976cc6879b467a01aa0c426b41d1eefb631"
+    },
+    {
+      "bytes": 35879,
+      "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "sha256": "6b82a38b7c953ebe9dcbe96857dd9cb689aaaf69e95df153afa5de668ef89486"
+    },
+    {
+      "bytes": 732366,
+      "path": "01_core/src/compiler/eval/tests.rs",
+      "sha256": "ab57d8c30dd54e1f8d638fcad4ab52e3c2c4bf9c4b3f674816806fe5ba8824b0"
+    },
+    {
+      "bytes": 17833,
+      "path": "01_core/src/compiler/stdlib/pdf.rs",
+      "sha256": "b1d7b325eace8f6d819a16c6ff7c135f1ca42781bacaec71888045dbd977ce4d"
+    },
+    {
+      "bytes": 51851160,
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  ],
+  "provenance": {
+    "causal_predecessor": "00_nucleo/diagnosticos/p1303-manifest.json@sha256:1ec694b8e9247fdd6eda821e2ab8a66b925d8e5b2386277d2402f7108618923a",
+    "regime": "complete protocol executed without technical isolation attestation",
+    "technical_isolation_attested": false
+  },
+  "residual_inventory": {
+    "ledger_total": 160,
+    "paths_by_class": {
+      "EXPECTED_FEATURE_DISABLED": 1,
+      "INTENTIONAL_PRODUCT_EXTENSION": 42,
+      "MISSING_LANGUAGE_MEMBER": 106,
+      "WRONG_PUBLIC_KIND_OR_IDENTITY": 11
+    },
+    "repr_std": "separate public-identity item outside the ledger for the next rebaseline"
+  },
+  "schema": "p1303-certificate-v1"
+}

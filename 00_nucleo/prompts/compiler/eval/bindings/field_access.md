@@ -436,3 +436,83 @@ autorizou explicitamente a reabertura dedicada em `2026-09-03`, após o
 veredito `P1300_BLOCKED_IMPLEMENTATION`. O gate funcional é RED→GREEN contra o
 oracle vanilla, seguido de nova cadeia segregada e resselo; a cadeia P1300 não
 é reutilizada.
+
+## P1303 — span dos fields `pdf.*` bloqueados por `a11y-extras`
+
+### Medição fresca anterior à decisão
+
+Em `2026-09-04T00:38:07.847942-03:00`–`00:38:10.279557-03:00`, no HEAD
+`5b4a0d0438a535c54fdb5e74b28903c1313f5bc2` e working tree não commitada
+sem diff tracked ou staged, o oracle fresco
+`00_nucleo/diagnosticos/p1303-pre-measurement.json` (SHA-256
+`ef3a4eb0b6fcb3fb0e9b1d8ec54bfbfa8f1a4f7b58dd7c675cbf677bada573d4`)
+executou `48` runs e `24` comparações, em ordem normal e invertida, contra o
+vanilla ratificado de SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8` e um
+binário cristalino release fresco de SHA-256
+`28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a`.
+
+Nos perfis `default` e `html`, os três acessos `pdf.data-cell`,
+`pdf.header-cell` e `pdf.table-summary` produziram em ambos os produtos exit
+`1`, stdout vazio, exatamente um erro primário, zero diagnósticos laterais, a
+mesma mensagem e os mesmos dois hints na mesma ordem. A única diferença foi a
+âncora: vanilla `14..23`, `14..25` e `14..27`, cobrindo respectivamente
+`data-cell`, `header-cell` e `table-summary`; cristalino `10..23`, `10..25` e
+`10..27`, cobrindo `pdf.<field>`. Nos perfis `a11y` e `html+a11y`, os três
+fields coincidiram como `(function, "data-cell")`, `(function,
+"header-cell")` e `(function, "table-summary")`. A ordem normal mediu `3`
+`DIFFERENT_DIAGNOSTIC` em cada perfil negativo e `3` `MATCH_VALUE` em cada
+perfil positivo; somadas as duas ordens, foram `12`
+`DIFFERENT_DIAGNOSTIC`, `12` `MATCH_VALUE`, `0` Unknown e `0` divergências de
+repetição.
+
+O span, a mensagem, os hints e a cardinalidade do diagnóstico são observáveis
+da linguagem sob ADR-0107; a função/helper Rust e a forma de selecionar o span
+são mecânica interna. A medição não atribui intenção a todo comportamento do
+vanilla: ela confirma somente o contrato público desses três erros e dos três
+sucessos feature-gated.
+
+É inferência que a âncora total usada pelo ramo especial de feature ausente é
+causa suficiente das seis divergências, porque todos os demais observáveis
+negativos coincidem e os seis casos positivos já coincidem. Refutam essa
+inferência: qualquer diferença fresca de mensagem, hints, severidade ou
+cardinalidade; divergência com `a11y-extras` ligada; impossibilidade de resolver
+o span do identificador; outro owner causal; ou necessidade de alterar API
+pública, default, feature, compatibilidade ou fase do pipeline. Nenhuma dessas
+condições foi medida.
+
+### Classificação e decisão
+
+Classificação: `ADR-0127_CONTINUOUS_DIAGNOSTIC_PARITY`. Trata-se de correção
+interna e localizada de paridade diagnóstica, sem campo de entidade, método de
+trait, assinatura pública, comportamento por defeito, mudança de fase ou quebra
+de compatibilidade. O fluxo é L0-first + resselo e segue sem nova paragem humana
+para o gate RED→GREEN e a revalidação.
+
+Quando `eval_field_access` intercepta a ausência de `a11y-extras` para
+exatamente `pdf.data-cell`, `pdf.header-cell` ou `pdf.table-summary`, o erro
+deve usar somente o span de `access.field()`: todos e somente os bytes do
+identificador à direita do ponto. Não deve incluir `pdf`, o ponto, bytes à
+esquerda ou à direita, nem truncar o field. Mensagem, severidade, os dois hints
+e sua ordem, cardinalidade e gate de disponibilidade permanecem inalterados.
+Com `a11y-extras` ligada, valor, kind `function`, nome/`repr` e morfologia das
+chamadas permanecem os vigentes.
+
+A regra é exclusiva do ramo especial desses três fields. É proibido
+generalizá-la ao erro de dicionário ou a targets não cobertos; alterar a regra
+geral de `Module` e a projeção `std` → `global` seladas por P1301r2; ou regredir
+a exceção field-only de `float("NaN").is-nan` selada por P1293.
+
+Também é proibido mover o gate para `stdlib/pdf`, duplicar o catálogo, criar
+blacklist/fallback reflexivo, expor o trio sem `a11y-extras`, ocultá-lo com a
+feature ligada, alterar `pdf.attach`/`pdf.artifact`, `color.map`, o gate `html`,
+extensões cristalinas, `Module`, `Scope`, `Features`, entidades, traits,
+assinaturas públicas, defaults, CLI, exportadores, wiring, lab ou a fase
+`eval`/`layout`. Se a correção field-only não satisfizer o contrato, voltar à
+medição e bloquear/ampliar somente mediante novo L0 e classificação aplicável.
+
+Aceitação limita-se aos três spans feature-gated nos quatro perfis, com ordem
+normal/invertida, repetição determinística e `0` Unknown. Não prova equivalência
+funcional geral de `pdf`, do compilador, do PDF exportado ou da acessibilidade,
+nem autoriza resolver membros ausentes, `repr(std)` ou o inventário residual
+P1299.

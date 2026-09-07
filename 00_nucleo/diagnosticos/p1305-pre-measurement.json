@@ -1,0 +1,2025 @@
+{
+  "schema": "p1305-module-preflight-v1",
+  "manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1305-manifest.json",
+    "sha256": "783cf02f9832e7a06ce0e53a1bc356ee5ca13eb3f225fc506649c023cc665b3b",
+    "bytes": 14013
+  },
+  "runner": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1305-preflight-runner.py",
+    "sha256": "4510ea004fad72d31a39929652f9c1eea478299c287d9f8c8ca1f75feeb1f21b",
+    "bytes": 5109
+  },
+  "baseline": {
+    "time": "2026-09-07T13:13:27.378524+00:00",
+    "head": "8eb41b769eb840c7ab1063f981f98fdd4047952b",
+    "status": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/tests.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/eval/tests.rs\n?? 00_nucleo/diagnosticos/p1303-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1303-adversarial-revision-1.md\n?? 00_nucleo/diagnosticos/p1303-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1303-candidate-runner.py\n?? 00_nucleo/diagnosticos/p1303-certificate.json\n?? 00_nucleo/diagnosticos/p1303-contract.md\n?? 00_nucleo/diagnosticos/p1303-final-measurement.json\n?? 00_nucleo/diagnosticos/p1303-final-report.md\n?? 00_nucleo/diagnosticos/p1303-implementation-receipt.md\n?? 00_nucleo/diagnosticos/p1303-l0-gate-receipt.md\n?? 00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md\n?? 00_nucleo/diagnosticos/p1303-manifest.json\n?? 00_nucleo/diagnosticos/p1303-mutant-ledger.json\n?? 00_nucleo/diagnosticos/p1303-oracle-receipt.md\n?? 00_nucleo/diagnosticos/p1303-pre-measurement.json\n?? 00_nucleo/diagnosticos/p1303-red-tests-receipt.md\n?? 00_nucleo/diagnosticos/p1303-verification-receipt.json\n?? 00_nucleo/diagnosticos/p1304-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1304-build.log\n?? 00_nucleo/diagnosticos/p1304-certificate.json\n?? 00_nucleo/diagnosticos/p1304-decision-report.md\n?? 00_nucleo/diagnosticos/p1304-encode-readiness.json\n?? 00_nucleo/diagnosticos/p1304-feature-matrix.json\n?? 00_nucleo/diagnosticos/p1304-manifest.json\n?? 00_nucleo/diagnosticos/p1304-owner-ledger.tsv\n?? 00_nucleo/diagnosticos/p1304-prebuild.log\n?? 00_nucleo/diagnosticos/p1304-probe-catalog.json\n?? 00_nucleo/diagnosticos/p1304-refinement.log\n?? 00_nucleo/diagnosticos/p1304-repr-refinement.json\n?? 00_nucleo/diagnosticos/p1304-run-matrix.py\n?? 00_nucleo/diagnosticos/p1304-verification-receipt.json\n?? 00_nucleo/diagnosticos/p1304-verification.log\n?? 00_nucleo/materialization/typst-passo-1303.md\n?? 00_nucleo/materialization/typst-passo-1304.md\n",
+    "stat": " .../prompts/compiler/eval/bindings/field_access.md |  80 +++++\n 00_nucleo/prompts/compiler/eval/tests.md           | 100 +++++-\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 382 ++++++++++++++++++++-\n 4 files changed, 562 insertions(+), 4 deletions(-)\n",
+    "diff_sha256": "fca8f14b7fcad814ca954d8933c05a6e2644683c9a4529d9f169bcfb5d1c2a49",
+    "dirty_pins": [
+      {
+        "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+        "sha256": "92aa897909abfb6095ab59191614b0fd87c0d648e8e593ed8f0702176c2a542e",
+        "bytes": 26427
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/tests.md",
+        "sha256": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479",
+        "bytes": 15340
+      },
+      {
+        "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+        "sha256": "6b82a38b7c953ebe9dcbe96857dd9cb689aaaf69e95df153afa5de668ef89486",
+        "bytes": 35879
+      },
+      {
+        "path": "01_core/src/compiler/eval/tests.rs",
+        "sha256": "ab57d8c30dd54e1f8d638fcad4ab52e3c2c4bf9c4b3f674816806fe5ba8824b0",
+        "bytes": 732366
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-adversarial-plan.md",
+        "sha256": "ebaaad08d475a53fc2dc6fe41ea69c901069f302633b7e41ba0f5293031057b8",
+        "bytes": 20907
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-adversarial-revision-1.md",
+        "sha256": "0bb015a2a99f06a848889482be38c4e473502c2455eea74935cc8b892d5924c8",
+        "bytes": 12122
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-baseline-status.txt",
+        "sha256": "8e06d7deba171604986f5ae3eca4d9c2c964a2aaf6d2a0f1971f7aa27574d9a8",
+        "bytes": 2066
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-candidate-runner.py",
+        "sha256": "8d89d0d7189e3b5fa145cd9fad9e89541dc5667125dfaa7b964101b676cde53f",
+        "bytes": 14300
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-certificate.json",
+        "sha256": "77d209164fa3e2c9af5d5df69ee8ad7d72db8a5fc829e7469a827efcbc46fb90",
+        "bytes": 8425
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-contract.md",
+        "sha256": "837cb4bd1f38428d93cdadf9216c0182c69e3d8bfa8eb489ed52a710e2bbdf8a",
+        "bytes": 17189
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-final-measurement.json",
+        "sha256": "e56622f54973981c294233c3d1a3a12df4ef0bee13c91347fb1c343dd2d35ed7",
+        "bytes": 100277
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-final-report.md",
+        "sha256": "c4aa69ab55dc9dcfce69c305d57a74a87cd7690cdc3cbe52300f39c7f5a47bc8",
+        "bytes": 6972
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-implementation-receipt.md",
+        "sha256": "ccbfa2ea7644d6a6f4a7f779ceef15b116828077d277dc6a7388c014bbc37ef2",
+        "bytes": 6427
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-l0-gate-receipt.md",
+        "sha256": "98ae55dcc62a8b1d29e2ab7133997e06c3b6587354b5851d21cca70e657dbe15",
+        "bytes": 6011
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md",
+        "sha256": "bb7f015edc3a257472f210a3041d3067cd6c47c78e882682dcdce4f6836e53f4",
+        "bytes": 4658
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-manifest.json",
+        "sha256": "1ec694b8e9247fdd6eda821e2ab8a66b925d8e5b2386277d2402f7108618923a",
+        "bytes": 12980
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-mutant-ledger.json",
+        "sha256": "815993f122f0e303c1961b489db24e9f83c0bc7efc413664862f8b0714903f25",
+        "bytes": 439547
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-oracle-receipt.md",
+        "sha256": "f23960b7c5a59f0586fda5378588d52de7546ff8551a5c6787c322af6f652289",
+        "bytes": 5869
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-pre-measurement.json",
+        "sha256": "ef3a4eb0b6fcb3fb0e9b1d8ec54bfbfa8f1a4f7b58dd7c675cbf677bada573d4",
+        "bytes": 102006
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-red-tests-receipt.md",
+        "sha256": "d1d20e0510f328b1ee505c3344287d70e8d28f56ed2e4608943118f871806e4a",
+        "bytes": 228115
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1303-verification-receipt.json",
+        "sha256": "73243cecb10eb26ba4c7c5631939f7e5a8315134fcd9cf68a64221f3925e9e39",
+        "bytes": 2517115
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-baseline-status.txt",
+        "sha256": "c94a8b6ec122ed6317d8019e0f357087cda679ba9124b8a0c9a60ceb720f3dda",
+        "bytes": 8130
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-build.log",
+        "sha256": "9dfabed9d8d00b0bf3c1a3afe5febd7aa423503143a0126cc5fddad9060ca3f2",
+        "bytes": 42175
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-certificate.json",
+        "sha256": "3e6aebcbedb2eb9fec44f3fed7446a68f1f63bc8b5d01c872034b3d8a97e86e4",
+        "bytes": 8256
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-decision-report.md",
+        "sha256": "92e7ecf2ac895c56831a0d4619ba79d703372cff029885bbe1101511f13425bd",
+        "bytes": 26719
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-encode-readiness.json",
+        "sha256": "156f56b9f65ad5fd4310aa7785d4667c1f2c20e13f3f5c8be43b280700e7b950",
+        "bytes": 854084
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-feature-matrix.json",
+        "sha256": "7679f2438f59a3fdf3d17760f1398b3058b130b7c79f6234b86932fbecb810fb",
+        "bytes": 13390122
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-manifest.json",
+        "sha256": "eeeb675a6496860dc8a12a681d64b086574fb2d7264011ac162a45b43583d862",
+        "bytes": 34693
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-owner-ledger.tsv",
+        "sha256": "01e038177dde246c3196af79bdb36eb13eb2e03364b0b091056cb2af8f4d6770",
+        "bytes": 155069
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-prebuild.log",
+        "sha256": "47f33604e51e8871f1be60d1c75bb0f9e8ac68bf40d753c4e6c047477144df91",
+        "bytes": 225280
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-probe-catalog.json",
+        "sha256": "78f2422d0b2dbf0b6ef65231a17db273775ddb269eef7cf002d36a38496b1661",
+        "bytes": 281941
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-refinement.log",
+        "sha256": "622af79aec2da88f8e1b5a3c1b2fc95eca417870a43c048790d4c940fd9f90d1",
+        "bytes": 1986
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-repr-refinement.json",
+        "sha256": "6b300e95e456fd36828e68f8b15889af2a8184e514ee5be57ad2c8c1c0b4f6d2",
+        "bytes": 23597943
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-run-matrix.py",
+        "sha256": "6c9f60029d2e7cb422d73afcc98c9970dbde9b04723046459f70aec065f82ebc",
+        "bytes": 15646
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-verification-receipt.json",
+        "sha256": "9c5b1800afcde5157905c99f71aeaad72972c735d6bca0327167d8a2a55d4a19",
+        "bytes": 20617
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-verification.log",
+        "sha256": "3025741f62f1ff84f6093878e246158dc3748705eb0b96408f556aba63316fc6",
+        "bytes": 1185442
+      },
+      {
+        "path": "00_nucleo/materialization/typst-passo-1303.md",
+        "sha256": "f1db5c02b7e6af5ef461900c213e928a8d16bbed156d8eba7ff5c6b32c584fe9",
+        "bytes": 16143
+      },
+      {
+        "path": "00_nucleo/materialization/typst-passo-1304.md",
+        "sha256": "1f4e33810c34afbdf86d675862fc495d391f417e875f86684d0154eb03f5695f",
+        "bytes": 17807
+      }
+    ],
+    "inputs": [
+      {
+        "path": "00_nucleo/materialization/typst-passo-1305.md",
+        "sha256": "d5a681584a19138b1ddb5eefc4bd2d666434513534b983d1822ab9a623da0920",
+        "bytes": 15496
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-manifest.json",
+        "sha256": "eeeb675a6496860dc8a12a681d64b086574fb2d7264011ac162a45b43583d862",
+        "bytes": 34693
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1304-certificate.json",
+        "sha256": "3e6aebcbedb2eb9fec44f3fed7446a68f1f63bc8b5d01c872034b3d8a97e86e4",
+        "bytes": 8256
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/repr.md",
+        "sha256": "555b6df222a931991f1a521b11fe2d8d58ee185cdcf90cd3f0eaf6d3c40c9355",
+        "bytes": 23388
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/tests.md",
+        "sha256": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479",
+        "bytes": 15340
+      },
+      {
+        "path": "00_nucleo/prompts/entities/module.md",
+        "sha256": "17d75e8c05e28546b7212ae232fa5d9e0474eda2b5bd7b67740e54ec3c1659a9",
+        "bytes": 2292
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/modules.md",
+        "sha256": "dd0f3ea34d68ddf3b1ebf57c28f29f7bf351fbac868387288089e08487c0c085",
+        "bytes": 676
+      },
+      {
+        "path": "01_core/src/compiler/eval/repr.rs",
+        "sha256": "ef68c178e15c5d87d74e71c9b1bf3113851b440fc3129bf074784289f88aa9c9",
+        "bytes": 80284
+      },
+      {
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "sha256": "abb252ab84880a629ab3894c5fbdc0e8cf63d6459733c8985975b2f476f1adf7",
+        "bytes": 104153
+      },
+      {
+        "path": "01_core/src/compiler/eval/modules.rs",
+        "sha256": "2bc2bef67c9b23e7044736cdfaf1684c877d6cfd523a10cc615b0d3c3bfa5d78",
+        "bytes": 12877
+      },
+      {
+        "path": "01_core/src/entities/module.rs",
+        "sha256": "da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f",
+        "bytes": 5755
+      },
+      {
+        "path": "/usr/local/bin/typst",
+        "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+        "bytes": 51851160
+      }
+    ]
+  },
+  "binary_pins": {
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "bytes": 51851160
+    },
+    "crystalline": {
+      "path": "/dev/shm/p1305-target.3j4tck2g/release/typst",
+      "sha256": "4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d",
+      "bytes": 47597584
+    }
+  },
+  "fixtures": [
+    {
+      "relative_path": "ordinary/std.typ",
+      "content": "#let x = 7\n",
+      "path": "/tmp/p1305-modules-o93uxrzb/ordinary/std.typ",
+      "sha256": "8aaa6b939351c27ab99dd14d32f0d0c1dbe5321db9227db401e5d24fc90b5c98",
+      "bytes": 11
+    },
+    {
+      "relative_path": "ordinary/global.typ",
+      "content": "#let x = 8\n",
+      "path": "/tmp/p1305-modules-o93uxrzb/ordinary/global.typ",
+      "sha256": "51452d60de7e0b6feb6cc49cdfab79f6d4f031cfce3458c3aa0c5244e80f2c93",
+      "bytes": 11
+    },
+    {
+      "relative_path": "ordinary/map.typ",
+      "content": "#let x = 9\n",
+      "path": "/tmp/p1305-modules-o93uxrzb/ordinary/map.typ",
+      "sha256": "221374266fa713ba847e0746eb59d8b22c2c3ad727a5e779364695585f8d5da2",
+      "bytes": 11
+    },
+    {
+      "relative_path": "reexport/std.typ",
+      "content": "#import std: *\n",
+      "path": "/tmp/p1305-modules-o93uxrzb/reexport/std.typ",
+      "sha256": "aabc0360722945cb56882564f47d7682c70ebc2539806cf4f363dfe44c3daf2e",
+      "bytes": 15
+    },
+    {
+      "relative_path": "main.typ",
+      "content": "#let global-alias = std\n#import \"ordinary/std.typ\" as ordinary\n#import \"ordinary/global.typ\" as named-global\n#import \"ordinary/map.typ\" as named-map\n#import \"reexport/std.typ\" as reexport\n#let reexport-alias = reexport\n#metadata((\n  global: repr(std),\n  global-alias: repr(global-alias),\n  ordinary: repr(ordinary),\n  named-global: repr(named-global),\n  named-map: repr(named-map),\n  reexport: repr(reexport),\n  reexport-alias: repr(reexport-alias),\n  kinds: (repr(type(std)), repr(type(ordinary)), repr(type(reexport))),\n  values: (ordinary.x, named-global.x, named-map.x),\n  builtin: (std.calc.abs(-7), reexport.calc.abs(-7)),\n  color-map: repr(color.map),\n)) <p1305-preflight>\n",
+      "path": "/tmp/p1305-modules-o93uxrzb/main.typ",
+      "sha256": "4ebef71c0ef6a2f51f712245a2ffb77144800b4775a186f2e1b73bba8cae412a",
+      "bytes": 680
+    }
+  ],
+  "profiles": {
+    "default": [],
+    "html": [
+      "html"
+    ],
+    "a11y": [
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "html",
+      "a11y-extras"
+    ]
+  },
+  "runs": [
+    {
+      "side": "vanilla",
+      "profile": "default",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:21.909194+00:00",
+      "duration_ns": 12348024,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+      "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-o93uxrzb/main.typ` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLW85M3V4cnpiL21haW4udHlwYCBpbnN0ZWFkCgo=",
+      "stderr_sha256": "a572ee6f5b2af8f3e9debd11a13394af6c5a7359d3ef81622c128301c6cb596a",
+      "value": {
+        "global": "<module global>",
+        "global-alias": "<module global>",
+        "ordinary": "<module std>",
+        "named-global": "<module global>",
+        "named-map": "<module map>",
+        "reexport": "<module std>",
+        "reexport-alias": "<module std>",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "<module map>"
+      }
+    },
+    {
+      "side": "crystalline",
+      "profile": "default",
+      "order": "normal",
+      "argv": [
+        "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:21.921720+00:00",
+      "duration_ns": 192447766,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"module(std)\",\"global-alias\":\"module(std)\",\"ordinary\":\"module(std)\",\"named-global\":\"module(global)\",\"named-map\":\"module(map)\",\"reexport\":\"module(std)\",\"reexport-alias\":\"module(std)\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"module(map)\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiJtb2R1bGUoc3RkKSIsImdsb2JhbC1hbGlhcyI6Im1vZHVsZShzdGQpIiwib3JkaW5hcnkiOiJtb2R1bGUoc3RkKSIsIm5hbWVkLWdsb2JhbCI6Im1vZHVsZShnbG9iYWwpIiwibmFtZWQtbWFwIjoibW9kdWxlKG1hcCkiLCJyZWV4cG9ydCI6Im1vZHVsZShzdGQpIiwicmVleHBvcnQtYWxpYXMiOiJtb2R1bGUoc3RkKSIsImtpbmRzIjpbIm1vZHVsZSIsIm1vZHVsZSIsIm1vZHVsZSJdLCJ2YWx1ZXMiOls3LDgsOV0sImJ1aWx0aW4iOls3LDddLCJjb2xvci1tYXAiOiJtb2R1bGUobWFwKSJ9Cg==",
+      "stdout_sha256": "683c1ef0a95c29a6cc61c056b5b99700131a6ba8733e07b6d44b9003baa241f3",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(...)' --in ...` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoLi4uKScgLS1pbiAuLi5gIGluc3RlYWQKCg==",
+      "stderr_sha256": "a06519dd691707c2eeef5d74a10b979869a6d87b542bc96fec7a4f1846c90cf3",
+      "value": {
+        "global": "module(std)",
+        "global-alias": "module(std)",
+        "ordinary": "module(std)",
+        "named-global": "module(global)",
+        "named-map": "module(map)",
+        "reexport": "module(std)",
+        "reexport-alias": "module(std)",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "module(map)"
+      }
+    },
+    {
+      "side": "vanilla",
+      "profile": "html",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.114415+00:00",
+      "duration_ns": 11745159,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+      "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-o93uxrzb/main.typ` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLW85M3V4cnpiL21haW4udHlwYCBpbnN0ZWFkCgo=",
+      "stderr_sha256": "a572ee6f5b2af8f3e9debd11a13394af6c5a7359d3ef81622c128301c6cb596a",
+      "value": {
+        "global": "<module global>",
+        "global-alias": "<module global>",
+        "ordinary": "<module std>",
+        "named-global": "<module global>",
+        "named-map": "<module map>",
+        "reexport": "<module std>",
+        "reexport-alias": "<module std>",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "<module map>"
+      }
+    },
+    {
+      "side": "crystalline",
+      "profile": "html",
+      "order": "normal",
+      "argv": [
+        "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.126379+00:00",
+      "duration_ns": 4388165,
+      "exit_code": 2,
+      "stdout": "",
+      "stdout_base64": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+      "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+      "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+      "value": null
+    },
+    {
+      "side": "vanilla",
+      "profile": "a11y",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.130871+00:00",
+      "duration_ns": 11674819,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+      "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-o93uxrzb/main.typ` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLW85M3V4cnpiL21haW4udHlwYCBpbnN0ZWFkCgo=",
+      "stderr_sha256": "a572ee6f5b2af8f3e9debd11a13394af6c5a7359d3ef81622c128301c6cb596a",
+      "value": {
+        "global": "<module global>",
+        "global-alias": "<module global>",
+        "ordinary": "<module std>",
+        "named-global": "<module global>",
+        "named-map": "<module map>",
+        "reexport": "<module std>",
+        "reexport-alias": "<module std>",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "<module map>"
+      }
+    },
+    {
+      "side": "crystalline",
+      "profile": "a11y",
+      "order": "normal",
+      "argv": [
+        "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.142673+00:00",
+      "duration_ns": 4348802,
+      "exit_code": 2,
+      "stdout": "",
+      "stdout_base64": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+      "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+      "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+      "value": null
+    },
+    {
+      "side": "vanilla",
+      "profile": "html+a11y",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.147159+00:00",
+      "duration_ns": 11451361,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+      "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-o93uxrzb/main.typ` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLW85M3V4cnpiL21haW4udHlwYCBpbnN0ZWFkCgo=",
+      "stderr_sha256": "a572ee6f5b2af8f3e9debd11a13394af6c5a7359d3ef81622c128301c6cb596a",
+      "value": {
+        "global": "<module global>",
+        "global-alias": "<module global>",
+        "ordinary": "<module std>",
+        "named-global": "<module global>",
+        "named-map": "<module map>",
+        "reexport": "<module std>",
+        "reexport-alias": "<module std>",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "<module map>"
+      }
+    },
+    {
+      "side": "crystalline",
+      "profile": "html+a11y",
+      "order": "normal",
+      "argv": [
+        "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.158763+00:00",
+      "duration_ns": 4359252,
+      "exit_code": 2,
+      "stdout": "",
+      "stdout_base64": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+      "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+      "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+      "value": null
+    },
+    {
+      "side": "crystalline",
+      "profile": "html+a11y",
+      "order": "inverted",
+      "argv": [
+        "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.163252+00:00",
+      "duration_ns": 4230672,
+      "exit_code": 2,
+      "stdout": "",
+      "stdout_base64": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+      "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+      "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+      "value": null
+    },
+    {
+      "side": "vanilla",
+      "profile": "html+a11y",
+      "order": "inverted",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.167578+00:00",
+      "duration_ns": 11546089,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+      "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-o93uxrzb/main.typ` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLW85M3V4cnpiL21haW4udHlwYCBpbnN0ZWFkCgo=",
+      "stderr_sha256": "a572ee6f5b2af8f3e9debd11a13394af6c5a7359d3ef81622c128301c6cb596a",
+      "value": {
+        "global": "<module global>",
+        "global-alias": "<module global>",
+        "ordinary": "<module std>",
+        "named-global": "<module global>",
+        "named-map": "<module map>",
+        "reexport": "<module std>",
+        "reexport-alias": "<module std>",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "<module map>"
+      }
+    },
+    {
+      "side": "crystalline",
+      "profile": "a11y",
+      "order": "inverted",
+      "argv": [
+        "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.179257+00:00",
+      "duration_ns": 4414775,
+      "exit_code": 2,
+      "stdout": "",
+      "stdout_base64": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+      "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+      "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+      "value": null
+    },
+    {
+      "side": "vanilla",
+      "profile": "a11y",
+      "order": "inverted",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.183759+00:00",
+      "duration_ns": 11525149,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+      "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-o93uxrzb/main.typ` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLW85M3V4cnpiL21haW4udHlwYCBpbnN0ZWFkCgo=",
+      "stderr_sha256": "a572ee6f5b2af8f3e9debd11a13394af6c5a7359d3ef81622c128301c6cb596a",
+      "value": {
+        "global": "<module global>",
+        "global-alias": "<module global>",
+        "ordinary": "<module std>",
+        "named-global": "<module global>",
+        "named-map": "<module map>",
+        "reexport": "<module std>",
+        "reexport-alias": "<module std>",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "<module map>"
+      }
+    },
+    {
+      "side": "crystalline",
+      "profile": "html",
+      "order": "inverted",
+      "argv": [
+        "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.195567+00:00",
+      "duration_ns": 4542072,
+      "exit_code": 2,
+      "stdout": "",
+      "stdout_base64": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+      "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+      "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+      "value": null
+    },
+    {
+      "side": "vanilla",
+      "profile": "html",
+      "order": "inverted",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.200207+00:00",
+      "duration_ns": 11282206,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+      "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-o93uxrzb/main.typ` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLW85M3V4cnpiL21haW4udHlwYCBpbnN0ZWFkCgo=",
+      "stderr_sha256": "a572ee6f5b2af8f3e9debd11a13394af6c5a7359d3ef81622c128301c6cb596a",
+      "value": {
+        "global": "<module global>",
+        "global-alias": "<module global>",
+        "ordinary": "<module std>",
+        "named-global": "<module global>",
+        "named-map": "<module map>",
+        "reexport": "<module std>",
+        "reexport-alias": "<module std>",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "<module map>"
+      }
+    },
+    {
+      "side": "crystalline",
+      "profile": "default",
+      "order": "inverted",
+      "argv": [
+        "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.211650+00:00",
+      "duration_ns": 191558367,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"module(std)\",\"global-alias\":\"module(std)\",\"ordinary\":\"module(std)\",\"named-global\":\"module(global)\",\"named-map\":\"module(map)\",\"reexport\":\"module(std)\",\"reexport-alias\":\"module(std)\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"module(map)\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiJtb2R1bGUoc3RkKSIsImdsb2JhbC1hbGlhcyI6Im1vZHVsZShzdGQpIiwib3JkaW5hcnkiOiJtb2R1bGUoc3RkKSIsIm5hbWVkLWdsb2JhbCI6Im1vZHVsZShnbG9iYWwpIiwibmFtZWQtbWFwIjoibW9kdWxlKG1hcCkiLCJyZWV4cG9ydCI6Im1vZHVsZShzdGQpIiwicmVleHBvcnQtYWxpYXMiOiJtb2R1bGUoc3RkKSIsImtpbmRzIjpbIm1vZHVsZSIsIm1vZHVsZSIsIm1vZHVsZSJdLCJ2YWx1ZXMiOls3LDgsOV0sImJ1aWx0aW4iOls3LDddLCJjb2xvci1tYXAiOiJtb2R1bGUobWFwKSJ9Cg==",
+      "stdout_sha256": "683c1ef0a95c29a6cc61c056b5b99700131a6ba8733e07b6d44b9003baa241f3",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(...)' --in ...` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoLi4uKScgLS1pbiAuLi5gIGluc3RlYWQKCg==",
+      "stderr_sha256": "a06519dd691707c2eeef5d74a10b979869a6d87b542bc96fec7a4f1846c90cf3",
+      "value": {
+        "global": "module(std)",
+        "global-alias": "module(std)",
+        "ordinary": "module(std)",
+        "named-global": "module(global)",
+        "named-map": "module(map)",
+        "reexport": "module(std)",
+        "reexport-alias": "module(std)",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "module(map)"
+      }
+    },
+    {
+      "side": "vanilla",
+      "profile": "default",
+      "order": "inverted",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "/tmp/p1305-modules-o93uxrzb/main.typ",
+        "<p1305-preflight>",
+        "--field",
+        "value",
+        "--one"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started_at": "2026-09-07T13:17:22.403439+00:00",
+      "duration_ns": 13446824,
+      "exit_code": 0,
+      "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+      "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+      "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-o93uxrzb/main.typ` instead\n\n",
+      "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLW85M3V4cnpiL21haW4udHlwYCBpbnN0ZWFkCgo=",
+      "stderr_sha256": "a572ee6f5b2af8f3e9debd11a13394af6c5a7359d3ef81622c128301c6cb596a",
+      "value": {
+        "global": "<module global>",
+        "global-alias": "<module global>",
+        "ordinary": "<module std>",
+        "named-global": "<module global>",
+        "named-map": "<module map>",
+        "reexport": "<module std>",
+        "reexport-alias": "<module std>",
+        "kinds": [
+          "module",
+          "module",
+          "module"
+        ],
+        "values": [
+          7,
+          8,
+          9
+        ],
+        "builtin": [
+          7,
+          7
+        ],
+        "color-map": "<module map>"
+      }
+    }
+  ],
+  "repetition": [
+    {
+      "profile": "default",
+      "side": "vanilla",
+      "same_exit_and_raw_channels": true
+    },
+    {
+      "profile": "default",
+      "side": "crystalline",
+      "same_exit_and_raw_channels": true
+    },
+    {
+      "profile": "html",
+      "side": "vanilla",
+      "same_exit_and_raw_channels": true
+    },
+    {
+      "profile": "html",
+      "side": "crystalline",
+      "same_exit_and_raw_channels": true
+    },
+    {
+      "profile": "a11y",
+      "side": "vanilla",
+      "same_exit_and_raw_channels": true
+    },
+    {
+      "profile": "a11y",
+      "side": "crystalline",
+      "same_exit_and_raw_channels": true
+    },
+    {
+      "profile": "html+a11y",
+      "side": "vanilla",
+      "same_exit_and_raw_channels": true
+    },
+    {
+      "profile": "html+a11y",
+      "side": "crystalline",
+      "same_exit_and_raw_channels": true
+    }
+  ],
+  "claim_limit": "Named module public values only; query deprecation warnings retained, not classified as new parity failures; source audit establishes carrier structure separately.",
+  "calibration_previous_attempt": {
+    "schema": "p1305-module-preflight-v1",
+    "manifest": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1305-manifest.json",
+      "sha256": "783cf02f9832e7a06ce0e53a1bc356ee5ca13eb3f225fc506649c023cc665b3b",
+      "bytes": 14013
+    },
+    "runner": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1305-preflight-runner.py",
+      "sha256": "3bb9dbb8f41a6039149ba9d5e8bbb95d29356a51f3cd3732fa8f29d7ae383c0d",
+      "bytes": 4645
+    },
+    "baseline": {
+      "time": "2026-09-07T13:13:27.378524+00:00",
+      "head": "8eb41b769eb840c7ab1063f981f98fdd4047952b",
+      "status": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/tests.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/eval/tests.rs\n?? 00_nucleo/diagnosticos/p1303-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1303-adversarial-revision-1.md\n?? 00_nucleo/diagnosticos/p1303-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1303-candidate-runner.py\n?? 00_nucleo/diagnosticos/p1303-certificate.json\n?? 00_nucleo/diagnosticos/p1303-contract.md\n?? 00_nucleo/diagnosticos/p1303-final-measurement.json\n?? 00_nucleo/diagnosticos/p1303-final-report.md\n?? 00_nucleo/diagnosticos/p1303-implementation-receipt.md\n?? 00_nucleo/diagnosticos/p1303-l0-gate-receipt.md\n?? 00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md\n?? 00_nucleo/diagnosticos/p1303-manifest.json\n?? 00_nucleo/diagnosticos/p1303-mutant-ledger.json\n?? 00_nucleo/diagnosticos/p1303-oracle-receipt.md\n?? 00_nucleo/diagnosticos/p1303-pre-measurement.json\n?? 00_nucleo/diagnosticos/p1303-red-tests-receipt.md\n?? 00_nucleo/diagnosticos/p1303-verification-receipt.json\n?? 00_nucleo/diagnosticos/p1304-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1304-build.log\n?? 00_nucleo/diagnosticos/p1304-certificate.json\n?? 00_nucleo/diagnosticos/p1304-decision-report.md\n?? 00_nucleo/diagnosticos/p1304-encode-readiness.json\n?? 00_nucleo/diagnosticos/p1304-feature-matrix.json\n?? 00_nucleo/diagnosticos/p1304-manifest.json\n?? 00_nucleo/diagnosticos/p1304-owner-ledger.tsv\n?? 00_nucleo/diagnosticos/p1304-prebuild.log\n?? 00_nucleo/diagnosticos/p1304-probe-catalog.json\n?? 00_nucleo/diagnosticos/p1304-refinement.log\n?? 00_nucleo/diagnosticos/p1304-repr-refinement.json\n?? 00_nucleo/diagnosticos/p1304-run-matrix.py\n?? 00_nucleo/diagnosticos/p1304-verification-receipt.json\n?? 00_nucleo/diagnosticos/p1304-verification.log\n?? 00_nucleo/materialization/typst-passo-1303.md\n?? 00_nucleo/materialization/typst-passo-1304.md\n",
+      "stat": " .../prompts/compiler/eval/bindings/field_access.md |  80 +++++\n 00_nucleo/prompts/compiler/eval/tests.md           | 100 +++++-\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 382 ++++++++++++++++++++-\n 4 files changed, 562 insertions(+), 4 deletions(-)\n",
+      "diff_sha256": "fca8f14b7fcad814ca954d8933c05a6e2644683c9a4529d9f169bcfb5d1c2a49",
+      "dirty_pins": [
+        {
+          "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+          "sha256": "92aa897909abfb6095ab59191614b0fd87c0d648e8e593ed8f0702176c2a542e",
+          "bytes": 26427
+        },
+        {
+          "path": "00_nucleo/prompts/compiler/eval/tests.md",
+          "sha256": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479",
+          "bytes": 15340
+        },
+        {
+          "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+          "sha256": "6b82a38b7c953ebe9dcbe96857dd9cb689aaaf69e95df153afa5de668ef89486",
+          "bytes": 35879
+        },
+        {
+          "path": "01_core/src/compiler/eval/tests.rs",
+          "sha256": "ab57d8c30dd54e1f8d638fcad4ab52e3c2c4bf9c4b3f674816806fe5ba8824b0",
+          "bytes": 732366
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-adversarial-plan.md",
+          "sha256": "ebaaad08d475a53fc2dc6fe41ea69c901069f302633b7e41ba0f5293031057b8",
+          "bytes": 20907
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-adversarial-revision-1.md",
+          "sha256": "0bb015a2a99f06a848889482be38c4e473502c2455eea74935cc8b892d5924c8",
+          "bytes": 12122
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-baseline-status.txt",
+          "sha256": "8e06d7deba171604986f5ae3eca4d9c2c964a2aaf6d2a0f1971f7aa27574d9a8",
+          "bytes": 2066
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-candidate-runner.py",
+          "sha256": "8d89d0d7189e3b5fa145cd9fad9e89541dc5667125dfaa7b964101b676cde53f",
+          "bytes": 14300
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-certificate.json",
+          "sha256": "77d209164fa3e2c9af5d5df69ee8ad7d72db8a5fc829e7469a827efcbc46fb90",
+          "bytes": 8425
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-contract.md",
+          "sha256": "837cb4bd1f38428d93cdadf9216c0182c69e3d8bfa8eb489ed52a710e2bbdf8a",
+          "bytes": 17189
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-final-measurement.json",
+          "sha256": "e56622f54973981c294233c3d1a3a12df4ef0bee13c91347fb1c343dd2d35ed7",
+          "bytes": 100277
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-final-report.md",
+          "sha256": "c4aa69ab55dc9dcfce69c305d57a74a87cd7690cdc3cbe52300f39c7f5a47bc8",
+          "bytes": 6972
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-implementation-receipt.md",
+          "sha256": "ccbfa2ea7644d6a6f4a7f779ceef15b116828077d277dc6a7388c014bbc37ef2",
+          "bytes": 6427
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-l0-gate-receipt.md",
+          "sha256": "98ae55dcc62a8b1d29e2ab7133997e06c3b6587354b5851d21cca70e657dbe15",
+          "bytes": 6011
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md",
+          "sha256": "bb7f015edc3a257472f210a3041d3067cd6c47c78e882682dcdce4f6836e53f4",
+          "bytes": 4658
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-manifest.json",
+          "sha256": "1ec694b8e9247fdd6eda821e2ab8a66b925d8e5b2386277d2402f7108618923a",
+          "bytes": 12980
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-mutant-ledger.json",
+          "sha256": "815993f122f0e303c1961b489db24e9f83c0bc7efc413664862f8b0714903f25",
+          "bytes": 439547
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-oracle-receipt.md",
+          "sha256": "f23960b7c5a59f0586fda5378588d52de7546ff8551a5c6787c322af6f652289",
+          "bytes": 5869
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-pre-measurement.json",
+          "sha256": "ef3a4eb0b6fcb3fb0e9b1d8ec54bfbfa8f1a4f7b58dd7c675cbf677bada573d4",
+          "bytes": 102006
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-red-tests-receipt.md",
+          "sha256": "d1d20e0510f328b1ee505c3344287d70e8d28f56ed2e4608943118f871806e4a",
+          "bytes": 228115
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1303-verification-receipt.json",
+          "sha256": "73243cecb10eb26ba4c7c5631939f7e5a8315134fcd9cf68a64221f3925e9e39",
+          "bytes": 2517115
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-baseline-status.txt",
+          "sha256": "c94a8b6ec122ed6317d8019e0f357087cda679ba9124b8a0c9a60ceb720f3dda",
+          "bytes": 8130
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-build.log",
+          "sha256": "9dfabed9d8d00b0bf3c1a3afe5febd7aa423503143a0126cc5fddad9060ca3f2",
+          "bytes": 42175
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-certificate.json",
+          "sha256": "3e6aebcbedb2eb9fec44f3fed7446a68f1f63bc8b5d01c872034b3d8a97e86e4",
+          "bytes": 8256
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-decision-report.md",
+          "sha256": "92e7ecf2ac895c56831a0d4619ba79d703372cff029885bbe1101511f13425bd",
+          "bytes": 26719
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-encode-readiness.json",
+          "sha256": "156f56b9f65ad5fd4310aa7785d4667c1f2c20e13f3f5c8be43b280700e7b950",
+          "bytes": 854084
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-feature-matrix.json",
+          "sha256": "7679f2438f59a3fdf3d17760f1398b3058b130b7c79f6234b86932fbecb810fb",
+          "bytes": 13390122
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-manifest.json",
+          "sha256": "eeeb675a6496860dc8a12a681d64b086574fb2d7264011ac162a45b43583d862",
+          "bytes": 34693
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-owner-ledger.tsv",
+          "sha256": "01e038177dde246c3196af79bdb36eb13eb2e03364b0b091056cb2af8f4d6770",
+          "bytes": 155069
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-prebuild.log",
+          "sha256": "47f33604e51e8871f1be60d1c75bb0f9e8ac68bf40d753c4e6c047477144df91",
+          "bytes": 225280
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-probe-catalog.json",
+          "sha256": "78f2422d0b2dbf0b6ef65231a17db273775ddb269eef7cf002d36a38496b1661",
+          "bytes": 281941
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-refinement.log",
+          "sha256": "622af79aec2da88f8e1b5a3c1b2fc95eca417870a43c048790d4c940fd9f90d1",
+          "bytes": 1986
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-repr-refinement.json",
+          "sha256": "6b300e95e456fd36828e68f8b15889af2a8184e514ee5be57ad2c8c1c0b4f6d2",
+          "bytes": 23597943
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-run-matrix.py",
+          "sha256": "6c9f60029d2e7cb422d73afcc98c9970dbde9b04723046459f70aec065f82ebc",
+          "bytes": 15646
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-verification-receipt.json",
+          "sha256": "9c5b1800afcde5157905c99f71aeaad72972c735d6bca0327167d8a2a55d4a19",
+          "bytes": 20617
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-verification.log",
+          "sha256": "3025741f62f1ff84f6093878e246158dc3748705eb0b96408f556aba63316fc6",
+          "bytes": 1185442
+        },
+        {
+          "path": "00_nucleo/materialization/typst-passo-1303.md",
+          "sha256": "f1db5c02b7e6af5ef461900c213e928a8d16bbed156d8eba7ff5c6b32c584fe9",
+          "bytes": 16143
+        },
+        {
+          "path": "00_nucleo/materialization/typst-passo-1304.md",
+          "sha256": "1f4e33810c34afbdf86d675862fc495d391f417e875f86684d0154eb03f5695f",
+          "bytes": 17807
+        }
+      ],
+      "inputs": [
+        {
+          "path": "00_nucleo/materialization/typst-passo-1305.md",
+          "sha256": "d5a681584a19138b1ddb5eefc4bd2d666434513534b983d1822ab9a623da0920",
+          "bytes": 15496
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-manifest.json",
+          "sha256": "eeeb675a6496860dc8a12a681d64b086574fb2d7264011ac162a45b43583d862",
+          "bytes": 34693
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1304-certificate.json",
+          "sha256": "3e6aebcbedb2eb9fec44f3fed7446a68f1f63bc8b5d01c872034b3d8a97e86e4",
+          "bytes": 8256
+        },
+        {
+          "path": "00_nucleo/prompts/compiler/eval/repr.md",
+          "sha256": "555b6df222a931991f1a521b11fe2d8d58ee185cdcf90cd3f0eaf6d3c40c9355",
+          "bytes": 23388
+        },
+        {
+          "path": "00_nucleo/prompts/compiler/eval/tests.md",
+          "sha256": "f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479",
+          "bytes": 15340
+        },
+        {
+          "path": "00_nucleo/prompts/entities/module.md",
+          "sha256": "17d75e8c05e28546b7212ae232fa5d9e0474eda2b5bd7b67740e54ec3c1659a9",
+          "bytes": 2292
+        },
+        {
+          "path": "00_nucleo/prompts/compiler/eval/modules.md",
+          "sha256": "dd0f3ea34d68ddf3b1ebf57c28f29f7bf351fbac868387288089e08487c0c085",
+          "bytes": 676
+        },
+        {
+          "path": "01_core/src/compiler/eval/repr.rs",
+          "sha256": "ef68c178e15c5d87d74e71c9b1bf3113851b440fc3129bf074784289f88aa9c9",
+          "bytes": 80284
+        },
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "abb252ab84880a629ab3894c5fbdc0e8cf63d6459733c8985975b2f476f1adf7",
+          "bytes": 104153
+        },
+        {
+          "path": "01_core/src/compiler/eval/modules.rs",
+          "sha256": "2bc2bef67c9b23e7044736cdfaf1684c877d6cfd523a10cc615b0d3c3bfa5d78",
+          "bytes": 12877
+        },
+        {
+          "path": "01_core/src/entities/module.rs",
+          "sha256": "da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f",
+          "bytes": 5755
+        },
+        {
+          "path": "/usr/local/bin/typst",
+          "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+          "bytes": 51851160
+        }
+      ]
+    },
+    "binary_pins": {
+      "vanilla": {
+        "path": "/usr/local/bin/typst",
+        "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+        "bytes": 51851160
+      },
+      "crystalline": {
+        "path": "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "sha256": "4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d",
+        "bytes": 47597584
+      }
+    },
+    "fixtures": [
+      {
+        "relative_path": "ordinary/std.typ",
+        "content": "#let x = 7\n",
+        "path": "/tmp/p1305-modules-e9js7rpu/ordinary/std.typ",
+        "sha256": "8aaa6b939351c27ab99dd14d32f0d0c1dbe5321db9227db401e5d24fc90b5c98",
+        "bytes": 11
+      },
+      {
+        "relative_path": "ordinary/global.typ",
+        "content": "#let x = 8\n",
+        "path": "/tmp/p1305-modules-e9js7rpu/ordinary/global.typ",
+        "sha256": "51452d60de7e0b6feb6cc49cdfab79f6d4f031cfce3458c3aa0c5244e80f2c93",
+        "bytes": 11
+      },
+      {
+        "relative_path": "ordinary/map.typ",
+        "content": "#let x = 9\n",
+        "path": "/tmp/p1305-modules-e9js7rpu/ordinary/map.typ",
+        "sha256": "221374266fa713ba847e0746eb59d8b22c2c3ad727a5e779364695585f8d5da2",
+        "bytes": 11
+      },
+      {
+        "relative_path": "reexport/std.typ",
+        "content": "#import std: *\n",
+        "path": "/tmp/p1305-modules-e9js7rpu/reexport/std.typ",
+        "sha256": "aabc0360722945cb56882564f47d7682c70ebc2539806cf4f363dfe44c3daf2e",
+        "bytes": 15
+      },
+      {
+        "relative_path": "main.typ",
+        "content": "#let global-alias = std\n#import \"ordinary/std.typ\" as ordinary\n#import \"ordinary/global.typ\" as named-global\n#import \"ordinary/map.typ\" as named-map\n#import \"reexport/std.typ\" as reexport\n#let reexport-alias = reexport\n#metadata((\n  global: repr(std),\n  global-alias: repr(global-alias),\n  ordinary: repr(ordinary),\n  named-global: repr(named-global),\n  named-map: repr(named-map),\n  reexport: repr(reexport),\n  reexport-alias: repr(reexport-alias),\n  kinds: (str(type(std)), str(type(ordinary)), str(type(reexport))),\n  values: (ordinary.x, named-global.x, named-map.x),\n  builtin: (std.calc.abs(-7), reexport.calc.abs(-7)),\n  color-map: repr(color.map),\n)) <p1305-preflight>\n",
+        "path": "/tmp/p1305-modules-e9js7rpu/main.typ",
+        "sha256": "937325d5ca3e40bcd41eaa7a9393b56d35bcbd45c23264e01786e48c75884d1a",
+        "bytes": 677
+      }
+    ],
+    "profiles": {
+      "default": [],
+      "html": [
+        "html"
+      ],
+      "a11y": [
+        "a11y-extras"
+      ],
+      "html+a11y": [
+        "html",
+        "a11y-extras"
+      ]
+    },
+    "runs": [
+      {
+        "side": "vanilla",
+        "profile": "default",
+        "order": "normal",
+        "argv": [
+          "/usr/local/bin/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:17.987071+00:00",
+        "duration_ns": 13274703,
+        "exit_code": 0,
+        "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+        "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+        "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-e9js7rpu/main.typ` instead\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLWU5anM3cnB1L21haW4udHlwYCBpbnN0ZWFkCgo=",
+        "stderr_sha256": "1ae75639cf878be0dac0a661f5b6c90230c2d1622cce7e81467dec77e596a472",
+        "value": {
+          "global": "<module global>",
+          "global-alias": "<module global>",
+          "ordinary": "<module std>",
+          "named-global": "<module global>",
+          "named-map": "<module map>",
+          "reexport": "<module std>",
+          "reexport-alias": "<module std>",
+          "kinds": [
+            "module",
+            "module",
+            "module"
+          ],
+          "values": [
+            7,
+            8,
+            9
+          ],
+          "builtin": [
+            7,
+            7
+          ],
+          "color-map": "<module map>"
+        }
+      },
+      {
+        "side": "crystalline",
+        "profile": "default",
+        "order": "normal",
+        "argv": [
+          "/dev/shm/p1305-target.3j4tck2g/release/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.000600+00:00",
+        "duration_ns": 821446348,
+        "exit_code": 1,
+        "stdout": "",
+        "stdout_base64": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(...)' --in ...` instead\n\nerror: str() não suporta type\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoLi4uKScgLS1pbiAuLi5gIGluc3RlYWQKCmVycm9yOiBzdHIoKSBuw6NvIHN1cG9ydGEgdHlwZQoK",
+        "stderr_sha256": "ec2b0245a0c7189b0c3d58141c1766d1b910d5bb83857b4321ec26a3933b3bf9",
+        "value": null
+      },
+      {
+        "side": "vanilla",
+        "profile": "html",
+        "order": "normal",
+        "argv": [
+          "/usr/local/bin/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "html"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.822154+00:00",
+        "duration_ns": 12567273,
+        "exit_code": 0,
+        "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+        "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+        "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-e9js7rpu/main.typ` instead\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLWU5anM3cnB1L21haW4udHlwYCBpbnN0ZWFkCgo=",
+        "stderr_sha256": "1ae75639cf878be0dac0a661f5b6c90230c2d1622cce7e81467dec77e596a472",
+        "value": {
+          "global": "<module global>",
+          "global-alias": "<module global>",
+          "ordinary": "<module std>",
+          "named-global": "<module global>",
+          "named-map": "<module map>",
+          "reexport": "<module std>",
+          "reexport-alias": "<module std>",
+          "kinds": [
+            "module",
+            "module",
+            "module"
+          ],
+          "values": [
+            7,
+            8,
+            9
+          ],
+          "builtin": [
+            7,
+            7
+          ],
+          "color-map": "<module map>"
+        }
+      },
+      {
+        "side": "crystalline",
+        "profile": "html",
+        "order": "normal",
+        "argv": [
+          "/dev/shm/p1305-target.3j4tck2g/release/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "html"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.834874+00:00",
+        "duration_ns": 4563352,
+        "exit_code": 2,
+        "stdout": "",
+        "stdout_base64": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+        "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+        "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+        "value": null
+      },
+      {
+        "side": "vanilla",
+        "profile": "a11y",
+        "order": "normal",
+        "argv": [
+          "/usr/local/bin/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "a11y-extras"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.839554+00:00",
+        "duration_ns": 12049918,
+        "exit_code": 0,
+        "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+        "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+        "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-e9js7rpu/main.typ` instead\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLWU5anM3cnB1L21haW4udHlwYCBpbnN0ZWFkCgo=",
+        "stderr_sha256": "1ae75639cf878be0dac0a661f5b6c90230c2d1622cce7e81467dec77e596a472",
+        "value": {
+          "global": "<module global>",
+          "global-alias": "<module global>",
+          "ordinary": "<module std>",
+          "named-global": "<module global>",
+          "named-map": "<module map>",
+          "reexport": "<module std>",
+          "reexport-alias": "<module std>",
+          "kinds": [
+            "module",
+            "module",
+            "module"
+          ],
+          "values": [
+            7,
+            8,
+            9
+          ],
+          "builtin": [
+            7,
+            7
+          ],
+          "color-map": "<module map>"
+        }
+      },
+      {
+        "side": "crystalline",
+        "profile": "a11y",
+        "order": "normal",
+        "argv": [
+          "/dev/shm/p1305-target.3j4tck2g/release/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "a11y-extras"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.851775+00:00",
+        "duration_ns": 4398084,
+        "exit_code": 2,
+        "stdout": "",
+        "stdout_base64": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+        "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+        "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+        "value": null
+      },
+      {
+        "side": "vanilla",
+        "profile": "html+a11y",
+        "order": "normal",
+        "argv": [
+          "/usr/local/bin/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.856267+00:00",
+        "duration_ns": 12172526,
+        "exit_code": 0,
+        "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+        "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+        "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-e9js7rpu/main.typ` instead\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLWU5anM3cnB1L21haW4udHlwYCBpbnN0ZWFkCgo=",
+        "stderr_sha256": "1ae75639cf878be0dac0a661f5b6c90230c2d1622cce7e81467dec77e596a472",
+        "value": {
+          "global": "<module global>",
+          "global-alias": "<module global>",
+          "ordinary": "<module std>",
+          "named-global": "<module global>",
+          "named-map": "<module map>",
+          "reexport": "<module std>",
+          "reexport-alias": "<module std>",
+          "kinds": [
+            "module",
+            "module",
+            "module"
+          ],
+          "values": [
+            7,
+            8,
+            9
+          ],
+          "builtin": [
+            7,
+            7
+          ],
+          "color-map": "<module map>"
+        }
+      },
+      {
+        "side": "crystalline",
+        "profile": "html+a11y",
+        "order": "normal",
+        "argv": [
+          "/dev/shm/p1305-target.3j4tck2g/release/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.868589+00:00",
+        "duration_ns": 4495316,
+        "exit_code": 2,
+        "stdout": "",
+        "stdout_base64": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+        "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+        "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+        "value": null
+      },
+      {
+        "side": "crystalline",
+        "profile": "html+a11y",
+        "order": "inverted",
+        "argv": [
+          "/dev/shm/p1305-target.3j4tck2g/release/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.873205+00:00",
+        "duration_ns": 4759708,
+        "exit_code": 2,
+        "stdout": "",
+        "stdout_base64": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+        "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+        "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+        "value": null
+      },
+      {
+        "side": "vanilla",
+        "profile": "html+a11y",
+        "order": "inverted",
+        "argv": [
+          "/usr/local/bin/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "html,a11y-extras"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.878076+00:00",
+        "duration_ns": 11573409,
+        "exit_code": 0,
+        "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+        "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+        "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-e9js7rpu/main.typ` instead\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLWU5anM3cnB1L21haW4udHlwYCBpbnN0ZWFkCgo=",
+        "stderr_sha256": "1ae75639cf878be0dac0a661f5b6c90230c2d1622cce7e81467dec77e596a472",
+        "value": {
+          "global": "<module global>",
+          "global-alias": "<module global>",
+          "ordinary": "<module std>",
+          "named-global": "<module global>",
+          "named-map": "<module map>",
+          "reexport": "<module std>",
+          "reexport-alias": "<module std>",
+          "kinds": [
+            "module",
+            "module",
+            "module"
+          ],
+          "values": [
+            7,
+            8,
+            9
+          ],
+          "builtin": [
+            7,
+            7
+          ],
+          "color-map": "<module map>"
+        }
+      },
+      {
+        "side": "crystalline",
+        "profile": "a11y",
+        "order": "inverted",
+        "argv": [
+          "/dev/shm/p1305-target.3j4tck2g/release/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "a11y-extras"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.889829+00:00",
+        "duration_ns": 4546561,
+        "exit_code": 2,
+        "stdout": "",
+        "stdout_base64": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+        "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+        "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+        "value": null
+      },
+      {
+        "side": "vanilla",
+        "profile": "a11y",
+        "order": "inverted",
+        "argv": [
+          "/usr/local/bin/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "a11y-extras"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.894526+00:00",
+        "duration_ns": 11824297,
+        "exit_code": 0,
+        "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+        "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+        "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-e9js7rpu/main.typ` instead\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLWU5anM3cnB1L21haW4udHlwYCBpbnN0ZWFkCgo=",
+        "stderr_sha256": "1ae75639cf878be0dac0a661f5b6c90230c2d1622cce7e81467dec77e596a472",
+        "value": {
+          "global": "<module global>",
+          "global-alias": "<module global>",
+          "ordinary": "<module std>",
+          "named-global": "<module global>",
+          "named-map": "<module map>",
+          "reexport": "<module std>",
+          "reexport-alias": "<module std>",
+          "kinds": [
+            "module",
+            "module",
+            "module"
+          ],
+          "values": [
+            7,
+            8,
+            9
+          ],
+          "builtin": [
+            7,
+            7
+          ],
+          "color-map": "<module map>"
+        }
+      },
+      {
+        "side": "crystalline",
+        "profile": "html",
+        "order": "inverted",
+        "argv": [
+          "/dev/shm/p1305-target.3j4tck2g/release/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "html"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.906545+00:00",
+        "duration_ns": 4314077,
+        "exit_code": 2,
+        "stdout": "",
+        "stdout_base64": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "error: unexpected argument '--features' found\n\n  tip: to pass '--features' as a value, use '-- --features'\n\nUsage: typst query --field <FIELD> --one <INPUT> <SELECTOR>\n\nFor more information, try '--help'.\n",
+        "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQgJy0tZmVhdHVyZXMnIGZvdW5kCgogIHRpcDogdG8gcGFzcyAnLS1mZWF0dXJlcycgYXMgYSB2YWx1ZSwgdXNlICctLSAtLWZlYXR1cmVzJwoKVXNhZ2U6IHR5cHN0IHF1ZXJ5IC0tZmllbGQgPEZJRUxEPiAtLW9uZSA8SU5QVVQ+IDxTRUxFQ1RPUj4KCkZvciBtb3JlIGluZm9ybWF0aW9uLCB0cnkgJy0taGVscCcuCg==",
+        "stderr_sha256": "5e90968d645501c9bcf2b0391e51850145746513e6a70e8449f9ef1c5a6f9402",
+        "value": null
+      },
+      {
+        "side": "vanilla",
+        "profile": "html",
+        "order": "inverted",
+        "argv": [
+          "/usr/local/bin/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one",
+          "--features",
+          "html"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.910967+00:00",
+        "duration_ns": 11731884,
+        "exit_code": 0,
+        "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+        "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+        "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-e9js7rpu/main.typ` instead\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLWU5anM3cnB1L21haW4udHlwYCBpbnN0ZWFkCgo=",
+        "stderr_sha256": "1ae75639cf878be0dac0a661f5b6c90230c2d1622cce7e81467dec77e596a472",
+        "value": {
+          "global": "<module global>",
+          "global-alias": "<module global>",
+          "ordinary": "<module std>",
+          "named-global": "<module global>",
+          "named-map": "<module map>",
+          "reexport": "<module std>",
+          "reexport-alias": "<module std>",
+          "kinds": [
+            "module",
+            "module",
+            "module"
+          ],
+          "values": [
+            7,
+            8,
+            9
+          ],
+          "builtin": [
+            7,
+            7
+          ],
+          "color-map": "<module map>"
+        }
+      },
+      {
+        "side": "crystalline",
+        "profile": "default",
+        "order": "inverted",
+        "argv": [
+          "/dev/shm/p1305-target.3j4tck2g/release/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:18.922834+00:00",
+        "duration_ns": 196236721,
+        "exit_code": 1,
+        "stdout": "",
+        "stdout_base64": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(...)' --in ...` instead\n\nerror: str() não suporta type\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoLi4uKScgLS1pbiAuLi5gIGluc3RlYWQKCmVycm9yOiBzdHIoKSBuw6NvIHN1cG9ydGEgdHlwZQoK",
+        "stderr_sha256": "ec2b0245a0c7189b0c3d58141c1766d1b910d5bb83857b4321ec26a3933b3bf9",
+        "value": null
+      },
+      {
+        "side": "vanilla",
+        "profile": "default",
+        "order": "inverted",
+        "argv": [
+          "/usr/local/bin/typst",
+          "query",
+          "/tmp/p1305-modules-e9js7rpu/main.typ",
+          "<p1305-preflight>",
+          "--field",
+          "value",
+          "--one"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started_at": "2026-09-07T13:16:19.119170+00:00",
+        "duration_ns": 11819298,
+        "exit_code": 0,
+        "stdout": "{\"global\":\"<module global>\",\"global-alias\":\"<module global>\",\"ordinary\":\"<module std>\",\"named-global\":\"<module global>\",\"named-map\":\"<module map>\",\"reexport\":\"<module std>\",\"reexport-alias\":\"<module std>\",\"kinds\":[\"module\",\"module\",\"module\"],\"values\":[7,8,9],\"builtin\":[7,7],\"color-map\":\"<module map>\"}\n",
+        "stdout_base64": "eyJnbG9iYWwiOiI8bW9kdWxlIGdsb2JhbD4iLCJnbG9iYWwtYWxpYXMiOiI8bW9kdWxlIGdsb2JhbD4iLCJvcmRpbmFyeSI6Ijxtb2R1bGUgc3RkPiIsIm5hbWVkLWdsb2JhbCI6Ijxtb2R1bGUgZ2xvYmFsPiIsIm5hbWVkLW1hcCI6Ijxtb2R1bGUgbWFwPiIsInJlZXhwb3J0IjoiPG1vZHVsZSBzdGQ+IiwicmVleHBvcnQtYWxpYXMiOiI8bW9kdWxlIHN0ZD4iLCJraW5kcyI6WyJtb2R1bGUiLCJtb2R1bGUiLCJtb2R1bGUiXSwidmFsdWVzIjpbNyw4LDldLCJidWlsdGluIjpbNyw3XSwiY29sb3ItbWFwIjoiPG1vZHVsZSBtYXA+In0K",
+        "stdout_sha256": "1c28db6391cc368d0a37c84912e5e9769f3293ee9a7c309485323f3be91c5727",
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<p1305-preflight>).first().value' --in /tmp/p1305-modules-e9js7rpu/main.typ` instead\n\n",
+        "stderr_base64": "d2FybmluZzogdGhlIGB0eXBzdCBxdWVyeWAgc3ViY29tbWFuZCBpcyBkZXByZWNhdGVkCiA9IGhpbnQ6IHVzZSBgdHlwc3QgZXZhbCAncXVlcnkoPHAxMzA1LXByZWZsaWdodD4pLmZpcnN0KCkudmFsdWUnIC0taW4gL3RtcC9wMTMwNS1tb2R1bGVzLWU5anM3cnB1L21haW4udHlwYCBpbnN0ZWFkCgo=",
+        "stderr_sha256": "1ae75639cf878be0dac0a661f5b6c90230c2d1622cce7e81467dec77e596a472",
+        "value": {
+          "global": "<module global>",
+          "global-alias": "<module global>",
+          "ordinary": "<module std>",
+          "named-global": "<module global>",
+          "named-map": "<module map>",
+          "reexport": "<module std>",
+          "reexport-alias": "<module std>",
+          "kinds": [
+            "module",
+            "module",
+            "module"
+          ],
+          "values": [
+            7,
+            8,
+            9
+          ],
+          "builtin": [
+            7,
+            7
+          ],
+          "color-map": "<module map>"
+        }
+      }
+    ],
+    "repetition": [
+      {
+        "profile": "default",
+        "side": "vanilla",
+        "same_exit_and_raw_channels": true
+      },
+      {
+        "profile": "default",
+        "side": "crystalline",
+        "same_exit_and_raw_channels": true
+      },
+      {
+        "profile": "html",
+        "side": "vanilla",
+        "same_exit_and_raw_channels": true
+      },
+      {
+        "profile": "html",
+        "side": "crystalline",
+        "same_exit_and_raw_channels": true
+      },
+      {
+        "profile": "a11y",
+        "side": "vanilla",
+        "same_exit_and_raw_channels": true
+      },
+      {
+        "profile": "a11y",
+        "side": "crystalline",
+        "same_exit_and_raw_channels": true
+      },
+      {
+        "profile": "html+a11y",
+        "side": "vanilla",
+        "same_exit_and_raw_channels": true
+      },
+      {
+        "profile": "html+a11y",
+        "side": "crystalline",
+        "same_exit_and_raw_channels": true
+      }
+    ],
+    "claim_limit": "Named module public values only; query deprecation warnings retained, not classified as new parity failures; source audit establishes carrier structure separately."
+  },
+  "revision_reason": "Focal fixture correction only: str(type) unsupported in crystalline; repr(type) observes kind without that cast. Previous outputs and fixtures preserved, not counted as successful measurement."
+}

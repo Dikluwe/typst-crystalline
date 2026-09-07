@@ -1,0 +1,236 @@
+{
+  "schema": "p1305-r2-independent-verification-receipt-v1",
+  "issuer": "/root/p1305_verifier",
+  "generated_at": "2026-09-07T14:36:14.112558+00:00",
+  "verdict": "P1305_R2_PASS_WITH_RECORDED_LIMITATIONS",
+  "regime": "executado sem atestação de isolamento técnico",
+  "technical_isolation_attested": false,
+  "manifest_sha256": "b470b9f132ee2b5714e40a9e11ca5acaa4fad1f246bf0fcbb3670868de9ca635",
+  "seal_sha256": "39e9f8dddd2e3e2fe1b5634ce5d0c79d3052f5f8a26bbdebf1132a0251108aa3",
+  "refinement_successor_seal_sha256": "19ebb40660f58bc0ccd26cf51959155850d3af8b7870f8f549c5015104c2fa0c",
+  "evidence_sha256": {
+    "p1305-r2-manifest.json": "b470b9f132ee2b5714e40a9e11ca5acaa4fad1f246bf0fcbb3670868de9ca635",
+    "p1305-r2-seal.json": "39e9f8dddd2e3e2fe1b5634ce5d0c79d3052f5f8a26bbdebf1132a0251108aa3",
+    "p1305-r2-refinement-seal-r1.json": "19ebb40660f58bc0ccd26cf51959155850d3af8b7870f8f549c5015104c2fa0c",
+    "p1305-r2-contract.md": "0dff1413e9b47401a0ef8b0e298ad9f9f38810264889e23869503d560cf3e963",
+    "p1305-r2-oracle-receipt.json": "edf35e588a52bdfb7d53d131132be2f29ae51e9991ebb41571aae9395fde2e56",
+    "p1305-r2-implementation-receipt.json": "eac7fa031d2284246dcd22f2554e086bb37ce04726957bc95e2b58ed44f9df87",
+    "p1305-r2-mutation-runner.py": "281eb7fac21974d3b0c4f5d6ae72276ee26d1cb1ab91c161b6b825ac9c846642",
+    "p1305-r2-mutant-ledger.json": "4947430f6b8fd38ca0bb5d269f09cf7b30747aa004f0afe292a2c2953035f635",
+    "p1305-r2-verification.log": "bfcd5a7f90002f60ecc07a44da4dc331c64dcb268107fc8007940a7ff390bb17",
+    "p1305-r2-final-measurement.json": "e5c0e14497c61ad44facea387c2f47853a3cad750eeab4dd945a97088e21ecfd",
+    "p1305-r2-matrix.json": "395c728c25235376243d19ed2b483f1b5d7b77b166af95255e4ae84a6035d185",
+    "p1305-r2-repr-refinement-r1.json": "e164d5681d7627c3baa5cd3298cee4e0e06a601cb1efe0da7a2af3e8cea68539",
+    "p1305-r2-build.log": "83e63f62d113e1c08bb8ac1e9a564bfb2286899abcf6f4caeeaf41f14a169373",
+    "p1305-certificate.json": "008be227d322a764f56b368f42291b5fe4a057b3cc41f67ff4fc5fc2776442b4"
+  },
+  "provenance": {
+    "head": "8eb41b769eb840c7ab1063f981f98fdd4047952b",
+    "working_tree": "não commitado",
+    "tracked_diff_sha256": "a6a964ac05ef32c26cca69e478af130ce3068a015182b034e1cc360bab5a8ae5",
+    "tracked_diff_stat": " 00_nucleo/prompts/compiler/eval.md                 |   47 +\n .../prompts/compiler/eval/bindings/field_access.md |   80 +\n 00_nucleo/prompts/compiler/eval/modules.md         |   85 +-\n 00_nucleo/prompts/compiler/eval/repr.md            |   83 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |  176 ++-\n 01_core/src/compiler/eval/bindings/field_access.rs |    4 +-\n 01_core/src/compiler/eval/mod.rs                   |    6 +-\n 01_core/src/compiler/eval/modules.rs               |   22 +-\n 01_core/src/compiler/eval/repr.rs                  |   11 +-\n 01_core/src/compiler/eval/tests.rs                 | 1625 +++++++++++++++++++-\n 10 files changed, 2118 insertions(+), 21 deletions(-)\n",
+    "candidate_sources": {
+      "01_core/src/compiler/eval/repr.rs": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/repr.rs",
+        "sha256": "0dde543205c04eeedc0896961d505ba315f1573d55fd17498e8b1b5544f9af8c",
+        "bytes": 80423
+      },
+      "01_core/src/compiler/eval/modules.rs": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/modules.rs",
+        "sha256": "a855f51063310ec00a1106e6447f7a6a3e753ef8ccbb5e17f37a2319da1c3594",
+        "bytes": 13459
+      },
+      "01_core/src/compiler/eval/mod.rs": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/mod.rs",
+        "sha256": "6ccb0a0a89fb932bca3feebab24f536f79225535def4a7464ca0e65194716bce",
+        "bytes": 104159
+      },
+      "01_core/src/compiler/eval/tests.rs": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/tests.rs",
+        "sha256": "d31bf513c616430c87e422338c7280ce6b3817561e3bdc4c37b3a55eab468f3e",
+        "bytes": 763603
+      }
+    },
+    "candidate_binary": {
+      "path": "/dev/shm/p1305-r2-target.F7bquUC2/release/typst",
+      "sha256": "be51045f1df75ac42ee081801ddf7f738f709029e3694b9205473ba5fa8b31d4"
+    },
+    "baseline_binary": {
+      "path": "/dev/shm/p1305-target.3j4tck2g/release/typst",
+      "sha256": "4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "ratified_upstream": "a51e02804"
+    },
+    "independent_binary_check": {
+      "argv": [
+        "sha256sum",
+        "/dev/shm/p1305-r2-target.F7bquUC2/release/typst",
+        "/dev/shm/p1305-target.3j4tck2g/release/typst",
+        "/usr/local/bin/typst"
+      ],
+      "host_namespace": true,
+      "exit_code": 0,
+      "all_three_pins_equal": true
+    },
+    "baseline_source_delta": {
+      "compared_source_files": 525,
+      "root_Cargo_files_also_preserved": true,
+      "changed_only": [
+        "01_core/src/compiler/eval/mod.rs",
+        "01_core/src/compiler/eval/modules.rs",
+        "01_core/src/compiler/eval/repr.rs",
+        "01_core/src/compiler/eval/tests.rs"
+      ]
+    }
+  },
+  "audit_log_entries": [
+    {
+      "schema": "p1305-r2-preseal-discrimination-v1",
+      "canonical_sha256": "bcd53259c59f4cffbf414feeb8cef5613195f8fe3b5ea381513e1f3ca00a33f4"
+    },
+    {
+      "schema": "p1305-r2-independent-final-input-audit-v1",
+      "canonical_sha256": "42748f1dc68b11a1b0f26f336414f27aad1028b8a2c26412e11f821610e0b8a2"
+    },
+    {
+      "schema": "p1305-r2-independent-corpus-audit-v1",
+      "canonical_sha256": "0fa7901ea4608868acd0b834eb51c7626cc27c0256126ae3690e2decb6e3ee36"
+    },
+    {
+      "schema": "p1305-r2-refinement-revision-independent-gate-v1",
+      "canonical_sha256": "ee8fd04b2be83741af6c7259bc23cd9eb56db9f3d3490022911a3d26b01d920c"
+    },
+    {
+      "schema": "p1305-r2-independent-completion-audit-v1",
+      "canonical_sha256": "a96da256a3ef800c3d8bbd6df71e60837b43f38c6b13c0b67506a36da3dbdabc"
+    }
+  ],
+  "causal_chain": {
+    "original_blocked_attempt_immutable": true,
+    "construction_scope_authorized_before_L0": true,
+    "normative_L0_before_candidate": true,
+    "original_discrimination": {
+      "positive_envelopes": 262,
+      "valid_negative_envelopes": 27,
+      "rejected": 27,
+      "score": 1
+    },
+    "baseline_RED": {
+      "executed": 38,
+      "passed": 16,
+      "semantic_failed": 22,
+      "exit": 101,
+      "compilation_failure": false
+    },
+    "candidate_GREEN": {
+      "executed": 38,
+      "passed": 38
+    },
+    "refinement_reopening": "First affected auxiliary observation oracle was revised after invalid float(ratio) measurement. New author calibration and verifier channel discrimination preceded successor seal and final candidate measurement. Protected original runner/contract/tests/manifest/seal and failed evidence unchanged.",
+    "protected_input_raw_pins_unchanged": 14,
+    "L0_metadata_delta": [],
+    "historical_diagnostic_pins_checked": 42
+  },
+  "functional": {
+    "workspace": {
+      "passed": 6577,
+      "failed": 0,
+      "ignored": 3,
+      "suites": 17
+    },
+    "focal_legacy": {
+      "p1290": 7,
+      "p1300": 10,
+      "p1301": 4,
+      "p1303": 5
+    },
+    "build": true,
+    "fresh_release_build": true,
+    "fmt_check": true,
+    "git_diff_check": true,
+    "hash_dry_run": "Nothing to fix",
+    "strict_architectural_lint": "No violations found",
+    "strict_checks": [
+      "v3",
+      "v4",
+      "v5",
+      "v13",
+      "v14",
+      "v15",
+      "v26"
+    ],
+    "general_lint": {
+      "exit_code": 0,
+      "errors": 0,
+      "warnings": 236,
+      "info": 1133,
+      "historical_message_multiset_unchanged": true,
+      "comparison": "Pinned P1304 verification log, not newly executed baseline lint; exact message multiplicities, source line offsets excluded."
+    }
+  },
+  "observables": {
+    "focal": {
+      "runs": 1042,
+      "candidate_observations": 521,
+      "stable_side_repeats": 520,
+      "contract_differences": 0
+    },
+    "corpus": {
+      "normal_pairs": 2508,
+      "probes": 627,
+      "profiles": 4,
+      "inverted_pairs": 728,
+      "supplement_pairs": 64,
+      "processes": 6600,
+      "stable_side_repeats": 1520,
+      "changed_pairs": 48,
+      "changed_paths": 12,
+      "all_changes": "DIFFERENT_VALUE -> MATCH_VALUE",
+      "outside_cohort_exit_stdout_stderr_deltas": 0,
+      "normal_classes": {
+        "MATCH_VALUE": 1756,
+        "MATCH_DIAGNOSTIC": 248,
+        "CRYSTALLINE_ONLY": 168,
+        "VANILLA_ONLY": 336
+      },
+      "final_required_unknown": 0
+    },
+    "maps": {
+      "maps": 15,
+      "profiles": 4,
+      "orders": 2,
+      "valid_runs": 240,
+      "stable_repeats": 120,
+      "full_components_and_RGBA8_tokens_equal_historical": true,
+      "structured_value_including_repr_equal_vanilla": true
+    }
+  },
+  "compiled_mutation_testing": {
+    "required_families": 27,
+    "semantic_kills": 27,
+    "surviving_required_families": 0,
+    "unknown": 0,
+    "score": 1,
+    "source_execution_attempts": 29,
+    "operational_route_mapping_mistakes_retained": 2,
+    "corrected_route_attempts_both_killed": true,
+    "baseline_and_restoration_tests": "38 P1305 + 1 lookup + 1 feature sentinel, all GREEN before and after",
+    "restored_copy_files": 527,
+    "tests_or_product_canonical_edits_by_verifier": false,
+    "source_copies": "/tmp/p1305-r2-mutants-6rnnc8sz",
+    "cost_mutant_compile_and_test_seconds": 299.12814413401065
+  },
+  "limitations": [
+    "Not an attestation of technical isolation and not general Typst parity.",
+    "Original repr-only blocker remains correct in its original scope; R2 solves through expressly authorized global construction and existing lexical-name API, without new public API.",
+    "Original refinement attempt retains 120 invalid crystalline float(ratio) observations as Unknown, never semantic RED/PASS. Repaired r1 has all 240 valid.",
+    "Two initial actual source mutations selected the other constructor route and their specified witnesses passed. Both mismapped attempts remain recorded; correct expression/document families were subsequently rejected. No output was relabeled as a kill.",
+    "Actual array-data faults were injected at range/assignment producers; evidence does not claim the immutable repr function itself mutates arrays.",
+    "504 corpus availability mismatches, 236 lint warnings and 1133 info remain historical; none silently counted as parity or zero-violations overall.",
+    "No plugin/anonymous-module API, encoder/layout/PDF readiness, warning behavior, or out-of-scope field-access repair is certified.",
+    "Temporary mutation copies and RAM build artifacts were retained; no cleanup, staging or commit performed."
+  ]
+}

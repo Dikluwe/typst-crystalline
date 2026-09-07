@@ -1,0 +1,2860 @@
+{
+  "schema": "p1303-pre-measurement-v1",
+  "generated_at": "2026-09-04T00:38:10.279557-03:00",
+  "regime": "executed_without_technical_isolation_attestation",
+  "role": "ORACLE",
+  "verdict": "P1303_ORACLE_MEASUREMENT_CONFIRMED",
+  "measurement_before_decision": true,
+  "source_state": {
+    "repository": "/repos/Antigravity/typst-crystalline",
+    "head": "5b4a0d0438a535c54fdb5e74b28903c1313f5bc2",
+    "expected_head": "5b4a0d0438a535c54fdb5e74b28903c1313f5bc2",
+    "git_status_before_measurement": "?? 00_nucleo/diagnosticos/p1303-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1303-contract.md\n?? 00_nucleo/materialization/typst-passo-1303.md\n",
+    "baseline_receipt_path": "00_nucleo/diagnosticos/p1303-baseline-status.txt",
+    "baseline_receipt_sha256": "8e06d7deba171604986f5ae3eca4d9c2c964a2aaf6d2a0f1971f7aa27574d9a8",
+    "step_path": "00_nucleo/materialization/typst-passo-1303.md",
+    "step_sha256": "f1db5c02b7e6af5ef461900c213e928a8d16bbed156d8eba7ff5c6b32c584fe9",
+    "git_status_after_measurement_before_artifact_write": "?? 00_nucleo/diagnosticos/p1303-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1303-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1303-contract.md\n?? 00_nucleo/materialization/typst-passo-1303.md\n",
+    "git_diff_head_stat_after_measurement": "",
+    "git_diff_cached_stat_after_measurement": ""
+  },
+  "capabilities": {
+    "read": [
+      "AGENTS.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "00_nucleo/materialization/typst-passo-1303.md",
+      "00_nucleo/diagnosticos/p1303-baseline-status.txt",
+      "public CLI help and outputs from both binaries",
+      "workspace Cargo manifests through cargo metadata --no-deps",
+      "workspace source mechanically consumed by cargo build without oracle content inspection"
+    ],
+    "write_repository": [
+      "00_nucleo/diagnosticos/p1303-pre-measurement.json",
+      "00_nucleo/diagnosticos/p1303-oracle-receipt.md"
+    ],
+    "temporary_write": [
+      "/dev/shm/p1303-oracle.gem2yY",
+      "/tmp/p1303_oracle_runner.py",
+      "/tmp/p1303-pre-measurement.raw.json"
+    ],
+    "explicitly_not_read": [
+      "candidate implementation",
+      "candidate L0",
+      "candidate tests"
+    ],
+    "explicitly_not_written": [
+      "product",
+      "L0",
+      "tests",
+      "staging area",
+      "commits"
+    ],
+    "inherited_context": "P1303 ORACLE task payload and authorized instruction files; shared filesystem",
+    "attestation_limit": "Filesystem and conversation were shared; hashes and literal observations identify inputs/order but do not prove technical isolation.",
+    "shared_filesystem_observation": "p1303-contract.md appeared as an untracked file from another authority before the final matrix; the ORACLE did not read it. No tracked product/L0/test diff was present."
+  },
+  "build": {
+    "command_argv": [
+      "cargo",
+      "build",
+      "--release",
+      "--bin",
+      "typst"
+    ],
+    "cwd": "/repos/Antigravity/typst-crystalline",
+    "environment": {
+      "CARGO_TARGET_DIR": "/dev/shm/p1303-oracle.gem2yY"
+    },
+    "exit_code": 0,
+    "cargo_reported_duration": "2m 59s",
+    "fresh_target_directory": true,
+    "frozen_recursively_by": [
+      "chmod",
+      "-R",
+      "a-w",
+      "/dev/shm/p1303-oracle.gem2yY"
+    ]
+  },
+  "binaries": {
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "expected_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    },
+    "crystalline": {
+      "path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "sha256_before_runs": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "sha256_after_runs": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "expected_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "mode": "0o555",
+      "size_bytes": 47597656,
+      "version_stdout": "typst 0.15.1 (5b4a0d04)\n"
+    }
+  },
+  "profiles": [
+    {
+      "name": "default",
+      "features": []
+    },
+    {
+      "name": "html",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "a11y",
+      "features": [
+        "a11y-extras"
+      ]
+    },
+    {
+      "name": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ]
+    }
+  ],
+  "order_protocol": {
+    "normal": {
+      "fields": [
+        "data-cell",
+        "header-cell",
+        "table-summary"
+      ],
+      "binary_precedence": [
+        "vanilla",
+        "crystalline"
+      ]
+    },
+    "inverted": {
+      "fields": [
+        "table-summary",
+        "header-cell",
+        "data-cell"
+      ],
+      "binary_precedence": [
+        "crystalline",
+        "vanilla"
+      ]
+    }
+  },
+  "runs": [
+    {
+      "run_id": "run-01",
+      "order": "normal",
+      "ordinal_within_order": 1,
+      "side": "vanilla",
+      "profile": "default",
+      "features": [],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:07.847942-03:00",
+      "completed_at": "2026-09-04T00:38:07.854143-03:00",
+      "duration_ns": 6168320,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │                ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "bfdbfdcbd8dbc1f289067ce44f5fa4567ec6580553fb5f0615cc7bf610076c16",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `data-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 23,
+          "notation": "14..23",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "data-cell",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 24,
+            "notation": "15..24"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-02",
+      "order": "normal",
+      "ordinal_within_order": 2,
+      "side": "crystalline",
+      "profile": "default",
+      "features": [],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:07.854537-03:00",
+      "completed_at": "2026-09-04T00:38:07.950445-03:00",
+      "duration_ns": 95893387,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │            ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "3e5397d7bf3558e8bd4f4ee3363b574aecc44253b07dd837f7c803f969b17c48",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `data-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 23,
+          "notation": "10..23",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.data-cell",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 24,
+            "notation": "11..24"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-03",
+      "order": "normal",
+      "ordinal_within_order": 3,
+      "side": "vanilla",
+      "profile": "default",
+      "features": [],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:07.950544-03:00",
+      "completed_at": "2026-09-04T00:38:07.956523-03:00",
+      "duration_ns": 5966603,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.header-cell), repr(pdf.header-cell)))\n  │                ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "11ada4dc91d4d450f299a13e37ca51158c3f66acafcdb9f54cdbfa61740bc4af",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `header-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 25,
+          "notation": "14..25",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "header-cell",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 26,
+            "notation": "15..26"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-04",
+      "order": "normal",
+      "ordinal_within_order": 4,
+      "side": "crystalline",
+      "profile": "default",
+      "features": [],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:07.956605-03:00",
+      "completed_at": "2026-09-04T00:38:08.048845-03:00",
+      "duration_ns": 92225978,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.header-cell), repr(pdf.header-cell)))\n  │            ^^^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "afa7749f65806c3f6e8738a544b147d9090e997fee340f16cb7f149579eb014a",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `header-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 25,
+          "notation": "10..25",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.header-cell",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 26,
+            "notation": "11..26"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-05",
+      "order": "normal",
+      "ordinal_within_order": 5,
+      "side": "vanilla",
+      "profile": "default",
+      "features": [],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.048976-03:00",
+      "completed_at": "2026-09-04T00:38:08.055076-03:00",
+      "duration_ns": 6089298,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.table-summary), repr(pdf.table-summary)))\n  │                ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "a000a54c19d22307561937369452ba0d6987661bc957e713df01d53cadbfe475",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `table-summary` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 27,
+          "notation": "14..27",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "table-summary",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 28,
+            "notation": "15..28"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-06",
+      "order": "normal",
+      "ordinal_within_order": 6,
+      "side": "crystalline",
+      "profile": "default",
+      "features": [],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.055162-03:00",
+      "completed_at": "2026-09-04T00:38:08.152115-03:00",
+      "duration_ns": 96943880,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.table-summary), repr(pdf.table-summary)))\n  │            ^^^^^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "4d77d7b1e037e61f725be8b1eb1e7c955bf937a8d67bcf49cbe508a4bb529741",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `table-summary` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 27,
+          "notation": "10..27",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.table-summary",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 28,
+            "notation": "11..28"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-07",
+      "order": "normal",
+      "ordinal_within_order": 7,
+      "side": "vanilla",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.152215-03:00",
+      "completed_at": "2026-09-04T00:38:08.158450-03:00",
+      "duration_ns": 6223805,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │                ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "bfdbfdcbd8dbc1f289067ce44f5fa4567ec6580553fb5f0615cc7bf610076c16",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `data-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 23,
+          "notation": "14..23",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "data-cell",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 24,
+            "notation": "15..24"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-08",
+      "order": "normal",
+      "ordinal_within_order": 8,
+      "side": "crystalline",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.158737-03:00",
+      "completed_at": "2026-09-04T00:38:08.255666-03:00",
+      "duration_ns": 96919283,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │            ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "3e5397d7bf3558e8bd4f4ee3363b574aecc44253b07dd837f7c803f969b17c48",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `data-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 23,
+          "notation": "10..23",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.data-cell",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 24,
+            "notation": "11..24"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-09",
+      "order": "normal",
+      "ordinal_within_order": 9,
+      "side": "vanilla",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.255764-03:00",
+      "completed_at": "2026-09-04T00:38:08.261846-03:00",
+      "duration_ns": 6065673,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.header-cell), repr(pdf.header-cell)))\n  │                ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "11ada4dc91d4d450f299a13e37ca51158c3f66acafcdb9f54cdbfa61740bc4af",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `header-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 25,
+          "notation": "14..25",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "header-cell",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 26,
+            "notation": "15..26"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-10",
+      "order": "normal",
+      "ordinal_within_order": 10,
+      "side": "crystalline",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.261923-03:00",
+      "completed_at": "2026-09-04T00:38:08.358641-03:00",
+      "duration_ns": 96708179,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.header-cell), repr(pdf.header-cell)))\n  │            ^^^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "afa7749f65806c3f6e8738a544b147d9090e997fee340f16cb7f149579eb014a",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `header-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 25,
+          "notation": "10..25",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.header-cell",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 26,
+            "notation": "11..26"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-11",
+      "order": "normal",
+      "ordinal_within_order": 11,
+      "side": "vanilla",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.358745-03:00",
+      "completed_at": "2026-09-04T00:38:08.364901-03:00",
+      "duration_ns": 6145475,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.table-summary), repr(pdf.table-summary)))\n  │                ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "a000a54c19d22307561937369452ba0d6987661bc957e713df01d53cadbfe475",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `table-summary` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 27,
+          "notation": "14..27",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "table-summary",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 28,
+            "notation": "15..28"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-12",
+      "order": "normal",
+      "ordinal_within_order": 12,
+      "side": "crystalline",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.364990-03:00",
+      "completed_at": "2026-09-04T00:38:08.456415-03:00",
+      "duration_ns": 91413902,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.table-summary), repr(pdf.table-summary)))\n  │            ^^^^^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "4d77d7b1e037e61f725be8b1eb1e7c955bf937a8d67bcf49cbe508a4bb529741",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `table-summary` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 27,
+          "notation": "10..27",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.table-summary",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 28,
+            "notation": "11..28"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-13",
+      "order": "normal",
+      "ordinal_within_order": 13,
+      "side": "vanilla",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.456952-03:00",
+      "completed_at": "2026-09-04T00:38:08.462988-03:00",
+      "duration_ns": 6021348,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"data-cell\\\")\"\n",
+      "stdout_sha256": "0ec16ea154c44f8c3b69b68a181730b18d66b46d55d0f95e32616be817d75792",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-14",
+      "order": "normal",
+      "ordinal_within_order": 14,
+      "side": "crystalline",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.463041-03:00",
+      "completed_at": "2026-09-04T00:38:08.557002-03:00",
+      "duration_ns": 93951506,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"data-cell\\\")\"\n",
+      "stdout_sha256": "0ec16ea154c44f8c3b69b68a181730b18d66b46d55d0f95e32616be817d75792",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-15",
+      "order": "normal",
+      "ordinal_within_order": 15,
+      "side": "vanilla",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.557071-03:00",
+      "completed_at": "2026-09-04T00:38:08.563592-03:00",
+      "duration_ns": 6509802,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"header-cell\\\")\"\n",
+      "stdout_sha256": "8b32038fd9a04b6da82dd912af86a8a091341ee968469d0677ccb17c4fa24d2e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-16",
+      "order": "normal",
+      "ordinal_within_order": 16,
+      "side": "crystalline",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.563657-03:00",
+      "completed_at": "2026-09-04T00:38:08.656144-03:00",
+      "duration_ns": 92477306,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"header-cell\\\")\"\n",
+      "stdout_sha256": "8b32038fd9a04b6da82dd912af86a8a091341ee968469d0677ccb17c4fa24d2e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-17",
+      "order": "normal",
+      "ordinal_within_order": 17,
+      "side": "vanilla",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.656211-03:00",
+      "completed_at": "2026-09-04T00:38:08.662148-03:00",
+      "duration_ns": 5925534,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"table-summary\\\")\"\n",
+      "stdout_sha256": "29e9b9bfd6e4ddb58d8331d157fb59df9c888c545747ba5a94237815c2b2de9e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-18",
+      "order": "normal",
+      "ordinal_within_order": 18,
+      "side": "crystalline",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.662204-03:00",
+      "completed_at": "2026-09-04T00:38:08.757546-03:00",
+      "duration_ns": 95331325,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"table-summary\\\")\"\n",
+      "stdout_sha256": "29e9b9bfd6e4ddb58d8331d157fb59df9c888c545747ba5a94237815c2b2de9e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-19",
+      "order": "normal",
+      "ordinal_within_order": 19,
+      "side": "vanilla",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.757624-03:00",
+      "completed_at": "2026-09-04T00:38:08.764295-03:00",
+      "duration_ns": 6658988,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"data-cell\\\")\"\n",
+      "stdout_sha256": "0ec16ea154c44f8c3b69b68a181730b18d66b46d55d0f95e32616be817d75792",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-20",
+      "order": "normal",
+      "ordinal_within_order": 20,
+      "side": "crystalline",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.764394-03:00",
+      "completed_at": "2026-09-04T00:38:08.857993-03:00",
+      "duration_ns": 93587569,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"data-cell\\\")\"\n",
+      "stdout_sha256": "0ec16ea154c44f8c3b69b68a181730b18d66b46d55d0f95e32616be817d75792",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-21",
+      "order": "normal",
+      "ordinal_within_order": 21,
+      "side": "vanilla",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.858062-03:00",
+      "completed_at": "2026-09-04T00:38:08.864319-03:00",
+      "duration_ns": 6244465,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"header-cell\\\")\"\n",
+      "stdout_sha256": "8b32038fd9a04b6da82dd912af86a8a091341ee968469d0677ccb17c4fa24d2e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-22",
+      "order": "normal",
+      "ordinal_within_order": 22,
+      "side": "crystalline",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.864379-03:00",
+      "completed_at": "2026-09-04T00:38:08.957262-03:00",
+      "duration_ns": 92872863,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"header-cell\\\")\"\n",
+      "stdout_sha256": "8b32038fd9a04b6da82dd912af86a8a091341ee968469d0677ccb17c4fa24d2e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-23",
+      "order": "normal",
+      "ordinal_within_order": 23,
+      "side": "vanilla",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:08.957331-03:00",
+      "completed_at": "2026-09-04T00:38:08.963450-03:00",
+      "duration_ns": 6108044,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"table-summary\\\")\"\n",
+      "stdout_sha256": "29e9b9bfd6e4ddb58d8331d157fb59df9c888c545747ba5a94237815c2b2de9e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-24",
+      "order": "normal",
+      "ordinal_within_order": 24,
+      "side": "crystalline",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:08.963522-03:00",
+      "completed_at": "2026-09-04T00:38:09.056790-03:00",
+      "duration_ns": 93258706,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"table-summary\\\")\"\n",
+      "stdout_sha256": "29e9b9bfd6e4ddb58d8331d157fb59df9c888c545747ba5a94237815c2b2de9e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-25",
+      "order": "inverted",
+      "ordinal_within_order": 1,
+      "side": "crystalline",
+      "profile": "default",
+      "features": [],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.056863-03:00",
+      "completed_at": "2026-09-04T00:38:09.148975-03:00",
+      "duration_ns": 92099066,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.table-summary), repr(pdf.table-summary)))\n  │            ^^^^^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "4d77d7b1e037e61f725be8b1eb1e7c955bf937a8d67bcf49cbe508a4bb529741",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `table-summary` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 27,
+          "notation": "10..27",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.table-summary",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 28,
+            "notation": "11..28"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-26",
+      "order": "inverted",
+      "ordinal_within_order": 2,
+      "side": "vanilla",
+      "profile": "default",
+      "features": [],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:09.149068-03:00",
+      "completed_at": "2026-09-04T00:38:09.155050-03:00",
+      "duration_ns": 5968617,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.table-summary), repr(pdf.table-summary)))\n  │                ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "a000a54c19d22307561937369452ba0d6987661bc957e713df01d53cadbfe475",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `table-summary` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 27,
+          "notation": "14..27",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "table-summary",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 28,
+            "notation": "15..28"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-27",
+      "order": "inverted",
+      "ordinal_within_order": 3,
+      "side": "crystalline",
+      "profile": "default",
+      "features": [],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.155131-03:00",
+      "completed_at": "2026-09-04T00:38:09.248553-03:00",
+      "duration_ns": 93413009,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.header-cell), repr(pdf.header-cell)))\n  │            ^^^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "afa7749f65806c3f6e8738a544b147d9090e997fee340f16cb7f149579eb014a",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `header-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 25,
+          "notation": "10..25",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.header-cell",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 26,
+            "notation": "11..26"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-28",
+      "order": "inverted",
+      "ordinal_within_order": 4,
+      "side": "vanilla",
+      "profile": "default",
+      "features": [],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:09.248659-03:00",
+      "completed_at": "2026-09-04T00:38:09.254974-03:00",
+      "duration_ns": 6306002,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.header-cell), repr(pdf.header-cell)))\n  │                ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "11ada4dc91d4d450f299a13e37ca51158c3f66acafcdb9f54cdbfa61740bc4af",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `header-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 25,
+          "notation": "14..25",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "header-cell",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 26,
+            "notation": "15..26"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-29",
+      "order": "inverted",
+      "ordinal_within_order": 5,
+      "side": "crystalline",
+      "profile": "default",
+      "features": [],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.255062-03:00",
+      "completed_at": "2026-09-04T00:38:09.346712-03:00",
+      "duration_ns": 91638895,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │            ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "3e5397d7bf3558e8bd4f4ee3363b574aecc44253b07dd837f7c803f969b17c48",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `data-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 23,
+          "notation": "10..23",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.data-cell",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 24,
+            "notation": "11..24"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-30",
+      "order": "inverted",
+      "ordinal_within_order": 6,
+      "side": "vanilla",
+      "profile": "default",
+      "features": [],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:09.346797-03:00",
+      "completed_at": "2026-09-04T00:38:09.352963-03:00",
+      "duration_ns": 6155655,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │                ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "bfdbfdcbd8dbc1f289067ce44f5fa4567ec6580553fb5f0615cc7bf610076c16",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `data-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 23,
+          "notation": "14..23",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "data-cell",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 24,
+            "notation": "15..24"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-31",
+      "order": "inverted",
+      "ordinal_within_order": 7,
+      "side": "crystalline",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.353052-03:00",
+      "completed_at": "2026-09-04T00:38:09.447195-03:00",
+      "duration_ns": 94131934,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.table-summary), repr(pdf.table-summary)))\n  │            ^^^^^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "4d77d7b1e037e61f725be8b1eb1e7c955bf937a8d67bcf49cbe508a4bb529741",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `table-summary` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 27,
+          "notation": "10..27",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.table-summary",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 28,
+            "notation": "11..28"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-32",
+      "order": "inverted",
+      "ordinal_within_order": 8,
+      "side": "vanilla",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:09.447305-03:00",
+      "completed_at": "2026-09-04T00:38:09.453710-03:00",
+      "duration_ns": 6390373,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.table-summary), repr(pdf.table-summary)))\n  │                ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "a000a54c19d22307561937369452ba0d6987661bc957e713df01d53cadbfe475",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `table-summary` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 27,
+          "notation": "14..27",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "table-summary",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 28,
+            "notation": "15..28"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-33",
+      "order": "inverted",
+      "ordinal_within_order": 9,
+      "side": "crystalline",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.453820-03:00",
+      "completed_at": "2026-09-04T00:38:09.548755-03:00",
+      "duration_ns": 94922596,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.header-cell), repr(pdf.header-cell)))\n  │            ^^^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "afa7749f65806c3f6e8738a544b147d9090e997fee340f16cb7f149579eb014a",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `header-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 25,
+          "notation": "10..25",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.header-cell",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 26,
+            "notation": "11..26"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-34",
+      "order": "inverted",
+      "ordinal_within_order": 10,
+      "side": "vanilla",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:09.548845-03:00",
+      "completed_at": "2026-09-04T00:38:09.555471-03:00",
+      "duration_ns": 6615333,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.header-cell), repr(pdf.header-cell)))\n  │                ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "11ada4dc91d4d450f299a13e37ca51158c3f66acafcdb9f54cdbfa61740bc4af",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `header-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 25,
+          "notation": "14..25",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "header-cell",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 26,
+            "notation": "15..26"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-35",
+      "order": "inverted",
+      "ordinal_within_order": 11,
+      "side": "crystalline",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.555557-03:00",
+      "completed_at": "2026-09-04T00:38:09.646438-03:00",
+      "duration_ns": 90871979,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:11\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │            ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "3e5397d7bf3558e8bd4f4ee3363b574aecc44253b07dd837f7c803f969b17c48",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `data-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 10,
+          "end": 23,
+          "notation": "10..23",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "pdf.data-cell",
+          "displayed_caret_range": {
+            "start": 11,
+            "end": 24,
+            "notation": "11..24"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-36",
+      "order": "inverted",
+      "ordinal_within_order": 12,
+      "side": "vanilla",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:09.646556-03:00",
+      "completed_at": "2026-09-04T00:38:09.652564-03:00",
+      "duration_ns": 5995748,
+      "exit_code": 1,
+      "stdout": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:15\n  │\n1 │ repr((type(pdf.data-cell), repr(pdf.data-cell)))\n  │                ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n",
+      "stderr_sha256": "bfdbfdcbd8dbc1f289067ce44f5fa4567ec6580553fb5f0615cc7bf610076c16",
+      "diagnostic": {
+        "primary_error_count": 1,
+        "secondary_diagnostic_count": 0,
+        "messages": [
+          "cannot access field `data-cell` because the `a11y-extras` feature is not enabled"
+        ],
+        "hints": [
+          "try enabling the `a11y-extras` feature",
+          "see https://typst.app/help/compiler-features for more details"
+        ],
+        "byte_range": {
+          "start": 14,
+          "end": 23,
+          "notation": "14..23",
+          "derivation": "UTF-8 ASCII canary: diagnostic column minus one plus caret count",
+          "source_slice": "data-cell",
+          "displayed_caret_range": {
+            "start": 15,
+            "end": 24,
+            "notation": "15..24"
+          }
+        }
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-37",
+      "order": "inverted",
+      "ordinal_within_order": 13,
+      "side": "crystalline",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.652644-03:00",
+      "completed_at": "2026-09-04T00:38:09.746937-03:00",
+      "duration_ns": 94282102,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"table-summary\\\")\"\n",
+      "stdout_sha256": "29e9b9bfd6e4ddb58d8331d157fb59df9c888c545747ba5a94237815c2b2de9e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-38",
+      "order": "inverted",
+      "ordinal_within_order": 14,
+      "side": "vanilla",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:09.746997-03:00",
+      "completed_at": "2026-09-04T00:38:09.752662-03:00",
+      "duration_ns": 5656359,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"table-summary\\\")\"\n",
+      "stdout_sha256": "29e9b9bfd6e4ddb58d8331d157fb59df9c888c545747ba5a94237815c2b2de9e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-39",
+      "order": "inverted",
+      "ordinal_within_order": 15,
+      "side": "crystalline",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.752725-03:00",
+      "completed_at": "2026-09-04T00:38:09.845111-03:00",
+      "duration_ns": 92376867,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"header-cell\\\")\"\n",
+      "stdout_sha256": "8b32038fd9a04b6da82dd912af86a8a091341ee968469d0677ccb17c4fa24d2e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-40",
+      "order": "inverted",
+      "ordinal_within_order": 16,
+      "side": "vanilla",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:09.845173-03:00",
+      "completed_at": "2026-09-04T00:38:09.851043-03:00",
+      "duration_ns": 5859719,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"header-cell\\\")\"\n",
+      "stdout_sha256": "8b32038fd9a04b6da82dd912af86a8a091341ee968469d0677ccb17c4fa24d2e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-41",
+      "order": "inverted",
+      "ordinal_within_order": 17,
+      "side": "crystalline",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.851108-03:00",
+      "completed_at": "2026-09-04T00:38:09.943519-03:00",
+      "duration_ns": 92401635,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"data-cell\\\")\"\n",
+      "stdout_sha256": "0ec16ea154c44f8c3b69b68a181730b18d66b46d55d0f95e32616be817d75792",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-42",
+      "order": "inverted",
+      "ordinal_within_order": 18,
+      "side": "vanilla",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:09.943592-03:00",
+      "completed_at": "2026-09-04T00:38:09.949716-03:00",
+      "duration_ns": 6113403,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"data-cell\\\")\"\n",
+      "stdout_sha256": "0ec16ea154c44f8c3b69b68a181730b18d66b46d55d0f95e32616be817d75792",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-43",
+      "order": "inverted",
+      "ordinal_within_order": 19,
+      "side": "crystalline",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:09.949775-03:00",
+      "completed_at": "2026-09-04T00:38:10.044643-03:00",
+      "duration_ns": 94858511,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"table-summary\\\")\"\n",
+      "stdout_sha256": "29e9b9bfd6e4ddb58d8331d157fb59df9c888c545747ba5a94237815c2b2de9e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-44",
+      "order": "inverted",
+      "ordinal_within_order": 20,
+      "side": "vanilla",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "expression": "repr((type(pdf.table-summary), repr(pdf.table-summary)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.table-summary), repr(pdf.table-summary)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:10.044701-03:00",
+      "completed_at": "2026-09-04T00:38:10.050962-03:00",
+      "duration_ns": 6251738,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"table-summary\\\")\"\n",
+      "stdout_sha256": "29e9b9bfd6e4ddb58d8331d157fb59df9c888c545747ba5a94237815c2b2de9e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-45",
+      "order": "inverted",
+      "ordinal_within_order": 21,
+      "side": "crystalline",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:10.051025-03:00",
+      "completed_at": "2026-09-04T00:38:10.142238-03:00",
+      "duration_ns": 91204297,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"header-cell\\\")\"\n",
+      "stdout_sha256": "8b32038fd9a04b6da82dd912af86a8a091341ee968469d0677ccb17c4fa24d2e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-46",
+      "order": "inverted",
+      "ordinal_within_order": 22,
+      "side": "vanilla",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "expression": "repr((type(pdf.header-cell), repr(pdf.header-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.header-cell), repr(pdf.header-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:10.142303-03:00",
+      "completed_at": "2026-09-04T00:38:10.148248-03:00",
+      "duration_ns": 5934752,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"header-cell\\\")\"\n",
+      "stdout_sha256": "8b32038fd9a04b6da82dd912af86a8a091341ee968469d0677ccb17c4fa24d2e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-47",
+      "order": "inverted",
+      "ordinal_within_order": 23,
+      "side": "crystalline",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/dev/shm/p1303-oracle.gem2yY/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/dev/shm/p1303-oracle.gem2yY/release/typst",
+      "binary_sha256": "28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a",
+      "started_at": "2026-09-04T00:38:10.148312-03:00",
+      "completed_at": "2026-09-04T00:38:10.240924-03:00",
+      "duration_ns": 92602131,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"data-cell\\\")\"\n",
+      "stdout_sha256": "0ec16ea154c44f8c3b69b68a181730b18d66b46d55d0f95e32616be817d75792",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    },
+    {
+      "run_id": "run-48",
+      "order": "inverted",
+      "ordinal_within_order": 24,
+      "side": "vanilla",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "expression": "repr((type(pdf.data-cell), repr(pdf.data-cell)))",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--features",
+        "html,a11y-extras",
+        "repr((type(pdf.data-cell), repr(pdf.data-cell)))"
+      ],
+      "binary_path": "/usr/local/bin/typst",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "started_at": "2026-09-04T00:38:10.240988-03:00",
+      "completed_at": "2026-09-04T00:38:10.247086-03:00",
+      "duration_ns": 6087864,
+      "exit_code": 0,
+      "stdout": "\"(function, \\\"data-cell\\\")\"\n",
+      "stdout_sha256": "0ec16ea154c44f8c3b69b68a181730b18d66b46d55d0f95e32616be817d75792",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": {
+        "primary_error_count": 0,
+        "secondary_diagnostic_count": 0,
+        "messages": [],
+        "hints": [],
+        "byte_range": null
+      },
+      "completion_state": "complete",
+      "unknown_reason": null
+    }
+  ],
+  "comparisons": [
+    {
+      "comparison_id": "cmp-01",
+      "order": "normal",
+      "profile": "default",
+      "features": [],
+      "field": "data-cell",
+      "vanilla_run_id": "run-01",
+      "crystalline_run_id": "run-02",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-02",
+      "order": "normal",
+      "profile": "default",
+      "features": [],
+      "field": "header-cell",
+      "vanilla_run_id": "run-03",
+      "crystalline_run_id": "run-04",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-03",
+      "order": "normal",
+      "profile": "default",
+      "features": [],
+      "field": "table-summary",
+      "vanilla_run_id": "run-05",
+      "crystalline_run_id": "run-06",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-04",
+      "order": "normal",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "data-cell",
+      "vanilla_run_id": "run-07",
+      "crystalline_run_id": "run-08",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-05",
+      "order": "normal",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "header-cell",
+      "vanilla_run_id": "run-09",
+      "crystalline_run_id": "run-10",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-06",
+      "order": "normal",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "table-summary",
+      "vanilla_run_id": "run-11",
+      "crystalline_run_id": "run-12",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-07",
+      "order": "normal",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "vanilla_run_id": "run-13",
+      "crystalline_run_id": "run-14",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-08",
+      "order": "normal",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "vanilla_run_id": "run-15",
+      "crystalline_run_id": "run-16",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-09",
+      "order": "normal",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "vanilla_run_id": "run-17",
+      "crystalline_run_id": "run-18",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-10",
+      "order": "normal",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "vanilla_run_id": "run-19",
+      "crystalline_run_id": "run-20",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-11",
+      "order": "normal",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "vanilla_run_id": "run-21",
+      "crystalline_run_id": "run-22",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-12",
+      "order": "normal",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "vanilla_run_id": "run-23",
+      "crystalline_run_id": "run-24",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-13",
+      "order": "inverted",
+      "profile": "default",
+      "features": [],
+      "field": "table-summary",
+      "vanilla_run_id": "run-26",
+      "crystalline_run_id": "run-25",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-14",
+      "order": "inverted",
+      "profile": "default",
+      "features": [],
+      "field": "header-cell",
+      "vanilla_run_id": "run-28",
+      "crystalline_run_id": "run-27",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-15",
+      "order": "inverted",
+      "profile": "default",
+      "features": [],
+      "field": "data-cell",
+      "vanilla_run_id": "run-30",
+      "crystalline_run_id": "run-29",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-16",
+      "order": "inverted",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "table-summary",
+      "vanilla_run_id": "run-32",
+      "crystalline_run_id": "run-31",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-17",
+      "order": "inverted",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "header-cell",
+      "vanilla_run_id": "run-34",
+      "crystalline_run_id": "run-33",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-18",
+      "order": "inverted",
+      "profile": "html",
+      "features": [
+        "html"
+      ],
+      "field": "data-cell",
+      "vanilla_run_id": "run-36",
+      "crystalline_run_id": "run-35",
+      "classification": "DIFFERENT_DIAGNOSTIC",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-19",
+      "order": "inverted",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "vanilla_run_id": "run-38",
+      "crystalline_run_id": "run-37",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-20",
+      "order": "inverted",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "vanilla_run_id": "run-40",
+      "crystalline_run_id": "run-39",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-21",
+      "order": "inverted",
+      "profile": "a11y",
+      "features": [
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "vanilla_run_id": "run-42",
+      "crystalline_run_id": "run-41",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-22",
+      "order": "inverted",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "table-summary",
+      "vanilla_run_id": "run-44",
+      "crystalline_run_id": "run-43",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-23",
+      "order": "inverted",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "header-cell",
+      "vanilla_run_id": "run-46",
+      "crystalline_run_id": "run-45",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    },
+    {
+      "comparison_id": "cmp-24",
+      "order": "inverted",
+      "profile": "html+a11y",
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "field": "data-cell",
+      "vanilla_run_id": "run-48",
+      "crystalline_run_id": "run-47",
+      "classification": "MATCH_VALUE",
+      "complete": true
+    }
+  ],
+  "checks": {
+    "expected_vector": {
+      "default": {
+        "DIFFERENT_DIAGNOSTIC": 3
+      },
+      "html": {
+        "DIFFERENT_DIAGNOSTIC": 3
+      },
+      "a11y": {
+        "MATCH_VALUE": 3
+      },
+      "html+a11y": {
+        "MATCH_VALUE": 3
+      }
+    },
+    "observed_vector_normal_order": {
+      "default": {
+        "DIFFERENT_DIAGNOSTIC": 3
+      },
+      "html": {
+        "DIFFERENT_DIAGNOSTIC": 3
+      },
+      "a11y": {
+        "MATCH_VALUE": 3
+      },
+      "html+a11y": {
+        "MATCH_VALUE": 3
+      }
+    },
+    "observed_classifications_all_orders": {
+      "DIFFERENT_DIAGNOSTIC": 12,
+      "MATCH_VALUE": 12
+    },
+    "unknown_run_count": 0,
+    "repeat_mismatches": [],
+    "contract_checks": [
+      {
+        "profile": "default",
+        "field": "data-cell",
+        "passed": true
+      },
+      {
+        "profile": "default",
+        "field": "header-cell",
+        "passed": true
+      },
+      {
+        "profile": "default",
+        "field": "table-summary",
+        "passed": true
+      },
+      {
+        "profile": "html",
+        "field": "data-cell",
+        "passed": true
+      },
+      {
+        "profile": "html",
+        "field": "header-cell",
+        "passed": true
+      },
+      {
+        "profile": "html",
+        "field": "table-summary",
+        "passed": true
+      },
+      {
+        "profile": "a11y",
+        "field": "data-cell",
+        "passed": true
+      },
+      {
+        "profile": "a11y",
+        "field": "header-cell",
+        "passed": true
+      },
+      {
+        "profile": "a11y",
+        "field": "table-summary",
+        "passed": true
+      },
+      {
+        "profile": "html+a11y",
+        "field": "data-cell",
+        "passed": true
+      },
+      {
+        "profile": "html+a11y",
+        "field": "header-cell",
+        "passed": true
+      },
+      {
+        "profile": "html+a11y",
+        "field": "table-summary",
+        "passed": true
+      }
+    ],
+    "all_contract_checks_passed": true,
+    "measurement_confirmed": true
+  },
+  "environment": {
+    "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+    "python": "3.12.3",
+    "kernel": "Linux-6.17.0-42-generic-x86_64-with-glibc2.39",
+    "cwd": "/repos/Antigravity/typst-crystalline",
+    "LANG": "pt_BR.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "NO_COLOR": "1",
+    "diagnostic_color_control": [
+      "--color",
+      "never"
+    ]
+  },
+  "oracle_runner": {
+    "path": "/tmp/p1303_oracle_runner.py",
+    "sha256": "bbe74a4475bea5dd91e5a00333ef72131fe2e3c7e0262d99d72ba4b12e25fde6"
+  },
+  "calibration": {
+    "budget": "one parser-only correction before accepting or blocking the matrix",
+    "excluded_attempt": {
+      "raw_json_sha256": "dcfa12fa04f364840b8594b308c337bd1a56f4a9bb52d5c8d6c70c122d16b678",
+      "runs": 48,
+      "observed_unknown_runs": 24,
+      "reason_code": "ORACLE_CARET_SEPARATOR_PARSE_ERROR",
+      "cause": "collector expected ASCII | while the preserved diagnostic uses Unicode │",
+      "hypothesis": "select the unique caret-bearing diagnostic line without changing binaries, argv, corpus, or classifier",
+      "disposition": "excluded from product decision"
+    },
+    "accepted_attempt": {
+      "runs": 48,
+      "comparisons": 24,
+      "unknown_runs": 0,
+      "repeat_mismatches": 0,
+      "result": "P1303_ORACLE_MEASUREMENT_CONFIRMED"
+    }
+  }
+}

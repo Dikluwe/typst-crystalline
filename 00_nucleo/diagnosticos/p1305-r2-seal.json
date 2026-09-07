@@ -1,0 +1,456 @@
+{
+  "schema": "p1305-r2-seal-v1",
+  "issuer": "/root/p1305_verifier",
+  "generated_at": "2026-09-07T14:08:56.713506+00:00",
+  "verdict": "SEALED_FOR_IMPLEMENTATION",
+  "regime": "executado sem atestação de isolamento técnico",
+  "technical_isolation_attested": false,
+  "manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1305-r2-manifest.json",
+    "sha256": "b470b9f132ee2b5714e40a9e11ca5acaa4fad1f246bf0fcbb3670868de9ca635",
+    "bytes": 8305
+  },
+  "protected_input_audit": {
+    "command": "python3 - <<'PY'\nimport importlib.util,json,pathlib,hashlib,subprocess,datetime\nroot=pathlib.Path.cwd()\nspec=importlib.util.spec_from_file_location('adapter',root/'00_nucleo/diagnosticos/p1305-r2-mutation-runner.py');a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)\nmp=root/'00_nucleo/diagnosticos/p1305-r2-manifest.json';m=json.loads(mp.read_text());checks=[]\nfor e in m['protected_inputs']:\n raw=a.pin(root/e['path']);row={'path':e['path'],'raw_sha256':raw['sha256'],'raw_match':raw['sha256']==e['sha256']}\n if 'normative_sha256' in e:\n  norm=a.normalized_l0(root/e['path']);row.update(normative_sha256=norm['normative_sha256'],normative_match=norm['normative_sha256']==e['normative_sha256'],derived_hash_byte_range=norm['derived_hash_byte_range'],derived_hash_value=norm['derived_hash_value'])\n checks.append(row)\nfragment=(root/'00_nucleo/diagnosticos/p1305-r2-oracle-tests.rs').read_text()\ntests=(root/'01_core/src/compiler/eval/tests.rs').read_text()\nlog=json.loads((root/'00_nucleo/diagnosticos/p1305-r2-verification.log').read_text())[0]\nred=json.loads((root/'00_nucleo/diagnosticos/p1305-r2-red.log').read_text())[0]\nresult={'generated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'manifest':a.pin(mp),'checks':checks,'oracle_fragment_occurrences':tests.count(fragment),'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'preimplementation_diff_matches':hashlib.sha256(subprocess.check_output(['git','diff','HEAD','--binary'])).hexdigest()==m['preimplementation']['diff_sha256'],'preseal_log_entry_sha256':hashlib.sha256(a.canonical(log)).hexdigest(),'positive_envelopes':len(log['positive_observations']),'valid_negative_envelopes':log['valid_negatives'],'rejected_negative_envelopes':log['rejected_negatives'],'discrimination_verdict':log['verdict'],'red_exit':red['exit_code'],'red_summary_present':'test result: FAILED. 16 passed; 22 failed;' in red['stdout'],'red_channel_hashes_match':all(hashlib.sha256(red[k].encode()).hexdigest()==red[k+'_sha256'] for k in ['stdout','stderr']),'adapter':a.pin(root/'00_nucleo/diagnosticos/p1305-r2-mutation-runner.py')}\nprint(json.dumps(result,indent=2))\nassert all(c['raw_match'] and c.get('normative_match',True) for c in checks)\nassert result['oracle_fragment_occurrences']==1 and result['preimplementation_diff_matches']\nassert result['red_summary_present'] and result['red_channel_hashes_match']\nPY",
+    "result": {
+      "generated_at": "2026-09-07T14:08:56.713506+00:00",
+      "manifest": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1305-r2-manifest.json",
+        "sha256": "b470b9f132ee2b5714e40a9e11ca5acaa4fad1f246bf0fcbb3670868de9ca635",
+        "bytes": 8305
+      },
+      "checks": [
+        {
+          "path": "00_nucleo/prompts/compiler/eval.md",
+          "raw_sha256": "4e3f11ea5c5a506579eaddfb2e4467541d21be30faa1a18cec4834ef34c46023",
+          "raw_match": true,
+          "normative_sha256": "6fa9a0cf4511f580bfa1fe1d2ab99603479d936abcdd27d5bb6f86518efb359a",
+          "normative_match": true,
+          "derived_hash_byte_range": [
+            75,
+            83
+          ],
+          "derived_hash_value": "38aa5e89"
+        },
+        {
+          "path": "00_nucleo/prompts/compiler/eval/modules.md",
+          "raw_sha256": "bba521089d35fcd8db850a60a790309105b73786c818f45ee9a71872366f1577",
+          "raw_match": true,
+          "normative_sha256": "10280e64758f0813f4d98ed760651a96974b80b270ab8bd606af9f57a84eaf3f",
+          "normative_match": true,
+          "derived_hash_byte_range": [
+            57,
+            65
+          ],
+          "derived_hash_value": "589ad79e"
+        },
+        {
+          "path": "00_nucleo/prompts/compiler/eval/repr.md",
+          "raw_sha256": "c5169f71ee6a0ece8cc2fc56ca9cecd07443a339c460b6ae63f15638c436eccd",
+          "raw_match": true,
+          "normative_sha256": "9e2701b2a35191d4b2e6501eb3ed48d19a335b4c59d5d22bcaf3689d46bafa02",
+          "normative_match": true,
+          "derived_hash_byte_range": [
+            87,
+            95
+          ],
+          "derived_hash_value": "8ea0d06c"
+        },
+        {
+          "path": "00_nucleo/prompts/compiler/eval/tests.md",
+          "raw_sha256": "0d90e29edd7c540a8605235f8a5b7930d827243e86539deb0a25138a5ed77e7a",
+          "raw_match": true,
+          "normative_sha256": "5d157b2fe780221d26174a6ff37a2d45f45f296bc961a7cd29a861ea99f4fbdc",
+          "normative_match": true,
+          "derived_hash_byte_range": [
+            55,
+            63
+          ],
+          "derived_hash_value": "e2f2a9f6"
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-preflight-manifest.json",
+          "raw_sha256": "dc295b83e5604eee55734168a1a3f13e58dba48b6b40b9715c191c381dd88366",
+          "raw_match": true
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-reopening.md",
+          "raw_sha256": "114c132993326126231b853e9f6f86b2c0c1c166c97a708c768f371c8bdf772c",
+          "raw_match": true
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-contract.md",
+          "raw_sha256": "0dff1413e9b47401a0ef8b0e298ad9f9f38810264889e23869503d560cf3e963",
+          "raw_match": true
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-runner.py",
+          "raw_sha256": "cae3778bbab25cda5cb9d35fc6650463d6a62e28b25c4f603de6031be334bd00",
+          "raw_match": true
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-pre-measurement.json",
+          "raw_sha256": "fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0",
+          "raw_match": true
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-oracle-tests.rs",
+          "raw_sha256": "9c1bcfd3c079de5f507afab9a3123180a6e857fd787a8aaab94e7018a7737d65",
+          "raw_match": true
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-oracle-receipt.json",
+          "raw_sha256": "edf35e588a52bdfb7d53d131132be2f29ae51e9991ebb41571aae9395fde2e56",
+          "raw_match": true
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-adversarial-plan.json",
+          "raw_sha256": "c43bf2f395b16da20af9f7cb7538b66b511e7397ed55b02e17c4167ba1894da9",
+          "raw_match": true
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-red.log",
+          "raw_sha256": "603f03c5ebfec41a3c4f1e2477a192f067a3d7e0b1e4c4778f69479b1041e86f",
+          "raw_match": true
+        },
+        {
+          "path": "00_nucleo/diagnosticos/p1305-r2-lineage.log",
+          "raw_sha256": "d862d00a73cbedf3f7602526a6da6be16d356f35139727ab9acd05a8a09f0e83",
+          "raw_match": true
+        }
+      ],
+      "oracle_fragment_occurrences": 1,
+      "head": "8eb41b769eb840c7ab1063f981f98fdd4047952b",
+      "preimplementation_diff_matches": true,
+      "preseal_log_entry_sha256": "bcd53259c59f4cffbf414feeb8cef5613195f8fe3b5ea381513e1f3ca00a33f4",
+      "positive_envelopes": 262,
+      "valid_negative_envelopes": 27,
+      "rejected_negative_envelopes": 27,
+      "discrimination_verdict": "DISCRIMINATION_PASS",
+      "red_exit": 101,
+      "red_summary_present": true,
+      "red_channel_hashes_match": true,
+      "adapter": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1305-r2-mutation-runner.py",
+        "sha256": "d8b528642b6db3da61f5b036781dc038e391d88b29172014c1ea35597c14277d",
+        "bytes": 10507
+      }
+    }
+  },
+  "premeasurement_audit": {
+    "command": "python3 - <<'PY'\nimport json,pathlib,hashlib,base64,collections\np=pathlib.Path('00_nucleo/diagnosticos/p1305-r2-pre-measurement.json');d=json.loads(p.read_bytes())\nerrors=[];keys=collections.Counter()\nfor r in d['runs']:\n key=(r['id'],r['profile'],r['side'],r['phase']);keys[key]+=1\n for k in ['stdout','stderr']:\n  raw=base64.b64decode(r[k+'_base64'])\n  if hashlib.sha256(raw).hexdigest()!=r[k+'_sha256'] or raw.decode('utf8',errors='replace')!=r[k]:errors.append((key,'channel-'+k))\n if not r['complete'] or r['exit_code'] not in [0,1]:errors.append((key,'invalid-execution'))\n if r['exit_code']==0:\n  try:\n   if json.loads(r['stdout'])!=r['value']:errors.append((key,'parsed-value'))\n  except Exception:errors.append((key,'bad-json'))\nexpected={(p['id'],profile,side,phase) for p in d['probes'] for profile in d['profiles'] for side in ['crystalline','vanilla'] for phase in ['normal','inverted']}\nmissing=expected-set(keys);duplicates=[k for k,n in keys.items() if n!=1]\nnormal={(r['id'],r['profile'],r['side']):r for r in d['runs'] if r['phase']=='normal'}\nrepeats=[]\nfor r in d['runs']:\n if r['phase']=='inverted':\n  old=normal[(r['id'],r['profile'],r['side'])]\n  if any(r[k]!=old[k] for k in ['exit_code','complete','stdout_sha256','stderr_sha256']):repeats.append((r['id'],r['profile'],r['side']))\nprint(json.dumps({'measurement_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'run_count':len(d['runs']),'probe_count':len(d['probes']),'expected_normal_inverted_run_count':len(expected),'missing':sorted(missing),'duplicates':duplicates,'channel_or_execution_errors':errors,'repeat_disagreements':repeats,'extra_document_keys':[k for k in keys if k not in expected],'baseline_source':d['baseline_source'],'binary_pins':d['binary_pins']},indent=2))\nPY",
+    "result": {
+      "measurement_sha256": "fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0",
+      "run_count": 1042,
+      "probe_count": 65,
+      "expected_normal_inverted_run_count": 1040,
+      "missing": [],
+      "duplicates": [],
+      "channel_or_execution_errors": [],
+      "repeat_disagreements": [],
+      "extra_document_keys": [
+        [
+          "document-route",
+          "default",
+          "vanilla",
+          "document"
+        ],
+        [
+          "document-route",
+          "default",
+          "crystalline",
+          "document"
+        ]
+      ],
+      "baseline_source": {
+        "head": "8eb41b769eb840c7ab1063f981f98fdd4047952b",
+        "status": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/tests.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/eval/tests.rs\n?? 00_nucleo/diagnosticos/p1303-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1303-adversarial-revision-1.md\n?? 00_nucleo/diagnosticos/p1303-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1303-candidate-runner.py\n?? 00_nucleo/diagnosticos/p1303-certificate.json\n?? 00_nucleo/diagnosticos/p1303-contract.md\n?? 00_nucleo/diagnosticos/p1303-final-measurement.json\n?? 00_nucleo/diagnosticos/p1303-final-report.md\n?? 00_nucleo/diagnosticos/p1303-implementation-receipt.md\n?? 00_nucleo/diagnosticos/p1303-l0-gate-receipt.md\n?? 00_nucleo/diagnosticos/p1303-lineage-resell-receipt.md\n?? 00_nucleo/diagnosticos/p1303-manifest.json\n?? 00_nucleo/diagnosticos/p1303-mutant-ledger.json\n?? 00_nucleo/diagnosticos/p1303-oracle-receipt.md\n?? 00_nucleo/diagnosticos/p1303-pre-measurement.json\n?? 00_nucleo/diagnosticos/p1303-red-tests-receipt.md\n?? 00_nucleo/diagnosticos/p1303-verification-receipt.json\n?? 00_nucleo/diagnosticos/p1304-baseline-status.txt\n?? 00_nucleo/diagnosticos/p1304-build.log\n?? 00_nucleo/diagnosticos/p1304-certificate.json\n?? 00_nucleo/diagnosticos/p1304-decision-report.md\n?? 00_nucleo/diagnosticos/p1304-encode-readiness.json\n?? 00_nucleo/diagnosticos/p1304-feature-matrix.json\n?? 00_nucleo/diagnosticos/p1304-manifest.json\n?? 00_nucleo/diagnosticos/p1304-owner-ledger.tsv\n?? 00_nucleo/diagnosticos/p1304-prebuild.log\n?? 00_nucleo/diagnosticos/p1304-probe-catalog.json\n?? 00_nucleo/diagnosticos/p1304-refinement.log\n?? 00_nucleo/diagnosticos/p1304-repr-refinement.json\n?? 00_nucleo/diagnosticos/p1304-run-matrix.py\n?? 00_nucleo/diagnosticos/p1304-verification-receipt.json\n?? 00_nucleo/diagnosticos/p1304-verification.log\n?? 00_nucleo/diagnosticos/p1305-build.log\n?? 00_nucleo/diagnosticos/p1305-certificate.json\n?? 00_nucleo/diagnosticos/p1305-contract.md\n?? 00_nucleo/diagnosticos/p1305-final-report.md\n?? 00_nucleo/diagnosticos/p1305-manifest.json\n?? 00_nucleo/diagnosticos/p1305-pre-measurement.json\n?? 00_nucleo/diagnosticos/p1305-preflight-runner.py\n?? 00_nucleo/diagnosticos/p1305-r2-pre-measurement.json\n?? 00_nucleo/diagnosticos/p1305-r2-preflight-manifest.json\n?? 00_nucleo/diagnosticos/p1305-r2-reopening.md\n?? 00_nucleo/diagnosticos/p1305-r2-runner.py\n?? 00_nucleo/diagnosticos/p1305-verification-receipt.json\n?? 00_nucleo/materialization/typst-passo-1303.md\n?? 00_nucleo/materialization/typst-passo-1304.md\n",
+        "diff_stat": " .../prompts/compiler/eval/bindings/field_access.md |  80 +++++\n 00_nucleo/prompts/compiler/eval/tests.md           | 100 +++++-\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 382 ++++++++++++++++++++-\n 4 files changed, 562 insertions(+), 4 deletions(-)\n",
+        "diff_sha256": "fca8f14b7fcad814ca954d8933c05a6e2644683c9a4529d9f169bcfb5d1c2a49"
+      },
+      "binary_pins": {
+        "vanilla": {
+          "path": "/usr/local/bin/typst",
+          "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+          "bytes": 51851160
+        },
+        "crystalline": {
+          "path": "/dev/shm/p1305-target.3j4tck2g/release/typst",
+          "sha256": "4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d",
+          "bytes": 47597584
+        }
+      }
+    }
+  },
+  "discrimination": {
+    "command": "python3 00_nucleo/diagnosticos/p1305-r2-mutation-runner.py --mode preseal --output 00_nucleo/diagnosticos/p1305-r2-verification.log",
+    "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+    "positive_observations": 262,
+    "valid_negative_observations": 27,
+    "rejected_negative_observations": 27,
+    "contract_mutation_score": 1,
+    "compiled_product_mutation_score": null,
+    "mutants": [
+      {
+        "id": "array-limit-39",
+        "witness": "array-repr-40",
+        "rust_test": "p1305_array_repr_40",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "array-limit-41",
+        "witness": "array-repr-41",
+        "rust_test": "p1305_array_repr_41",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "array-no-elision",
+        "witness": "array-repr-256",
+        "rust_test": "p1305_array_repr_256",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "array-wrong-omission-count",
+        "witness": "array-repr-42",
+        "rust_test": "p1305_array_repr_42",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "array-data-truncated",
+        "witness": "array-data-256",
+        "rust_test": "p1305_full_array_values_survive_repr",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "array-data-reordered",
+        "witness": "array-data-81",
+        "rust_test": "p1305_full_array_values_survive_repr",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "array-hidden-item-replaced",
+        "witness": "array-distinct-after-boundary",
+        "rust_test": "p1305_array_distinct_after_boundary",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "array-known-maps-only",
+        "witness": "array-repr-41",
+        "rust_test": "p1305_array_repr_41",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "array-singleton-comma-lost",
+        "witness": "array-repr-1",
+        "rust_test": "p1305_array_repr_1",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "array-indentation-lost",
+        "witness": "nested-inner",
+        "rust_test": "p1305_nested_inner",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "helper-global-elision",
+        "witness": "direct-flat-content-sequence-41",
+        "rust_test": "p1305_content_sequence_does_not_inherit_array_elision",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "module-old-wrapper",
+        "witness": "named-modules",
+        "rust_test": "p1305_named_modules",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "global-expression-old-name",
+        "witness": "named-modules",
+        "rust_test": "p1305_named_modules",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "global-document-old-name",
+        "witness": "document-route",
+        "rust_test": "p1305_document_global_constructor_all_profiles",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "global-imported-old-name",
+        "witness": "imported-route",
+        "rust_test": "p1305_imported_route",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "module-all-global",
+        "witness": "ordinary-collisions",
+        "rust_test": "p1305_ordinary_collisions",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "module-std-nominal-map",
+        "witness": "ordinary-collisions",
+        "rust_test": "p1305_ordinary_collisions",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "import-bare-public-name",
+        "witness": "global-bare-unbound",
+        "rust_test": "p1305_import_binding_negatives_and_dynamic_spans",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "import-field-public-name",
+        "witness": "global-field-bare",
+        "rust_test": "p1305_global_field_bare",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "import-dynamic-accepted",
+        "witness": "global-dynamic-block",
+        "rust_test": "p1305_import_binding_negatives_and_dynamic_spans",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "import-dynamic-hint-or-span",
+        "witness": "global-dynamic-unnamed",
+        "rust_test": "p1305_import_binding_negatives_and_dynamic_spans",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "import-dynamic-reject-as",
+        "witness": "global-dynamic-named",
+        "rust_test": "p1305_global_dynamic_named",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "import-dynamic-reject-items",
+        "witness": "global-dynamic-items",
+        "rust_test": "p1305_global_dynamic_items",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "import-dynamic-reject-wildcard",
+        "witness": "global-dynamic-wildcard",
+        "rust_test": "p1305_global_dynamic_wildcard",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "module-reexport-lookup-removed",
+        "witness": "reexport-collision",
+        "rust_test": "p1305_reexport_collision",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "lookup-removed",
+        "witness": "sentinel-lookups",
+        "rust_test": "p1301_lookups_de_modulo_existentes_preservam_valor_e_kind",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      },
+      {
+        "id": "feature-gate-bypassed",
+        "witness": "sentinel-pdf.data-cell",
+        "rust_test": "p1303_negativos_pdf_exatos_nos_perfis_sem_a11y",
+        "mode": "PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT",
+        "applicable": true,
+        "verdict": "Violated"
+      }
+    ],
+    "log": {
+      "path": "00_nucleo/diagnosticos/p1305-r2-verification.log",
+      "protected_entry_index": 0,
+      "canonical_entry_sha256": "bcd53259c59f4cffbf414feeb8cef5613195f8fe3b5ea381513e1f3ca00a33f4",
+      "canonicalization": "JSON sorted keys, ensure_ascii=false, separators comma/colon, UTF-8. Entry0 must remain byte-equivalent under this canonicalization; later verifier log entries may append."
+    },
+    "adapter_at_execution": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1305-r2-mutation-runner.py",
+      "sha256": "d8b528642b6db3da61f5b036781dc038e391d88b29172014c1ea35597c14277d",
+      "bytes": 10507
+    },
+    "adapter_source_at_execution": "#!/usr/bin/env python3\n\"\"\"Verifier-owned execution adapter for frozen oracle attacks, never an oracle author.\n\nPreseal mode transforms public observation envelopes only; these are explicitly\nnot compiled product mutations. Real candidate mutations must be run separately.\n\"\"\"\nimport argparse\nimport copy\nimport datetime\nimport hashlib\nimport json\nimport pathlib\nimport re\nimport subprocess\nimport time\n\nROOT = pathlib.Path(__file__).resolve().parents[2]\nDIAG = ROOT / \"00_nucleo/diagnosticos\"\nPLAN = DIAG / \"p1305-r2-adversarial-plan.json\"\nMEASUREMENT = DIAG / \"p1305-r2-pre-measurement.json\"\nWARNINGS = {\"global-bare\", \"global-alias-bare\", \"global-bare-unbound\", \"global-alias-bare-unbound\"}\nPRESERVE = {\"fields-dict-41\", \"fields-args-41\", \"content-sequence-41\"}\n\n\ndef canonical(value):\n    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(\",\", \":\")).encode()\n\n\ndef pin(path):\n    path = pathlib.Path(path)\n    raw = path.read_bytes()\n    return {\"path\": str(path), \"sha256\": hashlib.sha256(raw).hexdigest(), \"bytes\": len(raw)}\n\n\ndef normalized_l0(path):\n    raw = pathlib.Path(path).read_bytes()\n    pattern = rb\"(?m)^(Hash do C\\xc3\\xb3digo: )([0-9a-f]{8})$\"\n    matches = list(re.finditer(pattern, raw))\n    if len(matches) != 1:\n        raise ValueError(\"L0 must have exactly one canonical eight-hex Hash do Codigo line\")\n    match = matches[0]\n    normalized = raw[:match.start(2)] + b\"00000000\" + raw[match.end(2):]\n    return {\"raw\": pin(path), \"normative_sha256\": hashlib.sha256(normalized).hexdigest(),\n            \"derived_hash_byte_range\": [match.start(2), match.end(2)],\n            \"derived_hash_value\": match.group(2).decode()}\n\n\ndef envelope(row):\n    result = {\"complete\": row[\"complete\"], \"exit_code\": row[\"exit_code\"],\n              \"stdout\": row[\"stdout\"], \"stderr\": row[\"stderr\"]}\n    if result[\"exit_code\"] == 0:\n        result[\"value\"] = json.loads(result[\"stdout\"])\n    return result\n\n\ndef set_value(row, value):\n    row.update(complete=True, exit_code=0, value=value,\n               stdout=json.dumps(value, ensure_ascii=False, separators=(\",\", \":\")) + \"\\n\")\n    row[\"stderr\"] = \"\"\n\n\ndef classify(actual, expected):\n    if actual.get(\"complete\") is not True or actual.get(\"exit_code\") not in (0, 1):\n        return \"Unknown\"\n    if actual[\"exit_code\"] == 0:\n        try:\n            actual_value = json.loads(actual[\"stdout\"])\n        except (ValueError, TypeError, KeyError):\n            return \"Unknown\"\n    if actual[\"exit_code\"] != expected[\"exit_code\"]:\n        return \"Violated\"\n    if actual[\"stderr\"] != expected[\"stderr\"]:\n        return \"Violated\"\n    if actual[\"exit_code\"] == 0:\n        return \"Preserved\" if canonical(actual_value) == canonical(expected[\"value\"]) else \"Violated\"\n    return \"Preserved\" if actual[\"stdout\"] == expected[\"stdout\"] else \"Violated\"\n\n\ndef transform_strings(value, fn):\n    if isinstance(value, str):\n        return fn(value)\n    if isinstance(value, list):\n        return [transform_strings(item, fn) for item in value]\n    if isinstance(value, dict):\n        return {key: transform_strings(item, fn) for key, item in value.items()}\n    return value\n\n\ndef rejected_dynamic(probe):\n    expr = probe[\"expression\"]\n    start = expr.index(\"(std)\")\n    stderr = (\"error: dynamic import requires an explicit name\\n\"\n              f\"  ┌─ <input-expression>:1:{start}\\n  │\\n1 │ {expr}\\n\"\n              f\"  │ {' ' * start}^^^^^\\n  │\\n\"\n              \"  = hint: you can name the import with `as`\\n\\n\")\n    return {\"complete\": True, \"exit_code\": 1, \"stdout\": \"\", \"stderr\": stderr}\n\n\ndef preseal():\n    measurement = json.loads(MEASUREMENT.read_text())\n    plan = json.loads(PLAN.read_text())\n    if pin(MEASUREMENT)[\"sha256\"] != plan[\"pre_measurement_sha256\"]:\n        raise ValueError(\"measurement drift\")\n    if pin(DIAG / \"p1305-r2-contract.md\")[\"sha256\"] != plan[\"contract_sha256\"]:\n        raise ValueError(\"contract drift\")\n    if pin(DIAG / \"p1305-r2-oracle-tests.rs\")[\"sha256\"] != plan[\"oracle_tests_sha256\"]:\n        raise ValueError(\"oracle drift\")\n    rows = {(r[\"id\"], r[\"profile\"], r[\"side\"]): r for r in measurement[\"runs\"]\n            if r[\"phase\"] in (\"normal\", \"document\")}\n    probes = {p[\"id\"]: p for p in measurement[\"probes\"]}\n    expected = {}\n    for (identifier, profile, side), row in rows.items():\n        if side != \"vanilla\":\n            continue\n        chosen = rows[(identifier, profile, \"crystalline\")] if identifier in PRESERVE else row\n        result = envelope(chosen)\n        if identifier in WARNINGS or identifier == \"document-route\":\n            result[\"stderr\"] = rows[(identifier, profile, \"crystalline\")][\"stderr\"]\n        expected[(identifier, profile)] = result\n    flat = \"sequence(\\n  \" + \",\\n  \".join(f\"[{i}]\" for i in range(41)) + \",\\n)\"\n    direct = {}; set_value(direct, flat)\n    expected[(\"direct-flat-content-sequence-41\", \"default\")] = direct\n    positive = [{\"id\": key[0], \"profile\": key[1], \"verdict\": classify(value, value)}\n                for key, value in expected.items()]\n    mutants = []\n    for attack in plan[\"mutants\"]:\n        identifier = attack[\"id\"]; witness = attack[\"witness\"]\n        before = expected[(witness, \"default\")]\n        after = copy.deepcopy(before)\n        value = copy.deepcopy(before.get(\"value\"))\n        if identifier == \"array-limit-39\":\n            value = value.replace(\"  39,\\n\", \"  .. (1 items omitted),\\n\")\n        elif identifier in (\"array-limit-41\", \"array-no-elision\", \"array-known-maps-only\"):\n            value = json.loads(rows[(witness, \"default\", \"crystalline\")][\"stdout\"])\n        elif identifier == \"array-wrong-omission-count\":\n            value = value.replace(\".. (2 items omitted)\", \".. (3 items omitted)\")\n        elif identifier == \"array-data-truncated\":\n            value[0] = 40; value[1] = value[1][:40]; value[2] = value[2][:40]\n        elif identifier == \"array-data-reordered\":\n            for vector in value[1:]:\n                vector[39], vector[40] = vector[40], vector[39]\n        elif identifier == \"array-hidden-item-replaced\":\n            value[3] = 0; value[-1][40] = 0\n        elif identifier == \"array-singleton-comma-lost\":\n            value = \"(0)\"\n        elif identifier == \"array-indentation-lost\":\n            value = value.replace(\"\\n    \", \"\\n  \")\n        elif identifier == \"helper-global-elision\":\n            value = value.replace(\"  [40],\\n\", \"  .. (1 items omitted),\\n\")\n        elif identifier == \"module-old-wrapper\":\n            value = transform_strings(value, lambda s: re.sub(r\"<module ([^>]+)>\", r\"module(\\1)\", s))\n        elif identifier in (\"global-expression-old-name\", \"global-document-old-name\", \"global-imported-old-name\"):\n            value = transform_strings(value, lambda s: s.replace(\"<module global>\", \"<module std>\"))\n        elif identifier == \"module-all-global\":\n            value = transform_strings(value, lambda s: re.sub(r\"<module [^>]+>\", \"<module global>\", s))\n        elif identifier == \"module-std-nominal-map\":\n            value = transform_strings(value, lambda s: s.replace(\"<module std>\", \"<module global>\"))\n        elif identifier == \"import-bare-public-name\":\n            set_value(after, \"<module global>\")\n        elif identifier == \"import-field-public-name\":\n            after = envelope(rows[(witness, \"default\", \"crystalline\")])\n        elif identifier == \"import-dynamic-accepted\":\n            after = envelope(rows[(witness, \"default\", \"crystalline\")])\n        elif identifier == \"import-dynamic-hint-or-span\":\n            after[\"stderr\"] = after[\"stderr\"].replace(\"  = hint: you can name the import with `as`\\n\", \"\")\n        elif identifier.startswith(\"import-dynamic-reject-\"):\n            after = rejected_dynamic(probes[witness])\n        elif identifier in (\"module-reexport-lookup-removed\", \"lookup-removed\"):\n            after = {\"complete\": True, \"exit_code\": 1, \"stdout\": \"\",\n                     \"stderr\": \"error: module `global` does not contain `calc`\\n\\n\"}\n        elif identifier == \"feature-gate-bypassed\":\n            set_value(after, \"function\")\n        else:\n            raise ValueError(\"unsupported frozen attack: \" + identifier)\n        if before[\"exit_code\"] == 0 and after == before:\n            set_value(after, value)\n            after[\"stderr\"] = before[\"stderr\"]\n        applicable = canonical(before) != canonical(after)\n        verdict = classify(after, before) if applicable else \"Unknown\"\n        mutants.append({**attack, \"mode\": \"PUBLIC_ENVELOPE_TRANSFORMATION_NOT_COMPILED_PRODUCT\",\n                        \"applicable\": applicable, \"expected_observation\": before,\n                        \"mutated_observation\": after, \"verdict\": verdict})\n    valid = sum(m[\"applicable\"] for m in mutants)\n    killed = sum(m[\"applicable\"] and m[\"verdict\"] == \"Violated\" for m in mutants)\n    result = {\"schema\": \"p1305-r2-preseal-discrimination-v1\",\n              \"generated_at\": datetime.datetime.now(datetime.timezone.utc).isoformat(),\n              \"adapter\": pin(__file__), \"plan\": pin(PLAN), \"measurement\": pin(MEASUREMENT),\n              \"contract\": pin(DIAG / \"p1305-r2-contract.md\"),\n              \"baseline_provenance\": measurement[\"baseline_source\"],\n              \"positive_observations\": positive, \"mutants\": mutants,\n              \"valid_negatives\": valid, \"rejected_negatives\": killed,\n              \"contract_mutation_score\": killed / valid if valid else None,\n              \"compiled_product_mutation_score\": None,\n              \"opaque_controls\": [], \"synthetic_opaque_controls\": False,\n              \"claim_limit\": \"Tests comparator discrimination against declared observable errors. Not compiled product mutant evidence; all source-level mutations remain mandatory after candidate.\",\n              \"verdict\": \"DISCRIMINATION_PASS\" if valid == len(mutants) == killed and all(p[\"verdict\"] == \"Preserved\" for p in positive) else \"DISCRIMINATION_FAIL\"}\n    return result\n\n\ndef main():\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--mode\", choices=[\"preseal\"], required=True)\n    parser.add_argument(\"--output\", required=True)\n    args = parser.parse_args()\n    result = preseal()\n    destination = pathlib.Path(args.output)\n    if destination.exists():\n        raise SystemExit(\"Refusing to overwrite prior verifier log\")\n    destination.write_text(json.dumps([result], ensure_ascii=False, indent=2) + \"\\n\")\n    print(json.dumps({k: result[k] for k in [\"verdict\", \"valid_negatives\", \"rejected_negatives\", \"contract_mutation_score\"]}))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "positive_interpretation": "Measured intended vanilla envelopes or explicitly frozen historical baseline controls accepted by independent strict comparator; direct flat Content Sequence expectation grounded in oracle test and its baseline PASS. This is not a claim that all candidate tests already pass.",
+    "opaque_policy": "No observed opaque case in finite scope; none invented or counted. Required invalid execution/malformed JSON yields Unknown and blocks.",
+    "future_adapter_policy": "Verifier-owned mechanical adapter is operational output, not authority over tests/attacks. Postcandidate source-mutation mode may be added and its version pinned downstream; this exact preseal adapter snapshot, plan, contract and first log entry remain immutable."
+  },
+  "red": {
+    "path": "00_nucleo/diagnosticos/p1305-r2-red.log",
+    "sha256": "603f03c5ebfec41a3c4f1e2477a192f067a3d7e0b1e4c4778f69479b1041e86f",
+    "command": "cargo test -p typst-core p1305 -- --test-threads=1",
+    "tests_executed": 38,
+    "passed": 16,
+    "failed": 22,
+    "exit_code": 101,
+    "verdict": "VALID_BASELINE_RED",
+    "cause": "Array/nesting elision and module representations, lexical saved binding and exact Dynamic diagnostic; compiled successfully and imports use working fixture.",
+    "diff_before_and_after_sha256": "5cfadf2d25d50c5d7bf3d06ba1659f77f57b7e28d1a4b4d8d4a4361129daa60c"
+  },
+  "ownership_nuclei_gate": {
+    "command": "crystalline-lint --checks v15,v26 .",
+    "exit_code": 0,
+    "stdout": "✓ No violations found\n"
+  },
+  "l0_identity_policy": {
+    "normative_identity": "Exactly one UTF-8 line (?m)^(Hash do Código: )[0-9a-f]{8}$. Replace only eight digits with 00000000. Every other byte, position and line ending protected.",
+    "initial_raw_hash": "Provenance, pinned per input audit; derived eight-digit Hash do Código value is excluded from protected normative payload.",
+    "postcandidate_requirement": "Only those exact eight-byte ranges may change via deterministic lineage resell. Record final raw hashes and exact before/after metadata; require dry-run Nothing to fix. Any other byte alteration INVALIDATES this seal and restarts earliest affected phase. No general normalization permitted."
+  },
+  "authority": {
+    "implementer": "Root may now implement only final manifest allowlisted consumers under the four sealed L0; cannot modify protected oracle/contract inputs.",
+    "verifier": "Does not implement solution or edit judged artifacts; mechanical negative mutations occur only in isolated disposable copies.",
+    "remaining": "Fresh candidate GREEN, real compiled-product27mutant gate, focal profiles,15maps,627corpus,all original final gates and independent final judgment remain mandatory."
+  },
+  "claim_limit": "Seals contract/oracle discriminator and valid RED before implementation. Does not certify product mutation score, GREEN, completed12paths, four-profile candidate parity or general equivalence.",
+  "dag": "Final manifest and protected inputs -> this immutable seal -> implementation/evidence -> final receipt/certificate -> report. No self hash or final report pin."
+}

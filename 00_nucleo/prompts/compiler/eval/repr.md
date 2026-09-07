@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: d91654f3
+Hash do Código: 8ea0d06c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -198,8 +198,10 @@ fronteira acima; tal achado invalida este congelamento e exige nova Fase A.
 
 ## Decisão P1290 — contrato morfológico congelado
 
-Arrays/tuplas serializam cada item pela sua própria `repr` e usam `", "`
-entre itens no modo linear. Vazio é `()`; singleton conserva a vírgula
+Arrays/tuplas serializam os itens visíveis pela sua própria `repr` e usam `", "`
+entre itens no modo linear. P1305-r2, abaixo, refina explicitamente a regra
+anterior de representar todos os itens: arrays acima de 40 itens elidem somente
+a representação excedente. Vazio é `()`; singleton conserva a vírgula
 `(<item>,)`. Quando o corpo interno unido contém quebra de linha ou excede a
 fronteira ASCII medida de 50 caracteres, a forma é multilinha: `(`, newline,
 um item por linha com dois espaços adicionais por nível e vírgula final,
@@ -417,3 +419,78 @@ de atributos.
 entidade, API, default, fase, escaping do target HTML, igualdade ou render.
 Refutam-na qualquer forma curta medida que passe a quebrar, perda/reordenação de
 campo, escolha por nome de tag ou divergência persistente na mesma largura.
+
+## P1305-r2 — arrays longos e módulos nomeados
+
+### Medição anterior à decisão
+
+Sobre HEAD `8eb41b769eb840c7ab1063f981f98fdd4047952b` mais o diff P1303
+não commitado, a medição independente
+`00_nucleo/diagnosticos/p1305-r2-pre-measurement.json`, SHA-256
+`fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0`,
+preserva status, diff/stat, fixtures, argv/cwd, binários e saídas integrais.
+Executada em `2026-09-07T13:48:28.580684+00:00` até
+`2026-09-07T13:51:19.266604+00:00`, usa o vanilla ratificado `a51e02804`
+SHA-256 `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`
+e baseline fresco SHA-256
+`4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d`.
+
+Em `01_core/src/compiler/eval/repr.rs:36-41`, o baseline representa todos
+os itens. Em `lab/typst-original/crates/typst-library/src/foundations/array.rs:1188-1199`,
+o limite é 40 e o texto da cauda informa a quantidade omitida. Os probes
+`array-repr-40`, `array-repr-41` e `array-repr-42` medem, respectivamente,
+ausência de marcador, `.. (1 items omitted)` e `.. (2 items omitted)` no
+vanilla; nesting conserva reindentação. `ascii-body-49/50/51` reconfirma a
+fronteira P1290; `array-data-*` conserva a sequência completa depois de repr.
+Os controles `fields-dict-41` e `fields-args-41` já divergem em forma do
+vanilla, mas preservam todos os seus fields/argumentos no baseline; não são
+autorização de elisão neste passo.
+
+Em `repr.rs:56`, o wrapper Module é `module(nome)`. O vanilla imprime o
+nome armazenado entre `<module ` e `>` (`foundations/module.rs:174-179`).
+`named-modules`, `ordinary-collisions`, `reexport-collision`,
+`imported-route`, `nested-import-route` e `document-route` distinguem global,
+aliases e módulos ordinários. O carrier não distingue global de um arquivo
+`std.typ` que reexporta `std: *`; a contraprova anterior está em
+`00_nucleo/diagnosticos/p1305-contract.md`, SHA-256
+`bd7dfc46dbcd93087b7abd6c67bd64938c0162344cfb38606a4163083dcab038`.
+O dono autorizou ampliar exclusivamente os owners de construção do global;
+seus L0 passam a guardar o nome público `global` no objeto, mantendo o
+binding lexical `std`. Este formatter não reconstrói origem por conteúdo.
+
+### Decisão e aceitação
+
+Todo `Value::Array`, independentemente de origem, representa os primeiros
+`min(len, 40)` itens na ordem original. Quando `len > 40`, acrescenta uma
+peça final literal `.. (<len - 40> items omitted)`, inclusive o plural
+`items` quando a quantidade é um. Não há peça adicional em `len <= 40`.
+Essa lista de peças segue a disciplina canônica P1290: vazio `()`, singleton
+com vírgula, forma curta/multilinha, dois espaços por nível, vírgula final e
+reindentação de cada linha. Arrays aninhados aplicam a regra em cada array
+real. O marcador não é um valor inserido no array.
+
+Somente a projeção de `Value::Array` sofre elisão. O helper genérico de
+listas não adquire limite; campos de constructors, sequências de conteúdo,
+argumentos, dicionários e outras listas que o reutilizam mantêm seus contratos.
+Se um field contém um array real, a própria repr desse valor segue a regra
+de array. Comprimento, ordem, lookup, valores omitidos e serialização
+estruturada integral permanecem inalterados; a fachada textual usa esta repr.
+Não selecionar mapas de cor ou nomes de testemunhas.
+
+Todo Module nomeado usa exatamente `<module <name()>>`, sendo `<name()>`
+substituído pelo nome armazenado. Global já chega nomeado `global`; import
+ordinário de `std.typ`, inclusive reexport integral, permanece `std`.
+Aliases não mudam esse nome. Não converter `std` em `global` no formatter,
+inspecionar bindings para reconhecer stdlib, nem consultar paths, spans,
+identidades de ponteiros, nomes de fixtures ou origem sintática. Anonimato
+de plugin permanece fora de escopo; não alterar Module.
+
+A expectativa histórica do teste `repr_value_module` neste owner deve ser
+retificada de `module(mylib)` para `<module mylib>`, com autoria independente
+de oráculo. Refutam o contrato limite incorreto, marcador/quantidade/forma
+divergente, truncamento dos dados, elisão em helper genérico, regressão
+P1290, conversão nominal de import ordinário ou discrepância entre rotas do
+global. Política `Unknown`: nenhum caso obrigatório desconhecido satisfaz
+aceitação. Morfologia é linguagem (ADR-0107); esta correção de paridade
+segue ADR-0127 em fluxo contínuo dentro da ampliação autorizada, sem nova API,
+entidade, fase, default de produto ou edição de diagnóstico neste owner.
