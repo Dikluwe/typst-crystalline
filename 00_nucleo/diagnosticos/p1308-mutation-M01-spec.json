@@ -1,0 +1,37 @@
+{
+  "mode": "mutant",
+  "family": "P1308-M01",
+  "candidate_root": "/dev/shm/p1308-mutant-source.PmokqQ",
+  "target_dir": "/dev/shm/p1308-mutant-target.NV7BUV",
+  "freeze": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-verification-candidate-freeze-r2.json",
+    "sha256": "49c38b596a041cfe20e3105392c322a6372b4c3862db79568f6ae62bd681711b"
+  },
+  "lease": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-lease-r2.json",
+    "sha256": "9da35cc1cce83126de4a7d9ceac9da39ef2e53af2cc38bf973f8480a85b909c2"
+  },
+  "route": "rust",
+  "tests": [
+    "p1308_none_identity",
+    "p1308_none_identity_preserves_error_origin",
+    "p1308_unsupported_add_control"
+  ],
+  "changes": [
+    {
+      "path": "01_core/src/compiler/eval/operators/arithmetic.rs",
+      "before_sha256": "818999e784e6b70448b08bb392f092c87bb292c60f58880e211a6d776039bec3",
+      "after_sha256": "ef012dd0fa3462aa73388129fab99c834d6584c5be6e197b326689bfdd203922",
+      "function": "apply_binary",
+      "defect": "Remove only the future approved Add Args/None identity arm, retaining Add Args/Args and the generic error fallback. If the approved successor includes None/Args separately, leave that control intact."
+    }
+  ],
+  "patch": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-M01.patch",
+    "sha256": "2c7265bdf9997dc4fc88d8302810b1cea19c43e52c822b14767807c9a628af96"
+  },
+  "green_control": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-control.json",
+    "sha256": "612569d38fc2567d66a55b17f4bbc27eaaaf78c16ae66dad222853e7f29a85fc"
+  }
+}

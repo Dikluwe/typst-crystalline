@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/int` — superfície pública de `int`
-Hash do Código: 5317a0e5
+Hash do Código: 5b442b96
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/int.rs`
@@ -53,3 +53,36 @@ Cobrir descoberta, duas formas, min/max, negativos, min/max, shifts 0/63/64,
 logical, endian, signed, sizes 0/8/9, roundtrip, casts e erros. Finalizar com
 sondas ratificadas, workspace build/check/fmt, `git diff --check` e
 `crystalline-lint .` sem violations.
+
+## P1307-R3 — projeção positional com carrier coerente
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/stdlib/foundations/int.rs:149-153,264-268` cria Args
+temporário copiando items e zerando named para os helpers binary/unary. Não
+injeta receiver nesses dois pontos nem modifica valores. Já `:56` insere
+o receiver no início de items antes de delegar à nativa. Snapshot R3 SHA-256
+`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`,
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais diff P1306 preservado.
+
+### Migração dependente de aprovação pública de Args
+
+Para Args com Some, selecionar apenas ocorrências posicionais, preservando
+seus Values, ordem, span e value_span, e reconstruir views com
+`Args::from_occurrences` mantendo span agregado. Para None, usar
+`Args::from_parts` com items atuais e named vazio. Não invalidar Some,
+copiar named/ocorrências removidas ou inventar spans. Continuar validando
+logical/endian/size nas mesmas rotas, com os mesmos casts e erros anteriores.
+Esta migração não promove todas as nativas int ao novo consumo de named
+duplicados, não muda fórmulas/overflows nem API de linguagem de int.
+
+No dispatch ligado, inserir o receiver como nova ocorrência positional com
+ambos spans individuais detached (o helper só recebe i64, sem origem lexical),
+antes das ocorrências existentes, e reconstruir Some com o span agregado
+intacto. Para None, reconstruir por from_parts com o receiver em items.
+Não destacar as ocorrências originais nem obter origem por igualdade do Int.
+
+Testes devem cobrir ambos os carriers com named removidos e positional
+intacto, além da suíte vigente. É inferência que a projeção seja suficiente;
+qualquer escrita adicional de Args neste owner exige a mesma auditoria antes
+de código. A autorização para redigir não substitui o gate ADR-0127.

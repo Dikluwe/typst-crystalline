@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash b59f05dc
+//! @prompt-hash bf58571e
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -1347,7 +1347,16 @@ pub(crate) fn walk(
         // P844 (achado #47 de P831): regista o Content do elemento para
         // `Introspector::element_at` — `query()` devolve o elemento
         // (paridade vanilla), não só a Location.
-        intr.elements.insert(loc, content.clone());
+        let fields = match content {
+            Content::Heading(heading) => {
+                Some(heading::snapshot_fields(heading, chain, label_from_parent))
+            }
+            _ => None,
+        };
+        intr.elements.insert(
+            loc,
+            crate::entities::value::IntrospectedContent::new(content.clone(), fields),
+        );
         tags.push(Tag::Start(loc, info));
         Some(loc)
     } else {

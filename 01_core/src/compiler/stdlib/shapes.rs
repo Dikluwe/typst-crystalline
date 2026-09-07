@@ -1210,7 +1210,12 @@ mod tests {
         let mut c = ctx();
         let mut named = IndexMap::default();
         named.insert("length".into(), Value::Length(Length::pt(20.0)));
-        let args = Args { items: vec![], named, span: Span::detached() };
+        let args = Args {
+            occurrences: None,
+            items: vec![],
+            named,
+            span: Span::detached(),
+        };
         let res = native_line(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
         assert!(matches!(res, Value::Content(Content::Shape { .. })));
     }
@@ -1221,7 +1226,12 @@ mod tests {
         let mut c = ctx();
         let mut named = IndexMap::default();
         named.insert("angle".into(), Value::Angle(Angle::deg(90.0)));
-        let args = Args { items: vec![], named, span: Span::detached() };
+        let args = Args {
+            occurrences: None,
+            items: vec![],
+            named,
+            span: Span::detached(),
+        };
         let res = native_line(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
         assert!(matches!(res, Value::Content(Content::Shape { .. })));
     }
@@ -1231,6 +1241,7 @@ mod tests {
         // 395 - C1=F, C2=F: args.named has neither length nor angle -> default end branch
         let mut c = ctx();
         let args = Args {
+            occurrences: None,
             items: vec![],
             named: IndexMap::default(),
             span: Span::detached(),

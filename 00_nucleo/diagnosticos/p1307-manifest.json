@@ -1,0 +1,163 @@
+{
+  "protocol": "p1307-blocked-documentary-manifest-v1",
+  "at": "2026-09-07T16:18:26.962744+00:00",
+  "status": "P1307_REDESIGN_REQUIRED",
+  "candidate_exists": false,
+  "implementation_authorized": false,
+  "ready_for_ADR0127_confirmation": false,
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "inputs": {
+    "p1307-preflight.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-preflight.json",
+      "sha256": "f928436a6ce7e37e16c9a3b9f160480593efa8f9fa05d72dc2cdec836716e938",
+      "bytes": 4787
+    },
+    "p1307-coordinator.py": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-coordinator.py",
+      "sha256": "bc39156f8fbbf4e39c42097e91cae06fe4f422b8a7f0ee42c09e059f2deb770b",
+      "bytes": 5348
+    },
+    "p1307-baseline.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-baseline.json",
+      "sha256": "418443cb00f8733ae034cbf098662869835a1235f2112ef423f900cf9b56e48e",
+      "bytes": 290882
+    },
+    "p1307-contract-measure.py": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-contract-measure.py",
+      "sha256": "70ee55e1fc2e5eaae8392182cf0b3dae0110a02d0810d536847528003d1e22a7",
+      "bytes": 15312
+    },
+    "p1307-contract-measurement.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-contract-measurement.json",
+      "sha256": "f1191d3de029dabf6f66f87872bee8146aa43106ae54e84facc22952afd238d0",
+      "bytes": 8798694
+    },
+    "p1307-contract.md": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-contract.md",
+      "sha256": "549b472849c6e2043acd15234fb45b4dfb1566e2525d2c34c58810a309cf8357",
+      "bytes": 16050
+    },
+    "p1307-oracle.py": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-oracle.py",
+      "sha256": "625cbd37dee42097ca6116d6e6c86264298e0a0af1c26e5d53b13b885fc3dd43",
+      "bytes": 31485
+    },
+    "p1307-oracle-measurement.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-oracle-measurement.json",
+      "sha256": "e9cde88b67fdd807a101361b0a4b9eb5a6d1b42836d8e569c717ccda0ff64a86",
+      "bytes": 5656076
+    },
+    "p1307-oracle.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-oracle.json",
+      "sha256": "b4f8faffdb470a1c7891424b3fce8752491f70f2a79b17a828d39629ffbda842",
+      "bytes": 1608989
+    },
+    "p1307-oracle-receipt.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-oracle-receipt.json",
+      "sha256": "c26fff5c2500e3110180a42c390eec069d71259ba1694e08488ea07fd0da39cb",
+      "bytes": 10514
+    },
+    "p1307-mutant-plan.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-mutant-plan.json",
+      "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+      "bytes": 15852
+    },
+    "p1307-verify.py": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-verify.py",
+      "sha256": "7ae349f8ba800ab440f2f00220a9708b5fa3078ff82de3706c103d5f2fa952ed",
+      "bytes": 8449
+    },
+    "p1307-gates.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-gates.json",
+      "sha256": "249ac70549d80f4daf48721cde9b86cbd166ee43dbb1ae6bbea8f9760b3c4c3f",
+      "bytes": 820096
+    }
+  },
+  "step": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/materialization/typst-passo-1307.md",
+    "sha256": "c6e585f56fba9660d804a2e7063887195804ffb6f124da12daa581320a50c950",
+    "bytes": 18662
+  },
+  "roles": {
+    "coordinator": {
+      "executor": "/root",
+      "context": "current task history",
+      "writes": [
+        "p1307-preflight.json",
+        "p1307-coordinator.py",
+        "p1307-baseline.json",
+        "p1307-manifest.json",
+        "p1307-gates.json",
+        "p1307-pre-gate-report.md"
+      ],
+      "restrictions": "No oracle/contract semantics or productive code edits. Metadata-only L0 reseal allowed after owner approval; never anticipate workspace Rust headers before human gate."
+    },
+    "contract": {
+      "executor": "fresh p1307_contract agent",
+      "context": "no inherited conversation",
+      "reads": [
+        "step",
+        "preflight",
+        "baseline",
+        "current L0",
+        "ADRs",
+        "ratified vanilla",
+        "baseline source"
+      ],
+      "writes": [
+        "p1307-contract-measure.py",
+        "p1307-contract-measurement.json",
+        "p1307-contract.md",
+        "four listed L0 owners"
+      ],
+      "restrictions": "No Rust or oracle writes; no candidate patch, no self-verdict."
+    },
+    "oracle": {
+      "executor": "fresh p1307_oracle agent",
+      "context": "no inherited conversation",
+      "reads": [
+        "step",
+        "preflight",
+        "baseline",
+        "contract",
+        "L0",
+        "ratified sources",
+        "public measurements"
+      ],
+      "writes": [
+        "p1307-oracle.py",
+        "p1307-oracle-measurement.json",
+        "p1307-oracle.json",
+        "p1307-oracle-receipt.json",
+        "p1307-mutant-plan.json"
+      ],
+      "restrictions": "Documentary oracle only before human gate. No Rust, no L0 edits, no candidate access, no verdict."
+    },
+    "pregate_review": {
+      "executor": "/root coordinator",
+      "context": "New verifier spawn and historical verifier followup both failed with agent thread limit. Contract and oracle have distinct fresh authors; coordinator only audits their frozen documentary outputs before owner gate. This is NOT a distinct final implementation verifier or an independence attestation.",
+      "reads": [
+        "frozen authors' inputs",
+        "frozen baseline",
+        "receipts",
+        "L0",
+        "source inventory"
+      ],
+      "writes": [
+        "p1307-verify.py",
+        "p1307-pre-gate-verification.json",
+        "p1307-pre-gate-seal.json"
+      ],
+      "restrictions": "Do not repair contract/oracle or historical artifacts. Stop before human gate. P1307 final implementation certificate requires a distinct verifier after authorization; no substitute final certificate is authorized here."
+    }
+  },
+  "owners_unchanged": {
+    "00_nucleo/prompts/compiler/stdlib/loading.md": "01_core/src/compiler/stdlib/loading.rs",
+    "00_nucleo/prompts/compiler/stdlib/_comum.md": "01_core/src/compiler/stdlib/mod.rs",
+    "00_nucleo/prompts/compiler/eval.md": "01_core/src/compiler/eval/mod.rs",
+    "00_nucleo/prompts/compiler/eval/tests.md": "01_core/src/compiler/eval/tests.rs"
+  },
+  "unknown_policy": "Mandatory Unknown blocks a ready seal. Deliberately incomplete measurement may validate discriminator Unknown, never count as product pass.",
+  "causality": "Preflight and baseline precede independent measurements. This retrospective inventory is not a pre-contract seal and creates no implementation authority. Author receipts pin their actual causal inputs; no final attested protocol conformity is claimed.",
+  "scope_stop": "Step section 3 requires reopening for other owners; mandatory contextual observability also remains a blocker. L0, Rust and headers stay byte-identical to P0. P3 reseal and all P4-P9 implementation phases are not executed."
+}

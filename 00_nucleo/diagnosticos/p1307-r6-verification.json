@@ -1,0 +1,85 @@
+{
+  "schema": "p1307-r6-independent-blocked-checkpoint-v1",
+  "executor": "/root/p1306_oracle",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "verdict": "BLOCKED_FROZEN_L0_ORACLE_CONFLICT_AND_SOURCE_TRANSPORT",
+  "product_accepted": false,
+  "candidate_source_read": false,
+  "inputs": {
+    "p1307-r6-manifest.json": "3239bdc13d41e931edb0fa9e8e1f000017b1fe42a8f6016b3c5b65f9979afd8a",
+    "p1307-r6-baseline.json": "8cc0eae00457d2e7d54b420024eae49344032b34b295b4eda536faeb1ec3c4a3",
+    "p1307-r6-seal.json": "54a2cc86656c33734058aef77da8fe564721440529aed165dbdd140fb34ae08b",
+    "p1307-r6-oracle.json": "99d2a67984a468c8e86e20010ecc1bd76a364f1d1adebbb5b873fc341f7790a6",
+    "p1307-r4-oracle.py": "ef102f3a800475855b0cb21f40db666312cdb2f96fd9c867ea625b13c22b8e68",
+    "p1307-r6-public-matrix-1.json": "9d6dffc3a3ba5c245ae95e9cf896127310a9a81b571735e5e750c2a9909527f8",
+    "p1307-r6-successor-seal.json": "2b59864ff8f8e52586c3f28f4036f06c7b960338c647e31ea76ef740dd32659d"
+  },
+  "public_measurement": {
+    "started": "2026-09-07T19:31:00.413981+00:00",
+    "finished": "2026-09-07T19:31:46.877853+00:00",
+    "candidate_binary_sha256": "b10f891342f70bb6964d7881abaa31cc7ca7e330da6c1c185e528fe5e820ff30",
+    "source_provenance": "The pinned coordinator receipt contains argv/cwd/before/after source state and full replay stdout. Candidate source itself was not inspected by this verifier.",
+    "cells": 1982,
+    "Preserved": 1906,
+    "Violated": 76,
+    "Unknown": 0,
+    "independent_recheck": "Decoded receipt.stdout, matched every case/profile to the frozen oracle, and called the pinned R4 classify on each complete observable. All 1982 classifications equal the receipt. No product execution or expectation normalization occurred.",
+    "verdict_mismatches": [],
+    "limitation": "One normal-order matrix of one binary, not final repeated/reverse acceptance. Five encoder-output cases are separate observed violations, not resolved by this contract review."
+  },
+  "findings": [
+    {
+      "id": "L0_ORACLE_ARGS_PLUS_NONE",
+      "kind": "EXPLICIT_CONTRADICTION",
+      "cases": ["r4.args.join-none"],
+      "profiles": ["default", "html", "a11y", "html+a11y"],
+      "L0": "00_nucleo/prompts/compiler/eval/operators/arithmetic.md:181",
+      "sealed_semantic_hash_ref": "p1307-r6-seal.json/contract_semantic_hashes",
+      "obligation": "Oracle requires successful ordered Args value for Args + none.",
+      "restriction": "L0 authorizes only the Add Args/Args arm and explicitly keeps Args+None outside this increment.",
+      "observed": "Candidate and frozen baseline both report cannot add arguments and none. This is a known Violated public obligation, not Unknown.",
+      "consequence": "No implementation can satisfy this exact oracle cell while obeying that explicit scope exclusion. Do not add the prohibited arm or relabel the expectation without an explicit contract successor."
+    },
+    {
+      "id": "L0_ORACLE_CALLBACK_DIAGNOSTICS",
+      "kind": "CONFLICT_WITH_PRESERVED_DIAGNOSTIC_BOUNDARY",
+      "cases": ["r4.error.map-first-callback", "r4.error.filter-first-callback", "r4.error.filter-non-bool"],
+      "L0": "00_nucleo/prompts/compiler/stdlib/collections.md:498",
+      "obligation": "Oracle requires panic full-call ranges and filter non-bool message integer with a lexical value range.",
+      "restriction": "The approved occurrence-order change retains prior method messages and correction boundaries; callbacks keep synthetic Args. Existing private diagnostic selectors are not broadened automatically.",
+      "measured_split": "First callback changed from baseline22 to required11, while panic diagnostic remains argument-list anchored (map column79 rather than74; filter82 rather than77). Filter non-bool remains baseline int/detached rather than oracle integer/column72.",
+      "baseline_evidence": "git show b303f1f15b610e09872b567027e0d806387fde8c:01_core/src/compiler/stdlib/collections.rs:2402-2448 explicitly uses apply_func with synthetic positional Args and Span::detached/type_name on non-bool.",
+      "consequence": "Ordered traversal success does not authorize a general panic/filter diagnostic change. Resolve the required language surface and its owner explicitly before implementation."
+    },
+    {
+      "id": "SOURCE_TRANSPORT_FOR_PUBLIC_CALL_TRACES",
+      "kind": "INSUFFICIENT_ENTRYPOINT_DATA_PATH",
+      "cases": ["r2.with-spread-arguments-f", "r2.with-spread-arguments-g", "r2.with-spread-closure-f", "r2.with-spread-closure-g", "r4.error.map-detached-value-span", "r4.error.map-changed-detached-value-span", "r4.origin.filter.f", "r4.origin.map.f", "r4.origin.filter.g", "r4.origin.map.g"],
+      "measured_split": "For each default-profile case the entire observed stderr is an exact prefix of expected stderr; the missing suffix begins with while calling. All four profiles are Violated by the full classifier. This prefix check diagnoses the delta only and never normalizes acceptance.",
+      "L0": ["00_nucleo/prompts/compiler/eval.md:98", "00_nucleo/prompts/compiler/eval/call_dispatch.md:636"],
+      "baseline_evidence": [
+        "eval/mod.rs:343-363 constructs a local parse_code Source but gives Engine the original World.",
+        "call_dispatch.rs:980-985 resolves call_span through engine.world.source and returns errors without trace when range resolution fails; 990-999 uses the same source for containment."
+      ],
+      "interpretation": "Unlike Args+None this is not an explicit semantic prohibition of traces. The required containment rule already exists, but local numbered Source alone does not make that source available through World. A causal ownership/data-path refinement is required; do not fabricate traces or infer source by Value equality.",
+      "limit": "No candidate source or proposed overlay implementation reviewed. This does not declare global impossibility or approve a new public API. The fixture-only Source clone repair is not itself a product entrypoint fix."
+    }
+  ],
+  "baseline_source_pins": {
+    "01_core/src/compiler/eval/mod.rs": "6ccb0a0a89fb932bca3feebab24f536f79225535def4a7464ca0e65194716bce",
+    "01_core/src/compiler/eval/call_dispatch.rs": "75399c76d99dfaeb9b515d3152f824dcb7dc8815e693f45a2be10b3d394c2759",
+    "01_core/src/compiler/stdlib/collections.rs": "406cccfedb7575296a4757bec1b8b35f02f5b8c68f4277dfcf827fe1d7439930",
+    "01_core/src/compiler/eval/operators/arithmetic.rs": "44f370dc84abe1498094917f9af08377bc38603ef74d6bfcc0a032a8ee9616aa"
+  },
+  "integrity": {
+    "507_L0_semantic_hashes_unchanged_at_independent_check": "2026-09-07T19:34:42.293982+00:00",
+    "protected_manifest_input_pin_failures": [],
+    "judged_inputs_edited_by_verifier": false,
+    "preseal_limitation": "The preimplementation gate checked provenance and discrimination but failed to identify these cross-artifact L0/oracle inconsistencies. It cannot be cited as proving their compatibility. Original seal retained as historical record; no retroactive rewrite."
+  },
+  "fixture_successor": "Separately admissible for integration after actual repaired-baseline RED, preserving all22 expectations. It is explicitly not overall acceptance and does not resolve these findings.",
+  "actual_Rust_mutants": 0,
+  "actual_Rust_mutation_score": null,
+  "certificate": false,
+  "required_next_decision": "Explicit owner/contract successor resolving the frozen scope conflicts and source transport. Preserve original expected observations and violations. No silent acceptance downgrade, out-of-scope source edit, or final PASS."
+}

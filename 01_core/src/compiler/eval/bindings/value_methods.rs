@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods.md
-//! @prompt-hash 9af814fe
+//! @prompt-hash 26dccfaf
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -21,7 +21,7 @@ use crate::compiler::stdlib::counter::{
 use crate::compiler::stdlib::state::{
     state_at_location, state_display, state_final, state_get, state_update,
 };
-use crate::entities::args::Args;
+use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::ast::expr::{Arg, Expr};
 use crate::entities::ast::AstNode;
 use crate::entities::counter::Counter;
@@ -198,8 +198,24 @@ pub(in crate::compiler::eval) fn eval_color_method(
     use crate::compiler::eval::call_dispatch::eval_args;
     use crate::compiler::stdlib::color as color_rules;
     let span = args.span();
-    let mut synth = eval_args(args, scopes, ctx, engine)?;
-    synth.items.insert(0, Value::Color(*color));
+    let args = eval_args(args, scopes, ctx, engine)?;
+    let synth = if args.occurrences.is_some() {
+        let mut occurrences = args.occurrence_sequence();
+        occurrences.insert(
+            0,
+            ArgOccurrence {
+                name: None,
+                value: Value::Color(*color),
+                span: Span::detached(),
+                value_span: Span::detached(),
+            },
+        );
+        Args::from_occurrences(args.span, occurrences)
+    } else {
+        let mut items = args.items;
+        items.insert(0, Value::Color(*color));
+        Args::from_parts(items, args.named, args.span)
+    };
     let world = engine.world;
     let current_file = engine.current_file;
     match method {
@@ -253,8 +269,8 @@ fn parse_counter_display_args(
 ) -> SourceResult<Args> {
     use crate::entities::ast::expr::Arg;
 
-    let mut parsed = Args::positional(vec![]);
-    parsed.span = args.span();
+    let mut occurrences = Vec::new();
+    let mut has_positional = false;
 
     for arg in args.items() {
         match arg {
@@ -265,11 +281,21 @@ fn parse_counter_display_args(
                     )),
                     expr => eval_expr(expr, scopes, ctx, engine)?,
                 };
-                parsed.named.insert("at".into(), value);
+                occurrences.push(ArgOccurrence {
+                    name: Some("at".into()),
+                    value,
+                    span: named.span(),
+                    value_span: named.expr().span(),
+                });
             }
             Arg::Named(named) if named.name().as_str() == "both" => {
                 let value = eval_expr(named.expr(), scopes, ctx, engine)?;
-                parsed.named.insert("both".into(), value);
+                occurrences.push(ArgOccurrence {
+                    name: Some("both".into()),
+                    value,
+                    span: named.span(),
+                    value_span: named.expr().span(),
+                });
             }
             Arg::Named(named) => {
                 return Err(vec![SourceDiagnostic::error(
@@ -277,11 +303,17 @@ fn parse_counter_display_args(
                     format!("unexpected argument: {}", named.name().as_str()),
                 )]);
             }
-            Arg::Pos(expr) if parsed.items.is_empty() => {
+            Arg::Pos(expr) if !has_positional => {
                 let value = eval_expr(expr, scopes, ctx, engine)?;
                 match value {
                     Value::Str(_) | Value::Func(_) | Value::Auto => {
-                        parsed.items.push(value)
+                        occurrences.push(ArgOccurrence {
+                            name: None,
+                            value,
+                            span: expr.span(),
+                            value_span: expr.span(),
+                        });
+                        has_positional = true;
                     }
                     other => {
                         return Err(vec![SourceDiagnostic::error(
@@ -309,7 +341,7 @@ fn parse_counter_display_args(
         }
     }
 
-    Ok(parsed)
+    Ok(Args::from_occurrences(args.span(), occurrences))
 }
 
 /// **P506** — Despacha métodos de `Value::Counter`: `.update()`, `.step()`,
@@ -521,12 +553,18 @@ pub(in crate::compiler::eval) fn eval_counter_static_method_value(
             }
         }
         "display" => {
-            let mut parsed = Args::positional(vec![]);
-            parsed.span = span;
+            let mut occurrences = Vec::new();
+            let mut has_positional = false;
             for arg in items {
                 match arg {
-                    Arg::Pos(expr) if parsed.items.is_empty() => {
-                        parsed.items.push(eval_expr(expr, scopes, ctx, engine)?);
+                    Arg::Pos(expr) if !has_positional => {
+                        occurrences.push(ArgOccurrence {
+                            name: None,
+                            value: eval_expr(expr, scopes, ctx, engine)?,
+                            span: expr.span(),
+                            value_span: expr.span(),
+                        });
+                        has_positional = true;
                     }
                     Arg::Pos(expr) => {
                         return Err(vec![SourceDiagnostic::error(
@@ -541,11 +579,21 @@ pub(in crate::compiler::eval) fn eval_counter_static_method_value(
                             ),
                             expr => eval_expr(expr, scopes, ctx, engine)?,
                         };
-                        parsed.named.insert("at".into(), value);
+                        occurrences.push(ArgOccurrence {
+                            name: Some("at".into()),
+                            value,
+                            span: named.span(),
+                            value_span: named.expr().span(),
+                        });
                     }
                     Arg::Named(named) if named.name().as_str() == "both" => {
                         let value = eval_expr(named.expr(), scopes, ctx, engine)?;
-                        parsed.named.insert("both".into(), value);
+                        occurrences.push(ArgOccurrence {
+                            name: Some("both".into()),
+                            value,
+                            span: named.span(),
+                            value_span: named.expr().span(),
+                        });
                     }
                     Arg::Named(named) => {
                         return Err(vec![SourceDiagnostic::error(
@@ -561,6 +609,7 @@ pub(in crate::compiler::eval) fn eval_counter_static_method_value(
                     }
                 }
             }
+            let parsed = Args::from_occurrences(span, occurrences);
             counter_display(&counter, &parsed, scopes, ctx, engine, span)
         }
         _ => unreachable!("caller restringe métodos estáticos contextuais"),

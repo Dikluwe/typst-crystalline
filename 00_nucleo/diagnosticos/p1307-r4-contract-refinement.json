@@ -1,0 +1,1111 @@
+{
+  "schema": "p1307-r4-source-measured-contract-refinement-v1",
+  "at": "2026-09-07T17:38:54.757175+00:00",
+  "baseline_sha256": "52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57",
+  "classification": "ADR0127 continuous parity/route correction within approved Args+Args and causal provenance; no new Args/Func API beyond approved",
+  "new_L0_before": {
+    "00_nucleo/prompts/compiler/eval/operators/arithmetic.md": {
+      "sha256": "506062528aa221a30d647ca3344ad1905bc861fd4ce865590afb806601a8fb89",
+      "text": "# Prompt L0 — `compiler/eval/operators/arithmetic` — aritmética, unários e lógica booleana\nHash do Código: 97c27aab\n\n**Camada**: L1\n**Ficheiro alvo**: `01_core/src/compiler/eval/operators/arithmetic.rs`\n**Prompt pai (hub)**: `00_nucleo/prompts/compiler/eval/operators.md`\n**ADRs**: ADR-0107 (paridade língua), ADR-0108 (medir antes de decidir), ADR-0028/ADR-0029 (tipos tipográficos)\n\n---\n\n## Contexto\n\nBraços aritméticos do dispatcher de operadores. Toda a semântica é medida\ncontra o vanilla (`foundations/ops.rs`, `layout/length.rs`, `layout/rel.rs`,\n`typst-utils/scalar.rs`) — as referências `file:line` abaixo são a medição,\nnão decoração.\n\n## Instrução\n\n### Gate de divisão por zero (pré-match)\n\nAntes do `match`, `BinOp::Div` com divisor zero erra `\"cannot divide by zero\"`\npara: `Int(0)`, `Float(0.0)`, `Decimal(0)`, `Length` zero, `Relative` com\n`abs` zero e `rel == 0.0`, `Ratio(0.0)`, `Angle(0.0)` (paridade do `is_zero()`\ngenérico do vanilla, `foundations/ops.rs:344-359`).\n\n### Tabela de aritmética binária\n\n| Combinação | Resultado | Paridade vanilla |\n|---|---|---|\n| `Int ± Int`, `Int * Int` | `Int`, checked — overflow → `\"number too large\"` | `ops.rs` (`checked_*`) |\n| `Int / Int` | `Float` (não truncamento: `5/2 = 2.5`) | `ops.rs` |\n| `Float` op `Float`, `Int ↔ Float` mistos | `Float` (IEEE propagado silenciosamente, sem guarda NaN/Inf) | `ops.rs` |\n| `Decimal op Decimal` (`+` `-` `*` `/`) | `Decimal` homogéneo (via `rust_decimal`, 28 dígitos) | `foundations/decimal.rs` |\n| `Decimal op Int`, `Int op Decimal` (`+` `-` `*` `/`) | `Int` é convertido exatamente por `Decimal::from(i64)`; resultado `Decimal`; operações checked, falha → `\"value is too large\"` | `ops.rs:102-111,183-192,227-236,301-310`; P1219 |\n| `Duration ± Duration` | `Duration` checked em nanos — overflow → erro | — |\n| `Duration * Int|Float` (ambas as ordens) | `Duration` | — |\n| `Duration / Int|Float` | `Duration`; divisor zero → erro | — |\n| `Duration / Duration` | `Float` (rácio de nanos); divisor zero → erro | — |\n| `Str + Str` | concatenação | `ops.rs` |\n| `Str * Int` / `Int * Str` | repetição; `n < 0` → `\"number must be at least zero\"`; overflow de bytes → `\"cannot repeat this string {n} times\"` | `str.rs:92-99`, `ops.rs:272-273` |\n| `Symbol + Symbol`, `Str ↔ Symbol` | `Str` (concatenação dos grapheme clusters integrais) | `ops.rs::add`:129-138 |\n| `Content + Content`, `Content ↔ Str`, `Content ↔ Symbol` | `Content` sequência (`Content::sequence`/`Content::text`) | `ops.rs::add` — o vanilla coage via `TextElem::packed`; o cristalino usa `Content::text`, mesmo observável (ADR-0107) |\n| `Array + Array` | concatenação ordenada, sem dedup | `array.rs:1203-1216` |\n| `Dict + Dict` | merge — direita vence em colisão, posição da primeira ocorrência preservada (`IndexMap::extend`) | `dict.rs:388-404` |\n| `Array * Int` / `Int * Array` | repetição `cycle().take(len*n)`; `n < 0` → `\"number must be at least zero\"`; overflow → `\"cannot repeat this array {n} times\"` | `array.rs:140-147`, `ops.rs:274-275` |\n| `Length ± Length` | `Length` (componentes abs/em separadas) | `ops.rs:194,196` |\n| `Length * Int|Float`, `Length / Int|Float` (todas as ordens) | `Length`, escala uniforme, NaN → 0 por componente via `sanitize_length_nan`; inf propaga-se | `ops.rs:238-243,312-314`; `scalar.rs:30-32` |\n| `Length / Length` | `Float` — só se ambos `abs` zero (rácio de `em`) ou ambos `em` zero (rácio de `abs`); misto → `\"cannot divide these two lengths\"` | `length.rs:64-72` (`try_div`) |\n| `Length + Color` (ambas as ordens) | `Stroke` sólido com a espessura da parte absoluta | stroke syntax vanilla |\n| `Length + Gradient` (ambas as ordens) | `Stroke` com `Paint::Gradient` e a espessura da parte absoluta | P1229: necessário para gradient no papel stroke; medido nas fixtures S1–S8 do vanilla ratificado |\n| `Relative ± Relative`, `Relative ± Length` | `Relative` | `rel.rs` |\n| `Relative * Int|Float`, `Relative / Int|Float` | `Relative`, escala | `rel.rs` |\n| `Relative / Relative` | `Float` — `rel` ambos zero → rácio de `abs` (regra de `Length/Length`); `abs` ambos zero → `rel/rel`; misto → `\"cannot divide these two relative lengths\"` | `rel.rs:128-137` |\n| `Relative + Color` (ambas as ordens) | `Stroke` (espessura = parte absoluta) | stroke syntax vanilla |\n| `Ratio ± Ratio` | `Ratio` | `ops.rs` |\n| `Ratio + Length` (ambas as ordens), `Ratio - Length`, `Length - Ratio` | `Relative` | medido: `type(50% + 1pt) == relative` |\n| `Ratio * Int|Float` (ambas as ordens), `Ratio / Int|Float` | `Ratio` | `ops.rs` |\n| `Ratio * Fraction` (ambas as ordens) | `Fraction` | medido: `100% * 2fr` = `2fr` |\n| `Ratio / Ratio` | `Float` | `ops.rs:323` |\n| `Fraction + Fraction` | `Fraction` | `ops.rs:127` |\n| `Angle - Angle` | `Angle` | `ops.rs:194` |\n| `Angle * Int|Float`, `Angle / Int|Float` (ambas as ordens) | `Angle` (via radianos) | `ops.rs:241-246,317-319` |\n| `Angle / Angle` | `Float` (rácio de radianos) | `ops.rs:317-319` |\n| `Align + Align` | merge para `Align2D`; conflito de eixo → `\"cannot add two horizontal alignments\"` / `\"cannot add two vertical alignments\"` / `\"cannot add two 2D alignments\"` | semântica vanilla |\n| `Bool and Bool`, `Bool or Bool` | `Bool` (sem short-circuit aqui — esse vive no dispatcher central, ver hub) | `ops.rs` |\n\n### Operadores unários (`eval_unary_op`)\n\n- `Neg`: `Int` (checked → `\"number too large\"`), `Float`, `Decimal`,\n  `Length` (nega componentes), `Relative`, `Angle` (via radianos), `Ratio`,\n  `Fraction`, `Duration` — paridade `foundations/ops.rs:80-84`.\n- `Pos`: `Int`, `Float`, `Decimal`, `Length`, `Angle`, `Ratio`, `Relative` e\n  `Fraction` (identidade), conforme `foundations/ops.rs:45-53`.\n- `Not`: `Bool`.\n- Fronteira unária conforme `error_formatting.md`: spelling da linguagem,\n  nomes longos e distinções `unary '+'`/`'+'` e `unary '-'`/`'-'` medidas.\n\n### `sanitize_length_nan`\n\nNaN → `0.0` por componente (`abs`, `em`) de `Length`; inf não é tocado.\nParidade do efeito observável de `Scalar::new` no vanilla\n(`typst-utils/src/scalar.rs:30-32`): medido `repr(1pt * float.nan)` = `0pt`,\n`repr(1pt * float.inf)` = `float.inf * 1pt`. Aplica-se nos braços\n`Length * Int|Float` e `Length / Int|Float` — deliberadamente **no** braço do\neval, não em `Length::mul`/`Length::div` (disciplina um-bug-por-passo).\n\n## Restrições Estruturais\n\n- L1 puro: zero I/O, zero estado; só `Value` in, `Value` out (ver invariante 1 do hub).\n- **Coerção Decimal limitada a Int**: as oito combinações `Decimal ↔ Int`\n  convertem o inteiro exatamente, nunca por `f64`. Isso não autoriza\n  `Decimal ↔ Float` nem uma torre numérica genérica.\n- Scope-outs medidos (não reabrir sem medição nova): divisões mistas\n  `Length ↔ Relative` e `Ratio ↔ Relative` (`ops.rs:315,324,328-329`);\n  `Length * Ratio` / `Ratio * Length` (`ops.rs:240,243`); `Dict * Int`\n  (inexistente no vanilla — medido); `%` como remainder e `//` (não existem\n  no parser).\n\n## Critérios de Verificação\n\n```\neval_binary_op(Add, Int(1), Int(2))            == Int(3)\neval_binary_op(Div, Int(5), Int(2))            == Float(2.5)\neval_binary_op(Add, Int(i64::MAX), Int(1))     == Err(\"number too large\")\neval_binary_op(Div, _, Int(0))                 == Err(\"cannot divide by zero\")\n\n// Decimal homogéneo e coerção exata com Int\neval_binary_op(Add, Decimal(1.5), Decimal(2.5)) == Decimal(4.0)\neval_binary_op(Div, Decimal(10), Decimal(3))    == Decimal(3.333…)\neval_binary_op(Div, Decimal(1), Decimal(0))     == Err(\"cannot divide by zero\")\neval_binary_op(Add, Decimal(1.5), Int(2))       == Decimal(3.5)\neval_binary_op(Sub, Int(2), Decimal(5.5))       == Decimal(-3.5)\neval_binary_op(Mul, Int(3), Decimal(1.5))       == Decimal(4.5)\neval_binary_op(Div, Decimal(7.5), Int(2))       == Decimal(3.750)\neval_binary_op(Div, Int(2), Decimal(0.5))       == Decimal(4.0)\neval_binary_op(Add, Decimal(MAX), Int(1))       == Err(\"value is too large\")\neval_unary_op(Neg, Decimal(1.5))                == Decimal(-1.5)\n\n// repetição\neval_binary_op(Mul, Array[0], Int(3))           == Array[0,0,0]\neval_binary_op(Mul, Int(3), Array[0])           == Array[0,0,0]\neval_binary_op(Mul, Array[1,2], Int(-1))        == Err(\"number must be at least zero\")\neval_binary_op(Mul, Str(\"ab\"), Int(2))          == Str(\"abab\")\neval_binary_op(Mul, Dict{:}, Int(2))            == Err (fronteira — Dict * Int não existe no vanilla)\n\n// Str/Symbol/Content cruzados em Add\neval_binary_op(Add, Str(\"⟨\"), Content(x))       == Content(\"⟨x\")\neval_binary_op(Add, Content(x), Str(\"|\"))       == Content(\"x|\")\neval_binary_op(Add, Symbol(a), Symbol(b))       == Str(ab)\neval_binary_op(Add, Str(a), Symbol(b))          == Str(ab)\neval_binary_op(Add, Str(\"a\"), Symbol(\"♥️\"))     == Str(\"a♥️\")\neval_binary_op(Add, Symbol(\"👩‍💻\"), Str(\"!\"))   == Str(\"👩‍💻!\")\n\n// Length/Relative/Ratio\neval_binary_op(Sub, Length(2em), Length(5em))   == Length(-3em)\neval_binary_op(Div, Length(2cm), Length(1cm))   == Float(2.0)\neval_binary_op(Div, Length(10pt+1em), Length(5pt)) == Err(\"cannot divide these two lengths\")\neval_binary_op(Mul, Length(1pt), Float(NaN))    == Length(0pt)   // NaN → 0\neval_binary_op(Mul, Length(1pt), Float(inf))    == Length(inf pt) // inf propaga-se\neval_binary_op(Div, Relative(50%), Relative(25%)) == Float(2.0)\neval_binary_op(Add, Ratio(50%), Length(1pt))    == Relative(50% + 1pt)\neval_binary_op(Mul, Ratio(100%), Fraction(2fr)) == Fraction(2fr)\neval_binary_op(Add, Length(4pt), Gradient(g)) == Stroke(paint: Gradient(g), thickness: 4pt)\neval_binary_op(Add, Gradient(g), Length(4pt)) == Stroke(paint: Gradient(g), thickness: 4pt)\n\n// Angle/Fraction/Align/unários\neval_binary_op(Sub, Angle(90deg), Angle(45deg)) == Angle(45deg)\neval_binary_op(Div, Angle(30deg), Angle(30deg)) == Float(1.0)\neval_binary_op(Add, Fraction(1fr), Fraction(2fr)) == Fraction(3fr)\neval_binary_op(Add, Align(center), Align(bottom)) == Align2D(h:center, v:bottom)\neval_binary_op(Add, Align(left), Align(right))  == Err(\"cannot add two horizontal alignments\")\neval_unary_op(Neg, Angle(15deg))                == Angle(-15deg)\neval_unary_op(Neg, Duration(3s))                == Duration(-3s)\n```\n\n## Resultado Esperado\n\n- Os braços aritméticos/booleanos de `eval_binary_op`, `eval_unary_op` e\n  `sanitize_length_nan` conforme a tabela; testes unitários no próprio\n  ficheiro cobrindo as linhas acima; zero regressão na suite do eval.\n"
+    }
+  },
+  "oracle_attempt_before_decision": {
+    "attempt": 1,
+    "hypothesis": "Existing eval and named-file compile decimal-byte transport observes ordered Args transformations, legitimate detached errors and contextual CBOR without new CLI; sink ordering measured, not assumed.",
+    "provenance": {
+      "at": "2026-09-07T17:37:04.985829+00:00",
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "baseline_sha256": "52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57",
+      "preflight_sha256": "d18bfb5cf49a862d04ca7fa3c1676855dd6baed299d4531eaf9e9b8df75503cf",
+      "script_sha256": "0b5ee0fec72c37ac9f4f7eed4fc8c5a5fa16a0bcc688de20d1ea227e07315a88",
+      "head": "b303f1f15b610e09872b567027e0d806387fde8c",
+      "diff_stat": " 00_nucleo/prompts/compiler/eval.md                 |  44 +++-\n .../prompts/compiler/eval/bindings/field_access.md | 136 +++++++++-\n .../compiler/eval/bindings/method_dispatch.md      |  31 +++\n .../compiler/eval/bindings/value_methods.md        |  36 +++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  76 ++++++\n 00_nucleo/prompts/compiler/eval/closures.md        |  44 ++++\n 00_nucleo/prompts/compiler/eval/math.md            |  33 +++\n 00_nucleo/prompts/compiler/eval/operators/join.md  |  43 +++\n 00_nucleo/prompts/compiler/eval/repr.md            |  68 ++++-\n 00_nucleo/prompts/compiler/eval/tests.md           | 147 ++++++++++-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |  41 ++-\n 00_nucleo/prompts/compiler/stdlib/collections.md   |  61 +++++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  27 ++\n .../prompts/compiler/stdlib/foundations/float.md   |  27 ++\n .../prompts/compiler/stdlib/foundations/int.md     |  33 +++\n 00_nucleo/prompts/compiler/stdlib/gradients.md     |  28 ++\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 111 ++++++++\n 00_nucleo/prompts/compiler/stdlib/numbering.md     |  27 ++\n 00_nucleo/prompts/entities/args.md                 | 290 ++++++++++-----------\n 00_nucleo/prompts/entities/func.md                 |  75 ++++--\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 198 +++++++++++++-\n 22 files changed, 1389 insertions(+), 191 deletions(-)\n",
+      "environment": {
+        "NO_COLOR": "1",
+        "TERM": "dumb",
+        "TYPST_FEATURES": "unset; explicit CLI profile"
+      }
+    },
+    "fixture_directory": "/tmp/p1307-r4-oracle-m4fwf8xo",
+    "cases": [
+      {
+        "id": "args.constructor",
+        "expression": "repr(arguments(1, key: 2))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "constructor"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "287b0386f128a43495df80ea0dd16f2e1b36ba5c63ff0aca070751246043bcb1"
+      },
+      {
+        "id": "args.mixed-duplicates",
+        "expression": "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "mixed-duplicates"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "1ad908cac54c81bc587dd47e20a08c93d01ba1087f1a03d635126bfaa6aba275"
+      },
+      {
+        "id": "args.map-identity",
+        "expression": "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).map(v => v))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "map-identity"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "28504d96c0fab829b59f49b6433d336085d592daea31e60f32dd36c5407f3641"
+      },
+      {
+        "id": "args.filter-all",
+        "expression": "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).filter(v => true))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "filter-all"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "688a5243f37237cb8dc80ce439c2bae16de80ece1fc490b2e0e2f97dccb7bb86"
+      },
+      {
+        "id": "args.sink-only",
+        "expression": "repr(((..a) => a)(1, key: 2))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "sink-only"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "1d076e896e7b768fbdc9d4a970641330646a046fb21fc26c9986b38ea17506f2"
+      },
+      {
+        "id": "args.sink-mixed",
+        "expression": "repr(((..a) => a)(..arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "sink-mixed"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "ffc80ee0814828e4b49b8dad967c64984912eedac7fd1513f09e448c5e4162a0"
+      },
+      {
+        "id": "args.sink-consumed-named",
+        "expression": "repr(((head, z: 0, ..rest) => rest)(..arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "sink-consumed-named"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "c438b4ddb310594193c744a73b07f7346ec075a0b35e449465cfd351f83a4488"
+      },
+      {
+        "id": "args.sink-before-positional",
+        "expression": "repr(((first, ..rest, last) => rest)(1, a: 2, 3, b: 4, 5))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "sink-before-positional"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "96908b17b710c4958263e59a1e1cd190d059d7aac28853816b90605a355fc1fc"
+      },
+      {
+        "id": "args.sink-after-positional",
+        "expression": "repr(((first, last, ..rest) => rest)(1, a: 2, 3, b: 4, 5))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "sink-after-positional"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "e962bf934011d64dc4f4a9acc7336789e51eafeac06f831513350df8c869c1c9"
+      },
+      {
+        "id": "args.sink-default-absent",
+        "expression": "repr(((first, z: 99, ..rest) => rest)(1, a: 2, 3))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "sink-default-absent"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "566cdef19fff268e7201c363679e8a1efe50b3ca968c9d87626854650e12cadb"
+      },
+      {
+        "id": "args.join-duplicates",
+        "expression": "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + arguments(..arguments(z: 61), z: 62, 77))",
+        "classes": [
+          "Args",
+          "order",
+          "occurrences",
+          "join-duplicates"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "03df08c2bcd671d7ce017e575ae53b9c39335bbd8f265d543a5444ff2aca15f6"
+      },
+      {
+        "id": "error.map-detached-value-span",
+        "expression": "json.encode((:), ..arguments(pretty: \"bad\").map(v => v))",
+        "classes": [
+          "Args",
+          "diagnostic",
+          "span",
+          "map-detached-value-span"
+        ],
+        "expected_shape": "diagnostic",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "ba6f1c59ca1850bfd2a96757fbe19d39f6895642601fb9b960e71be72b500ce1"
+      },
+      {
+        "id": "with.repr.calc.abs",
+        "expression": "repr(calc.abs.with())",
+        "classes": [
+          "With",
+          "repr",
+          "generic"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "eval",
+        "mandatory": true,
+        "source_sha256": "c2dfb4f894d14ba58d8361d1a77a12ffc3dafb2bcd9aa85c6b9e9a230b4fb300"
+      },
+      {
+        "id": "repr.Location",
+        "expression": "repr(found.first().location())",
+        "classes": [
+          "Location",
+          "repr",
+          "context"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "compile",
+        "mandatory": true,
+        "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().location())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+        "source_sha256": "4d034ea6b96c403f0e81c98923e42be32163acd82225c28aec49fbbee1b1ba08",
+        "fixture": "/tmp/p1307-r4-oracle-m4fwf8xo/case-013.typ",
+        "pdf_output": "/tmp/p1307-r4-oracle-m4fwf8xo/case-013.pdf"
+      },
+      {
+        "id": "cbor.delta.Location",
+        "expression": "{ let raw = cbor.encode(found.first().location()); repr(range(raw.len()).map(i => raw.at(i))) }",
+        "classes": [
+          "CBOR",
+          "Location",
+          "context"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "compile",
+        "mandatory": true,
+        "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes({ let raw = cbor.encode(found.first().location()); repr(range(raw.len()).map(i => raw.at(i))) }); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+        "source_sha256": "7324e9811ad7077fa6718368d966450f1e3058aec4a32049275361b5f0a1f129",
+        "fixture": "/tmp/p1307-r4-oracle-m4fwf8xo/case-014.typ",
+        "pdf_output": "/tmp/p1307-r4-oracle-m4fwf8xo/case-014.pdf"
+      },
+      {
+        "id": "context.calibration",
+        "expression": "\"α\\n\\\"x\\\"\"",
+        "classes": [
+          "context",
+          "calibration"
+        ],
+        "expected_shape": "value",
+        "policy": "vanilla",
+        "route": "compile",
+        "mandatory": true,
+        "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(\"α\\n\\\"x\\\"\"); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+        "source_sha256": "0c708cd7f142e45c99f5375ffe93ef9e25753a33dc867fc3edc8f79cce767be9",
+        "fixture": "/tmp/p1307-r4-oracle-m4fwf8xo/case-015.typ",
+        "pdf_output": "/tmp/p1307-r4-oracle-m4fwf8xo/case-015.pdf"
+      }
+    ],
+    "rows": [
+      {
+        "case": "args.constructor",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(arguments(1, key: 2))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.244065+00:00",
+        "source_sha256": "287b0386f128a43495df80ea0dd16f2e1b36ba5c63ff0aca070751246043bcb1",
+        "returncode": 0,
+        "stdout": "\"arguments(1, key: 2)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(1, key: 2)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.007470347001799382
+      },
+      {
+        "case": "args.constructor",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(arguments(1, key: 2))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.244402+00:00",
+        "source_sha256": "287b0386f128a43495df80ea0dd16f2e1b36ba5c63ff0aca070751246043bcb1",
+        "returncode": 0,
+        "stdout": "\"arguments(key: 2, 1)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(key: 2, 1)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.09400414100673515
+      },
+      {
+        "case": "args.mixed-duplicates",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.244690+00:00",
+        "source_sha256": "1ad908cac54c81bc587dd47e20a08c93d01ba1087f1a03d635126bfaa6aba275",
+        "returncode": 0,
+        "stdout": "\"arguments(z: 11, 22, z: 33, a: 44, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(z: 11, 22, z: 33, a: 44, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.0070683499943697825
+      },
+      {
+        "case": "args.mixed-duplicates",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.245308+00:00",
+        "source_sha256": "1ad908cac54c81bc587dd47e20a08c93d01ba1087f1a03d635126bfaa6aba275",
+        "returncode": 0,
+        "stdout": "\"arguments(z: 33, a: 44, 22, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(z: 33, a: 44, 22, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.09325192299729679
+      },
+      {
+        "case": "args.map-identity",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).map(v => v))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.251665+00:00",
+        "source_sha256": "28504d96c0fab829b59f49b6433d336085d592daea31e60f32dd36c5407f3641",
+        "returncode": 0,
+        "stdout": "\"arguments(z: 11, 22, z: 33, a: 44, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(z: 11, 22, z: 33, a: 44, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.007030911001493223
+      },
+      {
+        "case": "args.map-identity",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).map(v => v))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.251849+00:00",
+        "source_sha256": "28504d96c0fab829b59f49b6433d336085d592daea31e60f32dd36c5407f3641",
+        "returncode": 0,
+        "stdout": "\"arguments(z: 33, a: 44, 22, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(z: 33, a: 44, 22, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.09969512300449423
+      },
+      {
+        "case": "args.filter-all",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).filter(v => true))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.258904+00:00",
+        "source_sha256": "688a5243f37237cb8dc80ce439c2bae16de80ece1fc490b2e0e2f97dccb7bb86",
+        "returncode": 0,
+        "stdout": "\"arguments(z: 11, 22, z: 33, a: 44, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(z: 11, 22, z: 33, a: 44, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.006590361997950822
+      },
+      {
+        "case": "args.filter-all",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).filter(v => true))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.265634+00:00",
+        "source_sha256": "688a5243f37237cb8dc80ce439c2bae16de80ece1fc490b2e0e2f97dccb7bb86",
+        "returncode": 0,
+        "stdout": "\"arguments(z: 33, a: 44, 22, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(z: 33, a: 44, 22, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.10155874499469064
+      },
+      {
+        "case": "args.sink-only",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(((..a) => a)(1, key: 2))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.338505+00:00",
+        "source_sha256": "1d076e896e7b768fbdc9d4a970641330646a046fb21fc26c9986b38ea17506f2",
+        "returncode": 0,
+        "stdout": "\"arguments(key: 2, 1)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(key: 2, 1)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.007953735010232776
+      },
+      {
+        "case": "args.sink-only",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(((..a) => a)(1, key: 2))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.338662+00:00",
+        "source_sha256": "1d076e896e7b768fbdc9d4a970641330646a046fb21fc26c9986b38ea17506f2",
+        "returncode": 0,
+        "stdout": "\"arguments(key: 2, 1)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(key: 2, 1)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.09830981900449842
+      },
+      {
+        "case": "args.sink-mixed",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(((..a) => a)(..arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.346597+00:00",
+        "source_sha256": "ffc80ee0814828e4b49b8dad967c64984912eedac7fd1513f09e448c5e4162a0",
+        "returncode": 0,
+        "stdout": "\"arguments(z: 11, z: 33, a: 44, 22, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(z: 11, z: 33, a: 44, 22, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.007196868988103233
+      },
+      {
+        "case": "args.sink-mixed",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(((..a) => a)(..arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.351653+00:00",
+        "source_sha256": "ffc80ee0814828e4b49b8dad967c64984912eedac7fd1513f09e448c5e4162a0",
+        "returncode": 0,
+        "stdout": "\"arguments(z: 33, a: 44, 22, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(z: 33, a: 44, 22, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.10000720199604984
+      },
+      {
+        "case": "args.sink-consumed-named",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(((head, z: 0, ..rest) => rest)(..arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.353900+00:00",
+        "source_sha256": "c438b4ddb310594193c744a73b07f7346ec075a0b35e449465cfd351f83a4488",
+        "returncode": 0,
+        "stdout": "\"arguments(a: 44, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(a: 44, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.006756900998880155
+      },
+      {
+        "case": "args.sink-consumed-named",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(((head, z: 0, ..rest) => rest)(..arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.360771+00:00",
+        "source_sha256": "c438b4ddb310594193c744a73b07f7346ec075a0b35e449465cfd351f83a4488",
+        "returncode": 0,
+        "stdout": "\"arguments(a: 44, 55)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(a: 44, 55)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.09891868999693543
+      },
+      {
+        "case": "args.sink-before-positional",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(((first, ..rest, last) => rest)(1, a: 2, 3, b: 4, 5))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.367338+00:00",
+        "source_sha256": "96908b17b710c4958263e59a1e1cd190d059d7aac28853816b90605a355fc1fc",
+        "returncode": 0,
+        "stdout": "\"arguments(a: 2, b: 4, 3)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(a: 2, b: 4, 3)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.006780836003599688
+      },
+      {
+        "case": "args.sink-before-positional",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(((first, ..rest, last) => rest)(1, a: 2, 3, b: 4, 5))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.374221+00:00",
+        "source_sha256": "96908b17b710c4958263e59a1e1cd190d059d7aac28853816b90605a355fc1fc",
+        "returncode": 0,
+        "stdout": "\"arguments(a: 2, b: 4, 5)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(a: 2, b: 4, 5)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.09613766500842758
+      },
+      {
+        "case": "args.sink-after-positional",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(((first, last, ..rest) => rest)(1, a: 2, 3, b: 4, 5))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.437132+00:00",
+        "source_sha256": "e962bf934011d64dc4f4a9acc7336789e51eafeac06f831513350df8c869c1c9",
+        "returncode": 0,
+        "stdout": "\"arguments(a: 2, b: 4, 5)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(a: 2, b: 4, 5)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.007079721006448381
+      },
+      {
+        "case": "args.sink-after-positional",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(((first, last, ..rest) => rest)(1, a: 2, 3, b: 4, 5))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.444325+00:00",
+        "source_sha256": "e962bf934011d64dc4f4a9acc7336789e51eafeac06f831513350df8c869c1c9",
+        "returncode": 0,
+        "stdout": "\"arguments(a: 2, b: 4, 5)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(a: 2, b: 4, 5)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.10235466300218832
+      },
+      {
+        "case": "args.sink-default-absent",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(((first, z: 99, ..rest) => rest)(1, a: 2, 3))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.451769+00:00",
+        "source_sha256": "566cdef19fff268e7201c363679e8a1efe50b3ca968c9d87626854650e12cadb",
+        "returncode": 0,
+        "stdout": "\"arguments(a: 2, 3)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(a: 2, 3)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.007192699995357543
+      },
+      {
+        "case": "args.sink-default-absent",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(((first, z: 99, ..rest) => rest)(1, a: 2, 3))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.459061+00:00",
+        "source_sha256": "566cdef19fff268e7201c363679e8a1efe50b3ca968c9d87626854650e12cadb",
+        "returncode": 0,
+        "stdout": "\"arguments(a: 2, 3)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(a: 2, 3)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.10365215298952535
+      },
+      {
+        "case": "args.join-duplicates",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + arguments(..arguments(z: 61), z: 62, 77))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.459809+00:00",
+        "source_sha256": "03df08c2bcd671d7ce017e575ae53b9c39335bbd8f265d543a5444ff2aca15f6",
+        "returncode": 0,
+        "stdout": "\"arguments(22, a: 44, 55, z: 61, z: 62, 77)\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "arguments(22, a: 44, 55, z: 61, z: 62, 77)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.007017455995082855
+      },
+      {
+        "case": "args.join-duplicates",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + arguments(..arguments(z: 61), z: 62, 77))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.466923+00:00",
+        "source_sha256": "03df08c2bcd671d7ce017e575ae53b9c39335bbd8f265d543a5444ff2aca15f6",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: cannot add arguments and arguments\n  ┌─ <input-expression>:1:5\n  │\n1 │ repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + arguments(..arguments(z: 61), z: 62, 77))\n  │      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "observable": {
+          "kind": "diagnostic",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot add arguments and arguments\n  ┌─ <input-expression>:1:5\n  │\n1 │ repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + arguments(..arguments(z: 61), z: 62, 77))\n  │      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+          "messages": [
+            "cannot add arguments and arguments"
+          ],
+          "hints": []
+        },
+        "elapsed_seconds": 0.10186501400312409
+      },
+      {
+        "case": "error.map-detached-value-span",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "json.encode((:), ..arguments(pretty: \"bad\").map(v => v))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.470486+00:00",
+        "source_sha256": "ba6f1c59ca1850bfd2a96757fbe19d39f6895642601fb9b960e71be72b500ce1",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected boolean, found string\n\n  while calling `encode` at <input-expression>:1:0\n    json.encode((:), ..arguments(pretty: \"bad\").map(v => v))\n\n",
+        "observable": {
+          "kind": "diagnostic",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean, found string\n\n  while calling `encode` at <input-expression>:1:0\n    json.encode((:), ..arguments(pretty: \"bad\").map(v => v))\n\n",
+          "messages": [
+            "expected boolean, found string"
+          ],
+          "hints": []
+        },
+        "elapsed_seconds": 0.007897450996097177
+      },
+      {
+        "case": "error.map-detached-value-span",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "json.encode((:), ..arguments(pretty: \"bad\").map(v => v))",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.478497+00:00",
+        "source_sha256": "ba6f1c59ca1850bfd2a96757fbe19d39f6895642601fb9b960e71be72b500ce1",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode((:), ..arguments(pretty: \"bad\").map(v => v))\n  │ ^^^^^^^^^^^\n\n",
+        "observable": {
+          "kind": "diagnostic",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode((:), ..arguments(pretty: \"bad\").map(v => v))\n  │ ^^^^^^^^^^^\n\n",
+          "messages": [
+            "cannot access fields on type function"
+          ],
+          "hints": []
+        },
+        "elapsed_seconds": 0.10528745099145453
+      },
+      {
+        "case": "with.repr.calc.abs",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "eval",
+          "repr(calc.abs.with())",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.546819+00:00",
+        "source_sha256": "c2dfb4f894d14ba58d8361d1a77a12ffc3dafb2bcd9aa85c6b9e9a230b4fb300",
+        "returncode": 0,
+        "stdout": "\"(..) => ..\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "(..) => ..",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.007856153009925038
+      },
+      {
+        "case": "with.repr.calc.abs",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "eval",
+          "repr(calc.abs.with())",
+          "--format",
+          "json"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.554778+00:00",
+        "source_sha256": "c2dfb4f894d14ba58d8361d1a77a12ffc3dafb2bcd9aa85c6b9e9a230b4fb300",
+        "returncode": 0,
+        "stdout": "\"abs\"\n",
+        "stderr": "",
+        "observable": {
+          "kind": "value",
+          "value": "abs",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.109828667002148
+      },
+      {
+        "case": "repr.Location",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "compile",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-013.typ",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-013.pdf",
+          "--format",
+          "pdf"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.563010+00:00",
+        "source_sha256": "4d034ea6b96c403f0e81c98923e42be32163acd82225c28aec49fbbee1b1ba08",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: P1307R4:108,111,99,97,116,105,111,110,40,46,46,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-m4fwf8xo/case-013.typ:2:111\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().location())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "observable": {
+          "kind": "value",
+          "value": "location(..)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.30761958099901676
+      },
+      {
+        "case": "repr.Location",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "compile",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-013.typ",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-013.pdf",
+          "--format",
+          "pdf"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.569017+00:00",
+        "source_sha256": "4d034ea6b96c403f0e81c98923e42be32163acd82225c28aec49fbbee1b1ba08",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: P1307R4:108,111,99,97,116,105,111,110,40,46,46,46,41:END\n  ┌─ /tmp/p1307-r4-oracle-m4fwf8xo/case-013.typ:2:116\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().location())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "observable": {
+          "kind": "value",
+          "value": "location(...)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.11024997899949085
+      },
+      {
+        "case": "cbor.delta.Location",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "compile",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-014.typ",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-014.pdf",
+          "--format",
+          "pdf"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.584023+00:00",
+        "source_sha256": "7324e9811ad7077fa6718368d966450f1e3058aec4a32049275361b5f0a1f129",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: P1307R4:40,10,32,32,49,48,56,44,10,32,32,49,48,56,44,10,32,32,49,49,49,44,10,32,32,57,57,44,10,32,32,57,55,44,10,32,32,49,49,54,44,10,32,32,49,48,53,44,10,32,32,49,49,49,44,10,32,32,49,49,48,44,10,32,32,52,48,44,10,32,32,52,54,44,10,32,32,52,54,44,10,32,32,52,49,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-m4fwf8xo/case-014.typ:2:176\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes({ let raw = cbor.encode(found.first().location()); repr(range(raw.len()).map(i => raw.at(i))) }); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "observable": {
+          "kind": "value",
+          "value": "(\n  108,\n  108,\n  111,\n  99,\n  97,\n  116,\n  105,\n  111,\n  110,\n  40,\n  46,\n  46,\n  41,\n)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.3135953419987345
+      },
+      {
+        "case": "cbor.delta.Location",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "compile",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-014.typ",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-014.pdf",
+          "--format",
+          "pdf"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.664863+00:00",
+        "source_sha256": "7324e9811ad7077fa6718368d966450f1e3058aec4a32049275361b5f0a1f129",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: P1307R4:40,10,32,32,49,48,57,44,10,32,32,49,48,56,44,10,32,32,49,49,49,44,10,32,32,57,57,44,10,32,32,57,55,44,10,32,32,49,49,54,44,10,32,32,49,48,53,44,10,32,32,49,49,49,44,10,32,32,49,49,48,44,10,32,32,52,48,44,10,32,32,52,54,44,10,32,32,52,54,44,10,32,32,52,54,44,10,32,32,52,49,44,10,41:END\n  ┌─ /tmp/p1307-r4-oracle-m4fwf8xo/case-014.typ:2:181\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes({ let raw = cbor.encode(found.first().location()); repr(range(raw.len()).map(i => raw.at(i))) }); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "observable": {
+          "kind": "value",
+          "value": "(\n  109,\n  108,\n  111,\n  99,\n  97,\n  116,\n  105,\n  111,\n  110,\n  40,\n  46,\n  46,\n  46,\n  41,\n)",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.10357883700635284
+      },
+      {
+        "case": "context.calibration",
+        "profile": "default",
+        "side": "vanilla",
+        "argv": [
+          "/usr/local/bin/typst",
+          "compile",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-015.typ",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-015.pdf",
+          "--format",
+          "pdf"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.679462+00:00",
+        "source_sha256": "0c708cd7f142e45c99f5375ffe93ef9e25753a33dc867fc3edc8f79cce767be9",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: P1307R4:206,177,10,34,120,34:END\n  ┌─ ../../../tmp/p1307-r4-oracle-m4fwf8xo/case-015.typ:2:91\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(\"α\\n\\\"x\\\"\"); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "observable": {
+          "kind": "value",
+          "value": "α\n\"x\"",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.306045046003419
+      },
+      {
+        "case": "context.calibration",
+        "profile": "default",
+        "side": "baseline",
+        "argv": [
+          "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+          "compile",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-015.typ",
+          "/tmp/p1307-r4-oracle-m4fwf8xo/case-015.pdf",
+          "--format",
+          "pdf"
+        ],
+        "cwd": "/repos/Antigravity/typst-crystalline",
+        "started": "2026-09-07T17:37:04.768652+00:00",
+        "source_sha256": "0c708cd7f142e45c99f5375ffe93ef9e25753a33dc867fc3edc8f79cce767be9",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: P1307R4:206,177,10,34,120,34:END\n  ┌─ /tmp/p1307-r4-oracle-m4fwf8xo/case-015.typ:2:96\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(\"α\\n\\\"x\\\"\"); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "observable": {
+          "kind": "value",
+          "value": "α\n\"x\"",
+          "stderr": "",
+          "exit": 0
+        },
+        "elapsed_seconds": 0.10414282500278205
+      }
+    ],
+    "issues": [],
+    "finished": "2026-09-07T17:37:05.017565+00:00"
+  },
+  "refinements": [
+    "Closure sink keeps remaining named occurrences first, then remaining positional; retains each original span. Nonterminal-sink parameter binding remains baseline debt, no new ClosureRepr field.",
+    "Actual language Add routes to arithmetic, not join; existing Args+Args owner algorithm needs thin delegation from arithmetic.",
+    "Correct preflight verifier history: /root/p1306_oracle was P1306 oracle/attack/test author, NOT P1306 verifier. It authored no P1307 contract/oracle/product and is separate P1307 verifier. Original preflight/baseline preserved."
+  ],
+  "affected_L0": [
+    "compiler/eval/closures.md",
+    "compiler/eval/tests.md",
+    "compiler/eval/operators/join.md",
+    "compiler/eval/operators/arithmetic.md"
+  ],
+  "additional_scope": "Only Args+Args binary Add delegation; no other new operator pairs."
+}

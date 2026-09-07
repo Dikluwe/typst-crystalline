@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 63d16887
+//! @prompt-hash d0d2343e
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -40,7 +40,7 @@ use crate::compiler::stdlib::{
     try_dispatch_collection_method,
     CollectionCallSpans,
 };
-use crate::entities::args::Args;
+use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::ast::expr::{Arg, Expr, FuncCall as FuncCallNode};
 use crate::entities::ast::AstNode;
 use crate::entities::bytes::Bytes;
@@ -396,26 +396,47 @@ pub(super) fn eval_args(
     // propagado para todas as mensagens de erro de validação de argumento
     // das funções nativas que usam `args.span` em vez de `Span::detached()`.
     let call_span = args_node.span();
-    let mut items = Vec::new();
-    let mut named: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+    let mut occurrences = Vec::new();
     for arg in args_node.items() {
         match arg {
-            Arg::Pos(expr) => items.push(eval_expr(expr, scopes, ctx, engine)?),
+            Arg::Pos(expr) => occurrences.push(ArgOccurrence {
+                name: None,
+                value: eval_expr(expr, scopes, ctx, engine)?,
+                span: expr.span(),
+                value_span: expr.span(),
+            }),
             Arg::Named(name_expr) => {
-                named.insert(
-                    name_expr.name().as_str().into(),
-                    eval_expr(name_expr.expr(), scopes, ctx, engine)?,
-                );
+                occurrences.push(ArgOccurrence {
+                    name: Some(name_expr.name().as_str().into()),
+                    value: eval_expr(name_expr.expr(), scopes, ctx, engine)?,
+                    span: name_expr.span(),
+                    value_span: name_expr.expr().span(),
+                });
             }
             Arg::Spread(spread) => {
                 let value = eval_expr(spread.expr(), scopes, ctx, engine)?;
                 match value {
                     Value::None => {}
-                    Value::Array(arr) => items.extend(arr),
-                    Value::Dict(dict) => named.extend(dict),
+                    Value::Array(arr) => {
+                        occurrences.extend(arr.into_iter().map(|value| ArgOccurrence {
+                            name: None,
+                            value,
+                            span: spread.span(),
+                            value_span: spread.span(),
+                        }))
+                    }
+                    Value::Dict(dict) => {
+                        occurrences.extend(dict.into_iter().map(|(name, value)| {
+                            ArgOccurrence {
+                                name: Some(name),
+                                value,
+                                span: spread.span(),
+                                value_span: spread.span(),
+                            }
+                        }))
+                    }
                     Value::Args(args) => {
-                        items.extend(args.items);
-                        named.extend(args.named);
+                        occurrences.extend(args.occurrence_sequence());
                     }
                     other => {
                         return Err(vec![SourceDiagnostic::error(
@@ -427,7 +448,35 @@ pub(super) fn eval_args(
             }
         }
     }
-    Ok(Args { items, named, span: call_span })
+    Ok(Args::from_occurrences(call_span, occurrences))
+}
+
+/// Transporta a chamada inteira para nativas cujo erro usa o agregado.
+pub(super) fn transport_native_call_span(func: &Func, args: &mut Args, call_span: Span) {
+    use crate::compiler::stdlib::{
+        native_json_encode, native_panic, native_toml_encode, native_yaml_encode,
+    };
+    match func.repr() {
+        FuncRepr::With(with) => transport_native_call_span(&with.0, args, call_span),
+        FuncRepr::Native(native)
+            if std::ptr::fn_addr_eq(
+                native.call,
+                native_json_encode as fn(_, _, _, _) -> _,
+            ) || std::ptr::fn_addr_eq(
+                native.call,
+                native_toml_encode as fn(_, _, _, _) -> _,
+            ) || std::ptr::fn_addr_eq(
+                native.call,
+                native_yaml_encode as fn(_, _, _, _) -> _,
+            ) || std::ptr::fn_addr_eq(
+                native.call,
+                native_panic as fn(_, _, _, _) -> _,
+            ) =>
+        {
+            args.span = call_span;
+        }
+        _ => {}
+    }
 }
 
 /// Aplica uma função (closure, native ou native-with-engine) aos args dados.
@@ -610,21 +659,12 @@ fn p1284_static_call(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    let Some((target, rest)) = args.items.split_first() else {
+    let Some(target) = args.items.first() else {
         return Err(vec![SourceDiagnostic::error(args.span, "missing argument: self")]);
     };
-    dispatch_p1284_value_method(
-        target.clone(),
-        method,
-        Args {
-            items: rest.to_vec(),
-            named: args.named.clone(),
-            span: args.span,
-        },
-        scopes,
-        ctx,
-        engine,
-    )
+    let mut rest = args.clone();
+    rest.remove_positional(0);
+    dispatch_p1284_value_method(target.clone(), method, rest, scopes, ctx, engine)
 }
 
 macro_rules! p1284_static {
@@ -968,7 +1008,7 @@ fn dispatch_p1284_value_method(
 
 fn trace_call(
     result: SourceResult<Value>,
-    func: &Func,
+    name: Option<&str>,
     call_span: Span,
     engine: &Engine<'_>,
 ) -> SourceResult<Value> {
@@ -1000,10 +1040,9 @@ fn trace_call(
                 continue;
             }
         }
-        error.trace.push(Spanned::new(
-            Tracepoint::Call(func.name().map(String::from)),
-            call_span,
-        ));
+        error
+            .trace
+            .push(Spanned::new(Tracepoint::Call(name.map(String::from)), call_span));
     }
     Err(errors)
 }
@@ -1011,16 +1050,14 @@ fn trace_call(
 /// **P702** — funde os `Args` pré-ligados por `.with(...)` com os da chamada
 /// final. Posicionais: pré-ligados primeiro (paridade vanilla,
 /// `foundations/func.rs:360` do vanilla: `pre.items.chain(new.items)`).
-/// Nomeados: `new` sobrepõe `pre` em colisão de chave — decisão por defeito,
-/// não exercitada pelo vanilla (ver `entities/func.md` §"Variante `With`").
+/// Todas as ocorrências nomeadas são preservadas; a view projeta a última.
 fn merge_with_args(pre: &Args, new: Args) -> Args {
     // P772s — span da chamada final (mais próxima do erro visto pelo
     // utilizador do que o span da chamada de `.with(...)` original).
     let span = new.span;
-    let items = pre.items.iter().cloned().chain(new.items).collect();
-    let mut named = pre.named.clone();
-    named.extend(new.named);
-    Args { items, named, span }
+    let mut occurrences = pre.occurrence_sequence();
+    occurrences.extend(new.occurrence_sequence());
+    Args::from_occurrences(span, occurrences)
 }
 
 /// **P699** — Aplica um export de plugin WASM (`FuncRepr::Plugin`).
@@ -1290,6 +1327,8 @@ pub(super) fn eval_func_call(
     if let Expr::FieldAccess(access) = call.callee() {
         let target = eval_expr(access.target(), scopes, ctx, engine)?;
         let method = access.field().as_str();
+        let trace_arguments_callback =
+            matches!(&target, Value::Args(_)) && matches!(method, "filter" | "map");
         let mut positional = Vec::new();
         let mut named: IndexMap<EcoString, Span, FxBuildHasher> = IndexMap::default();
         for arg in call.args().items() {
@@ -1312,7 +1351,11 @@ pub(super) fn eval_func_call(
             ctx,
             engine,
         ) {
-            return result;
+            return if trace_arguments_callback {
+                trace_call(result, Some(method), call.span(), engine)
+            } else {
+                result
+            };
         }
     }
 
@@ -1465,11 +1508,11 @@ pub(super) fn eval_func_call(
                     "height".into(),
                     Value::Length(crate::entities::layout_types::Length::pt(avail_h)),
                 );
-                let size_arg = crate::entities::args::Args {
-                    items: vec![Value::Dict(size_dict)],
-                    named: indexmap::IndexMap::default(),
-                    span: call.span(),
-                };
+                let size_arg = Args::from_parts(
+                    vec![Value::Dict(size_dict)],
+                    indexmap::IndexMap::default(),
+                    call.span(),
+                );
                 let result = apply_func(func, size_arg, scopes, ctx, engine)?;
                 return if let Value::Content(c) = result {
                     Ok(Value::Content(rules::intercept_content(c, ctx, engine)?))
@@ -1509,9 +1552,9 @@ pub(super) fn eval_func_call(
             }
             if let Value::LocatedContent(c, loc) = target {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
-                return bindings::eval_content_method_at(
+                return bindings::eval_introspected_content_method_at(
                     &c,
-                    Some(loc),
+                    loc,
                     method,
                     args,
                     call.span(),
@@ -1584,6 +1627,7 @@ pub(super) fn eval_func_call(
 
     match callee {
         Value::Func(func) => {
+            transport_native_call_span(&func, &mut args, call.span());
             let html_args = p1293_html_spans.as_ref().map(|_| args.clone());
             let mut result = apply_func(func.clone(), args, scopes, ctx, engine);
             if let (Some(spans), Some(args), Err(errors)) =
@@ -1597,7 +1641,7 @@ pub(super) fn eval_func_call(
             // cujo span não contém o erro (mirror de `call_func` +
             // `Trace::trace` do vanilla — `typst-eval/src/call.rs:166-180`,
             // `typst-library/src/diag.rs:464-479`).
-            let result = trace_call(result, &func, call.span(), engine)?;
+            let result = trace_call(result, func.name(), call.span(), engine)?;
             // Intercepção eager — show rules aplicadas após apply_func (Passo 68).
             if let Value::Content(c) = result {
                 Ok(Value::Content(rules::intercept_content(c, ctx, engine)?))
@@ -1850,11 +1894,11 @@ mod tests {
         let pf = make_pf("cp_named");
         let mut named = IndexMap::with_hasher(FxBuildHasher);
         named.insert(EcoString::from("x"), Value::None);
-        let args = Args {
-            items: vec![Value::Bytes(Bytes::default())],
+        let args = Args::from_parts(
+            vec![Value::Bytes(Bytes::default())],
             named,
-            span: Span::detached(),
-        };
+            Span::detached(),
+        );
         let e = call_plugin(&pf, &args).unwrap_err();
         assert!(
             e[0].message.contains("argumento nomeado inesperado"),

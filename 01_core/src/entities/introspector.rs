@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 2433acd1
+//! @prompt-hash 6ab85d0f
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -369,7 +369,7 @@ pub struct TagIntrospector {
     /// cada elemento locatable, populado pelo walk no momento da
     /// emissão da `Tag::Start`. Alimenta `Introspector::element_at`
     /// para `query()` devolver o elemento (paridade vanilla).
-    pub elements: HashMap<Location, crate::entities::content::Content>,
+    pub elements: HashMap<Location, crate::entities::value::IntrospectedContent>,
     // P168 (M5 sub-passo 2): mapa Label → número 1-based para
     // figuras numeradas+captioned. Populado por `from_tags` quando
     // `ElementPayload::Figure.is_counted == true` E há label associada.
@@ -728,7 +728,7 @@ impl Introspector for TagIntrospector {
         &self,
         location: Location,
     ) -> Option<&crate::entities::content::Content> {
-        self.elements.get(&location)
+        self.elements.get(&location).map(|entry| entry.content())
     }
 
     fn counter_values_at(

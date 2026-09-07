@@ -1,0 +1,2106 @@
+{
+  "protocol": "P1307-R6 preimplementation v1",
+  "at": "2026-09-07T19:03:30.360772+00:00",
+  "inputs": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r6-baseline.json",
+      "sha256": "8cc0eae00457d2e7d54b420024eae49344032b34b295b4eda536faeb1ec3c4a3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-review.json",
+      "sha256": "bce1842bbf00dfeaa5a8f45419a2f66f8c28fee0fba8de51e1711a7cf2b5cff5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-l0-freeze-v5.json",
+      "sha256": "f51e45a61b388a498a0dd58465bc98d163d679561c8da28b5946f3d5956ca13f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r6-oracle-measurement.json",
+      "sha256": "ee6e8cd834d26b857ffbf4311af0422ce20008338c01a98545452d641c9686cb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r6-oracle-note.md",
+      "sha256": "10c35b71e58da8ffdf3c960da2720ef62c7bc182b129102f23a5274fc4f2b41c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r6-tests-note.md",
+      "sha256": "f87b23bdde0e1b40e619c775cb0e243a95a01b2be9d5ebe56422970b089ea749"
+    }
+  ],
+  "current_contracts": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/compiler-feature-gates.toml",
+      "sha256": "9d7509d01a00589f48d7599d39921f017cc141cf45a8786de8fa73b65abe8de9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/context/block-semantics.toml",
+      "sha256": "bb0087fe74af6aee1336cac8a6a2fbc55f0a29ac284dedf253bd69eb059f0ed4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/entities/element-boundary.toml",
+      "sha256": "07143933d8bf05f018f88a81c4b4ae60bd18dd585989a8260114dbe3650ba881"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/eval/core.toml",
+      "sha256": "b25c19c1f2a1af23f8bead57ad57a976cc6879b467a01aa0c426b41d1eefb631"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml",
+      "sha256": "f6964a5f4b840465b4e3f2497e9115c0dc01c1ccef8d08afee8f7b38e2548a39"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/export/svg-destination-context.toml",
+      "sha256": "c71f2ef3c306810c8801544e1eea2769687c95271ff6c6d1d3c2d6315e84c3a0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml",
+      "sha256": "f4b82bcf0dc6948c177742924e237844201f008864a4ebccac8e51e5aa5f48ac"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml",
+      "sha256": "c5ccf06bfa770503a0198bb798cf56fc508920062abf1922813a117a10e702ac"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml",
+      "sha256": "419d56209cda385cedb09205b1dde60be6719897dc467f583b637ce389df6084"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/lang/defaults.toml",
+      "sha256": "86101b9f570504572335c397d2087608f834b6b628613302268149ea3e8a997b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/layout/coordinates.toml",
+      "sha256": "3efea41a40b58da8b95e7a355ea5ee3115d0f6db86477c996b013eddfec5fecb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/layout/element-form-b.toml",
+      "sha256": "7d6d0ee3c89677434debb41f1deb8975e8c5addfb2dfad2845eb93c0b8240bc7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/layout/page-canvas.toml",
+      "sha256": "f8c615e86132f12a3c8033a792f4e428ec07072f49485519aa209918661cd77c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/layout/page-running.toml",
+      "sha256": "1d268229fe616c9a3f55d50cca703c5c827a14bfbe0d4519f855a3484e66affa"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml",
+      "sha256": "d27a26cef56c6e39dbf8faad2f0d97b3a9a10ab9d9833cb7694e38880b2da087"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml",
+      "sha256": "29a7ec096d899850eb602afa0cbe0b44d46147214b06296f2e90c40776e3cb7b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/math/callback-realization.toml",
+      "sha256": "5f0a5ea7cbf0a94ed748872bfe67341d7f29a292f3ae2c3a0aee0a098474aa7c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/math/layout-observables.toml",
+      "sha256": "a70ee59a40b667cf2b35922b74f0a58f8ee95996c6810623d4a1f8310a4460bf"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml",
+      "sha256": "5c3965240cd0fc1f76ec55d523d03f52bef4cf334f9cc10d47378cd1bb4d7464"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/packages/downloader-contract.toml",
+      "sha256": "2915246e4a74008ed54810c15a23b5157acb5bac603c71ba7f4c6b9fb6c58065"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/parse/core.toml",
+      "sha256": "dc66f7b2025f43995325254d35fb6e7f909c00946832f37a93d58d223641aa0f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/references/unreferencable-label.toml",
+      "sha256": "b269cebe83a0aacb736edd0959fe24068db6cccadb09921e93af10111b830b30"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/shell/build-identity.toml",
+      "sha256": "8fccc28e234ac71216ad2b8ea2ed99b1ce1708ac590b6346ad0c9cdfc9b3b533"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/shell/info-projection.toml",
+      "sha256": "4386f970a6aa66b9b05db7d2400b47eb4681ae5d8139de5844177c463243c42d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/state/language-semantics.toml",
+      "sha256": "05c87cf02f7b8b376f8b7401d9b91320c56204066f79c5092e65e450fd500a95"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml",
+      "sha256": "388481e759b2d5c00e57ce189c608a3183a6e8203a8a9331d7a254342455dc36"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/wiring/cli-observables.toml",
+      "sha256": "26ec73c84bc96d37585d0ce8f3f19891da846ffc9b38e51efe89aaa9030e8a7c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/auditar-fatiamento.md",
+      "sha256": "02e67daf1e36bfdfdc8e64fb08d5832dd8bac84ac2a6b38fdbd639d075dce1b8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/auditar-spec.md",
+      "sha256": "d1b93c1043db2df43ac6f07771c8d8e44cdaee7c5421f58e4e9d3268cc66385f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/columns.md",
+      "sha256": "c9a11325f774c74d080b513ae7d02bf33ce59d562b27c961e78c544396e53f27"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval.md",
+      "sha256": "05b4eac0f2e814c67c75ae1cdcaa08083665da9878a9f67eda0d773e73eefdbb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bibliography.md",
+      "sha256": "7802fd5732d68ee4cd4e49a418f4d7033fbfabe58865eec3b5b5cb15af07d4ef"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings.md",
+      "sha256": "3f6a4ab89174439f623ac37dfab9fb4ba03cf4e9d2f6c808704c75b617fda195"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings/access.md",
+      "sha256": "66b064310cde31b799e00ffeed1da38d104a9081b8f132cd90beec36aa41e940"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings/binding.md",
+      "sha256": "ad33c596d2249065a60573a272e3d1d8ce50fa7101f6036c580a1d28507815ed"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "sha256": "077fd441aaceffe0470c50aa1e2e6caded3d446b48d1dbc39da7f42d320494db"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings/method_dispatch.md",
+      "sha256": "7360a5335f0adcb1ce45deea487c93347bbf9cefcfb1e8cbfceb9164d336e521"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings/value_methods.md",
+      "sha256": "f3f9b528eeafe31a794f118019bac353dc564c9a00207c3326607b289e6b5309"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "sha256": "10196db423a34d8255f27e7f48f715843d9bf601670057db26b9065741931b06"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/cast.md",
+      "sha256": "e687f18b19126445e6d4b2a392d4653fde0329eb6b78ef8d473588536d2a3f83"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/closures.md",
+      "sha256": "d500dda5df9d4c46d9b75fca9eee35e70980ece16a8f8fdddb6a18145eaf73a7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/control_flow.md",
+      "sha256": "a148fc03635b823ef5cb8aeac70eb78884d8993caf3206b0ae1f82265c6c0ff3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/flow.md",
+      "sha256": "db45178d7c4d377b40030850b4ac759591f4c9ce8490bf3a6ebc8f49ada79916"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/font_dict.md",
+      "sha256": "29b658b24f896b65f4f695d205e70c555cf4aac79f47c957f4b8f279e364d7f0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/markup.md",
+      "sha256": "c0f1c7d095e261fbfd878a8be0c3ef46223a0944e81cfa9cbaff4f1f7d248899"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/math.md",
+      "sha256": "550239e0459172479346aa0a80e407651c1b6010bc8ce8d011a91c0ee2911e8f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/modules.md",
+      "sha256": "bba521089d35fcd8db850a60a790309105b73786c818f45ee9a71872366f1577"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/operators.md",
+      "sha256": "f76093269a50d5519fb6c1b3e8f0350021701984d0da996da0e7b1f30cd8e692"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/operators/arithmetic.md",
+      "sha256": "88e6f61a6197e06f828c0d5e3ed8a3d6f7e28c269c8b1c7a0781ef9fc24d4400"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/operators/equality.md",
+      "sha256": "9b6ca72b1e8ca562bde7d1730892e727a9680ba6e99b8fc9d1f9922a4c3b5d95"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/operators/error_formatting.md",
+      "sha256": "cb50ca1fc4350653788490528a6bed2f569bd83abef03d348ea034ed53f9d9b4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/operators/join.md",
+      "sha256": "0b56dc754c8573a2647824a609c14aaae37af216cd8b04eb6c74dfa69ab114c6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/operators/ordering.md",
+      "sha256": "eed720d1f13ff37400d46e11cd1f328f89ce8d825286e06468eab24f18593ebf"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "1133e7874105e41f39a79f2fbe8db0f6a7471067ed4c8c68731384ae1830a803"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/rules.md",
+      "sha256": "156be94bd90747835a54170518af60ed7489694838ba03316932e273bd9dc9f3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/selector_matching.md",
+      "sha256": "031ba52f7a6d5870479f0fe699a572950cce594db7688d59fc484175c10505a3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/show_rule_termination.md",
+      "sha256": "cf100e898a238e9a13857a445a121327fc993bda8f8859b84bd7fe9a2bfc9155"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/table.md",
+      "sha256": "aaa2c9a188f66802732403e290f254641ee9e514d388ee2d424213a8e4990fc0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "5a6e958b243ea5b5f16b68ecae024d55b70ccbc752a75b0dcfeee5993d994c72"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/footnote_overflow_columns.md",
+      "sha256": "c2b36956b2c61d0f663e2d81f4dec4c52400714236855b11b17242abf1252571"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect.md",
+      "sha256": "f8d92d86698c3ffc76b113d25ad7a997f11cb6d3cf3566c5678f5832e69f2716"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/convergence.md",
+      "sha256": "0334a735b2a632be3f9562f610958a6bcac40a13bada3757dbbee3f3d7e06a88"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/extract_payload.md",
+      "sha256": "a0340d4a5a4e7a49f377e6e0533d365a0e4a3367f652a99117fde5d0d3034cb2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/fixpoint.md",
+      "sha256": "9a0fb90452c91a75fe1f091af514f782b2c16a3c6d3b0b95a52b137748b76b1b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/from_tags.md",
+      "sha256": "107ff4f5bc9efa0f770aff924b6cc3a13c73b4479e8481388e8c4eb415604a05"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/heading.md",
+      "sha256": "1bb5b84fe3658e78c2b18758b58e7ca3ce2d712a0711af145bfdbd2d49811ff0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/labelled.md",
+      "sha256": "c1c2590b9fc065938b95da89ce967fac120b531875737abbd7d06252f84e7f86"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/locatable.md",
+      "sha256": "4c23bd256a87296798d2bc18d368c6bba85dacd7d8a72c6379fe67b95c096cbd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/lang.md",
+      "sha256": "1d6751eff93e59d6dc61394888f5a23d0598350c0cc31114dcdf7de69aced5ca"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/lang/equation_supplement.md",
+      "sha256": "eb139fbbda2c742fda408506de2c018db1b60f62c72824bae31b09f996011148"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/lang/figure_supplement.md",
+      "sha256": "fd8f727ec47ed59ecdd1394f72a4d13cad18609e5f7ac35edb121650c8cb7f90"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/lang/outline_title.md",
+      "sha256": "5e0cac9d80c2e68440be258bd589f6682f9c218ff2b2bffacd773e11bdaee814"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/lang/quotes.md",
+      "sha256": "c218b8d82dbeb2c755c3699b8590ca028a2d37f0cdbd74ffb230fccc2f2e1504"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout-image.md",
+      "sha256": "ff98c08a9fca8c288dfb4d85b6c4c3cac5023adf30b495812674948f34a7364c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout.md",
+      "sha256": "8b3248416ede53bcb836b219cab4de53129f597a154959a19c1d22d26a09e835"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/bib_csl.md",
+      "sha256": "796559c807fa4ed68a832eb75d1db808e4dde352b9947b7c729d106295d0b5cd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/bibliography.md",
+      "sha256": "58d07e1c4245cafc9fc68bc6170b033cf5b78dc8d28d0e27219a1a816400ec66"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/block.md",
+      "sha256": "4d0158cdf9b53f080373457209c23162ef6f09df35cb0703519a2f156af01f02"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/boxed.md",
+      "sha256": "2c6c534d2d0afb19a8e33bd50e1f7d61db7383e5ac965eeeb2c1fb3a937266f2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/cite.md",
+      "sha256": "def39ac9cb9b9e0ade736dd42a3242b628d236dfad9cf11c50ca4136cdd15ddf"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/colbreak.md",
+      "sha256": "456b2f8d69d6cbad204048a1e1ab0771a3d392cbfd2ba6ad32f987f8e4702192"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/cursor.md",
+      "sha256": "c1fafbee057737ed44bdd7ac5bc2473537f8fa79aa47b76c662f0ff6a5806bd4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/curve.md",
+      "sha256": "c15b2a6624fa5a9487d5f4d2b97e47d622745039bc0a845197b0e8fe6656b36e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/decorations.md",
+      "sha256": "d718cf34aee7cb7c6c85d71b7392665319123a70fcba5427c7afb8f3120dc43c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/divider.md",
+      "sha256": "d493003c735e1ab758b50e41787825fdd732dd4f1240934316608b0243c51d1b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/dynamic.md",
+      "sha256": "87fb267d6d32b614352a4dd3dcb397d10968735b8eef12855f8668a97c80bd3e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/enum_item.md",
+      "sha256": "3e43d490e439e5976b7d39cd6c2de1cb20354a76ed0b6f664e065dba482ac220"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/equation.md",
+      "sha256": "9efca34585e1776267286b66dc74ed6ca213832b91568a8ffd79ccd2b8578179"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/flush.md",
+      "sha256": "c105f59a3e6f3013ba76db514ec982c25826c8cd64f2b0e8b13a04815899ca1a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/footnote.md",
+      "sha256": "f14d0ebd3424498435dae1a9cbb54d080a46e1a90eb82c86dff369b78e91b19f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/grid.md",
+      "sha256": "2739932ffbd4dcf38765c2d455cb4399696dddfcf9e038f9fd793ea4c80528ff"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/grid_cell.md",
+      "sha256": "cca006eb344e9a413fff8c49a69005498dd248d46eb4f4530bf8725be8424dcd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/grid_footer.md",
+      "sha256": "748667460c9fce18cf5fd6577ecf81dd7ec9396502cafb541901a2d8ff849a5c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/grid_header.md",
+      "sha256": "6dba31e1e8825636a95703627bcdf15ee6eccc9b301f47f21791bd84200cdbc1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/grid_placement.md",
+      "sha256": "9eaf9c4ec0b4f92efae548af0a2f9bbdfd55fc0c008ba681cd3a27190da41035"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/h_space.md",
+      "sha256": "b576da784367615580bb7face6bf6e57d4336d18f5a163b105eb4375d2b6cebb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/heading.md",
+      "sha256": "b6bd1d86ae39132215aad2342d8bbdfedd602306a4c51f189b42805bec1b347d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/helpers.md",
+      "sha256": "7481a304279c26a6df3ff9c5258e883d2f5a45eba53b8de2c717f543a68f2c6c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/hide.md",
+      "sha256": "9c7bbb3c4b63c66a1adbfc8202dc2a868c2eab72a7e6bf28f0b3f92882d64b2a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/hyphenation.md",
+      "sha256": "24c8ac168b1474043d49b1befdbc15edd69e661491ec0ad2cc4e9ecbdf675a25"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/linebreak.md",
+      "sha256": "c37ccf195edf48ee694cd940005182deb93b08c278c26b802f1549c2c82785e5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/link.md",
+      "sha256": "edcac183296e521e2030fdc51f1c9e475d34daf5fe77060062f509900c0aa68e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/list_item.md",
+      "sha256": "07f34ce26547c3f44af33628dd682bf2b9eb04a83e47627cd9b8ad1da33c6579"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/metrics.md",
+      "sha256": "f80d54c277223f2f5a882f2cb61eaab772b125cf6807bbb568d6ddbfa5405204"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/pad.md",
+      "sha256": "07e0e4d8f06572b47c98b15240aac3ba7b4d15513a84ea0235e3c51b03fdc007"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/page_canvas.md",
+      "sha256": "a8f6876f8706675a9d9ac680361a005864430ec3363b76af966a12ae24a4bb84"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/page_geometry.md",
+      "sha256": "1baaa6667a0ef4b5afae1f2c47eab82761125dc3c44b6b7d0c89b06e40682ec0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/page_run.md",
+      "sha256": "b28623a04135ad2ea85ccf23c490ebe6b9d7bea184409fa63944b133fc7158c1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/page_running.md",
+      "sha256": "93eaaa89de37743d3cff3545e05ef58ca00a5dfa676b288fcd601114887f4af7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/pagebreak.md",
+      "sha256": "b721744f0d430d6a79f312b24a679a0c408c961d1107fa19e44d087038155716"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/parbreak.md",
+      "sha256": "a45c97745e10dee0969666c85e50033eafadfd1fe3cae7a6960200190396da42"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/pdf_artifact.md",
+      "sha256": "604d7c6a2c3b9d863c59d3f85d7f60d9a4ffc1cae28093c176c0756d06f54628"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/pdf_attach.md",
+      "sha256": "c76d6be7cc085556891a2d02ceae19d5b6b28c5415ba331236eacb5c62c32197"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/place.md",
+      "sha256": "53631639a6f417d449b9f2742fbbb75161ff9486481cef4e9344fdbf785814f6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/placement.md",
+      "sha256": "21ffe76db2d4bbca398fd784d5aad8d307d3bfc69a8ab26d45469f9834642371"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/quote.md",
+      "sha256": "e61a31ec69f1b9c216fe1cdab2439f4c363a2718fd431697696f36f2f0058d06"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/raw_highlight.md",
+      "sha256": "613364f5ba9ae79ccd50d755e73b46763293a1099eba81e844a7c63594593bd0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/repeat.md",
+      "sha256": "f78e761595f785697162d0426bafbe007ee8c23f4aa9452c843fe410129da704"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/sequence.md",
+      "sha256": "ea485c3ac1d95ffd6e0963295e8b08e6afa8fa694a9481c33d7e8435f53549e5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/shape_block_behaviour.md",
+      "sha256": "f064ba47d34d4f899051f58c4afa6d31b06ea6bcff135aa4de87f00f95b1ca75"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/slicing.md",
+      "sha256": "41d7bc630220ff8a6eaa7c1464eaa202312f34106f326f1b539286c806d43436"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/smartquote.md",
+      "sha256": "bec38936f98c9d5837893bc73227a126cae64c63c0668e9f79292c3d7c9bddec"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/stack.md",
+      "sha256": "8604e8032d7768b2c35810c55d3df99910431cc910c0830a7debf58e60a8a61e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/sub_frame.md",
+      "sha256": "6a724d7fab54279cb7885cd7d49a4d833e8960b1c7a0f79586d1d992449b99c9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/table.md",
+      "sha256": "03828cdffd79870d7bd68060ccbe5fc0bdee49863a4039e12834c38f29e157d3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/table_cell.md",
+      "sha256": "8bf51897b40fb7cd0caee5e2006325a4998056203b7520581abb28c791539af6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/table_footer.md",
+      "sha256": "a6345f5927c4be1cba16c93572c531469c59841f82b75ddb55005023cf4e56ef"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/table_header.md",
+      "sha256": "e189b1cd65bc92be68f42fb34c7d8d1ff8377c13f76f8c0e8dfed3af8c71d081"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/term_item.md",
+      "sha256": "fe9ba7aed285800cd408de583cd8d1f039ce213af7d643251781d900b8f5308d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/terms.md",
+      "sha256": "71daa57aec09bcd12987fbbb18b97017cc8b524eedc5a91c5c1543d4834199ab"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/tests.md",
+      "sha256": "35d0fa736f5cdbfaacff3645b559836149ce8ffdf6d0e76c988dbd5a90b36153"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/text.md",
+      "sha256": "9b1e1f4f5651b2bce61f17aab9c59bd6172c2bd86b316b1c536b93cd8bbaa42d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/tiling.md",
+      "sha256": "ef6797e5fe4d5dc9c1c7b1069067153c6813e8c22b60e803de5138f85af61cfd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/title.md",
+      "sha256": "ee246b90a86063d5ac87906e14ba2c1827da8e4122aedf7ec25b14dcf1c8d56e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/transform.md",
+      "sha256": "5e23479cc69cbc1677af0c8014de2aa61f0c08f5cec0fffb62b59e031205d4ca"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/v_space.md",
+      "sha256": "0f1680668a9a6c5c32e5a78e7697794d94f8c35dec0a0930dcdf0a74bfc4323a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout/vanilla_defaults.md",
+      "sha256": "59a91c9b0cb53de1e8522e0f60a27cca6c0fb037f86515e0ff6915fd5b4d786d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout_counters.md",
+      "sha256": "0eb81045a221373ee7b32e19521ed13ffc16ef693c325b615f8acb72408abff9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout_figure.md",
+      "sha256": "267955a87458e09f7094801d294a3d5b80fb72eebf7e2e20a183995f84f1eba9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout_outline.md",
+      "sha256": "68e6b4ba395252eb1100a55b12c23e29cf1d74372b50f5ac68caa5b6fa1dbb31"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout_references.md",
+      "sha256": "d52d9d1559c8145ec586394287fde48e74c0c0afe47bab5b224e409198d1dad2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/lexer/code.md",
+      "sha256": "0c0a074116477344f57951df178f6e1f3f846723944a169cef4ffba42c8edb1e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/lexer/markup.md",
+      "sha256": "29472b6537fa28cb8f33da4bc1ea5a6f3c73627d4903a46adcda0babe2216bb8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/lexer/math.md",
+      "sha256": "5c6b1f940e3003d109cd492735351a6c0bf448abd0572de1a9e6acee628045d1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/lexer/mod.md",
+      "sha256": "21fff52ea6b30357252bcc9d3c63ebe21f2391e597c40f6dd670323c065e4781"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/_comum.md",
+      "sha256": "f2a716e8c363a56d86b08a8b15d73c3bd9b0802f5a44fb8f7b1617e9749907b1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/accent.md",
+      "sha256": "6827ed5e80b869ddd6941696b57208ea75b4c20390095f4b7caa8dbd2127c8d1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/assembly.md",
+      "sha256": "3772841c1ae99f82d2b765b4b38448f3bada7b3461f1473aa2b635590eb3141f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/attach.md",
+      "sha256": "16c9ac2baf6bbcdd866dd3ee90c949c51580f549091ec064e4ca8fdd5c80759a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/callbacks.md",
+      "sha256": "a8be3146016a899492426e8cb2b3a4b603a5aa7d94feaa16d6dcd46ca10cb5a6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/cancel.md",
+      "sha256": "9bf37e4d2f8a5e6517564ace60c99cb76a9899e12399812d1c2e955b148b82cd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/cases.md",
+      "sha256": "adc385683a6529bcc1f87df64fddae08f56df214d288343fd870fca6008aab0a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/delimited.md",
+      "sha256": "1d49ff6a7b421fe3d8521032c5573250bdeb5f255748f3126ca351001102dc49"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/frac.md",
+      "sha256": "9664f7d3320690a96129cd5ec39b405a0a4f499186559907fd27238b4d597003"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/matrix.md",
+      "sha256": "330885cebe266ad3e491f549140a01a5ee32c2bd1c1c6deeceea112a6162e3cd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/op.md",
+      "sha256": "d8d10da5c02c013eec3cdc22946c9fd828aeb9a6fc10b72b724e337e4afa04f4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/root.md",
+      "sha256": "462ee09b4c618a7006e8b89916287369bb988a15469047a2b128efa1b728532c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/spacing.md",
+      "sha256": "33f370600d7b22bf7c205e4844498e5d9851a855daa2b18d43d7a26c2f88cb39"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/stretchy.md",
+      "sha256": "ebecbec1daab7a07926128393bad9cfda7fa0b4ebfb750ac312a03040d572227"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/tests.md",
+      "sha256": "75bdf64454523a50610c9e3b1dedd8500d89f1559f79848b4e647a09c84ad6ec"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/underline.md",
+      "sha256": "659aabb6046579629095c4739f1f074c80a9d4b2bde0028bd05b5b2935f0ac52"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/underover.md",
+      "sha256": "4186f9345e2e41129693ecb9dd7a2991a1dae35d5dbb42c6869bc3b262977eda"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/layout/vec.md",
+      "sha256": "772331ee68ec1069b57e80dd6674ef60d62fcd8db83d7d3fae15a18b7b82b764"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/mod.md",
+      "sha256": "f4d5a135e16a380fc86629298a4b20c0b5f23dd36d0f24ffb5e417dc15badff6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/math/symbols.md",
+      "sha256": "877e488bc1844dfb0b4cfcde449c332bd5298d2b37b532cbcf7c47c3f481a6a3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/mod.md",
+      "sha256": "d0719bb4e675e641279ecb7d066d3ee011522a3c649ccd9e17a0a50afe36f445"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/parse.md",
+      "sha256": "8db314220fd8703ccbb7430872d7d84ddc2d4ce376ab5e91b774829aa278ef55"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/parse/code.md",
+      "sha256": "4225ba0077058fb012b17a4e5279db07f60bdeb3e323360be03acdda6f04e941"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/parse/markup.md",
+      "sha256": "324acc00977f9dfcf38484161a416f10a669abbee0bf22cead3959cf7f8fceb6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/parse/math.md",
+      "sha256": "6963387e4fac88e9a38494e51c3b63a962230828d78c07b50730bf268e61bc11"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/parse/parser.md",
+      "sha256": "70f32928be4cf2ee0dfca40e9f6710dbc130323eba7de3eab64819b182c933f4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/parse/patterns.md",
+      "sha256": "4d90982611aebfa3a04819fd5ca400ec3d5f0cea4587a660da51a9a284593c8f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/parse/rules.md",
+      "sha256": "906a09c77661785721c82f9027c617ed3d59847146d243971e281ecbc7021154"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/scanner.md",
+      "sha256": "89d36dce990544c3bec4eafa1b2c2b9c6043d60ca21483888e4456d62e0810e8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/scopes.md",
+      "sha256": "56ede3e2398f8c9a0e4c8d4929324fa621e4d2d8b1f82ac826eca303ba87a080"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/show-regex.md",
+      "sha256": "ce642976141509bb8e315dea16cfc6798dec37779fa3af0042d2b1e2a6071bc4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "sha256": "87c18ca349ee8669dd242d85be09f95ab792336e6e35941f7663d36f23932211"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/assert.md",
+      "sha256": "7276405eda528ee756a9bfd5bfc1729bf863cf80f4ca1b74c280eb4bc29b84cc"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/calc.md",
+      "sha256": "0fc04b14b3cca19a203823ef392b56509d7ea2ff12a43550b2654fa2bb120f81"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/collections.md",
+      "sha256": "f5eadc7eb3ec75c73c1ced46d87670f47705c956e1f41acb4a5310bc1ad6b781"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/color.md",
+      "sha256": "60de24ea6496a1c95fcc4af1883278164a2cd031351ef59278e654d7d485ff01"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/context.md",
+      "sha256": "3a5c48d0978c092f2679283475648a6760b02ef111933a94ccf0d3c5532e7403"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/counter.md",
+      "sha256": "a95f069f433f78c7f7bd0d9ae60b7a51f3fab1c26aba872b3ebb4c3fe44f42b8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/emoji.md",
+      "sha256": "d5fda4cff41bab53b5e877061a63aeb1fda57896d328552a637e6e9cc8e3291f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/eval.md",
+      "sha256": "8d8bd21eadc03c12747b20f71443799c75823f8e1641e5284c5f365c48ce81af"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/figure_image.md",
+      "sha256": "26a64bc320af8487f7d340c304233d17df29d7d975936929e2f9afc1ffd8ec09"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations.md",
+      "sha256": "8df1e1b9317b6eeb11c691ed2126bd76901c8e2c207278172ce2e79984b0bc34"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/cast.md",
+      "sha256": "3a53ca7240b25e019e3dfe817ae73a5f7ff8b35653e1bc131a096614dbd5f87b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/color.md",
+      "sha256": "64d925b20110c53bbeef1e0c7aa6804e2b75206cdb4b1ce51a81e64bdff726db"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/datetime.md",
+      "sha256": "9ff700fbdfec93720f218960578b2e40f40197ec2c328680a75218110587fbe3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/float.md",
+      "sha256": "68e877cfdaf7feaf7fee344c268244d04df13707f3aa2beeba83bf8513f49794"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/int.md",
+      "sha256": "2037bf60d00edd067d84f7814bbb3229f26e61b2f6e3412c458fda316bb76e3c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/path.md",
+      "sha256": "7800a99382c0bf7e8821d8c3042c4a2a0e3d4b68bf069c33aaa102b622d9aa8a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/query.md",
+      "sha256": "7bb0514642d735b3caffb5d501c6ff71b7baf9c5d2fc2f13fb9e4961091db617"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/regex.md",
+      "sha256": "60df8cddb5073de4e13be958e50a766744a1dcc10d24406d2ca46c0dd6ef15e9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/repr.md",
+      "sha256": "f5a0f6b36bc9dec7584d641a8db1b95e68278018e0d3c08016cad83c0556dfd5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/selector.md",
+      "sha256": "1a603e05d436e5f2359f77e3e71c0e233478ecf13209f71801fb45ae40214799"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/str.md",
+      "sha256": "4b3fa3d5cb2c313fa13326dc8c398f70ef89efb229a6a8ae8b37c1e77bca0043"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/ty.md",
+      "sha256": "367e7d272288babe6980511dfea985eec5f553fbe6b925b7ba3bc0a956cdee83"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/gradients.md",
+      "sha256": "25ab680bf8fb4f6f6efef8a2d3f66c9cf5e05589977484848a843e6b744807e8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/html.md",
+      "sha256": "df741b13ec8a3630180d65c3b606aca20385ab2b00d3d93836e85b5fbdca9ac9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/label.md",
+      "sha256": "955eacd5e1587f3d368b3f686514ed574ad21b298386ce28e3204f612920edd6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/layout.md",
+      "sha256": "fd12e67bf884c36ed249ad8c20ce250bb129726baa0d4c9244ecedf6aff54dfa"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/loading.md",
+      "sha256": "c800187d07bf3acb84eb620ba4305001588001d088dabff1941ca8fe4fb0a3db"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/math_style.md",
+      "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/numbering.md",
+      "sha256": "3ef25a8ed94b9d41b088e6c515859d5e011f321d21b9d4cf22b992991bb5ebfe"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/panic.md",
+      "sha256": "9e9003e0c322847298a227f78f58dda7e6f7d635f6525d1dad0d38d9d69bb012"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/pdf.md",
+      "sha256": "33cd1462491b6e94801d13d04a5b4cca9d223b008542fb835d5c4932f58d495a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/plugin.md",
+      "sha256": "7b8f7feb04481b909114c351c52bfe8cca8b1c7095bebd2e6cee3ee170eab58a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/primitives-constructors.md",
+      "sha256": "81d965bd49b97dad2500dbde3b1e1020cc53d7d6639be10a26c2591113943b71"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/primitives-constructors/decimal.md",
+      "sha256": "de1b68891b7ac68581e426070dcf58fff02f03323401127fea37df172f39b54a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/primitives-constructors/duration.md",
+      "sha256": "c7112b9eddb05d6cd885da3a4e269709ae2467f74a7ca7f6144f3b3531f88454"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/primitives-constructors/version.md",
+      "sha256": "6e775351938a8480df7f2fbd1658cdd3d8ae7b5908c4ee8dc34e46a778ce4e5c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/ref.md",
+      "sha256": "0f8b9790f8f5fffe7c4602d4d51617c62c60238358516a00d8a4e1e0be33976d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/shapes.md",
+      "sha256": "389f4f7905fcdaa2d5f61040475c04571c489cef0720f7ef453f14e36e61ed17"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/state.md",
+      "sha256": "daf180d5e77f0a9d307b8b1a2b148741a6ac82a776ab17a510f107c5bff42eb1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural.md",
+      "sha256": "81e66889454d8f397ab5eafbd4c6a5e0f8a27993e15d2f3c81d307e804ff3b12"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/bibliography.md",
+      "sha256": "82a4b50f564cb5943de7c36bfce7b4db3fc12b7a14cac580a9f63ddd81dd7b13"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/divider.md",
+      "sha256": "d8766625c286caa057db78e5900ee4f13800299173d026bb66fafd487b4dd13b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/document.md",
+      "sha256": "efeabfeb8286212f9c29ad97caf225efc38977139671cb74a6813dc744ee1a92"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/footnote.md",
+      "sha256": "10b9b93bd1f37e94ddab16d9e782a600a86ed4a7bbdba35fd59fcc62cbe50c21"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/heading.md",
+      "sha256": "380d9dd239e487daa00c982438bf592ff391c979d51992e8634504cd40cf606b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/lists.md",
+      "sha256": "1accd22288bd57464c73d8861c6f5b6c1c6008df092e2807fbc19ea1c5f0d743"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/markup.md",
+      "sha256": "4983d15545df3edcb29826da03fa6653693c03dcca9a90fae62c647d9349399c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/math.md",
+      "sha256": "18b2fb0d9a3e1f6a0ff9cd8fb2e25047b4c9f2185cb6a511ae022e7a9c4e80a2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+      "sha256": "e8dc3b96fd9a03ae21f87f602d85bb7b0b5b6eb95d6267dcbfe280a80d3b0632"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/par.md",
+      "sha256": "4c894f679197d9fc64232fcfd92807cbac8f4dc04360b7233df84dc0210fdebd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/quote.md",
+      "sha256": "9d3d0829db35b64f00ac379d2c118cf124aaa0456e1f0afa671e77c36cdf70c2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+      "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/table_lines.md",
+      "sha256": "a02bcbaed2ef3aae2b172f78a737c2e95588883605608199259632ecc1d6e29b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/structural/title.md",
+      "sha256": "6a499495947f46d1dad57b96990f2ed95344d8f49ffdb8b5d97fc002a7277265"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/sym.md",
+      "sha256": "42a2127215e9a37d69c90695e1be66a61320fa086ffd36b51a1ac3441c816f3d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/sys.md",
+      "sha256": "b0eba943a4e7649c0db5d22b79f57ed4d8f7b96da3727b62e76e87fd2e9cec0e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/text.md",
+      "sha256": "1dadbba93127f2b62a8728bf0a92c5378c8f52b15bff5aa9152290faf0ac72a5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/text/case.md",
+      "sha256": "b40155505b65b4ff0d9b41c7c9ecaff1c51b467bdfab7fc356ac808288adbc2c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/text/constructor.md",
+      "sha256": "be4549e1d2633bd50f3f628bdc54d1d605907989be6522cf7fd9b9466ec770d2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/text/deco.md",
+      "sha256": "33d7957a8c3ffcbe5aab4100d7bf1156107b5aac5a2540c7ff281cf42679fec2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/text/lorem.md",
+      "sha256": "f9c6cc283f8395af65077fbe5016755ba85f42dd05d43536df1ef36f630e3d27"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/text/regex.md",
+      "sha256": "e08e2c922fa1ddae0018e5250dcff3d1901d101b69f59909c29d04fa0c396cc3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/text/shift.md",
+      "sha256": "d48b08960c69eef929a21717100952b6ada1d4b6cdfbaee6442b4429632177ab"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/text/smallcaps.md",
+      "sha256": "1b86c32481eaa903bb3119817b4d31e0f1cb5bf66c8d2cc41c74c4535ef2c290"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/text/smartquote.md",
+      "sha256": "eeb0b904e41096a75d0022ad3ead61b981674d7972e5c94037ff92ffd98053ea"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md",
+      "sha256": "00c7c54d9ec547e9ab0054d58656093b33c40a12daa6cabe698caeff8dcbd149"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/transforms.md",
+      "sha256": "d9a37ee1db7a304fadfa21c16bc921e5c45b3d2bd248050cd3eb2640f582d366"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/style/font-dict.md",
+      "sha256": "039f56e17e84c4a63c508a26028ec9e3aee05254475bafac179fe9dc804fbb95"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/utils.md",
+      "sha256": "faf1cc836a3db6801e0c04794eddc6b2d152421c4f211004659a3beb74017360"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/contracts/package_downloader.md",
+      "sha256": "e157da50f7779be482998f707c554a59659e1f8e1f163371570c2517622f5b06"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/contracts/plugin_host.md",
+      "sha256": "2f1ad06495067f883e79c062058b9b19c4320b3ef3b48f0f131df49d4182d9fc"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/contracts/world.md",
+      "sha256": "cd2b0d775bf3dd759908f3440eb90758cfef8f0ed8d8529f0cce18be9ef12078"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/core.md",
+      "sha256": "b28879c135c0983447afc179b1cb445ea4bdc6ec5d01a389de0e871fc8f0ab28"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/args.md",
+      "sha256": "75de6ac49d69331fc604984c92874a706442f823cc4706bd480b434c55c83d94"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/ast/code.md",
+      "sha256": "1fdaa8c1531250babf36e0022f93f5c6f9329dd19e2812faed73259a159d7cca"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/ast/expr.md",
+      "sha256": "21ef9f5b815358b17a6f47d5e1a66fced10b7c486bea0f89dd7f1fa5c116d769"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/ast/markup.md",
+      "sha256": "1d5aa54d6f5af17a6edc8faf70ffb6ff0dbd868e6b26ba161cc70541c0f347d7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/ast/math.md",
+      "sha256": "53892b656359327cbf54ef2dad647a93b7e1471b4f206a1c078784831226879e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/ast/mod.md",
+      "sha256": "e6026215692ea226af2b1999826d596bf43a29d790db744ecd66ec0d139a528d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/axes.md",
+      "sha256": "43e202850e4a046a96e6a7d8b02900ce6dfc2576dfa9ec5e0900a00790286065"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/bib_entry.md",
+      "sha256": "202c3fb1454b4013514cc04b091366a14dcf1b49d41ac2a66c89abb20586bdc1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/bib_store.md",
+      "sha256": "6705ffbcfa63c4f8d1e7da75564afa5ee8736c826bc28fafe6b5ed9484fba76f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/bytes.md",
+      "sha256": "bd6199460444e5c82754a5d7050733bd0a5c36bf58d907855287fd1b6b539a7f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/citation_form.md",
+      "sha256": "579facdbebebd4c8f1d38590824d9d864b028e4df9978749317e5871664a422f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/citation_style.md",
+      "sha256": "f1773132a2829036152a9a21345719483b8b8ee2d4285d22cc2d8cffd67e1780"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/color.md",
+      "sha256": "09a1a9bb6b80de35f9ca2d7fc192a27c2558cd819831603ecdb4deddfa410c44"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/compiler_features.md",
+      "sha256": "e743ab5cef2494409a2e9a253ab924816a177171f243578cb092b4bd2f3cd5e1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/content.md",
+      "sha256": "0107de24300a65d0510c67baf4a891ab7b37dc3903e621c20a69e55baea5a602"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/content_hash.md",
+      "sha256": "0959631e4b56b20cb4d7a6b3bc01a1f9c51023ad870ff2522f57fce4ecc49290"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/corners.md",
+      "sha256": "e8b96de0cdc0e5c921c99cd63790084fa86b5f2d2a567cd81223bb925e18baed"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/counter.md",
+      "sha256": "83f677859fe3c3aac95b6f635366106e77b480d8664b75f08cd0443ebc98d633"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/counter_format.md",
+      "sha256": "27e5f0c98a8f1c5eef537f5e04cf3fcb03b8f742aeeaff2fef72d0ec45ede739"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/counter_registry.md",
+      "sha256": "3d833b89782e5bb2c38dbf227c046680caa00e92047d2986154be18ff6c69872"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/counter_state_legacy.md",
+      "sha256": "85059f9cae047bcf66662950acc611b197060c189f206642074e0a50e4d50790"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/counter_update.md",
+      "sha256": "20ce64c0e7eeddb1dca4cd491858e88fc0259929ae625bd2bce50458f6272187"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/decimal.md",
+      "sha256": "edf50994ea548e91e5efab8920ee304346a287b742398d5abbd836784a7f69fa"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/dir.md",
+      "sha256": "b9cd0f95837004169ec06f16ab6c9fb7b138f1407969e3da42e3587d72ae4aba"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/document_info.md",
+      "sha256": "51581971833af09a41b5621d5434228d83d0640e178315a5e681b410e141c60d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/duration.md",
+      "sha256": "b16ff16253af6ad0cd119679880a429f401bd3815cebb7077f70179bc1c6ae2e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/element_info.md",
+      "sha256": "8e1875ebd93092b19be02c6adb85a42aee4c84e41cdce0b11f3ccded9e9c17b0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/element_kind.md",
+      "sha256": "b9853fad937cbfc2361f32903a653b55d11d3ebfbbc46ebd5b08f121d7e5f6d1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/element_payload.md",
+      "sha256": "be4c48cc670a086c5920e849162d9f0f7e296f075da3c74590a951e4f83fb47a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/element_registry.md",
+      "sha256": "e44721d0d074681a960f28311d681b6602c3d1edfc42e083c3ad99f88c5bbcf7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/_comum.md",
+      "sha256": "07982785a86c500f204e8ed15dafa801105067f2c98ca90e6c6f33765583a0c3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/align.md",
+      "sha256": "835498f375803c5faed3021d5b465dd5ca857499c093546dd19942375e2279b4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/bibliography.md",
+      "sha256": "ae08ed44a81919d9ca63836c2517c956d77cdcd6dba0d8e77a57eaba48d1695e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/block.md",
+      "sha256": "07edfdd21e7379cdba3187228c46a2d4b0fb5fce748ceb3dd458ffc70fabc51b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/boxed.md",
+      "sha256": "ce93fb2936abc9cc2ba3d91e011f7cb8aedf42ccc04b5cccf9771197261b8b1a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/cite.md",
+      "sha256": "a82dbdb40a2c3bcc156cbe5f3b2fc19f7d4f51b268652a76b0c9fb06ab53f1b7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/colbreak.md",
+      "sha256": "ae2d0563d735a147b0503eaa9d250ffe13a9f81b85efc0fda5cdefdcd4718409"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/columns.md",
+      "sha256": "219c81f1a53cc3e751b460f2e55db4ca24ad4b85969d506e8ecc4dda20186d52"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/context_block.md",
+      "sha256": "be82544e35e1bc9dbbbb40f9f16aae2ae80e4ea2cc6a77124a80c9bc7d03c4ae"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/counter_display.md",
+      "sha256": "e3f2e1e7d1c970f692ac5824a1f4b4af2dbb68db3ef7fedb9aec2253384ab58a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/counter_display_callback.md",
+      "sha256": "0f14a4adc45c9bae7ae321d930d653fa408a1d4b194fb80de77aa630761d23e7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/counter_update.md",
+      "sha256": "cf16a016c3fe62802a6077cd22a4fd2b1d3c21d952bb93cbb2cb2b31ceb1cdd5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/curve.md",
+      "sha256": "7608e7015db23af3605eb1efaac57794b3d9ac74300c9ce971a2bd84e34d0297"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/divider.md",
+      "sha256": "8608f08f73692f03fcae33d7a7cf31d79533aa79699de8d4b8342e3d4e884122"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/dynamic.md",
+      "sha256": "c66a9e8367412c4dacf3bb551ceeeefc9bbfc598d16ea3a4e9b5600cb6406559"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/emph.md",
+      "sha256": "147963e9a21a429053b9935b9cb38d6dab45e8db0a8ef751e06274e90b6125c9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/enum_item.md",
+      "sha256": "4f5a3685b2d52a9a62cae5865512f2ab4d5364dec73db9d508e0d347ec078e4d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/equation.md",
+      "sha256": "5f77d4aaab820d7583b4f7de98bf4d55a8a2abd81f0304ac60dd8e5136a4b3ea"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/figure.md",
+      "sha256": "4268f31ef9d9056f12937feeb05daeff8f30ff79727b40bce5cf6e64e4e5ca50"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/flush.md",
+      "sha256": "75967e0915aa211ef297c7f88059c3ce675c892de450930137760605df223c37"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/footnote.md",
+      "sha256": "18427278c3bc8e57942b189ab85c071df86c8d9f2d47ffc2ec50c0221b531297"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/grid.md",
+      "sha256": "fecbe9ec966cc73350aa321ff1bc62113706ad6f47425d2780ab0a9785ca3279"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/grid_cell.md",
+      "sha256": "2301eaf8bb5029683b02a84c726d4f3ba2015c71a820219cdafbaa6c606d5c41"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/grid_footer.md",
+      "sha256": "072a469b3aea70af1b40d81cc5d246da0c61fbcf3a6f5f6a7a558e3022f3b908"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/grid_header.md",
+      "sha256": "071d7d249d373a6e0c06ff4fd5144bc2261acc081153010461641e205af30000"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/grid_hline.md",
+      "sha256": "501e2963509289db4168949f4f7dc89063d4d1dac33f8fbe060ac8f2fb060d7e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/grid_vline.md",
+      "sha256": "7865389dad6047984aabe77856cf12c6132ee64b43bfa033899242e29205db35"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/h_space.md",
+      "sha256": "1b85e497709f66662f20646f4d71c089a8a42d6ba701e471cd6ae860f66f092a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/heading.md",
+      "sha256": "edc172c32305678909ec27d01f71e75ac60e6b2d7415e66c235b5e677a07d43b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/hide.md",
+      "sha256": "294b8335fd5e61612ce99598715fcc567f07260ad78aaa99a25ad7790aabc035"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/image.md",
+      "sha256": "1f8dad8c37f3f5ef546d7241e710761a2b008fbe4648b5b78a7b2c6cc6ec7dd4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/label.md",
+      "sha256": "024a90820f342504b0f29b299b7a2283c7dd5052d8a4283a7f421853bd4d8d61"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/linebreak.md",
+      "sha256": "36cc971b1ed88ee10f5a4d60c9904692f34e4cc6c5961127b84057049c11f51a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/link.md",
+      "sha256": "b4661ff1c1199d5c500ed7064fc6ff82ba4d703fbf1d661b922f4b816aaaef25"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/list_item.md",
+      "sha256": "6bc2936ef9fffe3e3bbcfc4638e412e9731c81c486b15375d2e151cb78ea2e23"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_accent.md",
+      "sha256": "38f9ccd84b935cf88f725f2740ac858925e37419cb88f3c4998f6e533698fe96"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_align_point.md",
+      "sha256": "13e38339ee66902f12f9baabe958eb686db710e0c377bd48a7d9b995662da835"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_attach.md",
+      "sha256": "8be46d4c97b9f63b0b757274610bb257c1e1f19378bcc7cf342039bd00f00ae7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_cancel.md",
+      "sha256": "320008c4e4915de15c8e85338943ea6383d833bb8d09f5cb8083ac94dd6a0d38"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_cases.md",
+      "sha256": "6d8e6e71322c42ef39c5f8b3aa0f14e04ea2ed1647a433d712420f05e5d44873"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_class_override.md",
+      "sha256": "c397ab58ca8545496ae040c94c1394fca0602f1b3084f24e04780f60ec6b9863"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_delimited.md",
+      "sha256": "b1ec0f445f94bba7a2c1576a8070bfc6ad30e2d19c32ad3d83eb9009ca589b95"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_frac.md",
+      "sha256": "a9ea29fabacea327e895f78a3494307ddee58629cba25fec8e26be01699a20af"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_limits_override.md",
+      "sha256": "74d33f226ce7a407102d84c843cb47a9d40203027c239ef97e3f0bb2716094c0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_matrix.md",
+      "sha256": "6d3ae211eeba1fa2c8332eb2152964e5b5f2b4fee6586ca52c9b199ae6863f4e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_op.md",
+      "sha256": "5e04efcbfa8d2f254d081a4fe31422ba21220a490991937c19482adc1e4d06fb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_root.md",
+      "sha256": "dfecb091446dbee2d4320d9c78723109998857e699735834d0f77c90289fabc8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_styled.md",
+      "sha256": "535aa7bb6d27676bb6238ee9d9f4c1c98b7040b84cf69e86dc0571d40c073c80"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_underline.md",
+      "sha256": "27b6cc393f0ccb97358971ff7c20ae335f01e1f360635bc46ae8b3993f180ca7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_underover.md",
+      "sha256": "c839340aeea7afd76db5fa094627a1d5970243268b87add1a96d7cca39330f0f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/math_vec.md",
+      "sha256": "72f2ba668f201d0fb0edf7d2d6bd8f5f85aab156b883a8e644b427f7cd2d1afa"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/metadata.md",
+      "sha256": "6e164f8955f35abe23954af10ef833e4c9e9715056aa0ed232dd323eeb0a3f24"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/outline.md",
+      "sha256": "58ea2a650fdedd81fa267c902f5387ea1a4cfe42e381b9afa13497c486b19fc4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/overline.md",
+      "sha256": "90175d3d755ca5a8529372615a3657ef3fbd094ae3fa432df258a5187787de58"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/pad.md",
+      "sha256": "9991ee1fce18da8664849eb2d9cc3ec9a7a1220ff7a9421246bb124b3552be1c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/page_run.md",
+      "sha256": "60ddfef146fe365de8db22ebbb719f83ee7154faed28baadf2769fc284985239"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/pagebreak.md",
+      "sha256": "7edd41a0cac639236eebd7d89400f9fb8de30d46dbdd7caa63d673384006be7b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/pdf_artifact.md",
+      "sha256": "1d06c44b410b7c951ca8a05214632993267cbeec5030c0697cd1f836e0d368a6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/pdf_attach.md",
+      "sha256": "37da5c125b16a5109837dd4742aa2d1a8370c244f1a387f16bcd2b48569393d2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/place.md",
+      "sha256": "4805495c1283830bcc6dd79cb83cbf0991759bf35b96415c619edc20449e4560"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/quote.md",
+      "sha256": "b3d88a26d2cd3fd74511a78770fc5218366beb11c6ee349af09c78358c0ed6bc"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/raw.md",
+      "sha256": "f7e38857d3b51170dedb03d542de21247e4ffa6d40e5e77649d6c909b85c00c2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/ref.md",
+      "sha256": "44770ccc06854ae19b6a92663d4563b9702aacfd94bfd0ef91b2a06b49851d1c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/repeat.md",
+      "sha256": "3bdee9fb386b148de596bb9b311d7efca3ce5fd9433d408075b2177b0d1f775b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/shape.md",
+      "sha256": "355bd581359e1312e1a483e1294063b8a81b74b8348a56d57bb4f713ad894ea8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/smartquote.md",
+      "sha256": "f4b0025fa56ab8ebed4577ff473e5a7b4205256ccfce853e2de03f0626b3ad07"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/stack.md",
+      "sha256": "a5e8c659757051780e8836a28ecb824bf0293731a631330cb534695bf6c7fda4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/state.md",
+      "sha256": "227ab4c9447b1794963c6382bff1bef5773741148b1b973ab37599f62c516224"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/state_display.md",
+      "sha256": "1c05e8e1996689fc27fb6a453c560a4f0f4b701e17c5c7d7a34a27034b708bf3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/state_update.md",
+      "sha256": "45624924b143bf05c1c70d9dc3e7142507f99f6f8e4c5ccde50217497e0d5dbb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/strike.md",
+      "sha256": "a69d2e6e9ee06249331be84cff60c12f46cbb3414137d77b5c0f87e3132b19ce"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/strong.md",
+      "sha256": "c6f7426abb2a81266eda2bb2709230c66342305da4dd449a1381c0bce2f4e1c5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/table.md",
+      "sha256": "1b1fc0e3c286f0d24be3b754f60e330dbf2adccaf686daf8f5e799f0b68476f5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/table_cell.md",
+      "sha256": "ca4e2f43e621f2919bcc86317ce2fb752bfa295b8f9003d9950abce4a60690ca"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/table_footer.md",
+      "sha256": "e94fa330201d5c6d3388b476fb37f0ac33e08eeea968f75be7a17d814333cbc2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/table_header.md",
+      "sha256": "b1bcc39b6919161353310e1c79325697b5450d27d119eaaca136752fcd315bb6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/table_hline.md",
+      "sha256": "d100c326d88a14dedcde921c2554c473e2a54dfe4e37d42f12a2949c9a9fd856"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/table_vline.md",
+      "sha256": "a8251fc539a143acea3bc3933788ef41b9355559979e8a1192c4efa68afb0e6d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/term_item.md",
+      "sha256": "cc71586d124f6e5b4b6af5be2170880b72c68e1bd4196b6c068ae62bcbb91584"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/terms.md",
+      "sha256": "ab48d0f2837310b6cde01a30efb5149e9aece29e1f9acc2af462fdebd2a9dcbd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/test_callout.md",
+      "sha256": "41d7c741fcf9770ecda996e82a53f0ce491f980510a39b2cf454270f7d41cce0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/title.md",
+      "sha256": "02ec0db4250149e2f788b5bb4637b4390ed345044eb9cc2fb7f2572e2f305d3a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/transform.md",
+      "sha256": "399a894b983564b76a2f278e4dc4039a5959ce7a569039e332970c8713a3d63e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/underline.md",
+      "sha256": "4b345a66c624cd64ac7e2acbd173ccea5989e7b60f4d486b09017893ca8aa0d4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/v_space.md",
+      "sha256": "15616ef3d696cf4520561ddb237e0b2d4e7fd41c6d158179d7001b6740639b10"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/engine.md",
+      "sha256": "97edcb9df74092eb1ad59f9423e7dbd37e99d8fc4ed7524a3266dafcfbfe78c6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/enum_numbering.md",
+      "sha256": "32ce57185bf4d9a0e80a0b97b80462028163381adcfd595de4ab1cfbdc3416a1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/file-id.md",
+      "sha256": "cfcb9a76c66cba7eaf4561c22e02fecc59977e3af9fdc55342ac86a99a30ffc4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/font-list.md",
+      "sha256": "8629ebbdadd442cd06f9c5cf800bee9b71a11afb0079139934749e10f63e2191"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/font_book.md",
+      "sha256": "3bd6638b46b60242c0f783f78ba26e0503b44d51e30b2f93e695a42f9a933cf8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/font_variations.md",
+      "sha256": "4bcc503925b4bd83845d533100e2b1384a79c0cb740d8560ae51a910033d528b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/func.md",
+      "sha256": "523f25d1e5926d52c1402c911c66444df7c61d6bf21e720ee692e77b68b1c0db"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/geometry.md",
+      "sha256": "a8cfbe9a22342b65654e4d9d35458523e11c02dd013651f7f4ec7eeda8ff565c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/glyph_variants.md",
+      "sha256": "4deff0a0898b88eb3df5dae142a11986ecae5fb12fc0f0e510556310d12c654e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/gradient.md",
+      "sha256": "db3321ce55e05208f025a3490477a172db516a861fab5ebdf4bbcc9625f39780"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/html.md",
+      "sha256": "4d1c5bbe7005154f3fc01099d6e79b8100d39fa12df467c3c0a3c75a84a0260f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/image-format.md",
+      "sha256": "13f6e1d6fa9101a250c2ec468eb79c6a428d1a1757f0fd55ea77dd9826e68405"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/image-sizer.md",
+      "sha256": "cdb6935b2a0e132b83469953844579361d07cc59b71cf4f1fd891617552f8040"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/introspector.md",
+      "sha256": "a98b641cec803700e1ce7221feba7ed5af178ac7d3de8a131d0a6e37d64c48d6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/label.md",
+      "sha256": "fc2e41afaf3f634350dc6da9716d25427a18e5ba6ec32315d21b733edb72414a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/label_kind.md",
+      "sha256": "d7e7f245928355978fc70b47029fe5402bd2a9365e0bc2eb97794acca22b1cd9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/label_registry.md",
+      "sha256": "89ac4eafb95862f9903494ed189a1720fbe257c640cbd114f4424b86a139360e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/lang.md",
+      "sha256": "99f154cbffc4c4e2f46f735c67a2e20352d103cd60668d6aba4be427724a2ee8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/layout_types.md",
+      "sha256": "60cde357984c8b75f7e580ee26e1cb2f826b98e48f4b6cf364b8b5fde160b0fd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/layouter_runtime_state.md",
+      "sha256": "1705d3911adad5315a801b6d782b45122f957d07d63b1363ece6008ce48dbfb0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/list_marker.md",
+      "sha256": "4f99189ef6f6882ae0b6f7a188782ba62698808a6cff59af8026005ff839b4a0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/location.md",
+      "sha256": "4628ee19327ebe7eb60b13fe010c526e378b11efc76728b878de643d0a188883"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/locator.md",
+      "sha256": "f4c8b184132ca23ac3bd2591356b44bf0168ea98a355c2fc7cb9cbe570be7b0e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/math-class.md",
+      "sha256": "9b5d10171c66e5ba5a3dedf24df3c8192270edcbec6cceb91e3c18e671129efc"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/math_constants.md",
+      "sha256": "745bd852e48f07a23aaa65ccc64dd4ef2fbc8e9af92f5187f52cedbc841bd292"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/math_style.md",
+      "sha256": "3756f99f581fc68283d0804dc1a19de2dedaa40e302d9da5ef410995a408aa1e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/metadata_store.md",
+      "sha256": "73b197c322b691e976e08a874a1df488a5e042db80b6d1491d309d05307736a0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/mod.md",
+      "sha256": "db98a75dba2a55ec94d82d9c0fc64301ca1deec0e4a5fe8b6e844fd5fa354e92"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/module.md",
+      "sha256": "17d75e8c05e28546b7212ae232fa5d9e0474eda2b5bd7b67740e54ec3c1659a9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/numbering.md",
+      "sha256": "370d83ada4211a5c8dd884c65ec9797ce3e127f09d462f0e095f4f181460570a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/operators.md",
+      "sha256": "107373034cb305fd19406dcfc85d73a7827e2e31eaec20fd05ade756c8a17d90"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/package-spec.md",
+      "sha256": "5bd4adbe0a4fe614630330ed5bacc1279d34f2de8f5dbdda8d9a6fdb6fe400de"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/page_canvas.md",
+      "sha256": "4a5059bf176c563b2775983d7e6b3ff73789c4e64e77449536b670f53aac0c77"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/page_geometry.md",
+      "sha256": "5552b42f58308f1a19828fa2c330959f1199bfcd68c5b29594f7d7ce43b7ed9e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/page_running.md",
+      "sha256": "ac91674d6227f6044a7d1954d993b1411643147c1692ccf4e17815c5d3bc20a5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/page_store.md",
+      "sha256": "86d5e5a7ecbb1d8a026e2d6632d4a3d06d7c28f46916c484f603691766f4ad52"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/page_supplement.md",
+      "sha256": "04402b0acbe23c1d9385df8787ac34b26a035c0ec88c0637d906bb2cb8679cdf"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/paint.md",
+      "sha256": "a2d9e41ee74d88325b1af5e38df2315c78d97e08b3faf950fde8f9036cacafd9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/parity.md",
+      "sha256": "070d818f5c200ccc6edf9fd8dab0be968b880cdcaa8177580a8a7dc26f742f84"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/path.md",
+      "sha256": "cc5f1fe4e26dac21059658e5804f229a5aa0ed8e15ab09f01830d5e1a6053101"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/plugin_func.md",
+      "sha256": "b701aebbb04f029b63c3f949c32e7dd07e71c5e5d3640dc13e71ca758f14723a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/position.md",
+      "sha256": "ce405c53d442f8093a0aab7d5b1db52d165dd90d07baafa9f8add523d3c776cf"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/ptr-eq-arc.md",
+      "sha256": "357edd9fa7e5e461f9541fd3141715b13c14fd84cd523d4a2c0fae134ba60f6b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/regex.md",
+      "sha256": "2a80103b71f39bc3c7b5d19a9f7c56bbffad6f374ea3b48e4d9e16181fa6de9b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/region.md",
+      "sha256": "e764a101a62f7b9c843118c733d98a11c6066f9f497f5850e90c311c549e0623"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/rel.md",
+      "sha256": "4593726fcf6393bf4f3d1440f5c783a4a5cf21166d5f8df655501c88fb5284ad"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/resolved_label_store.md",
+      "sha256": "0909551225f0924a170a75f7e3591d0d4575860ee29389ff85f28821ffbb4c30"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/scope.md",
+      "sha256": "6de9960c9814215012d3ace19ff41e7dc38d3df0f4806bf35e78366760b0214a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/sealed-positions.md",
+      "sha256": "be0d3d4d29b64bf98e9b61d87c87ec5bbd3b0de16259962b68b52838a2ce80fd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/selector.md",
+      "sha256": "8dcd7bfbc6789ed0ef669d8ffd943df63aa06343f0c4ef39f23e797ec276b429"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/shaped_glyph.md",
+      "sha256": "addb5837fd6b8b46bc374c20869cb0251206351c4ed36b5dc988de8bdeca12ab"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/show.md",
+      "sha256": "2bf028594608a4ee68b0153dd671ef3176b7c28030713c848f00a280c0d6e92a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/sides.md",
+      "sha256": "95589d4c212670c5db6baf8f0a19e6f6cc5d64052a411a05cab006bfa799cab7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/sink.md",
+      "sha256": "124f8dfe1049de67766e038da2e4353c80611773d46c70bea0476397feac2b78"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/source-result.md",
+      "sha256": "6d7a71da609f692d3ee4965d4e89aa632a050054e03d28e2c7ff7a0a6c78eabb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/source.md",
+      "sha256": "280ef35e741b90e9bc62ef3b91498476b0d61a6d27da39a77fef739888256ab4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/span.md",
+      "sha256": "5637783b5ce3dde29e8db06102ad6b43b904ec4f702235b56319f7b732633492"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/state.md",
+      "sha256": "466e16e018de4bd1cc043e1cf79b92bf5c4b375b178a65ec85228e373bdecec4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/state_registry.md",
+      "sha256": "a0ae4777ab2462a23b50955e9454b901a0879aadaadd869f63fd61a3f784a867"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/state_update.md",
+      "sha256": "e47dc07131d16357510cbf6df40b0838db06fe1db46a9ee9a924a2bbcddf28de"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/style.md",
+      "sha256": "1db993a4eb95d4844e6888903622db2e59b409a08f14b1dc049fb329c3a158be"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/style_chain.md",
+      "sha256": "1efe881899ab5cdc290be6350e2da6f5e3ea8cbff60ab4e65e01585ec28cdf6c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/symbol.md",
+      "sha256": "159d961a5b85fcfad3dd668fce7097f52e5cb635a05a7ee9bfb983e1291aa95a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/syntax-kind.md",
+      "sha256": "87f99616790cd6da7930fb0d6dc925d5496df39175c9fd98581c0af65beb04fa"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/syntax-mode.md",
+      "sha256": "766ef734923b1e7185d147abf980a457178ee756fc96101a3962b97d9d8f2dd0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/syntax-node.md",
+      "sha256": "9f452a8f172e4b063073a7de90696d09a0b2016128801d1007626161ee6ba19a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/syntax-set.md",
+      "sha256": "35160bd584ab7a972c885f0e00149f909dd9881630838f226055fa78f6051b7b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/syntax-text.md",
+      "sha256": "e085b598e44784bb52dddbca3654ec24fbce5a83637f06b8e8ec16e25beb1ab5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/tag.md",
+      "sha256": "073fd76dd37492d135d9a90dd2775db664e0c9148ac64951f0eb8c767db5155e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/tiling.md",
+      "sha256": "3702df6ebf461d79d9325a5bbe8fa9be798f0e30c40550a5ad0cefaf712f62c3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/value.md",
+      "sha256": "732b3fb512bd11b6585a214de445468e0f0f5fe5907857c3a0f17b4523d23de8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/version.md",
+      "sha256": "b28c5144e36183c5c9d4eaa7dc4fcbbe38a9b7c202a1049d3ce661e477745b64"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra.md",
+      "sha256": "f0e85a69ef87ee5d92d29f1db124896e814b0edb6380db12e949ab334bfe9dbd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/bibtex.md",
+      "sha256": "ea159a6afa18677b179aed98cb208a88fa317d92514b5bfbd67d114d376d0caf"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/embedded_fonts.md",
+      "sha256": "ad2392ff028cb6c4e0ec34d69738eac6ec3057d77dc4837f02cfa3f8273c6a3d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export-fixtures.md",
+      "sha256": "7a3cc401e239f17b2aa0b0d91b91ae0df336cc952163caed92ee184360128906"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/bitmap_glyphs.md",
+      "sha256": "42f453bf65eb2a0ed904abe71f6c0de4cee5a34ee4695aa54e021996e5693c69"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/builder.md",
+      "sha256": "f1089b4ca71ca8f4952065afbc1409d86c9ec3dc083c42cfb9b1a3ec4e91c8f1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/font_subset.md",
+      "sha256": "ba5b1e5448ee2415221641a83e133899416be6b8729c2d8f00375c2632dca8f5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/fonts.md",
+      "sha256": "4dc7735f438c913ba97112a4415fb7eab2507b3a127679afeccf06ac41ebb733"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/adaptive.md",
+      "sha256": "fdd2f2e684be6df4acefd1172baef3fc5483c1ab544c0e5825dcf1a25c1ef454"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/cmyk.md",
+      "sha256": "d516ceb01765e3fc483a2312255773e73a2e98f816dc2f6a88d5804e089762a9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/conic.md",
+      "sha256": "c40d643dc10a1e26943170322ba3532c5b05206d3b22072e4becc66e658cfed9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/function_dict.md",
+      "sha256": "5f5080f4c1adb4bec6ede4cffd2530ce4a413ca60cfd4da9c06efeb8000a10ac"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/linear.md",
+      "sha256": "8cdeddcbd3c2bb3f0f27cbaf7b202ae6d9a0d56893a21f51c6849ad252399d83"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/mod.md",
+      "sha256": "438c68028cd9a5125b18f56a83bec382068219b04a483d2ce8b15650b85cd750"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/radial.md",
+      "sha256": "ac277ab3189c5fb487a15b23f0fb3941f4e8f75782a0617158ed35ec6f90acaa"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/gradients/relative.md",
+      "sha256": "22d99c8180503fa81cc521d3ad6fc9dab30692ce97781ec4ada63d79e928a500"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/html.md",
+      "sha256": "505895669df4a1d7ce39f4c3236d6ac4e39fc9c61ce14d8cf578b0d394a2d237"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/images.md",
+      "sha256": "adf3f4e38cfe942b4ec824d64ce61f4cb7cc850db25018a4a94cc72db58bc861"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/mod.md",
+      "sha256": "de16b4085aa8d72ace3b4a8b62087a7d9f54c7ae9fd6012891bd3160aeaa08f5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/oracle.md",
+      "sha256": "27e5cbb28c482b8f9b0d787a309590a530739c6bd3c4db1f5d3bb64eefdc1c6a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/p1250_svg_integrated.md",
+      "sha256": "6bda67470ef8699b6eb25132b1b61849c88dd96ccfaebb41336b8e873276c74f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/pdf_defaults.md",
+      "sha256": "85019da8d71aec43c026fb9a563d5bcf130b7c831fce874c2626addbe7e687cb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/render.md",
+      "sha256": "bddfb84046e8d8888c3d5b8bb94a91614f38c0a6f9dbac0c6285129dc2d6b1db"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/stream.md",
+      "sha256": "25c942df028517164aa8b780a76b7a2c399398f38731ce1d9d0a5bc6acf9f086"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/svg.md",
+      "sha256": "9861755d2ed54c0b33547ed29e4111f75608db78246e2b97f8b5178540aa4e09"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/export/tests.md",
+      "sha256": "3daf144be1970a83c922bc5630a430983a58174ef5c029f8ccc95235f1c6e8c0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/fallback_fonts.md",
+      "sha256": "f905f7a29b4fa514d43ad539074d52b052c80ca701342a257af3a480faf18497"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/font_metrics.md",
+      "sha256": "405416e31c400ea478f80e678ff1bee304ec6c26867e1c43eb4f3b995dad6078"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/font_variant.md",
+      "sha256": "024489f98d0b639da44d9b761f99a5ad82f8ab2267d1741195db65f8d464cc91"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/fontdb.md",
+      "sha256": "bd247de9a3da82b09229ebfdeae2f8c6a3b2aad62ef303766c641a99ed34dc41"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/fonts.md",
+      "sha256": "af1f91f46e5517735af734dc92fa5988cae8b27a2098b03ab821e013122a13f1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/image-sizer.md",
+      "sha256": "270f13728612a835f82b47c928d1fc60d0bbfdff4d29d88fc4b9a80f92137396"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/integration_tests.md",
+      "sha256": "c7eb49160cb7516df502eb99124c93c2759d9666e573c638bfcf0b1e9d639bab"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/layout.md",
+      "sha256": "d38f0cb22f7dc28b89bedebc80bfbb16ba3edc9a8e348deda83f22c09844416d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/layout_bidi.md",
+      "sha256": "d9afd26ce5a7c3846852aac2c10c11bf701a2f369fc6eba6d4eb3b372c75a1ad"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/measurements.md",
+      "sha256": "1b86f48ef72c52b4b5e6c42feeab5c488bd7e62b89953a2866f2c94c7bd95b2c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/package_downloader.md",
+      "sha256": "d87873d85bbc2ee1b6c809e3d328e632d97c70f68496ad90fbe87ff12977615f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/package_version_resolution.md",
+      "sha256": "42fa2747a4f9a5c4625d3bb9ad0f0bc41df93725ce60914471de43e24c36d03f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/pipeline.md",
+      "sha256": "ce6da4f623a0270869606bdf42d07dae0283f3f9e5a593258609b219424e63a8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/plugin_host.md",
+      "sha256": "f2f4a29db3d2a6fe47baef9c62fdced5ae0c679d6be42804bc5aa5902dbb2484"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/query-helpers.md",
+      "sha256": "31b7b7ff9016953f8e6b7a2c382c42ddd8b81a880851544de4cfc247fb0bf086"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/runtime_info.md",
+      "sha256": "6350b184157098a17f535f6733f5fa8822f1f72e0196a9626107b02f5be5a939"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/shaper.md",
+      "sha256": "fbeaa9aa47bfc6ba97f2f163ba84e8728395ad3c8121cc5cf776aad5869b5456"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/system-world.md",
+      "sha256": "728f02ec63a9bd683f4187ae3097dc278f4ad7e36dc40f19e2fe31059bbb5c90"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/tests/p1295_watch_contract.md",
+      "sha256": "e39d5206b63b883f9a886a01ba2aaa7ff94259542a33693d5927a0a20445b233"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md",
+      "sha256": "4b30a7da9310892ad639ba2483fd8d995f6cae4adb4f5ec959247b7911f583e8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/package-spec-dto.md",
+      "sha256": "5bf25969fba41ff444a5af4dbdafd32203f299e2b8e7a2e916495af543938265"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/passo-537b-set-page-columns.md",
+      "sha256": "b1b3c1f1ae4d7392f4ef707bfc02046f136c4637f1541f64f7d7cf038da3ddc3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell.md",
+      "sha256": "ad7ab82207d40c6af714e77931f51af7cabd599ed913488000eb372cd6951a46"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell/build.md",
+      "sha256": "42536358991b936d1dee82a779da7b6dca3d7275a567904e5caea68f89399990"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell/cli.md",
+      "sha256": "d7f8d930b13a387b2c2823749f23dd63fff373d4c9fa3948ee117abd484cee79"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell/completions.md",
+      "sha256": "b3dc0bbf5d44206053e2de0fee3f83864c5cbec4d6d57c7d8bb3360bdbde64ce"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell/diagnostic.md",
+      "sha256": "12f4ba4bf76930aec336bcc18965f62e61efd63f7c83dbcf0c95da82aae85575"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell/fonts-command.md",
+      "sha256": "65d457cd5f2e980fc6862f2c7c16845496d209e84f3b9cfe8230d75c35a3919a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell/info.md",
+      "sha256": "1a05dff7ed550ed73951cb1ac2f2f2450781d56ad9d20b9e0d153dd81634a831"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell/init.md",
+      "sha256": "603812a989a953550ec8329a006c74dbaf6c675d45fbc8b0f8205705e248c333"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell/watch.md",
+      "sha256": "0988aae004f94b52730c1b605b20249e261bdeac70249b7f99d2f0deeee23483"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/template-prompts.md",
+      "sha256": "6f139e818d21cd5ca5c28720fd003537c63905690027b2579deb8c66bd39acaf"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/testing/math_oracle.md",
+      "sha256": "60f233bae04d60b82c3112b01707f95d3df0042e9a0c99406a0f97b8736dd4f3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/testing/mod.md",
+      "sha256": "28192879ab58235e65164bf578ddf08c5190e9ad63480d170bc1cb2b37abc20c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/wiring.md",
+      "sha256": "4e0661d71303fc367d9f29992809e21ecc3b66fcb6e4869eb45d705f8fe5876d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/wiring/eviction.md",
+      "sha256": "e078b0754ed1c7996d44b08bbf2800fdf8d27ff67720e5a28ff8d1587342fff5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/wiring/tests/cli.md",
+      "sha256": "a1190628c91f0f8c958bad2babe68e5f425931e7f885e8d97bc8b95f9ecc13ad"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/wiring/tests/crystalline_lint.md",
+      "sha256": "344991a7c1a5769536d0e0467e1094d479e7d38136db52b08ae79191fde083c1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/wiring/tests/p1289_float_is_infinite.md",
+      "sha256": "55694b8c40b3366d1e5c2d850b0033091b39a11eab1fb70403d1e1dc484d0899"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/wiring/tests/p1291_callback_runtime.md",
+      "sha256": "4ec41d9092e954b50e6ddad54dd0dd428fda99182950fd307d6ae7ad10b626a5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/wiring/tests/p1292_contract.md",
+      "sha256": "614707e0a2d585bfec897c50f83fb52379e1b79f90dffc30c45c56caf37c1a7d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/wiring/tests/p1293_contract.md",
+      "sha256": "384c641845c0692e37cc6911d31866de936a82b51e9156281c724b485a7abbe7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/world-types.md",
+      "sha256": "ee1ef5e052d054ea863f1c37f9f86284b55d943084ca5104f867d62252c4f553"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/world.md",
+      "sha256": "049c12772d20c603fdcda113805f1961074669a2b854dbd30e12eaefb20fa648"
+    }
+  ],
+  "suites": [
+    {
+      "oracle": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r6-oracle.json",
+        "sha256": "99d2a67984a468c8e86e20010ecc1bd76a364f1d1adebbb5b873fc341f7790a6"
+      },
+      "runner": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r6-oracle.py",
+        "sha256": "62c4decfb6f07088ff2fb2aa1513ef1f62e2681edbb1431b42cd781eac56ef1a"
+      }
+    }
+  ],
+  "independent_tests": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r6-tests.patch",
+      "sha256": "d4232b6144b7def77498e2fd1353b5dbad3786276fb8ccd5f8c56175a08fa19b"
+    }
+  ],
+  "preseal_amendments": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval/bindings.md",
+      "before_sha256": "5ae1b51e28e16c1516d65e549d3b26fbc5ddc1068883601a0ee57dfb7a906e74",
+      "after_sha256": "3f6a4ab89174439f623ac37dfab9fb4ba03cf4e9d2f6c808704c75b617fda195",
+      "receipt": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r6-preseal-amendment.json",
+        "sha256": "93148b75f361fab054cb152deb38ce76341c317f0b72e2ddeac0026f0864544f"
+      }
+    }
+  ],
+  "authorization": {
+    "message": "autorizo",
+    "scope": "Concrete R5 API and observable changes plus previously approved R3/R4 encoders and Args",
+    "commit_stage_push_delete": false
+  },
+  "unknown_policy": "Unknown is never acceptance; only deliberate opacity controls require Unknown. Historical excluded probes remain recorded, not silently promoted.",
+  "observables": "All predecessor R4 obligations except the explicitly approved R5 LocatedContent repr replacement, math provenance, approved R5 snapshot fields/equality/serialization/repr and CBOR fallback; complete public envelopes and four feature profiles.",
+  "roles": {
+    "root": "coordinator/implementation; no oracle or verdict writes after seal",
+    "p1307_oracle": "oracle author; no candidate access; r6-oracle* only",
+    "p1307_contract": "independent tests; baseline and L0 only; r6-tests.patch/note",
+    "p1306_oracle": "verifier/adversary; no judged-input edits; r6-verify/discriminator/seal/verification/certificate",
+    "p1307_args_impl": "Implementation only: approved Args and writer owners; no oracle, tests, L0 or verdict writes; fresh context, must wait for seal and semantic RED.",
+    "p1307_encoders_impl": "Implementation only: approved loading, namespace registration and repr owners; no oracle, tests, L0 or verdict writes; fresh context, must wait for seal and semantic RED."
+  },
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "candidate_exists": false
+}

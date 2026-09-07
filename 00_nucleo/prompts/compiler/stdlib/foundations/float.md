@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/float` — superfície pública de predicados `float`
-Hash do Código: c95f8eb6
+Hash do Código: 3183fd3a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/float.rs`
@@ -151,3 +151,30 @@ entidade, default, fase ou semântica de valores. Não criar segundo consumer ou
 owner 1:N: este Prompt permanece 1:1 com
 `01_core/src/compiler/stdlib/foundations/float.rs`; `call_dispatch.md` e
 `field_access.md` permanecem owners 1:1 dos seus próprios consumers.
+
+## P1307-R3 — transporte coerente nos predicados ligados
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/stdlib/foundations/float.rs:120,124` insere receiver
+em items para is-infinite/is-nan. O helper recebe f64, sem span lexical.
+Fonte preservada em HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais
+working tree P1306; L0 pré-edição e diff/stat completos no baseline adicional
+R3 SHA-256 `592497d1e786241b9ba121479c0c55dbad370a70732e130b4f7ac3bd709d4405`.
+
+### Decisão subordinada ao gate público de Args
+
+Nos dois branches, Some deve receber nova ocorrência positional do receiver,
+com span e value_span detached, antes da sequência original; reconstruir
+via `Args::from_occurrences`. None reconstrói views via `Args::from_parts`.
+Preservar span agregado, inclusive a âncora diagnóstica já selecionada pelo
+dispatch; não alterar a regra P1293.reopen-A, valores ou ordem dos originais.
+Não inventar origem do f64 nem invalidar origem dos argumentos recebidos.
+
+Não mudar fórmulas, superfície, casts, mensagens ou regra de named duplicados
+destas nativas. A proibição anterior de alterar Args continua aplicável a
+este consumer: a definição nova pertence somente ao owner entities/args,
+com seu gate ADR-0127 ainda pendente. Este owner apenas migra transporte.
+Testes devem manter os diagnósticos certificados is-nan e cobrir Some/None
+com receiver presente exatamente uma vez. É inferência de suficiência,
+refutada por perda de origem ou alteração das âncoras legadas.

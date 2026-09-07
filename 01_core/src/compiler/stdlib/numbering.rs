@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/numbering.md
-//! @prompt-hash 54f2c262
+//! @prompt-hash 31f4c4ce
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -33,11 +33,11 @@ pub fn realize_numbering(
             Value::Str(format_pattern(engine, span, pattern, &numbers)?.into())
         }
         crate::entities::numbering::Numbering::Func(func) => {
-            let args = Args {
-                items: numbers.iter().map(|n| Value::Int(*n as i64)).collect(),
-                named: indexmap::IndexMap::default(),
+            let args = Args::from_parts(
+                numbers.iter().map(|n| Value::Int(*n as i64)).collect(),
+                indexmap::IndexMap::default(),
                 span,
-            };
+            );
             crate::compiler::eval::call_dispatch::apply_func(
                 func.clone(),
                 args,
@@ -100,11 +100,11 @@ pub fn native_numbering(
 
     match pattern_val {
         Value::Func(func) => {
-            let size_arg = crate::entities::args::Args {
-                items: numbers.into_iter().map(|n| Value::Int(n as i64)).collect(),
-                named: indexmap::IndexMap::default(),
-                span: args.span,
-            };
+            let size_arg = Args::from_parts(
+                numbers.into_iter().map(|n| Value::Int(n as i64)).collect(),
+                indexmap::IndexMap::default(),
+                args.span,
+            );
             crate::compiler::eval::call_dispatch::apply_func(
                 func.clone(),
                 size_arg,

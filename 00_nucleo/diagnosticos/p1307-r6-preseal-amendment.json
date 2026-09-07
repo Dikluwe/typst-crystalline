@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-07T19:03:30.360076+00:00",
+  "baseline": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r6-baseline.json",
+    "sha256": "8cc0eae00457d2e7d54b420024eae49344032b34b295b4eda536faeb1ec3c4a3"
+  },
+  "change": {
+    "path": "00_nucleo/prompts/compiler/eval/bindings.md",
+    "before_sha256": "5ae1b51e28e16c1516d65e549d3b26fbc5ddc1068883601a0ee57dfb7a906e74",
+    "after_sha256": "3f6a4ab89174439f623ac37dfab9fb4ba03cf4e9d2f6c808704c75b617fda195"
+  },
+  "reason": "The existing crate-internal bindings hub must reexport the snapshot method helper already approved in R5; no new public API or hub logic.",
+  "source": "01_core/src/compiler/eval/bindings/mod.rs:27",
+  "reviewer": "/root/p1306_oracle reviewed the exact delta before implementation",
+  "candidate_exists": false
+}

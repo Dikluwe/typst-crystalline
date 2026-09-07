@@ -1,5 +1,5 @@
 # `rules/stdlib/plugin` — builtins de plugin WASM (linguagem Typst)
-Hash do Código: 6fec5b48
+Hash do Código: 789b8631
 
 Módulo de **linguagem** (P329, ADR-0107): regista a função standard
 `plugin` e expõe a sua semântica. A mecânica WASM (wasmi, encoders, linker,

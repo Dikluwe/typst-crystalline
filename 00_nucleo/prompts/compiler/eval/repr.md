@@ -1,8 +1,70 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 8ea0d06c
+Hash do Código: 261b3d13
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+O caso independente R4 `r2.construct-LocatedContent` conserva como controle
+a dívida baseline `heading(level: 1)[[Probe]]`, embora seu vanilla_literal
+já contenha todos os campos realizados. R5 fornece os campos que faltavam;
+`foundations/content/mod.rs:625–638` mostra
+que repr pública não inclui label/location. O formatter cristalino `:35`
+aplicava o mesmo repr_content ao raw e ao consultado.
+
+### Decisão proprietária
+
+LocatedContent Some usa os campos congelados, excluindo label, na ordem do
+snapshot. Para Heading, emitir a forma de constructor completo:
+
+```text
+heading(
+  level: 1,
+  depth: 1,
+  offset: 0,
+  numbering: none,
+  supplement: [Section],
+  outlined: true,
+  bookmarked: auto,
+  hanging-indent: auto,
+  body: [Probe],
+)
+```
+
+O corpo e cada valor usam repr canônica recursiva, com indentação de filhos
+multiline conforme as regras existentes do formatter. Não codificar Probe,
+Section ou os valores do exemplo no formatter. Não emitir label, Location,
+Arc, set_fields, Debug ou estilos baked. Raw Content e LocatedContent None
+conservam repr_content atual; isto é correção estreita de conteúdo realizado,
+não remoção de todas as dívidas morfológicas de Content.
+
+Revoga-se apenas para esse snapshot a exclusão de Content na seção R3.
+O sucessor de `r2.construct-LocatedContent` deve exigir o vanilla_literal
+já medido em cada perfil, deixando o arquivo R4 intacto e preservando os
+demais controles. Fallbacks que usam repr, inclusive CBOR de LocatedHeading,
+recebem deliberadamente essa nova string. Isso não converte CBOR Content em
+mapa nem declara paridade CBOR: o delta é string antiga→string realizada,
+medido/separado da saída estruturada vanilla. Aprovação R5 cobre esse delta;
+antes do candidato seu envelope tem de ser selado independentemente.
+
+Aceitação: default, numbering distinto, língua distinta, label ignorada em
+repr mas preservada em fields; raw controle sem mudança; igualdade não usa
+esta string. A fachada pública de repr conserva assinatura.
+
+---
+
+
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/compiler/eval/repr.rs`
@@ -382,7 +444,9 @@ serialização do vanilla usa `repr` para todo `Value` não estruturado
 e, conforme gate ADR-0127 confirmado pelo dono em 2026-08-30, autoriza o módulo pai a expor uma
 fachada pública total `repr_value_for_serialization(&Value) -> String`.
 `repr_value` permanece implementado neste owner e o módulo continua privado;
-a fachada não autoriza `Debug`, serialização em L1 nem dependência de formato.
+a fachada não autoriza `Debug` nem dependência de formato neste formatter.
+A classificação dos encoders L1 pertence exclusivamente a loading, conforme
+o contrato P1307-R3 pendente abaixo; não é implementada na fachada.
 
 L1 puro, sem I/O. Toda nova variante pública exige medição anterior contra o
 vanilla e branch explícito; não usar `Debug` como fallback. Testes focais
@@ -494,3 +558,86 @@ global. Política `Unknown`: nenhum caso obrigatório desconhecido satisfaz
 aceitação. Morfologia é linguagem (ADR-0107); esta correção de paridade
 segue ADR-0127 em fluxo contínuo dentro da ampliação autorizada, sem nova API,
 entidade, fase, default de produto ou edição de diagnóstico neste owner.
+
+## P1307-R3 — projeções canônicas e ordem causal de arguments
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1307-r2-repr-audit.md` e os recibos nele pinados
+medem State/Counter com dados disponíveis, mas omitidos por
+`01_core/src/compiler/eval/repr.rs:122-123`; Location usa três pontos em
+`:87`, e `:60-78,1033-1040` confunde With nativo com sua função interna.
+A medição R2 SHA-256
+`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`
+confirma `location(..)` pela rota contextual e `(..) => ..` para o encoder
+parcial, nos quatro perfis. Sua proveniência é HEAD
+`b303f1f15b610e09872b567027e0d806387fde8c` mais o working tree P1306, diff
+e fontes integrais no baseline R2 SHA-256
+`0c0e92fa4c84bb23a1e2adefc95e93ad75ffaf0f12f3edce58ab8e9393b2f611`.
+
+Na fonte ratificada `a51e02804`, sob
+`lab/typst-original/crates/typst-library/src/`, `introspection/state.rs:370-374`
+usa chave e init; `introspection/counter.rs:519-523,557-565` distingue as
+chaves; `foundations/func.rs:460-470` torna todo With anônimo na repr.
+`foundations/args.rs:455-459` percorre a sequência causal; o cristalino
+`:108-120` projeta named antes de positional. A correção da ordem é decisão
+de fonte, ainda requer medição bilateral independente antes do RED.
+`compiler/stdlib/loading.rs:263` já usa este formatter no fallback CBOR:
+alterar a repr propaga à string codificada desse fallback.
+
+### Classificação e contrato proposto
+
+São projeções públicas da linguagem, não Debug nem igualdade Rust.
+O único consumer continua `01_core/src/compiler/eval/repr.rs`.
+
+- State já construído: `state(<repr da chave string>, <repr do init>)`;
+  preservar escaping e multiline do filho, sem reaplicar um pretty-printer
+  ao constructor inteiro ou omitir seus dados.
+- Counter já construído: Page produz `counter(page)`, Str usa string
+  escapada/quotada, Selector delega ao formatter canônico do selector.
+  `page` não é `"page"`; não corrigir constructors nem selectors compostos
+  incidentalmente. A forma do filho não paritário continua dívida explícita.
+- Location: `location(..)`, opaca e independente de sua identidade interna.
+- Todo `FuncRepr::With`, inclusive de nativa, usa `(..) => ..`; a função
+  original mantém sua repr, nome e namespace. Não mudar `Func::name()`.
+  A regra não é um reconhecimento nominal dos três encoders.
+- Args com `occurrences: Some` usa valores e nomes na ordem causal, inclusive
+  named repetidos. `None` conserva a projeção legada named-first. Não imprime
+  spans, discriminante ou metadados. Usa o carrier do owner Args, nunca
+  reconstrói a origem por igualdade dos valores.
+
+A fachada `repr_value_for_serialization` mantém sua assinatura e delegação.
+Loading reutiliza-a somente no fallback; não duplica estes formatters.
+As mudanças propagam deliberadamente aos fallbacks textuais existentes,
+incluindo CBOR para State/Counter/Location/With e Args cuja ordem muda.
+Não se promete preservação byte-a-byte desses casos. Medir e congelar seus
+deltas antes do candidato; preservar CBOR nas demais classes, especialmente
+a dívida Symbol/Content. O corpus CBOR R2 não prova preservação geral.
+
+É inferência que os dados existentes, acrescidos do carrier causal aprovado,
+bastam; perda de dados do filho, identidade por fixture ou necessidade de
+nova entidade além de Args a refutam. Fora do escopo: default de constructor
+State, aceitação de Label por Counter, repr de selector composto e correção
+geral de Content. Este conjunto aguarda gate público ADR-0127 de P1307-R3;
+a redação não autoriza código nem atesta RED/GREEN. Testes precisam cobrir
+repr direta, fallback dos formatos, parcial de outras nativas e ordem de
+Args com duplicatas antes de alegar aceitação.
+
+## P1308 — largura de arguments e migração de expectativas
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/p1308-measure.json`,
+SHA-256 `ce758b5c2a18288bf9c8433178f577b50c52df80cedcddcb1f4daa4e785573fc`,
+fixa baseline e binários e reproduz, em quatro perfis e três ordens, a
+fronteira horizontal de 50 bytes e vertical a partir de 51 bytes. A fonte
+ratificada `foundations/args.rs:455-459` delega ao pretty-printer de sequência.
+O baseline já satisfaz esta fronteira; a expectativa histórica inline longa
+não a satisfaz. Classificação: morfologia pública, não mecânica Rust.
+
+Args com occurrences presentes conserva ordem causal e todos os valores,
+usando o pretty-printer de sequência sem vírgula de singleton, largura de
+50 bytes e forma multiline quando excedida; não elide argumentos. Args
+sintético sem occurrences conserva a projeção legada já especificada.
+Autoriza-se explicitamente a regra longa e sua propagação aos fallbacks.
+Não se pede nova implementação quando o baseline já a cumpre.
+O autor independente migra a expectativa histórica de Location neste
+consumer para `location(..)`. Nenhum outro expected é relaxado.

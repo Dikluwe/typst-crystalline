@@ -184,7 +184,8 @@ pub fn state_final(state: &State, ctx: &EvalContext, span: Span) -> SourceResult
 /// Converte um `Value` resolvido em `Content` para display.
 pub fn value_to_content(value: &Value) -> Content {
     match value {
-        Value::Content(c) | Value::LocatedContent(c, _) => c.clone(),
+        Value::Content(c) => c.clone(),
+        Value::LocatedContent(c, _) => c.content().clone(),
         Value::Str(s) => Content::text(s.clone()),
         Value::Int(i) => Content::text(i.to_string()),
         Value::Float(f) => Content::text(format_float(*f)),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/arithmetic.md
-//! @prompt-hash a642f695
+//! @prompt-hash 2baaeba5
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -131,6 +131,9 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
             a.extend(b);
             Ok(Value::Dict(a))
         }
+        (BinOp::Add, a @ Value::Args(_), b @ Value::Args(_)) => super::join::join(a, b),
+        (BinOp::Add, a @ Value::Args(_), Value::None) => Ok(a),
+        (BinOp::Add, Value::None, a @ Value::Args(_)) => Ok(a),
         // ── Subtracção ──────────────────────────────────────────────────────
         (BinOp::Sub, Value::Int(a), Value::Int(b)) => {
             Ok(Value::Int(a.checked_sub(b).ok_or("number too large")?))

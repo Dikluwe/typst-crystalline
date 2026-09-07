@@ -1,8 +1,10 @@
-# Prompt L0 — entities/func e entities/args
-Hash do Código: c57c2de2
+# Prompt L0 — `entities/func` — funções e aplicação parcial
+Hash do Código: a54b14b9
 
 **Camada**: L1
-**Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
+**Ficheiro alvo**: `01_core/src/entities/func.rs`
+**Estado P1307-R3**: `DRAFT_L0_AWAITING_ADR0127`; redação de contrato, sem
+aprovação de materialização. Args é propriedade de `entities/args.md`.
 **ADRs relevantes**: ADR-0016 (adiamento Routines), ADR-0017 (adiamento eval completo), ADR-0107 (paridade linguagem), ADR-0109 (atomização)
 
 ## Contexto
@@ -200,21 +202,10 @@ impl Func {
 }
 ```
 
-## Interface pública de Args
+## Dependência de argumentos
 
-```rust
-#[derive(Debug, Clone, PartialEq)]
-pub struct Args {
-    pub items: Vec<Value>,
-    pub named: IndexMap<EcoString, Value, FxBuildHasher>,
-}
-
-impl Args {
-    pub fn positional(items: Vec<Value>) -> Self;
-    pub fn len(&self) -> usize;
-    pub fn is_empty(&self) -> bool;
-}
-```
+`Args` e seu carrier são definidos exclusivamente em `entities/args.md`.
+Este nó recebe esse valor inteiro; não possui nem duplica sua interface.
 
 ## Semântica confirmada
 
@@ -271,16 +262,16 @@ usa uma representação **unificada** de `Args` (posicionais e nomeados no
 mesmo vetor, cada item com `name: Option<EcoString>`); o cristalino separa
 `items`/`named` (ADR-0107: divergência de **mecânica**, não de língua).
 
-**Regra de fusão cristalina** (`merge_with_args`, `rules/eval/closures.rs`):
+**Regra de fusão cristalina** (`merge_with_args`,
+`compiler/eval/call_dispatch.rs`; contrato P1307-R3 abaixo):
 
 - **Posicionais**: `pre.items` seguido de `new.items` — mesma ordem
   observável do vanilla (confirmado: `g.with(1, 2)` seguido de `g2(3)`, com
   `g(a,b,c) = a+b+c`, dá `6` no vanilla — `a=1,b=2,c=3`).
-- **Nomeados**: `pre.named` sobreposto por `new.named` (`IndexMap::extend`)
-  — em colisão de chave, o valor da chamada mais recente vence. **Não
-  exercitado pela sonda vanilla de P702** (sem teste de colisão); decisão
-  razoável por defeito, registada aqui para revisão se um caso real
-  divergir.
+- **Nomeados**: a view continua projetando o último valor, mas todas as
+  ocorrências pré-ligadas e novas permanecem no Args, na ordem causal.
+  A antiga hipótese P702 de que sobrescrever o mapa bastava foi refutada
+  pela medição P1307-R2 abaixo; ela não legitima descartar valores anteriores.
 
 ### Interface e dispatch
 
@@ -343,7 +334,8 @@ type(table.with(columns: 2).cell)  → function   (sub-função, não herda colu
 
 - Namespace anexado não se aplica a closures (`FuncRepr::Closure`) nem a elementos de utilizador (`FuncRepr::Element`) neste passo.
 - Não implementar field access mutável (set) no namespace.
-- **P702**: colisão de nome entre argumento pré-ligado e novo em `.with()` encadeado não tem teste de paridade vanilla — decisão por defeito (novo vence), documentada, não uma medição confirmada.
+- Colisões `.with` são agora medidas e cobertas por P1307-R3; validação
+  de assinatura de outros owners não é alterada automaticamente por Func.
 
 ## P1148 — igualdade e hash para callbacks de counter
 
@@ -352,3 +344,72 @@ transportado por `ElementPayload`. `Func` implementa `Eq` e `Hash` coerentes
 com a igualdade vigente: nativas do mesmo kind usam o nome; as demais
 representações usam identidade do `Arc`. O hash nunca executa a função nem
 inspeciona o scope capturado.
+
+## P1307-R3 — With conserva o Args causal, sem novo FuncRepr
+
+### Medição anterior à decisão
+
+Sobre HEAD `b303f1f15b610e09872b567027e0d806387fde8c` e working tree P1306
+preservado, `entities/func.rs:39-42,237-238` já guarda `Arc<(Func, Args)>`.
+Na matriz `00_nucleo/diagnosticos/p1307-r2-measurement.json`, SHA-256
+`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`,
+`with-json-invalid-first-occurrence` e o paralelo TOML rejeitam o primeiro
+`pretty:"bad"` mesmo quando o último é true. `with-spread-arguments-f/g`
+preserva erros em origens distintas após factory. A fonte ratificada
+`lab/typst-original/crates/typst-library/src/foundations/func.rs:372-374`
+concatena pre/new sem apagar ocorrências. A separação física em views não
+é por si divergência de língua; perder esses valores/origens é.
+
+### Decisão sujeita ao gate
+
+A representação e assinatura de Func não mudaram em R3; o span privado
+de P1308 abaixo é uma revisão distinta. With guarda o Args inteiro,
+incluindo o carrier definido em `entities/args.md`, e clone/alias/retorno
+preservam esse objeto; não adiciona mapa lateral de spans a Func.
+`Func::with` não valida aridade, named ou tipos da função interna nem a
+executa. A aplicação e a combinação pertencem a `compiler/eval/call_dispatch.md`;
+a seleção semântica de erro pertence à nativa chamada.
+
+`Func::namespace` continua delegando ao original: `json.with(...).encode`
+retorna o membro original sem herdar os argumentos do parent.
+`json.encode.with(...)` é aplicação parcial do próprio encoder.
+Os três encoders originais têm repr `encode`; suas aplicações parciais têm
+repr `(..) => ..`, conforme os casos R2 de identidade. A decisão de impressão
+pertence a `compiler/eval/repr.md`, sem mudar `Func::name`/namespace.
+
+A igualdade/Hash de Func e a captura eager permanecem vigentes. Testemunhas
+futuras: alias e cadeias With preservam origens; parent e encoder With não
+se confundem; produzir With inválido ainda retorna função; só a chamada
+posterior valida. Gate ADR-0127 permanece causado pelo contrato Args e pelos
+encoders; esta limpeza de ownership textual não é um novo consumer.
+
+## P1308 — origem diagnóstica privada de Func
+
+### Medição anterior à decisão
+
+No baseline P1308 SHA-256
+`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`,
+`entities/func.rs:20` armazena somente Arc da representação. O parâmetro
+lexical da closure não está no carrier; seu body não identifica o mesmo range.
+Vanilla ratificado `foundations/func.rs:380–389` guarda Span e o preenche
+somente se detached; `:405–409` conserva esse span ao criar With.
+`foundations/args.rs:410–412` ancora falha de bool de filter em test.span().
+Logo origem da função, não origem do valor filtrado, é o dado necessário.
+
+### Decisão autorizada
+
+Func pode guardar um Span **privado**, separado do Arc<FuncRepr>, com helpers
+`pub(crate) fn diagnostic_span(&self) -> Span` e
+`pub(crate) fn with_diagnostic_span(self, span: Span) -> Self`.
+O segundo preenche somente quando detached. Nenhum campo/método público novo;
+constructors públicos conservam assinaturas e inicializam detached. Clone
+copia o span, With conserva o span da função interna, set_name não o muda.
+Helpers não procuram AST, World, valores iguais, nomes ou ponteiros para
+reconstruir origem. Captura da origem pertence aos owners de avaliação.
+
+Não incluir esse Span em Eq/Hash, Debug, repr, namespace, name ou identidade
+do Arc. A origem não altera captura eager, parâmetros, Args ou aplicação.
+Closures sintéticas sem AST continuam detached; nenhuma origem é inventada.
+Testes devem distinguir funções iguais/aliased com origens preservadas,
+With, chamadas repetidas e ausência legítima de Source. É transporte interno
+de diagnóstico autorizado em P1308, sem nova API pública ou fase.

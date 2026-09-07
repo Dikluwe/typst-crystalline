@@ -1,0 +1,8 @@
+*** Begin Patch
+*** Update File: /dev/shm/p1308-mutant-source.PmokqQ/01_core/src/compiler/stdlib/collections.rs
+@@
+                     test.diagnostic_span(),
+-                    format!("expected boolean, found {}", other.type_name()),
++                    format!("expected boolean, found {}", vanilla_type_name(&other)),
+                 )])
+*** End Patch

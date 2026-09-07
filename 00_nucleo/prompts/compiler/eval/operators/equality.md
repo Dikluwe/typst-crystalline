@@ -1,5 +1,51 @@
 # Prompt L0 — `compiler/eval/operators/equality` — igualdade e pertença
-Hash do Código: d9f6ab2d
+Hash do Código: 0bbf6281
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`compiler/eval/operators/equality.rs:119–124` aplica morph_canon aos dois
+payloads. Na referência, `foundations/content/raw.rs:354–361` compara
+campos do elemento; R5 equality.different-numbering é false no vanilla e
+true no baseline. Pares com labels distintas são true. Logo preservar só
+morph_canon é insuficiente neste recorte (refuta essa frase da auditoria de
+transporte, não a recomendação de separar o IR).
+
+### Decisão proprietária
+
+Preservar igualdade raw Content↔Content e o fallback LocatedContent None.
+Quando pelo menos um operando tem snapshot Some, comparar função do elemento
+e os conjuntos de campos linguísticos, excluindo label; para o operando
+Some usar o mapa, para raw/None usar os campos explicitamente presentes da
+projeção existente. Comparar valores recursivamente por values_eq (body
+continua morfológico); não comparar Location, ordem de inserção, discriminante
+do carrier ou Debug. Conjuntos diferentes de campos são diferentes: raw não
+é automaticamente igual à versão realizada nem automaticamente desigual
+apenas por usar outra variante de Value. Não preencher defaults no comparador.
+
+Os braços Eq/Neq e pertença devem chegar à mesma regra, inclusive aninhados
+em arrays/dicts. Não alterar o derive PartialEq de Value, Content::morph_canon
+ou estilos do IR para obter o resultado. Helper de projeção de campos pode
+ser interno ao eval e compartilhado estaticamente com field_access, sem
+import reverso de entities para compiler; não nova API pública de Value.
+
+Aceitação: numbering1 vs I false; labels distintas com mesmos campos true;
+clone true; inline-default vs query false; Location distinta não basta para
+desigualdade. Coerção Int/Float e igualdade das demais famílias não regridem.
+
+---
+
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/equality.rs`

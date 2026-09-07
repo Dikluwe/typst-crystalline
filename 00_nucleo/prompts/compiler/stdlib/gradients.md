@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/gradients` — tipo `gradient`
-Hash do Código: ab29e4ac
+Hash do Código: 528afce0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/gradients.rs`
@@ -340,3 +340,31 @@ alteração de código.
 - angles de sampling usam `rem_euclid(2π)` antes do clamp;
 - `sharp` define `anti_alias = false`, `repeat` preserva e constructors usam
   `true`.
+
+## P1307-R3 — transporte coerente do receiver
+
+### Medição anterior à decisão
+
+No baseline adicional R3 SHA-256
+`592497d1e786241b9ba121479c0c55dbad370a70732e130b4f7ac3bd709d4405`,
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais o working tree e
+diff/stat integral capturados, `01_core/src/compiler/stdlib/gradients.rs:97`
+insere o receiver em items antes de encaminhar Args à nativa. O helper recebe
+Gradient por referência, não seu span lexical; os demais argumentos já foram
+avaliados. A nova ocorrência não pode herdar a origem de um stop semelhante.
+
+### Migração, pendente do gate público de Args
+
+Para Some, antepor uma ocorrência positional do receiver com span/value_span
+detached e reconstruir por `Args::from_occurrences`, preservando a sequência
+original e seu span agregado. Para None, reconstruir por `Args::from_parts`,
+antepondo o mesmo Value aos items sem mudar named. Não invalidar origens do
+usuário ou deixar views/carrier divergentes. A classificação da origem é
+síntese interna, não promessa de nova paridade diagnóstica do receiver.
+
+Continuam os mesmos constructors, fórmulas, métodos, valores, coerções e
+diagnósticos; não acrescentar consumo de duplicatas a estas nativas por
+analogia com encode. Testar ambas as representações e controles estáticos/
+ligados. É inferência de suficiência refutada por outra mutação do carrier
+neste owner. Ownership segue 1:1; aprovação anterior de gradient não aprova
+o novo campo público Args. Nenhum Rust é autorizado por esta redação.

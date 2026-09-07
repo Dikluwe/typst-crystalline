@@ -1,0 +1,81 @@
+{
+  "schema": "p1307-r6-real-rust-mutation-plan-v1",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "status": "PLANNED_NOT_APPLIED",
+  "author": "/root/p1306_oracle",
+  "candidate_read": false,
+  "actual_source_mutants_executed": 0,
+  "mutation_score": null,
+  "inputs": {
+    "p1307-r6-manifest.json": "3239bdc13d41e931edb0fa9e8e1f000017b1fe42a8f6016b3c5b65f9979afd8a",
+    "p1307-r6-baseline.json": "8cc0eae00457d2e7d54b420024eae49344032b34b295b4eda536faeb1ec3c4a3",
+    "p1307-r6-seal.json": "54a2cc86656c33734058aef77da8fe564721440529aed165dbdd140fb34ae08b",
+    "p1307-r6-oracle.json": "99d2a67984a468c8e86e20010ecc1bd76a364f1d1adebbb5b873fc341f7790a6",
+    "p1307-r6-oracle.py": "62c4decfb6f07088ff2fb2aa1513ef1f62e2681edbb1431b42cd781eac56ef1a",
+    "p1307-r6-tests.patch": "d4232b6144b7def77498e2fd1353b5dbad3786276fb8ccd5f8c56175a08fa19b"
+  },
+  "base_families": {
+    "artifact": "p1307-mutant-plan.json",
+    "integrity_ref": "p1307-r6-baseline.json/protected_predecessors",
+    "witness_id_prefix": "p1307.",
+    "source_integrity_ref": "p1307-r6-baseline.json/source_inventory",
+    "meaning": "All twenty original families and witnesses are retained. Operations below supersede documentary implementation guesses, not obligations. Actual candidate function and exact patch are resolved only after frozen GREEN. Baseline function anchors identify causal owners, not promised future spelling."
+  },
+  "execution_policy": {
+    "scope": "Only a disposable exact candidate copy; never mutate live candidate, tests, oracle or L0. Apply a separately recorded concrete patch with apply_patch. Runner never edits source.",
+    "build": "Explicit coordinator build lease required. Serial with coordinator and all mutants; one cargo compilation per attempt. Cargo package typst-core test executable for Rust witnesses; typst-wiring CLI for public-only witnesses. Do not run full corpus before focal.",
+    "control": "Every focal test or public cell must already be GREEN on the pinned unmutated candidate. Control record includes binary and source-state hashes. A baseline debt RED is not a mutant kill.",
+    "profiles": "Rust independent tests loop all four feature profiles. CLI replay uses all profiles actually present in each frozen case; family 20 requires identity cells in all four profiles.",
+    "judgment": "Nonapplying, noncompiling, timeout, malformed output, absent test, unknown public observation, or missing GREEN control are Unknown/instrumentation failure, never killed. Compiled witness failure is pending causal review; only exact intended observable deviation can become KILLED. Other panics/errors are not automatic kills.",
+    "restoration": "After each attempt restore the isolated copy to every frozen candidate hash before the next patch. Preserve failed instrumentation receipts. Never overwrite prior receipts.",
+    "budget": "At most two unsuccessful attempts on the same cause before stopping for review. Stop or obtain a new build window when the coordinator lease ends. No matrix rerun during instrumentation calibration.",
+    "score": "Public-envelope calibration has a separate denominator and contributes zero Rust kills. Report mandatory family coverage and concrete mutant score separately; no survivor or mandatory Unknown can be silently excluded."
+  },
+  "families": [
+    {"id": "F01", "base_id": 1, "operation": "Remove exactly one encode namespace binding while retaining its parent decoder.", "rust_tests": ["p1307_namespace_identity"]},
+    {"id": "F02", "base_id": 2, "operation": "Replace json namespace encode installation with an otherwise callable flat json_encode global.", "rust_tests": ["p1307_namespace_identity"]},
+    {"id": "F03", "base_id": 3, "operation": "Replace one callable namespace parent with a Module retaining its encode field.", "rust_tests": ["p1307_decoder_and_cbor_controls"]},
+    {"id": "F04", "base_id": 4, "operation": "Change json encoder native public name encode to json.encode only.", "rust_tests": ["p1307_namespace_identity"]},
+    {"id": "F05", "base_id": 5, "owner_override": "01_core/src/entities/func.rs", "baseline_function": "Func::namespace", "operation": "Change only FuncRepr::With namespace delegation to None, retaining direct namespace access.", "rust_tests": ["p1307_parent_with_does_not_prebind_encoder"]},
+    {"id": "F06", "base_id": 6, "operation": "Set omitted JSON pretty default false; leave explicit true and false unchanged.", "rust_tests": ["p1307_json_default_and_compact"]},
+    {"id": "F07", "base_id": 7, "operation": "Set omitted TOML pretty default false; leave explicit values unchanged.", "rust_tests": ["p1307_toml_default_and_compact"]},
+    {"id": "F08", "base_id": 8, "operation": "Consume and ignore YAML pretty instead of returning its unexpected-argument diagnostic.", "rust_tests": [], "public_required": true},
+    {"id": "F09", "base_id": 9, "operation": "Permit a non-dictionary TOML top level by wrapping it in a dictionary before serialization.", "rust_tests": [], "public_required": true},
+    {"id": "F10", "base_id": 10, "operation": "Reverse dictionary entry traversal in one human-readable encoder, preserving keys and values.", "rust_tests": ["p1307_yaml_default_order_and_newline"]},
+    {"id": "F11", "base_id": 11, "operation": "Remove exactly one YAML final newline, preserving all other bytes.", "rust_tests": ["p1307_yaml_default_order_and_newline"]},
+    {"id": "F12", "base_id": 12, "operation": "Change one JSON control-character escape or YAML multiline representation, retaining valid output where possible.", "rust_tests": ["p1307_json_escape_and_raw_heading_presence"]},
+    {"id": "F13", "base_id": 13, "operation": "Use Rust Debug formatting for one opaque Value branch instead of public repr.", "rust_tests": ["p1307_json_special_classes_are_not_debug"]},
+    {"id": "F14", "base_id": 14, "operation": "Route Symbol through generic repr fallback instead of dedicated language string conversion.", "rust_tests": ["p1307_json_special_classes_are_not_debug"], "additional_submutant": "Separately route raw Content through generic fallback; witness json.value.Content."},
+    {"id": "F15", "base_id": 15, "operation": "Emit human-readable Bytes as a numeric array rather than the measured public string.", "rust_tests": ["p1307_json_special_classes_are_not_debug"]},
+    {"id": "F16", "base_id": 16, "operation": "Emit TOML none array member instead of rejecting it; separate nonfinite and negative-zero submutants remain declared.", "rust_tests": ["p1307_toml_none_field_omitted_but_array_rejected"], "additional_submutants": ["JSON NaN converted to zero instead of measured value", "YAML -0.0 converted to +0.0"]},
+    {"id": "F17", "base_id": 17, "operation": "Replace invalid pretty value diagnostic origin with Span::detached or whole call, leaving exact error message intact.", "rust_tests": ["p1307_named_value_has_exact_hint_and_argument_span", "p1307_unknown_named_prebound_span"], "public_required": true},
+    {"id": "F18", "base_id": 18, "operation": "Route CBOR Bytes through Text representation, preserving JSON/TOML/YAML behavior.", "rust_tests": ["p1307_decoder_and_cbor_controls"], "additional_submutant": "Separately change JSON decoder result on its frozen valid input."},
+    {"id": "F19", "base_id": 19, "operation": "Add encode namespace to csv using an existing callable encoder; preserve csv decoder.", "rust_tests": [], "public_required": true},
+    {"id": "F20", "base_id": 20, "operation": "Condition namespace installation on the html feature, leaving default profile without members.", "rust_tests": ["p1307_namespace_identity"], "public_required": true}
+  ],
+  "additional_families": [
+    {"id": "S01", "owner": "01_core/src/compiler/introspect/heading.rs", "baseline_function": "compute_heading_for_toc", "operation": "Omit exactly one required realized Heading field from Some snapshot.", "rust_tests": ["p1307_query_snapshot_fields_are_complete_and_ordered"], "public_cases": ["r6.fields-json.default"]},
+    {"id": "S02", "owner": "01_core/src/compiler/introspect/heading.rs", "baseline_function": "compute_heading_for_toc", "operation": "Swap two insertion-ordered snapshot fields without changing values.", "rust_tests": ["p1307_query_snapshot_fields_are_complete_and_ordered"], "public_cases": ["r6.fields-json.default"]},
+    {"id": "S03", "owner": "01_core/src/compiler/introspect.rs", "baseline_function": "walk", "operation": "Invent a generated label for an unlabelled heading snapshot.", "rust_tests": ["p1307_snapshot_survives_array_closure_and_absent_label"], "public_cases": ["r6.access.unlabelled"]},
+    {"id": "S04", "owner": "01_core/src/compiler/introspect/heading.rs", "baseline_function": "compute_heading_for_toc", "operation": "Ignore captured numbering pattern I and substitute 1.", "rust_tests": ["p1307_snapshot_numbering_changes_language_equality"], "public_cases": ["r6.fields-json.numbering-I", "r6.two-same-body.fields"]},
+    {"id": "S05", "owner": "01_core/src/compiler/introspect/heading.rs", "baseline_function": "compute_heading_for_toc", "operation": "Substitute default en supplement for captured pt language.", "rust_tests": [], "public_cases": ["r6.fields-json.pt", "r6.escape.before", "r6.escape.after"]},
+    {"id": "S06", "owner": "01_core/src/compiler/stdlib/foundations/query.rs", "baseline_function": "native_query", "operation": "Drop Some fields when cloning query result carrier, retain raw content/location.", "rust_tests": ["p1307_snapshot_survives_array_closure_and_absent_label"], "public_cases": ["r6.escape.fields-before", "r6.escape.fields-after"]},
+    {"id": "S07", "owner": "01_core/src/compiler/eval/bindings/value_methods.rs", "baseline_function": "eval_value_method", "operation": "Bypass carrier fields in static content.fields alias route only.", "rust_tests": [], "public_cases": ["r6.access.static-alias", "r6.access.static-alias-control"]},
+    {"id": "S08", "owner": "03_infra/src/query_helpers.rs", "baseline_function": "query_elements", "operation": "Discard captured fields before first context evaluation, leaving later contexts unchanged where causal hook exists.", "rust_tests": [], "public_cases": ["r6.first-context-before-heading", "r6.first-context-before-heading.fields"]},
+    {"id": "S09", "owner": "01_core/src/compiler/eval/operators/equality.rs", "baseline_function": "value_eq", "operation": "Compare only raw content morphology for Some/Some LocatedContent, ignoring numbering/language fields.", "rust_tests": ["p1307_snapshot_numbering_changes_language_equality"], "public_cases": ["r6.equality.language"]},
+    {"id": "S10", "owner": "01_core/src/compiler/eval/operators/equality.rs", "baseline_function": "value_eq", "operation": "Include label or Location in language equality of captured content.", "rust_tests": ["p1307_snapshot_labels_not_equality_or_location"], "public_cases": []},
+    {"id": "S11", "owner": "01_core/src/compiler/eval/repr.rs", "baseline_function": "repr_value", "operation": "Use raw Heading repr for Some carrier instead of realized fields; preserve general Dict repr debt.", "rust_tests": [], "public_cases": ["r5repr.default.repr", "r5repr.numbering-I.repr", "r5repr.pt.cbor-decoded"]},
+    {"id": "S12", "owner": "01_core/src/compiler/stdlib/loading.rs", "baseline_function": "native_cbor_encode", "operation": "Serialize captured Heading as CBOR map rather than preserved Text(public repr).", "rust_tests": [], "public_cases": ["r5repr.default.cbor-bytes", "r5repr.numbering-I.cbor-bytes"]},
+    {"id": "A01", "owner": "01_core/src/entities/args.rs", "baseline_function": "Args", "operation": "Deduplicate repeated named arguments during ordered construction/map/filter.", "rust_tests": ["p1307_args_constructor_map_filter_preserve_duplicates", "p1307_invalid_prebound_pretty_cannot_disappear"], "public_cases": ["r4.error.with-keeps-invalid-earlier"]},
+    {"id": "A02", "owner": "01_core/src/compiler/eval/operators/join.rs", "baseline_function": "apply_binary", "operation": "Coalesce duplicate names on Args join rather than preserve sequence.", "rust_tests": ["p1307_args_join_and_sink_have_different_order_rules"], "public_cases": ["r4.error.join-retains-rhs-span", "r4.error.join-retains-lhs-span"]},
+    {"id": "A03", "owner": "01_core/src/compiler/eval/closures.rs", "baseline_function": "call_closure", "operation": "Preserve source interleave in sink Args instead of named-first sink order.", "rust_tests": ["p1307_args_join_and_sink_have_different_order_rules"], "public_cases": []},
+    {"id": "A04", "owner": "01_core/src/entities/args.rs", "baseline_function": "Args", "operation": "Reuse origin from equal Args value instead of distinct factory invocation source.", "rust_tests": ["p1307_equal_args_keep_distinct_factory_origins", "p1307_equal_sink_args_keep_distinct_factory_origins"], "public_cases": []},
+    {"id": "A05", "owner": "01_core/src/compiler/eval/call_dispatch.rs", "baseline_function": "eval_func_call", "operation": "Skip aggregate full-call span transport for an encode alias/With call missing value.", "rust_tests": ["p1307_missing_uses_whole_call_including_with"], "public_cases": []}
+  ],
+  "limitations": [
+    "Plans are causal defect definitions, not fabricated candidate patches. Exact anchors, single-change applicability and witness sufficiency require inspection after frozen GREEN.",
+    "Some baseline names are owner-level search anchors; a new helper may hold the candidate logic. Record actual qualified function and exact patch before each build.",
+    "The 22 frozen Rust tests do not substitute for CLI public envelopes. Public-only rows require actual mutated CLI builds.",
+    "A survived additional causal mutant must be reported, not hidden behind 20/20 original-family coverage."
+  ]
+}

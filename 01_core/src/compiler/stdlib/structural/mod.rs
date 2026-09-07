@@ -555,6 +555,7 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("marker".into(), Value::Str("→".into()));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("x"))],
             named,
             span: Span::detached(),
@@ -572,6 +573,7 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("marker".into(), Value::Int(1));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("x"))],
             named,
             span: Span::detached(),
@@ -583,7 +585,12 @@ mod tests {
     fn list_named_desconhecido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("foo".into(), Value::Int(1));
-        let args = Args { items: vec![], named, span: Span::detached() };
+        let args = Args {
+            occurrences: None,
+            items: vec![],
+            named,
+            span: Span::detached(),
+        };
         assert!(call_list(args).is_err());
     }
 
@@ -626,6 +633,7 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("numbering".into(), Value::Str("a)".into()));
         let args = Args {
+            occurrences: None,
             items: vec![
                 Value::Content(Content::text("x")),
                 Value::Content(Content::text("y")),
@@ -650,6 +658,7 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("numbering".into(), Value::Int(1));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("x"))],
             named,
             span: Span::detached(),
@@ -661,7 +670,12 @@ mod tests {
     fn enum_named_desconhecido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("foo".into(), Value::Int(1));
-        let args = Args { items: vec![], named, span: Span::detached() };
+        let args = Args {
+            occurrences: None,
+            items: vec![],
+            named,
+            span: Span::detached(),
+        };
         assert!(call_enum(args).is_err());
     }
 
@@ -675,6 +689,7 @@ mod tests {
         named.insert("body-indent".into(), Value::Length(Length::em(0.5)));
         named.insert("tight".into(), Value::Bool(false));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("a"))],
             named,
             span: Span::detached(),
@@ -694,6 +709,7 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("indent".into(), Value::Str("x".into()));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("a"))],
             named,
             span: Span::detached(),
@@ -706,6 +722,7 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("body-indent".into(), Value::Int(1));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("a"))],
             named,
             span: Span::detached(),
@@ -718,6 +735,7 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("tight".into(), Value::Int(1));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("a"))],
             named,
             span: Span::detached(),
@@ -733,6 +751,7 @@ mod tests {
         named.insert("body-indent".into(), Value::Length(Length::em(0.5)));
         named.insert("tight".into(), Value::Bool(false));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("a"))],
             named,
             span: Span::detached(),
@@ -752,6 +771,7 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("indent".into(), Value::Str("x".into()));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("a"))],
             named,
             span: Span::detached(),
@@ -764,6 +784,7 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("start".into(), Value::Int(3));
         let args = Args {
+            occurrences: None,
             items: vec![Value::Content(Content::text("a"))],
             named,
             span: Span::detached(),
@@ -926,6 +947,7 @@ mod tests {
 
     fn class_args(class: Value) -> Args {
         Args {
+            occurrences: None,
             items: vec![class, Value::Str("x".into())],
             named: indexmap::IndexMap::default(),
             span: Span::detached(),

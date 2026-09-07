@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: 2ad201fa
+Hash do Código: fcd396d9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -173,3 +173,66 @@ owner não duplica seus estilos.
 Eval continua sem geometria. Novo campo, entidade ou mudança de fase não foi
 necessário. `Unknown` não é aceitação para qualquer par requerido; a adição da
 superfície qualificada permanece bloqueada pelo gate humano P1293.
+
+## P1307-R3 — construção coerente de Args em math
+
+### Medição anterior à decisão
+
+No baseline R3 SHA-256
+`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`,
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais working tree P1306
+ali capturado, `01_core/src/compiler/eval/math.rs:315-341,570-596,1330-1351`
+constrói Args de AST avaliando valores math uma vez, mas retém só items/named
+e span agregado. Os três loops ignoram Spread atualmente. A fonte ratificada
+`lab/typst-original/crates/typst-eval/src/call.rs:412-460` conserva spans de
+argumento/valor e distingue spread de Args. Não se infere que este módulo
+já implemente esse spread: a omissão é dívida fora deste ajuste.
+
+### Decisão de migração, dependente do gate Args
+
+Cada builder AST existente deve produzir ocorrências pelo contrato público
+de `entities/args.md`: positional/named em ordem lexical, com o Value já
+obtido por `eval_math_arg_value`, span do argumento e span da expressão-valor.
+Usar `Args::from_occurrences`; não recriar views manualmente nem invalidar
+origens para adaptar um literal. Preservar o span agregado real da lista,
+exceto o transporte fechado de chamada inteira dos encoders descrito abaixo.
+Assim a mesma nativa recebe os dados causais disponíveis em math sem mudar
+seleção de valores, retorno Content, geometria ou fase. Não acrescentar
+suporte a Spread aqui, nem anunciar paridade total dessa rota como efeito
+desta migração. Se caso obrigatório depender dessa dívida, reabrir escopo.
+
+O owner único continua math.rs; não duplicar validação de encoders nem mudar
+L0s/núcleos dos elementos. Testes devem preservar attach/binom/mono/script e
+as rotas genérica/qualificada, incluindo avaliação única e named repetidos
+transportados sem descarte. É inferência de suficiência refutada por origem
+perdida em outro builder ou exigência de semântica math nova. A mudança de
+API Args aguarda aprovação ADR-0127; este texto não autoriza código agora.
+
+### P1307-R4 — transporte agregado nas chamadas genéricas
+
+O recibo `00_nucleo/diagnosticos/p1307-r4-call-span-refinement.json`, SHA-256
+`6e2335e203c2ed888e97259159e5057c904f5a808d5dddde6cf9d3f0698b8912`,
+congela o estado anterior. `math.rs:551-597,1291-1352` dispõe da função
+resolvida e `call.span()` até aplicar os Args. Vanilla ratificado
+`typst-eval/src/call.rs:149-157` usa a chamada inteira no agregado math;
+o diagnóstico missing de encoder aprovado depende desse dado.
+
+As duas rotas genéricas, qualificada e bare resolvida no scope, chamam o
+mesmo helper interno de transporte definido em
+`compiler/eval/call_dispatch.md`, antes de `apply_func`. Só as três
+identidades encode recebem o agregado inteiro, inclusive através de With.
+Não duplicar detecção nominal ou validação neste owner. O builder específico
+de attach/binom não precisa desse ajuste. Permanecem intactos o retorno
+Content-only já exigido, seus erros e a dívida de Spread ignorado. É correção
+interna ao diagnóstico aprovado, sem API pública ou mudança de fase.
+
+## P1308 — reutilização do transporte fechado de panic
+
+Medição anterior à decisão: os dois caminhos genéricos acima já chamam o
+helper R4; `typst-eval/src/call.rs:149–157` passa agregado de chamada em math
+também. O baseline P1308 conserva seus hashes e fontes antes da alteração.
+
+Usar o helper renomeado `transport_native_call_span` do owner call_dispatch.
+Seu conjunto fechado passa a incluir panic além dos três encoders. Não
+duplicar identidade/seleção, alterar builders ou habilitar Spread. Chamadas
+específicas de elementos e retorno Content-only conservam seus contratos.

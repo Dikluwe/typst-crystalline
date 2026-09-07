@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/equality.md
-//! @prompt-hash 4625d246
+//! @prompt-hash a6705cc2
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -117,11 +117,68 @@ fn values_eq(a: &Value, b: &Value) -> bool {
             rel.abs.is_zero() && (rel.rel - rat.0).abs() < 1e-9
         }
         (Value::Content(x), Value::Content(y)) => x.morph_canon() == y.morph_canon(),
-        (Value::Content(x), Value::LocatedContent(y, _))
-        | (Value::LocatedContent(x, _), Value::Content(y))
-        | (Value::LocatedContent(x, _), Value::LocatedContent(y, _)) => {
-            x.morph_canon() == y.morph_canon()
+        (Value::Content(x), Value::LocatedContent(y, _)) => {
+            content_values_eq(x, None, y.content(), y.fields())
+        }
+        (Value::LocatedContent(x, _), Value::Content(y)) => {
+            content_values_eq(x.content(), x.fields(), y, None)
+        }
+        (Value::LocatedContent(x, _), Value::LocatedContent(y, _)) => {
+            content_values_eq(x.content(), x.fields(), y.content(), y.fields())
         }
         (a, b) => a == b,
     }
+}
+
+type ContentFields =
+    indexmap::IndexMap<ecow::EcoString, Value, rustc_hash::FxBuildHasher>;
+
+fn raw_content_fields(content: &crate::entities::content::Content) -> ContentFields {
+    let projected = crate::compiler::eval::bindings::eval_content_method(
+        content,
+        "fields",
+        crate::entities::args::Args::positional(Vec::new()),
+        crate::entities::span::Span::detached(),
+    );
+    match projected {
+        Ok(Value::Dict(fields)) => fields,
+        _ => unreachable!("content.fields with no arguments always returns a dictionary"),
+    }
+}
+
+fn content_values_eq(
+    a: &crate::entities::content::Content,
+    a_fields: Option<&ContentFields>,
+    b: &crate::entities::content::Content,
+    b_fields: Option<&ContentFields>,
+) -> bool {
+    if a_fields.is_none() && b_fields.is_none() {
+        return a.morph_canon() == b.morph_canon();
+    }
+    if a.elem_name() != b.elem_name() {
+        return false;
+    }
+    let a_raw;
+    let b_raw;
+    let a = match a_fields {
+        Some(fields) => fields,
+        None => {
+            a_raw = raw_content_fields(a);
+            &a_raw
+        }
+    };
+    let b = match b_fields {
+        Some(fields) => fields,
+        None => {
+            b_raw = raw_content_fields(b);
+            &b_raw
+        }
+    };
+    let count = |fields: &ContentFields| {
+        fields.keys().filter(|key| key.as_str() != "label").count()
+    };
+    count(a) == count(b)
+        && a.iter()
+            .filter(|(key, _)| key.as_str() != "label")
+            .all(|(key, value)| b.get(key).is_some_and(|other| values_eq(value, other)))
 }

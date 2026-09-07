@@ -1,0 +1,1790 @@
+{
+  "schema": "p1307-r4-content-data-availability-focal-v1",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "candidate_read": false,
+  "provenance": {
+    "at": "2026-09-07T17:57:34.542351+00:00",
+    "cwd": "/repos/Antigravity/typst-crystalline",
+    "baseline_sha256": "52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57",
+    "preflight_sha256": "d18bfb5cf49a862d04ca7fa3c1676855dd6baed299d4531eaf9e9b8df75503cf",
+    "script_sha256": "ef102f3a800475855b0cb21f40db666312cdb2f96fd9c867ea625b13c22b8e68",
+    "head": "b303f1f15b610e09872b567027e0d806387fde8c",
+    "diff_stat": " 00_nucleo/prompts/compiler/eval.md                 |  44 +++-\n .../prompts/compiler/eval/bindings/field_access.md | 136 +++++++++-\n .../compiler/eval/bindings/method_dispatch.md      |  31 +++\n .../compiler/eval/bindings/value_methods.md        |  36 +++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   | 106 ++++++++\n 00_nucleo/prompts/compiler/eval/closures.md        |  74 ++++++\n 00_nucleo/prompts/compiler/eval/math.md            |  52 ++++\n .../prompts/compiler/eval/operators/arithmetic.md  |  31 +++\n 00_nucleo/prompts/compiler/eval/operators/join.md  |  57 ++++\n 00_nucleo/prompts/compiler/eval/repr.md            |  68 ++++-\n 00_nucleo/prompts/compiler/eval/tests.md           | 167 +++++++++++-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |  41 ++-\n 00_nucleo/prompts/compiler/stdlib/collections.md   |  61 +++++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  27 ++\n .../prompts/compiler/stdlib/foundations/float.md   |  27 ++\n .../prompts/compiler/stdlib/foundations/int.md     |  33 +++\n 00_nucleo/prompts/compiler/stdlib/gradients.md     |  28 ++\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 111 ++++++++\n 00_nucleo/prompts/compiler/stdlib/numbering.md     |  27 ++\n 00_nucleo/prompts/entities/args.md                 | 290 ++++++++++-----------\n 00_nucleo/prompts/entities/func.md                 |  75 ++++--\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 198 +++++++++++++-\n 23 files changed, 1533 insertions(+), 191 deletions(-)\n",
+    "environment": {
+      "NO_COLOR": "1",
+      "TERM": "dumb",
+      "TYPST_FEATURES": "unset; explicit CLI profile"
+    }
+  },
+  "script_sha256": "93bb824c9a15ff8382238f62bef2d83932a3822dbaa6a6bee320daaf3f63bcfb",
+  "runner_sha256": "ef102f3a800475855b0cb21f40db666312cdb2f96fd9c867ea625b13c22b8e68",
+  "baseline_sha256": "52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57",
+  "binaries": {
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "bytes": 51851160
+    },
+    "baseline": {
+      "path": "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+      "sha256": "945e488c53246b33fd11c56ff670c697aeaffa5a92d5c15cc8e09a76cf7cf1f3",
+      "bytes": 47908608
+    }
+  },
+  "scope": "Default-profile focal only; complete public type/repr/fields/json values. Baseline missing json.encode is an observed API absence, not evidence of missing Content data. Source-level causality remains a separate audit.",
+  "fixture_directory": "/tmp/p1307-r4-oracle-ln009gcg",
+  "cases": [
+    {
+      "id": "default.type",
+      "setting": "default",
+      "projection": "type",
+      "expression": "repr(type(found.first()))",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "1ff51078a02133d89d76eca6c9b72d22836847d5988441c9e28691e434a79d98",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "default",
+        "type"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-000.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-000.pdf"
+    },
+    {
+      "id": "default.repr",
+      "setting": "default",
+      "projection": "repr",
+      "expression": "repr(found.first())",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "cf0e3c5a9398ace041b577ef301c2055b01fd4f4cbb7384dc2ffaf40e0873c76",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "default",
+        "repr"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-001.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-001.pdf"
+    },
+    {
+      "id": "default.fields",
+      "setting": "default",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "fa2f89b0561000da0d23168e9c63323bec26ea3adb70442e98d2606798b1e5e5",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "default",
+        "fields"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-002.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-002.pdf"
+    },
+    {
+      "id": "default.json",
+      "setting": "default",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "52617c7507a8874316c29e809f31e4096612c75942b16d1b319af661cd125258",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "default",
+        "json"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-003.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-003.pdf"
+    },
+    {
+      "id": "supplement-Alpha.type",
+      "setting": "supplement-Alpha",
+      "projection": "type",
+      "expression": "repr(type(found.first()))",
+      "document": "#set heading(supplement: [Alpha])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "51bb5394c1fd09f73bc01f312e3ed4e489100a35d3e5ed0444d8381f357b79a1",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "supplement-Alpha",
+        "type"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-004.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-004.pdf"
+    },
+    {
+      "id": "supplement-Alpha.repr",
+      "setting": "supplement-Alpha",
+      "projection": "repr",
+      "expression": "repr(found.first())",
+      "document": "#set heading(supplement: [Alpha])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "8dead0999c528a7868dd7e6e0dc143bf7d4c3d17e4ce5645a83230d3ec4d7448",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "supplement-Alpha",
+        "repr"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-005.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-005.pdf"
+    },
+    {
+      "id": "supplement-Alpha.fields",
+      "setting": "supplement-Alpha",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "document": "#set heading(supplement: [Alpha])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "2991c9be57e1f35a4b761a69c29ae4e9befdb689a4ec66a643507d26e326d977",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "supplement-Alpha",
+        "fields"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-006.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-006.pdf"
+    },
+    {
+      "id": "supplement-Alpha.json",
+      "setting": "supplement-Alpha",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "document": "#set heading(supplement: [Alpha])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "59d8214c50a96bc1342e86f1ffcd54ab2457a6c13b50efe2c12d9f27a8c83d08",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "supplement-Alpha",
+        "json"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-007.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-007.pdf"
+    },
+    {
+      "id": "supplement-Beta.type",
+      "setting": "supplement-Beta",
+      "projection": "type",
+      "expression": "repr(type(found.first()))",
+      "document": "#set heading(supplement: [Beta])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "f9f764be2eecdbf022847f47c1ae6bc8b54a1f97f6f09e6d2b16d884e13f5611",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "supplement-Beta",
+        "type"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-008.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-008.pdf"
+    },
+    {
+      "id": "supplement-Beta.repr",
+      "setting": "supplement-Beta",
+      "projection": "repr",
+      "expression": "repr(found.first())",
+      "document": "#set heading(supplement: [Beta])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "273cefa2c64bdf9a0967fbaae20120eabd43e2e69988ce8bb12404c02c0d8013",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "supplement-Beta",
+        "repr"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-009.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-009.pdf"
+    },
+    {
+      "id": "supplement-Beta.fields",
+      "setting": "supplement-Beta",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "document": "#set heading(supplement: [Beta])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "d212d0ffb07b72dcd84cdbde672ffd517da810e9404dad0a316a77dfa1257c67",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "supplement-Beta",
+        "fields"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-010.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-010.pdf"
+    },
+    {
+      "id": "supplement-Beta.json",
+      "setting": "supplement-Beta",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "document": "#set heading(supplement: [Beta])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "5fba268c04f5a621d1283d7677a80b144e8280e8579df8d39394a0328917c4d4",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "supplement-Beta",
+        "json"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-011.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-011.pdf"
+    },
+    {
+      "id": "numbering-1.type",
+      "setting": "numbering-1",
+      "projection": "type",
+      "expression": "repr(type(found.first()))",
+      "document": "#set heading(numbering: \"1\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "d1d89ec215e722ed7a4c27f88d3c2f36e38086f1cae244b903acf5bea49ad3fd",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "numbering-1",
+        "type"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-012.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-012.pdf"
+    },
+    {
+      "id": "numbering-1.repr",
+      "setting": "numbering-1",
+      "projection": "repr",
+      "expression": "repr(found.first())",
+      "document": "#set heading(numbering: \"1\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "fcb687250a84d684d8de1112890a84634b1fc9445df7dc27ee6d65a7f132bb09",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "numbering-1",
+        "repr"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-013.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-013.pdf"
+    },
+    {
+      "id": "numbering-1.fields",
+      "setting": "numbering-1",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "document": "#set heading(numbering: \"1\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "f3d084c214eb103ac81016906c9d8dac86847c0e07d6b37e8d5d66d212edbf19",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "numbering-1",
+        "fields"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-014.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-014.pdf"
+    },
+    {
+      "id": "numbering-1.json",
+      "setting": "numbering-1",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "document": "#set heading(numbering: \"1\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "775f036cd4a39fdfbe6ab163762ec5543216fb213734e69acc23efb50d838175",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "numbering-1",
+        "json"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-015.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-015.pdf"
+    },
+    {
+      "id": "numbering-I.type",
+      "setting": "numbering-I",
+      "projection": "type",
+      "expression": "repr(type(found.first()))",
+      "document": "#set heading(numbering: \"I\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "9d890577b7e8f42b453c456c236736f29216e2947a1a465d7f32729b20971c6e",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "numbering-I",
+        "type"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-016.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-016.pdf"
+    },
+    {
+      "id": "numbering-I.repr",
+      "setting": "numbering-I",
+      "projection": "repr",
+      "expression": "repr(found.first())",
+      "document": "#set heading(numbering: \"I\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "c409e93a9a6bb08dcb9c722d9f3e9d19bc2b9a80854c1532b1f9ffcfd8140603",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "numbering-I",
+        "repr"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-017.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-017.pdf"
+    },
+    {
+      "id": "numbering-I.fields",
+      "setting": "numbering-I",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "document": "#set heading(numbering: \"I\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "eabaa9eb1ac37740488ae0cd01f34ac8b1775b79738af82e30307a956e979e15",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "numbering-I",
+        "fields"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-018.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-018.pdf"
+    },
+    {
+      "id": "numbering-I.json",
+      "setting": "numbering-I",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "document": "#set heading(numbering: \"I\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "825600f0ff5718450e5582cc7cf92d13c156ce5f4095298733e33020374342eb",
+      "expected_shape": "value",
+      "classes": [
+        "Content",
+        "LocatedContent",
+        "numbering-I",
+        "json"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-ln009gcg/case-019.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-ln009gcg/case-019.pdf"
+    }
+  ],
+  "rows": [
+    {
+      "case": "default.type",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-000.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-000.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.589178+00:00",
+      "source_sha256": "1ff51078a02133d89d76eca6c9b72d22836847d5988441c9e28691e434a79d98",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-000.typ:2:106\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2722122160048457
+    },
+    {
+      "case": "default.type",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-000.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-000.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.589447+00:00",
+      "source_sha256": "1ff51078a02133d89d76eca6c9b72d22836847d5988441c9e28691e434a79d98",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-000.typ:2:111\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.0889651000034064
+    },
+    {
+      "case": "default.repr",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-001.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-001.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.590548+00:00",
+      "source_sha256": "cf0e3c5a9398ace041b577ef301c2055b01fd4f4cbb7384dc2ffaf40e0873c76",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-001.typ:2:100\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2703756029950455
+    },
+    {
+      "case": "default.repr",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-001.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-001.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.590901+00:00",
+      "source_sha256": "cf0e3c5a9398ace041b577ef301c2055b01fd4f4cbb7384dc2ffaf40e0873c76",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-001.typ:2:105\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(level: 1)[[Probe]]",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.08708114699402358
+    },
+    {
+      "case": "default.fields",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-002.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-002.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.678143+00:00",
+      "source_sha256": "fa2f89b0561000da0d23168e9c63323bec26ea3adb70442e98d2606798b1e5e5",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,32,32,108,97,98,101,108,58,32,60,112,114,111,98,101,62,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-002.typ:2:109\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.27738637299626134
+    },
+    {
+      "case": "default.fields",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-002.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-002.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.678634+00:00",
+      "source_sha256": "fa2f89b0561000da0d23168e9c63323bec26ea3adb70442e98d2606798b1e5e5",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,100,101,112,116,104,58,32,49,44,32,98,111,100,121,58,32,91,80,114,111,98,101,93,41:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-002.typ:2:114\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(depth: 1, body: [Probe])",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09396581799956039
+    },
+    {
+      "case": "default.json",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-003.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-003.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.772768+00:00",
+      "source_sha256": "52617c7507a8874316c29e809f31e4096612c75942b16d1b319af661cd125258",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:123,10,32,32,34,102,117,110,99,34,58,32,34,104,101,97,100,105,110,103,34,44,10,32,32,34,108,101,118,101,108,34,58,32,49,44,10,32,32,34,100,101,112,116,104,34,58,32,49,44,10,32,32,34,111,102,102,115,101,116,34,58,32,48,44,10,32,32,34,110,117,109,98,101,114,105,110,103,34,58,32,110,117,108,108,44,10,32,32,34,115,117,112,112,108,101,109,101,110,116,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,83,101,99,116,105,111,110,34,10,32,32,125,44,10,32,32,34,111,117,116,108,105,110,101,100,34,58,32,116,114,117,101,44,10,32,32,34,98,111,111,107,109,97,114,107,101,100,34,58,32,34,97,117,116,111,34,44,10,32,32,34,104,97,110,103,105,110,103,45,105,110,100,101,110,116,34,58,32,34,97,117,116,111,34,44,10,32,32,34,98,111,100,121,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,80,114,111,98,101,34,10,32,32,125,44,10,32,32,34,108,97,98,101,108,34,58,32,34,60,112,114,111,98,101,62,34,10,125:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-003.typ:2:107\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2783469059941126
+    },
+    {
+      "case": "default.json",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-003.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-003.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.861096+00:00",
+      "source_sha256": "52617c7507a8874316c29e809f31e4096612c75942b16d1b319af661cd125258",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type function\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-003.typ:2:78\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "diagnostic",
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <source:52617c7507a8874316c29e809f31e4096612c75942b16d1b319af661cd125258>:2:78\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+        "messages": [
+          "cannot access fields on type function"
+        ],
+        "hints": []
+      },
+      "elapsed_seconds": 0.09331096899404656
+    },
+    {
+      "case": "supplement-Alpha.type",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-004.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-004.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.861604+00:00",
+      "source_sha256": "51bb5394c1fd09f73bc01f312e3ed4e489100a35d3e5ed0444d8381f357b79a1",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-004.typ:3:106\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.276510187992244
+    },
+    {
+      "case": "supplement-Alpha.type",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-004.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-004.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.954561+00:00",
+      "source_sha256": "51bb5394c1fd09f73bc01f312e3ed4e489100a35d3e5ed0444d8381f357b79a1",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-004.typ:3:111\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09434428099484649
+    },
+    {
+      "case": "supplement-Alpha.repr",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-005.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-005.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:32.955742+00:00",
+      "source_sha256": "8dead0999c528a7868dd7e6e0dc143bf7d4c3d17e4ce5645a83230d3ec4d7448",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,65,108,112,104,97,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-005.typ:3:100\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.276682409006753
+    },
+    {
+      "case": "supplement-Alpha.repr",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-005.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-005.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.049135+00:00",
+      "source_sha256": "8dead0999c528a7868dd7e6e0dc143bf7d4c3d17e4ce5645a83230d3ec4d7448",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-005.typ:3:105\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(level: 1)[[Probe]]",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09331254698918201
+    },
+    {
+      "case": "supplement-Alpha.fields",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-006.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-006.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.051316+00:00",
+      "source_sha256": "2991c9be57e1f35a4b761a69c29ae4e9befdb689a4ec66a643507d26e326d977",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,65,108,112,104,97,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,32,32,108,97,98,101,108,58,32,60,112,114,111,98,101,62,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-006.typ:3:109\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2779963509965455
+    },
+    {
+      "case": "supplement-Alpha.fields",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-006.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-006.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.138366+00:00",
+      "source_sha256": "2991c9be57e1f35a4b761a69c29ae4e9befdb689a4ec66a643507d26e326d977",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,100,101,112,116,104,58,32,49,44,32,98,111,100,121,58,32,91,80,114,111,98,101,93,41:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-006.typ:3:114\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(depth: 1, body: [Probe])",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.0934916459955275
+    },
+    {
+      "case": "supplement-Alpha.json",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-007.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-007.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.142635+00:00",
+      "source_sha256": "59d8214c50a96bc1342e86f1ffcd54ab2457a6c13b50efe2c12d9f27a8c83d08",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:123,10,32,32,34,102,117,110,99,34,58,32,34,104,101,97,100,105,110,103,34,44,10,32,32,34,108,101,118,101,108,34,58,32,49,44,10,32,32,34,100,101,112,116,104,34,58,32,49,44,10,32,32,34,111,102,102,115,101,116,34,58,32,48,44,10,32,32,34,110,117,109,98,101,114,105,110,103,34,58,32,110,117,108,108,44,10,32,32,34,115,117,112,112,108,101,109,101,110,116,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,65,108,112,104,97,34,10,32,32,125,44,10,32,32,34,111,117,116,108,105,110,101,100,34,58,32,116,114,117,101,44,10,32,32,34,98,111,111,107,109,97,114,107,101,100,34,58,32,34,97,117,116,111,34,44,10,32,32,34,104,97,110,103,105,110,103,45,105,110,100,101,110,116,34,58,32,34,97,117,116,111,34,44,10,32,32,34,98,111,100,121,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,80,114,111,98,101,34,10,32,32,125,44,10,32,32,34,108,97,98,101,108,34,58,32,34,60,112,114,111,98,101,62,34,10,125:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-007.typ:3:107\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Alpha\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.28051880199927837
+    },
+    {
+      "case": "supplement-Alpha.json",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-007.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-007.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.232068+00:00",
+      "source_sha256": "59d8214c50a96bc1342e86f1ffcd54ab2457a6c13b50efe2c12d9f27a8c83d08",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type function\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-007.typ:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "diagnostic",
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <source:59d8214c50a96bc1342e86f1ffcd54ab2457a6c13b50efe2c12d9f27a8c83d08>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+        "messages": [
+          "cannot access fields on type function"
+        ],
+        "hints": []
+      },
+      "elapsed_seconds": 0.09241231500345748
+    },
+    {
+      "case": "supplement-Beta.type",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-008.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-008.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.232747+00:00",
+      "source_sha256": "f9f764be2eecdbf022847f47c1ae6bc8b54a1f97f6f09e6d2b16d884e13f5611",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-008.typ:3:106\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2890392159897601
+    },
+    {
+      "case": "supplement-Beta.type",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-008.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-008.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.324692+00:00",
+      "source_sha256": "f9f764be2eecdbf022847f47c1ae6bc8b54a1f97f6f09e6d2b16d884e13f5611",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-008.typ:3:111\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09785607099183835
+    },
+    {
+      "case": "supplement-Beta.repr",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-009.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-009.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.329552+00:00",
+      "source_sha256": "273cefa2c64bdf9a0967fbaae20120eabd43e2e69988ce8bb12404c02c0d8013",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,66,101,116,97,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-009.typ:3:100\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Beta],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.28292571399651933
+    },
+    {
+      "case": "supplement-Beta.repr",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-009.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-009.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.422756+00:00",
+      "source_sha256": "273cefa2c64bdf9a0967fbaae20120eabd43e2e69988ce8bb12404c02c0d8013",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-009.typ:3:105\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(level: 1)[[Probe]]",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09482145099900663
+    },
+    {
+      "case": "supplement-Beta.fields",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-010.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-010.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.423454+00:00",
+      "source_sha256": "d212d0ffb07b72dcd84cdbde672ffd517da810e9404dad0a316a77dfa1257c67",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,66,101,116,97,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,32,32,108,97,98,101,108,58,32,60,112,114,111,98,101,62,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-010.typ:3:109\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Beta],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.28059081798710395
+    },
+    {
+      "case": "supplement-Beta.fields",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-010.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-010.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.517785+00:00",
+      "source_sha256": "d212d0ffb07b72dcd84cdbde672ffd517da810e9404dad0a316a77dfa1257c67",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,100,101,112,116,104,58,32,49,44,32,98,111,100,121,58,32,91,80,114,111,98,101,93,41:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-010.typ:3:114\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(depth: 1, body: [Probe])",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09523487300612032
+    },
+    {
+      "case": "supplement-Beta.json",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-011.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-011.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.522018+00:00",
+      "source_sha256": "5fba268c04f5a621d1283d7677a80b144e8280e8579df8d39394a0328917c4d4",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:123,10,32,32,34,102,117,110,99,34,58,32,34,104,101,97,100,105,110,103,34,44,10,32,32,34,108,101,118,101,108,34,58,32,49,44,10,32,32,34,100,101,112,116,104,34,58,32,49,44,10,32,32,34,111,102,102,115,101,116,34,58,32,48,44,10,32,32,34,110,117,109,98,101,114,105,110,103,34,58,32,110,117,108,108,44,10,32,32,34,115,117,112,112,108,101,109,101,110,116,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,66,101,116,97,34,10,32,32,125,44,10,32,32,34,111,117,116,108,105,110,101,100,34,58,32,116,114,117,101,44,10,32,32,34,98,111,111,107,109,97,114,107,101,100,34,58,32,34,97,117,116,111,34,44,10,32,32,34,104,97,110,103,105,110,103,45,105,110,100,101,110,116,34,58,32,34,97,117,116,111,34,44,10,32,32,34,98,111,100,121,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,80,114,111,98,101,34,10,32,32,125,44,10,32,32,34,108,97,98,101,108,34,58,32,34,60,112,114,111,98,101,62,34,10,125:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-011.typ:3:107\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Beta\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2793123900046339
+    },
+    {
+      "case": "supplement-Beta.json",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-011.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-011.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.612712+00:00",
+      "source_sha256": "5fba268c04f5a621d1283d7677a80b144e8280e8579df8d39394a0328917c4d4",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type function\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-011.typ:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "diagnostic",
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <source:5fba268c04f5a621d1283d7677a80b144e8280e8579df8d39394a0328917c4d4>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+        "messages": [
+          "cannot access fields on type function"
+        ],
+        "hints": []
+      },
+      "elapsed_seconds": 0.09327336298883893
+    },
+    {
+      "case": "numbering-1.type",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-012.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-012.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.613178+00:00",
+      "source_sha256": "d1d89ec215e722ed7a4c27f88d3c2f36e38086f1cae244b903acf5bea49ad3fd",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-012.typ:3:106\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.278339661002974
+    },
+    {
+      "case": "numbering-1.type",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-012.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-012.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.704283+00:00",
+      "source_sha256": "d1d89ec215e722ed7a4c27f88d3c2f36e38086f1cae244b903acf5bea49ad3fd",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-012.typ:3:111\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09601292401202954
+    },
+    {
+      "case": "numbering-1.repr",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-013.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-013.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.706146+00:00",
+      "source_sha256": "fcb687250a84d684d8de1112890a84634b1fc9445df7dc27ee6d65a7f132bb09",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,34,49,34,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-013.typ:3:100\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"1\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2760856069944566
+    },
+    {
+      "case": "numbering-1.repr",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-013.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-013.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.800458+00:00",
+      "source_sha256": "fcb687250a84d684d8de1112890a84634b1fc9445df7dc27ee6d65a7f132bb09",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-013.typ:3:105\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(level: 1)[[Probe]]",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09509688201069366
+    },
+    {
+      "case": "numbering-1.fields",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-014.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-014.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.801492+00:00",
+      "source_sha256": "f3d084c214eb103ac81016906c9d8dac86847c0e07d6b37e8d5d66d212edbf19",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,34,49,34,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,32,32,108,97,98,101,108,58,32,60,112,114,111,98,101,62,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-014.typ:3:109\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"1\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2772667170065688
+    },
+    {
+      "case": "numbering-1.fields",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-014.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-014.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.891720+00:00",
+      "source_sha256": "f3d084c214eb103ac81016906c9d8dac86847c0e07d6b37e8d5d66d212edbf19",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,100,101,112,116,104,58,32,49,44,32,98,111,100,121,58,32,91,80,114,111,98,101,93,41:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-014.typ:3:114\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(depth: 1, body: [Probe])",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09442620399931911
+    },
+    {
+      "case": "numbering-1.json",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-015.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-015.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.895745+00:00",
+      "source_sha256": "775f036cd4a39fdfbe6ab163762ec5543216fb213734e69acc23efb50d838175",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:123,10,32,32,34,102,117,110,99,34,58,32,34,104,101,97,100,105,110,103,34,44,10,32,32,34,108,101,118,101,108,34,58,32,49,44,10,32,32,34,100,101,112,116,104,34,58,32,49,44,10,32,32,34,111,102,102,115,101,116,34,58,32,48,44,10,32,32,34,110,117,109,98,101,114,105,110,103,34,58,32,34,49,34,44,10,32,32,34,115,117,112,112,108,101,109,101,110,116,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,83,101,99,116,105,111,110,34,10,32,32,125,44,10,32,32,34,111,117,116,108,105,110,101,100,34,58,32,116,114,117,101,44,10,32,32,34,98,111,111,107,109,97,114,107,101,100,34,58,32,34,97,117,116,111,34,44,10,32,32,34,104,97,110,103,105,110,103,45,105,110,100,101,110,116,34,58,32,34,97,117,116,111,34,44,10,32,32,34,98,111,100,121,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,80,114,111,98,101,34,10,32,32,125,44,10,32,32,34,108,97,98,101,108,34,58,32,34,60,112,114,111,98,101,62,34,10,125:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-015.typ:3:107\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": \"1\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2790162300079828
+    },
+    {
+      "case": "numbering-1.json",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-015.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-015.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.982427+00:00",
+      "source_sha256": "775f036cd4a39fdfbe6ab163762ec5543216fb213734e69acc23efb50d838175",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type function\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-015.typ:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "diagnostic",
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <source:775f036cd4a39fdfbe6ab163762ec5543216fb213734e69acc23efb50d838175>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+        "messages": [
+          "cannot access fields on type function"
+        ],
+        "hints": []
+      },
+      "elapsed_seconds": 0.09473795899248216
+    },
+    {
+      "case": "numbering-I.type",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-016.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-016.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:33.986323+00:00",
+      "source_sha256": "9d890577b7e8f42b453c456c236736f29216e2947a1a465d7f32729b20971c6e",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-016.typ:3:106\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2797904489998473
+    },
+    {
+      "case": "numbering-I.type",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-016.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-016.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:34.077363+00:00",
+      "source_sha256": "9d890577b7e8f42b453c456c236736f29216e2947a1a465d7f32729b20971c6e",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:99,111,110,116,101,110,116:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-016.typ:3:111\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(type(found.first()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "content",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09598844300489873
+    },
+    {
+      "case": "numbering-I.repr",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-017.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-017.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:34.078930+00:00",
+      "source_sha256": "c409e93a9a6bb08dcb9c722d9f3e9d19bc2b9a80854c1532b1f9ffcfd8140603",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,34,73,34,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-017.typ:3:100\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"I\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.28021435999835376
+    },
+    {
+      "case": "numbering-I.repr",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-017.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-017.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:34.173511+00:00",
+      "source_sha256": "c409e93a9a6bb08dcb9c722d9f3e9d19bc2b9a80854c1532b1f9ffcfd8140603",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-017.typ:3:105\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "heading(level: 1)[[Probe]]",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09551162100979127
+    },
+    {
+      "case": "numbering-I.fields",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-018.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-018.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:34.174942+00:00",
+      "source_sha256": "eabaa9eb1ac37740488ae0cd01f34ac8b1775b79738af82e30307a956e979e15",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,34,73,34,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,32,32,108,97,98,101,108,58,32,60,112,114,111,98,101,62,44,10,41:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-018.typ:3:109\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"I\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.2773800100112567
+    },
+    {
+      "case": "numbering-I.fields",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-018.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-018.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:34.266338+00:00",
+      "source_sha256": "eabaa9eb1ac37740488ae0cd01f34ac8b1775b79738af82e30307a956e979e15",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:40,100,101,112,116,104,58,32,49,44,32,98,111,100,121,58,32,91,80,114,111,98,101,93,41:END\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-018.typ:3:114\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "(depth: 1, body: [Probe])",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.09611001300800126
+    },
+    {
+      "case": "numbering-I.json",
+      "profile": "default",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-019.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-019.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:34.269164+00:00",
+      "source_sha256": "825600f0ff5718450e5582cc7cf92d13c156ce5f4095298733e33020374342eb",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: P1307R4:123,10,32,32,34,102,117,110,99,34,58,32,34,104,101,97,100,105,110,103,34,44,10,32,32,34,108,101,118,101,108,34,58,32,49,44,10,32,32,34,100,101,112,116,104,34,58,32,49,44,10,32,32,34,111,102,102,115,101,116,34,58,32,48,44,10,32,32,34,110,117,109,98,101,114,105,110,103,34,58,32,34,73,34,44,10,32,32,34,115,117,112,112,108,101,109,101,110,116,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,83,101,99,116,105,111,110,34,10,32,32,125,44,10,32,32,34,111,117,116,108,105,110,101,100,34,58,32,116,114,117,101,44,10,32,32,34,98,111,111,107,109,97,114,107,101,100,34,58,32,34,97,117,116,111,34,44,10,32,32,34,104,97,110,103,105,110,103,45,105,110,100,101,110,116,34,58,32,34,97,117,116,111,34,44,10,32,32,34,98,111,100,121,34,58,32,123,10,32,32,32,32,34,102,117,110,99,34,58,32,34,116,101,120,116,34,44,10,32,32,32,32,34,116,101,120,116,34,58,32,34,80,114,111,98,101,34,10,32,32,125,44,10,32,32,34,108,97,98,101,108,34,58,32,34,60,112,114,111,98,101,62,34,10,125:END\n  ┌─ ../../../tmp/p1307-r4-oracle-ln009gcg/case-019.typ:3:107\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "value",
+        "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": \"I\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+        "stderr": "",
+        "exit": 0
+      },
+      "elapsed_seconds": 0.27285067399498075
+    },
+    {
+      "case": "numbering-I.json",
+      "profile": "default",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1307-baseline-target.hqbv0ooo/release/typst",
+        "compile",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-019.typ",
+        "/tmp/p1307-r4-oracle-ln009gcg/case-019.pdf",
+        "--format",
+        "pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "started": "2026-09-07T17:57:34.359347+00:00",
+      "source_sha256": "825600f0ff5718450e5582cc7cf92d13c156ce5f4095298733e33020374342eb",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type function\n  ┌─ /tmp/p1307-r4-oracle-ln009gcg/case-019.typ:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+      "observable": {
+        "kind": "diagnostic",
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <source:825600f0ff5718450e5582cc7cf92d13c156ce5f4095298733e33020374342eb>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+        "messages": [
+          "cannot access fields on type function"
+        ],
+        "hints": []
+      },
+      "elapsed_seconds": 0.09201996700721793
+    }
+  ],
+  "pairs": [
+    {
+      "left": "supplement-Alpha",
+      "right": "supplement-Beta",
+      "projection": "type",
+      "observations": {
+        "vanilla": {
+          "left": {
+            "kind": "value",
+            "value": "content",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "content",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": true
+        },
+        "baseline": {
+          "left": {
+            "kind": "value",
+            "value": "content",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "content",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": true
+        }
+      },
+      "classification_boundary": "Existing set-rule acceptance/handling debt and downstream projection must be distinguished; no inference that every loss occurs in the serializer."
+    },
+    {
+      "left": "supplement-Alpha",
+      "right": "supplement-Beta",
+      "projection": "repr",
+      "observations": {
+        "vanilla": {
+          "left": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Beta],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": false
+        },
+        "baseline": {
+          "left": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": true
+        }
+      },
+      "classification_boundary": "Existing set-rule acceptance/handling debt and downstream projection must be distinguished; no inference that every loss occurs in the serializer."
+    },
+    {
+      "left": "supplement-Alpha",
+      "right": "supplement-Beta",
+      "projection": "fields",
+      "observations": {
+        "vanilla": {
+          "left": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Beta],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": false
+        },
+        "baseline": {
+          "left": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": true
+        }
+      },
+      "classification_boundary": "Existing set-rule acceptance/handling debt and downstream projection must be distinguished; no inference that every loss occurs in the serializer."
+    },
+    {
+      "left": "supplement-Alpha",
+      "right": "supplement-Beta",
+      "projection": "json",
+      "observations": {
+        "vanilla": {
+          "left": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Alpha\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Beta\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": false
+        },
+        "baseline": {
+          "left": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:59d8214c50a96bc1342e86f1ffcd54ab2457a6c13b50efe2c12d9f27a8c83d08>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          },
+          "right": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:5fba268c04f5a621d1283d7677a80b144e8280e8579df8d39394a0328917c4d4>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          },
+          "same_literal": false
+        }
+      },
+      "classification_boundary": "Existing set-rule acceptance/handling debt and downstream projection must be distinguished; no inference that every loss occurs in the serializer."
+    },
+    {
+      "left": "numbering-1",
+      "right": "numbering-I",
+      "projection": "type",
+      "observations": {
+        "vanilla": {
+          "left": {
+            "kind": "value",
+            "value": "content",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "content",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": true
+        },
+        "baseline": {
+          "left": {
+            "kind": "value",
+            "value": "content",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "content",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": true
+        }
+      },
+      "classification_boundary": "Different accepted numbering patterns require distinct queried Content data; identical baseline fields alone does not identify the exact internal loss without source audit."
+    },
+    {
+      "left": "numbering-1",
+      "right": "numbering-I",
+      "projection": "repr",
+      "observations": {
+        "vanilla": {
+          "left": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"1\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"I\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": false
+        },
+        "baseline": {
+          "left": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": true
+        }
+      },
+      "classification_boundary": "Different accepted numbering patterns require distinct queried Content data; identical baseline fields alone does not identify the exact internal loss without source audit."
+    },
+    {
+      "left": "numbering-1",
+      "right": "numbering-I",
+      "projection": "fields",
+      "observations": {
+        "vanilla": {
+          "left": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"1\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"I\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": false
+        },
+        "baseline": {
+          "left": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": true
+        }
+      },
+      "classification_boundary": "Different accepted numbering patterns require distinct queried Content data; identical baseline fields alone does not identify the exact internal loss without source audit."
+    },
+    {
+      "left": "numbering-1",
+      "right": "numbering-I",
+      "projection": "json",
+      "observations": {
+        "vanilla": {
+          "left": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": \"1\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "right": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": \"I\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "same_literal": false
+        },
+        "baseline": {
+          "left": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:775f036cd4a39fdfbe6ab163762ec5543216fb213734e69acc23efb50d838175>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          },
+          "right": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:825600f0ff5718450e5582cc7cf92d13c156ce5f4095298733e33020374342eb>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          },
+          "same_literal": false
+        }
+      },
+      "classification_boundary": "Different accepted numbering patterns require distinct queried Content data; identical baseline fields alone does not identify the exact internal loss without source audit."
+    }
+  ],
+  "unknowns": [],
+  "failed_content_construction": [],
+  "finished": "2026-09-07T17:57:34.687368+00:00",
+  "limitations": [
+    "No full matrix or general serialization certificate.",
+    "Probe headings have labels; direct fields are observed explicitly, not inferred from encoder failure.",
+    "Supplement and numbering are independent settings; known set-rule debt must not be attributed entirely to introspection or repaired by fixture literals."
+  ]
+}

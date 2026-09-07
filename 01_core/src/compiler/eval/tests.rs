@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 7234ef9d
+//! @prompt-hash f3151429
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -19441,13 +19441,1009 @@ mod tests {
         fn p1305_args_fields_remain_integral() {
             let expression = "{ let f(..args) = repr(args); f(..range(41)) }";
             let expected = format!(
-                "arguments({})",
-                (0..41).map(|i| i.to_string()).collect::<Vec<_>>().join(", ")
+                "arguments(\n  {},\n)",
+                (0..41).map(|i| i.to_string()).collect::<Vec<_>>().join(",\n  ")
             );
             assert_eq!(
                 observe(expression, Features::empty()),
                 Value::Str(expected.into())
             );
+        }
+    }
+
+    // P1306: independently authored against pinned vanilla and baseline before candidate.
+    mod p1306_oracles {
+        use super::*;
+
+        fn world() -> ImportMockWorld {
+            ImportMockWorld::new("", &[
+                ("ordinary/std.typ", "#let x = 7\n#let twice(n) = n * 2\n"),
+                ("ordinary/global.typ", "#let x = 8\n"),
+                ("ordinary/map.typ", "#let x = 9\n"),
+                ("ordinary/aurora.typ", "#let x = 10\n"),
+                ("reexport/std.typ", "#import std: *\n"),
+                ("routes/holder.typ", "#import \"../ordinary/std.typ\" as inner\n#let saved = inner\n"),
+                ("routes/error.typ", "#import \"../ordinary/std.typ\" as inner\n#let result = inner.absent\n"),
+                ("../ordinary/std.typ", "#let x = 7\n#let twice(n) = n * 2\n"),
+            ])
+        }
+
+        #[test]
+        fn p1306_named_module_contract_all_profiles() {
+            let cases = [
+                ("ordinary-std", "{ import \"ordinary/std.typ\" as specimen; specimen.nope }", "std", "nope", false),
+                ("ordinary-global", "{ import \"ordinary/global.typ\" as specimen; specimen.nope }", "global", "nope", false),
+                ("ordinary-map", "{ import \"ordinary/map.typ\" as specimen; specimen.nope }", "map", "nope", false),
+                ("ordinary-aurora", "{ import \"ordinary/aurora.typ\" as specimen; specimen.nope }", "aurora", "nope", false),
+                ("ordinary-bare", "{ import \"ordinary/std.typ\"; std.nope }", "std", "nope", false),
+                ("ordinary-alias", "{ import \"ordinary/std.typ\" as original; let alias = original; alias.absent }", "std", "absent", false),
+                ("ordinary-shadow", "{ import \"ordinary/std.typ\" as module; let std = module; std.absent }", "std", "absent", false),
+                ("ordinary-nested", "{ import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }", "std", "nope", false),
+                ("ordinary-line-column", "{\n import \"ordinary/std.typ\" as named;\n let alias = named;\n    alias.absent\n}", "std", "absent", false),
+                ("reexport", "{ import \"reexport/std.typ\" as exported; exported.nope }", "std", "nope", false),
+                ("reexport-alias", "{ import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }", "std", "absent", false),
+                ("imported-nested", "{ import \"routes/holder.typ\" as holder; holder.saved.absent }", "std", "absent", false),
+                ("imported-error", "{ import \"routes/error.typ\" as route; route.result }", "std", "absent", true),
+                ("global", "std.nope", "global", "nope", false),
+                ("global-alias", "{ let alias = std; alias.absent }", "global", "absent", false),
+                ("global-renamed-import", "{ import std as renamed; renamed.nope }", "global", "nope", false),
+                ("global-line-column", "{\n let alias = std;\n       alias.absent\n}", "global", "absent", false),
+                ("builtin-calc", "calc.absent", "calc", "absent", false),
+                ("builtin-sym", "sym.absent", "sym", "absent", false),
+                ("builtin-map", "color.map.absent", "map", "absent", false),
+            ];
+            let mut failures = Vec::new();
+            for reverse in [false, false, true] {
+                for (profile, features) in p1300_profiles() {
+                    for index in 0..cases.len() {
+                        let index = if reverse { cases.len() - 1 - index } else { index };
+                        let (id, expression, name, field, imported) = cases[index];
+                        let world = world();
+                        let source = if imported {
+                            world.files.get("routes/error.typ").unwrap().clone()
+                        } else {
+                            Source::new_with_parser(
+                                world.main(),
+                                expression.to_string(),
+                                crate::compiler::parse::parse_code,
+                            )
+                        };
+                        let source_text = if imported {
+                            "#import \"../ordinary/std.typ\" as inner\n#let result = inner.absent\n"
+                        } else {
+                            expression
+                        };
+                        let start =
+                            source_text.rfind(field).expect("fixed fixture field");
+                        let expected = start..start + field.len();
+                        let message =
+                            format!("module `{name}` does not contain `{field}`");
+                        let (result, side) =
+                            eval_expression_with_features(&world, expression, features);
+                        if !side.is_empty() {
+                            failures.push(format!(
+                                "{profile}/{id}: unexpected side {side:?}"
+                            ));
+                        }
+                        let errors = match result {
+                            Ok(value) => {
+                                failures.push(format!(
+                                    "{profile}/{id}: expected error, got {value:?}"
+                                ));
+                                continue;
+                            }
+                            Err(errors) => errors,
+                        };
+                        if errors.len() != 1 {
+                            failures.push(format!(
+                                "{profile}/{id}: expected one error, got {errors:?}"
+                            ));
+                            continue;
+                        }
+                        let error = &errors[0];
+                        let range = source.span_byte_range(error.span);
+                        if error.message != message
+                            || error.severity
+                                != crate::entities::source_result::Severity::Error
+                            || !error.hints.is_empty()
+                            || !error.trace.is_empty()
+                            || range != Some(expected.clone())
+                        {
+                            failures.push(format!("{profile}/{id}: expected error {message:?}, hints/trace empty, source {:?} range {expected:?}; observed {error:?}, range {range:?}", source.id()));
+                        }
+                    }
+                }
+            }
+            assert!(failures.is_empty(), "{}", failures.join("\n"));
+        }
+
+        #[test]
+        fn p1306_existing_lookup_and_repr_all_profiles() {
+            let cases = [
+                ("positive-std", "{ import \"ordinary/std.typ\" as specimen; (repr(specimen), specimen.x) }", Value::Array(vec![Value::Str("<module std>".into()), Value::Int(7)])),
+                ("positive-global", "{ import \"ordinary/global.typ\" as specimen; (repr(specimen), specimen.x) }", Value::Array(vec![Value::Str("<module global>".into()), Value::Int(8)])),
+                ("positive-map", "{ import \"ordinary/map.typ\" as specimen; (repr(specimen), specimen.x) }", Value::Array(vec![Value::Str("<module map>".into()), Value::Int(9)])),
+                ("positive-aurora", "{ import \"ordinary/aurora.typ\" as specimen; (repr(specimen), specimen.x) }", Value::Array(vec![Value::Str("<module aurora>".into()), Value::Int(10)])),
+                ("positive-reexport", "{ import \"reexport/std.typ\" as r; let renamed = r; (repr(r), repr(renamed), renamed.calc.abs(-12), repr(r.calc)) }", Value::Array(vec![Value::Str("<module std>".into()), Value::Str("<module std>".into()), Value::Int(12), Value::Str("<module calc>".into())])),
+                ("positive-alias-shadow-nested", "{ import \"ordinary/std.typ\" as original; let alias = original; let std = alias; let box = (inner: std); (repr(alias), repr(std), box.inner.x, box.inner.twice(6)) }", Value::Array(vec![Value::Str("<module std>".into()), Value::Str("<module std>".into()), Value::Int(7), Value::Int(12)])),
+                ("positive-imported-nested", "{ import \"routes/holder.typ\" as holder; (repr(holder.saved), holder.saved.twice(11)) }", Value::Array(vec![Value::Str("<module std>".into()), Value::Int(22)])),
+                ("global-bare-positive", "{ import std; (repr(std), std.calc.abs(-7)) }", Value::Array(vec![Value::Str("<module global>".into()), Value::Int(7)])),
+                ("global-bare-alias-positive", "{ let named = std; import named; (repr(named), named.calc.abs(-8)) }", Value::Array(vec![Value::Str("<module global>".into()), Value::Int(8)])),
+                ("global-import-forms", "{ import (std) as chosen; import std: calc as c; (repr(chosen), c.abs(-9)) }", Value::Array(vec![Value::Str("<module global>".into()), Value::Int(9)])),
+                ("existing-lookups", "(repr(type(std.rgb)), calc.abs(-7), repr(type(sym.alpha)), repr(type(color.map.viridis)), repr(type(pdf.attach)), repr(type(pdf.artifact)))", Value::Array(vec![Value::Str("function".into()), Value::Int(7), Value::Str("symbol".into()), Value::Str("array".into()), Value::Str("function".into()), Value::Str("function".into())])),
+            ];
+            for reverse in [false, false, true] {
+                for (profile, features) in p1300_profiles() {
+                    for index in 0..cases.len() {
+                        let index = if reverse { cases.len() - 1 - index } else { index };
+                        let (id, expression, expected) = &cases[index];
+                        let (result, side) =
+                            eval_expression_with_features(&world(), expression, features);
+                        assert!(side.is_empty(), "{profile}/{id}: {side:?}");
+                        assert_eq!(&result.expect(id), expected, "{profile}/{id}");
+                    }
+                }
+            }
+        }
+
+        #[test]
+        fn p1306_pdf_dict_float_and_import_controls() {
+            for (profile, features) in p1300_profiles() {
+                for field in ["data-cell", "header-cell", "table-summary"] {
+                    let expression = format!("repr(type(pdf.{field}))");
+                    if features.contains(Feature::A11yExtras) {
+                        let (result, side) = eval_expression_with_features(
+                            &world(),
+                            &expression,
+                            features,
+                        );
+                        assert!(side.is_empty(), "{profile}/{expression}: {side:?}");
+                        assert_eq!(
+                            result.expect(&expression),
+                            Value::Str("function".into())
+                        );
+                    } else {
+                        let mismatches = p1303_error_mismatches(&expression, features,
+                            &format!("cannot access field `{field}` because the `a11y-extras` feature is not enabled"),
+                            &["try enabling the `a11y-extras` feature", "see https://typst.app/help/compiler-features for more details"],
+                            14..14 + field.len());
+                        assert!(
+                            mismatches.is_empty(),
+                            "{profile}/{expression}: {mismatches:?}"
+                        );
+                    }
+                }
+                for (expression, message, hints, range) in [
+                    (
+                        "repr(type((:).nope))",
+                        "dictionary does not contain key \"nope\"",
+                        &[][..],
+                        10..18,
+                    ),
+                    (
+                        "repr(type(float(\"NaN\").is-nan))",
+                        "cannot access fields on type float",
+                        &[][..],
+                        23..29,
+                    ),
+                    (
+                        "{ import (std); none }",
+                        "dynamic import requires an explicit name",
+                        &["you can name the import with `as`"][..],
+                        9..14,
+                    ),
+                ] {
+                    let mismatches = p1303_error_mismatches(
+                        expression, features, message, hints, range,
+                    );
+                    assert!(
+                        mismatches.is_empty(),
+                        "{profile}/{expression}: {mismatches:?}"
+                    );
+                }
+            }
+            p1303_positivos_pdf_exatos_nos_perfis_com_a11y();
+            p1303_sentinelas_pdf_ungated_e_html_disabled();
+        }
+    }
+    // P1307-R6 independent tests: frozen R2/R4/R5 observations, no candidate input.
+    mod p1307_independent {
+        use super::*;
+
+        const JSON_PRETTY: &str = "{\n  \"z\": [\n    1,\n    2\n  ],\n  \"a\": 3\n}";
+        const JSON_COMPACT: &str = "{\"z\":[1,2],\"a\":3}";
+        const TOML_PRETTY: &str = "z = [\n    1,\n    2,\n]\na = 3\n";
+        const YAML: &str = "z:\n- 1\n- 2\na: 3\n";
+
+        fn value(expression: &str, features: Features) -> Value {
+            let (result, side) =
+                eval_expression_with_features(&MockWorld::new(""), expression, features);
+            assert!(side.is_empty(), "{expression}: {side:?}");
+            result.unwrap_or_else(|errors| panic!("{expression}: {errors:?}"))
+        }
+
+        fn string_all(expression: &str, expected: &str) {
+            for (profile, features) in p1300_profiles() {
+                assert_eq!(
+                    value(expression, features),
+                    Value::Str(expected.into()),
+                    "{profile}/{expression}"
+                );
+            }
+        }
+
+        fn error_all(
+            expression: &str,
+            message: &str,
+            hints: &[&str],
+            range: std::ops::Range<usize>,
+            trace: &[(std::ops::Range<usize>, &str)],
+        ) {
+            for (profile, features) in p1300_profiles() {
+                let mut world = MockWorld::new("");
+                let source = Source::new_with_parser(
+                    world.main(),
+                    expression.into(),
+                    crate::compiler::parse::parse_code,
+                );
+                world.source = source.clone();
+                let (result, side) =
+                    eval_expression_with_features(&world, expression, features);
+                assert!(side.is_empty(), "{profile}/{expression}: {side:?}");
+                let errors = result.expect_err(expression);
+                assert_eq!(errors.len(), 1, "{profile}/{expression}: {errors:?}");
+                let error = &errors[0];
+                assert_eq!(
+                    error.severity,
+                    crate::entities::source_result::Severity::Error
+                );
+                assert_eq!(error.message, message, "{profile}/{expression}");
+                assert_eq!(
+                    error.hints.iter().map(String::as_str).collect::<Vec<_>>(),
+                    hints
+                );
+                assert_eq!(
+                    source.span_byte_range(error.span),
+                    Some(range.clone()),
+                    "{profile}/{expression}: {error:?}"
+                );
+                assert_eq!(error.trace.len(), trace.len(), "{expression}: {error:?}");
+                for (actual, (expected_range, name)) in error.trace.iter().zip(trace) {
+                    assert_eq!(
+                        source.span_byte_range(actual.span),
+                        Some(expected_range.clone())
+                    );
+                    assert_eq!(
+                        actual.v,
+                        crate::entities::source_result::Tracepoint::Call(Some(
+                            (*name).into()
+                        ))
+                    );
+                }
+            }
+        }
+
+        // Uses existing APIs only. The document supplies the real walk snapshot;
+        // no synthetic LocatedContent construction or new carrier API is used.
+        fn query_value(document: &str, expression: &str, features: Features) -> Value {
+            use comemo::Track;
+            let world = MockWorld::new(document);
+            let module =
+                eval_for_test(&world, &world.source).expect("valid document fixture");
+            let content = module
+                .introspection_content()
+                .or_else(|| module.content())
+                .expect("document content");
+            let mut ctx = EvalContext::new();
+            ctx.features = features;
+            ctx.in_context = true;
+            ctx.introspector =
+                crate::compiler::introspect::introspect_with_introspector(content);
+            let mut global = make_stdlib_with_features(&world.inputs(), features);
+            global.define("std", Value::Module(Module::new("global", global.clone())));
+            let library = Library::with_global(global);
+            let mut scopes = Scopes::new(Some(&library));
+            let mut styles = StyleChain::default_chain();
+            let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+            let mut active_guards = Vec::new();
+            let route = Route::root().with_id(world.main());
+            let metrics = FixedMetrics;
+            let mut sink = Sink::new();
+            let source = Source::new_with_parser(
+                world.main(),
+                expression.into(),
+                crate::compiler::parse::parse_code,
+            );
+            assert!(!source.root().erroneous(), "invalid expression fixture");
+            let result = {
+                let mut tracked_sink = sink.track_mut();
+                let mut engine = Engine {
+                    world: &world,
+                    font_metrics: &metrics,
+                    route: route.track(),
+                    styles: &mut styles,
+                    show_rules: &mut show_rules,
+                    active_guards: &mut active_guards,
+                    current_file: world.main(),
+                    sink: &mut tracked_sink,
+                };
+                let mut last = Value::None;
+                for child in source.root().children() {
+                    if let Some(expr) = Expr::from_untyped(child) {
+                        last = eval_expr(expr, &mut scopes, &mut ctx, &mut engine)
+                            .unwrap_or_else(|e| panic!("{document}/{expression}: {e:?}"));
+                    }
+                }
+                last
+            };
+            assert!(sink.into_diagnostics().is_empty());
+            result
+        }
+
+        #[test]
+        fn p1307_namespace_identity() {
+            for parent in ["json", "toml", "yaml"] {
+                string_all(&format!("repr(type({parent}.encode))"), "function");
+                string_all(&format!("repr({parent}.encode)"), "encode");
+                string_all(&format!("repr({parent}.encode.with())"), "(..) => ..");
+            }
+        }
+
+        #[test]
+        fn p1307_json_default_and_compact() {
+            string_all("json.encode((z: (1, 2), a: 3))", JSON_PRETTY);
+            string_all("json.encode((z: (1, 2), a: 3), pretty: true)", JSON_PRETTY);
+            string_all("json.encode((z: (1, 2), a: 3), pretty: false)", JSON_COMPACT);
+        }
+
+        #[test]
+        fn p1307_toml_default_and_compact() {
+            string_all("toml.encode((z: (1, 2), a: 3))", TOML_PRETTY);
+            string_all(
+                "toml.encode((z: (1, 2), a: 3), pretty: false)",
+                "z = [1, 2]\na = 3\n",
+            );
+            string_all("toml.encode((:))", "");
+        }
+
+        #[test]
+        fn p1307_yaml_default_order_and_newline() {
+            string_all("yaml.encode((z: (1, 2), a: 3))", YAML);
+        }
+
+        #[test]
+        fn p1307_json_special_classes_are_not_debug() {
+            string_all(
+                "json.encode((sym.alpha, bytes((0, 255, 10)), [hi]), pretty: false)",
+                "[\"α\",\"bytes(3)\",{\"func\":\"text\",\"text\":\"hi\"}]",
+            );
+            string_all("json.encode((none, float(\"1e999\"), -float(\"1e999\"), float(\"NaN\"), -0.0), pretty: false)",
+                "[null,null,null,null,-0.0]");
+        }
+
+        #[test]
+        fn p1307_json_escape_and_raw_heading_presence() {
+            string_all(r#"json.encode("a\n\"\\α", pretty: false)"#, "\"a\\n\\\"\\\\α\"");
+            string_all(
+                "json.encode(heading[Probe], pretty: false)",
+                "{\"func\":\"heading\",\"body\":{\"func\":\"text\",\"text\":\"Probe\"}}",
+            );
+        }
+
+        #[test]
+        fn p1307_parent_with_does_not_prebind_encoder() {
+            for (parent, expected) in
+                [("json", JSON_PRETTY), ("toml", TOML_PRETTY), ("yaml", YAML)]
+            {
+                string_all(&format!("{parent}.with(bytes(\"ignored\"), nope: 9).encode((z: (1, 2), a: 3))"), expected);
+            }
+        }
+
+        #[test]
+        fn p1307_encoder_alias_and_late_override() {
+            string_all(
+                "{ let chosen = json.encode; chosen((z: (1, 2), a: 3), pretty: false) }",
+                JSON_COMPACT,
+            );
+            string_all(
+                "json.encode.with(pretty: false)((z: (1, 2), a: 3), pretty: true)",
+                JSON_PRETTY,
+            );
+            string_all(
+                "json.encode.with(pretty: false).with(pretty: true)((z: (1, 2), a: 3))",
+                JSON_PRETTY,
+            );
+        }
+
+        #[test]
+        fn p1307_invalid_prebound_pretty_cannot_disappear() {
+            for parent in ["json", "toml"] {
+                error_all(&format!("{parent}.encode.with(pretty: \"bad\")((z: (1, 2), a: 3), pretty: true)"),
+                    "expected boolean, found string", &[], 25..30, &[]);
+                error_all(&format!("{parent}.encode.with(pretty: true)((z: (1, 2), a: 3), pretty: \"bad\")"),
+                    "expected boolean, found string", &[], 58..63, &[]);
+            }
+        }
+
+        #[test]
+        fn p1307_missing_uses_whole_call_including_with() {
+            for parent in ["json", "toml", "yaml"] {
+                error_all(
+                    &format!("{parent}.encode()"),
+                    "missing argument: value",
+                    &[],
+                    0..13,
+                    &[],
+                );
+                error_all(
+                    &format!("{parent}.encode.with()()"),
+                    "missing argument: value",
+                    &[],
+                    0..20,
+                    &[],
+                );
+            }
+        }
+
+        #[test]
+        fn p1307_named_value_has_exact_hint_and_argument_span() {
+            error_all(
+                "json.encode(value: 1)",
+                "the argument `value` is positional",
+                &["try removing `value:`"],
+                12..20,
+                &[],
+            );
+        }
+
+        #[test]
+        fn p1307_unknown_named_prebound_span() {
+            error_all(
+                "json.encode.with(nope: 9)((z: (1, 2), a: 3))",
+                "unexpected argument: nope",
+                &[],
+                17..24,
+                &[],
+            );
+            error_all(
+                "yaml.encode((:), pretty: true)",
+                "unexpected argument: pretty",
+                &[],
+                17..29,
+                &[],
+            );
+        }
+
+        #[test]
+        fn p1307_toml_none_field_omitted_but_array_rejected() {
+            string_all("toml.encode((x: none))", "");
+            error_all(
+                "toml.encode((x: (none,)))",
+                "failed to encode value as TOML (unsupported None value)",
+                &[],
+                12..24,
+                &[],
+            );
+            error_all(
+                "toml.encode(1)",
+                "expected dictionary, found integer",
+                &[],
+                12..13,
+                &[],
+            );
+        }
+
+        fn origin_expression(closure: bool, selected: &str) -> String {
+            let maker = if closure { "((..xs) => xs)" } else { "arguments" };
+            format!("{{\n  let make(which) = {{\n    let a = {maker}(nope: 1);\n    let b = {maker}(nope: 1);\n    yaml.encode.with(..(if which {{ a }} else {{ b }}))\n  }};\n  let f = make(true);\n  let g = make(false);\n  {selected}((:))\n}}")
+        }
+
+        #[test]
+        fn p1307_equal_args_keep_distinct_factory_origins() {
+            for (selected, range) in [("f", 46..53), ("g", 78..85)] {
+                let expression = origin_expression(false, selected);
+                let start = expression.rfind(&format!("{selected}((:))")).unwrap();
+                error_all(
+                    &expression,
+                    "unexpected argument: nope",
+                    &[],
+                    range,
+                    &[(start..start + 6, "encode")],
+                );
+            }
+        }
+
+        #[test]
+        fn p1307_equal_sink_args_keep_distinct_factory_origins() {
+            for (selected, range) in [("f", 51..58), ("g", 88..95)] {
+                let expression = origin_expression(true, selected);
+                let start = expression.rfind(&format!("{selected}((:))")).unwrap();
+                error_all(
+                    &expression,
+                    "unexpected argument: nope",
+                    &[],
+                    range,
+                    &[(start..start + 6, "encode")],
+                );
+            }
+        }
+
+        #[test]
+        fn p1307_args_constructor_map_filter_preserve_duplicates() {
+            let arg = "arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)";
+            for suffix in ["", ".map(v => v)", ".filter(v => true)"] {
+                string_all(
+                    &format!("repr({arg}{suffix})"),
+                    "arguments(z: 11, 22, z: 33, a: 44, 55)",
+                );
+            }
+            for (_, features) in p1300_profiles() {
+                assert_eq!(value(&format!("{arg}.len()"), features), Value::Int(5));
+            }
+        }
+
+        #[test]
+        fn p1307_args_join_and_sink_have_different_order_rules() {
+            string_all("repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + arguments(..arguments(z: 61), z: 62, 77))",
+                "arguments(22, a: 44, 55, z: 61, z: 62, 77)");
+            string_all("repr(((head, z: 0, ..rest) => rest)(..arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)))",
+                "arguments(a: 44, 55)");
+            string_all(
+                "repr(((first, z: 99, ..rest) => rest)(1, a: 2, 3))",
+                "arguments(a: 2, 3)",
+            );
+        }
+
+        #[test]
+        fn p1307_decoder_and_cbor_controls() {
+            for (_, features) in p1300_profiles() {
+                assert_eq!(
+                    value("json(bytes(\"{\\\"a\\\":1}\")).a", features),
+                    Value::Int(1)
+                );
+                assert_eq!(value("toml(bytes(\"a = 1\")).a", features), Value::Int(1));
+                assert_eq!(value("yaml(bytes(\"a: 1\")).a", features), Value::Int(1));
+                assert_eq!(value("{ let raw = cbor.encode(bytes((0,255,10))); range(raw.len()).map(i => raw.at(i)) }", features),
+                    Value::Array(vec![Value::Int(67), Value::Int(0), Value::Int(255), Value::Int(10)]));
+            }
+        }
+
+        #[test]
+        fn p1307_query_snapshot_fields_are_complete_and_ordered() {
+            let expected = "{\"level\":1,\"depth\":1,\"offset\":0,\"numbering\":null,\"supplement\":{\"func\":\"text\",\"text\":\"Section\"},\"outlined\":true,\"bookmarked\":\"auto\",\"hanging-indent\":\"auto\",\"body\":{\"func\":\"text\",\"text\":\"Probe\"},\"label\":\"<probe>\"}";
+            for (_, features) in p1300_profiles() {
+                assert_eq!(
+                    query_value(
+                        "= Probe <probe>\n",
+                        "json.encode(query(<probe>).first().fields(), pretty: false)",
+                        features
+                    ),
+                    Value::Str(expected.into())
+                );
+                assert_eq!(query_value("= Probe <probe>\n", "json.encode(content.fields(query(<probe>).first()), pretty: false)", features), Value::Str(expected.into()));
+            }
+        }
+
+        #[test]
+        fn p1307_snapshot_numbering_changes_language_equality() {
+            let document = "#set heading(numbering: \"1\")\n= Probe\n#set heading(numbering: \"I\")\n= Probe\n";
+            for (_, features) in p1300_profiles() {
+                assert_eq!(query_value(document, "{ let q = query(heading); (q.at(0) == q.at(1), q.at(0) in (q.at(1),), (q.at(0),) == (q.at(1),)) }", features),
+                    Value::Array(vec![Value::Bool(false); 3]));
+            }
+        }
+
+        #[test]
+        fn p1307_snapshot_labels_not_equality_or_location() {
+            for (_, features) in p1300_profiles() {
+                assert_eq!(query_value("= Probe <left>\n= Probe <right>\n",
+                    "{ let q = query(heading); (q.at(0) == q.at(1), q.at(0).location() != q.at(1).location(), heading[Probe] == q.first()) }", features),
+                    Value::Array(vec![Value::Bool(true), Value::Bool(true), Value::Bool(false)]));
+            }
+        }
+
+        #[test]
+        fn p1307_snapshot_survives_array_closure_and_absent_label() {
+            for (_, features) in p1300_profiles() {
+                assert_eq!(query_value("#set text(lang: \"pt\")\n= Probe\n",
+                    "{ let a = (query(heading).first(),); let get() = a.first(); (get().supplement, get().has(\"label\"), get().at(\"label\", default: 7), get().at(\"numbering\", default: 8), get() == a.first()) }", features),
+                    Value::Array(vec![Value::Content(Content::text("Seção")), Value::Bool(false), Value::Int(7), Value::None, Value::Bool(true)]));
+            }
+        }
+    }
+
+    // P1308 independent: pinned vanilla/baseline literals, no candidate source.
+    mod p1308_independent {
+        use super::*;
+
+        // Deliberately supplies no Source: P1308 must provide the expression overlay.
+        struct MissingSourceWorld(MockWorld);
+        impl World for MissingSourceWorld {
+            fn library(&self) -> &Library {
+                self.0.library()
+            }
+            fn book(&self) -> &FontBook {
+                self.0.book()
+            }
+            fn main(&self) -> FileId {
+                self.0.main()
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                Err(FileError::NotFound)
+            }
+            fn file(&self, id: FileId) -> FileResult<Bytes> {
+                self.0.file(id)
+            }
+            fn font(&self, id: usize) -> Option<Font> {
+                self.0.font(id)
+            }
+            fn today(
+                &self,
+                offset: Option<crate::entities::duration::Duration>,
+            ) -> Option<Datetime> {
+                self.0.today(offset)
+            }
+        }
+
+        fn diagnostic(
+            expression: &str,
+            message: &str,
+            range: Option<std::ops::Range<usize>>,
+            traces: &[(std::ops::Range<usize>, &str)],
+        ) {
+            for (profile, features) in p1300_profiles() {
+                let world = MissingSourceWorld(MockWorld::new(""));
+                assert!(matches!(world.source(world.main()), Err(FileError::NotFound)));
+                let source = Source::new_with_parser(
+                    world.main(),
+                    expression.into(),
+                    crate::compiler::parse::parse_code,
+                );
+                let (result, side) =
+                    eval_expression_with_features(&world, expression, features);
+                assert!(side.is_empty(), "{profile}/{expression}: {side:?}");
+                let errors = result.expect_err(expression);
+                assert_eq!(errors.len(), 1, "{profile}/{expression}: {errors:?}");
+                let error = &errors[0];
+                assert_eq!(
+                    error.severity,
+                    crate::entities::source_result::Severity::Error
+                );
+                assert_eq!(error.message, message, "{profile}/{expression}");
+                assert!(error.hints.is_empty(), "{profile}/{expression}: {error:?}");
+                assert_eq!(
+                    source.span_byte_range(error.span),
+                    range,
+                    "{profile}/{expression}: {error:?}"
+                );
+                assert_eq!(
+                    error.trace.len(),
+                    traces.len(),
+                    "{profile}/{expression}: {error:?}"
+                );
+                for (actual, (expected_range, name)) in error.trace.iter().zip(traces) {
+                    assert_eq!(
+                        source.span_byte_range(actual.span),
+                        Some(expected_range.clone())
+                    );
+                    assert_eq!(
+                        actual.v,
+                        crate::entities::source_result::Tracepoint::Call(Some(
+                            (*name).into()
+                        ))
+                    );
+                }
+            }
+        }
+
+        fn string(expression: &str, expected: &str) {
+            for (profile, features) in p1300_profiles() {
+                let world = MissingSourceWorld(MockWorld::new(""));
+                let (result, side) =
+                    eval_expression_with_features(&world, expression, features);
+                assert!(side.is_empty(), "{profile}/{expression}: {side:?}");
+                assert_eq!(
+                    result.expect(expression),
+                    Value::Str(expected.into()),
+                    "{profile}/{expression}"
+                );
+            }
+        }
+
+        #[test]
+        fn p1308_r6_frozen_diagnostic_obligations() {
+            diagnostic("{\n  let make(which) = {\n    let a = arguments(nope: 1);\n    let b = arguments(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  f((:))\n}", "unexpected argument: nope", Some(46..53), &[(192..198, "encode")]);
+            diagnostic("{\n  let make(which) = {\n    let a = arguments(nope: 1);\n    let b = arguments(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  g((:))\n}", "unexpected argument: nope", Some(78..85), &[(192..198, "encode")]);
+            diagnostic("{\n  let make(which) = {\n    let a = ((..xs) => xs)(nope: 1);\n    let b = ((..xs) => xs)(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  f((:))\n}", "unexpected argument: nope", Some(51..58), &[(202..208, "encode")]);
+            diagnostic("{\n  let make(which) = {\n    let a = ((..xs) => xs)(nope: 1);\n    let b = ((..xs) => xs)(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  g((:))\n}", "unexpected argument: nope", Some(88..95), &[(202..208, "encode")]);
+            diagnostic("arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).map(v => panic(str(v)))", "panicked with: 11", Some(74..87), &[]);
+            diagnostic("arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).filter(v => panic(str(v)))", "panicked with: 11", Some(77..90), &[]);
+            diagnostic("arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).filter(v => 1)", "expected boolean, found integer", Some(72..73), &[]);
+            diagnostic(
+                "json.encode((:), ..arguments(pretty: \"bad\").map(v => v))",
+                "expected boolean, found string",
+                None,
+                &[(0..56, "encode")],
+            );
+            diagnostic(
+                "json.encode((:), ..arguments(pretty: true).map(v => \"bad\"))",
+                "expected boolean, found string",
+                None,
+                &[(0..59, "encode")],
+            );
+            diagnostic("{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).filter(v => true))\n };\n let f = make(true);\n let g = make(false);\n f((:))\n}", "unexpected argument: nope", Some(43..50), &[(199..205, "encode")]);
+            diagnostic("{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).map(v => v))\n };\n let f = make(true);\n let g = make(false);\n f((:))\n}", "unexpected argument: nope", Some(43..50), &[(193..199, "encode")]);
+            diagnostic("{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).filter(v => true))\n };\n let f = make(true);\n let g = make(false);\n g((:))\n}", "unexpected argument: nope", Some(73..80), &[(199..205, "encode")]);
+            diagnostic("{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).map(v => v))\n };\n let f = make(true);\n let g = make(false);\n g((:))\n}", "unexpected argument: nope", Some(73..80), &[(193..199, "encode")]);
+        }
+
+        #[test]
+        fn p1308_filter_direct() {
+            diagnostic(
+                "arguments(1).filter(value => \"bad\")",
+                "expected boolean, found string",
+                Some(20..25),
+                &[],
+            );
+        }
+
+        #[test]
+        fn p1308_filter_alias() {
+            diagnostic(
+                "{ let callback = (value) => \"bad\"; arguments(1).filter(callback) }",
+                "expected boolean, found string",
+                Some(17..24),
+                &[(35..64, "filter")],
+            );
+        }
+
+        #[test]
+        fn p1308_filter_with() {
+            diagnostic("{ let callback = (prefix, value) => \"bad\"; let bound = callback.with(9); arguments(1).filter(bound) }", "expected boolean, found string", Some(17..32), &[(73..99, "filter")]);
+        }
+
+        #[test]
+        fn p1308_filter_spread_sources() {
+            diagnostic("{ let callback = (value) => \"bad\"; let saved = arguments(callback); arguments(1).filter(..saved) }", "expected boolean, found string", Some(17..24), &[(68..96, "filter")]);
+            diagnostic("{ let callback = (value) => \"bad\"; let saved = (callback,); arguments(1).filter(..saved) }", "expected boolean, found string", Some(17..24), &[(60..88, "filter")]);
+        }
+
+        #[test]
+        fn p1308_filter_synthetic_native() {
+            diagnostic(
+                "arguments(1).filter(str)",
+                "expected boolean, found string",
+                None,
+                &[(0..24, "filter")],
+            );
+        }
+
+        #[test]
+        fn p1308_panic_call_origins() {
+            diagnostic("panic(\"p1308\")", "panicked with: p1308", Some(0..14), &[]);
+            diagnostic(
+                "{ let fail = panic; fail(\"p1308\") }",
+                "panicked with: p1308",
+                Some(20..33),
+                &[],
+            );
+            diagnostic(
+                "{ let fail = panic.with(\"p1308\"); fail() }",
+                "panicked with: p1308",
+                Some(34..40),
+                &[],
+            );
+        }
+
+        #[test]
+        fn p1308_panic_callback_origins() {
+            diagnostic(
+                "arguments(1).map(value => panic(\"p1308\"))",
+                "panicked with: p1308",
+                Some(26..40),
+                &[],
+            );
+            diagnostic(
+                "{ let fail = panic; arguments(1).map(value => fail(\"p1308\")) }",
+                "panicked with: p1308",
+                Some(46..59),
+                &[],
+            );
+            diagnostic(
+                "{ let fail = panic.with(\"p1308\"); arguments(1).map(value => fail()) }",
+                "panicked with: p1308",
+                Some(60..66),
+                &[],
+            );
+        }
+
+        #[test]
+        fn p1308_panic_named_baseline_debt() {
+            diagnostic(
+                "panic(\"p1308\", nope: 1)",
+                "argumento nomeado inesperado: 'nope'",
+                None,
+                &[(0..23, "panic")],
+            );
+            diagnostic(
+                "{ let fail = panic; fail(\"p1308\", nope: 1) }",
+                "argumento nomeado inesperado: 'nope'",
+                None,
+                &[(20..42, "panic")],
+            );
+            diagnostic(
+                "{ let fail = panic.with(\"p1308\", nope: 1); fail() }",
+                "argumento nomeado inesperado: 'nope'",
+                None,
+                &[(43..49, "panic")],
+            );
+        }
+
+        #[test]
+        fn p1308_none_identity() {
+            string("repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + none)", "arguments(z: 11, 22, z: 33, a: 44, 55)");
+            string("repr(none + arguments(z: 1, 2))", "arguments(z: 1, 2)");
+            string("repr(arguments() + none)", "arguments()");
+        }
+
+        #[test]
+        fn p1308_empty_filter_control() {
+            string("repr(arguments().filter(value => \"bad\"))", "arguments()");
+        }
+
+        #[test]
+        fn p1308_args_width_boundaries() {
+            string(
+                "repr(arguments(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"))",
+                "arguments(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\")",
+            );
+            string(
+                "repr(arguments(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"))",
+                "arguments(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\")",
+            );
+            string(
+                "repr(arguments(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"))",
+                "arguments(\n  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n)",
+            );
+        }
+
+        #[test]
+        fn p1308_args_integral_unicode_and_long() {
+            string("repr(arguments(\"éééééééééééééééééééééééééééééééééééééééééééééééééé\"))", "arguments(\n  \"éééééééééééééééééééééééééééééééééééééééééééééééééé\",\n)");
+            string("repr(arguments(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29))", "arguments(\n  0,\n  1,\n  2,\n  3,\n  4,\n  5,\n  6,\n  7,\n  8,\n  9,\n  10,\n  11,\n  12,\n  13,\n  14,\n  15,\n  16,\n  17,\n  18,\n  19,\n  20,\n  21,\n  22,\n  23,\n  24,\n  25,\n  26,\n  27,\n  28,\n  29,\n)");
+            string("repr(arguments(first: \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", second: \"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\"))", "arguments(\n  first: \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n  second: \"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\",\n)");
+        }
+
+        #[test]
+        fn p1308_with_repr_control() {
+            string("repr(json.encode.with())", "(..) => ..");
+        }
+
+        #[test]
+        fn p1308_unsupported_add_control() {
+            diagnostic(
+                "arguments(1) + 1",
+                "cannot add arguments and integer",
+                Some(0..16),
+                &[],
+            );
+        }
+
+        struct ServicesWorld(ImportMockWorld);
+        impl World for ServicesWorld {
+            fn library(&self) -> &Library {
+                self.0.library()
+            }
+            fn book(&self) -> &FontBook {
+                self.0.book()
+            }
+            fn main(&self) -> FileId {
+                self.0.main()
+            }
+            fn source(&self, id: FileId) -> FileResult<Source> {
+                if id == self.main() {
+                    Err(FileError::NotFound)
+                } else {
+                    self.0.source(id)
+                }
+            }
+            fn file(&self, id: FileId) -> FileResult<Bytes> {
+                self.0.file(id)
+            }
+            fn font(&self, id: usize) -> Option<Font> {
+                self.0.font(id)
+            }
+            fn today(
+                &self,
+                offset: Option<crate::entities::duration::Duration>,
+            ) -> Option<Datetime> {
+                self.0.today(offset)
+            }
+            fn include_source(&self, file: FileId, path: &str) -> Result<Source, String> {
+                self.0.include_source(file, path)
+            }
+            fn inputs(&self) -> crate::contracts::world::SysInputs {
+                let mut values = crate::contracts::world::SysInputs::default();
+                values.insert("audit".into(), "preserved".into());
+                values
+            }
+        }
+
+        #[test]
+        fn p1308_none_identity_preserves_error_origin() {
+            diagnostic("{ let original = arguments(nope: 1); yaml.encode((:), ..(original + none)) }",
+                "unexpected argument: nope", Some(27..34), &[(37..74, "encode")]);
+            diagnostic("{ let original = arguments(nope: 1); yaml.encode((:), ..(none + original)) }",
+                "unexpected argument: nope", Some(27..34), &[(37..74, "encode")]);
+        }
+
+        #[test]
+        fn p1308_overlay_delegates_inputs_and_external_import_service() {
+            for (profile, features) in p1300_profiles() {
+                let world = ServicesWorld(ImportMockWorld::new(
+                    "",
+                    &[(
+                        "external.typ",
+                        "#let answer = 41\n#let input() = sys.inputs.audit\n",
+                    )],
+                ));
+                let expression = "{ import \"external.typ\" as helper; (sys.inputs.audit, helper.answer, helper.input()) }";
+                let (result, side) =
+                    eval_expression_with_features(&world, expression, features);
+                assert!(side.is_empty(), "{profile}: {side:?}");
+                assert_eq!(
+                    result.expect(expression),
+                    Value::Array(vec![
+                        Value::Str("preserved".into()),
+                        Value::Int(41),
+                        Value::Str("preserved".into())
+                    ])
+                );
+                assert!(matches!(world.source(world.main()), Err(FileError::NotFound)));
+                assert_eq!(
+                    world.inputs().get("audit").map(|s| s.as_str()),
+                    Some("preserved")
+                );
+            }
+        }
+
+        #[test]
+        fn p1308_overlay_preserves_external_callback_source_and_local_trace() {
+            for (profile, features) in p1300_profiles() {
+                let world = ServicesWorld(ImportMockWorld::new(
+                    "",
+                    &[(
+                        "external.typ",
+                        "#let callback = (value) => \"bad\"\n#let answer = 41\n",
+                    )],
+                ));
+                let external = world.0.files.get("external.typ").unwrap();
+                let expression = "{ import \"external.typ\" as helper; arguments(1).filter(helper.callback) }";
+                let local = Source::new_with_parser(
+                    world.main(),
+                    expression.into(),
+                    crate::compiler::parse::parse_code,
+                );
+                let (result, side) =
+                    eval_expression_with_features(&world, expression, features);
+                assert!(side.is_empty(), "{profile}: {side:?}");
+                let errors = result.expect_err(expression);
+                assert_eq!(errors.len(), 1);
+                let error = &errors[0];
+                assert_eq!(error.message, "expected boolean, found string");
+                assert!(error.hints.is_empty());
+                assert_eq!(error.span.id(), Some(external.id()));
+                assert_eq!(external.span_byte_range(error.span), Some(16..23));
+                assert_eq!(error.trace.len(), 1, "{profile}: {error:?}");
+                assert_eq!(local.span_byte_range(error.trace[0].span), Some(35..71));
+                assert_eq!(
+                    error.trace[0].v,
+                    crate::entities::source_result::Tracepoint::Call(Some(
+                        "filter".into()
+                    ))
+                );
+                assert!(matches!(world.source(world.main()), Err(FileError::NotFound)));
+            }
         }
     }
 }

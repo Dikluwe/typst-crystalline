@@ -1,0 +1,133 @@
+{
+  "at": "2026-09-07T20:51:00.364386+00:00",
+  "baseline_sha256": "62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394",
+  "binary_sha256": {
+    "/dev/shm/p1308-baseline.XzjFgA/typst": "16aeeec4783aa8fa66821a50a3d1a1d4fdebc279602253a1bf731bcb6c8eb7be",
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "profiles": [
+    "default"
+  ],
+  "rows": [
+    {
+      "case": "historical.args41",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1308-baseline.XzjFgA/typst",
+        "eval",
+        "{ let f(..args) = repr(args); f(..range(41)) }",
+        "--format",
+        "json"
+      ],
+      "expression": "{ let f(..args) = repr(args); f(..range(41)) }",
+      "exit": 0,
+      "stdout": "\"arguments(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  40,\\n)\"\n",
+      "stderr": ""
+    },
+    {
+      "case": "historical.args41",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let f(..args) = repr(args); f(..range(41)) }",
+        "--format",
+        "json"
+      ],
+      "expression": "{ let f(..args) = repr(args); f(..range(41)) }",
+      "exit": 0,
+      "stdout": "\"arguments(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  40,\\n)\"\n",
+      "stderr": ""
+    },
+    {
+      "case": "historical.with10",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1308-baseline.XzjFgA/typst",
+        "eval",
+        "repr((grid.cell.with(),grid.header.with(),grid.footer.with(),grid.hline.with(),grid.vline.with(),table.cell.with(),table.header.with(),table.footer.with(),table.hline.with(),table.vline.with()))",
+        "--format",
+        "json"
+      ],
+      "expression": "repr((grid.cell.with(),grid.header.with(),grid.footer.with(),grid.hline.with(),grid.vline.with(),table.cell.with(),table.header.with(),table.footer.with(),table.hline.with(),table.vline.with()))",
+      "exit": 0,
+      "stdout": "\"(\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n)\"\n",
+      "stderr": ""
+    },
+    {
+      "case": "historical.with10",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "repr((grid.cell.with(),grid.header.with(),grid.footer.with(),grid.hline.with(),grid.vline.with(),table.cell.with(),table.header.with(),table.footer.with(),table.hline.with(),table.vline.with()))",
+        "--format",
+        "json"
+      ],
+      "expression": "repr((grid.cell.with(),grid.header.with(),grid.footer.with(),grid.hline.with(),grid.vline.with(),table.cell.with(),table.header.with(),table.footer.with(),table.hline.with(),table.vline.with()))",
+      "exit": 0,
+      "stdout": "\"(\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n)\"\n",
+      "stderr": ""
+    },
+    {
+      "case": "none.origin-right",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1308-baseline.XzjFgA/typst",
+        "eval",
+        "{ let original = arguments(nope: 1); yaml.encode((:), ..(original + none)) }",
+        "--format",
+        "json"
+      ],
+      "expression": "{ let original = arguments(nope: 1); yaml.encode((:), ..(original + none)) }",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot add arguments and none\n  ┌─ <input-expression>:1:57\n  │\n1 │ { let original = arguments(nope: 1); yaml.encode((:), ..(original + none)) }\n  │                                                          ^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "case": "none.origin-right",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let original = arguments(nope: 1); yaml.encode((:), ..(original + none)) }",
+        "--format",
+        "json"
+      ],
+      "expression": "{ let original = arguments(nope: 1); yaml.encode((:), ..(original + none)) }",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: nope\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let original = arguments(nope: 1); yaml.encode((:), ..(original + none)) }\n  │                            ^^^^^^^\n\n  while calling `encode` at <input-expression>:1:37\n    yaml.encode((:), ..(original + none))\n\n"
+    },
+    {
+      "case": "none.origin-left",
+      "side": "baseline",
+      "argv": [
+        "/dev/shm/p1308-baseline.XzjFgA/typst",
+        "eval",
+        "{ let original = arguments(nope: 1); yaml.encode((:), ..(none + original)) }",
+        "--format",
+        "json"
+      ],
+      "expression": "{ let original = arguments(nope: 1); yaml.encode((:), ..(none + original)) }",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot add none and arguments\n  ┌─ <input-expression>:1:57\n  │\n1 │ { let original = arguments(nope: 1); yaml.encode((:), ..(none + original)) }\n  │                                                          ^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "case": "none.origin-left",
+      "side": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let original = arguments(nope: 1); yaml.encode((:), ..(none + original)) }",
+        "--format",
+        "json"
+      ],
+      "expression": "{ let original = arguments(nope: 1); yaml.encode((:), ..(none + original)) }",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: nope\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let original = arguments(nope: 1); yaml.encode((:), ..(none + original)) }\n  │                            ^^^^^^^\n\n  while calling `encode` at <input-expression>:1:37\n    yaml.encode((:), ..(none + original))\n\n"
+    }
+  ]
+}

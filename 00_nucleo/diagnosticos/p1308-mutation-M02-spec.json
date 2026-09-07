@@ -1,0 +1,37 @@
+{
+  "mode": "mutant",
+  "family": "P1308-M02",
+  "candidate_root": "/dev/shm/p1308-mutant-source.PmokqQ",
+  "target_dir": "/dev/shm/p1308-mutant-target.NV7BUV",
+  "freeze": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-verification-candidate-freeze-r2.json",
+    "sha256": "49c38b596a041cfe20e3105392c322a6372b4c3862db79568f6ae62bd681711b"
+  },
+  "lease": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-lease-r2.json",
+    "sha256": "9da35cc1cce83126de4a7d9ceac9da39ef2e53af2cc38bf973f8480a85b909c2"
+  },
+  "route": "rust",
+  "tests": [
+    "p1308_panic_call_origins",
+    "p1308_panic_callback_origins",
+    "p1308_panic_named_baseline_debt"
+  ],
+  "changes": [
+    {
+      "path": "01_core/src/compiler/eval/call_dispatch.rs",
+      "before_sha256": "fd34727de8570bb3dfa65ec988dcd118c4e96adac0e5528de37c373ef13dcae2",
+      "after_sha256": "1807d526d251e8badea43639c68fc5775cc6e532bea1adce4ee9c0f4743acabb",
+      "function": "transport_native_call_span",
+      "defect": "Disable only the future native-panic full-call aggregate transport or its With identity delegation, so the emitted panic error is again anchored to arguments. Keep error text, callback order and trace algorithm unchanged."
+    }
+  ],
+  "patch": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-M02.patch",
+    "sha256": "d9b37221f0551f03bcb3899f461e7e44bc1a94f3c66e9e5cb2a0939da9b26daf"
+  },
+  "green_control": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-control.json",
+    "sha256": "612569d38fc2567d66a55b17f4bbc27eaaaf78c16ae66dad222853e7f29a85fc"
+  }
+}

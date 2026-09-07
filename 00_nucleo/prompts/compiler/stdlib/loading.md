@@ -1,5 +1,57 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: 9379f85f
+Hash do Código: 4a491c50
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`compiler/stdlib/loading.rs:240–263` tem fallback CBOR por repr; R4 mostrou
+que o encoder novo não pode recuperar chain perdida pelo walk. Essa perda
+refuta expressamente a inferência R3 de suficiência sem entidade além de Args.
+
+### Decisão proprietária
+
+A partição total de Value dos três encoders permanece a de R3/R4. No braço
+Content, LocatedContent Some produz func e mapa autoritativo, recursivamente,
+sem defaults adicionados por campo, transformação em repr ou realização
+runtime. LocatedContent None usa a projeção pública legada de sua árvore,
+assim como Content raw usa campos de presença — não os defaults hardcoded
+da CLI. O alcance de Content não fica restrito a Heading: todas as classes
+obrigatórias R4 continuam classificadas/testadas pelo braço pertinente.
+
+As dívidas do produtor de Heading (named tolerados mas descartados, callbacks
+e região não modelada) não são corrigidas nem mascaradas no encoder. O novo
+carrier resolve transporte, não justifica alegar paridade desses inputs.
+Defaults completos do Heading padrão consultado continuam obrigatórios nos
+três formatos, inclusive label causal e corpo estruturado. Testes de tipos
+compostos devem preservar um snapshot aninhado e sua ordem.
+
+No CBOR, manter Content/LocatedContent como fallback textual existente. Para
+LocatedHeading Some, a repr realizada de
+`00_nucleo/prompts/compiler/eval/repr.md` R5 muda deliberadamente a string
+CBOR: registrar o delta, não trocar pela saída vanilla estruturada. Raw
+Content/Symbol mantêm suas dívidas anteriores e controles. Esta exceção
+estreita soma-se às exceções R3 de State/Counter/Location/With/Args; não é
+promessa de preservação byte-a-byte dos snapshots nem correção geral CBOR.
+
+Validação, spans, Args, formatos, escalar/None/pretty e dependências R3/R4
+não mudam. É inferência que o snapshot resolve o bloqueio de dados do domínio
+modelado; uma rota que descarte o carrier ou um campo obrigatório ainda
+irrecuperável a refuta. Não publicar GREEN enquanto essa inferência não for
+atacada com testes causais independentes após o gate do carrier.
+
+---
+
 
 **Camada**: L1 (decode puro) + composição com L3 já existente.
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/loading.rs`
@@ -229,3 +281,114 @@ native_json(bytes de `{"a":1}`) → Ok(Dict{a:Int(1)})  // aceita Bytes, não s�
 ```
 
 > Cada caso de teste do decode usa **bytes literais** — prova a paridade de língua sem montar disco. Os bytes de cbor são produzidos por fixture pequena no teste (helper), não lidos de ficheiro.
+
+## P1307-R3 — encoders textuais (contrato proposto, gate público pendente)
+
+### Medição anterior à classificação
+
+O recibo `00_nucleo/diagnosticos/p1307-contract-measurement.json`, SHA-256
+`f1191d3de029dabf6f66f87872bee8146aa43106ae54e84facc22952afd238d0`,
+e seu sucessor `p1307-r2-measurement.json`, SHA-256
+`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`,
+registram fontes literais, strings e diagnósticos integrais, argv, horários,
+estado e perfis default/html/a11y/html+a11y. HEAD
+`b303f1f15b610e09872b567027e0d806387fde8c`, working tree P1306 não commitado
+com diff/stat completos nos baselines P1307/R2; vanilla ratificado
+`a51e02804`, executável SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+As tentativas contextuais antigas inválidas não são RED: a rota R2 compile
+documental tornou Location/LocatedContent observáveis bilateralmente.
+
+Na fonte ratificada sob `lab/typst-original/crates/typst-library/src/`,
+`loading/json.rs:131-151`, `loading/toml.rs:104-126` e
+`loading/yaml.rs:108-123` declaram as assinaturas e a intenção de encode.
+`foundations/value.rs:343-364`, `foundations/symbol.rs:394-401`,
+`foundations/bytes.rs:362-374` e `foundations/content/mod.rs:709-719`
+determinam a partição de valores; emissão exata
+foi medida, não inferida da intenção. `foundations/args.rs:218-235,259-266`
+valida cada named antes de reter o último e rejeita o primeiro remanescente.
+`01_core/src/compiler/stdlib/loading.rs:240-263` já tem encoder CBOR com
+fallback textual distinto para Symbol/Content; os três encoders faltam.
+
+### Superfície e ownership
+
+O único consumer é `01_core/src/compiler/stdlib/loading.rs`. Deve implementar
+as nativas `native_json_encode`, `native_toml_encode`, `native_yaml_encode`,
+usando a assinatura vigente de função nativa, sem API pública auxiliar de
+serializer ou novo `Serialize` global em Value. A superfície Typst é:
+
+```typst
+json.encode(value, pretty: true) -> str
+toml.encode(value, pretty: true) -> str // value: dictionary
+yaml.encode(value) -> str
+```
+
+Exatamente um positional obrigatório; JSON/TOML aceitam somente o named
+booleano `pretty`; YAML não aceita named. Defaults equivalem a `pretty:true`.
+Não há novo modo CLI, feature, I/O, relógio ou fase. Decoder, namespace e
+registro têm seus owners; estes encoders não abrem arquivos nem usam World
+para serializar. Usar dependências já autorizadas; ADR-0111 mantém saphyr,
+não adicionar serde_yaml/serde_yml ou outra crate para resolver emissão.
+
+### Valores e emissão
+
+None/Bool/Int/Float/Str/Array/Dict são estruturados recursivamente. Bytes nos
+formatos human-readable produz a string `bytes(N)`, nunca lista de bytes.
+Symbol produz Unicode do símbolo, não sua repr. Content, inclusive carrier
+LocatedContent, produz mapa com `func` primeiro e campos públicos na ordem
+da linguagem, recursivamente; não emitir a repr textual do conteúdo. Os
+demais Values usam a fachada canônica de repr de eval. Não há branch por
+nome de fixture, Debug, reconhecimento de origem ou execução de contexto
+nova dentro do serializer. A classificação é total sobre o enum vigente.
+
+JSON: pretty com dois espaços, compacto quando false, sem newline final;
+não finitos viram null e `-0.0` mantém sinal/ponto. TOML: somente dict no topo,
+omissão de campo none, none em array é erro; arrays pretty não vazios usam
+quatro espaços e forma multilinha medida. Dict vazio gera string vazia;
+documento não vazio termina com newline. Escalares precedem tables,
+preservando ordem relativa dentro de cada classe. YAML: newline final,
+null, `.nan`, `.inf`, `-.inf`; quoting, block scalar, indentação e chomping
+devem reproduzir o valor integral congelado. JSON/YAML preservam inserção.
+As três rotas preservam dados integrais, nesting e escaping de Unicode,
+controles, aspas e quebras. Não normalizar strings para declarar paridade;
+round-trip é controle adicional, não substituto da string pública exata.
+
+### Validação e origem diagnóstica
+
+As nativas validam a sequência causal fornecida por Args; o dispatch somente
+transporta e não escolhe âncora pelo texto do erro. Cada ocorrência de pretty
+é convertida a bool em ordem, mesmo quando uma posterior a sobrepõe; a última
+válida só vence se nenhuma conversão falhou. Named inválido pré-ligado não
+pode desaparecer. Missing value produz `missing argument: value` na chamada;
+`value:` nominal produz ``the argument `value` is positional``, com hint
+``try removing `value:` `` e âncora no named completo. Cast do valor e de pretty
+aponta para value_span. Primeiro excesso positional dá `unexpected argument`;
+primeiro named desconhecido dá `unexpected argument: <nome>`, no argumento
+completo. TOML de tipo errado dá `expected dictionary, found <tipo>`; falha
+de none em array dá `failed to encode value as TOML (unsupported None value)`,
+no positional de entrada. Ordem de validação, mensagem completa, hints,
+laterais, exit e spans seguem os casos congelados, não uma seleção genérica
+pela prioridade conveniente de erros.
+
+Origem detached legítima de um valor transformado por arguments.map não
+recebe range inventado. Em contrapartida, perda de origem que vanilla conserva
+em spread de Args, sink, With ou filter é falha; não normalizar para detached.
+Args sintético `None` usa a política explicitamente definida por seu owner.
+
+### Preservação e fronteiras
+
+Os decoders continuam chamáveis, inclusive path/Bytes; não criar csv.encode,
+xml.encode ou read.encode. CBOR mantém seu formato e a dívida já medida de
+Symbol/Content; não reutilizar cegamente a classificação dos novos formatos
+para "corrigi-lo". Há exceção explícita à preservação: o fallback CBOR chama
+repr canônica, logo as correções contratadas de State/Counter/Location/With
+e Args causal propagam à string codificada. Isso exige casos independentes
+congelados antes do candidato e aprovação humana deste escopo, não autoriza
+mudanças em outras classes ou alegação de paridade geral de CBOR.
+
+É inferência, refutável por emissor incompatível, payload sem dados públicos
+ou perda de origem, que esta divisão basta sem nova entidade além do carrier
+Args. Caso de filho repr fora do escopo não pode ser omitido do oracle para
+declarar sucesso total. RED→GREEN, controles e ataques independentes são
+obrigatórios depois do gate; Unknown obrigatório bloqueia. Nenhum código
+fica autorizado pela simples redação deste L0.

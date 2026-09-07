@@ -1,0 +1,4129 @@
+{
+  "schema": "p1306-frozen-public-oracle-v1",
+  "preflight": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1306-preflight.json",
+    "sha256": "477c6eab565a37ab995542b71b42441baa6457c5cb1bee2b1c61b5839efe19cd",
+    "bytes": 4538
+  },
+  "measurement": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1306-baseline-measurement.json",
+    "sha256": "8c8aabc772deaf997dcac2e69c8a0ef21d87df04cadae37a92d4c38db703011f",
+    "bytes": 1107114
+  },
+  "profiles": {
+    "default": [],
+    "html": [
+      "html"
+    ],
+    "a11y": [
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "html",
+      "a11y-extras"
+    ]
+  },
+  "cases": [
+    {
+      "id": "ordinary-std",
+      "expression": "{ import \"ordinary/std.typ\" as specimen; specimen.nope }",
+      "module": "std",
+      "field": "nope",
+      "positive_value": null
+    },
+    {
+      "id": "positive-std",
+      "expression": "{ import \"ordinary/std.typ\" as specimen; (repr(specimen), specimen.x) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module std>",
+        7
+      ]
+    },
+    {
+      "id": "ordinary-global",
+      "expression": "{ import \"ordinary/global.typ\" as specimen; specimen.nope }",
+      "module": "global",
+      "field": "nope",
+      "positive_value": null
+    },
+    {
+      "id": "positive-global",
+      "expression": "{ import \"ordinary/global.typ\" as specimen; (repr(specimen), specimen.x) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module global>",
+        8
+      ]
+    },
+    {
+      "id": "ordinary-map",
+      "expression": "{ import \"ordinary/map.typ\" as specimen; specimen.nope }",
+      "module": "map",
+      "field": "nope",
+      "positive_value": null
+    },
+    {
+      "id": "positive-map",
+      "expression": "{ import \"ordinary/map.typ\" as specimen; (repr(specimen), specimen.x) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module map>",
+        9
+      ]
+    },
+    {
+      "id": "ordinary-aurora",
+      "expression": "{ import \"ordinary/aurora.typ\" as specimen; specimen.nope }",
+      "module": "aurora",
+      "field": "nope",
+      "positive_value": null
+    },
+    {
+      "id": "positive-aurora",
+      "expression": "{ import \"ordinary/aurora.typ\" as specimen; (repr(specimen), specimen.x) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module aurora>",
+        10
+      ]
+    },
+    {
+      "id": "ordinary-bare",
+      "expression": "{ import \"ordinary/std.typ\"; std.nope }",
+      "module": "std",
+      "field": "nope",
+      "positive_value": null
+    },
+    {
+      "id": "ordinary-alias",
+      "expression": "{ import \"ordinary/std.typ\" as original; let alias = original; alias.absent }",
+      "module": "std",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "ordinary-shadow",
+      "expression": "{ import \"ordinary/std.typ\" as module; let std = module; std.absent }",
+      "module": "std",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "ordinary-nested",
+      "expression": "{ import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }",
+      "module": "std",
+      "field": "nope",
+      "positive_value": null
+    },
+    {
+      "id": "ordinary-line-column",
+      "expression": "{\n import \"ordinary/std.typ\" as named;\n let alias = named;\n    alias.absent\n}",
+      "module": "std",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "reexport",
+      "expression": "{ import \"reexport/std.typ\" as exported; exported.nope }",
+      "module": "std",
+      "field": "nope",
+      "positive_value": null
+    },
+    {
+      "id": "reexport-alias",
+      "expression": "{ import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }",
+      "module": "std",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "positive-reexport",
+      "expression": "{ import \"reexport/std.typ\" as r; let renamed = r; (repr(r), repr(renamed), renamed.calc.abs(-12), repr(r.calc)) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module std>",
+        "<module std>",
+        12,
+        "<module calc>"
+      ]
+    },
+    {
+      "id": "positive-alias-shadow-nested",
+      "expression": "{ import \"ordinary/std.typ\" as original; let alias = original; let std = alias; let box = (inner: std); (repr(alias), repr(std), box.inner.x, box.inner.twice(6)) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module std>",
+        "<module std>",
+        7,
+        12
+      ]
+    },
+    {
+      "id": "imported-nested",
+      "expression": "{ import \"routes/holder.typ\" as holder; holder.saved.absent }",
+      "module": "std",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "positive-imported-nested",
+      "expression": "{ import \"routes/holder.typ\" as holder; (repr(holder.saved), holder.saved.twice(11)) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module std>",
+        22
+      ]
+    },
+    {
+      "id": "imported-error",
+      "expression": "{ import \"routes/error.typ\" as route; route.result }",
+      "module": "std",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "global",
+      "expression": "std.nope",
+      "module": "global",
+      "field": "nope",
+      "positive_value": null
+    },
+    {
+      "id": "global-alias",
+      "expression": "{ let alias = std; alias.absent }",
+      "module": "global",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "global-renamed-import",
+      "expression": "{ import std as renamed; renamed.nope }",
+      "module": "global",
+      "field": "nope",
+      "positive_value": null
+    },
+    {
+      "id": "global-line-column",
+      "expression": "{\n let alias = std;\n       alias.absent\n}",
+      "module": "global",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "global-bare-positive",
+      "expression": "{ import std; (repr(std), std.calc.abs(-7)) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module global>",
+        7
+      ]
+    },
+    {
+      "id": "global-bare-alias-positive",
+      "expression": "{ let named = std; import named; (repr(named), named.calc.abs(-8)) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module global>",
+        8
+      ]
+    },
+    {
+      "id": "global-import-forms",
+      "expression": "{ import (std) as chosen; import std: calc as c; (repr(chosen), c.abs(-9)) }",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "<module global>",
+        9
+      ]
+    },
+    {
+      "id": "builtin-calc",
+      "expression": "calc.absent",
+      "module": "calc",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "builtin-sym",
+      "expression": "sym.absent",
+      "module": "sym",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "builtin-map",
+      "expression": "color.map.absent",
+      "module": "map",
+      "field": "absent",
+      "positive_value": null
+    },
+    {
+      "id": "existing-lookups",
+      "expression": "(repr(type(std.rgb)), calc.abs(-7), repr(type(sym.alpha)), repr(type(color.map.viridis)), repr(type(pdf.attach)), repr(type(pdf.artifact)))",
+      "module": null,
+      "field": null,
+      "positive_value": [
+        "function",
+        7,
+        "symbol",
+        "array",
+        "function",
+        "function"
+      ]
+    },
+    {
+      "id": "dictionary",
+      "expression": "repr(type((:).nope))",
+      "module": null,
+      "field": null,
+      "positive_value": null
+    },
+    {
+      "id": "float",
+      "expression": "repr(type(float(\"NaN\").is-nan))",
+      "module": null,
+      "field": null,
+      "positive_value": null
+    },
+    {
+      "id": "pdf-data-cell",
+      "expression": "repr(type(pdf.data-cell))",
+      "module": null,
+      "field": null,
+      "positive_value": null
+    },
+    {
+      "id": "pdf-header-cell",
+      "expression": "repr(type(pdf.header-cell))",
+      "module": null,
+      "field": null,
+      "positive_value": null
+    },
+    {
+      "id": "pdf-table-summary",
+      "expression": "repr(type(pdf.table-summary))",
+      "module": null,
+      "field": null,
+      "positive_value": null
+    },
+    {
+      "id": "repr-array-boundary",
+      "expression": "{ let a = range(41); (a.len(), a.at(40), repr(a)) }",
+      "module": null,
+      "field": null,
+      "positive_value": null
+    }
+  ],
+  "expectations": [
+    {
+      "id": "ordinary-std",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-std",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-std",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-std",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/std.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "positive-std",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-std",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-std",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-std",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",7]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-global",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        57
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-global",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        57
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-global",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        57
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-global",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/global.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        57
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-global",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-global",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-global",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-global",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-map",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `map` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-map",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `map` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-map",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `map` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-map",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"ordinary/map.typ\" as specimen; specimen.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `map` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-map",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-map",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-map",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-map",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module map>\",9]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-aurora",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        57
+      ],
+      "error_message": "module `aurora` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-aurora",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        57
+      ],
+      "error_message": "module `aurora` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-aurora",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        57
+      ],
+      "error_message": "module `aurora` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-aurora",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `aurora` does not contain `nope`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"ordinary/aurora.typ\" as specimen; specimen.nope }\n  │                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        57
+      ],
+      "error_message": "module `aurora` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-aurora",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-aurora",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-aurora",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-aurora",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module aurora>\",10]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "ordinary-bare",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        37
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-bare",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        37
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-bare",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        37
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-bare",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import \"ordinary/std.typ\"; std.nope }\n  │                                  ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        37
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-alias",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        69,
+        75
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-alias",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        69,
+        75
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-alias",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        69,
+        75
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-alias",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:69\n  │\n1 │ { import \"ordinary/std.typ\" as original; let alias = original; alias.absent }\n  │                                                                      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        69,
+        75
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-shadow",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        61,
+        67
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-shadow",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        61,
+        67
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-shadow",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        61,
+        67
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-shadow",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:61\n  │\n1 │ { import \"ordinary/std.typ\" as module; let std = module; std.absent }\n  │                                                              ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        61,
+        67
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-nested",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        85,
+        89
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-nested",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        85,
+        89
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-nested",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        85,
+        89
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-nested",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:85\n  │\n1 │ { import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }\n  │                                                                                      ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        85,
+        89
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-line-column",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        69,
+        75
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-line-column",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        69,
+        75
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-line-column",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        69,
+        75
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "ordinary-line-column",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:4:10\n  │\n4 │     alias.absent\n  │           ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        69,
+        75
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "reexport",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "reexport",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "reexport",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "reexport",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `nope`\n  ┌─ <input-expression>:1:50\n  │\n1 │ { import \"reexport/std.typ\" as exported; exported.nope }\n  │                                                   ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        50,
+        54
+      ],
+      "error_message": "module `std` does not contain `nope`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "reexport-alias",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        73,
+        79
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "reexport-alias",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        73,
+        79
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "reexport-alias",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        73,
+        79
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "reexport-alias",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }\n  │                                                                          ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        73,
+        79
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "positive-reexport",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-reexport",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-reexport",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-reexport",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",12,\"<module calc>\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-alias-shadow-nested",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-alias-shadow-nested",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-alias-shadow-nested",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-alias-shadow-nested",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",\"<module std>\",7,12]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "imported-nested",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        59
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "imported-nested",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        59
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "imported-nested",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        59
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "imported-nested",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ <input-expression>:1:53\n  │\n1 │ { import \"routes/holder.typ\" as holder; holder.saved.absent }\n  │                                                      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        53,
+        59
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "positive-imported-nested",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-imported-nested",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-imported-nested",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "positive-imported-nested",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module std>\",22]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "imported-error",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n  while importing `routes/error.typ` at <input-expression>:1:2\n    import \"routes/error.typ\" as route\n\n"
+      },
+      "debt": "Existing missing import trace only: retain exact baseline relative path and field span, correct only primary stored module name",
+      "source_anchor": "routes/error.typ",
+      "byte_range": [
+        59,
+        65
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "imported-error",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n  while importing `routes/error.typ` at <input-expression>:1:2\n    import \"routes/error.typ\" as route\n\n"
+      },
+      "debt": "Existing missing import trace only: retain exact baseline relative path and field span, correct only primary stored module name",
+      "source_anchor": "routes/error.typ",
+      "byte_range": [
+        59,
+        65
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "imported-error",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n  while importing `routes/error.typ` at <input-expression>:1:2\n    import \"routes/error.typ\" as route\n\n"
+      },
+      "debt": "Existing missing import trace only: retain exact baseline relative path and field span, correct only primary stored module name",
+      "source_anchor": "routes/error.typ",
+      "byte_range": [
+        59,
+        65
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "imported-error",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `std` does not contain `absent`\n  ┌─ routes/error.typ:2:20\n  │\n2 │ #let result = inner.absent\n  │                     ^^^^^^\n\n  while importing `routes/error.typ` at <input-expression>:1:2\n    import \"routes/error.typ\" as route\n\n"
+      },
+      "debt": "Existing missing import trace only: retain exact baseline relative path and field span, correct only primary stored module name",
+      "source_anchor": "routes/error.typ",
+      "byte_range": [
+        59,
+        65
+      ],
+      "error_message": "module `std` does not contain `absent`",
+      "baseline_verdict": "Violated"
+    },
+    {
+      "id": "global",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        4,
+        8
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        4,
+        8
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        4,
+        8
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.nope\n  │     ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        4,
+        8
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-alias",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        25,
+        31
+      ],
+      "error_message": "module `global` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-alias",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        25,
+        31
+      ],
+      "error_message": "module `global` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-alias",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        25,
+        31
+      ],
+      "error_message": "module `global` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-alias",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let alias = std; alias.absent }\n  │                          ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        25,
+        31
+      ],
+      "error_message": "module `global` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-renamed-import",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        37
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-renamed-import",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        37
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-renamed-import",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        37
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-renamed-import",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `nope`\n  ┌─ <input-expression>:1:33\n  │\n1 │ { import std as renamed; renamed.nope }\n  │                                  ^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        37
+      ],
+      "error_message": "module `global` does not contain `nope`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-line-column",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        39
+      ],
+      "error_message": "module `global` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-line-column",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        39
+      ],
+      "error_message": "module `global` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-line-column",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        39
+      ],
+      "error_message": "module `global` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-line-column",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `absent`\n  ┌─ <input-expression>:3:13\n  │\n3 │        alias.absent\n  │              ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        33,
+        39
+      ],
+      "error_message": "module `global` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-bare-positive",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": "warning: this import has no effect\n  ┌─ <input-expression>:1:9\n  │\n1 │ { import std; (repr(std), std.calc.abs(-7)) }\n  │          ^^^\n\n"
+      },
+      "debt": "Existing P1305 debt: vanilla no-effect import warning absent in baseline; require exact baseline empty stderr",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-bare-positive",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": "warning: this import has no effect\n  ┌─ <input-expression>:1:9\n  │\n1 │ { import std; (repr(std), std.calc.abs(-7)) }\n  │          ^^^\n\n"
+      },
+      "debt": "Existing P1305 debt: vanilla no-effect import warning absent in baseline; require exact baseline empty stderr",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-bare-positive",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": "warning: this import has no effect\n  ┌─ <input-expression>:1:9\n  │\n1 │ { import std; (repr(std), std.calc.abs(-7)) }\n  │          ^^^\n\n"
+      },
+      "debt": "Existing P1305 debt: vanilla no-effect import warning absent in baseline; require exact baseline empty stderr",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-bare-positive",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",7]\n",
+        "stderr": "warning: this import has no effect\n  ┌─ <input-expression>:1:9\n  │\n1 │ { import std; (repr(std), std.calc.abs(-7)) }\n  │          ^^^\n\n"
+      },
+      "debt": "Existing P1305 debt: vanilla no-effect import warning absent in baseline; require exact baseline empty stderr",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-bare-alias-positive",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": "warning: this import has no effect\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let named = std; import named; (repr(named), named.calc.abs(-8)) }\n  │                           ^^^^^\n\n"
+      },
+      "debt": "Existing P1305 debt: alias import no-effect warning absent in baseline; require exact baseline empty stderr",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-bare-alias-positive",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": "warning: this import has no effect\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let named = std; import named; (repr(named), named.calc.abs(-8)) }\n  │                           ^^^^^\n\n"
+      },
+      "debt": "Existing P1305 debt: alias import no-effect warning absent in baseline; require exact baseline empty stderr",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-bare-alias-positive",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": "warning: this import has no effect\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let named = std; import named; (repr(named), named.calc.abs(-8)) }\n  │                           ^^^^^\n\n"
+      },
+      "debt": "Existing P1305 debt: alias import no-effect warning absent in baseline; require exact baseline empty stderr",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-bare-alias-positive",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",8]\n",
+        "stderr": "warning: this import has no effect\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let named = std; import named; (repr(named), named.calc.abs(-8)) }\n  │                           ^^^^^\n\n"
+      },
+      "debt": "Existing P1305 debt: alias import no-effect warning absent in baseline; require exact baseline empty stderr",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-import-forms",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-import-forms",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-import-forms",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "global-import-forms",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"<module global>\",9]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-calc",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        5,
+        11
+      ],
+      "error_message": "module `calc` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-calc",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        5,
+        11
+      ],
+      "error_message": "module `calc` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-calc",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        5,
+        11
+      ],
+      "error_message": "module `calc` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-calc",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `absent`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.absent\n  │      ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        5,
+        11
+      ],
+      "error_message": "module `calc` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-sym",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        4,
+        10
+      ],
+      "error_message": "module `sym` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-sym",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        4,
+        10
+      ],
+      "error_message": "module `sym` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-sym",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        4,
+        10
+      ],
+      "error_message": "module `sym` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-sym",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `sym` does not contain `absent`\n  ┌─ <input-expression>:1:4\n  │\n1 │ sym.absent\n  │     ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        4,
+        10
+      ],
+      "error_message": "module `sym` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-map",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        10,
+        16
+      ],
+      "error_message": "module `map` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-map",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        10,
+        16
+      ],
+      "error_message": "module `map` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-map",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        10,
+        16
+      ],
+      "error_message": "module `map` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "builtin-map",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: module `map` does not contain `absent`\n  ┌─ <input-expression>:1:10\n  │\n1 │ color.map.absent\n  │           ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": [
+        10,
+        16
+      ],
+      "error_message": "module `map` does not contain `absent`",
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "existing-lookups",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "existing-lookups",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "existing-lookups",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "existing-lookups",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[\"function\",7,\"symbol\",\"array\",\"function\",\"function\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "dictionary",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type((:).nope))\n  │           ^^^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type((:).nope))\n  │           ^^^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type((:).nope))\n  │               ^^^^\n\n"
+      },
+      "debt": "P1303 intentionally protected total expression span; vanilla field-only is outside P1306",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "dictionary",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type((:).nope))\n  │           ^^^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type((:).nope))\n  │           ^^^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type((:).nope))\n  │               ^^^^\n\n"
+      },
+      "debt": "P1303 intentionally protected total expression span; vanilla field-only is outside P1306",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "dictionary",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type((:).nope))\n  │           ^^^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type((:).nope))\n  │           ^^^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type((:).nope))\n  │               ^^^^\n\n"
+      },
+      "debt": "P1303 intentionally protected total expression span; vanilla field-only is outside P1306",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "dictionary",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type((:).nope))\n  │           ^^^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type((:).nope))\n  │           ^^^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type((:).nope))\n  │               ^^^^\n\n"
+      },
+      "debt": "P1303 intentionally protected total expression span; vanilla field-only is outside P1306",
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "float",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "float",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "float",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "float",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:23\n  │\n1 │ repr(type(float(\"NaN\").is-nan))\n  │                        ^^^^^^\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-data-cell",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-data-cell",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-data-cell",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-data-cell",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-header-cell",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.header-cell))\n  │               ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.header-cell))\n  │               ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.header-cell))\n  │               ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-header-cell",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.header-cell))\n  │               ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.header-cell))\n  │               ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.header-cell))\n  │               ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-header-cell",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-header-cell",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-table-summary",
+      "profile": "default",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.table-summary))\n  │               ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.table-summary))\n  │               ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.table-summary))\n  │               ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-table-summary",
+      "profile": "html",
+      "expected": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.table-summary))\n  │               ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "baseline": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.table-summary))\n  │               ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "vanilla": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.table-summary))\n  │               ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-table-summary",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "pdf-table-summary",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "repr-array-boundary",
+      "profile": "default",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "repr-array-boundary",
+      "profile": "html",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "repr-array-boundary",
+      "profile": "a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    },
+    {
+      "id": "repr-array-boundary",
+      "profile": "html+a11y",
+      "expected": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "baseline": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "vanilla": {
+        "exit_code": 0,
+        "stdout": "[41,40,\"(\\n  0,\\n  1,\\n  2,\\n  3,\\n  4,\\n  5,\\n  6,\\n  7,\\n  8,\\n  9,\\n  10,\\n  11,\\n  12,\\n  13,\\n  14,\\n  15,\\n  16,\\n  17,\\n  18,\\n  19,\\n  20,\\n  21,\\n  22,\\n  23,\\n  24,\\n  25,\\n  26,\\n  27,\\n  28,\\n  29,\\n  30,\\n  31,\\n  32,\\n  33,\\n  34,\\n  35,\\n  36,\\n  37,\\n  38,\\n  39,\\n  .. (1 items omitted),\\n)\"]\n",
+        "stderr": ""
+      },
+      "debt": null,
+      "source_anchor": "<input-expression>",
+      "byte_range": null,
+      "error_message": null,
+      "baseline_verdict": "Preserved"
+    }
+  ],
+  "known_debts": {
+    "dictionary": "P1303 intentionally protected total expression span; vanilla field-only is outside P1306",
+    "global-bare-positive": "Existing P1305 debt: vanilla no-effect import warning absent in baseline; require exact baseline empty stderr",
+    "global-bare-alias-positive": "Existing P1305 debt: alias import no-effect warning absent in baseline; require exact baseline empty stderr",
+    "imported-error": "Existing missing import trace only: retain exact baseline relative path and field span, correct only primary stored module name"
+  },
+  "evidence_policy": "Exact public stderr including severity, cardinality, hint text, displayed source anchor, line/column and underline; Rust tests additionally require resolved source byte ranges. No warnings removed and no general path normalization. Successful JSON serialization is a semantic snapshot; unrelated rendering bytes are out of scope. Missing or malformed public observation is Unknown, never a fabricated opaque product fixture."
+}

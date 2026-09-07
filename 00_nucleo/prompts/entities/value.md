@@ -1,5 +1,68 @@
 # Prompt L0 — `entities/value`
-Hash do Código: e5c3ef0f
+Hash do Código: c78ac600
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`entities/value.rs:64` transporta Content nu e Location. O walk em
+`compiler/introspect.rs:1350` já perdeu a chain; R5 distingue numbering
+"1"/"I" e label nos fields, e prova que o valor deve escapar em array/closure.
+
+### Decisão proprietária
+
+Esta seção substitui a forma Rust de P1151; não modifica Content nem
+HeadingElem. O único owner do novo tipo continua este arquivo:
+
+```rust
+#[derive(Debug, Clone, PartialEq)]
+pub struct IntrospectedContent {
+    content: Content,
+    fields: Option<Arc<IndexMap<EcoString, Value, FxBuildHasher>>>,
+}
+impl IntrospectedContent {
+    pub fn new(content: Content,
+        fields: Option<IndexMap<EcoString, Value, FxBuildHasher>>) -> Self;
+    pub fn content(&self) -> &Content;
+    pub fn fields(&self) -> Option<&IndexMap<EcoString, Value, FxBuildHasher>>;
+    pub fn into_content(self) -> Content;
+}
+// Variante existente, com novo tipo no primeiro slot:
+Value::LocatedContent(IntrospectedContent, Location)
+```
+
+IndexMap, EcoString, FxBuildHasher e Arc já são dependências autorizadas.
+O mapa fornece unicidade de nomes e ordem; `new` move os dados sem realizar
+campos nem fazer validação de linguagem. Cabe ao produtor entregar um mapa
+completo, sem func/location, cujo body seja o mesmo dado congelado do Content.
+Essa coerência é obrigação verificável do produtor, não garantia mágica do
+sistema de tipos. Não expor mutadores, DerefMut ou campos públicos do carrier.
+Some(empty) e None são distintos. Clones compartilham o mapa imutável via Arc.
+
+`type_name` e `type_of` continuam content. O derive PartialEq de Value e o
+Hash mecânico existente não viram igualdade da linguagem: a nova estrutura
+pode aparecer no Debug/Hash internos. O IR Content e seu morph_canon não
+recebem campos adicionais; IDs de ocorrência nunca são reconstruídos desses
+hashes. A igualdade pública pertence a
+`00_nucleo/prompts/compiler/eval/operators/equality.md`.
+
+Aceitação: clone não perde ordem/presença nem spans dos Values; fields não
+muda após outro snapshot; conversão explícita de uma cópia para render não
+altera o original; duas Locations distintas podem compartilhar campos iguais.
+Esta é uma mudança concreta de API pública e aguarda aprovação, não resselo.
+
+---
+
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`

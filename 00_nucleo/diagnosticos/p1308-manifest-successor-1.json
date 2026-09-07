@@ -1,0 +1,37 @@
+{
+  "schema": "p1308-focal-normative-successor-v1",
+  "at": "2026-09-07T21:03:43.422851+00:00",
+  "executor": "/root/p1306_oracle",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "predecessor_manifest": {
+    "path": "00_nucleo/diagnosticos/p1308-manifest.json",
+    "sha256": "ee8df0e15cf50ed0903472c219dd2aefbeb787a11ebb18f12d2b15f8dd754ca1"
+  },
+  "verdict": "GO_FOCAL_ROUTING_REFINEMENT_ONLY",
+  "superseded_L0": {
+    "path": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+    "sha256": "9ea195d7c1a96d592fde11c58024188a9857e8a973c2c63b1a127f98eeb6da8e",
+    "semantic_sha256": "c385a4495b2209449ee8aac9ad539d4372a43ba2e2275eb29ab078981d2f6428"
+  },
+  "successor_L0": {
+    "path": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+    "sha256": "f4efaf6967984b46fab70dc98b9952220b75d5a36a731b98f08ee1c3f7f7207b",
+    "semantic_sha256": "2eb1b38a94235b80b0134cfa9cf93889948b93688de73a8bb4269f6092923649"
+  },
+  "evidence": {
+    "path": "00_nucleo/diagnosticos/p1308-green-1.json",
+    "sha256": "963b0667b7e312c34ead6d131577932fcf71f72204f692501cb604a0dd89f24f"
+  },
+  "observed_test_result": {
+    "compiled": true,
+    "passed": 13,
+    "failed": 5
+  },
+  "independent_source_check": "Reconstructed pinned P1308 baseline call_dispatch.rs:1339-1350 returns recognized collection result without trace_call; vanilla call.rs:155-158,167-174 routes methods through call_func trace. No future candidate source inspected.",
+  "scope": "Only Args.filter/map recognized fastpath gains existing containment-rule trace with method name and call span; private helper receives optional name. No fake Func, no algorithm/range/message/expected change.",
+  "protected_tests_oracle_changed": false,
+  "full_discriminatory_seal": false,
+  "candidate_accepted": false,
+  "actual_Rust_mutants": 0,
+  "chronology_limit": "Coordinator reports L0 preceded its new productive edit. This receipt verifies normative sufficiency, not a technical isolation or temporal attestation."
+}

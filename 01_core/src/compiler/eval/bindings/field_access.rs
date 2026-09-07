@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 73f15bd4
+//! @prompt-hash cd93babd
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -127,14 +127,27 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
             )]
         }),
         // Field access em elementos estruturados — usado por show rules (Passo 68).
-        Value::Content(c) | Value::LocatedContent(c, _) => {
-            c.get_field(field).ok_or_else(|| {
+        Value::LocatedContent(c, _) => {
+            let value = match c.fields() {
+                Some(fields) => fields.get(field).cloned(),
+                None => c.content().get_field(field),
+            };
+            value.ok_or_else(|| {
                 vec![SourceDiagnostic::error(
                     span,
-                    format!("{} does not have field \"{field}\"", c.elem_name()),
+                    format!(
+                        "{} does not have field \"{field}\"",
+                        c.content().elem_name()
+                    ),
                 )]
             })
         }
+        Value::Content(c) => c.get_field(field).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                span,
+                format!("{} does not have field \"{field}\"", c.elem_name()),
+            )]
+        }),
         // P785b — Field access em Value::Relative (RelativeLength / Rel)
         Value::Relative(rel) => match field {
             "ratio" => Ok(Value::Ratio(crate::entities::layout_types::Ratio(rel.rel))),
@@ -374,7 +387,7 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
         },
         // P679 — Field access em Value::Module
         Value::Module(m) => m.scope().get(field).cloned().ok_or_else(|| {
-            let name = if m.name() == "std" { "global" } else { m.name() };
+            let name = m.name();
             vec![SourceDiagnostic::error(
                 span,
                 format!("module `{name}` does not contain `{field}`"),
@@ -401,9 +414,8 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
 /// content, `("type", nome longo do tipo)` nos restantes.
 fn element_or_type_with_name(value: &Value) -> (&'static str, String) {
     match value {
-        Value::Content(c) | Value::LocatedContent(c, _) => {
-            ("element", c.elem_name().to_string())
-        }
+        Value::Content(c) => ("element", c.elem_name().to_string()),
+        Value::LocatedContent(c, _) => ("element", c.content().elem_name().to_string()),
         _ => ("type", vanilla_type_name(value).to_string()),
     }
 }
@@ -732,6 +744,34 @@ pub(crate) fn eval_content_method_at(
     c: &crate::entities::content::Content,
     location: Option<crate::entities::location::Location>,
     method: &str,
+    args: Args,
+    span: Span,
+) -> SourceResult<Value> {
+    content_method_with_fields(c, location, None, method, args, span)
+}
+
+pub(crate) fn eval_introspected_content_method_at(
+    c: &crate::entities::value::IntrospectedContent,
+    location: crate::entities::location::Location,
+    method: &str,
+    args: Args,
+    span: Span,
+) -> SourceResult<Value> {
+    content_method_with_fields(
+        c.content(),
+        Some(location),
+        c.fields(),
+        method,
+        args,
+        span,
+    )
+}
+
+fn content_method_with_fields(
+    c: &crate::entities::content::Content,
+    location: Option<crate::entities::location::Location>,
+    fields: Option<&IndexMap<EcoString, Value, FxBuildHasher>>,
+    method: &str,
     mut args: Args,
     span: Span,
 ) -> SourceResult<Value> {
@@ -742,6 +782,9 @@ pub(crate) fn eval_content_method_at(
         }
         "fields" => {
             finish_args(&args, span)?;
+            if let Some(fields) = fields {
+                return Ok(Value::Dict(fields.clone()));
+            }
             let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
             for (name, value) in content_set_fields(c) {
                 dict.insert(name.into(), value);
@@ -764,15 +807,23 @@ pub(crate) fn eval_content_method_at(
                 }
             };
             let default =
-                if method == "at" { args.named.shift_remove("default") } else { None };
+                if method == "at" { args.remove_named("default") } else { None };
             finish_args(&args, span)?;
             let field = field.as_str();
+            let resolved = match fields {
+                Some(fields) => fields
+                    .get(field)
+                    .cloned()
+                    .map(ContentField::Set)
+                    .unwrap_or(ContentField::Undeclared),
+                None => content_field(c, field),
+            };
             match method {
                 "has" => Ok(Value::Bool(matches!(
-                    content_field(c, field),
+                    resolved,
                     ContentField::Set(_)
                 ))),
-                _ => match content_field(c, field) {
+                _ => match resolved {
                     ContentField::Set(v) => Ok(v),
                     ContentField::Unset => match default {
                         Some(v) => Ok(v),
@@ -801,23 +852,15 @@ pub(crate) fn eval_content_method_at(
     }
 }
 
-fn static_content_receiver(
-    args: &Args,
-    name: &str,
-) -> SourceResult<(
-    crate::entities::content::Content,
-    Option<crate::entities::location::Location>,
-    Args,
-)> {
+fn static_content_receiver(args: &Args, name: &str) -> SourceResult<(Value, Args)> {
     let Some(first) = args.items.first() else {
         return Err(vec![SourceDiagnostic::error(
             args.span,
             format!("{name} requires content as its first argument"),
         )]);
     };
-    let (content, location) = match first {
-        Value::Content(content) => (content.clone(), None),
-        Value::LocatedContent(content, location) => (content.clone(), Some(*location)),
+    let content = match first {
+        Value::Content(_) | Value::LocatedContent(_, _) => first.clone(),
         _ => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
@@ -826,8 +869,8 @@ fn static_content_receiver(
         }
     };
     let mut rest = args.clone();
-    rest.items.remove(0);
-    Ok((content, location, rest))
+    rest.remove_positional(0);
+    Ok((content, rest))
 }
 
 pub(in crate::compiler::eval) fn content_type_field(field: &str) -> Option<Value> {
@@ -843,8 +886,16 @@ pub(in crate::compiler::eval) fn content_type_field(field: &str) -> Option<Value
 }
 
 fn static_content_method(args: &Args, name: &str, method: &str) -> SourceResult<Value> {
-    let (content, location, rest) = static_content_receiver(args, name)?;
-    eval_content_method_at(&content, location, method, rest, args.span)
+    let (content, rest) = static_content_receiver(args, name)?;
+    match content {
+        Value::Content(content) => {
+            eval_content_method_at(&content, None, method, rest, args.span)
+        }
+        Value::LocatedContent(content, location) => eval_introspected_content_method_at(
+            &content, location, method, rest, args.span,
+        ),
+        _ => unreachable!("receiver was validated as content"),
+    }
 }
 
 macro_rules! static_content_native {

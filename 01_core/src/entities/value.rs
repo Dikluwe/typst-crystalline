@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 4d161fd5
+//! @prompt-hash b00769d0
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -20,6 +20,34 @@ use crate::entities::selector::Selector;
 use crate::entities::state::State;
 use crate::entities::symbol::Symbol;
 use crate::entities::version::Version;
+
+/// Immutable language fields captured at an introspected occurrence.
+#[derive(Debug, Clone, PartialEq)]
+pub struct IntrospectedContent {
+    content: crate::entities::content::Content,
+    fields: Option<Arc<IndexMap<EcoString, Value, FxBuildHasher>>>,
+}
+
+impl IntrospectedContent {
+    pub fn new(
+        content: crate::entities::content::Content,
+        fields: Option<IndexMap<EcoString, Value, FxBuildHasher>>,
+    ) -> Self {
+        Self { content, fields: fields.map(Arc::new) }
+    }
+
+    pub fn content(&self) -> &crate::entities::content::Content {
+        &self.content
+    }
+
+    pub fn fields(&self) -> Option<&IndexMap<EcoString, Value, FxBuildHasher>> {
+        self.fields.as_deref()
+    }
+
+    pub fn into_content(self) -> crate::entities::content::Content {
+        self.content
+    }
+}
 
 /// Valor em tempo de avaliação do Typst.
 ///
@@ -61,10 +89,7 @@ pub enum Value {
     /// **P1151** — conteúdo devolvido pela introspecção com a Location
     /// exacta preservada. Na linguagem continua a ser `content`; Location
     /// não participa de repr, fields nem igualdade morfológica.
-    LocatedContent(
-        crate::entities::content::Content,
-        crate::entities::location::Location,
-    ),
+    LocatedContent(IntrospectedContent, crate::entities::location::Location),
 
     // ── Variantes Passo 25 (ADR-0028) ────────────────────────────────────────
     /// O valor `auto` do Typst.

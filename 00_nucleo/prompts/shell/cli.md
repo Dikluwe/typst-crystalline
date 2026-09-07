@@ -1,11 +1,60 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 26707ade
+Hash do Código: 60dbd715
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 - 00_nucleo/prompts/_nuclei/shell/build-identity.toml sha256:a97f32705be8700feaa6a5c89440ffa49d15c11145ea83744307aefc65a50297
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`02_shell/src/cli.rs:664–685,758,1000` recebe &[Content] e aplica defaults
+hardcoded de Heading tanto a query quanto ao caminho Value. R5 mostra que
+numbering e idioma são campos da ocorrência, não da CLI que os imprime.
+
+### Decisão pública proprietária
+
+As assinaturas passam a receber Values, com os demais parâmetros intactos:
+
+```rust
+pub fn serialize_query(elements: &[Value], field: Option<&str>,
+    one: bool, pretty: bool) -> Result<Vec<u8>, String>;
+pub fn serialize_query_with_format(elements: &[Value], field: Option<&str>,
+    one: bool, pretty: bool, format: QueryFormat) -> Result<Vec<u8>, String>;
+```
+
+O conversor semântico de Value trata LocatedContent Some como func seguido
+dos fields congelados recursivamente; não chama content_to_semantic primeiro
+nem adiciona defaults ou label inferida. A mesma seleção vale para eval e
+query. LocatedContent None e raw Content conservam o caminho legado desta
+CLI, incluindo Content::Label de outras famílias; não prometer corrigir seus
+defaults sintéticos nesta migração. O encoder textual L1 tem owner distinto
+e mantém sua classificação total contratada, não importa serializer L2.
+
+--field/--one aplicam-se ao mapa assim projetado, na ordem e com erros já
+contratados por P1285. Formatos, pretty, newline, deprecação, warnings, exit e
+raw permanecem iguais. Não criar novo flag, modo ou fase, nem limitar Content
+a Heading. Os unit tests sintéticos da API passam a embrulhar o mesmo dado em
+Value ou snapshot explícito conforme o caso, sem rebatizar dívida como prova.
+
+Aceitação: fields de Heading padrão/numbering/idioma/label chegam à CLI;
+query sem field e com field/one; controles Figure/Equation/Metadata e raw.
+A mudança pública de tipo do parâmetro aguarda aprovação ADR-0127.
+
+---
+
+
 
 ## Módulo
 `02_shell/src/cli.rs`

@@ -1,0 +1,106 @@
+{
+  "schema": "p1308-narrow-source-mutation-plan-v1",
+  "executor": "/root/p1306_oracle",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "status": "FROZEN_SIX_FAMILIES_AWAITING_CANDIDATE_GREEN",
+  "future_P1308_candidate_read": false,
+  "baseline_source_read": "P1307 R6 product now explicitly frozen as P1308 baseline; five relevant owners hash-checked against inventory before reading.",
+  "inputs": {
+    "p1308-baseline.json": "62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394",
+    "p1308-measure.json": "ce758b5c2a18288bf9c8433178f577b50c52df80cedcddcb1f4daa4e785573fc",
+    "p1307-r6-oracle.json": "99d2a67984a468c8e86e20010ecc1bd76a364f1d1adebbb5b873fc341f7790a6",
+    "p1307-r6-mutation-plan.json": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+    "p1307-r6-mutation-runner.py": "bd91767023faa8194b24d11dd929eaf13d2ad2eed74174d2ff38b64465ccf60d"
+  },
+  "baseline_owners": {
+    "01_core/src/compiler/eval/operators/arithmetic.rs": "33ffbadf8335abcb4dfc7e606b0dece4aa1488d2b2c06690140caaeaaedbb4c4",
+    "01_core/src/compiler/stdlib/collections.rs": "0a4a6969935af4386d2794401f8373701a15e3d08fbf97d710d22053bc3a0009",
+    "01_core/src/compiler/eval/call_dispatch.rs": "9ffc6d8b5609e1d13e06c18869ae1b415e8fa67f39252679cfc2cc141156da77",
+    "01_core/src/compiler/eval/mod.rs": "b1d9fc079247d4134137663cd941d880f59bbfeec1a5fc17aed871134266385a",
+    "01_core/src/compiler/eval/repr.rs": "6d81d4e0047f802dc564bdd03046a3438bfc6c77a1785bea39d29f7a5d2d4f19"
+  },
+  "readiness_limit": "The six defects and existing public witnesses are identified independently before P1308 implementation. Final owner/function anchors, test names and exact candidate patches require the final L0/suite and later frozen GREEN. This plan does not choose the implementation or legitimize code.",
+  "families": [
+    {
+      "id": "P1308-M01",
+      "frontier": "Args + None",
+      "owner": "01_core/src/compiler/eval/operators/arithmetic.rs",
+      "baseline_anchor": "apply_binary at27; Add Args/Args arm at134, missing Args/None",
+      "concrete_defect": "Remove only the future approved Add Args/None identity arm, retaining Add Args/Args and the generic error fallback. If the approved successor includes None/Args separately, leave that control intact.",
+      "public_witnesses": ["r4.args.join-none", "join.none-empty"],
+      "boundary_controls": ["join.none-left", "join.unsupported"],
+      "kill_required": "Compiled mutated product returns the exact missing Add behavior for a previously GREEN Args/None witness; valid controls remain as frozen. A compilation error is not a kill."
+    },
+    {
+      "id": "P1308-M02",
+      "frontier": "Callback panic diagnostic range",
+      "owner": "01_core/src/compiler/eval/call_dispatch.rs",
+      "baseline_anchor": "transport_encode_call_span at455 and ordinary call dispatch; existing trace_call at1006 is not the mutation target",
+      "concrete_defect": "Disable only the future native-panic full-call aggregate transport or its With identity delegation, so the emitted panic error is again anchored to arguments. Keep error text, callback order and trace algorithm unchanged.",
+      "public_witnesses": ["panic.callback", "panic.alias-callback", "panic.with-callback", "r4.error.map-first-callback", "r4.error.filter-first-callback"],
+      "boundary_controls": ["panic.direct", "panic.alias", "panic.with", "panic.named-invalid", "panic.alias-named-invalid", "panic.with-named-invalid"],
+      "kill_required": "Exact measured call-versus-argument range difference on a resolved callback witness, not an arbitrary panic or altered error text. Actual transport owner must be confirmed by final L0."
+    },
+    {
+      "id": "P1308-M03",
+      "frontier": "Filter non-bool diagnostic vocabulary",
+      "owner": "01_core/src/compiler/stdlib/collections.rs",
+      "baseline_anchor": "arguments_filter at2403, SourceDiagnostic formatting at2424-2426",
+      "concrete_defect": "Restore other.type_name() in the new arguments.filter non-bool message so integer is emitted as int; retain the approved result span unchanged.",
+      "public_witnesses": ["r4.error.filter-non-bool"],
+      "boundary_controls": ["filter.direct", "filter.empty"],
+      "kill_required": "Compiled result differs only in the measured public type name on the integer witness. Frozen complete-envelope classifier rejects it."
+    },
+    {
+      "id": "P1308-M04",
+      "frontier": "Filter non-bool callback function origin",
+      "owner": "01_core/src/compiler/stdlib/collections.rs",
+      "baseline_anchor": "arguments_filter SourceDiagnostic::error(Span::detached(), ...) at2424-2426",
+      "concrete_defect": "Replace only the callback function-origin diagnostic span with Span::detached(), leaving the approved type vocabulary and returned Value unchanged.",
+      "public_witnesses": ["r4.error.filter-non-bool", "filter.direct", "filter.alias", "filter.with", "filter.args-spread", "filter.array-spread"],
+      "boundary_controls": ["filter.native", "filter.empty"],
+      "kill_required": "Previously GREEN lexical-origin witness loses its exact range. Native or genuinely detached controls are not falsely required to acquire fabricated ranges."
+    },
+    {
+      "id": "P1308-M05",
+      "frontier": "Expression Source transport for public traces",
+      "owner": "01_core/src/compiler/eval/mod.rs",
+      "baseline_anchor": "eval_expression_with_features: local parse_code Source and Engine world field",
+      "concrete_defect": "Bypass only the future expression-source exposure at the Engine/World boundary and use the original caller World, preserving the local parsed Source and evaluation. If a new pure adapter is approved, mutate its local-source branch to the existing delegated World source result instead.",
+      "public_witnesses": ["r2.with-spread-arguments-f", "r2.with-spread-arguments-g", "r4.origin.filter.f", "r4.origin.map.g", "r4.error.map-detached-value-span"],
+      "boundary_controls": ["panic.direct", "panic.named-invalid"],
+      "kill_required": "A compiled CLI loses the required call trace while keeping the non-trace diagnostic envelope intact. Core tests whose MockWorld already contains the Source cannot substitute for this public entrypoint witness.",
+      "additional_review": "The final suite must include a delegated non-expression source control if source delegation changes. Do not silently treat local-source-only tests as proof that arbitrary World forwarding is preserved."
+    },
+    {
+      "id": "P1308-M06",
+      "frontier": "Explicit long Args repr contract and historical migration",
+      "owner": "01_core/src/compiler/eval/repr.rs",
+      "baseline_anchor": "Value::Args Some branch at123-134, pieces and pretty_array_like",
+      "concrete_defect": "The final L0 ratifies the measured Args multiline boundary. Replace Some carrier formatting with format!(\"arguments({})\", pieces.join(\", \")), retaining every item/name in causal order. This is a real formatter mutation, not an edit to the historical expected string.",
+      "public_witnesses": ["repr.args-width-49", "repr.args-many", "repr.args-named-long"],
+      "boundary_controls": ["repr.args-empty", "repr.args-width-47", "repr.args-width-48", "repr.args-nested", "repr.args-unicode"],
+      "kill_required": "A compiled formatter produces complete but wrongly inline long Args against the ratified literal output. The short boundary remains unchanged. If final L0 chooses another policy, reopen this family before seal, not after candidate feedback."
+    }
+  ],
+  "execution_policy": {
+    "count": "Six independent source mutants, not six altered observations. Counts remain zero until actual execution. No grouped runtime metamutant, environment lookup or mutable global in L1.",
+    "copy": "One disposable exact frozen-candidate copy; no live candidate/protected test/L0/oracle edits. Record concrete patch with function anchor and before/after hashes; apply and restore explicitly with apply_patch. Verify exact restoration before next mutant.",
+    "compilation": "Prefer one shared disposable dev/test target with debug=0, incremental=true, lto=false. Compile the unchanged candidate control first with exactly the same environment/profile; then one narrow mutant and one package compilation at a time. Public-only Source witness requires a compiled typst-wiring CLI, not a test-only mock.",
+    "scheduling": "Explicit exclusive coordinator build window; never compile in parallel with root. Immutable baseline binaries are not build targets. RAM operations use the authorized host execution mechanism.",
+    "cost_boundary": "Use the six focal witness/control groups before any final broad replay. Maximum two unsuccessful instrumentation attempts for the same cause, then stop for review. No repeated full matrix just to calibrate a patch anchor.",
+    "classification": "Nonapplying/noncompiling/timeouts/unresolved source/zero matched tests/malformed observation are Unknown, never killed. A compiled failure remains pending causal review until exact intended public deviation is linked and its unmutated control was GREEN.",
+    "preservation": "Full argv/cwd/environment/time/stdout/stderr/exit, source and binary hashes, fixture identity, patch and restoration receipts. No indiscriminate path, range, whitespace or diagnostic normalization.",
+    "final_scope": "Any final score pertains only to these explicitly applicable P1308 mutants. Do not count counterfactual envelope calibration as Rust execution."
+  },
+  "P1307_pending": {
+    "artifact": "p1307-r6-mutation-plan.json",
+    "families": 37,
+    "executed": 0,
+    "status": "PENDING_NOT_DISCHARGED_BY_P1308",
+    "certificate_general_P1307": false
+  },
+  "actual_Rust_mutants": 0,
+  "mutation_score": null,
+  "seal_ready": false
+}

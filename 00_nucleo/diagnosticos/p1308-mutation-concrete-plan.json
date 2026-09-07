@@ -1,0 +1,71 @@
+{
+  "schema": "p1308-six-concrete-mutants-v1",
+  "executor": "/root/p1306_oracle",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "frozen_source": "p1308-verification-candidate-freeze.json",
+  "frozen_source_sha256": "ab97e123c61aba8c637412bac90862b9b3522eeaabf79d2da6a26ca4dd2dc4b5",
+  "scope": "Exactly six families already frozen. Concrete before/after patches derived from frozen productive owners; no patch is applied until a fresh authorized lease.",
+  "patches": [
+    {
+      "id": "M01",
+      "path": "01_core/src/compiler/eval/operators/arithmetic.rs",
+      "function": "apply_binary",
+      "before_sha256": "818999e784e6b70448b08bb392f092c87bb292c60f58880e211a6d776039bec3",
+      "after_sha256": "ef012dd0fa3462aa73388129fab99c834d6584c5be6e197b326689bfdd203922"
+    },
+    {
+      "id": "M02",
+      "path": "01_core/src/compiler/eval/call_dispatch.rs",
+      "function": "transport_native_call_span",
+      "before_sha256": "fd34727de8570bb3dfa65ec988dcd118c4e96adac0e5528de37c373ef13dcae2",
+      "after_sha256": "1807d526d251e8badea43639c68fc5775cc6e532bea1adce4ee9c0f4743acabb"
+    },
+    {
+      "id": "M03",
+      "path": "01_core/src/compiler/stdlib/collections.rs",
+      "function": "arguments_filter",
+      "before_sha256": "cd6be6d648af0ea4ab693f7ead7fbf567861ee974d715de78bd2ee23e5029f5c",
+      "after_sha256": "dfcc3c010a9710a39f7a3ea297723959a34d1adf391da00577dff2d12b7f0ba6"
+    },
+    {
+      "id": "M04",
+      "path": "01_core/src/compiler/stdlib/collections.rs",
+      "function": "arguments_filter",
+      "before_sha256": "cd6be6d648af0ea4ab693f7ead7fbf567861ee974d715de78bd2ee23e5029f5c",
+      "after_sha256": "81e63c889769f39c601ffde72362a569c8fa61700dec920a18544c0b698630b5"
+    },
+    {
+      "id": "M05",
+      "path": "01_core/src/compiler/eval/mod.rs",
+      "function": "ExpressionWorld::source",
+      "before_sha256": "115a34e8aa41b4ec5a55b0cec5d05927216dc6a4a6fcb98d2fd2c1edc98d262c",
+      "after_sha256": "0a8e0e1119176ea6f0cb63b6dd4e31e0941ab18a73c83567ec29a47edb4532ae"
+    },
+    {
+      "id": "M06",
+      "path": "01_core/src/compiler/eval/repr.rs",
+      "function": "Value::Args Some repr",
+      "before_sha256": "a54ee85615e458bbc5b102a53769e4c756e9502d69abe2be1feaed5077e78efb",
+      "after_sha256": "24e628935c9a53a67fb51e5bc488ec0d27b252c7f561a6ec90789a99e04b19e6"
+    }
+  ],
+  "pins": {
+    "00_nucleo/diagnosticos/p1308-mutation-runner-v2.py": "0c068184be63233414346258e01f111a8f06da5a311f1f18274e82b9a2c9cddf",
+    "00_nucleo/diagnosticos/p1308-mutation-M01-restore.patch": "1f298ec5fa212aa6f0a0aa809cb3c055a0105a69bddb1cee7ffa79b6cfee2aa8",
+    "00_nucleo/diagnosticos/p1308-mutation-M01.patch": "2c7265bdf9997dc4fc88d8302810b1cea19c43e52c822b14767807c9a628af96",
+    "00_nucleo/diagnosticos/p1308-mutation-M02-restore.patch": "83797e66989cb5487695e14e407b8cfc92a3e1a55a02f5559cd0e892c159abb6",
+    "00_nucleo/diagnosticos/p1308-mutation-M02.patch": "d9b37221f0551f03bcb3899f461e7e44bc1a94f3c66e9e5cb2a0939da9b26daf",
+    "00_nucleo/diagnosticos/p1308-mutation-M03-restore.patch": "3864b21d1ef2fc2c3b615c6f9b6e3f6b93d22e3039ac55392c8217730417f394",
+    "00_nucleo/diagnosticos/p1308-mutation-M03.patch": "24cd8203831b139ce0b2216c8b5dbdf06a582ea60932d755f7c560585dc0b7e6",
+    "00_nucleo/diagnosticos/p1308-mutation-M04-restore.patch": "94c076213ca21d38bdd22bd27ad40872fdff2999d822f3f89b84d0440e2b3fb6",
+    "00_nucleo/diagnosticos/p1308-mutation-M04.patch": "14757edf02630c624a84065ebc2d43dd6b4cf87159834914adc95b26bf1f0c80",
+    "00_nucleo/diagnosticos/p1308-mutation-M05-restore.patch": "a122259775b7a4882b23b218778e122d01af26eb40136f1bb5c6da8f8e3396ac",
+    "00_nucleo/diagnosticos/p1308-mutation-M05.patch": "c74c2d3c59127474b954019c08c3d66ab657a3335f7fec15aef3fd959b8437f4",
+    "00_nucleo/diagnosticos/p1308-mutation-M06-restore.patch": "0c1ec08f32f7e29bbacdec7f3256b1029b69f3c56e919fb911b31eb1cb453838",
+    "00_nucleo/diagnosticos/p1308-mutation-M06.patch": "b21f50bc48d7c392e6493becf97ff8f1b0887f1b4b3e20d24e8fb02152f5a47e"
+  },
+  "actual_source_mutants_applied": 0,
+  "actual_builds": 0,
+  "runner_successor": "v2 preserves v1 and adds optional receipt persistence using apply_patch. No observer or expected changed.",
+  "unknown_policy": "Compilation failure, timeout, wrong source or missing witness remains Unknown; only compiled causal output deviation can kill."
+}

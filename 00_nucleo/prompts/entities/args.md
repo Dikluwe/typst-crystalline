@@ -1,162 +1,160 @@
-# Prompt L0 — `entities/args` — Gestão de Argumentos de Função
-Hash do Código: 38f70e7a
+# Prompt L0 — `entities/args` — argumentos e ocorrências causais
+Hash do Código: 13bc8f39
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/args.rs`
-**Passo de origem**: Passo 17 (stdlib e chamadas de função)
-**ADRs relevantes**: ADR-0016 (spread adiado — `..args` não implementado ainda)
+**ADRs**: ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130
+**Estado P1307-R3**: `DRAFT_L0_AWAITING_ADR0127`; contrato redigido, campos/API
+e compatibilidade ainda sem aprovação humana. Não materializar antes do gate.
 
----
+## Medição anterior à decisão
 
-## Contexto e Objetivo
+Baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, mais working tree
+P1306 preservado em `00_nucleo/diagnosticos/p1307-r3-baseline.json`, SHA-256
+`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`,
+capturado em `2026-09-07T17:03:42.154788+00:00` antes da escrita L0.
+`01_core/src/entities/args.rs:17-32` contém items, named e span agregado;
+`compiler/eval/call_dispatch.rs:389-430,1016-1023` apaga origens e named
+anteriores no spread/With. A informação ainda existe na AST antes de eval.
 
-Quando uma `Value::Func` é chamada durante a avaliação (`eval.rs`), os
-argumentos passados pelo utilizador precisam de ser capturados, validados e
-entregues à implementação nativa da função de forma segura e tipada.
+A matriz independente `00_nucleo/diagnosticos/p1307-r2-measurement.json`,
+SHA-256 `847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`,
+mede no vanilla ratificado `a51e02804` origens diferentes de Args iguais após
+factory/sink e cast do primeiro `pretty:"bad"` apesar do override booleano.
+Na fonte ratificada `lab/typst-original/crates/typst-library/src/foundations/args.rs:218-235`,
+cada ocorrência named sofre cast; `:414-445,485-491` filter/map preservam
+origens seletivamente; `:468-482` Add não tem a regra de With. A informação
+é necessária para observáveis da língua, não para reproduzir layout Rust.
 
-A `struct Args` é o contentor de argumentos de uma chamada de função — separa
-**argumentos posicionais** (por ordem) de **argumentos nomeados** (por chave).
+O L0 anterior afirmava spread adiado e nativas recebendo `&[Value]`; a fonte
+vigente `call_dispatch.rs:410-419,461-468` já expande spread e entrega `&Args`.
+Essas afirmações históricas são substituídas por este contrato. A igualdade
+Rust atual deriva items/named/span; não se infere paridade geral com a
+igualdade vanilla de `foundations/args.rs:461-465`, que ignora spans.
 
-**Separação de `func.md`**: `func.md` documenta a entidade `Func` (a função
-em si — a sua assinatura e tipo). `args.md` (este) documenta `Args` — os
-valores concretos passados numa chamada específica.
+## Decisão e ownership
 
----
+Este é o único owner de Args e ArgOccurrence. `entities/func.md` possui Func,
+não redefine Args. O carrier persistente acompanha o valor; nenhum mapa
+global, comparação de valores ou recuperação posterior de AST prova origem.
+É escolha concreta de contrato, não alegação de impossibilidade de outro
+layout. L1 permanece puro; não adicionar I/O, contexto mutável global ou crate.
 
-## Struct `Args`
+## Interface pública proposta
 
 ```rust
-#[derive(Debug, Clone, PartialEq)]
-pub struct Args {
-    /// Argumentos posicionais, em ordem de chamada.
-    pub items: Vec<Value>,
-    /// Argumentos nomeados (named args), preservando ordem de inserção.
-    /// Usa IndexMap com FxBuildHasher para performance.
-    pub named: IndexMap<EcoString, Value, FxBuildHasher>,
-    /// **P772s** — span da lista de argumentos da chamada real (o `(...)`
-    /// depois do nome da função, incl. conteúdo). `Span::detached()` para
-    /// `Args` construídos internamente (spread, `.with()`, delegação
-    /// interna — não correspondem a uma chamada literal no documento).
-    /// Paridade **parcial** com vanilla `foundations/args.rs::Args.span`
-    /// (documentado lá como "o span de toda a chamada de função, não da
-    /// lista de argumentos" — o cristalino usa o span da lista, uma
-    /// aproximação mais próxima que `Span::detached()` mas não idêntica).
-    /// **Não** é span por-argumento (vanilla também tem `Arg.span`
-    /// individual, numa `Args.items: EcoVec<Arg>` unificada — decisão de
-    /// P772s: replicar isso exigiria ~1200 pontos de chamada em toda a
-    /// stdlib, custo medido e registado como débito técnico priorizado,
-    /// não implementado aqui). Ver `paridade-producao-p772s.md`.
+#[derive(Debug, Clone)]
+pub struct ArgOccurrence {
+    pub name: Option<EcoString>,
+    pub value: Value,
     pub span: Span,
+    pub value_span: Span,
 }
-```
 
----
+#[derive(Clone)]
+pub struct Args {
+    pub items: Vec<Value>,
+    pub named: IndexMap<EcoString, Value, FxBuildHasher>,
+    pub span: Span,
+    pub occurrences: Option<Vec<ArgOccurrence>>,
+}
 
-## Interface Pública
-
-```rust
 impl Args {
-    /// Cria Args apenas com posicionais (named vazio), `span` detached.
-    /// Usado por construções internas/sintéticas sem chamada real no
-    /// documento (spread, `.with()`, testes).
-    pub fn positional(items: Vec<Value>) -> Self
-
-    /// Número de argumentos posicionais.
-    pub fn len(&self) -> usize
-
-    /// True se não há posicionais NEM nomeados.
-    pub fn is_empty(&self) -> bool
+    pub fn positional(items: Vec<Value>) -> Self;
+    pub fn from_parts(items: Vec<Value>, named: IndexMap<EcoString, Value, FxBuildHasher>, span: Span) -> Self;
+    pub fn from_occurrences(span: Span, occurrences: Vec<ArgOccurrence>) -> Self;
+    pub fn occurrence_sequence(&self) -> Vec<ArgOccurrence>;
+    pub fn invalidate_occurrences(&mut self);
+    pub fn remove_positional(&mut self, index: usize) -> Option<Value>;
+    pub fn remove_named(&mut self, name: &str) -> Option<Value>;
+    pub fn len(&self) -> usize;
+    pub fn is_empty(&self) -> bool;
 }
 ```
 
-### Acesso a Named Args
+`name: None` significa positional; `Some` conserva o nome exato. `span`
+individual ancora o argumento completo, `value_span` sua expressão-valor;
+cada Span conserva seu FileId. Detached significa ausência real de âncora,
+não permissão para inventar a Source da chamada final. O span agregado
+continua independente dos individuais e não é usado para reconstituí-los.
 
-Named args são acedidos directamente via `args.named.get("key")`.
-A `IndexMap` preserva a ordem de inserção — importante para mensagens de erro.
+### Sequência e views
 
----
+- `Some(sequence)` é a sequência causal autoritativa, inclusive ordem conjunta
+  e todas as ocorrências named, com os valores anteriores ainda necessários
+  a casts futuros. Não é metadata puramente cosmética.
+- `items` é a projeção positional na mesma ordem. `named` projeta último valor
+  de cada nome, conservando a posição da primeira ocorrência na sequência.
+  Valores projetados são clones dos mesmos valores avaliados, sem reavaliação.
+- `from_occurrences` estabelece Some e ambas as views simultaneamente.
+- `from_parts` guarda as views e span fornecidos, com None. `positional` é
+  construção sintética com named vazio, span detached e None; assinatura e
+  `len` Rust permanecem os vigentes (`items.len()`). `is_empty` lê ambas views.
+- `occurrence_sequence` devolve clone de Some. Para None, devolve uma sequência
+  sintética: posicionais primeiro, depois named na ordem da view, ambos spans
+  individuais detached. Não representa a ordem lexical nem origens perdidas.
+  Ao combinar síntese e origem conhecida, só o fragmento sintético é detached;
+  não apagar a proveniência conhecida do outro fragmento.
 
-## Dívidas Técnicas (ADR-0016)
+### Coerência sob transformação e mutabilidade pública
 
-O método `take()` (consumo mútuo de posicionais) e `finish()` (validação de
-argumentos não consumidos) foram **adiados** para Passo 17+. O estado actual
-suporta apenas:
-1. Criação via `positional(items)`
-2. Injecção de named args via `args.named.insert(key, value)`
-3. Leitura via `args.items[i]` e `args.named.get(key)`
+`remove_positional(index)` conta somente posicionais, remove a ocorrência
+exata e retorna seu valor. Índice fora do domínio retorna None sem alteração.
+`remove_named(name)` remove todas as ocorrências com esse nome e retorna o
+último valor; ausência retorna None sem alteração. Em Some, os dois métodos
+regeneram ambas views; em None, modificam as views e conservam None. O span
+agregado não muda nesses métodos. Não fazem casts nem decidem diagnósticos.
 
-**Passo futuro**: implementar `take<T>() -> Option<T>` (desserialização tipada
-de posicionais) e `finish() -> SourceResult<()>` (erro se restam args).
+Antes de qualquer mutação direta de items/named quando occurrences é Some,
+o caller é obrigado a chamar `invalidate_occurrences`, que só limpa o carrier,
+conservando views/span. None já está invalidado e não exige chamada redundante.
+Essa forma existe para adaptação sintética/legada explicitamente auditada;
+é PROIBIDA quando descarta a origem necessária de argumentos de usuário.
+Nessas rotas, usar os métodos coerentes ou transformar a sequência e chamar
+`from_occurrences`. Alterar occurrences diretamente e deixar views stale
+também é proibido: reconstruir o Args integral. Nenhum reader pode resolver
+inconsistência escolhendo silenciosamente uma das cópias.
 
----
+Campos públicos não impõem isso automaticamente no sistema de tipos Rust.
+A auditoria de TODOS os writers é condição de materialização e deve
+classificar cada um como síntese, transporte ou consumo. Falta de owner
+autorizado é bloqueio antes do código, não justificativa para fallback.
+Não validar origem por `PartialEq`, hash de Value, nome de binding ou busca
+textual: valores iguais podem ter origens diferentes e NaN não é identidade.
 
-## Integração com Stdlib
+Alterar somente Args.span, como fazem seletores privados já autorizados,
+não invalida os spans individuais. Esse ajuste não pode reescrever a origem
+de nenhuma ocorrência. `occurrence_sequence` não repara carrier stale.
 
-As funções nativas em `stdlib.rs` consomem `&[Value]` directamente —
-**não recebem `Args`**. Esta é uma simplificação intencional (Passo 17):
-as funções nativas são chamadas via `Func::native(name, fn_ptr)` e o
-despachante converte `args.items` para `&[Value]` antes de chamar.
+### Clone, igualdade e observabilidade
 
-```rust
-// Chamada de função nativa (eval.rs, passo 17)
-Value::Func(f) => f.call(&args.items)  // passa &[Value], não Args
+Clone conserva valores e todos os spans; não consulta World nem executa Func.
+PartialEq de Args mantém exatamente a comparação legada items/named/span,
+ignorando o campo novo. Não derivar PartialEq incluindo occurrences, nem
+corrigir a dívida de igualdade com vanilla nesta revisão. Debug mantém a
+estrutura anterior sem exibir o carrier. A representação da linguagem é de
+`compiler/eval/repr.md`, incluindo sua decisão explícita para sequência causal;
+não surge por Debug. `compiler/stdlib/collections.md` possui as projeções e
+callbacks de arguments; `compiler/stdlib/loading.md` possui casts/encoders.
 
-// Acesso a named args (ainda sem suporte completo no eval)
-args.named.get("color")
-```
+Args não valida assinatura, não escolhe qual erro vence e não fornece
+`take<T>`/`finish` tipados nesta revisão. A nativa pode consumir a sequência
+com seu cursor local e selecionar arg-span ou value-span conforme a falha.
+Não duplicar essa decisão no dispatcher.
 
----
+## Gate e aceitação
 
-## Invariantes
+Novo campo e tipos/métodos públicos quebram literais de construção externos:
+ADR-0127 obrigatório, mesmo mantendo as views. Redigir não autoriza escrever
+Rust ou testes. A migração deve substituir literais sintéticos por from_parts
+ou positional e transportes por ocorrências, sem obrigar todos os consumidores
+a adotar validação nova. Owners consumidores permanecem 1:1.
 
-| Invariante | Detalhe |
-|-----------|---------|
-| Posicionais em ordem | `items[0]` é o primeiro argumento da chamada |
-| Named preservam ordem | `IndexMap` garante ordem de inserção |
-| `is_empty()` verifica ambos | Vazio só se `items` E `named` estão vazios |
-| Nenhuma validação de tipo | `Args` é agnóstica de tipo — a função decide |
-
----
-
-## Critérios de Verificação
-
-```
-// Construção
-Args::positional([]).is_empty()   = true
-Args::positional([]).len()        = 0
-
-Args::positional([Int(1), Bool(true)]).len()       = 2
-Args::positional([Int(1), Bool(true)]).is_empty()  = false
-Args::positional([Int(1), Bool(true)]).items[0]    = Int(1)
-Args::positional([Int(1), Bool(true)]).items[1]    = Bool(true)
-
-// Named
-a = Args::positional([])
-a.named.insert("x", Int(1))
-a.is_empty()             = false  // named não está vazio
-a.len()                  = 0      // len() conta apenas posicionais
-a.named.get("x")         = Some(&Int(1))
-a.named.get("y")         = None
-
-// Clone e PartialEq
-a1 = Args::positional([Int(42)])
-a2 = a1.clone()
-a1 == a2                 = true
-
-// Named preservam ordem
-a.named.insert("b", Int(2))
-a.named.insert("a", Int(1))
-a.named.keys().collect::<Vec>() = ["b", "a"]  // ordem de inserção
-
-// P772s — span
-Args::positional([]).span             = Span::detached()
-eval_args(...) numa chamada real       → span = span da lista de argumentos
-```
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Ficheiros afetados |
-|------|--------|-------------------|
-| 2026-07-17 | P772s — campo `span` (span da lista de argumentos da chamada real; `Span::detached()` para construções internas). Fecha parcialmente o achado de P772p (erros de `native_image` e de outras funções nativas deixam de usar sempre `Span::detached()`) — só ao nível da chamada, não por-argumento (custo medido, registado como débito) | `args.md`, `args.rs` |
+Após aprovação, verificar independentemente: projeções com named repetidos;
+remoção ordinal e por nome; clone entre Sources; síntese sem origem inventada;
+mistura de None/Some sem apagar âncoras; casts do primeiro named inválido;
+Args de factory/sink; map/filter e join conforme seus owners; igualdade legada
+inclusive span agregado e NaN sem usar igualdade como prova de origem.
+Unknown de caso obrigatório não satisfaz o gate. Testes de invariantes devem
+refutar writers que conservam Some depois de mutar views e consumidores que
+descartam origens para obter um resultado aparentemente válido.

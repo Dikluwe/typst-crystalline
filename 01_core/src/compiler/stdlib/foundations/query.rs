@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/query.md
-//! @prompt-hash 8329f84f
+//! @prompt-hash 733b0edf
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -56,7 +56,7 @@ pub fn native_query(
     // quando o introspector não tem o elemento registado.
     let values: Vec<Value> = locations
         .into_iter()
-        .map(|loc| match ctx.introspector.element_at(loc) {
+        .map(|loc| match ctx.introspector.elements.get(&loc) {
             Some(c) => Value::LocatedContent(c.clone(), loc),
             None => Value::Location(loc),
         })

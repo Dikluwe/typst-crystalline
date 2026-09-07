@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading.md
-//! @prompt-hash ee929b6d
+//! @prompt-hash d23f175e
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -33,6 +33,614 @@ fn err(msg: impl Into<String>) -> Vec<SourceDiagnostic> {
 
 fn new_dict() -> Dict {
     IndexMap::with_hasher(FxBuildHasher)
+}
+
+/// Adapters privados usam somente as árvores dos formatos autorizados em L1.
+/// CBOR conserva a sua classificação própria, inclusive Bytes binário.
+fn textual_json_value(value: &Value) -> Result<serde_json::Value, String> {
+    use serde_json::Value as Json;
+    Ok(match value {
+        Value::None => Json::Null,
+        Value::Bool(value) => Json::Bool(*value),
+        Value::Int(value) => Json::Number((*value).into()),
+        Value::Float(value) => serde_json::Number::from_f64(*value)
+            .map(Json::Number)
+            .unwrap_or(Json::Null),
+        Value::Str(value) => Json::String(value.to_string()),
+        Value::Symbol(value) => Json::String(value.value.to_string()),
+        Value::Array(values) => {
+            Json::Array(values.iter().map(textual_json_value).collect::<Result<_, _>>()?)
+        }
+        Value::Dict(values) => Json::Object(
+            values
+                .iter()
+                .map(|(name, value)| Ok((name.to_string(), textual_json_value(value)?)))
+                .collect::<Result<_, String>>()?,
+        ),
+        Value::Content(_) | Value::LocatedContent(_, _) => {
+            textual_json_value(&Value::Dict(textual_content_fields(value)?))?
+        }
+        other => Json::String(crate::compiler::eval::repr_value_for_serialization(other)),
+    })
+}
+
+fn textual_toml_value(value: &Value) -> Result<toml::Value, String> {
+    use toml::Value as Toml;
+    Ok(match value {
+        Value::None => return Err("unsupported None value".into()),
+        Value::Bool(value) => Toml::Boolean(*value),
+        Value::Int(value) => Toml::Integer(*value),
+        Value::Float(value) => Toml::Float(*value),
+        Value::Str(value) => Toml::String(value.to_string()),
+        Value::Symbol(value) => Toml::String(value.value.to_string()),
+        Value::Array(values) => {
+            Toml::Array(values.iter().map(textual_toml_value).collect::<Result<_, _>>()?)
+        }
+        Value::Dict(values) => Toml::Table(
+            values
+                .iter()
+                .filter(|(_, value)| !matches!(value, Value::None))
+                .map(|(name, value)| Ok((name.to_string(), textual_toml_value(value)?)))
+                .collect::<Result<_, String>>()?,
+        ),
+        Value::Content(_) | Value::LocatedContent(_, _) => {
+            textual_toml_value(&Value::Dict(textual_content_fields(value)?))?
+        }
+        other => Toml::String(crate::compiler::eval::repr_value_for_serialization(other)),
+    })
+}
+
+/// A emissão ratificada não inclui `+` no expoente de um token numérico.
+fn canonical_numeric_token(mut token: String) -> String {
+    if let Some(exponent) = token.find("e+") {
+        token.remove(exponent + 1);
+    }
+    token
+}
+
+/// Reescreve somente tokens numéricos; strings JSON, inclusive escapes e
+/// texto semelhante a números, são copiadas sem interpretação.
+fn canonical_json_numbers(encoded: String) -> String {
+    let mut output = String::with_capacity(encoded.len());
+    let mut characters = encoded.chars().peekable();
+    while let Some(character) = characters.next() {
+        if character == '"' {
+            output.push(character);
+            while let Some(character) = characters.next() {
+                output.push(character);
+                if character == '\\' {
+                    if let Some(escaped) = characters.next() {
+                        output.push(escaped);
+                    }
+                } else if character == '"' {
+                    break;
+                }
+            }
+        } else if character.is_ascii_digit() || character == '-' {
+            let mut token = String::from(character);
+            while characters.peek().is_some_and(|character| {
+                character.is_ascii_digit()
+                    || matches!(character, '.' | 'e' | 'E' | '+' | '-')
+            }) {
+                token.push(characters.next().unwrap());
+            }
+            output.push_str(&canonical_numeric_token(token));
+        } else {
+            output.push(character);
+        }
+    }
+    output
+}
+
+/// Compatibilidade lexical de strings TOML basic multilinha. O backend
+/// decide layout e estilo; este passe escapa apenas aspas internas desse
+/// estilo, sem alterar strings literais, escapes ou delimitadores.
+fn canonical_toml_strings(encoded: String) -> String {
+    let mut output = String::with_capacity(encoded.len());
+    let mut characters = encoded.chars().peekable();
+    while let Some(quote) = characters.next() {
+        output.push(quote);
+        if !matches!(quote, '\'' | '"') {
+            continue;
+        }
+        let multiline = characters.clone().take(2).eq([quote, quote]);
+        if multiline {
+            characters.next();
+            characters.next();
+            output.push(quote);
+            output.push(quote);
+        }
+        while let Some(character) = characters.next() {
+            if quote == '"' && character == '\\' {
+                output.push(character);
+                if let Some(escaped) = characters.next() {
+                    output.push(escaped);
+                }
+            } else if character == quote {
+                if !multiline {
+                    output.push(quote);
+                    break;
+                }
+                let mut count = 1;
+                while characters.peek() == Some(&quote) {
+                    characters.next();
+                    count += 1;
+                }
+                let body_count = if count >= 3 { count - 3 } else { count };
+                for _ in 0..body_count {
+                    if quote == '"' {
+                        output.push('\\');
+                    }
+                    output.push(quote);
+                }
+                if count >= 3 {
+                    output.push(quote);
+                    output.push(quote);
+                    output.push(quote);
+                    break;
+                }
+            } else {
+                output.push(character);
+            }
+        }
+    }
+    output
+}
+
+fn textual_content_fields(value: &Value) -> Result<Dict, String> {
+    use crate::entities::content::Content;
+    let (content, snapshot) = match value {
+        Value::Content(content) => (content, None),
+        Value::LocatedContent(content, _) => (content.content(), content.fields()),
+        _ => return Err("expected content".into()),
+    };
+    let mut fields = new_dict();
+    let function = match content {
+        Content::Empty => "sequence",
+        other => other.elem_name(),
+    };
+    fields.insert("func".into(), Value::Str(function.into()));
+    if let Some(snapshot) = snapshot {
+        fields.extend(snapshot.iter().map(|(name, value)| (name.clone(), value.clone())));
+    } else {
+        // Campos de payload cuja presença é estrutural. O helper legado de
+        // métodos só enumera body para essas famílias e não os pode recuperar.
+        match content {
+            Content::Empty => {
+                fields.insert("children".into(), Value::Array(vec![]));
+                return Ok(fields);
+            }
+            Content::Sequence(children) => {
+                fields.insert(
+                    "children".into(),
+                    Value::Array(children.iter().cloned().map(Value::Content).collect()),
+                );
+                return Ok(fields);
+            }
+            Content::Metadata(metadata) => {
+                fields.insert("value".into(), metadata.value.as_ref().clone());
+                return Ok(fields);
+            }
+            Content::Styled(child, _) => {
+                fields.insert("child".into(), Value::Content(child.as_ref().clone()));
+                fields.insert("styles".into(), Value::Str("styles(..)".into()));
+                return Ok(fields);
+            }
+            Content::Raw(raw_elem) => {
+                fields.insert("text".into(), Value::Str(raw_elem.text.clone()));
+                if let Some(language) = &raw_elem.lang {
+                    fields.insert("lang".into(), Value::Str(language.clone()));
+                }
+                // O bool block legado não distingue default de presença.
+                return Ok(fields);
+            }
+            Content::Link(link) => {
+                fields.insert("dest".into(), Value::Str(link.url.clone()));
+                fields.insert("body".into(), Value::Content(link.body.clone()));
+                return Ok(fields);
+            }
+            Content::Boxed(boxed) => {
+                fields.insert("body".into(), Value::Content(boxed.body.clone()));
+                return Ok(fields);
+            }
+            Content::Block(block) => {
+                fields.insert("body".into(), Value::Content(block.body.clone()));
+                return Ok(fields);
+            }
+            Content::HtmlElem(element) => {
+                fields.insert("tag".into(), Value::Str(element.tag.clone()));
+                if let Some(attributes) = &element.attrs {
+                    fields.insert(
+                        "attrs".into(),
+                        Value::Dict(
+                            attributes
+                                .iter()
+                                .map(|(key, value)| {
+                                    (key.clone(), Value::Str(value.clone()))
+                                })
+                                .collect(),
+                        ),
+                    );
+                }
+                match &element.body {
+                    crate::entities::html::HtmlBody::Unset => {}
+                    crate::entities::html::HtmlBody::None => {
+                        fields.insert("body".into(), Value::None);
+                    }
+                    crate::entities::html::HtmlBody::Content(body) => {
+                        fields
+                            .insert("body".into(), Value::Content(body.as_ref().clone()));
+                    }
+                }
+                return Ok(fields);
+            }
+            _ => {}
+        }
+        let projected = crate::compiler::eval::bindings::eval_content_method(
+            content,
+            "fields",
+            Args::positional(vec![]),
+            Span::detached(),
+        )
+        .map_err(|diagnostics| {
+            diagnostics
+                .into_iter()
+                .map(|diagnostic| diagnostic.message)
+                .collect::<Vec<_>>()
+                .join("; ")
+        })?;
+        let Value::Dict(projected) = projected else {
+            return Err("content fields must be a dictionary".into());
+        };
+        fields.extend(projected);
+    }
+    Ok(fields)
+}
+
+/// Casts seguem a ordem dos parâmetros do contrato: value, todos os pretty,
+/// e então o primeiro argumento remanescente na sequência causal.
+fn textual_encoder_args(
+    args: &Args,
+    toml: bool,
+    allow_pretty: bool,
+) -> SourceResult<(Value, Span, bool)> {
+    let mut occurrences = args.occurrence_sequence();
+    let Some(index) = occurrences.iter().position(|argument| argument.name.is_none())
+    else {
+        if let Some(argument) = occurrences
+            .iter()
+            .find(|argument| argument.name.as_deref() == Some("value"))
+        {
+            return Err(vec![SourceDiagnostic::error(
+                argument.span,
+                "the argument `value` is positional",
+            )
+            .with_hint("try removing `value:`")]);
+        }
+        return Err(vec![SourceDiagnostic::error(args.span, "missing argument: value")]);
+    };
+    let argument = occurrences.remove(index);
+    if toml && !matches!(argument.value, Value::Dict(_)) {
+        return Err(vec![SourceDiagnostic::error(
+            argument.value_span,
+            format!("expected dictionary, found {}", vanilla_type_name(&argument.value)),
+        )]);
+    }
+    let mut pretty = true;
+    if allow_pretty {
+        for occurrence in &occurrences {
+            if occurrence.name.as_deref() == Some("pretty") {
+                match &occurrence.value {
+                    Value::Bool(value) => pretty = *value,
+                    value => {
+                        return Err(vec![SourceDiagnostic::error(
+                            occurrence.value_span,
+                            format!(
+                                "expected boolean, found {}",
+                                vanilla_type_name(value)
+                            ),
+                        )])
+                    }
+                }
+            }
+        }
+        occurrences.retain(|occurrence| occurrence.name.as_deref() != Some("pretty"));
+    }
+    if let Some(occurrence) = occurrences.first() {
+        let message = match &occurrence.name {
+            Some(name) => format!("unexpected argument: {name}"),
+            None => "unexpected argument".into(),
+        };
+        return Err(vec![SourceDiagnostic::error(occurrence.span, message)]);
+    }
+    Ok((argument.value, argument.value_span, pretty))
+}
+
+pub fn native_json_encode(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let (value, span, pretty) = textual_encoder_args(args, false, true)?;
+    let encoded = textual_json_value(&value).and_then(|value| {
+        if pretty {
+            serde_json::to_string_pretty(&value)
+        } else {
+            serde_json::to_string(&value)
+        }
+        .map(canonical_json_numbers)
+        .map_err(|error| error.to_string())
+    });
+    encoded.map(|value| Value::Str(value.into())).map_err(|error| {
+        vec![SourceDiagnostic::error(
+            span,
+            format!("failed to encode value as JSON ({error})"),
+        )]
+    })
+}
+
+pub fn native_toml_encode(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let (value, span, pretty) = textual_encoder_args(args, true, true)?;
+    let encoded = textual_toml_value(&value).and_then(|value| {
+        if pretty { toml::to_string_pretty(&value) } else { toml::to_string(&value) }
+            .map(canonical_toml_strings)
+            .map_err(|error| error.to_string())
+    });
+    encoded.map(|value| Value::Str(value.into())).map_err(|error| {
+        vec![SourceDiagnostic::error(
+            span,
+            format!("failed to encode value as TOML ({error})"),
+        )]
+    })
+}
+
+pub fn native_yaml_encode(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let (value, span, _) = textual_encoder_args(args, false, false)?;
+    let mut output = String::new();
+    write_yaml_value(&value, &mut output, 0).map_err(|error| {
+        vec![SourceDiagnostic::error(
+            span,
+            format!("failed to encode value as YAML ({error})"),
+        )]
+    })?;
+    Ok(Value::Str(output.into()))
+}
+
+/// YAML usa indentação de sequências sem nível extra em valores de mapas.
+/// O writer recebe a primeira linha já posicionada pelo pai.
+fn write_yaml_value(
+    value: &Value,
+    output: &mut String,
+    indent: usize,
+) -> Result<(), String> {
+    match value {
+        Value::Array(values) if !values.is_empty() => {
+            for (index, value) in values.iter().enumerate() {
+                if index > 0 {
+                    output.push_str(&" ".repeat(indent));
+                }
+                output.push_str("- ");
+                write_yaml_value(value, output, indent + 2)?;
+            }
+        }
+        Value::Dict(values) if !values.is_empty() => {
+            write_yaml_map(values, output, indent)?
+        }
+        Value::Content(_) | Value::LocatedContent(_, _) => {
+            write_yaml_map(&textual_content_fields(value)?, output, indent)?;
+        }
+        Value::Str(value) => write_yaml_string(value, output, indent, false),
+        Value::Symbol(value) => write_yaml_string(&value.value, output, indent, false),
+        _ => {
+            match value {
+                Value::None => output.push_str("null"),
+                Value::Bool(value) => {
+                    output.push_str(if *value { "true" } else { "false" })
+                }
+                Value::Int(value) => output.push_str(&value.to_string()),
+                Value::Float(value) if value.is_nan() => output.push_str(".nan"),
+                Value::Float(value) if value.is_infinite() => output
+                    .push_str(if value.is_sign_negative() { "-.inf" } else { ".inf" }),
+                Value::Float(value) => output.push_str(&canonical_numeric_token(
+                    serde_json::to_string(value).map_err(|error| error.to_string())?,
+                )),
+                Value::Array(_) => output.push_str("[]"),
+                Value::Dict(_) => output.push_str("{}"),
+                other => {
+                    write_yaml_string(
+                        &crate::compiler::eval::repr_value_for_serialization(other),
+                        output,
+                        indent,
+                        false,
+                    );
+                    return Ok(());
+                }
+            }
+            output.push('\n');
+        }
+    }
+    Ok(())
+}
+
+fn write_yaml_map(
+    values: &Dict,
+    output: &mut String,
+    indent: usize,
+) -> Result<(), String> {
+    for (index, (name, value)) in values.iter().enumerate() {
+        if index > 0 {
+            output.push_str(&" ".repeat(indent));
+        }
+        write_yaml_string(name, output, indent, true);
+        output.push(':');
+        let nested_map = matches!(value, Value::Dict(values) if !values.is_empty())
+            || matches!(value, Value::Content(_) | Value::LocatedContent(_, _));
+        let nested_sequence = matches!(value, Value::Array(values) if !values.is_empty());
+        if nested_map || nested_sequence {
+            let next_indent = indent + if nested_map { 2 } else { 0 };
+            output.push('\n');
+            output.push_str(&" ".repeat(next_indent));
+            write_yaml_value(value, output, next_indent)?;
+        } else {
+            output.push(' ');
+            write_yaml_value(value, output, indent)?;
+        }
+    }
+    Ok(())
+}
+
+fn yaml_needs_typed_quotes(value: &str) -> bool {
+    let unsigned = value.strip_prefix(['+', '-']).unwrap_or(value);
+    value.is_empty()
+        || matches!(
+            value,
+            "null"
+                | "Null"
+                | "NULL"
+                | "~"
+                | "true"
+                | "True"
+                | "TRUE"
+                | "false"
+                | "False"
+                | "FALSE"
+                | ".nan"
+                | ".NaN"
+                | ".NAN"
+                | ".inf"
+                | ".Inf"
+                | ".INF"
+                | "-.inf"
+                | "-.Inf"
+                | "-.INF"
+                | "+.inf"
+                | "+.Inf"
+                | "+.INF"
+        )
+        || (!value.trim().is_empty()
+            && value.trim() == value
+            && value.parse::<f64>().is_ok_and(f64::is_finite))
+        || [("0x", 16), ("0o", 8), ("0b", 2)].iter().any(|(prefix, radix)| {
+            unsigned.strip_prefix(prefix).is_some_and(|digits| {
+                !digits.is_empty() && digits.chars().all(|c| c.is_digit(*radix))
+            })
+        })
+}
+
+fn yaml_token_boundary(character: char) -> bool {
+    matches!(
+        character,
+        ' ' | '\t' | '\r' | '\n' | '\0' | '\u{85}' | '\u{2028}' | '\u{2029}'
+    )
+}
+
+fn write_yaml_string(value: &str, output: &mut String, indent: usize, key: bool) {
+    let special = value.chars().any(|character| matches!(character, '\0'..='\t' | '\u{b}'..='\u{1f}' | '\u{7f}'..='\u{9f}' | '\u{feff}' | '\u{fffe}' | '\u{ffff}'));
+    let block = !key
+        && value.contains('\n')
+        && !special
+        && !value.ends_with(' ')
+        && !value.contains(" \n");
+    if block {
+        let trailing = value.bytes().rev().take_while(|byte| *byte == b'\n').count();
+        output.push('|');
+        if value.starts_with([' ', '\n']) {
+            output.push('2');
+        }
+        if trailing == 0 {
+            output.push('-');
+        } else if trailing > 1 || value == "\n" {
+            output.push('+');
+        }
+        output.push('\n');
+        for line in value.split_terminator('\n') {
+            if !line.is_empty() {
+                output.push_str(&" ".repeat(indent + 2));
+            }
+            output.push_str(line);
+            output.push('\n');
+        }
+        return;
+    }
+    let double = special || value.contains('\n');
+    let first = value.chars().next();
+    let indicator = first
+        .is_some_and(|character| "#,[]{}&*!|>'\"%@`".contains(character))
+        || value.starts_with("---")
+        || value.starts_with("...")
+        || first.is_some_and(|character| "?:-".contains(character))
+            && value.chars().nth(1).is_none_or(yaml_token_boundary)
+        || value.char_indices().any(|(index, character)| {
+            character == ':'
+                && value[index + 1..].chars().next().is_none_or(yaml_token_boundary)
+                || character == '#'
+                    && index > 0
+                    && value[..index].chars().next_back().is_some_and(yaml_token_boundary)
+        });
+    let quote = double
+        || yaml_needs_typed_quotes(value)
+        || indicator
+        || value.starts_with(' ')
+        || value.ends_with(' ')
+        || value.contains(['\u{2028}', '\u{2029}']);
+    if double {
+        output.push('"');
+        for character in value.chars() {
+            match character {
+                '\0' => output.push_str("\\0"),
+                '\u{7}' => output.push_str("\\a"),
+                '\u{8}' => output.push_str("\\b"),
+                '\t' => output.push_str("\\t"),
+                '\n' => output.push_str("\\n"),
+                '\u{b}' => output.push_str("\\v"),
+                '\u{c}' => output.push_str("\\f"),
+                '\r' => output.push_str("\\r"),
+                '\u{1b}' => output.push_str("\\e"),
+                '\u{85}' => output.push_str("\\N"),
+                '"' => output.push_str("\\\""),
+                '\\' => output.push_str("\\\\"),
+                '\u{a0}' => output.push_str("\\_"),
+                '\u{2028}' => output.push_str("\\L"),
+                '\u{2029}' => output.push_str("\\P"),
+                '\u{feff}' | '\u{fffe}' | '\u{ffff}' => {
+                    output.push_str(&format!("\\u{:04X}", character as u32))
+                }
+                character if character.is_control() => {
+                    output.push_str(&format!("\\x{:02X}", character as u32))
+                }
+                character => output.push(character),
+            }
+        }
+        output.push('"');
+    } else if quote {
+        output.push('\'');
+        for character in value.chars() {
+            output.push(character);
+            if character == '\'' {
+                output.push('\'');
+            }
+            if matches!(character, '\u{2028}' | '\u{2029}') {
+                output.push_str(&" ".repeat(indent + 2));
+            }
+        }
+        output.push('\'');
+    } else {
+        output.push_str(value);
+    }
+    if !key {
+        output.push('\n');
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

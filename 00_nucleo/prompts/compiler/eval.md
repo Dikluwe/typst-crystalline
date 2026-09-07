@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 38aa5e89
+Hash do Código: 823ed329
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -39,7 +39,9 @@ pub fn repr_value_for_serialization(value: &Value) -> String;
 A função é uma fachada pura e total sobre `repr::repr_value`; não serializa
 JSON/YAML, não faz I/O, não usa `Debug` e não decide quais variantes são
 estruturadas. Essa classificação permanece no owner L2
-`00_nucleo/prompts/shell/cli.md`. `repr_stroke_value` permanece compatível.
+`00_nucleo/prompts/shell/cli.md` para a CLI; os encoders L1 propostos em
+P1307-R3 têm classificação própria no owner loading, nunca nesta fachada.
+`repr_stroke_value` permanece compatível.
 Esta ampliação de assinatura pública foi **CONFIRMADA PELO DONO EM 2026-08-30**
 no gate P1285 e está autorizada para materialização.
 
@@ -254,3 +256,86 @@ uma rota ainda nomeada `std`, binding `global` introduzido, mudança de
 lookup/feature ou necessidade de novo carrier. É correção de morfologia da
 linguagem em fluxo contínuo ADR-0127, na ampliação explicitamente autorizada;
 não corresponde a nova política de produto. `Unknown` obrigatório bloqueia.
+
+## P1307-R3 — namespaces dos encoders (gate público pendente)
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/eval/mod.rs:1723-1743`, no snapshot R3 SHA-256
+`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`,
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais working tree P1306
+integral ali capturado, registra json/yaml/toml sem namespace e CBOR com
+encode. Os recibos P1307 SHA-256
+`f1191d3de029dabf6f66f87872bee8146aa43106ae54e84facc22952afd238d0`
+e R2 SHA-256
+`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`
+medem os membros originais com kind function/repr encode, mantendo os pais
+chamáveis. O vanilla é upstream ratificado `a51e02804`; cada recibo conserva
+argv, binários, features, fontes e saídas. Partial With tem repr anônima,
+não a repr do membro original: são observáveis distintos.
+
+### Decisão e aceitação
+
+O único consumer `01_core/src/compiler/eval/mod.rs` registra json/toml/yaml
+como as mesmas nativas decodificadoras, cada qual com namespace fechado
+contendo apenas `encode`, ligado à nativa correspondente de loading. O membro
+original tem nome público curto/repr `encode`. Não criar aliases globais
+`json_encode` ou encoders de csv/xml/read. Não mudar CBOR ou gates PDF/HTML.
+As três construções reais da stdlib convergem para este registro, independente
+dos quatro perfis de feature, sem novo default de target ou fase.
+
+Alias, shadowing legítimo, global, import e reexport conservam identidade do
+valor resolvido. Namespace do pai parcialmente aplicado é acessível, mas seus
+argumentos não são transferidos ao membro: `json.with(nope: 9).encode(1)`
+continua uma chamada de encode de 1. A implementação desta semântica está nos
+owners Func/call_dispatch, não em condições textuais neste registro.
+
+Não criar sidecar de origens em EvalContext, nem alterar assinatura da fachada
+de repr. É inferência que o namespace já existente basta; precisar de novo
+campo de Func, lookup nominal ou nova rota por feature a refuta. A adição de
+superfície e defaults de encode aguarda aprovação ADR-0127 deste contrato
+concreto. Testes de presença, ausência, kind, repr, chamada do pai/membro,
+With e perfis são obrigatórios; ausência baseline não é GREEN.
+
+## P1308 — Source causal do entrypoint e origem privada de função
+
+### Medição anterior à decisão
+
+Baseline `p1308-baseline.json` SHA-256
+`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`
+registra HEAD b303f1f15 mais working tree. `eval/mod.rs:347–363` cria Source
+parse_code local, mas entrega World original ao Engine. A matriz R6 final
+pinada no diagnóstico P1307 registra dez casos cujo stderr é prefixo do
+esperado sem `while calling`; `call_dispatch.rs:1017–1023` não consegue
+resolver o span via World.source. Número de Span sem sua Source não basta.
+
+Na fonte ratificada `typst-eval/src/code.rs:148`, valores retornados de
+expressões recebem span; `foundations/value.rs:210–214` delega Func para
+spanned, que conserva origem preexistente (`func.rs:385–389`). Closures já
+têm a origem dos parâmetros (`typst-eval/src/call.rs:638`). É inferência
+que o transporte privado destes dados basta; precisar inferir origem por
+Value igual ou alterar contrato público a refuta.
+
+### Decisão autorizada
+
+`eval_expression_with_features` usa um overlay privado de World por invocação,
+contendo referência ao World externo e à mesma Source parse_code avaliada.
+Somente `source(id)` para o id dessa Source devolve seu clone; qualquer outro
+id e todos os outros métodos de World, inclusive os com defaults, delegam
+ao World original. Não recriar biblioteca, fontes, inputs, plugins, resolução
+de paths/packages, relógio ou caches. Sem I/O direto, variável global, mudança
+de trait ou mutação do World externo. Engine e suas descidas usam o overlay;
+o entrypoint de documento continua vigente. Diagnósticos retornados mantêm
+spans resolvíveis contra Source idêntica, conforme P1215.
+
+Em `eval_expr`, Func retornada com origem privada detached pode receber o
+span da expressão produtora, usando helper crate-private do owner Func.
+Não substituir origem já conhecida (closure/alias/With/factory). Outros
+Values não mudam. Preservar avaliação única, retorno antecipado, flow e
+erros; o enriquecimento não executa a função nem participa da igualdade.
+Contextual mantém sua origem de body quando já conhecida. Esta captura
+serve à âncora de filter, não cria rastreador global de valores.
+
+Aceitação exige World mínimo sem Source da expressão, contenção de trace,
+origens externas, aliases/With, inputs e delegação de serviços preservados.
+Nenhuma alteração da regra de trace nem fabricação de mensagens por texto.

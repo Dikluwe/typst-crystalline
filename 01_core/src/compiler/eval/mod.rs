@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 2493828f
+//! @prompt-hash 467b7445
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -37,8 +37,12 @@ use crate::entities::document_info::DocumentInfo;
 use crate::entities::elements::bibliography::BibliographyElem;
 use crate::entities::elements::context_block::ContextBlockElem;
 use crate::entities::engine::Engine;
+use crate::entities::file_id::FileId;
+use crate::entities::font_book::FontBook;
 use crate::entities::func::{ClosureRepr, Func};
 use crate::entities::module::Module;
+use crate::entities::package_spec::PackageSpec;
+use crate::entities::path::RootedPath;
 use crate::entities::scope::Scope;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::source::Source;
@@ -48,7 +52,9 @@ use crate::entities::style_chain::StyleChain;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::{SyntaxErrorKind, SyntaxNode};
 use crate::entities::value::{Type, Value};
-use crate::entities::world_types::{Library, Route, Routines, Sink, Traced};
+use crate::entities::world_types::{
+    Bytes, Datetime, FileResult, Font, Library, Route, Routines, Sink, Traced,
+};
 
 // Submódulos por domínio (Passo 96.1, ADR-0037).
 pub(crate) mod cast;
@@ -313,6 +319,70 @@ pub fn eval_expression(
     )
 }
 
+/// Disponibiliza a Source já analisada, sem modificar o World chamador.
+struct ExpressionWorld<'a> {
+    inner: &'a dyn World,
+    source: &'a Source,
+}
+
+impl World for ExpressionWorld<'_> {
+    fn library(&self) -> &Library {
+        self.inner.library()
+    }
+    fn book(&self) -> &FontBook {
+        self.inner.book()
+    }
+    fn main(&self) -> FileId {
+        self.inner.main()
+    }
+    fn source(&self, id: FileId) -> FileResult<Source> {
+        if id == self.source.id() {
+            Ok(self.source.clone())
+        } else {
+            self.inner.source(id)
+        }
+    }
+    fn file(&self, id: FileId) -> FileResult<Bytes> {
+        self.inner.file(id)
+    }
+    fn resolve_path(&self, file: FileId, path: &str) -> Result<RootedPath, String> {
+        self.inner.resolve_path(file, path)
+    }
+    fn read_path(&self, path: &RootedPath) -> Result<Arc<Vec<u8>>, String> {
+        self.inner.read_path(path)
+    }
+    fn include_path(&self, path: &RootedPath) -> Result<Source, String> {
+        self.inner.include_path(path)
+    }
+    fn read_bytes(&self, file: FileId, path: &str) -> Result<Arc<Vec<u8>>, String> {
+        self.inner.read_bytes(file, path)
+    }
+    fn include_source(&self, file: FileId, path: &str) -> Result<Source, String> {
+        self.inner.include_source(file, path)
+    }
+    fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String> {
+        self.inner.resolve_package(spec)
+    }
+    fn inputs(&self) -> SysInputs {
+        self.inner.inputs()
+    }
+    fn plugin_host(&self) -> Option<Arc<dyn crate::contracts::plugin_host::PluginHost>> {
+        self.inner.plugin_host()
+    }
+    fn font(&self, index: usize) -> Option<Font> {
+        self.inner.font(index)
+    }
+    fn candidates_for_char(&self, c: char) -> Vec<usize> {
+        self.inner.candidates_for_char(c)
+    }
+    fn today(
+        &self,
+        offset: Option<crate::entities::duration::Duration>,
+    ) -> Option<Datetime> {
+        self.inner.today(offset)
+    }
+}
+
 pub fn eval_expression_with_features(
     world: &dyn World,
     expression: &str,
@@ -345,13 +415,14 @@ pub fn eval_expression_with_features(
         expression.to_string(),
         crate::compiler::parse::parse_code,
     );
+    let expression_world = ExpressionWorld { inner: world, source: &source };
     let route = Route::root().with_id(current_file);
     let fixed_metrics = FixedMetrics;
     let mut sink = Sink::new();
     let result = {
         let mut tracked_sink = sink.track_mut();
         let mut engine = Engine {
-            world,
+            world: &expression_world,
             font_metrics: &fixed_metrics,
             route: route.track(),
             styles: &mut styles,
@@ -901,6 +972,19 @@ pub(crate) fn eval_expr(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
+    let span = expr.span();
+    eval_expr_inner(expr, scopes, ctx, engine).map(|value| match value {
+        Value::Func(func) => Value::Func(func.with_diagnostic_span(span)),
+        other => other,
+    })
+}
+
+fn eval_expr_inner(
+    expr: Expr<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
     match expr {
         Expr::Int(node) => Ok(Value::Int(node.get())),
         Expr::Float(node) => Ok(Value::Float(node.get())),
@@ -1322,6 +1406,7 @@ pub(crate) fn eval_expr(
         // sem argumentos que captura o scope actual e devolvemos
         // `Content::ContextBlock`.
         Expr::Contextual(node) => {
+            let body_span = node.body().span();
             let body = node.body().to_untyped().clone();
             let captured = std::sync::Arc::new(scopes.snapshot());
             let closure = Func::closure(ClosureRepr {
@@ -1333,7 +1418,8 @@ pub(crate) fn eval_expr(
                 // P772q — bloco `context { }`, paridade vanilla
                 // `CapturesVisitor::new(scopes, Capturer::Context)`.
                 capturer: crate::entities::scope::Capturer::Context,
-            });
+            })
+            .with_diagnostic_span(body_span);
             let id = ctx.next_context_id();
             Ok(Value::Content(Content::ContextBlock(Arc::new(ContextBlockElem {
                 id,
@@ -1545,6 +1631,7 @@ fn make_stdlib_with_features(
         native_image,
         native_inline,
         native_json,
+        native_json_encode,
         native_layout,
         native_line,
         native_linebreak,
@@ -1623,6 +1710,7 @@ fn make_stdlib_with_features(
         native_terms,
         native_title,
         native_toml,
+        native_toml_encode,
         native_underline,
         native_underover,
         native_upper,
@@ -1630,6 +1718,7 @@ fn make_stdlib_with_features(
         native_v,
         native_xml,
         native_yaml,
+        native_yaml_encode,
     };
     let mut scope = Scope::new();
     scope.define("html", Value::Module(make_html_module()));
@@ -1720,9 +1809,25 @@ fn make_stdlib_with_features(
     // com L3 World::read_bytes. Paridade do Value de saída (ADR-0107).
     scope.define("read", Value::Func(Func::native("read", native_read)));
     scope.define("csv", Value::Func(Func::native("csv", native_csv)));
-    scope.define("json", Value::Func(Func::native("json", native_json)));
-    scope.define("yaml", Value::Func(Func::native("yaml", native_yaml)));
-    scope.define("toml", Value::Func(Func::native("toml", native_toml)));
+    type Codec = fn(
+        &mut EvalContext,
+        &crate::entities::args::Args,
+        &dyn World,
+        crate::entities::file_id::FileId,
+    ) -> SourceResult<Value>;
+    let codecs: [(&'static str, Codec, Codec); 3] = [
+        ("json", native_json, native_json_encode),
+        ("yaml", native_yaml, native_yaml_encode),
+        ("toml", native_toml, native_toml_encode),
+    ];
+    for (name, decode, encode) in codecs {
+        let mut namespace = Scope::new();
+        namespace.define("encode", Value::Func(Func::native("encode", encode)));
+        scope.define(
+            name,
+            Value::Func(Func::native_with_namespace(name, decode, Arc::new(namespace))),
+        );
+    }
     // P701 — `cbor` ganha namespace com `encode` (mesmo padrão de curve/grid/table).
     {
         let mut cbor_namespace = Scope::new();

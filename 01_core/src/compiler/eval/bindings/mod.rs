@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings.md
-//! @prompt-hash 9cd63059
+//! @prompt-hash 89d311cd
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -24,7 +24,9 @@ pub(super) use access::unknown_variable;
 pub(super) use binding::{
     destructure_let, eval_assign, eval_destruct_assignment, eval_let,
 };
-pub(crate) use field_access::{eval_content_method, eval_content_method_at};
+pub(crate) use field_access::{
+    eval_content_method, eval_content_method_at, eval_introspected_content_method_at,
+};
 pub(super) use field_access::{
     eval_field_access, eval_value_field_access, field_callee_error,
 };

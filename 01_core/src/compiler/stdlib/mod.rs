@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash b8c29979
+//! @prompt-hash d22a84dd
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -134,6 +134,9 @@ pub use crate::compiler::stdlib::layout::{
 pub use crate::compiler::stdlib::loading::{
     native_cbor, native_cbor_encode, native_csv, native_json, native_read, native_toml,
     native_xml, native_yaml,
+};
+pub(crate) use crate::compiler::stdlib::loading::{
+    native_json_encode, native_toml_encode, native_yaml_encode,
 };
 // P697 — builtin plugin; P819 — `plugin.transition` (namespace).
 pub use crate::compiler::stdlib::plugin::{native_plugin, native_plugin_transition};
@@ -825,8 +828,14 @@ mod tests {
             .entry(ElementKind::Heading)
             .or_default()
             .extend([a, b]);
-        ctx.introspector.elements.insert(a, content.clone());
-        ctx.introspector.elements.insert(b, content.clone());
+        ctx.introspector.elements.insert(
+            a,
+            crate::entities::value::IntrospectedContent::new(content.clone(), None),
+        );
+        ctx.introspector.elements.insert(
+            b,
+            crate::entities::value::IntrospectedContent::new(content.clone(), None),
+        );
 
         let Value::Array(values) = native_query(
             &mut ctx,
@@ -852,7 +861,7 @@ mod tests {
         let Value::LocatedContent(first, first_loc) = &values[0] else { unreachable!() };
         assert!(matches!(
             crate::compiler::eval::bindings::eval_content_method_at(
-                first,
+                first.content(),
                 Some(*first_loc),
                 "location",
                 Args::positional(vec![]),
@@ -2896,11 +2905,11 @@ mod tests {
         null_ctx!(ctx);
         assert!(calc_log(
             &mut ctx,
-            &Args {
-                items: vec![Value::Float(100.0), Value::Float(10.0)],
-                named: [("base".into(), Value::Int(10))].into_iter().collect(),
-                span: Span::detached(),
-            },
+            &Args::from_parts(
+                vec![Value::Float(100.0), Value::Float(10.0)],
+                [("base".into(), Value::Int(10))].into_iter().collect(),
+                Span::detached(),
+            ),
             &null_world(),
             test_file_id()
         )

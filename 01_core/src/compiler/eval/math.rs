@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash bf2c17ba
+//! @prompt-hash 82c8ad4c
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -17,11 +17,9 @@ fn extract_math_named<'a>(
 }
 
 use ecow::EcoString;
-use indexmap::IndexMap;
-use rustc_hash::FxBuildHasher;
 
 use crate::compiler::scopes::Scopes;
-use crate::entities::args::Args;
+use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::ast::expr::{Arg, Args as AstArgs, ArrayItem, Expr};
 use crate::entities::ast::math::{Math, MathTextKind};
 use crate::entities::ast::AstNode;
@@ -326,19 +324,28 @@ fn eval_p1293_math_args(
     engine: &mut Engine<'_>,
     call_args: AstArgs<'_>,
 ) -> SourceResult<Args> {
-    let mut items = Vec::new();
-    let mut named: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+    let mut occurrences = Vec::new();
     for arg in call_args.items() {
         match arg {
-            Arg::Pos(expr) => items.push(eval_math_arg_value(scopes, ctx, engine, expr)?),
+            Arg::Pos(expr) => occurrences.push(ArgOccurrence {
+                name: None,
+                value: eval_math_arg_value(scopes, ctx, engine, expr)?,
+                span: expr.span(),
+                value_span: expr.span(),
+            }),
             Arg::Named(named_arg) => {
                 let value = eval_math_arg_value(scopes, ctx, engine, named_arg.expr())?;
-                named.insert(named_arg.name().as_str().into(), value);
+                occurrences.push(ArgOccurrence {
+                    name: Some(named_arg.name().as_str().into()),
+                    value,
+                    span: named_arg.span(),
+                    value_span: named_arg.expr().span(),
+                });
             }
             Arg::Spread(_) => {}
         }
     }
-    Ok(Args { items, named, span: call_args.span() })
+    Ok(Args::from_occurrences(call_args.span(), occurrences))
 }
 
 /// Aplica o binding público do módulo `math` também no caminho de sintaxe.
@@ -571,29 +578,13 @@ fn eval_math_expr(
                             ),
                         )]);
                     };
-                    let mut items = Vec::new();
-                    let mut named: IndexMap<EcoString, Value, FxBuildHasher> =
-                        IndexMap::default();
-                    for arg in call.args().items() {
-                        match arg {
-                            Arg::Pos(expr) => {
-                                items.push(eval_math_arg_value(
-                                    scopes, ctx, engine, expr,
-                                )?);
-                            }
-                            Arg::Named(name_expr) => {
-                                let value = eval_math_arg_value(
-                                    scopes,
-                                    ctx,
-                                    engine,
-                                    name_expr.expr(),
-                                )?;
-                                named.insert(name_expr.name().as_str().into(), value);
-                            }
-                            Arg::Spread(_) => {}
-                        }
-                    }
-                    let args = Args { items, named, span: call.args().span() };
+                    let mut args =
+                        eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    super::call_dispatch::transport_native_call_span(
+                        &func,
+                        &mut args,
+                        call.span(),
+                    );
                     return match apply_func(func, args, scopes, ctx, engine)? {
                         Value::Content(c) => Ok(c),
                         other => Err(vec![SourceDiagnostic::error(
@@ -1309,9 +1300,6 @@ fn eval_math_expr(
                         scopes.get(&name).cloned()
                     };
                     if let Some(Value::Func(func)) = maybe_func {
-                        let mut items = Vec::new();
-                        let mut named: IndexMap<EcoString, Value, FxBuildHasher> =
-                            IndexMap::default();
                         // **P899** — reaproveita `eval_math_arg_value` (já usado
                         // pelo caminho de callee namespaced P772y, ex.:
                         // `math.class(...)`), em vez de forçar todos os
@@ -1328,27 +1316,13 @@ fn eval_math_expr(
                         // `wrap_math_style` não cobria este caminho de
                         // despacho). Unifica a semântica dos dois caminhos de
                         // chamada em modo math (bare global vs namespaced).
-                        for arg in call.args().items() {
-                            match arg {
-                                Arg::Pos(expr) => {
-                                    items.push(eval_math_arg_value(
-                                        scopes, ctx, engine, expr,
-                                    )?);
-                                }
-                                Arg::Named(name_expr) => {
-                                    let value = eval_math_arg_value(
-                                        scopes,
-                                        ctx,
-                                        engine,
-                                        name_expr.expr(),
-                                    )?;
-                                    named.insert(name_expr.name().as_str().into(), value);
-                                }
-                                Arg::Spread(_) => {}
-                            }
-                        }
-                        // P772s — span da lista de argumentos da chamada real.
-                        let args = Args { items, named, span: call.args().span() };
+                        let mut args =
+                            eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                        super::call_dispatch::transport_native_call_span(
+                            &func,
+                            &mut args,
+                            call.span(),
+                        );
                         return match apply_func(func, args, scopes, ctx, engine)? {
                             Value::Content(c) => Ok(c),
                             other => Err(vec![SourceDiagnostic::error(

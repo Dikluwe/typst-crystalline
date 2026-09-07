@@ -1,5 +1,45 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 10b008ba
+Hash do Código: fc23c3ef
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`entities/introspector.rs:372,727` guarda HashMap<Location, Content> e
+projeta diretamente element_at. R5 e `introspect.rs:1350` mostram que o
+payload de tags não basta para reconstruir campos públicos.
+
+### Decisão proprietária
+
+O campo público passa a
+`pub elements: HashMap<Location, IntrospectedContent>`, mantendo o tipo de
+hasher vigente e a chave Location. Este é o único store de elementos públicos.
+`Introspector::element_at(&self, location: Location) -> Option<&Content>`
+conserva sua assinatura e retorna `entry.content()`. Não acrescentar método
+obrigatório ao trait; query L1 já dispõe do TagIntrospector concreto.
+empty/default/clone incluem o novo tipo. Nenhum callback é executado aqui.
+
+A realização existente de Equation (§P1140.5-A) continua atualizando a mesma
+entrada: não criar outro mapa paralelo de campos nem substituir seus valores
+realizados por defaults de Heading. Mapas auxiliares históricos de cálculo de
+Equation conservam seu papel, não se tornam um segundo store de fields.
+
+Aceitação: element_at e a entrada completa referem-se à mesma árvore; clone
+preserva snapshots; ausência sintética de elemento continua ausência. Mudança
+do tipo público de elements aguarda aprovação ADR-0127.
+
+---
+
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`

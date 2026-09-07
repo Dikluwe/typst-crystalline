@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/closures.md
-//! @prompt-hash e8835c34
+//! @prompt-hash ca47fbca
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -68,20 +68,16 @@ pub(super) fn apply_closure(
     // argument`, não `close = true`). Só parâmetros posicionais
     // (`default.is_none()`, de `Param::Pos`) consomem `args.items`.
     // Invariante documentada em `entities/func.md` §"Invariante P708".
-    let mut pos_idx = 0;
     for param in closure.params.iter() {
         // **P733** — o nomeado é consumido (`shift_remove`), não só lido:
         // paridade vanilla `args.named()` em `typst-eval/src/call.rs:679-683`.
         // O que sobrar no mapa após o loop é não consumido — vai para o
         // sink (se houver) ou gera erro "unexpected argument: {name}".
-        let val = if let Some(v) = args.named.shift_remove(param.name.as_str()) {
+        let val = if let Some(v) = args.remove_named(param.name.as_str()) {
             v
         } else if param.default.is_none() {
-            match args.items.get(pos_idx) {
-                Some(v) => {
-                    pos_idx += 1;
-                    v.clone()
-                }
+            match args.remove_positional(0) {
+                Some(v) => v,
                 None => {
                     let name = if param.name.is_empty() {
                         "pattern"
@@ -116,22 +112,17 @@ pub(super) fn apply_closure(
 
     // P504 — sink de argumentos: empacota os restantes num `Value::Args`.
     if let Some(ref sink_name) = closure.sink_name {
-        let remaining_items = args.items.into_iter().skip(pos_idx).collect();
+        let (mut named, positional): (Vec<_>, Vec<_>) = args
+            .occurrence_sequence()
+            .into_iter()
+            .partition(|occurrence| occurrence.name.is_some());
+        named.extend(positional);
         call_scopes.define(
             sink_name.as_str(),
-            Value::Args(crate::entities::args::Args {
-                items: remaining_items,
-                // **P733** — só os nomeados NÃO consumidos por parâmetros
-                // (paridade vanilla `args.take()`, medido: sink exclui o
-                // nomeado já ligado a um parâmetro).
-                named: args.named,
-                // P772s — span da chamada original (sink `..rest` reflecte
-                // os args não consumidos desta mesma chamada).
-                span: args.span,
-            }),
+            Value::Args(Args::from_occurrences(args.span, named)),
         );
     } else {
-        if pos_idx < args.items.len() {
+        if !args.items.is_empty() {
             // **P708** — sem sink para absorver o excedente, um argumento
             // posicional sem parâmetro correspondente é erro (paridade
             // vanilla verbatim: `"unexpected argument"`), não descarte
@@ -249,14 +240,17 @@ pub(super) fn eval_closure_expr(
     // Body: SyntaxNode clone O(1) via Arc interno
     let body = closure_expr.body().to_untyped().clone();
 
-    Ok(Value::Func(Func::closure(ClosureRepr {
-        name,
-        params,
-        sink_name,
-        body,
-        captured,
-        // P772q — closure normal (não `context { }`, que constrói o seu
-        // próprio ClosureRepr directamente em eval/mod.rs).
-        capturer: crate::entities::scope::Capturer::Function,
-    })))
+    Ok(Value::Func(
+        Func::closure(ClosureRepr {
+            name,
+            params,
+            sink_name,
+            body,
+            captured,
+            // P772q — closure normal (não `context { }`, que constrói o seu
+            // próprio ClosureRepr directamente em eval/mod.rs).
+            capturer: crate::entities::scope::Capturer::Function,
+        })
+        .with_diagnostic_span(closure_expr.params().span()),
+    ))
 }

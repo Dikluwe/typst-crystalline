@@ -1,0 +1,1030 @@
+{
+  "schema": "p1307-r5-repr-supplement-oracle-v1",
+  "baseline_sha256": "32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a",
+  "measurement_sha256": "5c145ef6f5694948d34de6be2f35c873b526170d2752b34ca08e858216508567",
+  "script_sha256": "f2d6fc2ab3960f5118d63f049f82b885bd3677093bb5a9e9afd5cc7fef312531",
+  "cases": [
+    {
+      "id": "default.repr",
+      "setting": "default",
+      "projection": "repr",
+      "expression": "",
+      "route": "compile",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R2:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "78fd17fa61567bfd8107820e9daa9de588d9fcd08c993c24261fd2c6a3e304a9",
+      "expected_shape": "value",
+      "transport_marker": "P1307R2:",
+      "predecessor_id": "r2.construct-LocatedContent",
+      "fixture": "/tmp/p1307-r4-oracle-y6420i_w/case-000.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-y6420i_w/case-000.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "default.repr",
+            "side": "vanilla",
+            "profile": "default"
+          }
+        },
+        "html": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "default.repr",
+            "side": "vanilla",
+            "profile": "html"
+          }
+        },
+        "a11y": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "default.repr",
+            "side": "vanilla",
+            "profile": "a11y"
+          }
+        },
+        "html+a11y": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "default.repr",
+            "side": "vanilla",
+            "profile": "html+a11y"
+          }
+        }
+      }
+    },
+    {
+      "id": "default.cbor-decoded",
+      "setting": "default",
+      "projection": "cbor-decoded",
+      "expression": "repr(cbor(cbor.encode(found.first())))",
+      "route": "compile",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(cbor(cbor.encode(found.first())))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "40971b424c2d6946267bd0e078e232915d338ab0126b663f893dabedcdc97fa3",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-y6420i_w/case-001.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-y6420i_w/case-001.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "(\n  func: \"heading\",\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: (func: \"text\", text: \"Section\"),\n  outlined: true,\n  bookmarked: \"auto\",\n  hanging-indent: \"auto\",\n  body: (func: \"text\", text: \"Probe\"),\n  label: \"<probe>\",\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "\"heading(level: 1)[[Probe]]\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "\"heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: none,\\n  supplement: [Section],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: [Probe],\\n)\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "default.literal-cbor-decoded",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        },
+        "html": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "(\n  func: \"heading\",\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: (func: \"text\", text: \"Section\"),\n  outlined: true,\n  bookmarked: \"auto\",\n  hanging-indent: \"auto\",\n  body: (func: \"text\", text: \"Probe\"),\n  label: \"<probe>\",\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "\"heading(level: 1)[[Probe]]\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "\"heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: none,\\n  supplement: [Section],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: [Probe],\\n)\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "default.literal-cbor-decoded",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        },
+        "a11y": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "(\n  func: \"heading\",\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: (func: \"text\", text: \"Section\"),\n  outlined: true,\n  bookmarked: \"auto\",\n  hanging-indent: \"auto\",\n  body: (func: \"text\", text: \"Probe\"),\n  label: \"<probe>\",\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "\"heading(level: 1)[[Probe]]\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "\"heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: none,\\n  supplement: [Section],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: [Probe],\\n)\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "default.literal-cbor-decoded",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        },
+        "html+a11y": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "(\n  func: \"heading\",\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: (func: \"text\", text: \"Section\"),\n  outlined: true,\n  bookmarked: \"auto\",\n  hanging-indent: \"auto\",\n  body: (func: \"text\", text: \"Probe\"),\n  label: \"<probe>\",\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "\"heading(level: 1)[[Probe]]\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "\"heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: none,\\n  supplement: [Section],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: [Probe],\\n)\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "default.literal-cbor-decoded",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    },
+    {
+      "id": "default.cbor-bytes",
+      "setting": "default",
+      "projection": "cbor-bytes",
+      "expression": "{ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }",
+      "route": "compile",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes({ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "e8ff6ccd64d323a405eea1ac69191a6920cb619b24577a797154d16f7af71033",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-y6420i_w/case-002.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-y6420i_w/case-002.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "171,100,102,117,110,99,103,104,101,97,100,105,110,103,101,108,101,118,101,108,1,101,100,101,112,116,104,1,102,111,102,102,115,101,116,0,105,110,117,109,98,101,114,105,110,103,246,106,115,117,112,112,108,101,109,101,110,116,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,103,83,101,99,116,105,111,110,104,111,117,116,108,105,110,101,100,245,106,98,111,111,107,109,97,114,107,101,100,100,97,117,116,111,110,104,97,110,103,105,110,103,45,105,110,100,101,110,116,100,97,117,116,111,100,98,111,100,121,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,101,80,114,111,98,101,101,108,97,98,101,108,103,60,112,114,111,98,101,62",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "120,26,104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "120,170,104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "default.literal-cbor-bytes",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        },
+        "html": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "171,100,102,117,110,99,103,104,101,97,100,105,110,103,101,108,101,118,101,108,1,101,100,101,112,116,104,1,102,111,102,102,115,101,116,0,105,110,117,109,98,101,114,105,110,103,246,106,115,117,112,112,108,101,109,101,110,116,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,103,83,101,99,116,105,111,110,104,111,117,116,108,105,110,101,100,245,106,98,111,111,107,109,97,114,107,101,100,100,97,117,116,111,110,104,97,110,103,105,110,103,45,105,110,100,101,110,116,100,97,117,116,111,100,98,111,100,121,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,101,80,114,111,98,101,101,108,97,98,101,108,103,60,112,114,111,98,101,62",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "120,26,104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "120,170,104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "default.literal-cbor-bytes",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        },
+        "a11y": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "171,100,102,117,110,99,103,104,101,97,100,105,110,103,101,108,101,118,101,108,1,101,100,101,112,116,104,1,102,111,102,102,115,101,116,0,105,110,117,109,98,101,114,105,110,103,246,106,115,117,112,112,108,101,109,101,110,116,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,103,83,101,99,116,105,111,110,104,111,117,116,108,105,110,101,100,245,106,98,111,111,107,109,97,114,107,101,100,100,97,117,116,111,110,104,97,110,103,105,110,103,45,105,110,100,101,110,116,100,97,117,116,111,100,98,111,100,121,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,101,80,114,111,98,101,101,108,97,98,101,108,103,60,112,114,111,98,101,62",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "120,26,104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "120,170,104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "default.literal-cbor-bytes",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        },
+        "html+a11y": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "171,100,102,117,110,99,103,104,101,97,100,105,110,103,101,108,101,118,101,108,1,101,100,101,112,116,104,1,102,111,102,102,115,101,116,0,105,110,117,109,98,101,114,105,110,103,246,106,115,117,112,112,108,101,109,101,110,116,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,103,83,101,99,116,105,111,110,104,111,117,116,108,105,110,101,100,245,106,98,111,111,107,109,97,114,107,101,100,100,97,117,116,111,110,104,97,110,103,105,110,103,45,105,110,100,101,110,116,100,97,117,116,111,100,98,111,100,121,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,101,80,114,111,98,101,101,108,97,98,101,108,103,60,112,114,111,98,101,62",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "120,26,104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "120,170,104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "default.literal-cbor-bytes",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    },
+    {
+      "id": "raw-text.decoded",
+      "setting": "raw-text",
+      "projection": "decoded",
+      "expression": "repr(cbor(cbor.encode(\"Probe α\\n\")))",
+      "route": "eval",
+      "source_sha256": "f5c61146d68392c97c3587ff3e38313a56d70ba13e515abe68a24b69c89720c8",
+      "expected_shape": "value",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "\"Probe α\\n\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "\"Probe α\\n\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "\"Probe α\\n\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "raw-text.decoded",
+            "side": "vanilla",
+            "profile": "default"
+          }
+        }
+      }
+    },
+    {
+      "id": "raw-text.bytes",
+      "setting": "raw-text",
+      "projection": "bytes",
+      "expression": "{ let b = cbor.encode(\"Probe α\\n\"); range(b.len()).map(i => str(b.at(i))).join(\",\") }",
+      "route": "eval",
+      "source_sha256": "1f13bddc3195886445d1f2bcfafabd8aa98b87667fafd4a843998f726128c285",
+      "expected_shape": "value",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "105,80,114,111,98,101,32,206,177,10",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "105,80,114,111,98,101,32,206,177,10",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "105,80,114,111,98,101,32,206,177,10",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "raw-text.bytes",
+            "side": "vanilla",
+            "profile": "default"
+          }
+        }
+      }
+    },
+    {
+      "id": "en.repr",
+      "setting": "en",
+      "projection": "repr",
+      "expression": "repr(found.first())",
+      "route": "compile",
+      "document": "#set text(lang: \"en\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "d6feb03b326919dd52fe02fe61e7e8958eb6490861ec6730cf410dfc7f13c351",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-000.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-000.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "en.repr",
+            "side": "vanilla",
+            "profile": "default"
+          }
+        }
+      }
+    },
+    {
+      "id": "en.cbor-decoded",
+      "setting": "en",
+      "projection": "cbor-decoded",
+      "expression": "repr(cbor(cbor.encode(found.first())))",
+      "route": "compile",
+      "document": "#set text(lang: \"en\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(cbor(cbor.encode(found.first())))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "f1e53373f408929d3c0f5e4e05f6298fbb07760cd2eba43e55b496dc998cdc4f",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-001.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-001.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "(\n  func: \"heading\",\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: (func: \"text\", text: \"Section\"),\n  outlined: true,\n  bookmarked: \"auto\",\n  hanging-indent: \"auto\",\n  body: (func: \"text\", text: \"Probe\"),\n  label: \"<probe>\",\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "\"heading(level: 1)[[Probe]]\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "\"heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: none,\\n  supplement: [Section],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: [Probe],\\n)\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "en.literal-cbor-decoded",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    },
+    {
+      "id": "en.cbor-bytes",
+      "setting": "en",
+      "projection": "cbor-bytes",
+      "expression": "{ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }",
+      "route": "compile",
+      "document": "#set text(lang: \"en\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes({ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "a2391657fc193bfae9e9457bfc8672a315f0303375338ce48fa0ef7deb603aa2",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-002.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-002.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "171,100,102,117,110,99,103,104,101,97,100,105,110,103,101,108,101,118,101,108,1,101,100,101,112,116,104,1,102,111,102,102,115,101,116,0,105,110,117,109,98,101,114,105,110,103,246,106,115,117,112,112,108,101,109,101,110,116,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,103,83,101,99,116,105,111,110,104,111,117,116,108,105,110,101,100,245,106,98,111,111,107,109,97,114,107,101,100,100,97,117,116,111,110,104,97,110,103,105,110,103,45,105,110,100,101,110,116,100,97,117,116,111,100,98,111,100,121,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,101,80,114,111,98,101,101,108,97,98,101,108,103,60,112,114,111,98,101,62",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "120,26,104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "120,170,104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "en.literal-cbor-bytes",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    },
+    {
+      "id": "pt.repr",
+      "setting": "pt",
+      "projection": "repr",
+      "expression": "repr(found.first())",
+      "route": "compile",
+      "document": "#set text(lang: \"pt\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "618c8d86cb9b298f95564eaf16cea34c4d4b310a844d162e0b374278836b1e86",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-003.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-003.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Seção],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Seção],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "pt.repr",
+            "side": "vanilla",
+            "profile": "default"
+          }
+        }
+      }
+    },
+    {
+      "id": "pt.cbor-decoded",
+      "setting": "pt",
+      "projection": "cbor-decoded",
+      "expression": "repr(cbor(cbor.encode(found.first())))",
+      "route": "compile",
+      "document": "#set text(lang: \"pt\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(cbor(cbor.encode(found.first())))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "158f1b81de7f2c9a4bf46bc2670e917ea739efac9abfcc5d184346bb0328bf07",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-004.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-004.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "(\n  func: \"heading\",\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: (func: \"text\", text: \"Seção\"),\n  outlined: true,\n  bookmarked: \"auto\",\n  hanging-indent: \"auto\",\n  body: (func: \"text\", text: \"Probe\"),\n  label: \"<probe>\",\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "\"heading(level: 1)[[Probe]]\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "\"heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: none,\\n  supplement: [Seção],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: [Probe],\\n)\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "pt.literal-cbor-decoded",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    },
+    {
+      "id": "pt.cbor-bytes",
+      "setting": "pt",
+      "projection": "cbor-bytes",
+      "expression": "{ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }",
+      "route": "compile",
+      "document": "#set text(lang: \"pt\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes({ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "d4dd26ffabcb17f10e4f94f3c54908d4c0413cf215de44c4fff6a0ef8f4c59dc",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-005.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-005.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "171,100,102,117,110,99,103,104,101,97,100,105,110,103,101,108,101,118,101,108,1,101,100,101,112,116,104,1,102,111,102,102,115,101,116,0,105,110,117,109,98,101,114,105,110,103,246,106,115,117,112,112,108,101,109,101,110,116,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,103,83,101,195,167,195,163,111,104,111,117,116,108,105,110,101,100,245,106,98,111,111,107,109,97,114,107,101,100,100,97,117,116,111,110,104,97,110,103,105,110,103,45,105,110,100,101,110,116,100,97,117,116,111,100,98,111,100,121,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,101,80,114,111,98,101,101,108,97,98,101,108,103,60,112,114,111,98,101,62",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "120,26,104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "120,170,104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,110,111,110,101,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,195,167,195,163,111,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "pt.literal-cbor-bytes",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    },
+    {
+      "id": "numbering-1.repr",
+      "setting": "numbering-1",
+      "projection": "repr",
+      "expression": "repr(found.first())",
+      "route": "compile",
+      "document": "#set heading(numbering: \"1\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "fcb687250a84d684d8de1112890a84634b1fc9445df7dc27ee6d65a7f132bb09",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-006.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-006.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"1\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"1\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "numbering-1.repr",
+            "side": "vanilla",
+            "profile": "default"
+          }
+        }
+      }
+    },
+    {
+      "id": "numbering-1.cbor-decoded",
+      "setting": "numbering-1",
+      "projection": "cbor-decoded",
+      "expression": "repr(cbor(cbor.encode(found.first())))",
+      "route": "compile",
+      "document": "#set heading(numbering: \"1\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(cbor(cbor.encode(found.first())))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "87d9ab18a67893125cb2899fe756beb315b0d503f6a0445914e5798301e7e742",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-007.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-007.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "(\n  func: \"heading\",\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"1\",\n  supplement: (func: \"text\", text: \"Section\"),\n  outlined: true,\n  bookmarked: \"auto\",\n  hanging-indent: \"auto\",\n  body: (func: \"text\", text: \"Probe\"),\n  label: \"<probe>\",\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "\"heading(level: 1)[[Probe]]\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "\"heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: \\\"1\\\",\\n  supplement: [Section],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: [Probe],\\n)\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "numbering-1.literal-cbor-decoded",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    },
+    {
+      "id": "numbering-1.cbor-bytes",
+      "setting": "numbering-1",
+      "projection": "cbor-bytes",
+      "expression": "{ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }",
+      "route": "compile",
+      "document": "#set heading(numbering: \"1\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes({ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "26692af19afd358645ee0f55a4724064eec5726212359e6dadb0b022b58300fa",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-008.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-008.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "171,100,102,117,110,99,103,104,101,97,100,105,110,103,101,108,101,118,101,108,1,101,100,101,112,116,104,1,102,111,102,102,115,101,116,0,105,110,117,109,98,101,114,105,110,103,97,49,106,115,117,112,112,108,101,109,101,110,116,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,103,83,101,99,116,105,111,110,104,111,117,116,108,105,110,101,100,245,106,98,111,111,107,109,97,114,107,101,100,100,97,117,116,111,110,104,97,110,103,105,110,103,45,105,110,100,101,110,116,100,97,117,116,111,100,98,111,100,121,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,101,80,114,111,98,101,101,108,97,98,101,108,103,60,112,114,111,98,101,62",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "120,26,104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "120,169,104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,34,49,34,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "numbering-1.literal-cbor-bytes",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    },
+    {
+      "id": "numbering-I.repr",
+      "setting": "numbering-I",
+      "projection": "repr",
+      "expression": "repr(found.first())",
+      "route": "compile",
+      "document": "#set heading(numbering: \"I\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "c409e93a9a6bb08dcb9c722d9f3e9d19bc2b9a80854c1532b1f9ffcfd8140603",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-009.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-009.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"I\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "heading(level: 1)[[Probe]]",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "heading(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"I\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "ratified-vanilla-repr-or-shared-raw-text-control",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collections": [
+              "focal.rows",
+              "bounded.rows"
+            ],
+            "case": "numbering-I.repr",
+            "side": "vanilla",
+            "profile": "default"
+          }
+        }
+      }
+    },
+    {
+      "id": "numbering-I.cbor-decoded",
+      "setting": "numbering-I",
+      "projection": "cbor-decoded",
+      "expression": "repr(cbor(cbor.encode(found.first())))",
+      "route": "compile",
+      "document": "#set heading(numbering: \"I\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(cbor(cbor.encode(found.first())))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "27ba89b1d8590e085309d03d3fabe6ffa3a61aa68c71bc8e6584fc45df59103a",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-010.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-010.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "(\n  func: \"heading\",\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"I\",\n  supplement: (func: \"text\", text: \"Section\"),\n  outlined: true,\n  bookmarked: \"auto\",\n  hanging-indent: \"auto\",\n  body: (func: \"text\", text: \"Probe\"),\n  label: \"<probe>\",\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "\"heading(level: 1)[[Probe]]\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "\"heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: \\\"I\\\",\\n  supplement: [Section],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: [Probe],\\n)\"",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "numbering-I.literal-cbor-decoded",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    },
+    {
+      "id": "numbering-I.cbor-bytes",
+      "setting": "numbering-I",
+      "projection": "cbor-bytes",
+      "expression": "{ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }",
+      "route": "compile",
+      "document": "#set heading(numbering: \"I\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes({ let b = cbor.encode(found.first()); range(b.len()).map(i => str(b.at(i))).join(\",\") }); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "1aecee4856fabc13985d16fba42b707eeaf80c3e7cfe9faea775effbf08ba86b",
+      "expected_shape": "value",
+      "fixture": "/tmp/p1307-r4-oracle-pd4qekrk/case-011.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-pd4qekrk/case-011.pdf",
+      "observations": {
+        "default": {
+          "vanilla_literal": {
+            "kind": "value",
+            "value": "171,100,102,117,110,99,103,104,101,97,100,105,110,103,101,108,101,118,101,108,1,101,100,101,112,116,104,1,102,111,102,102,115,101,116,0,105,110,117,109,98,101,114,105,110,103,97,73,106,115,117,112,112,108,101,109,101,110,116,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,103,83,101,99,116,105,111,110,104,111,117,116,108,105,110,101,100,245,106,98,111,111,107,109,97,114,107,101,100,100,97,117,116,111,110,104,97,110,103,105,110,103,45,105,110,100,101,110,116,100,97,117,116,111,100,98,111,100,121,162,100,102,117,110,99,100,116,101,120,116,100,116,101,120,116,101,80,114,111,98,101,101,108,97,98,101,108,103,60,112,114,111,98,101,62",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline_literal": {
+            "kind": "value",
+            "value": "120,26,104,101,97,100,105,110,103,40,108,101,118,101,108,58,32,49,41,91,91,80,114,111,98,101,93,93",
+            "stderr": "",
+            "exit": 0
+          },
+          "future_expected": {
+            "kind": "value",
+            "value": "120,169,104,101,97,100,105,110,103,40,10,32,32,108,101,118,101,108,58,32,49,44,10,32,32,100,101,112,116,104,58,32,49,44,10,32,32,111,102,102,115,101,116,58,32,48,44,10,32,32,110,117,109,98,101,114,105,110,103,58,32,34,73,34,44,10,32,32,115,117,112,112,108,101,109,101,110,116,58,32,91,83,101,99,116,105,111,110,93,44,10,32,32,111,117,116,108,105,110,101,100,58,32,116,114,117,101,44,10,32,32,98,111,111,107,109,97,114,107,101,100,58,32,97,117,116,111,44,10,32,32,104,97,110,103,105,110,103,45,105,110,100,101,110,116,58,32,97,117,116,111,44,10,32,32,98,111,100,121,58,32,91,80,114,111,98,101,93,44,10,41",
+            "stderr": "",
+            "exit": 0
+          },
+          "expectation_policy": "baseline-Text-repr-fallback-preserved-with-measured-realized-repr-delta",
+          "expected_measurement_ref": {
+            "artifact": "p1307-r5-repr-measurement.json",
+            "collection": "literal_controls.rows",
+            "case": "numbering-I.literal-cbor-bytes",
+            "side": "baseline",
+            "profile": "default",
+            "profile_application": "Pure text CBOR expectation applied across four profiles; direct default Content CBOR profile controls were observed, not a general feature invariance claim."
+          }
+        }
+      }
+    }
+  ],
+  "predecessor_mapping": {
+    "r4_artifact": "p1307-r4-oracle.json",
+    "r4_sha256": "d796d39ab7af2fc17cef0bf84440293f8cec51df5b35c547351141182c85f6ef",
+    "r4_case": "r2.construct-LocatedContent",
+    "successor_case": "default.repr",
+    "same_source_sha256": "78fd17fa61567bfd8107820e9daa9de588d9fcd08c993c24261fd2c6a3e304a9",
+    "old_policy": "baseline debt preserved",
+    "new_proposed_policy": "ratified vanilla realized repr under R5 Content/introspection L0; activation requires owner-approved successor manifest, never modify predecessor"
+  },
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "candidate_read": false,
+  "implementation_certified": false,
+  "scope_out": "General CBOR Content map parity is not required; direct Content, symbols and other CBOR debt are not repaired by this supplement.",
+  "finished": "2026-09-07T18:36:33.458414+00:00"
+}

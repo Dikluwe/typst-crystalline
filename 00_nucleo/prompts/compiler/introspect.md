@@ -1,5 +1,49 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 81ad4d1c
+Hash do Código: 5eb54cb3
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`compiler/introspect.rs:1327–1350` lê numbering e depois guarda Content nu;
+Styled em `:1887` fornece chain causal e Label em `:1596` fornece label.
+`03_infra/src/pipeline.rs:644–666` expõe o primeiro walk puro ao context
+antes dos pós-processadores runtime. Corrigir só o pós-processamento seria
+tarde para uma consulta que termina nesse primeiro contexto.
+
+### Decisão proprietária
+
+Substituir a escrita de P844 por construção de IntrospectedContent. Para
+Heading, delegar estaticamente ao helper da feature especificado em
+`00_nucleo/prompts/compiler/introspect/heading.md`, passando o Heading, a
+chain lexical e a label causal disponíveis no ponto de Tag::Start. Guardar
+Some completo já nesse walk, em todas as iterações e nos entrypoints puro,
+runtime e fixpoint. Nunca escolher None por texto do body ou por falha de
+comparação com referência. Outros kinds são embrulhados com None, preservando
+as realizações e projeções preexistentes; a classificação não omite Content.
+
+Não alterar sequência de tags, Locator, cálculo de content_hash, counters,
+TOC, IR HeadingElem, nem ordem das fases do pipeline. Labels artificiais de
+TOC produzidas posteriormente não retroalimentam o snapshot. A árvore e o
+body congelados pertencem à mesma ocorrência; não voltar a procurá-los.
+
+Aceitação: query em primeiro context já observa campos; entradas repetidas
+com mesmo body e padrões distintos não colapsam; escaping e nova iteração
+preservam snapshots antigos. Suplementos/callbacks novos não são executados
+neste módulo. A implementação depende da aprovação do carrier público.
+
+---
+
 
 ## Módulo
 `01_core/src/compiler/introspect.rs`

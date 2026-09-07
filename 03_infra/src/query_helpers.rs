@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash a05df3f7
+//! @prompt-hash 8fa8252c
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -460,7 +460,7 @@ pub fn query_elements(
     world: &dyn World,
     source: &Source,
     selector: &str,
-) -> (Result<Vec<Content>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+) -> (Result<Vec<Value>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let parsed = match parse_selector(selector) {
         Ok(parsed) => parsed,
         Err(error) => {
@@ -508,8 +508,12 @@ pub fn query_elements(
     let labelled = intr.query_labelled();
     let mut elements = Vec::with_capacity(locations.len());
     for location in locations {
-        match intr.element_at(location) {
+        match intr.elements.get(&location) {
             Some(element) => {
+                if element.fields().is_some() {
+                    elements.push(Value::LocatedContent(element.clone(), location));
+                    continue;
+                }
                 let label = match &parsed {
                     ParsedSelector::Label(label) => Some(label.as_str()),
                     ParsedSelector::Kind(_) => labelled
@@ -517,10 +521,14 @@ pub fn query_elements(
                         .find(|(_, labelled_location)| *labelled_location == location)
                         .map(|(label, _)| label.0.as_str()),
                 };
-                elements.push(match label {
-                    Some(label) => Content::label_auto(label, element.clone()),
-                    None => element.clone(),
-                });
+                let content = match label {
+                    Some(label) => Content::label_auto(label, element.content().clone()),
+                    None => element.content().clone(),
+                };
+                elements.push(Value::LocatedContent(
+                    typst_core::entities::value::IntrospectedContent::new(content, None),
+                    location,
+                ));
             }
             None => {
                 return (
@@ -843,7 +851,14 @@ mod tests {
         let source = world.source(world.main()).unwrap();
         let (result, warnings) = query_elements(&world, &source, selector);
         assert!(warnings.is_empty(), "warnings inesperados: {warnings:?}");
-        result.unwrap_or_else(|diagnostics| panic!("query falhou: {diagnostics:?}"))
+        result
+            .unwrap_or_else(|diagnostics| panic!("query falhou: {diagnostics:?}"))
+            .into_iter()
+            .map(|value| match value {
+                Value::LocatedContent(content, _) => content.into_content(),
+                other => panic!("expected located query content, got {other:?}"),
+            })
+            .collect()
     }
 
     #[test]

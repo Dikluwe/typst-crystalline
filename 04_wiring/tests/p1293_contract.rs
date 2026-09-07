@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1293_contract.md
-//! @prompt-hash b6f3b3af
+//! @prompt-hash bea76a3c
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -1022,7 +1022,7 @@ fn p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved() {
         "repr((grid.cell.with(),grid.header.with(),grid.footer.with(),grid.hline.with(),grid.vline.with(),table.cell.with(),table.header.with(),table.footer.with(),table.hline.with(),table.vline.with()))",
         Transcript {
             code: Some(0),
-            stdout: "\"(\\n  cell,\\n  header,\\n  footer,\\n  hline,\\n  vline,\\n  cell,\\n  header,\\n  footer,\\n  hline,\\n  vline,\\n)\"".to_owned(),
+            stdout: "\"(\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n  (..) => ..,\\n)\"".to_owned(),
             stderr: String::new(),
         },
     );
@@ -1063,23 +1063,23 @@ fn p1293_d_preexisting_arity_and_serializer_transcript_is_frozen() {
         "repr((grid.hline([x]),grid.hline(nope:1),grid.vline([x]),grid.vline(nope:1),table.hline([x]),table.hline(nope:1),table.vline([x]),table.vline(nope:1)))",
     ]);
     for (expression, message) in [
-        ("repr(grid.cell())", "grid_cell() exige body como argumento posicional"),
+        ("repr(grid.cell())", "grid_cell() exige body como argumento posicional\n\n  while calling `cell` at <input-expression>:1:5\n    grid.cell()"),
         (
             "repr(grid.header())",
-            "grid_header() exige pelo menos uma célula como argumento posicional",
+            "grid_header() exige pelo menos uma célula como argumento posicional\n\n  while calling `header` at <input-expression>:1:5\n    grid.header()",
         ),
         (
             "repr(grid.footer())",
-            "grid_footer() exige pelo menos uma célula como argumento posicional",
+            "grid_footer() exige pelo menos uma célula como argumento posicional\n\n  while calling `footer` at <input-expression>:1:5\n    grid.footer()",
         ),
-        ("repr(table.cell())", "table_cell() exige body como argumento posicional"),
+        ("repr(table.cell())", "table_cell() exige body como argumento posicional\n\n  while calling `cell` at <input-expression>:1:5\n    table.cell()"),
         (
             "repr(table.header())",
-            "table_header() exige pelo menos uma célula como argumento posicional",
+            "table_header() exige pelo menos uma célula como argumento posicional\n\n  while calling `header` at <input-expression>:1:5\n    table.header()",
         ),
         (
             "repr(table.footer())",
-            "table_footer() exige pelo menos uma célula como argumento posicional",
+            "table_footer() exige pelo menos uma célula como argumento posicional\n\n  while calling `footer` at <input-expression>:1:5\n    table.footer()",
         ),
     ] {
         assert_candidate_eval(

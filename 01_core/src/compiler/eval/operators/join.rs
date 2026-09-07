@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/join.md
-//! @prompt-hash 518ea98f
+//! @prompt-hash 7c2d9ca1
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -13,8 +13,10 @@
 // `eval/operators/error_formatting.rs`; a cópia privada que aqui existia foi
 // removida.
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+use crate::entities::args::Args;
 use crate::entities::bytes::Bytes;
 use crate::entities::content::Content;
+use crate::entities::span::Span;
 use crate::entities::value::Value;
 
 /// **P728** — `join` de valores produzidos pelas expressões de um code
@@ -70,10 +72,16 @@ pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String> {
             a.extend(b);
             Ok(Value::Dict(a))
         }
-        (Value::Args(mut a), Value::Args(b)) => {
-            a.items.extend(b.items);
-            a.named.extend(b.named);
-            Ok(Value::Args(a))
+        (Value::Args(a), Value::Args(b)) => {
+            let mut left = a.occurrence_sequence();
+            let right = b.occurrence_sequence();
+            left.retain(|occurrence| {
+                !occurrence.name.as_ref().is_some_and(|name| {
+                    right.iter().any(|other| other.name.as_ref() == Some(name))
+                })
+            });
+            left.extend(right);
+            Ok(Value::Args(Args::from_occurrences(Span::detached(), left)))
         }
         (a, b) => Err(format!(
             "cannot join {} with {}",

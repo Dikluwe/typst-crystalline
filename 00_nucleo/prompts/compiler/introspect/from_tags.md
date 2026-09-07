@@ -1,5 +1,41 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: 21bf9080
+Hash do Código: c5a345f1
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`compiler/introspect/from_tags.rs:422–472` reconstrói Equation com campos
+realizados; `:190` já converte retorno de callback a Content para display.
+Essa fase existente não é o primeiro snapshot de Heading (pipeline:644–666).
+
+### Decisão proprietária
+
+Adaptar leituras/escritas de elements ao carrier do owner Value. Na realização
+de Equation, obter o Content por content(), produzir a mesma visão Styled
+contratada em P1140.5-A e substituir a entrada por nova IntrospectedContent
+com fields None. None aqui usa a projeção realizada de Equation preexistente,
+não significa apagar essa realização. Não tocar entradas Heading Some.
+
+Onde um resultado LocatedContent já é convertido para Content de display,
+usar into_content() explicitamente. Isso não altera Values guardados em
+state, arrays ou closures. Não acrescentar pós-processador de Heading,
+antecipar callback ou realizar campos em loading. Aceitação preserva as
+sondas de Equation (numbering/supplement/alt) e a ausência de mutação de
+snapshots Heading durante esses pós-processadores.
+
+---
+
 
 > **P1140.4-A2:** `apply_equation_numberings` recebe tags, introspector já
 > populado, `Engine` e `EvalContext`; formata pattern ou aplica callback unário

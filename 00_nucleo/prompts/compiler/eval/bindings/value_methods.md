@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: def19f1d
+Hash do Código: efef75f5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/value_methods.rs`
@@ -128,3 +128,39 @@ No ramo de cor, `color.map` não passa por este nó: é constante de tipo com
 kind `module`, descoberta por `field_access` e construída por `stdlib/color`.
 `color.spot/tint` permanece bloqueado. Nenhuma alteração de contrato Rust
 público, default ou fase é autorizada.
+
+## P1307-R4 — transporte do carrier Args aprovado
+
+### Medição anterior à decisão
+
+Sobre HEAD `b303f1f15b610e09872b567027e0d806387fde8c` e working tree composto
+P1306 + L0 R3 aprovado, baseline R4 SHA-256
+`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+`01_core/src/compiler/eval/bindings/value_methods.rs:202` insere Color em
+Args avaliado; `:256-284,524-548` constrói Args de display a partir de AST
+com spans disponíveis, mas guarda somente views. O texto L0 anterior foi
+congelado em `00_nucleo/diagnosticos/p1307-r4-transport-amendment.json`.
+Esses writers não podem manter Some incoerente após migração de eval_args.
+
+### Decisão de adaptação interna
+
+Este owner consome a API de `entities/args.md` aprovada pelo dono no gate
+P1307-R3. Na chamada ligada de cor, antepor uma ocorrência positional com
+Value::Color do receiver e spans individuais detached (o helper não recebe
+origem lexical do receiver), reconstruindo por from_occurrences e preservando
+span agregado e origens dos demais argumentos. None continua síntese explícita
+por from_parts. Não inferir origem por igualdade de cor nem invalidar Some.
+
+Os dois builders AST de counter.display devem construir ocorrências de cada
+argumento aceito na ordem de avaliação, com span do argumento completo e da
+expressão-valor, e finalizar por from_occurrences com o agregado vigente.
+O literal label em at continua preservado pelo tratamento sintático existente;
+não avaliá-lo novamente. Manter critérios, aridade, casts, rejeição de spread,
+mensagens e ordem de falhas atuais; não promover estes métodos à validação
+nova de encoders ou ampliar suporte de counter/selector/color.
+
+Testes preservam os caminhos ligados/estáticos de display, at/both, label,
+cor e erros preexistentes, além da coerência Some/views. É inferência que
+esses dados já disponíveis bastem; nova informação de domínio ou mudança
+pública além do carrier aprovado exige reabertura. Fluxo contínuo ADR-0127
+para esta migração interna, com L0 primeiro e verificação independente.

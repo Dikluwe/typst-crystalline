@@ -1,5 +1,35 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: b4d881f1
+Hash do Código: 9fe53cf5
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`compiler/eval/call_dispatch.rs:1510–1518` envia apenas Content ao helper
+quando o receiver é LocatedContent. Isso apagaria o snapshot antes do método.
+
+### Decisão proprietária
+
+No braço LocatedContent dos métodos func/has/at/fields/location, encaminhar
+carrier completo e Location ao helper interno de field_access. Content cru
+continua no helper vigente. Não converter receiver para render, não ler
+fields nesta fachada e não mudar ordem de avaliação/intercepções. Args,
+span de chamada e helpers dos encoders R3/R4 conservam seu contrato. Esta
+adaptação interna depende da aprovação do novo tipo de Value e não muda
+apply_func nem a superfície pública Typst dos métodos.
+
+---
+
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
@@ -509,3 +539,160 @@ callee e não persiste metadata em `Args`. Trata-se de span observável já
 congelado, correção interna em fluxo contínuo ADR-0127. São proibidos API/campo
 público, mudança de ordem/quantidade de avaliações, mensagem, default, fase ou
 captura de outras identidades. Qualquer necessidade disso refuta a decisão.
+
+## P1307-R3 — transporte causal antes da perda de argumentos
+
+**Estado**: `DRAFT_L0_AWAITING_ADR0127`. Esta redação não autoriza Rust,
+headers ou testes. As proibições de campo/API nas revisões privadas P1215 e
+P1293 continuam limitando aqueles seletores; o carrier abaixo é uma
+reabertura pública distinta, condicionada ao novo gate humano.
+
+### Medição anterior à decisão
+
+No baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais P1306,
+`01_core/src/compiler/eval/call_dispatch.rs:389-430` dispõe dos spans AST
+antes de produzir Args; `:410-419` apaga a origem no spread; `:1016-1023`
+colapsa named e escolhe new.span em With. A matriz independente R2
+`00_nucleo/diagnosticos/p1307-r2-measurement.json`, SHA-256
+`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`,
+mede `with-spread-arguments-f/g` com erro em `46..53`/`78..85` e
+`with-json-invalid-first-occurrence` com cast no valor antigo `25..30`.
+A fonte vanilla `lab/typst-original/crates/typst-eval/src/call.rs:412-460`
+conserva ambos spans e spread Args; `typst-library/src/foundations/func.rs:372-374`
+conserva todas as ocorrências With. Captura apenas da última AST não basta.
+
+### Decisão e transporte
+
+`eval_args` avalia cada expressão exatamente uma vez, na ordem AST, e usa
+`Args::from_occurrences` de `entities/args.md`. Positional registra span
+do argumento e da expressão; named registra nome, argumento completo e
+expressão-valor, inclusive ocorrências anteriores. As restrições sintáticas
+vigentes a duplicados literais não são removidas: preservar ocorrências
+legalmente obtidas por spreads/With não torna sintaxe inválida válida.
+
+Spread None continua vazio. Spread Array/Dict cria ocorrências no span
+do spread para argumento e valor, em ordem do container já avaliado.
+Spread Args usa `occurrence_sequence` e transporta as ocorrências originais,
+sem substituir por span do spread. Fragmentos sintetizados None permanecem
+detached individualmente, sem contaminar a origem conhecida dos vizinhos.
+O span agregado da chamada permanece o da lista AST vigente; os precedentes
+privados de chamada inteira podem continuar ajustando só esse agregado.
+
+`arguments(...)` retorna o Args recebido integralmente. `.with(...)`
+retorna Func com esse Args, sem validar assinatura nem executar a função.
+`merge_with_args` concatena sequência pre e sequência new e reconstrói
+com `Args::from_occurrences(new.span, sequence)`; não usa o algoritmo de
+Args+Args do owner `compiler/eval/operators/join.md`. A ordem recursiva
+das cadeias With permanece: ligações antigas antecedem as novas e a chamada.
+
+Ao sintetizar/remover receiver ou reencaminhar Args neste nó, conservar a
+correspondência causal por `from_occurrences`/`remove_positional`/
+`remove_named`. Um receiver sintético recebe spans detached; copiar um
+receiver realmente originado em argumento preserva sua ocorrência.
+Nenhum writer pode manter Some depois de alterar views diretamente.
+Adaptadores que realmente sintetizam uma lista sem origem usam from_parts;
+não classificar transporte de usuário como síntese para reduzir a migração.
+
+`apply_func` entrega o Args ao owner final. Não adiciona selector diagnóstico
+para json/toml/yaml; não escolhe erro por texto da mensagem, spelling de alias
+ou tabela duplicada de assinatura. O transporte agregado R4 abaixo é a única
+exceção à manutenção do span da lista. Loading faz casts, precedência e âncora
+arg-span/value-span downstream. P1308 acrescenta separadamente panic ao
+transporte de chamada inteira. Fontes originais são as dos Spans retidos,
+inclusive cross-source; não recuperar origem por busca de Value igual,
+reexecução de factory ou world.source da última chamada.
+
+### P1307-R4 — agregado da chamada para encoders
+
+Antes da decisão, o recibo
+`00_nucleo/diagnosticos/p1307-r4-call-span-refinement.json`, SHA-256
+`6e2335e203c2ed888e97259159e5057c904f5a808d5dddde6cf9d3f0698b8912`,
+congela este L0 e o estado sem candidato. A medição P1307 de
+`json/toml/yaml.encode()` ancora missing em `0..13`; `.encode.with()()`
+ancora em `0..20`. Vanilla ratificado `typst-eval/src/call.rs:28,56,64,78`
+atribui a chamada inteira ao agregado; `foundations/args.rs:160-173` usa-o
+no missing. Aqui `call_dispatch.rs:399` conserva somente a lista, embora
+`:1576` ainda disponha da chamada inteira. A proibição anterior, sem um
+transporte desse agregado, contradizia o diagnóstico aprovado de loading.
+
+Um helper interno a eval transporta `call.span()` para `Args.span` somente
+quando a função resolvida termina em uma das três identidades nativas
+`native_json_encode`, `native_toml_encode`, `native_yaml_encode`. Percorre
+With recursivamente só para identificar a nativa; compara function pointers,
+nunca nomes públicos, bindings ou spelling. Não examina argumentos, aridade,
+named, erro ou mensagem: o transporte ocorre antes da chamada, seja ela
+válida ou inválida. Ocorrências e preargs não mudam; merge With conserva
+o agregado da chamada final. Loading continua dono de toda validação.
+
+As duas rotas genéricas de chamada math reutilizam esse mesmo helper interno,
+conforme `compiler/eval/math.md`. Não alterar `Func::native_fn_addr`, API
+pública, entidades ou os seletores das demais nativas. Este refinamento é
+interno ao diagnóstico de encoder já aprovado, em fluxo contínuo ADR-0127;
+não autoriza estender o agregado inteiro a outras funções. Requer testes
+de missing direto, alias, With e fronteiras legadas antes de aceitação.
+
+### Limites e aceitação após confirmação
+
+Manter match fechado, namespaces, sete decoders, CBOR e todas as outras
+nativas/seletores privados nos contratos respectivos; este carrier não lhes
+impõe validação nova de named anteriores. Traces continuam pela regra de
+contenção existente, sem criar hints/traces por heurística. Não mudar fase.
+
+Exigir direto/alias/With encadeado, parent With independente do membro,
+duas origens iguais por factory/sink, spread Array/Dict/Args, import/reexport
+cross-source, primeiro e último named inválido e validação adiada.
+Comparar mensagens integrais, hints/traces e ranges UTF-8 half-open; quando
+o vanilla não publica range, detached é fato, não Unknown nem âncora fictícia.
+Novos campos/assinaturas fora de Args ou writer sem owner autorizado exigem
+reabertura antes de código. Os seletores privados antigos não são removidos
+ou ampliados oportunisticamente por esta revisão.
+
+## P1308 — chamada inteira de panic sem reconhecimento nominal
+
+### Medição anterior à decisão
+
+Baseline P1308 SHA-256
+`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`;
+R6 final mede panic de map/filter na lista de argumentos em vez da chamada
+inteira. `call_dispatch.rs:1622` transporta call.span só para encoders;
+`stdlib/panic.rs:46` usa args.span. Vanilla ratificado
+`foundations/mod.rs:140–156` devolve erro de string, e
+`typst-eval/src/call.rs:56–78` passa o span de chamada ao agregado.
+
+### Decisão autorizada
+
+O helper privado de transporte agregado pode ser renomeado para
+`transport_native_call_span`; aceita as três identidades encode anteriores
+e a identidade nativa `native_panic`. Percorrer With e comparar function
+pointers, nunca nome de binding, nome público, spelling ou texto do erro.
+Passar call.span para args.span antes da chamada; não alterar occurrences,
+preargs, ordem, aridade ou conteúdo da mensagem. O mesmo helper é usado nos
+dois caminhos genéricos de math. Synthetic apply_func sem AST conserva
+o span que recebeu; não procurar Source para inventar chamada.
+
+`trace_call` mantém integralmente a regra: só adiciona chamada resolvível
+cujo range não contém o erro, preservando nome e ordem da pilha. A correção
+de disponibilidade da Source pertence ao entrypoint eval. Identidades
+alheias a esse conjunto não ganham seletores novos. Medir panic direto,
+alias, With, callback e função do usuário chamada panic como controle.
+
+### P1308 — refinamento focal do caminho rápido de arguments
+
+Medição anterior à decisão: execução `p1308-green-1.json`, SHA-256
+`963b0667b7e312c34ead6d131577932fcf71f72204f692501cb604a0dd89f24f`,
+registra o estado exato e 13 testes verdes/5 falhas; todas as falhas são
+traces ausentes em filter com origem externa ao call ou detached.
+`call_dispatch.rs:1344-1354` retorna o resultado do dispatcher de coleções
+antes de `trace_call`; a Source já está disponível. Fonte ratificada
+`typst-eval/src/call.rs:155-158,167-174` passa métodos por `call_func` e
+pela mesma regra de trace. Os testes independentes já exigiam esses traces.
+
+Após dispatch reconhecido de `Args.filter` ou `Args.map`, passar o resultado
+pela mesma regra de contenção de `trace_call`, com o nome do método e span
+da chamada. O helper privado pode receber `Option<&str>` em vez de Func;
+callers genéricos passam `func.name()`. Não construir Func fictícia, não
+alterar o algoritmo, reavaliar target/argumentos ou criar traces no acesso
+de campo sem chamada. Demais tipos e métodos conservam seus caminhos.
+É correção interna de roteamento para obrigação já congelada; nenhum
+expected muda. Invalidar o pin anterior apenas deste L0 e registrar revisão
+sucessora antes da nova implementação, sem apagar o primeiro resultado.

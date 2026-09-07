@@ -1,0 +1,8 @@
+*** Begin Patch
+*** Update File: /dev/shm/p1308-mutant-source.PmokqQ/01_core/src/compiler/eval/repr.rs
+@@
+                     .collect();
+-                return format!("arguments({})", pieces.join(", "));
++                return format!("arguments{}", pretty_array_like(&pieces, false));
+             }
+*** End Patch

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/method_dispatch.md
-//! @prompt-hash 75b2a047
+//! @prompt-hash df685162
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -43,7 +43,7 @@ pub(super) fn expect_positional(
             format!("missing argument: {what}"),
         )]);
     }
-    Ok(args.items.remove(0))
+    Ok(args.remove_positional(0).unwrap())
 }
 
 /// **P716** — mirror de `Args::finish`: args por consumir são erro. Corre
@@ -333,7 +333,7 @@ fn call_method_mut(
                         )])
                     }
                 };
-                let default = args.named.shift_remove("default");
+                let default = args.remove_named("default");
                 let len = arr.len() as i64;
                 let resolved =
                     if index >= 0 { Some(index) } else { len.checked_add(index) };
@@ -385,7 +385,7 @@ fn call_method_mut(
                         )])
                     }
                 };
-                let default = args.named.shift_remove("default");
+                let default = args.remove_named("default");
                 output = match dict.shift_remove(key.as_str()) {
                     Some(v) => v,
                     None => match default {

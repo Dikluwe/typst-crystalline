@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/arithmetic` — aritmética, unários e lógica booleana
-Hash do Código: 97c27aab
+Hash do Código: 082d2ebb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/arithmetic.rs`
@@ -159,3 +159,59 @@ eval_unary_op(Neg, Duration(3s))                == Duration(-3s)
 - Os braços aritméticos/booleanos de `eval_binary_op`, `eval_unary_op` e
   `sanitize_length_nan` conforme a tabela; testes unitários no próprio
   ficheiro cobrindo as linhas acima; zero regressão na suite do eval.
+
+## P1307-R4 — encaminhamento público de Args + Args
+
+### Medição anterior à decisão
+
+No baseline R4 SHA-256
+`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais working tree capturado,
+`01_core/src/compiler/eval/operators/mod.rs:40-41` encaminha Add a este nó.
+Seu match em `arithmetic.rs:54-134` aceita Array/Dict, mas não Args. O focal
+independente `args.join-duplicates`, encerrado em
+`2026-09-07T17:37:05.017565+00:00`, observa sucesso no vanilla ratificado
+`a51e02804` e erro `cannot add arguments and arguments` no baseline.
+Fonte upstream `lab/typst-original/crates/typst-library/src/foundations/ops.rs`
+delega o par Args ao Add de `foundations/args.rs:468-482`. Recibo e texto
+prévio deste L0 estão em `00_nucleo/diagnosticos/p1307-r4-contract-refinement.json`.
+
+### Decisão de roteamento da semântica já aprovada
+
+Adicionar somente o braço `(BinOp::Add, Value::Args, Value::Args)`, delegando
+a `join` do owner `compiler/eval/operators/join.md`. Esse owner mantém
+exclusivamente o algoritmo de remoção dos named LHS presentes RHS e
+concatenação causal; não repetir a lógica aqui. Match permanece fechado e
+estático, sem nova API/trait, avaliação ou fase. Não generalizar para todos
+os pares aceitos por join: Args+None ficou fora de R4 e é reaberto por P1308 abaixo.
+
+Verificar o operador real, duplicatas/colisões/spans e a comparação com With,
+além dos controles Array/Dict e aritmética vigente. É implementação interna
+do contrato Args+Args aprovado em P1307-R3, em fluxo contínuo ADR-0127;
+a auditoria refutou a suficiência do owner join sozinho, não amplia a família
+encode nem o contrato público de Args.
+
+## P1308 — identidade None para Args em Add
+
+### Medição anterior à decisão
+
+Baseline `p1308-baseline.json` SHA-256
+`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`,
+HEAD b303f1f15 mais working tree ali integralmente identificada.
+O recibo público `p1307-r6-public-matrix-2.json`, SHA-256
+`53737a33e636323f4e0ab50499bde3cbb0905fe50889cdc5d3d7c5d631f6e51c`,
+mede erro em r4.args.join-none; a expectativa vanilla ratificada é identidade.
+Fonte `lab/typst-original/crates/typst-library/src/foundations/ops.rs:94–95`
+tem identidade None em ambas as ordens. O helper cristalino join já a possui;
+o dispatcher Add deste owner ainda não aceita esses pares.
+
+### Decisão autorizada
+
+Adicionar `(Add, Args(a), None)` e `(Add, None, Args(a))` retornando o mesmo
+Args, inclusive seu span agregado, occurrences, duplicatas e views. Não
+reconstruir via Args+Args (esse join destaca span); não ampliar outros pares.
+Args+Args continua delegado exclusivamente ao owner join. É semântica da
+linguagem, não igualdade Rust; autorização P1308 resolve a exclusão R4.
+Testar valor, ordem e origem através do operador público, ambos os lados,
+Args vazio e erro posterior. Refuta a solução perder qualquer origem ou
+alterar Array/Dict/outros operadores. Sem API pública ou mudança de fase.

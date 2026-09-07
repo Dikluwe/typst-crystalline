@@ -1,5 +1,50 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 2d102890
+Hash do Código: e0188151
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`field_access.rs:589–657,731–768` consulta campos raw de Heading;
+`:808–832` extrai receiver estático descartando tudo salvo Content/Location.
+R5 access.labelled/unlabelled prova presença de label causal; default/unknown
+não equivale a sintetizar um campo ausente.
+
+### Decisão proprietária
+
+Para LocatedContent Some, acesso direto, has, at e fields leem o mapa congelado
+como fonte autoritativa. Fields devolve Dict na ordem preservada; has testa
+presença; at usa o valor mesmo quando None/Auto, recorrendo ao default somente
+se a chave não existe. Sem default, conservar mensagem, span e consumo Args
+contratados. Não procurar um campo ausente no raw. Func deriva do elemento;
+location usa a Location exata. None mantém a projeção preexistente, inclusive
+Equation realizada. Raw Content conserva máscara de presença P829.
+
+Acrescentar um helper interno de método recebendo `&IntrospectedContent`,
+Location, método, Args e Span, com mesma visibilidade crate do helper vigente.
+Ele reutiliza a validação comum e seleciona fields; os helpers existentes de
+Content continuam chamáveis. O receiver estático privado conserva o Value
+completo até a escolha do helper. Não aumentar a API pública externa nem
+fazer I/O/contexto; não duplicar validação Args ou perder seus spans.
+
+Formas de instância, estática e alias seguem a mesma seleção; content.func,
+fields, has, at e location não fazem lowering de render. P1306 Module e os
+diagnósticos anteriores permanecem intactos. Aceitação: labelled/unlabelled,
+missing com/sem default, numbering None presente, clones e estático/instância.
+Esta seção substitui a delegação incondicional ao raw de P1151.
+
+---
+
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -413,10 +458,13 @@ module `<nome-público>` does not contain `<field>`
 ```
 
 O diagnóstico é erro, não possui hints e ancora somente o identificador do
-field. Para módulos ordinários, `<nome-público>` é `Module::name()`. Para o
-módulo padrão alcançado pelo binding `std`, o nome público é `global`, embora a
-representação cristalina interna ainda use `std`; esta projeção é da identidade
-semântica do módulo padrão, não uma lista de fields. É proibido listar `hsl`,
+field. Para módulos nomeados, `<nome-público>` é o nome guardado no módulo.
+A premissa P1301 de que o global cristalino guardava `std` foi superada pela
+construção P1305; a revisão medida P1306 abaixo substitui expressamente essa
+projeção nominal. O módulo padrão alcançado pelo binding `std` guarda e
+publica `global`, enquanto um arquivo ordinário `std.typ` publica `std`.
+A identidade independe do nome lexical do alias ou do conteúdo do scope.
+É proibido listar `hsl`,
 `hsv`, `linear_rgb` ou qualquer outro field na implementação.
 
 A regra vale para qualquer field ausente de `Module` e deve ser verificada ao
@@ -500,8 +548,11 @@ chamadas permanecem os vigentes.
 
 A regra é exclusiva do ramo especial desses três fields. É proibido
 generalizá-la ao erro de dicionário ou a targets não cobertos; alterar a regra
-geral de `Module` e a projeção `std` → `global` seladas por P1301r2; ou regredir
+geral de mensagem e span de `Module` selada por P1301r2; ou regredir
 a exceção field-only de `float("NaN").is-nan` selada por P1293.
+A proteção histórica da projeção nominal `std` → `global` é substituída
+exclusivamente pela obrigação de identidade nomeada P1306 abaixo, preservando
+o nome público `global` do módulo padrão real. As demais proteções P1303 ficam.
 
 Também é proibido mover o gate para `stdlib/pdf`, duplicar o catálogo, criar
 blacklist/fallback reflexivo, expor o trio sem `a11y-extras`, ocultá-lo com a
@@ -516,3 +567,121 @@ normal/invertida, repetição determinística e `0` Unknown. Não prova equival�
 funcional geral de `pdf`, do compilador, do PDF exportado ou da acessibilidade,
 nem autoriza resolver membros ausentes, `repr(std)` ou o inventário residual
 P1299.
+
+## P1306 — identidade no erro de campo ausente de módulo nomeado
+
+### Medição independente anterior à decisão
+
+Em `2026-09-07T15:07:28.245613+00:00`–`15:07:53.110165+00:00`, sobre HEAD
+`b303f1f15b610e09872b567027e0d806387fde8c`, sem diff tracked/staged,
+`00_nucleo/diagnosticos/p1306-contract-measurement.json` (SHA-256
+`d3066b1bf00ff3120190e329752df7547758f5b03f367a22c6cded83f31310fb`)
+registrou fixtures, hashes, comandos, cwd, horários, saídas e status completos
+antes/depois. A árvore continha somente untracked enumerados no recibo. O
+baseline certificado P1305 tinha SHA-256
+`be51045f1df75ac42ee081801ddf7f738f709029e3694b9205473ba5fa8b31d4`; o vanilla
+ratificado upstream/main `a51e02804`, SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+
+Os 19 probes nos quatro perfis, dois produtos e ordens normal/inversa
+produziram 304 execuções válidas da CLI. As cinco rotas ordinárias de `std.typ`
+(direta, alias com field `absent`, sombra lexical, reexport integral e nesting)
+divergiram somente no nome: cristalino `global`, vanilla `std`. Global real e
+alias publicaram `global`; arquivos `global.typ`, `map.typ`, `forest.typ` e
+módulos calc/sym/color.map mantiveram seus nomes próprios. Os três positivos
+pareados de repr/lookup/chamada coincidiram, inclusive
+`["<module std>",7]` e `["<module std>",11,3]`; os vetores foram estáveis por
+ordem. O controle de dicionário confirmou separadamente sua âncora cristalina
+total preexistente, divergente da vanilla, cuja preservação é obrigatória.
+A tentativa anterior com opção CLI `--color` não aceita pelo vanilla fica
+integralmente no recibo como falha de instrumentação, sem valor de RED.
+
+A leitura adicional da fonte confirma: em
+`01_core/src/compiler/eval/bindings/field_access.rs:376-382` o diagnóstico
+rebatiza nominalmente `std`, enquanto `:106-112` já seleciona field-only;
+`01_core/src/compiler/eval/mod.rs:324,562` e
+`01_core/src/compiler/eval/modules.rs:66` já constroem o global com `global`.
+No vanilla,
+`lab/typst-original/crates/typst-library/src/foundations/module.rs:139-150`
+publica o nome guardado.
+
+### Classificação, inferência e obrigação perene
+
+Mensagem, severidade, hints, cardinalidade e âncora diagnóstica são observáveis
+da linguagem (ADR-0107/0108); identidade de ponteiro, forma de armazenamento e
+algoritmo não são critérios. Não se atribui intenção histórica ao vanilla.
+É inferência que o nome já guardado basta para este fragmento: alias e reexport
+refutam identidade por variável ou conteúdo. Um módulo nomeado legítimo com
+nome guardado insuficiente/incorreto, ou necessidade de outro owner/API,
+refutaria essa inferência e reabriria o escopo.
+
+Classificação: `ADR-0127_CONTINUOUS_DIAGNOSTIC_PARITY`. Após L0-first e
+resselo, a correção interna segue por RED→GREEN e revalidação, sem alteração
+de API, entidade, trait, assinatura, default, compatibilidade ou fase.
+
+Para qualquer módulo nomeado e field ausente, o nome em
+``module `<nome>` does not contain `<field>` `` deve ser exatamente o nome
+guardado no módulo. O global real continua `global`, inclusive por aliases;
+o módulo ordinário `std.typ` continua `std`, inclusive por alias, sombra
+lexical, nesting e reexport integral. Não inferir identidade do spelling da
+variável, do nome reservado `std`, dos fields exportados ou de uma whitelist.
+O field ausente pode ser qualquer identificador; nenhum perfil recebe exceção.
+
+Preservar erro único de severidade error, zero hints/laterais novos, stdout
+vazio, exit de erro e span resolvível cobrindo somente o field. Lookups presentes
+preservam valor, kind, chamada e repr. Os nomes e os imports certificados P1305
+são entradas protegidas; este nó não altera suas construções ou representação.
+P1303 PDF (spans, hints ordenados e features), o span total do dict, a exceção
+field-only float/is-nan e todos os targets não Module permanecem vigentes.
+Os reconhecimentos nominais pdf/sym, warnings e gates não entram nesta revisão.
+
+Aceitação focal cobre os quatro perfis com positivos pareados, campos distintos
+e deslocamentos de linha/coluna; exige testes independentes, matriz bilateral
+estável por repetição/inversão e mutantes aplicáveis rejeitados. `Unknown`,
+erro de import inválido, falha de execução ou de adaptação não satisfazem RED
+nem GREEN. Opacidade só é admissível quando realmente faltar informação pública,
+sem transformar Unknown obrigatório em sucesso. Esta obrigação não resolve
+anonimato de plugin, encoders ou disponibilidade residual, nem implica paridade
+geral do compilador.
+
+## P1307-R3 — consumo de default nos métodos de Content
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/eval/bindings/field_access.rs:750-768` extrai o field
+pelo helper de method_dispatch, remove default diretamente de named e chama
+finish_args. A operação não modifica o Content nem a política de fields.
+Snapshot adicional R3 SHA-256
+`592497d1e786241b9ba121479c0c55dbad370a70732e130b4f7ac3bd709d4405`
+conserva este L0 após P1306 e antes deste amendment, HEAD
+`b303f1f15b610e09872b567027e0d806387fde8c` e diff/stat integral. O consumer
+Rust P1306 permanece byte-idêntico durante a redação.
+
+### Migração, pendente do gate Args
+
+Quando method é at, retirar default por `Args::remove_named("default")`,
+preservando o último valor retornado e eliminando as ocorrências consumidas
+do carrier Some. A extração do positional continua no helper proprietário
+de method_dispatch, também migrado. Não invalidar Some nem copiar o helper.
+None mantém a view legada; o span agregado e as âncoras dos erros não mudam.
+
+P1306 Module, P1303 PDF, dict/float, lookup e todas as demais obrigações deste
+owner permanecem intactos. Não introduzir validação de named duplicados ou
+namespace de encoder em field_access. Aceitação cobre Content/LocatedContent
+has/at/default, consumidos ausentes de ambas as views/carrier e sentinelas
+anteriores. É inferência de suficiência refutada por outra escrita causal.
+Este amendment só adapta consumo à definição do owner Args, que aguarda
+aprovação humana ADR-0127; não autoriza este consumer a redefinir Args.
+
+### P1307-R4 — wrapper estático após aprovação do carrier
+
+Medição adicional, anterior à decisão: no baseline R4 SHA-256
+`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+`01_core/src/compiler/eval/bindings/field_access.rs:828-830` clona Args e
+remove o receiver apenas de items. O L0 R3 cobriu o consumo de default, mas
+não este writer. Com o contrato Args aprovado, o wrapper deve consumir por
+`remove_positional(0)`, preservando o clone original, span agregado e todas
+as ocorrências restantes. Não invalidar Some nem mudar os erros vigentes.
+É extensão interna da mesma migração, não nova API ou fase; verificar a
+equivalência estática/ligada de content.func/has/at/fields/location. A fonte
+e a lista de writers refutam a suficiência da enumeração R3, não a API aprovada.

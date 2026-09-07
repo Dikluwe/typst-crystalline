@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/float.md
-//! @prompt-hash 7f4ef0b6
+//! @prompt-hash 43276ff3
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -9,10 +9,11 @@
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::contracts::world::World;
-use crate::entities::args::Args;
+use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
 
 fn native_is_infinite(
@@ -115,15 +116,26 @@ pub(crate) fn dispatch_float_method(
     world: &dyn World,
     current_file: FileId,
 ) -> SourceResult<Value> {
+    args = if args.occurrences.is_some() {
+        let mut occurrences = args.occurrence_sequence();
+        occurrences.insert(
+            0,
+            ArgOccurrence {
+                name: None,
+                value: Value::Float(receiver),
+                span: Span::detached(),
+                value_span: Span::detached(),
+            },
+        );
+        Args::from_occurrences(args.span, occurrences)
+    } else {
+        let mut items = args.items;
+        items.insert(0, Value::Float(receiver));
+        Args::from_parts(items, args.named, args.span)
+    };
     match method {
-        "is-infinite" => {
-            args.items.insert(0, Value::Float(receiver));
-            native_is_infinite(ctx, &args, world, current_file)
-        }
-        "is-nan" => {
-            args.items.insert(0, Value::Float(receiver));
-            native_is_nan(ctx, &args, world, current_file)
-        }
+        "is-infinite" => native_is_infinite(ctx, &args, world, current_file),
+        "is-nan" => native_is_nan(ctx, &args, world, current_file),
         _ => unreachable!("dispatch_float_method called with unknown method: {method}"),
     }
 }

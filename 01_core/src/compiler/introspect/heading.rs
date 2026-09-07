@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/heading.md
-//! @prompt-hash c2411521
+//! @prompt-hash 2bfa3bd5
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -16,6 +16,102 @@ use crate::entities::introspector::Introspector;
 use crate::entities::label::Label;
 use crate::entities::location::Location;
 use crate::entities::selector::Selector;
+
+/// Capture the complete modeled language fields while the causal chain exists.
+pub(super) fn snapshot_fields(
+    heading: &crate::entities::elements::heading::HeadingElem,
+    chain: &crate::entities::style_chain::StyleChain,
+    label: Option<&Label>,
+) -> indexmap::IndexMap<
+    ecow::EcoString,
+    crate::entities::value::Value,
+    rustc_hash::FxBuildHasher,
+> {
+    use crate::entities::elements::heading::HEADING_SET_DEPTH;
+    use crate::entities::value::Value;
+
+    let numbering =
+        if matches!(chain.custom("heading.numbering"), Some(Value::Bool(true))) {
+            match chain.custom("heading.numbering.pattern") {
+                Some(Value::Str(pattern)) => Value::Str(pattern.clone()),
+                _ => Value::None,
+            }
+        } else {
+            Value::None
+        };
+    let lang = chain.lang().unwrap_or(crate::entities::lang::Lang::ENGLISH);
+    let supplement = heading_supplement(lang.as_str());
+    let mut fields = indexmap::IndexMap::default();
+    fields.insert("level".into(), Value::Int(heading.level as i64));
+    fields.insert(
+        "depth".into(),
+        Value::Int(if heading.set_fields & HEADING_SET_DEPTH != 0 {
+            heading.level as i64
+        } else {
+            1
+        }),
+    );
+    fields.insert("offset".into(), Value::Int(0));
+    fields.insert("numbering".into(), numbering);
+    fields.insert("supplement".into(), Value::Content(Content::text(supplement)));
+    fields.insert("outlined".into(), Value::Bool(heading.outlined));
+    fields.insert(
+        "bookmarked".into(),
+        heading.bookmarked.map(Value::Bool).unwrap_or(Value::Auto),
+    );
+    fields.insert("hanging-indent".into(), Value::Auto);
+    fields.insert("body".into(), Value::Content(heading.body.clone()));
+    if let Some(label) = label {
+        fields.insert("label".into(), Value::Label(label.clone()));
+    }
+    fields
+}
+
+/// Ratified upstream a51e02804 translations, without runtime lab dependency.
+fn heading_supplement(lang: &str) -> &'static str {
+    match lang {
+        "ar" => "الفصل",
+        "bg" | "ru" => "Раздел",
+        "ca" => "Secció",
+        "cs" | "sk" => "Kapitola",
+        "cy" => "Adran",
+        "da" => "Afsnit",
+        "de" => "Abschnitt",
+        "el" => "Κεφάλαιο",
+        "eo" => "Sekcio",
+        "es" | "gl" => "Sección",
+        "et" => "Peatükk",
+        "eu" => "Atala",
+        "fi" => "Osio",
+        "fr" => "Chapitre",
+        "ga" => "Ceannteideal",
+        "he" => "חלק",
+        "hr" => "Odjeljak",
+        "hu" => "Fejezet",
+        "id" => "Bagian",
+        "is" => "Kafli",
+        "it" => "Sezione",
+        "ja" => "節",
+        "la" => "Caput",
+        "lt" => "Skyrius",
+        "lv" => "Sadaļa",
+        "nb" | "nn" => "Kapittel",
+        "nl" => "Hoofdstuk",
+        "no" | "sv" => "Avsnitt",
+        "pl" => "Rozdział",
+        "pt" => "Seção",
+        "ro" => "Secțiunea",
+        "sl" => "Poglavje",
+        "sq" => "Kapitull",
+        "sr" => "Поглавље",
+        "tl" => "Seksyon",
+        "tr" => "Bölüm",
+        "uk" => "Розділ",
+        "vi" => "Phần",
+        "zh" => "小节",
+        _ => "Section",
+    }
+}
 
 /// Formata o valor hierárquico de um counter como string terminada em ponto.
 ///

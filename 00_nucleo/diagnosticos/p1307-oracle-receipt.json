@@ -1,0 +1,309 @@
+{
+  "protocol": "P1307-independent-documentary-oracle-receipt-v1",
+  "timestamp": "2026-09-07T16:17:09.731901+00:00",
+  "executor": "/root/p1307_oracle",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "role": "oracle/adversary author, no candidate or verdict authority",
+  "inherited_context": "fresh agent task; parent assignment only",
+  "read_allowlist": [
+    "exact P1307 step",
+    "repository CLAUDE and relevant ADR",
+    "skill+both references",
+    "preflight",
+    "baseline",
+    "canonical contract",
+    "ratified serializer sources",
+    "baseline Value/registration/loading/repr sources"
+  ],
+  "write_allowlist": [
+    "p1307-oracle.py",
+    "p1307-oracle-measurement.json",
+    "p1307-oracle.json",
+    "p1307-oracle-receipt.json",
+    "p1307-mutant-plan.json"
+  ],
+  "forbidden_writes_performed": false,
+  "candidate_read": false,
+  "inputs": {
+    "p1307-preflight.json": "f928436a6ce7e37e16c9a3b9f160480593efa8f9fa05d72dc2cdec836716e938",
+    "p1307-baseline.json": "418443cb00f8733ae034cbf098662869835a1235f2112ef423f900cf9b56e48e",
+    "p1307-contract.md": "549b472849c6e2043acd15234fb45b4dfb1566e2525d2c34c58810a309cf8357",
+    "p1307-oracle.json": "b4f8faffdb470a1c7891424b3fce8752491f70f2a79b17a828d39629ffbda842",
+    "p1307-oracle-measurement.json": "e9cde88b67fdd807a101361b0a4b9eb5a6d1b42836d8e569c717ccda0ff64a86"
+  },
+  "step_sha256": "c6e585f56fba9660d804a2e7063887195804ffb6f124da12daa581320a50c950",
+  "script_sha256": "625cbd37dee42097ca6116d6e6c86264298e0a0af1c26e5d53b13b885fc3dd43",
+  "mutant_plan_sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+  "ratified_source_hashes": {
+    "01_core/src/entities/value.rs": "0fdd94c7fff7953f4902f43dc2ede76812d24c5783d489f0470b36a98919542b",
+    "01_core/src/compiler/eval/repr.rs": "0dde543205c04eeedc0896961d505ba315f1573d55fd17498e8b1b5544f9af8c",
+    "01_core/src/compiler/stdlib/loading.rs": "e9c768910a948d02142c87df4eb2c8117272eafd86fa32527b334193184b8730",
+    "01_core/src/compiler/stdlib/mod.rs": "22b9ae3ff9efec1260e91c158eac00a7201f7bd86e04fa7c8653543eb94190d4",
+    "01_core/src/compiler/eval/mod.rs": "6ccb0a0a89fb932bca3feebab24f536f79225535def4a7464ca0e65194716bce",
+    "lab/typst-original/crates/typst-library/src/foundations/value.rs": "c25a2bdb0a96c707414f1138f34bcc21c63ac06c507a32c81f029f6a374da885",
+    "lab/typst-original/crates/typst-library/src/foundations/bytes.rs": "9307030e7ea1a313752ba568721a3a1eb98228234a5803a77cf29433d9c86929",
+    "lab/typst-original/crates/typst-library/src/foundations/symbol.rs": "4213a43cc71d0653992ce4af5af40848ef491e81a1a5fbcdb560736b1adad18a",
+    "lab/typst-original/crates/typst-library/src/foundations/content/mod.rs": "70f2fe3abe9ed674452ab0d26729e76ac3ebef540b41420fb9feb5a1ab6dd0c9",
+    "lab/typst-original/crates/typst-library/src/loading/json.rs": "e3a37d154e291210a3a8682a51a71a2134967a4a1fe4be9e3cdb81a7c3695688",
+    "lab/typst-original/crates/typst-library/src/loading/toml.rs": "29f521ca1f1ba38d40daeca6e5c18cd7d0885274bb364fe2b4479f06cadb4bb6",
+    "lab/typst-original/crates/typst-library/src/loading/yaml.rs": "f89e9d05a469946033bd80d2dc12854499cd751fa69845aa1c6561305afe5703",
+    "lab/typst-original/crates/typst-library/src/loading/cbor.rs": "5ae01308870f3057cfc822b254372f0af17317d9282d499446fb92cdcef595d9"
+  },
+  "source_classification": {
+    "direct": [
+      "None",
+      "Bool",
+      "Int",
+      "Float",
+      "Str",
+      "Array",
+      "Dict"
+    ],
+    "dedicated": {
+      "Bytes": "human-readable repr string; CBOR byte-string",
+      "Symbol": "resolved Unicode string, not symbol repr",
+      "Content": "ordered map func plus public fields",
+      "LocatedContent": "same public content category with context-generated construction; location does not become serializer field by default"
+    },
+    "opaque": [
+      "Module",
+      "Datetime",
+      "Func",
+      "Auto",
+      "Length",
+      "Relative",
+      "Ratio",
+      "Angle",
+      "Color",
+      "Stroke",
+      "Fraction",
+      "Align",
+      "Location",
+      "Gradient",
+      "Regex",
+      "Tiling",
+      "Decimal",
+      "Duration",
+      "Version",
+      "Selector",
+      "Args",
+      "State",
+      "Counter",
+      "Label",
+      "Dir",
+      "Path",
+      "Type"
+    ],
+    "source": "ratified foundations/value.rs:343-364; symbol.rs:394; bytes.rs:362; content/mod.rs:709",
+    "scope_risks": "Baseline repr.rs:87 Location and :122-123 State/Counter demonstrably contain non-vanilla generic text. Public bilateral construction witnesses decide concrete debt. New encoder expectations remain vanilla; preservation controls do not authorize weakening them.",
+    "bilateral_construction": {
+      "observed_variants": 36,
+      "unknown_variants": [
+        "Location",
+        "LocatedContent"
+      ],
+      "all_38_vanilla_constructed": true
+    },
+    "coverage_limits": [
+      "Context baseline --in is unsupported, leaving 32 mandatory Unknown after final focal revision; no ready seal.",
+      "CBOR preservation probes check decoded public values and bytes(N) transport, not every byte of raw CBOR payload. A future complete preservation oracle must add a full public byte-array projection.",
+      "This independent corpus measures basic parent/encoder with routes and bound pretty success. The contract also freezes named override and prebound invalid-named origin diagnostics; those finer routes are in the separately authored contract measurement, and require additional independent oracle witnesses in a reopened chain before implementation sealing.",
+      "Family 5 route-specific namespace-loss mutation lacks a demonstrated applicable scoped instrument before a candidate exists. Twenty listed families are an obligation plan, not an applicable mutation suite or score."
+    ]
+  },
+  "unknowns": [
+    {
+      "side": "baseline",
+      "case": "construct.LocatedContent",
+      "profile": "default",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "construct.LocatedContent",
+      "profile": "html",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "construct.LocatedContent",
+      "profile": "a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "construct.LocatedContent",
+      "profile": "html+a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "json.value.LocatedContent",
+      "profile": "default",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "json.value.LocatedContent",
+      "profile": "html",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "json.value.LocatedContent",
+      "profile": "a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "json.value.LocatedContent",
+      "profile": "html+a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "toml.value.LocatedContent",
+      "profile": "default",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "toml.value.LocatedContent",
+      "profile": "html",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "toml.value.LocatedContent",
+      "profile": "a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "toml.value.LocatedContent",
+      "profile": "html+a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "yaml.value.LocatedContent",
+      "profile": "default",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "yaml.value.LocatedContent",
+      "profile": "html",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "yaml.value.LocatedContent",
+      "profile": "a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "yaml.value.LocatedContent",
+      "profile": "html+a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "construct.Location",
+      "profile": "default",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "construct.Location",
+      "profile": "html",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "construct.Location",
+      "profile": "a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "construct.Location",
+      "profile": "html+a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "json.value.Location",
+      "profile": "default",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "json.value.Location",
+      "profile": "html",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "json.value.Location",
+      "profile": "a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "json.value.Location",
+      "profile": "html+a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "toml.value.Location",
+      "profile": "default",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "toml.value.Location",
+      "profile": "html",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "toml.value.Location",
+      "profile": "a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "toml.value.Location",
+      "profile": "html+a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "yaml.value.Location",
+      "profile": "default",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "yaml.value.Location",
+      "profile": "html",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "yaml.value.Location",
+      "profile": "a11y",
+      "reason": "EXECUTION_FAILURE"
+    },
+    {
+      "side": "baseline",
+      "case": "yaml.value.Location",
+      "profile": "html+a11y",
+      "reason": "EXECUTION_FAILURE"
+    }
+  ],
+  "scope": "Literal future encoder oracle plus separately identified preexisting baseline preservation debt; no implementation parity or mutation score claimed"
+}

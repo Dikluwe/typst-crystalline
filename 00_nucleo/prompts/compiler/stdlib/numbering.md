@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/numbering` — função global `numbering()` e `format_pattern`
-Hash do Código: ffffffff
+Hash do Código: 13a8aa93
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/numbering.rs`
@@ -93,3 +93,30 @@ duplicam dispatch nem chamam closures diretamente.
 `value_to_content`, preservando a morfologia normal de valores Typst. O helper
 é público apenas para a orquestração L3; layouter e PageStore nunca recebem
 Engine nem executam callbacks.
+
+## P1307-R3 — Args sintético nos callbacks
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/stdlib/numbering.rs:36-40` converte a lista usize do
+realizador em Int; `:103-107` reconstrói Int dos números já convertidos a u32
+pela nativa. Nenhum ponto conserva uma ocorrência lexical original. Fonte
+congelada no baseline R3 SHA-256
+`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`,
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais o diff P1306 registrado.
+
+### Contrato de migração
+
+Os dois builders migram para `Args::from_parts(items, named, span)` do owner
+Args, com named vazio e `occurrences: None` explícito. São valores calculados,
+não encaminhamento dos Args de entrada: não atribuir spans lexicais falsos
+nem copiar ocorrências de números antes da conversão. Manter span agregado,
+valores, ordem e número de callbacks, assinaturas públicas, casts, erros,
+padrões e conversão a conteúdo. Não corrigir incidentalmente truncamento
+preexistente por u32 ou outra semântica de numbering.
+
+Esta é adaptação à API Args proposta, não alegação de paridade diagnóstica
+geral com vanilla para callbacks sintéticos. Testes devem verificar valores
+e detached individuais sem quebrar as formas Pattern/Func. Necessidade de
+conservar origens que os builders atuais já não têm refuta a adaptação
+mecânica e exige nova medição/escopo. Gate ADR-0127 do carrier ainda pendente.

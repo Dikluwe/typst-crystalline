@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/method_dispatch` — métodos mutantes e de acesso
-Hash do Código: 2894025f
+Hash do Código: 2edbbc98
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/method_dispatch.rs`
@@ -86,3 +86,34 @@ usados também por `field_access`.
 - `is_mutating_method` e `try_eval_mutating_method` visíveis em `eval`;
   `call_method_access`, `is_accessor_method`, `expect_positional`,
   `finish_args` visíveis dentro de `bindings`; o resto privado ao nó.
+
+## P1307-R3 — consumo coerente de Args
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/eval/bindings/method_dispatch.rs:46` remove o primeiro
+positional; `:336,388` remove named default. Os helpers continuam a consultar
+items/named depois dessas operações. Snapshot adicional R3 SHA-256
+`592497d1e786241b9ba121479c0c55dbad370a70732e130b4f7ac3bd709d4405`
+registra HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree P1306
+e diff/stat completos antes deste amendment. A inserção futura de um carrier
+Some torna a mutação exclusiva da view incoerente; isso decorre do fluxo de
+dados local, não de medição de novo comportamento vanilla.
+
+### Migração, pendente de aprovação de Args
+
+`expect_positional` deve consumir por `Args::remove_positional(0)` depois
+do mesmo guard de missing; default usa `Args::remove_named("default")`,
+que retira suas ocorrências e devolve o último valor como a view legada.
+Não alterar assinatura dos helpers, referências mutáveis ao valor, ordem
+de acesso/finish, mensagens, âncoras agregadas ou prioridade de erros.
+Some mantém apenas ocorrências não consumidas; None conserva sua política
+legada. Não deixar metadata stale, converter Some em None ou validar casts
+de cada named como se estes métodos fossem os novos encoders.
+
+O helper compartilhado com field_access permanece deste owner, não se copia.
+Aceitação cobre mutantes/acessores array/dict e métodos de Content via helper,
+missing/extra/default com Some/None e controle do lugar mutável. É inferência
+que substituir apenas o consumo basta; outra escrita em Args ou alteração
+de observáveis exige rever a obrigação antes de código. Gate ADR-0127 do
+carrier permanece obrigatório, sem implementação nesta rodada documental.

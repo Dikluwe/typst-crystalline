@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: d19229e2
+Hash do Código: 4ac1e283
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -302,3 +302,30 @@ O snapshot final desse counter fornece o início lógico ao ciclo de realizaçã
 as páginas seguintes incrementam a partir dele e o total passado ao callback é
 o último número lógico, nunca apenas `pages.len()`. A mecânica física de layout
 permanece separada do observável lógico.
+
+## P1307-R4 — consumo coerente de Args aprovado
+
+### Medição anterior à decisão
+
+Baseline R4 SHA-256
+`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais working tree P1306 e
+L0 R3 aprovado, contém diff/stat e fontes. Em
+`01_core/src/compiler/stdlib/counter.rs:158-160` um clone perde o receiver
+somente na view; `:216-220` consome level nominal ou positional. Após eval_args
+produzir Some, essas operações deixariam ocorrências consumidas no carrier.
+
+### Decisão
+
+Usar `remove_positional(0)` no clone do wrapper estático e
+`remove_named("level").or_else(|| remove_positional(0))` no consumo de level,
+conforme a API já aprovada de `entities/args.md`. Preservar o clone de origem,
+último valor nominal, prioridade nominal/positional, default 1, casts,
+mensagens, âncoras agregadas e critérios de sobra. Some regenera views; None
+mantém a política legada. Não adicionar casts de todas as duplicatas a estas
+nativas nem alterar CounterAction, callbacks, numbering, contexto ou fases.
+
+Testar os wrappers e o consumo com Some/None, inclusive default, sobra e
+receiver ausente; os argumentos consumidos não podem permanecer no carrier.
+É adaptação interna em fluxo contínuo ADR-0127 à API Args aprovada, não novo
+contrato público de Counter nem aprovação de dívidas históricas deste L0.

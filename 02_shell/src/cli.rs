@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 6ec6acf5
+//! @prompt-hash b06a01a7
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -662,7 +662,7 @@ pub fn serialize_eval(
 
 /// Serializa resultados do subcomando deprecated `query`.
 pub fn serialize_query(
-    elements: &[typst_core::entities::content::Content],
+    elements: &[Value],
     field: Option<&str>,
     one: bool,
     pretty: bool,
@@ -672,13 +672,13 @@ pub fn serialize_query(
 
 /// Serializa query no formato já resolvido pelo parser L2.
 pub fn serialize_query_with_format(
-    elements: &[typst_core::entities::content::Content],
+    elements: &[Value],
     field: Option<&str>,
     one: bool,
     pretty: bool,
     format: QueryFormat,
 ) -> Result<Vec<u8>, String> {
-    let mut values = elements.iter().map(content_to_semantic).collect::<Vec<_>>();
+    let mut values = elements.iter().map(value_to_semantic).collect::<Vec<_>>();
     let output = if one {
         if values.len() != 1 {
             return Err(format!("expected exactly one element, found {}", values.len()));
@@ -997,9 +997,22 @@ fn value_to_semantic(value: &Value) -> SemanticValue {
             SemanticValue::String(format!("bytes({})", v.as_slice().len()))
         }
         Value::Symbol(v) => SemanticValue::String(v.value.to_string()),
-        Value::Content(content) | Value::LocatedContent(content, _) => {
-            content_to_semantic(content)
-        }
+        Value::Content(content) => content_to_semantic(content),
+        Value::LocatedContent(content, _) => match content.fields() {
+            Some(fields) => {
+                let mut entries = vec![(
+                    "func".to_string(),
+                    SemanticValue::String(content.content().elem_name().to_string()),
+                )];
+                entries.extend(
+                    fields
+                        .iter()
+                        .map(|(key, value)| (key.to_string(), value_to_semantic(value))),
+                );
+                SemanticValue::Object(entries)
+            }
+            None => content_to_semantic(content.content()),
+        },
         Value::Array(values) => {
             SemanticValue::Array(values.iter().map(value_to_semantic).collect())
         }
@@ -1712,9 +1725,10 @@ mod tests {
             1,
             typst_core::entities::content::Content::text("First"),
         );
-        let json =
-            String::from_utf8(serialize_query(&[heading], None, false, false).unwrap())
-                .unwrap();
+        let json = String::from_utf8(
+            serialize_query(&[Value::Content(heading)], None, false, false).unwrap(),
+        )
+        .unwrap();
         assert!(json.starts_with("[{\"func\":\"heading\",\"level\":1"));
         assert!(json.contains("\"body\":{\"func\":\"text\",\"text\":\"First\"}"));
     }
@@ -1726,10 +1740,16 @@ mod tests {
             typst_core::entities::content::Content::text("First"),
         );
         assert_eq!(
-            serialize_query(&[heading.clone()], Some("level"), false, false).unwrap(),
+            serialize_query(
+                &[Value::Content(heading.clone())],
+                Some("level"),
+                false,
+                false
+            )
+            .unwrap(),
             b"[1]\n"
         );
-        let one = serialize_query(&[heading], None, true, false).unwrap();
+        let one = serialize_query(&[Value::Content(heading)], None, true, false).unwrap();
         assert!(one.starts_with(b"{\"func\":\"heading\""));
     }
 
@@ -1855,7 +1875,8 @@ mod tests {
         use typst_core::entities::paint::Paint;
 
         let metadata = Content::metadata(p1285_metadata_value());
-        let metadata_json = serialize_query(&[metadata], None, false, false).unwrap();
+        let metadata_json =
+            serialize_query(&[Value::Content(metadata)], None, false, false).unwrap();
         let metadata_tree: serde_json::Value =
             serde_json::from_slice(&metadata_json).unwrap();
         assert_eq!(metadata_tree[0]["func"], "metadata");
@@ -1865,7 +1886,8 @@ mod tests {
             "fig-one",
             Content::figure(Content::text("one"), None, None, None),
         );
-        let figure_json = serialize_query(&[figure], None, false, false).unwrap();
+        let figure_json =
+            serialize_query(&[Value::Content(figure)], None, false, false).unwrap();
         let figure_tree: serde_json::Value =
             serde_json::from_slice(&figure_json).unwrap();
         assert_eq!(figure_tree.as_array().unwrap().len(), 1);
@@ -1898,7 +1920,13 @@ mod tests {
             false,
         );
         let tree: serde_json::Value = serde_json::from_slice(
-            &serialize_query(&[figure, equation], None, false, false).unwrap(),
+            &serialize_query(
+                &[Value::Content(figure), Value::Content(equation)],
+                None,
+                false,
+                false,
+            )
+            .unwrap(),
         )
         .unwrap();
         assert_eq!(
@@ -1955,18 +1983,30 @@ mod tests {
 
         let metadata = Content::metadata(p1285_metadata_value());
         assert_eq!(
-            serialize_query(&[metadata], Some("value"), true, false).unwrap(),
+            serialize_query(&[Value::Content(metadata)], Some("value"), true, false)
+                .unwrap(),
             b"{\"name\":\"x\",\"n\":2}\n"
         );
 
         let figure = Content::figure(Content::text("one"), None, None, None);
         assert_eq!(
-            serialize_query(&[figure.clone()], Some("does-not-exist"), false, false)
-                .unwrap(),
+            serialize_query(
+                &[Value::Content(figure.clone())],
+                Some("does-not-exist"),
+                false,
+                false
+            )
+            .unwrap(),
             b"[]\n"
         );
         assert_eq!(
-            serialize_query(&[figure], Some("does-not-exist"), true, false).unwrap_err(),
+            serialize_query(
+                &[Value::Content(figure)],
+                Some("does-not-exist"),
+                true,
+                false
+            )
+            .unwrap_err(),
             "no such field found for element"
         );
         assert_eq!(

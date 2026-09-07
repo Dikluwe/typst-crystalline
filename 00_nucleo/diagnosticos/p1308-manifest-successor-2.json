@@ -1,0 +1,91 @@
+{
+  "schema": "p1308-r2-independent-successor-manifest-v1",
+  "at": "2026-09-07T21:40:22.575367+00:00",
+  "executor": "/root/p1306_oracle",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "authorization": "User explicitly authorized the 19-case and P1293 transcript migrations and commit; product semantic changes are not authorized by this test-only successor.",
+  "previous_manifest": {
+    "path": "00_nucleo/diagnosticos/p1308-manifest.json",
+    "sha256": "ee8df0e15cf50ed0903472c219dd2aefbeb787a11ebb18f12d2b15f8dd754ca1"
+  },
+  "previous_successor": {
+    "path": "00_nucleo/diagnosticos/p1308-manifest-successor-1.json",
+    "sha256": "f15815fd87e067ef654749c5c8212de25c93ed7f9e2fd828a2776251c25511a3"
+  },
+  "previous_blocked_verification": {
+    "path": "00_nucleo/diagnosticos/p1308-verification-final.json",
+    "sha256": "06a57344f4e8039c1cd96a1df1aa2b2b2c159797e8080f1841844541e012ac60"
+  },
+  "contracts": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "575f9d220dfc5355db14d040dba64104d2cd0ba489c513ad81f7544ee3ee78cd",
+      "semantic_sha256": "fe408c6dcfd6e7aba8eee6365a9a9ca4b20077a258cb68ec12338f042efa1a42"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/p1293_contract.md",
+      "sha256": "0696b5267c7e429f251b890c1028988335969e92e15a8c813025a79495bd666f",
+      "semantic_sha256": "7b3cc85a7c701e8df6ce731fa1c13e150bc5ae5903598ed136285911c10e9cc8"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1308-r2-preflight.json",
+      "sha256": "6f861d7985bf5bf47aac7e8f6136220829d8143e39f5ddcc25f8a84729a50948"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1308-r2-oracle.json",
+      "sha256": "7d076a223c97c33768955a22fc43dd5bd8d5d29be75dc4b57346f86de8504312"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1308-r2-oracle.py",
+      "sha256": "05fe94ccee1cd4df811a2fa2d6a5f6b4338f4ad80ed597864b64a2579cc3be7c"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1308-r2-tests.patch",
+      "sha256": "c69ab727396cb3352aa23a79aa4be905044c00c67dc5478175151b6adbfe2552"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1308-r2-measure.json",
+      "sha256": "b507c4a71345012a2e6b2ccd7ad3c7c89f130f1d66c32c853e5d0d28d4637079"
+    }
+  ],
+  "verdict": "TRACE_ONLY_MIGRATION_INTEGRITY_APPROVED_FOR_FRESH_GATES",
+  "oracle_delta": {
+    "cases": 19,
+    "cells": 76,
+    "only": "future_expected.stderr literal extension",
+    "exact_extension_matches_previous_independent_verification": true,
+    "all_515_cases_other_fields_identical": true,
+    "classifier": "same pinned R4 exact envelope classifier; no tolerances or Unknown changes"
+  },
+  "test_delta": {
+    "owner": "04_wiring/tests/p1293_contract.rs",
+    "six_existing_stderr_literals_only": true,
+    "canonical_integration_verified": true,
+    "previous_three_migrations_preserved": true,
+    "P1308_18_test_suite_unchanged_except_header": true
+  },
+  "independent_measurement": {
+    "rows": 208,
+    "Preserved": 208,
+    "Violated": 0,
+    "Unknown": 0,
+    "product_source_read_by_author": false
+  },
+  "predecessor_failures": [],
+  "actual_Rust_mutants": 0,
+  "mutation_score": null,
+  "pending_real_P1308_mutants": 6,
+  "pending_P1307_families": 37,
+  "full_discriminatory_seal": false,
+  "candidate_accepted": false,
+  "fresh_gates_pending": [
+    "D-P04 focal",
+    "workspace",
+    "successor full public normal/reverse",
+    "six actual compiled mutants if operationally viable",
+    "final integrity and source review"
+  ],
+  "chronology": "This test-only authorized successor preserves prior blocked results and does not claim a new productive implementation or retroactive full seal."
+}

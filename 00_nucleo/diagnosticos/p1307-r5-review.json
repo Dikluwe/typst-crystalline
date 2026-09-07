@@ -1,0 +1,399 @@
+{
+  "schema": "p1307-r5-independent-contract-review-v1",
+  "verdict": "READY_FOR_PUBLIC_API_REVIEW",
+  "reviewed_freeze": "p1307-r5-l0-freeze-v5.json",
+  "at": "2026-09-07T18:43:39.975984+00:00",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "executor": "/root/p1306_oracle",
+  "authority": {
+    "role": "Independent P1307-R5 contract reviewer",
+    "prior_role": "P1306 oracle/adversary/test author; no P1307 contract, product or oracle authorship",
+    "judged_inputs_edited": false,
+    "source_candidate_read": false,
+    "writes": [
+      "00_nucleo/diagnosticos/p1307-r5-review.json"
+    ],
+    "environment": "Shared workspace with procedural allowlists; no technical isolation attestation"
+  },
+  "decision_boundary": {
+    "public_api_approval": "PENDING_HUMAN_ADR_0127",
+    "implementation_authorized": false,
+    "acceptance_oracle_sealed": false,
+    "manifest": null,
+    "implementation_candidate": null,
+    "semantic_RED_GREEN": "NOT_EXECUTED",
+    "actual_Rust_mutants": 0,
+    "mutation_score": null,
+    "certificate": false,
+    "general_parity_claim": false
+  },
+  "inputs": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-baseline.json",
+      "sha256": "32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-l0-before.json",
+      "sha256": "227d23253c5886e7f6c3b7a9abe896a7437d90fee0676f01ab85b55c2b4d4f61"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-l0-freeze-v3.json",
+      "sha256": "9a6fb08d24560e891e045a5edd279435d1b9d6dba9668152f68c40faba96bae2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-l0-freeze-v5.json",
+      "sha256": "f51e45a61b388a498a0dd58465bc98d163d679561c8da28b5946f3d5956ca13f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-contract-report.md",
+      "sha256": "4c2e8000c3ac179486a67fcd8b7e5ac186092288b9af890aa6e967523f3985ed"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-transport-audit.md",
+      "sha256": "bfbcd3f882578df60e0bc948fe8889f2515263a71e6e20e0137f6f6c1b7a2717"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-content-measure.py",
+      "sha256": "3fa2d0680e7aff934100ec47d18ad3976d252cc15414154e5dc4889ad3564ec5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-content-measurement.json",
+      "sha256": "82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-content-oracle.json",
+      "sha256": "ccfd62a66676561d58562123dfe91e039ef8a50d12ff707fe0d03c6a66204520"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-content-note.md",
+      "sha256": "be0de42c749472e4bbd3fc29d9f5adfca9fb603750001fc2162a887fe5277872"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-repr-measure.py",
+      "sha256": "f2d6fc2ab3960f5118d63f049f82b885bd3677093bb5a9e9afd5cc7fef312531"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-repr-measurement.json",
+      "sha256": "5c145ef6f5694948d34de6be2f35c873b526170d2752b34ca08e858216508567"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-repr-oracle.json",
+      "sha256": "49fafb6c13b48e990a04ec65732eea8cd1f371c85d0ed59d8a15f5b0e0aca34c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r5-repr-note.md",
+      "sha256": "e9f0407b7004439ebc71d43dad3bba31f62f206bc55cd458c07f9241be7dc252"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r4-oracle.py",
+      "sha256": "ef102f3a800475855b0cb21f40db666312cdb2f96fd9c867ea625b13c22b8e68"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r4-oracle.json",
+      "sha256": "d796d39ab7af2fc17cef0bf84440293f8cec51df5b35c547351141182c85f6ef"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r4-verification.json",
+      "sha256": "ddfb99cf67ee3b9e1119a9662109ac0570f765696a53bb3113e93a99ca39f600"
+    }
+  ],
+  "contracts": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/value.md",
+      "sha256": "732b3fb512bd11b6585a214de445468e0f0f5fe5907857c3a0f17b4523d23de8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/introspector.md",
+      "sha256": "a98b641cec803700e1ce7221feba7ed5af178ac7d3de8a131d0a6e37d64c48d6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect.md",
+      "sha256": "f8d92d86698c3ffc76b113d25ad7a997f11cb6d3cf3566c5678f5832e69f2716"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/heading.md",
+      "sha256": "1bb5b84fe3658e78c2b18758b58e7ca3ce2d712a0711af145bfdbd2d49811ff0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/from_tags.md",
+      "sha256": "107ff4f5bc9efa0f770aff924b6cc3a13c73b4479e8481388e8c4eb415604a05"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/query.md",
+      "sha256": "7bb0514642d735b3caffb5d501c6ff71b7baf9c5d2fc2f13fb9e4961091db617"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "sha256": "077fd441aaceffe0470c50aa1e2e6caded3d446b48d1dbc39da7f42d320494db"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "sha256": "10196db423a34d8255f27e7f48f715843d9bf601670057db26b9065741931b06"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/operators/equality.md",
+      "sha256": "9b6ca72b1e8ca562bde7d1730892e727a9680ba6e99b8fc9d1f9922a4c3b5d95"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "1133e7874105e41f39a79f2fbe8db0f6a7471067ed4c8c68731384ae1830a803"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/loading.md",
+      "sha256": "c800187d07bf3acb84eb620ba4305001588001d088dabff1941ca8fe4fb0a3db"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/query-helpers.md",
+      "sha256": "31b7b7ff9016953f8e6b7a2c382c42ddd8b81a880851544de4cfc247fb0bf086"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/shell/cli.md",
+      "sha256": "d7f8d930b13a387b2c2823749f23dd63fff373d4c9fa3948ee117abd484cee79"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml",
+      "sha256": "419d56209cda385cedb09205b1dde60be6719897dc467f583b637ce389df6084"
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/value.rs",
+      "sha256": "0fdd94c7fff7953f4902f43dc2ede76812d24c5783d489f0470b36a98919542b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/introspector.rs",
+      "sha256": "3df7cb46cf5c01465756a3018f4b14c69188f0513cb941ec253159c50859fdd8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/content.rs",
+      "sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/introspect.rs",
+      "sha256": "6e50fed8b66e17855c25fc81f945e8e88c888a0e8afa2c814331ad64ab3fb6ad"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/introspect/heading.rs",
+      "sha256": "903180e2311ca6f4a3185f4ffbbf897775adaa6634c3bafec068b1cf5eaec8fa"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/introspect/from_tags.rs",
+      "sha256": "dd731eabc274395ca22ea8a916f1d0a4eb4fad68d65a26f1c35a7cf4b22cbdd7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/stdlib/foundations/query.rs",
+      "sha256": "f62870a4f9a13cf31f36122300a93d5258497f323c2e1ddbf41d677936911310"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/rules.rs",
+      "sha256": "d1b2a493682ba0989d397360b5c3781b15a1e130d460f6e6854980bc001b267c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/stdlib/structural/heading.rs",
+      "sha256": "30312d058d9d8170a14b4b71bef464ffdb9f51d794a729b8d75d1bbdcc807bd7"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/operators/equality.rs",
+      "sha256": "ee99ead3a7204e3d6cfad4d86ee3b20c058ed466faf0c00ea850bdf0dc10e639"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/layout/heading.rs",
+      "sha256": "a1f13549373ae35750440554bdfc7269afc26c6a0691569ac841b208726f0188"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/03_infra/src/query_helpers.rs",
+      "sha256": "6b95408d0ce85f82c97cc54d58d35aaad8dfe1e2ea19d26546ff80c769252df3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/03_infra/src/pipeline.rs",
+      "sha256": "72f9c080b55ca295e5b51ae45acf527c76921cd06211a64c2c43fdd010af6088"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/02_shell/src/cli.rs",
+      "sha256": "d3e9fecdfce6c1aad0f9badce9000f0b4de41888e299cad63522d25223b42989"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/raw.rs",
+      "sha256": "2a18f73aafed4174dd2169bc6da886565bfdac27f306f7ee85c4d48bde6f602f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/lang.rs",
+      "sha256": "205c62c498f003294d74fdf2ffce4c4b294a5e6c78a3ac28081cde041790b9d2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/translations/en.txt",
+      "sha256": "21130b2c4de130e03b62ccd5137d77518655db2b5017037a66584b3380f06b40"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/translations/pt.txt",
+      "sha256": "e7b1b3b715febdfdc740118bd5eefe0c29f0a894a88a9fe349df9bf9c1eacd07"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/translations/fr.txt",
+      "sha256": "bb1a1f532d06e1b9b630ff264945b06679d10c17b621f384fb887791e60e3831"
+    }
+  ],
+  "state": {
+    "head": "b303f1f15b610e09872b567027e0d806387fde8c\n",
+    "status": " M 00_nucleo/prompts/compiler/eval.md\n M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/bindings/method_dispatch.md\n M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/eval/closures.md\n M 00_nucleo/prompts/compiler/eval/math.md\n M 00_nucleo/prompts/compiler/eval/operators/arithmetic.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/operators/join.md\n M 00_nucleo/prompts/compiler/eval/repr.md\n M 00_nucleo/prompts/compiler/eval/tests.md\n M 00_nucleo/prompts/compiler/introspect.md\n M 00_nucleo/prompts/compiler/introspect/from_tags.md\n M 00_nucleo/prompts/compiler/introspect/heading.md\n M 00_nucleo/prompts/compiler/stdlib/_comum.md\n M 00_nucleo/prompts/compiler/stdlib/collections.md\n M 00_nucleo/prompts/compiler/stdlib/counter.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/float.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/int.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/query.md\n M 00_nucleo/prompts/compiler/stdlib/gradients.md\n M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 00_nucleo/prompts/compiler/stdlib/numbering.md\n M 00_nucleo/prompts/entities/args.md\n M 00_nucleo/prompts/entities/func.md\n M 00_nucleo/prompts/entities/introspector.md\n M 00_nucleo/prompts/entities/value.md\n M 00_nucleo/prompts/infra/query-helpers.md\n M 00_nucleo/prompts/shell/cli.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/eval/tests.rs\n?? 00_nucleo/diagnosticos/p1305-commit-notes.md\n?? 00_nucleo/diagnosticos/p1306-attacks.json\n?? 00_nucleo/diagnosticos/p1306-baseline-measurement.json\n?? 00_nucleo/diagnosticos/p1306-build.json\n?? 00_nucleo/diagnosticos/p1306-certificate.json\n?? 00_nucleo/diagnosticos/p1306-contract-measure.py\n?? 00_nucleo/diagnosticos/p1306-contract-measurement.json\n?? 00_nucleo/diagnosticos/p1306-contract.json\n?? 00_nucleo/diagnosticos/p1306-discriminator.json\n?? 00_nucleo/diagnosticos/p1306-final-measurement.json\n?? 00_nucleo/diagnosticos/p1306-final-report.md\n?? 00_nucleo/diagnosticos/p1306-gates.json\n?? 00_nucleo/diagnosticos/p1306-green.json\n?? 00_nucleo/diagnosticos/p1306-lineage-reopening.json\n?? 00_nucleo/diagnosticos/p1306-manifest.json\n?? 00_nucleo/diagnosticos/p1306-matrix.json\n?? 00_nucleo/diagnosticos/p1306-mutant-ledger.json\n?? 00_nucleo/diagnosticos/p1306-oracle-cases.json\n?? 00_nucleo/diagnosticos/p1306-oracle-receipt.json\n?? 00_nucleo/diagnosticos/p1306-oracle.py\n?? 00_nucleo/diagnosticos/p1306-planning-measurement.json\n?? 00_nucleo/diagnosticos/p1306-preflight.json\n?? 00_nucleo/diagnosticos/p1306-red.json\n?? 00_nucleo/diagnosticos/p1306-run-command.py\n?? 00_nucleo/diagnosticos/p1306-seal.json\n?? 00_nucleo/diagnosticos/p1306-successor-seal.json\n?? 00_nucleo/diagnosticos/p1306-verification.json\n?? 00_nucleo/diagnosticos/p1306-verify.py\n?? 00_nucleo/diagnosticos/p1307-baseline.json\n?? 00_nucleo/diagnosticos/p1307-contract-measure.py\n?? 00_nucleo/diagnosticos/p1307-contract-measurement.json\n?? 00_nucleo/diagnosticos/p1307-contract.md\n?? 00_nucleo/diagnosticos/p1307-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-gates.json\n?? 00_nucleo/diagnosticos/p1307-manifest.json\n?? 00_nucleo/diagnosticos/p1307-mutant-plan.json\n?? 00_nucleo/diagnosticos/p1307-oracle-measurement.json\n?? 00_nucleo/diagnosticos/p1307-oracle-receipt.json\n?? 00_nucleo/diagnosticos/p1307-oracle.json\n?? 00_nucleo/diagnosticos/p1307-oracle.py\n?? 00_nucleo/diagnosticos/p1307-pre-gate-report.md\n?? 00_nucleo/diagnosticos/p1307-pre-gate-seal.json\n?? 00_nucleo/diagnosticos/p1307-pre-gate-verification.json\n?? 00_nucleo/diagnosticos/p1307-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r2-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r2-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-r2-gates.json\n?? 00_nucleo/diagnosticos/p1307-r2-measurement.json\n?? 00_nucleo/diagnosticos/p1307-r2-observability.md\n?? 00_nucleo/diagnosticos/p1307-r2-observe.py\n?? 00_nucleo/diagnosticos/p1307-r2-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r2-report.md\n?? 00_nucleo/diagnosticos/p1307-r2-repr-audit.md\n?? 00_nucleo/diagnosticos/p1307-r2-span-audit.md\n?? 00_nucleo/diagnosticos/p1307-r2-verification.json\n?? 00_nucleo/diagnosticos/p1307-r3-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r3-contract-note.md\n?? 00_nucleo/diagnosticos/p1307-r3-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-r3-gates.json\n?? 00_nucleo/diagnosticos/p1307-r3-lineage.json\n?? 00_nucleo/diagnosticos/p1307-r3-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r3-report.md\n?? 00_nucleo/diagnosticos/p1307-r3-review.md\n?? 00_nucleo/diagnosticos/p1307-r3-scope-amendment.json\n?? 00_nucleo/diagnosticos/p1307-r3-scope-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r4-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r4-call-span-refinement.json\n?? 00_nucleo/diagnosticos/p1307-r4-commands.json\n?? 00_nucleo/diagnosticos/p1307-r4-content-observability.json\n?? 00_nucleo/diagnosticos/p1307-r4-content-observability.py\n?? 00_nucleo/diagnosticos/p1307-r4-contract-refinement.json\n?? 00_nucleo/diagnosticos/p1307-r4-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-r4-final-report.md\n?? 00_nucleo/diagnosticos/p1307-r4-lineage.json\n?? 00_nucleo/diagnosticos/p1307-r4-math-measurement.json\n?? 00_nucleo/diagnosticos/p1307-r4-math-oracle.json\n?? 00_nucleo/diagnosticos/p1307-r4-math-oracle.py\n?? 00_nucleo/diagnosticos/p1307-r4-measurement.json\n?? 00_nucleo/diagnosticos/p1307-r4-oracle-note.md\n?? 00_nucleo/diagnosticos/p1307-r4-oracle.json\n?? 00_nucleo/diagnosticos/p1307-r4-oracle.py\n?? 00_nucleo/diagnosticos/p1307-r4-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r4-transport-amendment.json\n?? 00_nucleo/diagnosticos/p1307-r4-verification.json\n?? 00_nucleo/diagnosticos/p1307-r4-verify.py\n?? 00_nucleo/diagnosticos/p1307-r4-writers.md\n?? 00_nucleo/diagnosticos/p1307-r5-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r5-content-measure.py\n?? 00_nucleo/diagnosticos/p1307-r5-content-measurement.json\n?? 00_nucleo/diagnosticos/p1307-r5-content-note.md\n?? 00_nucleo/diagnosticos/p1307-r5-content-oracle.json\n?? 00_nucleo/diagnosticos/p1307-r5-contract-report.md\n?? 00_nucleo/diagnosticos/p1307-r5-l0-before.json\n?? 00_nucleo/diagnosticos/p1307-r5-l0-freeze-v2.json\n?? 00_nucleo/diagnosticos/p1307-r5-l0-freeze-v3.json\n?? 00_nucleo/diagnosticos/p1307-r5-l0-freeze-v4.json\n?? 00_nucleo/diagnosticos/p1307-r5-l0-freeze-v5.json\n?? 00_nucleo/diagnosticos/p1307-r5-l0-freeze.json\n?? 00_nucleo/diagnosticos/p1307-r5-record.py\n?? 00_nucleo/diagnosticos/p1307-r5-repr-measure.py\n?? 00_nucleo/diagnosticos/p1307-r5-repr-measurement.json\n?? 00_nucleo/diagnosticos/p1307-r5-repr-note.md\n?? 00_nucleo/diagnosticos/p1307-r5-repr-oracle.json\n?? 00_nucleo/diagnosticos/p1307-r5-transport-audit.md\n?? 00_nucleo/diagnosticos/p1307-verify.py\n?? 00_nucleo/materialization/typst-passo-1306.md\n?? 00_nucleo/materialization/typst-passo-1307.md\n?? 00_nucleo/prompts/_nuclei/introspection/\n",
+    "diff_stat": " 00_nucleo/prompts/compiler/eval.md                 |  44 +++-\n .../prompts/compiler/eval/bindings/field_access.md | 181 ++++++++++++-\n .../compiler/eval/bindings/method_dispatch.md      |  31 +++\n .../compiler/eval/bindings/value_methods.md        |  36 +++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   | 136 ++++++++++\n 00_nucleo/prompts/compiler/eval/closures.md        |  74 ++++++\n 00_nucleo/prompts/compiler/eval/math.md            |  52 ++++\n .../prompts/compiler/eval/operators/arithmetic.md  |  31 +++\n .../prompts/compiler/eval/operators/equality.md    |  46 ++++\n 00_nucleo/prompts/compiler/eval/operators/join.md  |  57 ++++\n 00_nucleo/prompts/compiler/eval/repr.md            | 130 ++++++++-\n 00_nucleo/prompts/compiler/eval/tests.md           | 167 +++++++++++-\n 00_nucleo/prompts/compiler/introspect.md           |  44 ++++\n 00_nucleo/prompts/compiler/introspect/from_tags.md |  36 +++\n 00_nucleo/prompts/compiler/introspect/heading.md   |  81 ++++++\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |  41 ++-\n 00_nucleo/prompts/compiler/stdlib/collections.md   |  61 +++++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  27 ++\n .../prompts/compiler/stdlib/foundations/float.md   |  27 ++\n .../prompts/compiler/stdlib/foundations/int.md     |  33 +++\n .../prompts/compiler/stdlib/foundations/query.md   |  32 +++\n 00_nucleo/prompts/compiler/stdlib/gradients.md     |  28 ++\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 163 ++++++++++++\n 00_nucleo/prompts/compiler/stdlib/numbering.md     |  27 ++\n 00_nucleo/prompts/entities/args.md                 | 290 ++++++++++-----------\n 00_nucleo/prompts/entities/func.md                 |  75 ++++--\n 00_nucleo/prompts/entities/introspector.md         |  40 +++\n 00_nucleo/prompts/entities/value.md                |  63 +++++\n 00_nucleo/prompts/infra/query-helpers.md           |  51 ++++\n 00_nucleo/prompts/shell/cli.md                     |  49 ++++\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 198 +++++++++++++-\n 32 files changed, 2164 insertions(+), 191 deletions(-)\n",
+    "staged": ""
+  },
+  "integrity": {
+    "baseline_pin": true,
+    "freeze_pins": true,
+    "changed_sources": [],
+    "changed_L0": [
+      "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "00_nucleo/prompts/compiler/eval/operators/equality.md",
+      "00_nucleo/prompts/compiler/eval/repr.md",
+      "00_nucleo/prompts/compiler/introspect.md",
+      "00_nucleo/prompts/compiler/introspect/from_tags.md",
+      "00_nucleo/prompts/compiler/introspect/heading.md",
+      "00_nucleo/prompts/compiler/stdlib/foundations/query.md",
+      "00_nucleo/prompts/compiler/stdlib/loading.md",
+      "00_nucleo/prompts/entities/introspector.md",
+      "00_nucleo/prompts/entities/value.md",
+      "00_nucleo/prompts/infra/query-helpers.md",
+      "00_nucleo/prompts/shell/cli.md"
+    ],
+    "predecessors_count": 122,
+    "changed_predecessors": []
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "at": "2026-09-07T18:43:37.332827+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "crystalline-lint",
+        "--checks",
+        "v15,v26",
+        "--fail-on",
+        "warning",
+        "."
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "at": "2026-09-07T18:43:37.365999+00:00",
+      "exit": 0,
+      "stdout": "✓ No violations found\n",
+      "stderr": ""
+    }
+  ],
+  "measurement_review": {
+    "method": "Read and reparse frozen raw observations using unmodified p1307-r4-oracle.py::envelope; no Typst binary execution and no 455-case calibration rerun.",
+    "content": {
+      "cases": 64,
+      "current_raw_observations": 158,
+      "reparse_mismatches": 0,
+      "source_hash_mismatches": 0,
+      "coverage": "Default-profile corpus; only five controls measured in all four feature profiles. No repeat/reverse gate."
+    },
+    "repr_cbor": {
+      "cases": 17,
+      "current_raw_observations": 72,
+      "reparse_mismatches": 0,
+      "source_hash_mismatches": 0,
+      "coverage": "Default-profile families plus Heading-default four-profile controls. CBOR future Text payload sourced from bilateral literal-string controls, not vanilla structured Content."
+    },
+    "unknown_policy": "Historical missing-marker nested-context observations remain Unknown. Current matched envelopes are documentary evidence, not candidate Preserved judgments.",
+    "reproduction": {
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "algorithm": "For each frozen measurement's focal/bounded/literal_controls section, index section.cases by id. For each row, recompute SHA256(document or expression), then envelope(row.returncode,row.stdout,row.stderr,case), requiring exact equality with row.observable. Historical focal_history is not promoted to current success.",
+      "runner_sha256": "ef102f3a800475855b0cb21f40db666312cdb2f96fd9c867ea625b13c22b8e68"
+    }
+  },
+  "findings": [
+    {
+      "id": "R5-C01",
+      "status": "RESOLVED_IN_REVIEWED_FREEZE",
+      "issue": "V3 nucleus unqualified no-reconstruction and label claims conflicted with explicitly preserved None-family CLI label fallback.",
+      "resolution": "V5 restricts prohibition and authoritative-label rule to a present snapshot; only explicitly contracted legacy fallbacks remain available for None. Some is never partial.",
+      "evidence": [
+        "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml:16",
+        "00_nucleo/prompts/infra/query-helpers.md:36"
+      ]
+    },
+    {
+      "id": "R5-C02",
+      "status": "RESOLVED_IN_REVIEWED_FREEZE",
+      "issue": "V3 heading helper returned a complete map but left numbering unspecified for an active internal gate without a pattern.",
+      "resolution": "V5 defines numbering None for missing/non-Str pattern while preserving the render gate. This is explicitly a synthetic legacy-data projection, not vanilla parity or reconstruction from formatted numbers.",
+      "evidence": [
+        "00_nucleo/prompts/compiler/introspect/heading.md:25",
+        "01_core/src/entities/content.rs:1500",
+        "01_core/src/compiler/layout/heading.rs:85"
+      ]
+    },
+    {
+      "id": "R5-C03",
+      "status": "EXPLICIT_SUCCESSOR_REQUIRED_AND_SPECIFIED",
+      "issue": "R4 r2.construct-LocatedContent requires the old baseline repr across four profiles, incompatible with realized repr.",
+      "resolution": "repr L0 explicitly supersedes only this snapshot obligation with its already measured vanilla literal; the independent R5 default.repr uses the same source SHA. R4 bytes remain unchanged. Future manifest must activate this mapping, not run old expected and claim universal preservation.",
+      "source_sha256": "78fd17fa61567bfd8107820e9daa9de588d9fcd08c993c24261fd2c6a3e304a9"
+    },
+    {
+      "id": "R5-C04",
+      "status": "CAUSAL_CONTRACT_REFINEMENT_SUPPORTED",
+      "issue": "Transport audit's blanket morph_canon-preservation recommendation was refuted by measured numbering 1 versus I equality.",
+      "resolution": "Equality L0 now compares present snapshot language fields recursively, ignoring label/location and insertion order; raw-to-raw legacy equality stays unchanged. This is a deliberate semantic amendment, not derive-based mechanical preservation."
+    }
+  ],
+  "substantive_assessment": [
+    {
+      "topic": "API and data sufficiency",
+      "assessment": "IntrospectedContent has private Content and optional Arc<IndexMap<EcoString,Value,FxBuildHasher>>, immutable accessors and explicit into_content. It can carry the complete ordered field data through Value without current-context lookup. IndexMap enforces unique keys; producer body/field coherence remains a stated obligation, not falsely claimed constructor validation."
+    },
+    {
+      "topic": "Causal first snapshot",
+      "assessment": "Heading map construction occurs at the existing pure walk while lexical chain and causal label are available, before the first context can query and terminate. No new runtime callback or pipeline phase is introduced. Actual first-context and repeated-snapshot behavior remains to be tested."
+    },
+    {
+      "topic": "Ownership and topology",
+      "assessment": "Thirteen modified owner prompts retain productive 1:1 ownership and pin one declarative shared nucleus. Independent V15/V26 check exits zero. The nucleus has no direct productive ownership. Header/hash materialization and final full lint are not complete."
+    },
+    {
+      "topic": "Single store and other Content families",
+      "assessment": "Existing elements store changes value type; element_at continues projecting Content for old trait consumers. Equation reconstruction updates the same entry with its existing realized Styled data and None snapshot. Other families and legacy CLI projections remain explicit, not silently deleted."
+    },
+    {
+      "topic": "Transport and lowering",
+      "assessment": "Query L1 and L3 clone the complete carrier with exact location, methods preserve it, L2 receives Values, and encoder reads complete Some. Existing render-only lowerings may explicitly discard a copy's snapshot, never mutate stored Values. Future edits in state/math/wiring or tests still require their own current owner audit."
+    },
+    {
+      "topic": "Scope versus producer debt",
+      "assessment": "R4 default queried Heading JSON/TOML/YAML obligations remain covered. The contract does not require new support for supplement callbacks/custom/none, numbering Func, ignored set-rule depth/offset/flags or constructor-none precedence. These existing losses are named debts; Some completeness describes modeled data, not parity for every named tolerated by the parser."
+    },
+    {
+      "topic": "Locale and synthetic state",
+      "assessment": "Default names originate from ratified locale tables in pure L1, not Section hardcoded in the encoder. Region remains explicit producer debt. Active-gate/no-pattern behavior is now fully specified and segregated from mandatory language-pattern witnesses."
+    },
+    {
+      "topic": "repr and CBOR",
+      "assessment": "Only realized Heading repr is changed; raw Content and None retain old paths. CBOR remains a textual fallback with deliberately changed realized repr bytes, not structured vanilla Content parity."
+    }
+  ],
+  "open_design_blockers": [],
+  "required_next_gates": [
+    "Human approval of concrete Value variant/carrier API, public elements store type, query_elements Vec<Value> return, CLI &[Value] parameters, and specified observable effects under ADR-0127.",
+    "Successor acceptance manifest with pinned inputs and explicit per-case required/debt selection. R5 Content oracle is measured input and has not yet selected future_expected for all cases.",
+    "Independent focal witnesses for escape/two equal bodies using only supported numbering/locale, plus helper domain tests for body coherence and active-gate/no-pattern. Mixed unsupported supplement/offset probes must not be relabeled as achieved parity.",
+    "Independent tests for first pure snapshot, static/instance/alias methods, CLI field/one paths, Equation preservation, and snapshot-versus-raw equality; complete candidate feature/order matrices when appropriate.",
+    "Before any implementation, verify current owners of nominal migration/lowerings/tests, then follow independent RED, sealed expectations, implementation, adversarial product mutations and final architectural checks. This review does none of those."
+  ],
+  "skill_stop_basis": {
+    "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+    "basis": "Do not merge contract/product/verdict authority; no Unknown success; stop at concrete public API approval governed by repository ADR-0127."
+  },
+  "summary": "The v5 documentary design addresses the demonstrated R4 input-data loss within its expressly modeled domain. Ready to present the concrete contract for human approval; not sealed or verified product behavior."
+}

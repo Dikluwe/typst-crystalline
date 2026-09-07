@@ -1,0 +1,14 @@
+{
+  "schema": "p1307-r3-documentary-transport-scope-successor-v1",
+  "supersedes_scope_only": "p1307-r3-preflight.json (preserved byte-identically)",
+  "basis": "The current user authorization permits drafting expanded Args/transport L0. Read-only review discovered four additional transport writers. This successor declares those documentary owners before their edits; it adds no productive implementation authority or independent language feature.",
+  "original_baseline_sha256": "b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293",
+  "additional_L0_root": "00_nucleo/prompts",
+  "additional_L0_write_allowlist": ["compiler/stdlib/gradients.md", "compiler/stdlib/foundations/float.md", "compiler/eval/bindings/method_dispatch.md", "compiler/eval/bindings/field_access.md"],
+  "author": "/root",
+  "reviewer": "/root/p1307_oracle (read-only L0, writes only existing review output)",
+  "additional_outputs_exact": ["p1307-r3-scope-amendment.json", "p1307-r3-scope-baseline.json"],
+  "freeze_before_edit": "Full original texts and hashes of these four L0 in p1307-r3-scope-baseline.json, plus state and timestamp. Final lineage must cover original fourteen plus these four.",
+  "source_findings": ["gradients.rs:97 prepend receiver", "foundations/float.rs:120,124 prepend receiver", "bindings/method_dispatch.rs:46,336,388 consume arguments", "bindings/field_access.rs:767 consume default"],
+  "constraints": "All original role segregation and prohibitions remain: no Rust/header/RED/Cargo/stage/commit/push/deletion, no predecessor evidence edits. P1306 productive source and evidence stay immutable; its field_access L0 receives only a successor migration section after the captured baseline. The public contract still requires human approval before implementation."
+}

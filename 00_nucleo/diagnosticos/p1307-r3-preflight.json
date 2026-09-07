@@ -1,0 +1,18 @@
+{
+  "schema": "p1307-r3-authorized-L0-drafting-v1",
+  "authorization": "User autorizo authorizes expanding scope to WRITE Args/transport L0 before implementation gate. No public contract or productive implementation approval has yet been given.",
+  "regime": "executado sem atestacao de isolamento tecnico; segregated contract drafting and read-only evidence review",
+  "baseline": "Frozen R2 source state plus unchanged P1306 and P1307 documentary predecessors. Snapshot each allowed L0 before editing; preserve Rust byte-identically.",
+  "L0_write_allowlist": ["entities/args.md", "entities/func.md", "compiler/eval/call_dispatch.md", "compiler/eval/closures.md", "compiler/stdlib/collections.md", "compiler/eval/operators/join.md", "compiler/eval/repr.md", "compiler/stdlib/loading.md", "compiler/stdlib/_comum.md", "compiler/eval.md", "compiler/eval/tests.md", "compiler/eval/math.md", "compiler/stdlib/numbering.md", "compiler/stdlib/foundations/int.md"],
+  "L0_root": "00_nucleo/prompts",
+  "roles": {
+    "contract_author": {"executor": "/root/p1307_contract", "writes": ["entities/args.md", "entities/func.md", "compiler/eval/call_dispatch.md", "compiler/eval/closures.md", "compiler/stdlib/collections.md", "compiler/eval/operators/join.md", "p1307-r3-contract-note.md"], "restriction": "No Rust, oracle or review edits. Concrete public API and coherence obligations first; no implementation approval claim."},
+    "coordinator_author": {"executor": "/root", "writes": ["remaining eight L0 owners", "p1307-r3-preflight.json", "p1307-r3-baseline.json", "p1307-r3-lineage.json", "p1307-r3-gates.json", "p1307-r3-report.md"], "restriction": "No Rust/header/RED or frozen predecessor edits. Integrate independent contract interfaces; no self-certification of implementation."},
+    "reviewer": {"executor": "/root/p1307_oracle", "writes": ["p1307-r3-review.md"], "restriction": "Read-only L0 and source/evidence review, not author repair, no implementation certificate."}
+  },
+  "outputs_exact": ["p1307-r3-preflight.json", "p1307-r3-coordinator.py", "p1307-r3-baseline.json", "p1307-r3-contract-note.md", "p1307-r3-review.md", "p1307-r3-lineage.json", "p1307-r3-gates.json", "p1307-r3-report.md"],
+  "forbidden": ["Rust changes including headers", "RED tests", "Cargo changes", "stage", "commit", "push", "deletion", "rewriting P1306/P1307/R2 evidence"],
+  "lineage": "Record actual L0 SHA256 and expected headers only. Read-only V5 drift is explicit pending materialization. Do not run workspace fix-hashes while code headers are prohibited. Structural V15/V26 must stay green.",
+  "stop": "Publish concrete L0 and human gate request; no RED/code before explicit approval of the resulting public contract. Unknown in unmeasured acceptance cases remains a future test obligation, not PASS. No ready implementation certificate.",
+  "budget": "Reuse pinned measurements; bounded targeted source audit and documentary review. No full P1307 or 627-probe rerun for L0-only changes."
+}

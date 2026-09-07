@@ -1,0 +1,147 @@
+{
+  "schema": "p1308-r2-independent-final-verification-v1",
+  "at": "2026-09-07T21:56:06.076568+00:00",
+  "executor": "/root/p1306_oracle",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "verdict": "PASS_BOUNDED_P1308_R2_ESSAY_READY_FOR_AUTHORIZED_COMMIT",
+  "checker": {
+    "path": "00_nucleo/diagnosticos/p1308-verification-r2-check.py",
+    "sha256": "e19cff3720210dd9b90def05822b1d129a239223c1089b27b7cbdaca8acc196c"
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1308-manifest-successor-2.json",
+    "sha256": "e93ca4ece40955aa34c86803613c8b024e71fc55dfb4fdf479e74801249100ec"
+  },
+  "freeze": {
+    "path": "00_nucleo/diagnosticos/p1308-verification-candidate-freeze-r2.json",
+    "sha256": "49c38b596a041cfe20e3105392c322a6372b4c3862db79568f6ae62bd681711b"
+  },
+  "gates": {
+    "public-matrix": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-r2-public-matrix.json",
+        "sha256": "89db8675ebe23d3cd8a9ddba4347445a8354f018378b70209d8ff45e0e901882"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:40:47.580582+00:00",
+      "end": "2026-09-07T21:41:32.525581+00:00",
+      "counts": {
+        "Preserved": 1982,
+        "Violated": 0,
+        "Unknown": 0
+      },
+      "binary_sha256": "09725fff8b4c472ee6b50a9ca6105d90268b2a0da8a22f1d8abd0f45e20c4c50"
+    },
+    "public-reverse": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-r2-public-reverse.json",
+        "sha256": "5a15e9b089257eff26222b04d4f9361262048e4c6527fc6abc4829e99aaaeb19"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:45:24.667538+00:00",
+      "end": "2026-09-07T21:46:08.651497+00:00",
+      "counts": {
+        "Preserved": 1982,
+        "Violated": 0,
+        "Unknown": 0
+      },
+      "binary_sha256": "09725fff8b4c472ee6b50a9ca6105d90268b2a0da8a22f1d8abd0f45e20c4c50"
+    },
+    "public-focal": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-r2-public-focal.json",
+        "sha256": "6fd7a6b6fc80396034c006754146a49d730a600c777232708efacd19a2eb4d9b"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:39:39.049675+00:00",
+      "end": "2026-09-07T21:39:43.271052+00:00",
+      "counts": {
+        "Preserved": 128,
+        "Violated": 0,
+        "Unknown": 0
+      },
+      "binary_sha256": "09725fff8b4c472ee6b50a9ca6105d90268b2a0da8a22f1d8abd0f45e20c4c50"
+    },
+    "focal-p1293": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-r2-focal-p1293.json",
+        "sha256": "c49d3c6aa4e15b012461237ded18783f04dcee1d018bc0efc32e602bd5af1b69"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:39:12.584682+00:00",
+      "end": "2026-09-07T21:39:19.446063+00:00"
+    },
+    "workspace-tests": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-r2-workspace-tests.json",
+        "sha256": "207dbd534febcdf207c914a5bd208e20416c9d9e1b5f35e7c561bb2fbb533c42"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:40:42.733401+00:00",
+      "end": "2026-09-07T21:43:09.859682+00:00"
+    },
+    "build": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-r2-build.json",
+        "sha256": "64a85701ad5dc76260336788a11853f4ccebfc868cef88383c3dde13b477e041"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:44:59.362456+00:00",
+      "end": "2026-09-07T21:44:59.542841+00:00"
+    },
+    "lint": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-r2-lint.json",
+        "sha256": "fef8a930422f78b3e8ec726bcae5f2c76de3064f2158b1750fe7bae933ee4cfb"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:39:40.303994+00:00",
+      "end": "2026-09-07T21:39:43.679753+00:00"
+    },
+    "fmt": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-r2-fmt.json",
+        "sha256": "c25bbfc184e2789d95f282fe072f646ca5325e0b27df9ef40d7415a5e27981b4"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:40:48.829514+00:00",
+      "end": "2026-09-07T21:40:51.142076+00:00"
+    }
+  },
+  "workspace": {
+    "passed": 6620,
+    "failed": 0,
+    "ignored": 3
+  },
+  "public_normal_reverse": {
+    "Preserved": 1982,
+    "Violated": 0,
+    "Unknown": 0,
+    "exact_maps_equal": true
+  },
+  "integrity": {
+    "source_files": 995,
+    "source_matches_freeze": true,
+    "semantic_L0_pins_valid": true,
+    "predecessors_unchanged": true,
+    "HEAD_and_index_unchanged_before_commit": true,
+    "test_integration": "Original independent three migrations plus 18 new tests and authorized six stderr literals; canonical application and rustfmt-normalized equality verified."
+  },
+  "actual_mutations": {
+    "valid": 6,
+    "killed": 6,
+    "Unknown": 0,
+    "score": 1,
+    "ledger": "p1308-mutation-ledger.json"
+  },
+  "decision": "The authorized trace-only successor resolves the prior preservation conflict without modifying old oracles or making the classifier tolerant. Fresh global workspace and both full public orders pass.",
+  "source_review": "Productive changes remain exactly the previously audited P1308 seven owners; R2 changes only two test owners and lineage metadata. Private Source overlay delegates current World services, native panic selection uses closed function identity, and trace containment is preserved.",
+  "limitations": [
+    "Executed without technical isolation attestation; earlier manifest creation followed coordinator interpretation of the successful pre-candidate checkpoint message as GO. No retroactive full seal.",
+    "Six source mutants were executed after candidate GREEN, not used to claim a preimplementation full discriminatory seal.",
+    "The 37 P1307 historical mutation families were not executed or discharged. No general P1307 certificate or equivalence claim.",
+    "Lint exits zero with existing warning/info output; no claim of zero informational findings.",
+    "Prior blocked/Violated records and the suspended first lease remain immutable. No new product process was run by this offline aggregate checker."
+  ],
+  "commit_authority": "User explicitly authorized commit; coordinator owns stage/commit after this bounded verification. No stage or commit performed by verifier."
+}

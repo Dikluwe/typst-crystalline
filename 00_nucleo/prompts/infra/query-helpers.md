@@ -1,5 +1,56 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: b6e32f90
+Hash do Código: 913886fe
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`03_infra/src/query_helpers.rs:459,511–523` retorna Vec<Content>, lê
+somente element_at e reconstrói label pelo registry; esse caminho perderia
+o snapshot mesmo se a query L1 fosse corrigida. L2 em `cli.rs:758`
+preenche defaults de Heading em lugar dos campos públicos realizados.
+
+### Decisão pública proprietária
+
+Substituir apenas Vec<Content> por Vec<Value> na assinatura existente:
+
+```rust
+pub fn query_elements(
+    world: &dyn World,
+    source: &Source,
+    selector: &str,
+) -> (Result<Vec<Value>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>);
+```
+
+Clonar as entradas completas de intr.elements e construir LocatedContent
+com sua Location exata. Para Heading Some usar a label já capturada; não
+reconstruí-la pelo selector ou registry. Para famílias com None manter a
+projeção legada contratada, inclusive o wrapper Content::Label existente:
+se necessário criar nova entrada None com essa árvore rotulada, sem alterar
+a entrada original. Nunca converter Some em None para usar esse fallback.
+
+Parsing, ordem, cardinalidade, warnings e escolha atual de árvore pré-show/
+realizada não mudam; QuerySummary e query_to_summary mantêm suas assinaturas.
+Figure, Equation, Metadata e demais kinds locatáveis não voltam à restrição
+headings-only. Nenhum JSON/YAML, repr ou realização de campos entra em L3.
+Wiring recebe o vetor inferido e encaminha a L2, sem nova lógica.
+
+Aceitação: mesma query pela linguagem e CLI preserva os fields do recorte,
+label ausente/presente; --field/--one serão selecionados por L2, não aqui.
+Esta mudança concreta da assinatura pública aguarda aprovação ADR-0127.
+
+---
+
 
 **Camada**: L3.
 **Fase**: P206C / Vanilla integration.

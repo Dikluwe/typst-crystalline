@@ -1,0 +1,60 @@
+{
+  "schema": "p1307-r4-preimplementation-lineage-v1",
+  "at": "2026-09-07T17:56:03.386838+00:00",
+  "baseline_sha256": "52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57",
+  "head": "b303f1f15b610e09872b567027e0d806387fde8c",
+  "status": " M 00_nucleo/prompts/compiler/eval.md\n M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/bindings/method_dispatch.md\n M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/eval/closures.md\n M 00_nucleo/prompts/compiler/eval/math.md\n M 00_nucleo/prompts/compiler/eval/operators/arithmetic.md\n M 00_nucleo/prompts/compiler/eval/operators/join.md\n M 00_nucleo/prompts/compiler/eval/repr.md\n M 00_nucleo/prompts/compiler/eval/tests.md\n M 00_nucleo/prompts/compiler/stdlib/_comum.md\n M 00_nucleo/prompts/compiler/stdlib/collections.md\n M 00_nucleo/prompts/compiler/stdlib/counter.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/float.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/int.md\n M 00_nucleo/prompts/compiler/stdlib/gradients.md\n M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 00_nucleo/prompts/compiler/stdlib/numbering.md\n M 00_nucleo/prompts/entities/args.md\n M 00_nucleo/prompts/entities/func.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/eval/tests.rs\n?? 00_nucleo/diagnosticos/p1305-commit-notes.md\n?? 00_nucleo/diagnosticos/p1306-attacks.json\n?? 00_nucleo/diagnosticos/p1306-baseline-measurement.json\n?? 00_nucleo/diagnosticos/p1306-build.json\n?? 00_nucleo/diagnosticos/p1306-certificate.json\n?? 00_nucleo/diagnosticos/p1306-contract-measure.py\n?? 00_nucleo/diagnosticos/p1306-contract-measurement.json\n?? 00_nucleo/diagnosticos/p1306-contract.json\n?? 00_nucleo/diagnosticos/p1306-discriminator.json\n?? 00_nucleo/diagnosticos/p1306-final-measurement.json\n?? 00_nucleo/diagnosticos/p1306-final-report.md\n?? 00_nucleo/diagnosticos/p1306-gates.json\n?? 00_nucleo/diagnosticos/p1306-green.json\n?? 00_nucleo/diagnosticos/p1306-lineage-reopening.json\n?? 00_nucleo/diagnosticos/p1306-manifest.json\n?? 00_nucleo/diagnosticos/p1306-matrix.json\n?? 00_nucleo/diagnosticos/p1306-mutant-ledger.json\n?? 00_nucleo/diagnosticos/p1306-oracle-cases.json\n?? 00_nucleo/diagnosticos/p1306-oracle-receipt.json\n?? 00_nucleo/diagnosticos/p1306-oracle.py\n?? 00_nucleo/diagnosticos/p1306-planning-measurement.json\n?? 00_nucleo/diagnosticos/p1306-preflight.json\n?? 00_nucleo/diagnosticos/p1306-red.json\n?? 00_nucleo/diagnosticos/p1306-run-command.py\n?? 00_nucleo/diagnosticos/p1306-seal.json\n?? 00_nucleo/diagnosticos/p1306-successor-seal.json\n?? 00_nucleo/diagnosticos/p1306-verification.json\n?? 00_nucleo/diagnosticos/p1306-verify.py\n?? 00_nucleo/diagnosticos/p1307-baseline.json\n?? 00_nucleo/diagnosticos/p1307-contract-measure.py\n?? 00_nucleo/diagnosticos/p1307-contract-measurement.json\n?? 00_nucleo/diagnosticos/p1307-contract.md\n?? 00_nucleo/diagnosticos/p1307-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-gates.json\n?? 00_nucleo/diagnosticos/p1307-manifest.json\n?? 00_nucleo/diagnosticos/p1307-mutant-plan.json\n?? 00_nucleo/diagnosticos/p1307-oracle-measurement.json\n?? 00_nucleo/diagnosticos/p1307-oracle-receipt.json\n?? 00_nucleo/diagnosticos/p1307-oracle.json\n?? 00_nucleo/diagnosticos/p1307-oracle.py\n?? 00_nucleo/diagnosticos/p1307-pre-gate-report.md\n?? 00_nucleo/diagnosticos/p1307-pre-gate-seal.json\n?? 00_nucleo/diagnosticos/p1307-pre-gate-verification.json\n?? 00_nucleo/diagnosticos/p1307-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r2-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r2-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-r2-gates.json\n?? 00_nucleo/diagnosticos/p1307-r2-measurement.json\n?? 00_nucleo/diagnosticos/p1307-r2-observability.md\n?? 00_nucleo/diagnosticos/p1307-r2-observe.py\n?? 00_nucleo/diagnosticos/p1307-r2-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r2-report.md\n?? 00_nucleo/diagnosticos/p1307-r2-repr-audit.md\n?? 00_nucleo/diagnosticos/p1307-r2-span-audit.md\n?? 00_nucleo/diagnosticos/p1307-r2-verification.json\n?? 00_nucleo/diagnosticos/p1307-r3-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r3-contract-note.md\n?? 00_nucleo/diagnosticos/p1307-r3-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-r3-gates.json\n?? 00_nucleo/diagnosticos/p1307-r3-lineage.json\n?? 00_nucleo/diagnosticos/p1307-r3-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r3-report.md\n?? 00_nucleo/diagnosticos/p1307-r3-review.md\n?? 00_nucleo/diagnosticos/p1307-r3-scope-amendment.json\n?? 00_nucleo/diagnosticos/p1307-r3-scope-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r4-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r4-call-span-refinement.json\n?? 00_nucleo/diagnosticos/p1307-r4-commands.json\n?? 00_nucleo/diagnosticos/p1307-r4-contract-refinement.json\n?? 00_nucleo/diagnosticos/p1307-r4-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-r4-math-measurement.json\n?? 00_nucleo/diagnosticos/p1307-r4-math-oracle.json\n?? 00_nucleo/diagnosticos/p1307-r4-math-oracle.py\n?? 00_nucleo/diagnosticos/p1307-r4-measurement.json\n?? 00_nucleo/diagnosticos/p1307-r4-oracle-note.md\n?? 00_nucleo/diagnosticos/p1307-r4-oracle.json\n?? 00_nucleo/diagnosticos/p1307-r4-oracle.py\n?? 00_nucleo/diagnosticos/p1307-r4-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r4-transport-amendment.json\n?? 00_nucleo/diagnosticos/p1307-r4-verify.py\n?? 00_nucleo/diagnosticos/p1307-r4-writers.md\n?? 00_nucleo/diagnosticos/p1307-verify.py\n?? 00_nucleo/materialization/typst-passo-1306.md\n?? 00_nucleo/materialization/typst-passo-1307.md\n",
+  "diff_stat": " 00_nucleo/prompts/compiler/eval.md                 |  44 +++-\n .../prompts/compiler/eval/bindings/field_access.md | 136 +++++++++-\n .../compiler/eval/bindings/method_dispatch.md      |  31 +++\n .../compiler/eval/bindings/value_methods.md        |  36 +++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   | 106 ++++++++\n 00_nucleo/prompts/compiler/eval/closures.md        |  74 ++++++\n 00_nucleo/prompts/compiler/eval/math.md            |  52 ++++\n .../prompts/compiler/eval/operators/arithmetic.md  |  31 +++\n 00_nucleo/prompts/compiler/eval/operators/join.md  |  57 ++++\n 00_nucleo/prompts/compiler/eval/repr.md            |  68 ++++-\n 00_nucleo/prompts/compiler/eval/tests.md           | 167 +++++++++++-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |  41 ++-\n 00_nucleo/prompts/compiler/stdlib/collections.md   |  61 +++++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  27 ++\n .../prompts/compiler/stdlib/foundations/float.md   |  27 ++\n .../prompts/compiler/stdlib/foundations/int.md     |  33 +++\n 00_nucleo/prompts/compiler/stdlib/gradients.md     |  28 ++\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 111 ++++++++\n 00_nucleo/prompts/compiler/stdlib/numbering.md     |  27 ++\n 00_nucleo/prompts/entities/args.md                 | 290 ++++++++++-----------\n 00_nucleo/prompts/entities/func.md                 |  75 ++++--\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 198 +++++++++++++-\n 23 files changed, 1533 insertions(+), 191 deletions(-)\n",
+  "changed_since_R4_baseline": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "before_sha256": "645dcc4e7c16d48b1b36b9a0d12dc385f13d6a6f940fb5fab8e8381e24d20dda",
+      "after_sha256": "afb60aca715fb35895945564b69c45d6b9b04f1101a06e516d6f10e2491b5473"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/bindings/value_methods.md",
+      "before_sha256": "85d31916ee6091f9853e2605760c3ecc41d4be5c5a702f1fa7e4b3bacc1b6091",
+      "after_sha256": "f3f9b528eeafe31a794f118019bac353dc564c9a00207c3326607b289e6b5309"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "before_sha256": "6f1e02969301600a8b78782133736f956f63c3f91e5273867c116bf17d730588",
+      "after_sha256": "ad27d4496453f6502649d35c170a411848240168dc927097b90fd5dbafe7fae6"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/closures.md",
+      "before_sha256": "dbf7bccc186ad25035db5b7ee1d581d001d805dfc42dc1b5f8944fc1264a9309",
+      "after_sha256": "d500dda5df9d4c46d9b75fca9eee35e70980ece16a8f8fdddb6a18145eaf73a7"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/math.md",
+      "before_sha256": "409c81da6419b359e46dd970811100367edfdadcc7e59a2cd14799d1ef12335c",
+      "after_sha256": "550239e0459172479346aa0a80e407651c1b6010bc8ce8d011a91c0ee2911e8f"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/operators/arithmetic.md",
+      "before_sha256": "506062528aa221a30d647ca3344ad1905bc861fd4ce865590afb806601a8fb89",
+      "after_sha256": "88e6f61a6197e06f828c0d5e3ed8a3d6f7e28c269c8b1c7a0781ef9fc24d4400"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/operators/join.md",
+      "before_sha256": "155d40ba7397b5ae28a23456f57509b4f5f0ae822d56c3e28901637d6521cf66",
+      "after_sha256": "0b56dc754c8573a2647824a609c14aaae37af216cd8b04eb6c74dfa69ab114c6"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "before_sha256": "606e41df1d5e55ad9fa51662695ed9faf937b35d1dea443067488e3c14dfc3b6",
+      "after_sha256": "5a6e958b243ea5b5f16b68ecae024d55b70ccbc752a75b0dcfeee5993d994c72"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+      "before_sha256": "a4802f75d7437152b3f738c90552db359e7a27efb71187636821eed8d407d27f",
+      "after_sha256": "a95f069f433f78c7f7bd0d9ae60b7a51f3fab1c26aba872b3ebb4c3fe44f42b8"
+    }
+  ],
+  "productive_and_test_sources_unchanged": true,
+  "protected_predecessors_unchanged": true,
+  "changed_predecessors": [],
+  "no_semantic_RED_or_candidate": true,
+  "scope": "Preimplementation checkpoint, not a closure certificate"
+}

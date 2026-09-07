@@ -1,0 +1,23 @@
+{
+  "mode": "control",
+  "family": "P1308-M05",
+  "candidate_root": "/dev/shm/p1308-mutant-source.PmokqQ",
+  "target_dir": "/dev/shm/p1308-mutant-target.NV7BUV",
+  "freeze": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-verification-candidate-freeze-r2.json",
+    "sha256": "49c38b596a041cfe20e3105392c322a6372b4c3862db79568f6ae62bd681711b"
+  },
+  "lease": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-lease-r2.json",
+    "sha256": "9da35cc1cce83126de4a7d9ceac9da39ef2e53af2cc38bf973f8480a85b909c2"
+  },
+  "route": "cli",
+  "public_cases": [
+    "r2.with-spread-arguments-f",
+    "r2.with-spread-arguments-g",
+    "r4.origin.filter.f",
+    "r4.origin.map.g",
+    "r4.error.map-detached-value-span",
+    "panic.direct"
+  ]
+}

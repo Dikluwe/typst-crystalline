@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/collections.md
-//! @prompt-hash 548d14e4
+//! @prompt-hash 68bd9635
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -16,6 +16,7 @@ use unicode_normalization::UnicodeNormalization;
 use unicode_segmentation::UnicodeSegmentation;
 
 use crate::compiler::eval::call_dispatch::apply_func;
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::scopes::Scopes;
 use crate::compiler::stdlib::{
@@ -524,7 +525,7 @@ fn static_collection_call(
             "the argument `self` is positional".to_string(),
         )]);
     }
-    let Some((target, rest)) = args.items.split_first() else {
+    let Some(target) = args.items.first() else {
         return Err(vec![SourceDiagnostic::error(args.span, "missing argument: self")]);
     };
     if target.type_of() != expected {
@@ -542,11 +543,8 @@ fn static_collection_call(
             ),
         )]);
     }
-    let delegated = Args {
-        items: rest.to_vec(),
-        named: args.named.clone(),
-        span: args.span,
-    };
+    let mut delegated = args.clone();
+    delegated.remove_positional(0);
     try_dispatch_collection_method(
         target.clone(),
         method,
@@ -2350,7 +2348,11 @@ fn dict_filter(
 
 fn arguments_len(arguments: Args, args: Args) -> SourceResult<Value> {
     ensure_no_args(&args)?;
-    Ok(Value::Int((arguments.items.len() + arguments.named.len()) as i64))
+    let len = arguments
+        .occurrences
+        .as_ref()
+        .map_or_else(|| arguments.items.len() + arguments.named.len(), Vec::len);
+    Ok(Value::Int(len as i64))
 }
 
 fn arguments_pos(arguments: Args, args: Args) -> SourceResult<Value> {
@@ -2407,49 +2409,27 @@ fn arguments_filter(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let test = expect_one_func(args, "arguments.filter()")?;
-    let mut items = Vec::new();
-    let mut named = IndexMap::with_hasher(FxBuildHasher);
-    for value in arguments.items {
+    let mut occurrences = Vec::new();
+    for occurrence in arguments.occurrence_sequence() {
         let keep = apply_func(
             test.clone(),
-            Args::positional(vec![value.clone()]),
+            Args::positional(vec![occurrence.value.clone()]),
             scopes,
             ctx,
             engine,
         )?;
         match keep {
-            Value::Bool(true) => items.push(value),
+            Value::Bool(true) => occurrences.push(occurrence),
             Value::Bool(false) => {}
             other => {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("expected boolean, found {}", other.type_name()),
+                    test.diagnostic_span(),
+                    format!("expected boolean, found {}", vanilla_type_name(&other)),
                 )])
             }
         }
     }
-    for (name, value) in arguments.named {
-        let keep = apply_func(
-            test.clone(),
-            Args::positional(vec![value.clone()]),
-            scopes,
-            ctx,
-            engine,
-        )?;
-        match keep {
-            Value::Bool(true) => {
-                named.insert(name, value);
-            }
-            Value::Bool(false) => {}
-            other => {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("expected boolean, found {}", other.type_name()),
-                )])
-            }
-        }
-    }
-    Ok(Value::Args(Args { items, named, span: arguments.span }))
+    Ok(Value::Args(Args::from_occurrences(Span::detached(), occurrences)))
 }
 
 fn arguments_map(
@@ -2460,31 +2440,18 @@ fn arguments_map(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let mapper = expect_one_func(args, "arguments.map()")?;
-    let mut items = Vec::with_capacity(arguments.items.len());
-    for value in arguments.items {
-        items.push(apply_func(
+    let mut occurrences = arguments.occurrence_sequence();
+    for occurrence in &mut occurrences {
+        occurrence.value = apply_func(
             mapper.clone(),
-            Args::positional(vec![value]),
+            Args::positional(vec![occurrence.value.clone()]),
             scopes,
             ctx,
             engine,
-        )?);
+        )?;
+        occurrence.value_span = Span::detached();
     }
-    let mut named =
-        IndexMap::with_capacity_and_hasher(arguments.named.len(), FxBuildHasher);
-    for (name, value) in arguments.named {
-        named.insert(
-            name,
-            apply_func(
-                mapper.clone(),
-                Args::positional(vec![value]),
-                scopes,
-                ctx,
-                engine,
-            )?,
-        );
-    }
-    Ok(Value::Args(Args { items, named, span: arguments.span }))
+    Ok(Value::Args(Args::from_occurrences(Span::detached(), occurrences)))
 }
 
 fn expect_str_value(args: Args, context: &str) -> SourceResult<(EcoString, Value)> {
@@ -2679,11 +2646,7 @@ mod tests {
     use super::*;
 
     fn make_args(items: Vec<Value>, named: Option<(&str, Value)>) -> Args {
-        let mut args = Args {
-            items,
-            named: IndexMap::default(),
-            span: Span::detached(),
-        };
+        let mut args = Args::positional(items);
         if let Some((k, v)) = named {
             args.named.insert(k.into(), v);
         }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash d9ff5309
+//! @prompt-hash 14f917a5
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -32,7 +32,22 @@ pub fn repr_value(v: &Value) -> String {
         Value::Int(i) => i.to_string(),
         Value::Float(f) => repr_float(*f),
         Value::Str(s) => format!("\"{}\"", s.as_str().escape_debug()),
-        Value::Content(c) | Value::LocatedContent(c, _) => repr_content(c),
+        Value::Content(c) => repr_content(c),
+        Value::LocatedContent(c, _) => match c.fields() {
+            Some(fields) => {
+                let pieces: Vec<String> = fields
+                    .iter()
+                    .filter(|(name, _)| name.as_str() != "label")
+                    .map(|(name, value)| format!("{name}: {}", repr_value(value)))
+                    .collect();
+                format!(
+                    "{}{}",
+                    c.content().elem_name(),
+                    pretty_array_like(&pieces, false)
+                )
+            }
+            None => repr_content(c.content()),
+        },
         Value::Array(arr) => {
             let mut items: Vec<String> = arr.iter().take(40).map(repr_value).collect();
             if arr.len() > 40 {
@@ -84,7 +99,7 @@ pub fn repr_value(v: &Value) -> String {
         Value::Stroke(s) => repr_stroke(s),
         Value::Fraction(f) => format_float_with_unit(*f, "fr"),
         Value::Align(a) => repr_align(a),
-        Value::Location(_) => "location(...)".to_string(),
+        Value::Location(_) => "location(..)".to_string(),
         Value::Gradient(gradient) => repr_gradient(gradient),
         Value::Regex(r) => format!("regex(\"{}\")", r.pattern()),
         Value::Tiling(tiling) => repr_tiling(tiling),
@@ -106,6 +121,18 @@ pub fn repr_value(v: &Value) -> String {
         Value::Selector(s) => repr_selector(s),
         Value::Symbol(s) => format!("symbol({})", s.repr_variants()),
         Value::Args(a) => {
+            if let Some(occurrences) = &a.occurrences {
+                let pieces: Vec<String> = occurrences
+                    .iter()
+                    .map(|occurrence| match &occurrence.name {
+                        Some(name) => {
+                            format!("{name}: {}", repr_value(&occurrence.value))
+                        }
+                        None => repr_value(&occurrence.value),
+                    })
+                    .collect();
+                return format!("arguments{}", pretty_array_like(&pieces, false));
+            }
             // **P740B** — paridade vanilla `Args::repr`
             // (foundations/args.rs:457-461): lista os NOMEADOS primeiro
             // (ordem de inserção), depois os posicionais. Medido:
@@ -119,8 +146,20 @@ pub fn repr_value(v: &Value) -> String {
             pieces.extend(a.items.iter().map(repr_value));
             format!("arguments({})", pieces.join(", "))
         }
-        Value::State(_) => "state(...)".to_string(),
-        Value::Counter(_) => "counter(...)".to_string(),
+        Value::State(state) => format!(
+            "state({}, {})",
+            repr_value(&Value::Str(state.key.clone())),
+            repr_value(&state.init),
+        ),
+        Value::Counter(counter) => {
+            use crate::entities::counter::CounterKey;
+            let key = match &counter.key {
+                CounterKey::Page => "page".to_string(),
+                CounterKey::Str(key) => repr_value(&Value::Str(key.clone())),
+                CounterKey::Selector(selector) => repr_selector(selector),
+            };
+            format!("counter({key})")
+        }
         Value::Label(l) => {
             if crate::compiler::lexer::is_valid_label_literal_id(&l.0) {
                 format!("<{}>", l.0)
@@ -1026,12 +1065,10 @@ pub fn repr_selector(sel: &Selector) -> String {
     }
 }
 
-/// **P744** — verifica se uma `Func` é uma closure (incluindo aplicação
-/// parcial `With` cujo interior é closure). Usado pelo repr.
+/// Closures e qualquer aplicação parcial são anônimas na representação pública.
 fn is_closure(f: &Func) -> bool {
     match f.repr() {
-        FuncRepr::Closure(_) => true,
-        FuncRepr::With(w) => is_closure(&w.0),
+        FuncRepr::Closure(_) | FuncRepr::With(_) => true,
         _ => false,
     }
 }
@@ -1260,7 +1297,7 @@ mod tests {
         let r = repr_value(&Value::Color(Color::rgb(255, 0, 0)));
         assert_eq!(r, "rgb(\"#ff0000\")", "Color repr: {r}");
         assert_eq!(repr_value(&Value::Fraction(0.5)), "0.5fr");
-        assert_eq!(repr_value(&Value::Location(Location::from_raw(42))), "location(...)");
+        assert_eq!(repr_value(&Value::Location(Location::from_raw(42))), "location(..)");
         assert_eq!(
             repr_value(&Value::Gradient(Gradient::Linear(std::sync::Arc::new(
                 crate::entities::gradient::Linear {

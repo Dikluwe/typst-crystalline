@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings` — hub de bindings, acesso e métodos
-Hash do Código: 25075799
+Hash do Código: 01d35778
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/mod.rs`
@@ -77,6 +77,24 @@ Então iguala o corpo do ficheiro anterior (corte e cola, sem reescrita)
 ```
 
 ## Resultado Esperado
+
+### P1307-R6 — re-exportação interna do método de snapshot aprovado
+
+Medição anterior à decisão: no baseline R6
+`00_nucleo/diagnosticos/p1307-r6-baseline.json`, SHA-256
+`8cc0eae00457d2e7d54b420024eae49344032b34b295b4eda536faeb1ec3c4a3`,
+`01_core/src/compiler/eval/bindings/mod.rs:27` já reexporta os helpers
+crate-internos de Content. O owner
+`00_nucleo/prompts/compiler/eval/bindings/field_access.md` R5 aprovado pelo
+dono acrescenta helper interno que aceita IntrospectedContent sem descartar
+o snapshot; call_dispatch acessa os helpers pela mesma fronteira deste hub.
+
+Decisão: reexportar também `eval_introspected_content_method_at` com a mesma
+visibilidade `pub(crate)`. Não alterar os helpers públicos externos, adicionar
+lógica ao hub, realizar campos ou transformar o receiver. O nome interno
+concretiza a delegação já aprovada e não acrescenta uma superfície Typst.
+Fluxo contínuo ADR-0127; a propriedade semântica pertence a field_access.
+Teste de compilação e equivalência estática/instância verificam o transporte.
 
 - `bindings/mod.rs` — só `mod` + re-exportações.
 - Cinco nós, cada um com L0 próprio e `@prompt` próprio (V15).

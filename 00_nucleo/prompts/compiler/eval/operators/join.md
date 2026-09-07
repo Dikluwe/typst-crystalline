@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/join` — combinação sequencial de valores
-Hash do Código: 38674721
+Hash do Código: bc05bdad
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/join.rs`
@@ -85,3 +85,62 @@ join(Content([a]), Symbol("👩‍💻"))         == Content("a👩‍💻")
 
 - `join` e `long_type_name` conforme a tabela; testes unitários no ficheiro
   e E2E nos consumidores; zero regressão na suite do eval.
+
+## P1307-R3 — Args+Args não é a fusão With
+
+**Estado**: `DRAFT_L0_AWAITING_ADR0127`; não materializar nesta rodada.
+
+### Medição anterior à decisão
+
+No baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais P1306,
+`01_core/src/compiler/eval/operators/join.rs:73-76` funde views e mantém
+o span esquerdo. A fonte ratificada
+`lab/typst-original/crates/typst-library/src/foundations/args.rs:468-482`
+remove TODAS as ocorrências named esquerdas cujo nome aparece à direita,
+concatena os sobreviventes com RHS e define span agregado detached.
+Já With em `foundations/func.rs:372-374` concatena tudo, sem essa remoção.
+Essa leitura refina explicitamente a hipótese simples de concatenação da
+auditoria R2; não se atribui intenção histórica ao comportamento.
+
+### Decisão
+
+Somente o braço Args+Args passa a operar as sequências de `entities/args.md`:
+obter cada `occurrence_sequence`, retirar da esquerda named com nome presente
+em qualquer ocorrência direita, conservar os demais em ordem e acrescentar
+a sequência direita inteira. Reconstruir com
+`Args::from_occurrences(Span::detached(), sequence)`. Os spans individuais
+das ocorrências sobreviventes continuam intactos, inclusive entre Sources.
+A presença de fragmento sintético None não apaga âncoras do outro lado.
+
+A view named resultante é regenerada, portanto em colisões sua posição pode
+mudar em relação ao IndexMap::extend anterior. Span agregado detached e ordem
+são mudanças explicitamente submetidas ao gate; igualdade legada pode ser
+afetada pelo span agregado resultante, sem mudança de PartialEq neste nó.
+Não usar este algoritmo em With nem concatenação With aqui.
+
+As outras linhas da tabela de join, inclusive Dict+Dict e None-identidade,
+não mudam. O owner não avalia argumentos ou callbacks, não valida encoder e
+não consulta World. Não se impõe representação Rust idêntica ao vanilla.
+
+Aceitação futura: RHS nome repetido elimina todas as ocorrências correspondentes
+LHS; named sem colisão e posicionais sobrevivem em ordem; spans sobreviventes
+resolvem nas Sources originais; Args+None continua identidade sem destacar
+span. Comparar controle pareado With que DEVE conservar o named antigo
+inválido contra join que DEVE removê-lo. A fonte fundamenta a proposta;
+medição binária adicional dos casos de join é obrigação, não resultado já PASS.
+
+### P1307-R4 — distinguir helper de join do operador público
+
+Medição focal `args.join-duplicates` encerrada em
+`2026-09-07T17:37:05.017565+00:00`, baseline R4 SHA-256
+`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+conservada em `00_nucleo/diagnosticos/p1307-r4-contract-refinement.json`, mostra
+que o operador + ainda rejeita Args+Args no baseline. A fonte
+`01_core/src/compiler/eval/operators/mod.rs:40-41` encaminha Add para
+arithmetic; a presença do braço neste helper não prova disponibilidade da
+rota da linguagem. O owner `compiler/eval/operators/arithmetic.md` deve
+delegar somente o par Add/Args/Args a este helper. A regra causal permanece
+única aqui; não duplicar a fusão no dispatcher. None-identidade continua
+regra de join; novos pares de Add dependem do owner arithmetic. P1308 autoriza
+ali Args/None e None/Args como identidade direta, sem alterar este helper.
+Sem mudança de API Rust.

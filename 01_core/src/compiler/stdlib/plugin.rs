@@ -556,6 +556,7 @@ mod tests {
         let world = MockWorld::default();
         let span = Span::from_range(fid(), 3..10);
         let args = Args {
+            occurrences: None,
             items: vec![Value::Int(42)],
             named: Default::default(),
             span,
@@ -565,7 +566,12 @@ mod tests {
         assert!(!e[0].span.is_detached());
 
         // O mesmo para `plugin.transition()`.
-        let args = Args { items: vec![], named: Default::default(), span };
+        let args = Args {
+            occurrences: None,
+            items: vec![],
+            named: Default::default(),
+            span,
+        };
         let e = native_plugin_transition(&mut EvalContext::new(), &args, &world, fid())
             .unwrap_err();
         assert_eq!(

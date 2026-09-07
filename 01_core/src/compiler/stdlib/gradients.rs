@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/gradients.md
-//! @prompt-hash c9e78f16
+//! @prompt-hash f82ff207
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -17,7 +17,7 @@
 //! default). Interpolação L1 via `Linear::sample(t)`.
 
 use crate::compiler::eval::EvalContext;
-use crate::entities::args::Args;
+use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::axes::Axes;
 use crate::entities::color::ColorSpace;
 use crate::entities::dir::Dir;
@@ -94,7 +94,23 @@ pub(crate) fn dispatch_gradient_method(
     world: &dyn crate::contracts::world::World,
     current_file: FileId,
 ) -> SourceResult<Value> {
-    args.items.insert(0, Value::Gradient(gradient.clone()));
+    args = if args.occurrences.is_some() {
+        let mut occurrences = args.occurrence_sequence();
+        occurrences.insert(
+            0,
+            ArgOccurrence {
+                name: None,
+                value: Value::Gradient(gradient.clone()),
+                span: Span::detached(),
+                value_span: Span::detached(),
+            },
+        );
+        Args::from_occurrences(args.span, occurrences)
+    } else {
+        let mut items = args.items;
+        items.insert(0, Value::Gradient(gradient.clone()));
+        Args::from_parts(items, args.named, args.span)
+    };
     match method {
         "kind" => native_gradient_kind(ctx, &args, world, current_file),
         "stops" => native_gradient_stops(ctx, &args, world, current_file),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash 85069fc3
+//! @prompt-hash 5eedc937
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -156,7 +156,7 @@ fn static_counter_receiver(args: &Args, name: &str) -> SourceResult<(Counter, Ar
         )]);
     };
     let mut rest = args.clone();
-    rest.items.remove(0);
+    rest.remove_positional(0);
     Ok((counter.clone(), rest))
 }
 
@@ -213,13 +213,7 @@ fn native_counter_step_static(
     _engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let (counter, mut rest) = static_counter_receiver(args, "counter.step")?;
-    let level = rest.named.shift_remove("level").or_else(|| {
-        if rest.items.is_empty() {
-            None
-        } else {
-            Some(rest.items.remove(0))
-        }
-    });
+    let level = rest.remove_named("level").or_else(|| rest.remove_positional(0));
     if !rest.is_empty() {
         return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
     }

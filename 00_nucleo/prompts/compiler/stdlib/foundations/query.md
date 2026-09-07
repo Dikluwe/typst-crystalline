@@ -1,5 +1,37 @@
 # Prompt L0 — `stdlib/foundations/query` — query, localização e metadados
-Hash do Código: fd4f6cc1
+Hash do Código: e97b8512
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+
+### Medição anterior à decisão
+
+Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
+`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
+commitado com diff/stat integral. A medição independente R5, SHA-256
+`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+
+`compiler/stdlib/foundations/query.rs:46–65` já tem locations ordenadas e
+TagIntrospector concreto, mas clona apenas element_at. R5 mede escape entre
+blocos de estilo e igualdade sem perda da identidade de ocorrência.
+
+### Decisão proprietária
+
+Ao obter uma Location, consultar diretamente `ctx.introspector.elements` e
+clonar a entrada completa para `Value::LocatedContent(entry.clone(), loc)`.
+Isso substitui somente a leitura/projeção P1151; conserva ordem, selector,
+cardinalidade e fallback Value::Location quando não existe elemento sintético.
+Não consultar a chain de quem chamou query, não copiar só entry.content().
+O tipo de linguagem permanece content. Não corrigir Selector::Where ou
+outras dívidas de seleção nesta migração. Aceitação cobre primeiro contexto,
+clone escapado e duas ocorrências iguais com locations distintas.
+
+---
+
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/query.rs`

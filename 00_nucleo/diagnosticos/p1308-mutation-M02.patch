@@ -1,0 +1,9 @@
+*** Begin Patch
+*** Update File: /dev/shm/p1308-mutant-source.PmokqQ/01_core/src/compiler/eval/call_dispatch.rs
+@@
+                 native_yaml_encode as fn(_, _, _, _) -> _,
+-            ) || std::ptr::fn_addr_eq(
+-                native.call,
+-                native_panic as fn(_, _, _, _) -> _,
+             ) =>
+*** End Patch

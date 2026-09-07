@@ -1,0 +1,3173 @@
+{
+  "schema": "p1307-r5-heading-contract-input-v1",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "baseline_sha256": "32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a",
+  "measurement_sha256": "82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8",
+  "script_sha256": "3fa2d0680e7aff934100ec47d18ad3976d252cc15414154e5dc4889ad3564ec5",
+  "cases": [
+    {
+      "id": "direct-default.fields",
+      "scenario": "direct-default",
+      "projection": "fields",
+      "expression": "repr(heading[Probe].fields())",
+      "route": "eval",
+      "classes": [
+        "Heading",
+        "direct-default",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "source_sha256": "7a307ea6d963e9def6825581d8e223d7cc895b9abbbd08aa9e556a226d20e507",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "direct-default.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "direct-default.json",
+      "scenario": "direct-default",
+      "projection": "json",
+      "expression": "json.encode(heading[Probe])",
+      "route": "eval",
+      "classes": [
+        "Heading",
+        "direct-default",
+        "json"
+      ],
+      "expected_shape": "value",
+      "source_sha256": "8611b4d834e3934b1222a7363414f65ceaa8e3906cbef24a3b12beb5c6c832f9",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  }\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode(heading[Probe])\n  │ ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "direct-default.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "query-default.fields",
+      "scenario": "query-default",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "query-default",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "fa2f89b0561000da0d23168e9c63323bec26ea3adb70442e98d2606798b1e5e5",
+      "fixture": "/tmp/p1307-r4-oracle-88vacf7n/case-000.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-88vacf7n/case-000.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        },
+        "html": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        },
+        "a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        },
+        "html+a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "query-default.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "query-default.json",
+      "scenario": "query-default",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "query-default",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "52617c7507a8874316c29e809f31e4096612c75942b16d1b319af661cd125258",
+      "fixture": "/tmp/p1307-r4-oracle-88vacf7n/case-001.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-88vacf7n/case-001.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:52617c7507a8874316c29e809f31e4096612c75942b16d1b319af661cd125258>:2:78\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        },
+        "html": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:52617c7507a8874316c29e809f31e4096612c75942b16d1b319af661cd125258>:2:78\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        },
+        "a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:52617c7507a8874316c29e809f31e4096612c75942b16d1b319af661cd125258>:2:78\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        },
+        "html+a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:52617c7507a8874316c29e809f31e4096612c75942b16d1b319af661cd125258>:2:78\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "query-default.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "numbering-callback.fields",
+      "scenario": "numbering-callback",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "numbering-callback",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: (..nums) => \"N\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "b33a925870c73a12600c31583fc405eacbf53b65e174ec395c6337b6f1308947",
+      "fixture": "/tmp/p1307-r4-oracle-1lujpq_1/case-004.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-1lujpq_1/case-004.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: (..) => ..,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "numbering-callback.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "numbering-callback.json",
+      "scenario": "numbering-callback",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "numbering-callback",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: (..nums) => \"N\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "479e1ef057efc3ee7e92b98a70af4b14aa5c0fe4a97054616e0057ad879d41c8",
+      "fixture": "/tmp/p1307-r4-oracle-1lujpq_1/case-005.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-1lujpq_1/case-005.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": \"(..) => ..\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:479e1ef057efc3ee7e92b98a70af4b14aa5c0fe4a97054616e0057ad879d41c8>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "numbering-callback.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-callback.fields",
+      "scenario": "supplement-callback",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-callback",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: it => [Callback])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "77d4676c6b5aacc252e395816a8e9d3311fb299e1ca3300a36209b03bf96e3f2",
+      "fixture": "/tmp/p1307-r4-oracle-1lujpq_1/case-006.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-1lujpq_1/case-006.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Callback],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-callback.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-callback.json",
+      "scenario": "supplement-callback",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-callback",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: it => [Callback])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "1ca647991424afffbd76fa4bb6f5794868e2ccf4834ef8424df6b7b21ddded46",
+      "fixture": "/tmp/p1307-r4-oracle-1lujpq_1/case-007.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-1lujpq_1/case-007.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Callback\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:1ca647991424afffbd76fa4bb6f5794868e2ccf4834ef8424df6b7b21ddded46>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-callback.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "frozen-array-after.fields",
+      "scenario": "frozen-array-after",
+      "projection": "fields",
+      "expression": "repr(get().first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "frozen-array-after",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: \"1\", supplement: [Alpha], offset: 1)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { let saved = (found.first(),); let get() = saved; { set heading(numbering: \"I\", supplement: [Beta], offset: 3); set text(lang: \"pt\");  { let raw = bytes(repr(get().first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } } }\n",
+      "source_sha256": "ac1c82331e1f057bcbde4d13a52b89c508d351eaae6d6d44afe00b03d42760e1",
+      "fixture": "/tmp/p1307-r4-oracle-88vacf7n/case-002.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-88vacf7n/case-002.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 2,\n  depth: 1,\n  offset: 1,\n  numbering: \"1\",\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        },
+        "html": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 2,\n  depth: 1,\n  offset: 1,\n  numbering: \"1\",\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        },
+        "a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 2,\n  depth: 1,\n  offset: 1,\n  numbering: \"1\",\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        },
+        "html+a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 2,\n  depth: 1,\n  offset: 1,\n  numbering: \"1\",\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "frozen-array-after.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "frozen-array-after.json",
+      "scenario": "frozen-array-after",
+      "projection": "json",
+      "expression": "json.encode(get().first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "frozen-array-after",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: \"1\", supplement: [Alpha], offset: 1)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { let saved = (found.first(),); let get() = saved; { set heading(numbering: \"I\", supplement: [Beta], offset: 3); set text(lang: \"pt\");  { let raw = bytes(json.encode(get().first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } } }\n",
+      "source_sha256": "b90bc9efcebbf82a39bfe4b230348414c83e38bbe5ff94758fbeac3cf98ff6e0",
+      "fixture": "/tmp/p1307-r4-oracle-88vacf7n/case-003.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-88vacf7n/case-003.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 2,\n  \"depth\": 1,\n  \"offset\": 1,\n  \"numbering\": \"1\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Alpha\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:b90bc9efcebbf82a39bfe4b230348414c83e38bbe5ff94758fbeac3cf98ff6e0>:3:212\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { let saved = (found.first(),); let get() = saved; { set heading(numbering: \"I\", supplement: [Beta], offset: 3); set text(lang: \"pt\");  { let raw = bytes(json.encode(get().first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } } }\n  │                                                                                                                                                                                                                     ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        },
+        "html": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 2,\n  \"depth\": 1,\n  \"offset\": 1,\n  \"numbering\": \"1\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Alpha\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:b90bc9efcebbf82a39bfe4b230348414c83e38bbe5ff94758fbeac3cf98ff6e0>:3:212\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { let saved = (found.first(),); let get() = saved; { set heading(numbering: \"I\", supplement: [Beta], offset: 3); set text(lang: \"pt\");  { let raw = bytes(json.encode(get().first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } } }\n  │                                                                                                                                                                                                                     ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        },
+        "a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 2,\n  \"depth\": 1,\n  \"offset\": 1,\n  \"numbering\": \"1\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Alpha\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:b90bc9efcebbf82a39bfe4b230348414c83e38bbe5ff94758fbeac3cf98ff6e0>:3:212\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { let saved = (found.first(),); let get() = saved; { set heading(numbering: \"I\", supplement: [Beta], offset: 3); set text(lang: \"pt\");  { let raw = bytes(json.encode(get().first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } } }\n  │                                                                                                                                                                                                                     ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        },
+        "html+a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 2,\n  \"depth\": 1,\n  \"offset\": 1,\n  \"numbering\": \"1\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Alpha\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:b90bc9efcebbf82a39bfe4b230348414c83e38bbe5ff94758fbeac3cf98ff6e0>:3:212\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { let saved = (found.first(),); let get() = saved; { set heading(numbering: \"I\", supplement: [Beta], offset: 3); set text(lang: \"pt\");  { let raw = bytes(json.encode(get().first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } } }\n  │                                                                                                                                                                                                                     ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "frozen-array-after.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "equality.different-labels",
+      "scenario": "equality.different-labels",
+      "projection": "equality",
+      "expression": "repr(found.at(0) == found.at(1))",
+      "document": "= Probe <left>\n= Probe <right>\n#context { let found = query(heading); if found.len() == 2 { { let raw = bytes(repr(found.at(0) == found.at(1))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "2e77597c0a5cc462fcb10a25274eeffe2bcd6c1db3bdfcd508afff74cb76135a",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "language-equality",
+        "different-labels"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-1lujpq_1/case-010.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-1lujpq_1/case-010.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "equality.different-labels",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "equality.no-labels",
+      "scenario": "equality.no-labels",
+      "projection": "equality",
+      "expression": "repr(found.at(0) == found.at(1))",
+      "document": "= Probe\n= Probe\n#context { let found = query(heading); if found.len() == 2 { { let raw = bytes(repr(found.at(0) == found.at(1))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "fcec33eb207862342e994f9eaa94e39f7df82881b460dab7be6bb56320814780",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "language-equality",
+        "no-labels"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-88vacf7n/case-004.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-88vacf7n/case-004.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          }
+        },
+        "html": {
+          "vanilla": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          }
+        },
+        "a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          }
+        },
+        "html+a11y": {
+          "vanilla": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "equality.no-labels",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "direct-explicit.fields",
+      "scenario": "direct-explicit",
+      "projection": "fields",
+      "expression": "repr(heading(depth: 2, offset: 1, numbering: \"I\", supplement: [Alpha], outlined: false, bookmarked: true, hanging-indent: 10pt)[Probe].fields())",
+      "route": "eval",
+      "classes": [
+        "Heading",
+        "direct-explicit",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "source_sha256": "72251521a3e6adfc0f2b9d45d155e70211cef40e71b714aa0fb0c8c280fd1f4a",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  depth: 2,\n  offset: 1,\n  numbering: \"I\",\n  supplement: [Alpha],\n  outlined: false,\n  bookmarked: true,\n  hanging-indent: 10pt,\n  body: [Probe],\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(:)",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "direct-explicit.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "direct-explicit.json",
+      "scenario": "direct-explicit",
+      "projection": "json",
+      "expression": "json.encode(heading(depth: 2, offset: 1, numbering: \"I\", supplement: [Alpha], outlined: false, bookmarked: true, hanging-indent: 10pt)[Probe])",
+      "route": "eval",
+      "classes": [
+        "Heading",
+        "direct-explicit",
+        "json"
+      ],
+      "expected_shape": "value",
+      "source_sha256": "48bd914fd1ffddb684239e59c201229c40e5d8c53c2f3fff71df3b05e49a934c",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"depth\": 2,\n  \"offset\": 1,\n  \"numbering\": \"I\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Alpha\"\n  },\n  \"outlined\": false,\n  \"bookmarked\": true,\n  \"hanging-indent\": \"10pt\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  }\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode(heading(depth: 2, offset: 1, numbering: \"I\", supplement: [Alpha], outlined: false, bookmarked: true, hanging-indent: 10pt)[Probe])\n  │ ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "direct-explicit.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "direct-markup-label.fields",
+      "scenario": "direct-markup-label",
+      "projection": "fields",
+      "expression": "repr([= Probe <probe>].fields())",
+      "route": "eval",
+      "classes": [
+        "Heading",
+        "direct-markup-label",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "source_sha256": "f51e2a27bc6997b1df7dd892cdc28f7ba565740339a9915a69a0fa36a0d7def5",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(children: (heading(depth: 1, body: [Probe]), [ ]))",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(:)",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "direct-markup-label.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "direct-markup-label.json",
+      "scenario": "direct-markup-label",
+      "projection": "json",
+      "expression": "json.encode([= Probe <probe>])",
+      "route": "eval",
+      "classes": [
+        "Heading",
+        "direct-markup-label",
+        "json"
+      ],
+      "expected_shape": "value",
+      "source_sha256": "71c5b2eec63c13a6465d1434c06921b303a4528f789e14c31afa42ecbcbf9b04",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"sequence\",\n  \"children\": [\n    {\n      \"func\": \"heading\",\n      \"depth\": 1,\n      \"body\": {\n        \"func\": \"text\",\n        \"text\": \"Probe\"\n      },\n      \"label\": \"<probe>\"\n    },\n    {\n      \"func\": \"space\"\n    }\n  ]\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode([= Probe <probe>])\n  │ ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "direct-markup-label.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "set-level.fields",
+      "scenario": "set-level",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "set-level",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(level: 4)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "086212b97cb20bb047e4d5d292bd78a7a094f3d0b606239af1af6921107a5f62",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-004.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-004.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 4,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "set-level.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "set-level.json",
+      "scenario": "set-level",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "set-level",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(level: 4)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "94fad1077734fc3cad0390fb81fdb3afea19081925cb6c0ff4c3a2add878ff70",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-005.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-005.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 4,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:94fad1077734fc3cad0390fb81fdb3afea19081925cb6c0ff4c3a2add878ff70>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "set-level.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "set-depth-markup.fields",
+      "scenario": "set-depth-markup",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "set-depth-markup",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(depth: 3)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "1e8d2a3322973a5cd70f260ec76fad79bb891a890c972752d1a061aefb1e4096",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-006.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-006.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "set-depth-markup.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "set-depth-markup.json",
+      "scenario": "set-depth-markup",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "set-depth-markup",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(depth: 3)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "4e8332ee292417d24652803c7205b4dec1fa788c5d20a284ca428e0c42b05a64",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-007.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-007.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:4e8332ee292417d24652803c7205b4dec1fa788c5d20a284ca428e0c42b05a64>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "set-depth-markup.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "set-offset.fields",
+      "scenario": "set-offset",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "set-offset",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(offset: 2)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "ea2f067110a8a3dfe8baad08e91f9f752d38bf94ce7bf663f79fe010bd41fafa",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-008.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-008.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 3,\n  depth: 1,\n  offset: 2,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "set-offset.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "set-offset.json",
+      "scenario": "set-offset",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "set-offset",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(offset: 2)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "83674885444e2d3786e486f773db7efbe01873a168a487f20d5dcfdf451bfc2f",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-009.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-009.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 3,\n  \"depth\": 1,\n  \"offset\": 2,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:83674885444e2d3786e486f773db7efbe01873a168a487f20d5dcfdf451bfc2f>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "set-offset.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "numbering-1.fields",
+      "scenario": "numbering-1",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "numbering-1",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: \"1\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "f3d084c214eb103ac81016906c9d8dac86847c0e07d6b37e8d5d66d212edbf19",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-010.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-010.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"1\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "numbering-1.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "numbering-1.json",
+      "scenario": "numbering-1",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "numbering-1",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: \"1\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "775f036cd4a39fdfbe6ab163762ec5543216fb213734e69acc23efb50d838175",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-011.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-011.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": \"1\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:775f036cd4a39fdfbe6ab163762ec5543216fb213734e69acc23efb50d838175>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "numbering-1.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "numbering-I.fields",
+      "scenario": "numbering-I",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "numbering-I",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: \"I\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "eabaa9eb1ac37740488ae0cd01f34ac8b1775b79738af82e30307a956e979e15",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-012.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-012.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: \"I\",\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "numbering-I.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "numbering-I.json",
+      "scenario": "numbering-I",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "numbering-I",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: \"I\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "825600f0ff5718450e5582cc7cf92d13c156ce5f4095298733e33020374342eb",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-013.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-013.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": \"I\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:825600f0ff5718450e5582cc7cf92d13c156ce5f4095298733e33020374342eb>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "numbering-I.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "numbering-none.fields",
+      "scenario": "numbering-none",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "numbering-none",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: none)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "c39382f8e2a118db7865a4e13eb485a8acc48419da481fa0a21b41a4fc1913d6",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-014.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-014.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "numbering-none.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "numbering-none.json",
+      "scenario": "numbering-none",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "numbering-none",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: none)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "702431c179a7c469681a23a0ea3acb830dc5d6f81e4a969473f8abe58a624612",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-015.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-015.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:702431c179a7c469681a23a0ea3acb830dc5d6f81e4a969473f8abe58a624612>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "numbering-none.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-auto.fields",
+      "scenario": "supplement-auto",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-auto",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: auto)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "b5be5e7f35b702b2e9ddd4d6d67de5f481d2740e2c63aabbc0425421ad453f76",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-016.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-016.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-auto.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-auto.json",
+      "scenario": "supplement-auto",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-auto",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: auto)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "7a8c33dc7e8804c80583d38e6bb376fd7f06b564b1d46262b04e53fd0e9a90f4",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-017.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-017.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:7a8c33dc7e8804c80583d38e6bb376fd7f06b564b1d46262b04e53fd0e9a90f4>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-auto.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-none.fields",
+      "scenario": "supplement-none",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-none",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: none)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "fe269b3d8b1a94e5deb2e3e7cc58da17a64ed798d28d6d515d4f7e45ff426c46",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-018.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-018.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-none.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-none.json",
+      "scenario": "supplement-none",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-none",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: none)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "470b8e7b49f8f683c9bab6b0167c342cbc7639a1c003900d6414aae3610aec69",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-019.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-019.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"sequence\",\n    \"children\": []\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:470b8e7b49f8f683c9bab6b0167c342cbc7639a1c003900d6414aae3610aec69>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-none.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-Alpha.fields",
+      "scenario": "supplement-Alpha",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-Alpha",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: [Alpha])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "2991c9be57e1f35a4b761a69c29ae4e9befdb689a4ec66a643507d26e326d977",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-020.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-020.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-Alpha.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-Alpha.json",
+      "scenario": "supplement-Alpha",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-Alpha",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: [Alpha])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "59d8214c50a96bc1342e86f1ffcd54ab2457a6c13b50efe2c12d9f27a8c83d08",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-021.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-021.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Alpha\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:59d8214c50a96bc1342e86f1ffcd54ab2457a6c13b50efe2c12d9f27a8c83d08>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-Alpha.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-Beta.fields",
+      "scenario": "supplement-Beta",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-Beta",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: [Beta])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "d212d0ffb07b72dcd84cdbde672ffd517da810e9404dad0a316a77dfa1257c67",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-022.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-022.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Beta],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-Beta.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "supplement-Beta.json",
+      "scenario": "supplement-Beta",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "supplement-Beta",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(supplement: [Beta])\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "5fba268c04f5a621d1283d7677a80b144e8280e8579df8d39394a0328917c4d4",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-023.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-023.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Beta\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:5fba268c04f5a621d1283d7677a80b144e8280e8579df8d39394a0328917c4d4>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "supplement-Beta.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "language-en.fields",
+      "scenario": "language-en",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "language-en",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set text(lang: \"en\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "1a54215aaddb05caa2c02969c64df6f5604328da065d824d221ab2f7bee04aa9",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-024.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-024.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "language-en.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "language-en.json",
+      "scenario": "language-en",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "language-en",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set text(lang: \"en\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "c6572fa97d7acd07bce58aa6584e11d5eadd3a2f0398b69b1b93bb4e14087f4d",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-025.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-025.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:c6572fa97d7acd07bce58aa6584e11d5eadd3a2f0398b69b1b93bb4e14087f4d>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "language-en.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "language-pt.fields",
+      "scenario": "language-pt",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "language-pt",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set text(lang: \"pt\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "dc1e6865c76cce271e9b419cc92cdbaeb4fc11fcb681fc387df73f65cfcce764",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-026.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-026.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Seção],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "language-pt.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "language-pt.json",
+      "scenario": "language-pt",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "language-pt",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set text(lang: \"pt\")\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "545b220de4a97ef207909b1a0be42b593673779735c1d082371a4b076711e074",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-027.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-027.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Seção\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:545b220de4a97ef207909b1a0be42b593673779735c1d082371a4b076711e074>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "language-pt.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "outlined-false.fields",
+      "scenario": "outlined-false",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "outlined-false",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(outlined: false)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "c0e682c80d90525e5b631843699256e46689b12cfe0eff57a3704556aeea833e",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-028.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-028.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: false,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "outlined-false.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "outlined-false.json",
+      "scenario": "outlined-false",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "outlined-false",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(outlined: false)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "f36a42b13010c4c1bbad6b5bf4cedad1d8043a3889e4294a11c94700845eec0a",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-029.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-029.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": false,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:f36a42b13010c4c1bbad6b5bf4cedad1d8043a3889e4294a11c94700845eec0a>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "outlined-false.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "bookmarked-true.fields",
+      "scenario": "bookmarked-true",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "bookmarked-true",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(bookmarked: true)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "9d59d46933bb8f6ea6367c914d1d5ce8b2265bcf5c31adb62593d0b47a5f953b",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-030.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-030.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: true,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "bookmarked-true.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "bookmarked-true.json",
+      "scenario": "bookmarked-true",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "bookmarked-true",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(bookmarked: true)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "79edad16615a9fce4ded3b72399ae813180267e31055bdb3def96ac78f666164",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-031.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-031.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": true,\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:79edad16615a9fce4ded3b72399ae813180267e31055bdb3def96ac78f666164>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "bookmarked-true.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "bookmarked-false.fields",
+      "scenario": "bookmarked-false",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "bookmarked-false",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(bookmarked: false)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "939e1244d51bab816b7530750f5a4d3d9b625532d156e8300f470273775fd300",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-032.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-032.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: false,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "bookmarked-false.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "bookmarked-false.json",
+      "scenario": "bookmarked-false",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "bookmarked-false",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(bookmarked: false)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "c432651dc2c9eae26922c74738cde72e9c99e3c0798ae7324927e97e2d58f805",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-033.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-033.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": false,\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:c432651dc2c9eae26922c74738cde72e9c99e3c0798ae7324927e97e2d58f805>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "bookmarked-false.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "hanging-indent.fields",
+      "scenario": "hanging-indent",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "hanging-indent",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(hanging-indent: 10pt)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "c0916b6652bb22b9edbe7fc06a2787f021bc2a9767ad008c243f07eecd46f426",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-034.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-034.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 1,\n  depth: 1,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: 10pt,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "hanging-indent.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "hanging-indent.json",
+      "scenario": "hanging-indent",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "hanging-indent",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(hanging-indent: 10pt)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "6b8f6436a75bb53af2a9f5cb9058413121ce2d729c951dd81edd5c79a117b694",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-035.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-035.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 1,\n  \"depth\": 1,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"10pt\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:6b8f6436a75bb53af2a9f5cb9058413121ce2d729c951dd81edd5c79a117b694>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "hanging-indent.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "set-depth-constructor.fields",
+      "scenario": "set-depth-constructor",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "set-depth-constructor",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(depth: 3)\n#heading[Probe] <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "31f2a9fcef7967645f939be030387a48f95d8b5362f33ca602bd458ba4f679f9",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-036.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-036.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 3,\n  depth: 3,\n  offset: 0,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "set-depth-constructor.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "set-depth-constructor.json",
+      "scenario": "set-depth-constructor",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "set-depth-constructor",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(depth: 3)\n#heading[Probe] <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "29d7ef49322f15dfce7620d0432ab6026b78fdb0f08f11a878c5b4c49a755b57",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-037.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-037.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 3,\n  \"depth\": 3,\n  \"offset\": 0,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:29d7ef49322f15dfce7620d0432ab6026b78fdb0f08f11a878c5b4c49a755b57>:3:78\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "set-depth-constructor.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "explicit-depth-offset.fields",
+      "scenario": "explicit-depth-offset",
+      "projection": "fields",
+      "expression": "repr(found.first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "explicit-depth-offset",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#heading(depth: 2, offset: 1)[Probe] <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(repr(found.first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "61cae9e7b460a0d9b892273c669b1934385907cb9f46cebcc3dddd5f3a659868",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-038.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-038.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 3,\n  depth: 2,\n  offset: 1,\n  numbering: none,\n  supplement: [Section],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "explicit-depth-offset.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "explicit-depth-offset.json",
+      "scenario": "explicit-depth-offset",
+      "projection": "json",
+      "expression": "json.encode(found.first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "explicit-depth-offset",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#heading(depth: 2, offset: 1)[Probe] <probe>\n#context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "source_sha256": "f0dc29e53853bd1d7c25eed30b7310a42a4ff5f84df1ba7f3484cb042f1046c5",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-039.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-039.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 3,\n  \"depth\": 2,\n  \"offset\": 1,\n  \"numbering\": null,\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:f0dc29e53853bd1d7c25eed30b7310a42a4ff5f84df1ba7f3484cb042f1046c5>:2:78\n  │\n2 │ #context { let found = query(<probe>); if found.len() > 0 { { let raw = bytes(json.encode(found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                               ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "explicit-depth-offset.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "frozen-array-before.fields",
+      "scenario": "frozen-array-before",
+      "projection": "fields",
+      "expression": "repr(get().first().fields())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "frozen-array-before",
+        "fields"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: \"1\", supplement: [Alpha], offset: 1)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { let saved = (found.first(),); let get() = saved; {  { let raw = bytes(repr(get().first().fields())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } } }\n",
+      "source_sha256": "615f594319fd12538fc08a3522e491023e7e78ff1293f32b038677545bc72ddd",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-040.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-040.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  level: 2,\n  depth: 1,\n  offset: 1,\n  numbering: \"1\",\n  supplement: [Alpha],\n  outlined: true,\n  bookmarked: auto,\n  hanging-indent: auto,\n  body: [Probe],\n  label: <probe>,\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(depth: 1, body: [Probe])",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "frozen-array-before.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "frozen-array-before.json",
+      "scenario": "frozen-array-before",
+      "projection": "json",
+      "expression": "json.encode(get().first())",
+      "route": "compile",
+      "classes": [
+        "Heading",
+        "frozen-array-before",
+        "json"
+      ],
+      "expected_shape": "value",
+      "document": "#set heading(numbering: \"1\", supplement: [Alpha], offset: 1)\n= Probe <probe>\n#context { let found = query(<probe>); if found.len() > 0 { let saved = (found.first(),); let get() = saved; {  { let raw = bytes(json.encode(get().first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } } }\n",
+      "source_sha256": "46b21aa0bca2d6956723dc95ffde84b4869994cae8d1ea71abff49c28f536407",
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-041.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-041.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "{\n  \"func\": \"heading\",\n  \"level\": 2,\n  \"depth\": 1,\n  \"offset\": 1,\n  \"numbering\": \"1\",\n  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Alpha\"\n  },\n  \"outlined\": true,\n  \"bookmarked\": \"auto\",\n  \"hanging-indent\": \"auto\",\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  },\n  \"label\": \"<probe>\"\n}",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:46b21aa0bca2d6956723dc95ffde84b4869994cae8d1ea71abff49c28f536407>:3:130\n  │\n3 │ #context { let found = query(<probe>); if found.len() > 0 { let saved = (found.first(),); let get() = saved; {  { let raw = bytes(json.encode(get().first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } } }\n  │                                                                                                                                   ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "frozen-array-before.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "two-styles.fields",
+      "scenario": "two-styles",
+      "projection": "fields",
+      "expression": "repr(found.map(x => x.fields()))",
+      "document": "#set heading(numbering: \"1\", supplement: [Alpha], offset: 1)\n= Probe <left>\n#set heading(numbering: \"I\", supplement: [Beta], offset: 2)\n= Probe <right>\n#context { let found = query(heading); if found.len() == 2 { { let raw = bytes(repr(found.map(x => x.fields()))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "5535ac8055930a1f8c8e0b7ba7bd1ff6b4d9fb0ba462ff5af8cb1828855b376a",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "frozen",
+        "distinct-styles"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-042.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-042.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  (\n    level: 2,\n    depth: 1,\n    offset: 1,\n    numbering: \"1\",\n    supplement: [Alpha],\n    outlined: true,\n    bookmarked: auto,\n    hanging-indent: auto,\n    body: [Probe],\n    label: <left>,\n  ),\n  (\n    level: 3,\n    depth: 1,\n    offset: 2,\n    numbering: \"I\",\n    supplement: [Beta],\n    outlined: true,\n    bookmarked: auto,\n    hanging-indent: auto,\n    body: [Probe],\n    label: <right>,\n  ),\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(\n  (depth: 1, body: [Probe]),\n  (depth: 1, body: [Probe]),\n)",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "two-styles.fields",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "two-styles.json",
+      "scenario": "two-styles",
+      "projection": "json",
+      "expression": "json.encode(found)",
+      "document": "#set heading(numbering: \"1\", supplement: [Alpha], offset: 1)\n= Probe <left>\n#set heading(numbering: \"I\", supplement: [Beta], offset: 2)\n= Probe <right>\n#context { let found = query(heading); if found.len() == 2 { { let raw = bytes(json.encode(found)); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "ea86aaf165190db1af37801db3d9460609b39af39051f654d9fff06b4c794737",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "frozen",
+        "distinct-styles"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-043.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-043.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "[\n  {\n    \"func\": \"heading\",\n    \"level\": 2,\n    \"depth\": 1,\n    \"offset\": 1,\n    \"numbering\": \"1\",\n    \"supplement\": {\n      \"func\": \"text\",\n      \"text\": \"Alpha\"\n    },\n    \"outlined\": true,\n    \"bookmarked\": \"auto\",\n    \"hanging-indent\": \"auto\",\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"Probe\"\n    },\n    \"label\": \"<left>\"\n  },\n  {\n    \"func\": \"heading\",\n    \"level\": 3,\n    \"depth\": 1,\n    \"offset\": 2,\n    \"numbering\": \"I\",\n    \"supplement\": {\n      \"func\": \"text\",\n      \"text\": \"Beta\"\n    },\n    \"outlined\": true,\n    \"bookmarked\": \"auto\",\n    \"hanging-indent\": \"auto\",\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"Probe\"\n    },\n    \"label\": \"<right>\"\n  }\n]",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: cannot access fields on type function\n  ┌─ <source:ea86aaf165190db1af37801db3d9460609b39af39051f654d9fff06b4c794737>:5:79\n  │\n5 │ #context { let found = query(heading); if found.len() == 2 { { let raw = bytes(json.encode(found)); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                ^^^^^^^^^^^\n\n",
+            "messages": [
+              "cannot access fields on type function"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "two-styles.json",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "equality.inline-vs-query",
+      "scenario": "equality.inline-vs-query",
+      "projection": "equality",
+      "expression": "repr(heading[Probe] == found.first())",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() == 1 { { let raw = bytes(repr(heading[Probe] == found.first())); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "0bc07e80e02b6e568d40d9f190f31ee7f5f42b69ef0b1893194f037ccc1ea87a",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "language-equality",
+        "inline-vs-query"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-044.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-044.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "false",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "false",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "equality.inline-vs-query",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "equality.clone-through-array",
+      "scenario": "equality.clone-through-array",
+      "projection": "equality",
+      "expression": "repr({ let a = (found.first(),); let get() = a.first(); found.first() == get() })",
+      "document": "= Probe <probe>\n#context { let found = query(<probe>); if found.len() == 1 { { let raw = bytes(repr({ let a = (found.first(),); let get() = a.first(); found.first() == get() })); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "93c7d486b98b4d5f608d067e9e5dfdad685fbe9f53164e30c5031c2bfbfc50a6",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "language-equality",
+        "clone-through-array"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-045.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-045.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "equality.clone-through-array",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "equality.same-labels",
+      "scenario": "equality.same-labels",
+      "projection": "equality",
+      "expression": "repr(found.at(0) == found.at(1))",
+      "document": "= Probe <same>\n= Probe <same>\n#context { let found = query(heading); if found.len() == 2 { { let raw = bytes(repr(found.at(0) == found.at(1))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "e5714be09f5ffed5911f76b0a04c96e16ff2018518fbd6fcd69633ca3bc4aa35",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "language-equality",
+        "same-labels"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-046.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-046.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "equality.same-labels",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "equality.different-numbering",
+      "scenario": "equality.different-numbering",
+      "projection": "equality",
+      "expression": "repr(found.at(0) == found.at(1))",
+      "document": "#set heading(numbering: \"1\")\n= Probe\n#set heading(numbering: \"I\")\n= Probe\n#context { let found = query(heading); if found.len() == 2 { { let raw = bytes(repr(found.at(0) == found.at(1))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "d09490d47e0c6dc4f00fde4ace00defc0fd6712c5cc7e73c7c747147476dcf54",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "language-equality",
+        "different-numbering"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-047.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-047.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "false",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "true",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "equality.different-numbering",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "access.unlabelled",
+      "scenario": "access.unlabelled",
+      "projection": "access",
+      "expression": "repr({ let x = found.first(); (label: (x.has(\"label\"), x.at(\"label\", default: \"absent\")), unknown: (x.has(\"missing\"), x.at(\"missing\", default: \"absent\")), known: (x.has(\"numbering\"), x.at(\"numbering\", default: \"absent\"), x.has(\"supplement\"), x.at(\"supplement\", default: \"absent\"), x.has(\"body\"), x.at(\"body\"), repr(x.func()))) })",
+      "document": "= Probe\n#context { let found = query(heading); if found.len() == 1 { { let raw = bytes(repr({ let x = found.first(); (label: (x.has(\"label\"), x.at(\"label\", default: \"absent\")), unknown: (x.has(\"missing\"), x.at(\"missing\", default: \"absent\")), known: (x.has(\"numbering\"), x.at(\"numbering\", default: \"absent\"), x.has(\"supplement\"), x.at(\"supplement\", default: \"absent\"), x.has(\"body\"), x.at(\"body\"), repr(x.func()))) })); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "907043cbc167d3e77de5e9f4a02c906eba00cf1c9f6af158e49a2a9a5efae612",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "at",
+        "has",
+        "label",
+        "func"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-048.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-048.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  label: (false, \"absent\"),\n  unknown: (false, \"absent\"),\n  known: (\n    true,\n    none,\n    true,\n    [Section],\n    true,\n    [Probe],\n    \"heading\",\n  ),\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(label: (false, \"absent\"), unknown: (false, \"absent\"), known: (\n  false,\n  \"absent\",\n  false,\n  \"absent\",\n  true,\n  [Probe],\n  \"heading\",\n))",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "access.unlabelled",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "access.labelled",
+      "scenario": "access.labelled",
+      "projection": "access",
+      "expression": "repr({ let x = found.first(); (label: (x.has(\"label\"), x.at(\"label\", default: \"absent\")), unknown: (x.has(\"missing\"), x.at(\"missing\", default: \"absent\")), known: (x.has(\"numbering\"), x.at(\"numbering\", default: \"absent\"), x.has(\"supplement\"), x.at(\"supplement\", default: \"absent\"), x.has(\"body\"), x.at(\"body\"), repr(x.func()))) })",
+      "document": "= Probe <probe>\n#context { let found = query(heading); if found.len() == 1 { { let raw = bytes(repr({ let x = found.first(); (label: (x.has(\"label\"), x.at(\"label\", default: \"absent\")), unknown: (x.has(\"missing\"), x.at(\"missing\", default: \"absent\")), known: (x.has(\"numbering\"), x.at(\"numbering\", default: \"absent\"), x.has(\"supplement\"), x.at(\"supplement\", default: \"absent\"), x.has(\"body\"), x.at(\"body\"), repr(x.func()))) })); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "108846445d5f26aed4854c1a5b15bbb7561e1bffcb6c782de54448b4d3454b26",
+      "expected_shape": "value",
+      "classes": [
+        "Heading",
+        "at",
+        "has",
+        "label",
+        "func"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-049.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-049.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "value",
+            "value": "(\n  label: (true, <probe>),\n  unknown: (false, \"absent\"),\n  known: (\n    true,\n    none,\n    true,\n    [Section],\n    true,\n    [Probe],\n    \"heading\",\n  ),\n)",
+            "stderr": "",
+            "exit": 0
+          },
+          "baseline": {
+            "kind": "value",
+            "value": "(label: (false, \"absent\"), unknown: (false, \"absent\"), known: (\n  false,\n  \"absent\",\n  false,\n  \"absent\",\n  true,\n  [Probe],\n  \"heading\",\n))",
+            "stderr": "",
+            "exit": 0
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "access.labelled",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "access.error-label",
+      "scenario": "access.error-label",
+      "projection": "diagnostic",
+      "expression": "repr(found.first().at(\"label\"))",
+      "document": "= Probe\n#context { let found = query(heading); if found.len() == 1 { { let raw = bytes(repr(found.first().at(\"label\"))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "b66f2749bdb6f93d5c408c0ed8697df8aeb7864faf44fd6c9ed338a6f80e5c80",
+      "expected_shape": "diagnostic",
+      "classes": [
+        "Heading",
+        "at",
+        "missing-field"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-050.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-050.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: heading does not have field \"label\" and no default was specified\n  ┌─ <source:b66f2749bdb6f93d5c408c0ed8697df8aeb7864faf44fd6c9ed338a6f80e5c80>:2:84\n  │\n2 │ #context { let found = query(heading); if found.len() == 1 { { let raw = bytes(repr(found.first().at(\"label\"))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+            "messages": [
+              "heading does not have field \"label\" and no default was specified"
+            ],
+            "hints": []
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: heading does not have field \"label\" and no default was specified\n  ┌─ <source:b66f2749bdb6f93d5c408c0ed8697df8aeb7864faf44fd6c9ed338a6f80e5c80>:2:84\n  │\n2 │ #context { let found = query(heading); if found.len() == 1 { { let raw = bytes(repr(found.first().at(\"label\"))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+            "messages": [
+              "heading does not have field \"label\" and no default was specified"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "access.error-label",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    },
+    {
+      "id": "access.error-missing",
+      "scenario": "access.error-missing",
+      "projection": "diagnostic",
+      "expression": "repr(found.first().at(\"missing\"))",
+      "document": "= Probe\n#context { let found = query(heading); if found.len() == 1 { { let raw = bytes(repr(found.first().at(\"missing\"))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n",
+      "route": "compile",
+      "source_sha256": "5205b8b7374c90eac2e383fcfea95a56ddc8e4b6d3956f46f45ee42fe7ce716e",
+      "expected_shape": "diagnostic",
+      "classes": [
+        "Heading",
+        "at",
+        "missing-field"
+      ],
+      "fixture": "/tmp/p1307-r4-oracle-8bdj2yhs/case-051.typ",
+      "pdf_output": "/tmp/p1307-r4-oracle-8bdj2yhs/case-051.pdf",
+      "observations": {
+        "default": {
+          "vanilla": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: heading does not have field \"missing\" and no default was specified\n  ┌─ <source:5205b8b7374c90eac2e383fcfea95a56ddc8e4b6d3956f46f45ee42fe7ce716e>:2:84\n  │\n2 │ #context { let found = query(heading); if found.len() == 1 { { let raw = bytes(repr(found.first().at(\"missing\"))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+            "messages": [
+              "heading does not have field \"missing\" and no default was specified"
+            ],
+            "hints": []
+          },
+          "baseline": {
+            "kind": "diagnostic",
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: heading does not have field \"missing\" and no default was specified\n  ┌─ <source:5205b8b7374c90eac2e383fcfea95a56ddc8e4b6d3956f46f45ee42fe7ce716e>:2:84\n  │\n2 │ #context { let found = query(heading); if found.len() == 1 { { let raw = bytes(repr(found.first().at(\"missing\"))); panic(\"P1307R4:\" + range(raw.len()).map(i => str(raw.at(i))).join(\",\") + \":END\") } } }\n  │                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+            "messages": [
+              "heading does not have field \"missing\" and no default was specified"
+            ],
+            "hints": []
+          }
+        }
+      },
+      "measurement_ref": {
+        "artifact": "p1307-r5-content-measurement.json",
+        "collections": [
+          "focal.rows",
+          "bounded.rows"
+        ],
+        "case": "access.error-missing",
+        "profile_key": "profile",
+        "side_key": "side"
+      },
+      "interpretation": "Measured contract input, not automatically an implementation obligation. Callback/phase and equality boundaries require owner classification."
+    }
+  ],
+  "candidate_read": false,
+  "implementation_certified": false,
+  "classify_api": "Frozen p1307-r4-oracle.py classify(expected, observed); full literal envelopes, no sorting/payload normalization",
+  "finished": "2026-09-07T18:24:59.115501+00:00"
+}

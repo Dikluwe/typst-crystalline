@@ -1,0 +1,349 @@
+{
+  "schema": "p1308-independent-final-verification-v1",
+  "at": "2026-09-07T21:19:52.460263+00:00",
+  "executor": "/root/p1306_oracle",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "verdict": "BLOQUEADO_POR_DECISAO_CONTRATO",
+  "checker": {
+    "path": "00_nucleo/diagnosticos/p1308-verification-final-check.py",
+    "sha256": "bf94bca65f1d269a6ec8af9dad60fce12eae0870446b2e274827f5274063ccbd"
+  },
+  "candidate_freeze": {
+    "path": "00_nucleo/diagnosticos/p1308-verification-candidate-freeze.json",
+    "sha256": "ab97e123c61aba8c637412bac90862b9b3522eeaabf79d2da6a26ca4dd2dc4b5"
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1308-manifest.json",
+    "sha256": "ee8df0e15cf50ed0903472c219dd2aefbeb787a11ebb18f12d2b15f8dd754ca1"
+  },
+  "normative_successor": {
+    "path": "00_nucleo/diagnosticos/p1308-manifest-successor-1.json",
+    "sha256": "f15815fd87e067ef654749c5c8212de25c93ed7f9e2fd828a2776251c25511a3"
+  },
+  "integrity_failures": [],
+  "head_and_index_unchanged": true,
+  "protected_predecessors_unchanged": true,
+  "canonical_independent_test_integrations": [
+    "01_core/src/compiler/eval/repr.rs",
+    "01_core/src/compiler/eval/tests.rs",
+    "04_wiring/tests/p1293_contract.rs"
+  ],
+  "test_migrations": 3,
+  "new_tests": 18,
+  "gates": {
+    "green-2": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-green-2.json",
+        "sha256": "5de8bbcefea40b5d085dafb2f62f92ea714772fc894c80f074806bbdd1c305c0"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:04:57.858416+00:00",
+      "end": "2026-09-07T21:06:21.964623+00:00"
+    },
+    "build": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-build.json",
+        "sha256": "83bb4e621eefd14501c5b315964142f916f37b2658f656130c9cf7ebf666f81c"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:10:53.250990+00:00",
+      "end": "2026-09-07T21:10:53.461530+00:00"
+    },
+    "lint": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-lint.json",
+        "sha256": "35541c9244e499cedbaf9279f0775c56570561dd4c1f7cf87ae1269d8bb73f35"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:05:07.960451+00:00",
+      "end": "2026-09-07T21:05:10.648265+00:00"
+    },
+    "fmt": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-fmt.json",
+        "sha256": "69434cf3163e8335a769ac14fe8cf705ffdf95c74ff3998d6a7b29864f854080"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:05:09.602671+00:00",
+      "end": "2026-09-07T21:05:11.864981+00:00"
+    },
+    "workspace-tests": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-workspace-tests.json",
+        "sha256": "d6d8ac5baf46ec195a164965c5140819c1dd00ec08c93e3b0a9063c507c937c2"
+      },
+      "exit": 101,
+      "at": "2026-09-07T21:06:46.540328+00:00",
+      "end": "2026-09-07T21:09:27.130829+00:00"
+    },
+    "public-focal": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-public-focal.json",
+        "sha256": "be9c194dbeddf73fb0603754c15d7f510ad018c7d00f14adc4077582218cbb23"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:11:42.920234+00:00",
+      "end": "2026-09-07T21:11:45.929587+00:00",
+      "counts": {
+        "Preserved": 236,
+        "Violated": 0,
+        "Unknown": 0
+      }
+    },
+    "public-focal-reverse": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-public-focal-reverse.json",
+        "sha256": "9b20cf3ffdc478b70dd81ede4dc0ef8929d8303a442e56c984ac1078b446c157"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:12:52.250408+00:00",
+      "end": "2026-09-07T21:13:06.927414+00:00",
+      "counts": {
+        "Preserved": 236,
+        "Violated": 0,
+        "Unknown": 0
+      }
+    },
+    "public-matrix": {
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-public-matrix.json",
+        "sha256": "0a7094e95b259ae98a9325d29a45f7ab0d5c7b3263e5967b4c8d75f55e64310a"
+      },
+      "exit": 0,
+      "at": "2026-09-07T21:11:48.362815+00:00",
+      "end": "2026-09-07T21:13:43.875529+00:00",
+      "counts": {
+        "Preserved": 1906,
+        "Violated": 76,
+        "Unknown": 0
+      }
+    }
+  },
+  "global_workspace": {
+    "passed": 6619,
+    "failed": 1,
+    "ignored": 3,
+    "status": "FAIL",
+    "failure": "p1293_d_preexisting_arity_and_serializer_transcript_is_frozen"
+  },
+  "exact_frozen_classifier_replayed_offline": true,
+  "product_processes_repeated_by_verifier": 0,
+  "previous_56_failed_cells_now_preserved": true,
+  "new_violated_cells": 76,
+  "new_violated_cases": 19,
+  "new_violations_all_only_append_one_literal_trace": true,
+  "trace_deltas": [
+    {
+      "case": "p1307.cbor.arg.extra",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `cbor.encode` at <input-expression>:1:0\n    cbor.encode((z: (1, 2), a: 3), 2)\n\n"
+    },
+    {
+      "case": "p1307.cbor.arg.missing",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `cbor.encode` at <input-expression>:1:0\n    cbor.encode()\n\n"
+    },
+    {
+      "case": "p1307.cbor.arg.named-value",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `cbor.encode` at <input-expression>:1:0\n    cbor.encode(value: (z: (1, 2), a: 3))\n\n"
+    },
+    {
+      "case": "p1307.cbor.arg.unexpected",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `cbor.encode` at <input-expression>:1:0\n    cbor.encode((z: (1, 2), a: 3), other: true)\n\n"
+    },
+    {
+      "case": "p1307.decoder.cbor.missing",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `cbor` at <input-expression>:1:0\n    cbor()\n\n"
+    },
+    {
+      "case": "p1307.decoder.cbor.wrong-type",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `cbor` at <input-expression>:1:0\n    cbor(42)\n\n"
+    },
+    {
+      "case": "p1307.decoder.csv",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `csv` at <input-expression>:1:5\n    csv(bytes(\"a,b\\nc,d\\n\"))\n\n"
+    },
+    {
+      "case": "p1307.decoder.csv.missing",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `csv` at <input-expression>:1:0\n    csv()\n\n"
+    },
+    {
+      "case": "p1307.decoder.csv.wrong-type",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `csv` at <input-expression>:1:0\n    csv(42)\n\n"
+    },
+    {
+      "case": "p1307.decoder.json.missing",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `json` at <input-expression>:1:0\n    json()\n\n"
+    },
+    {
+      "case": "p1307.decoder.json.wrong-type",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `json` at <input-expression>:1:0\n    json(42)\n\n"
+    },
+    {
+      "case": "p1307.decoder.read.missing",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `read` at <input-expression>:1:0\n    read()\n\n"
+    },
+    {
+      "case": "p1307.decoder.read.wrong-type",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `read` at <input-expression>:1:0\n    read(42)\n\n"
+    },
+    {
+      "case": "p1307.decoder.toml.missing",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `toml` at <input-expression>:1:0\n    toml()\n\n"
+    },
+    {
+      "case": "p1307.decoder.toml.wrong-type",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `toml` at <input-expression>:1:0\n    toml(42)\n\n"
+    },
+    {
+      "case": "p1307.decoder.xml.missing",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `xml` at <input-expression>:1:0\n    xml()\n\n"
+    },
+    {
+      "case": "p1307.decoder.xml.wrong-type",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `xml` at <input-expression>:1:0\n    xml(42)\n\n"
+    },
+    {
+      "case": "p1307.decoder.yaml.missing",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `yaml` at <input-expression>:1:0\n    yaml()\n\n"
+    },
+    {
+      "case": "p1307.decoder.yaml.wrong-type",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "exact_added_trace": "  while calling `yaml` at <input-expression>:1:0\n    yaml(42)\n\n"
+    }
+  ],
+  "causal_review": "Candidate Source overlay exposes the already parsed expression to existing trace_call containment. Seven productive owners changed within declared scope; closed native panic identity, callback origin and method routing conform to reviewed L0. No CBOR/decoder validation was changed. Literal new traces explain the 76 deltas but remain Violated against protected expectations.",
+  "architecture_limit": "No new public World method, I/O or global mutable state was introduced by reviewed deltas. Overlay delegates every current World method. This source audit and focal GREEN are not a full architecture/product certificate.",
+  "contract_decision_required": "Decide explicitly whether protected 19 R6 cases and the remaining P1293 transcript should accept natural Source-resolved traces while keeping primary messages/ranges/hints and validation. No expected is migrated by this verification.",
+  "mutation_campaign": {
+    "status": "SUSPENDED_BEFORE_ANY_BUILD",
+    "control_builds": 0,
+    "actual_Rust_mutants": 0,
+    "score": null,
+    "pending_P1308": 6,
+    "pending_P1307": 37,
+    "lease_suspension": {
+      "path": "00_nucleo/diagnosticos/p1308-mutation-lease-suspension.json",
+      "sha256": "2ba03bb73caab310186a0fab516f83e7584b6c6bedc33cba9ed3e452ac9c7c9b"
+    }
+  },
+  "full_discriminatory_seal": false,
+  "candidate_accepted": false,
+  "chronology": "Successful pre-candidate integrity checkpoint preceded edits; manifest file followed coordinator interpretation of the success message as GO. No retroactive timestamp or isolation attestation.",
+  "preserved_disposable_paths": [
+    "/dev/shm/p1308-mutant-source.PmokqQ",
+    "/dev/shm/p1308-mutant-target.NV7BUV"
+  ]
+}

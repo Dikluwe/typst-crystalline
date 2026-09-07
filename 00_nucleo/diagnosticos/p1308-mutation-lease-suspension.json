@@ -1,0 +1,15 @@
+{
+  "schema": "p1308-mutation-lease-suspension-v1",
+  "suspended_by": "/root",
+  "lease_sha256": "f1672c7fb23ae4049b8e9b4bf95ca15356a13169a74f68f9eded9275c0b238cc",
+  "reason": "Frozen R6 preservation controls gained Source-resolved traces; independent decision required before further acceptance work.",
+  "control_builds_started": 0,
+  "mutant_builds_started": 0,
+  "actual_Rust_mutants": 0,
+  "candidate_freeze_sha256": "ab97e123c61aba8c637412bac90862b9b3522eeaabf79d2da6a26ca4dd2dc4b5",
+  "disposable_copy": "/dev/shm/p1308-mutant-source.PmokqQ",
+  "unused_target": "/dev/shm/p1308-mutant-target.NV7BUV",
+  "copy_excludes": ["00_nucleo/materialization", "00_nucleo/context"],
+  "no_expected_or_product_changes_by_verifier": true,
+  "cleanup": "Disposable paths retained pending explicit cleanup; immutable baseline and candidate binaries untouched."
+}

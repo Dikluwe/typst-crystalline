@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/collections` — superfícies de array, dict, str, bytes e arguments
-Hash do Código: fdc334c2
+Hash do Código: 3dad9a91
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/collections.rs`  
@@ -448,3 +448,94 @@ igualdade semântica dos dois caminhos. Sentinelas mínimas:
 `arguments.len(arguments(1,x:2)) == 2`. Extensões cristalinas já documentadas
 (`char-*`, `repeat`, `dict.update`) permanecem; não podem substituir nem
 ocultar os nomes vanilla.
+
+## P1307-R3 — transformação causal de arguments
+
+**Estado**: `DRAFT_L0_AWAITING_ADR0127`. As decisões abaixo são alterações
+explícitas de transporte e, nos casos de ordem/ocorrências, de comportamento;
+não são uma extensão automática do fluxo contínuo histórico P1284.
+
+### Medição anterior à decisão
+
+No HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais P1306,
+`01_core/src/compiler/stdlib/collections.rs:545-549` retira receiver ao
+reconstruir Args; `:2402-2487` filter/map percorrem posicionais antes de
+named e recriam views sem origens. No vanilla ratificado `a51e02804`,
+`lab/typst-original/crates/typst-library/src/foundations/args.rs:414-445`
+percorre cada ocorrência na ordem conjunta; filter conserva o Arg, map
+conserva nome/arg-span e cria value-span detached. `:485-491` deixa o
+span agregado dos dois resultados detached. Não inferir span de valor novo
+da igualdade do resultado com o anterior.
+
+As origens de Args/sink foram medidas na matriz independente
+`00_nucleo/diagnosticos/p1307-r2-measurement.json`, SHA-256
+`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`.
+Esta extensão de filter/map deriva da fonte acima; sua cobertura binária
+adversarial adicional permanece obrigação futura, não PASS já medido.
+
+### Decisão sujeita à confirmação humana
+
+O owner usa `entities/args.md`; não redefine seu tipo. Na delegação estática,
+retirar o receiver por `remove_positional(0)`, preservando a sequência dos
+argumentos restantes. O Value::Args usado como receiver mantém sua sequência
+independente da lista que o passa ao método.
+
+`arguments.filter` percorre `occurrence_sequence` na ordem, aplica o
+predicado uma vez por ocorrência e exige bool. Retém a ocorrência original
+quando true. `arguments.map` percorre a mesma ordem e aplica mapper uma vez
+por ocorrência; mantém name/arg-span, substitui value e destaca value-span.
+Os dois resultados são `Args::from_occurrences(Span::detached(), sequence)`.
+Callbacks continuam por apply_func, com argumentos de callback sintéticos;
+não ganham a origem lexical do valor transportado por conveniência.
+
+Isto preserva named repetidos e pode mudar quantidade/ordem de callbacks
+relativamente às antigas views separadas. É mudança semântica declarada.
+`arguments.len` conta a sequência quando Some (todas as ocorrências);
+quando None, conta items+named. O método Rust Args::len não muda.
+`pos` e `named` devolvem as views; `at` mantém índice positional ou lookup
+do último named e os defaults/erros vigentes. Repr é de `compiler/eval/repr.md`.
+
+Não invalidar carrier de usuário para manter um loop legado sobre views.
+Outras coleções, mensagens de métodos (exceto revisão P1308 abaixo),
+curto-circuito e mutação l-value ficam como antes. Spans privados P1215 não migram automaticamente para novo esquema;
+as fronteiras de correção de cada método continuam nos seus contratos.
+
+### Aceitação
+
+Após gate, cobrir ordem mista, named repetido obtido legalmente por spread,
+callbacks que distinguem ordem e falham na primeira ocorrência, filter que
+remove um dos repetidos, map com retorno igual e com outro tipo, erros após
+map com arg-span preservado e value-span detached, e resultado vazio.
+Medir mensagens/hints/traces/âncoras sem confundir detached observado com
+Unknown. As mudanças de ordem, contagem e span agregado acima não podem ser
+ocultadas como ajustes mecânicos de struct literal.
+
+## P1308 — cast do retorno de arguments.filter na origem da função
+
+### Medição anterior à decisão
+
+Baseline P1308 SHA-256
+`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`.
+A matriz pública R6 final, pinada no relatório predecessor, mede
+`expected boolean, found int` detached contra `integer` no parâmetro da
+closure. Fonte ratificada `foundations/args.rs:408–412` faz cast bool e
+ancora em `test.span()`; a origem da closure é params.span em
+`typst-eval/src/call.rs:638`, não seu resultado nem o valor filtrado.
+
+### Decisão autorizada
+
+Somente no cast do retorno de `arguments.filter`, usar o nome longo
+`vanilla_type_name` e `test.diagnostic_span()` do carrier privado de Func.
+Não reancorar erro produzido dentro do callback. Não usar span do body,
+argumento filtrado, última chamada, posição atual ou AST reconstruída.
+Função sintética detached conserva detached. Aliases e With mantêm origem
+pela entidade Func, sem lógica própria aqui. Callbacks continuam recebendo
+Args sintéticos e são executados uma vez por ocorrência em ordem causal.
+True retém a ocorrência completa; false a remove. Map permanece destacando
+somente value_span do resultado, sem inventar origem por igualdade.
+
+Panics nos callbacks seguem o contrato da nativa panic/call_dispatch: este
+owner apenas propaga esses erros. Não corrigir outras coleções, aridade,
+named, outros casts ou mensagens incidentais. Aceitação exige callback
+direto/nomeado/alias/With, duplicatas, primeiro erro e controles de sucesso;
+texto, hints, origem e traces são comparados integralmente.

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: e2f2a9f6
+Hash do Código: 5e664627
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -263,8 +263,9 @@ summary semântico; `header-cell` e `data-cell` aceitam conteúdo cru ou
 As mesmas regressões devem preservar:
 
 - `std.nope`, `calc.nope`, `sym.nope` e `color.map.nope` com mensagens
-  P1301r2, zero hints e span somente em `nope`, inclusive `std` projetado como
-  `global`;
+  P1301r2, zero hints e span somente em `nope`, inclusive o módulo global real
+  alcançado por `std` publicando `global`; P1306 distingue esse módulo do
+  import ordinário `std.typ` que publica `std`;
 - um lookup existente em cada módulo — `std.rgb`, `calc.abs`, `sym.alpha` e
   `color.map.viridis` — com valor e kind preservados;
 - o dicionário ausente com mensagem
@@ -370,3 +371,210 @@ modo válido, e alteração de lookup/feature gate. Mutantes válidos devem
 ser rejeitados semanticamente; `Unknown` e execuções inválidas não são
 sucesso. Oráculos ficam congelados antes de ler candidato; este owner
 test-only não autoriza editar os outros owners ou ampliar escopo.
+
+## P1306 — regressões da identidade diagnóstica de módulos nomeados
+
+### Medição independente anterior à decisão
+
+O recibo `00_nucleo/diagnosticos/p1306-contract-measurement.json`, SHA-256
+`d3066b1bf00ff3120190e329752df7547758f5b03f367a22c6cded83f31310fb`, registra
+304 execuções válidas entre `2026-09-07T15:07:28.245613+00:00` e
+`2026-09-07T15:07:53.110165+00:00`, HEAD
+`b303f1f15b610e09872b567027e0d806387fde8c`, sem diff tracked/staged e com
+untracked exatos no status antes/depois. Baseline certificado P1305 SHA-256
+`be51045f1df75ac42ee081801ddf7f738f709029e3694b9205473ba5fa8b31d4`; vanilla
+ratificado `a51e02804` SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+
+As rotas ordinárias direta/alias/sombra/reexport/nesting de `std.typ`
+publicaram `global` no erro cristalino contra `std` no vanilla, nos quatro
+perfis; os positivos pareados confirmaram import, repr e lookup válidos.
+O global real e aliases já publicaram `global`. A fonte pré-candidata
+`01_core/src/compiler/eval/bindings/field_access.rs:376-382` revela conversão
+nominal remanescente, embora `eval/mod.rs:324,562` e `eval/modules.rs:66` já
+guardem `global`. A fonte vanilla
+`lab/typst-original/crates/typst-library/src/foundations/module.rs:139-150`
+projeta o nome guardado. A medição mantém a falha anterior de opção CLI como
+instrumentação inválida, nunca RED. O dict total preexistente segue controle
+cristalino de preservação, não alegação de igualdade com vanilla.
+
+### Classificação e obrigações de teste
+
+Diagnósticos e lookup são linguagem; estrutura Rust não é oracle. É inferência
+que casos pareados e adversariais distinguem identidade real de coincidência
+nominal; um mutante válido sobrevivente, positivo inválido ou observável
+obrigatório opaco refutaria a suficiência. Esta correção test-only acompanha
+`ADR-0127_CONTINUOUS_DIAGNOSTIC_PARITY`, preservando API/default/fase.
+
+Os testes devem separar explicitamente global real de arquivo ordinário
+`std.typ`. O primeiro, inclusive alias, exige nome `global`; o segundo exige
+`std`, independentemente de alias, sombra lexical, nesting ou reexport integral
+`std: *`. Cobrir também arquivos `global.typ`, `map.typ`, nome não reservado,
+calc/sym/color.map e acessos existentes com valor/kind/chamada/repr preservados.
+As expectativas vêm da fonte/intenção/vanilla congelados antes do candidato.
+
+Cada erro de módulo nomeado exige mensagem exata
+``module `<nome-guardado>` does not contain `<field>` ``, severidade error,
+zero hints, um erro primário, ausência de laterais novos, stdout vazio, exit
+correto e span half-open resolvível apenas sobre o field. Cobrir `nope` e
+outro identificador, com offsets de linha e coluna diferentes, nos perfis
+default/html/a11y/html+a11y. Import inválido, arquivo ausente e falha de parser
+ou adaptador não contam como RED. Uma origem importada exige resolver a âncora
+na fonte real; apresentação de path não autoriza apagar diferenças semânticas.
+
+Preservar cumulativamente P1300/P1301/P1303/P1305: gates PDF, mensagens e hints
+ordenados, spans, funções presentes, dict com span total, float/is-nan
+field-only, imports e repr. Warning preexistente de bare import é dívida
+individualizada por fixture/perfil antes do selo; nunca retirar warnings
+genericamente. Testes não corrigem wrappers, arrays, constructors ou encoders.
+
+O corpus e seus controles devem rejeitar nove famílias: projeção nominal
+antiga; todo módulo global; global real chamado std; identidade pelo alias;
+correção somente de um field; correção somente de um perfil; span sobre alvo
+ou expressão; diagnóstico acrescentado/perdido; lookup existente
+apagado/alterado. Aplicação/compilação inválida de mutante não é morte; exige
+instrumentação corrigida com preservação da tentativa e restauração verificada.
+
+Exigir RED pré-candidato pela divergência de nome, GREEN dos mesmos casos,
+controles preservados, todos os mutantes válidos rejeitados, repetição normal
+e ordem invertida estáveis. `Unknown` obrigatório bloqueia; não inventar caso
+opaco para preencher matriz. Este owner permanece exclusivamente test-only,
+sem autorização para modificar o consumer de produto ou as provas históricas.
+
+## P1307-R3 — regressões de encoders e transporte causal
+
+### Medição anterior à decisão
+
+Os recibos P1307 SHA-256
+`f1191d3de029dabf6f66f87872bee8146aa43106ae54e84facc22952afd238d0`
+e R2 SHA-256
+`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`
+em `00_nucleo/diagnosticos/` medem a superfície inexistente no baseline,
+repr parcial anônima, casts de named anteriores e origens f/g distintas.
+Baseline R3 SHA-256
+`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`
+conserva HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, diff/stat completo
+P1306 e fontes antes dos novos L0. A referência permanece upstream ratificado
+`a51e02804`, nunca a string de versão isolada. R2 resolveu observabilidade
+contextual com compile e features reais; uso anterior de `eval --in` inválido
+não conta como RED nem ausência do tipo.
+
+### Obrigações após aprovação ADR-0127
+
+Este consumer é exclusivamente `01_core/src/compiler/eval/tests.rs`.
+Seu autor independente congela expectativas antes do candidato. Só depois
+da aprovação pública e auditoria dos writers de Args pode escrever RED.
+Reutilizar evidência válida, mas completar previamente as mudanças de ordem
+de Args, filter/map/join, repr With de outras nativas e deltas de fallback
+CBOR que ainda não foram medidos. Fonte sustenta a proposta, não GREEN.
+
+Exigir strings integrais JSON/TOML/YAML em default/pretty/compact quando
+válido, dados e escaping completos, ordem TOML escalares/tables, multiline,
+None, não finitos, -0.0, Bytes/Symbol/Content/LocatedContent e fallbacks de
+cada classe pública. Não usar o candidato como gerador de expected, nem
+round-trip, substring, tamanho ou bytes truncados como oracle suficiente.
+Location e LocatedContent usam rota contextual com fixture válida, resultado
+tipado e observação do valor real, nunca marker copiado do eco da source.
+
+Cobrir pais chamáveis, namespaces exatos, membros ausentes de csv/xml/read,
+alias/With/shadow/reexport e default/html/a11y/html+a11y. Repr do membro é
+encode; repr de With é `(..) => ..`. Parent With não transmite prebindings
+ao membro. Cast inválido anterior não desaparece com named válido posterior.
+Encadeamentos, spread de Array/Dict/Args, sink/factory, import com source
+resolvível e iguais valores com origens distintas devem discriminar perdas.
+Filter conserva spans individuais; map destaca value_span; ambos destacam
+o agregado. Join elimina named LHS presentes RHS, diferente de With.
+Callbacks de arguments usam ordem causal/repetições; pos/named projetam as
+views, len de linguagem conta ocorrências e len Rust mantém posicionais.
+
+Cada negativo compara mensagem completa, severidade, exit, stdout, quantidade,
+hints ordenados, laterais e ranges UTF-8 half-open na source real. Detached
+previsto pelo contrato é distinto de Unknown do adaptador e de perda indevida
+de span. Não remapear mensagem para selecionar âncora nem apagar diferenças.
+
+Preservar cumulativamente as sentinelas P1300/P1301/P1303/P1305/P1306, os
+decoders e os controles CBOR já congelados. Symbol/Content CBOR continuam
+dívida, não equalizar silenciosamente ao vanilla. A repr canônica corrigida
+altera explicitamente os fallbacks de State/Counter/Location/With/Args;
+esses casos precisam de expectativas sucessoras e comparação integral,
+não da afirmação falsa de preservação geral de CBOR.
+
+Ataques devem discriminar no mínimo: binding/perfil omitido; pai quebrado;
+namespace herdado com args indevidos; identidade parcial incorreta; pretty
+ignorado; ordem/escaping/multiline adulterados; perda de dados; classe
+especial tratada como repr; TOML aplicado aos outros formatos; None/não
+finito/-0.0 errados; fallback Debug; erro/hint/lateral/range incorreto;
+ocorrência named apagada; origem f/g fundida; carrier stale por view mutada;
+filter/map com spans trocados; join tratado como With; sink que retém
+consumidos; callback reordenado; alteração CBOR fora da exceção contratada.
+Não substituir as famílias obrigatórias do plano independente já congelado
+por esta lista resumida. Mutante inválido não é morto; Unknown obrigatório
+bloqueia, e cada controle novo precisa de decisão nova. Os artefatos antigos
+permanecem imutáveis; este L0 não declara testes executados ou aceitação.
+
+### P1307-R4 — refinamento independente antes de RED
+
+O focal encerrado em `2026-09-07T17:37:05.017565+00:00`, baseline R4 SHA-256
+`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+conservado integralmente em `00_nucleo/diagnosticos/p1307-r4-contract-refinement.json`,
+mede que o sink agrupa named restantes antes dos positional, sem apagar
+duplicatas; o constructor arguments continua na ordem lexical. Expectativas
+devem distinguir esses caminhos, conforme `compiler/eval/closures.md` R4,
+inclusive consumed named, default omitido e duas origens iguais distintas.
+Não exigir o intercalamento incorreto inferido em R3 para o resultado do sink.
+A dívida de binding de sink não-terminal permanece controle baseline explícito.
+
+O mesmo focal `args.join-duplicates` mede sucesso vanilla e erro baseline
+`cannot add arguments and arguments`. Testar o operador + real, não apenas
+o helper de join: o roteamento de `compiler/eval/operators/arithmetic.md`
+também é necessário à semântica Args+Args já aprovada. As outras combinações
+aritméticas permanecem controles; None-identidade de join não implica nova
+aceitação de Args+None pelo operador +. São correções medidas de contrato e
+roteamento antes do candidato, não expectativas escolhidas para um patch.
+
+## P1308 — regressões independentes dos quatro limites autorizados
+
+Medição anterior à decisão: recibo `p1308-measure.json` em diagnosticos,
+SHA-256 `ce758b5c2a18288bf9c8433178f577b50c52df80cedcddcb1f4daa4e785573fc`,
+fixa os dois binários e mede Args+None, None+Args, callback/panic, traces e
+repr longa. Os L0 proprietários P1308 determinam os resultados, não o patch.
+
+Testar identidades Args/None sem perda de origem, âncoras de closure
+direta/alias/With/spreads, mensagem completa do cast boolean, panic em call
+inteiro e Source/trace pela entrada pública. `filter(str)` mantém origem
+detached da função sintetizada a partir do tipo. Erros named de panic
+conservam dívida baseline explicitamente, sem alegar paridade.
+Nesses controles, baseline fixa mensagem e span primário; o trace segue a
+regra vigente com Source resolvível, conforme o owner panic, não a omissão
+acidental de trace no baseline.
+Migrar independentemente somente o expected inline longo de
+`p1305_args_fields_remain_integral` para a forma multiline integral medida.
+Acrescentar fronteiras 50/51 bytes, sem truncamento. Nenhum teste é removido;
+falhas adicionais exigem diagnóstico e decisão, nunca adaptação ao candidato.
+
+## P1308-R2 — transcripts de preservação com Source resolvível
+
+Medição anterior à decisão: `p1308-verification-final.json` em diagnosticos,
+SHA-256 `06a57344f4e8039c1cd96a1df1aa2b2b2c159797e8080f1841844541e012ac60`,
+reclassifica os 1982 registros públicos sem modificar o observador: 76
+violações novas em 19 casos, todas exclusivamente por um trace anexado ao
+stderr esperado. Mensagens, severidades, spans primários, hints e valores
+continuam iguais. O recibo fixa código, binário e estado exatos. A Source
+local passou a ser resolvível; não houve correção de validação CBOR/decoders.
+
+O dono autorizou explicitamente migrar esses transcripts e commitar em
+“Faça o commite do que falta e autorizo”, após conhecer esse bloqueio.
+São observáveis diagnósticos, não igualdade mecânica. O contrato sucessor
+preserva a dívida primária e acrescenta o trace causal, sem alegar paridade
+vanilla dos erros portugueses/detached.
+
+Autor independente pode criar sucessor dos 19 casos enumerados nesse
+recibo (quatro cbor.encode, quinze decoders/read), nos quatro perfis,
+substituindo somente o stderr esperado por sua extensão literal autorizada.
+Não apagar traces, não criar comparador tolerante, não alterar os demais
+casos, fixtures, Unknown, hints ou erros primários. Artefatos R6 e P1308
+anteriores continuam imutáveis, inclusive resultados Violated históricos.
+Os 18 testes P1308 permanecem intactos; esta revisão não exige código de
+produto nem novos testes internos, só legitima a exceção estreita de
+preservação do corpus associado. Revalidar o fragmento, a matriz completa
+e a ordem inversa; alteração além do trace invalida a migração.

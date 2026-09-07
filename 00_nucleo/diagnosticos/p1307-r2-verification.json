@@ -1,0 +1,97 @@
+{
+  "schema": "p1307-r2-documentary-integrity-v1",
+  "at": "2026-09-07T16:51:27.390637+00:00",
+  "status": "P1307_R2_AUDIT_COMPLETE_PUBLIC_CARRIER_SCOPE_REQUIRED",
+  "executor": "/root documentary coordinator; not a final independent implementation verifier",
+  "regime": "executado sem atestacao de isolamento tecnico",
+  "checks": {
+    "head_unchanged": true,
+    "tracked_diff_unchanged": true,
+    "all_source_L0_Cargo_hashes_unchanged": true,
+    "old_P1307_artifacts_unchanged": true,
+    "P1306_closure_unchanged": true,
+    "step_unchanged": true,
+    "new_preflight_and_coordinator_pins_match": true,
+    "binary_pins_match": true,
+    "matrix_dimensions": true,
+    "matrix_unique_keys": true,
+    "complete_output_stability": true,
+    "matrix_unknowns_zero": true,
+    "context_types_really_constructed": true,
+    "feature_controls_not_ignored": true,
+    "CBOR_full_public_octets": true,
+    "partial_function_repr_retification": true,
+    "read_only_gates_pass": true,
+    "unstaged": true,
+    "no_undeclared_files": true,
+    "declared_artifacts_parse_and_whitespace": true
+  },
+  "consistent": true,
+  "inputs": {
+    "p1307-r2-preflight.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-preflight.json",
+      "sha256": "f09eb44503af474a02f8f4823756e1672bb7d3266610c8805f28c9448536c257",
+      "bytes": 2863
+    },
+    "p1307-r2-coordinator.py": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-coordinator.py",
+      "sha256": "56cbc8fb504b0cefbbe60512d329b262b415563476d1fee4d17df80c5c3fcdb7",
+      "bytes": 5047
+    },
+    "p1307-r2-baseline.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-baseline.json",
+      "sha256": "0c0e92fa4c84bb23a1e2adefc95e93ad75ffaf0f12f3edce58ab8e9393b2f611",
+      "bytes": 157215
+    },
+    "p1307-r2-repr-audit.md": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-repr-audit.md",
+      "sha256": "2f1d3d553373e7c657a159d585b5e4319d4c3f81ca60bc3762324b2ebd7f1e4e",
+      "bytes": 6890
+    },
+    "p1307-r2-span-audit.md": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-span-audit.md",
+      "sha256": "adb27e4be810f841c06fb70cf611f63bb6205443e2d7d47c8485de6a6f962910",
+      "bytes": 23178
+    },
+    "p1307-r2-observe.py": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-observe.py",
+      "sha256": "ebf05054b737357c9ee80bbef764fe4c1cac37f8209af4af3d59b88108dcce62",
+      "bytes": 13836
+    },
+    "p1307-r2-measurement.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-measurement.json",
+      "sha256": "847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2",
+      "bytes": 2216267
+    },
+    "p1307-r2-observability.md": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-observability.md",
+      "sha256": "5b76a7899714ac169f7b6e127c2da09a2ccb97b66e72f92e981690de2146410c",
+      "bytes": 10274
+    },
+    "p1307-r2-report.md": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-report.md",
+      "sha256": "21a660b10c1aef1d2d22a47d3d8f21df61bd46cc32e9d1055e28efc68cadf271",
+      "bytes": 8469
+    },
+    "p1307-r2-gates.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1307-r2-gates.json",
+      "sha256": "e92737bd0b7b426aa218420772621aedef2e6852106c3f9b1d6bdca0b9d395a4",
+      "bytes": 314461
+    }
+  },
+  "state": {
+    "head": "b303f1f15b610e09872b567027e0d806387fde8c\n",
+    "diff_stat": " .../prompts/compiler/eval/bindings/field_access.md |  94 +++++++++-\n 00_nucleo/prompts/compiler/eval/tests.md           |  76 +++++++-\n 01_core/src/compiler/eval/bindings/field_access.rs |   4 +-\n 01_core/src/compiler/eval/tests.rs                 | 198 ++++++++++++++++++++-\n 4 files changed, 360 insertions(+), 12 deletions(-)\n",
+    "status": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/tests.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/eval/tests.rs\n?? 00_nucleo/diagnosticos/p1305-commit-notes.md\n?? 00_nucleo/diagnosticos/p1306-attacks.json\n?? 00_nucleo/diagnosticos/p1306-baseline-measurement.json\n?? 00_nucleo/diagnosticos/p1306-build.json\n?? 00_nucleo/diagnosticos/p1306-certificate.json\n?? 00_nucleo/diagnosticos/p1306-contract-measure.py\n?? 00_nucleo/diagnosticos/p1306-contract-measurement.json\n?? 00_nucleo/diagnosticos/p1306-contract.json\n?? 00_nucleo/diagnosticos/p1306-discriminator.json\n?? 00_nucleo/diagnosticos/p1306-final-measurement.json\n?? 00_nucleo/diagnosticos/p1306-final-report.md\n?? 00_nucleo/diagnosticos/p1306-gates.json\n?? 00_nucleo/diagnosticos/p1306-green.json\n?? 00_nucleo/diagnosticos/p1306-lineage-reopening.json\n?? 00_nucleo/diagnosticos/p1306-manifest.json\n?? 00_nucleo/diagnosticos/p1306-matrix.json\n?? 00_nucleo/diagnosticos/p1306-mutant-ledger.json\n?? 00_nucleo/diagnosticos/p1306-oracle-cases.json\n?? 00_nucleo/diagnosticos/p1306-oracle-receipt.json\n?? 00_nucleo/diagnosticos/p1306-oracle.py\n?? 00_nucleo/diagnosticos/p1306-planning-measurement.json\n?? 00_nucleo/diagnosticos/p1306-preflight.json\n?? 00_nucleo/diagnosticos/p1306-red.json\n?? 00_nucleo/diagnosticos/p1306-run-command.py\n?? 00_nucleo/diagnosticos/p1306-seal.json\n?? 00_nucleo/diagnosticos/p1306-successor-seal.json\n?? 00_nucleo/diagnosticos/p1306-verification.json\n?? 00_nucleo/diagnosticos/p1306-verify.py\n?? 00_nucleo/diagnosticos/p1307-baseline.json\n?? 00_nucleo/diagnosticos/p1307-contract-measure.py\n?? 00_nucleo/diagnosticos/p1307-contract-measurement.json\n?? 00_nucleo/diagnosticos/p1307-contract.md\n?? 00_nucleo/diagnosticos/p1307-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-gates.json\n?? 00_nucleo/diagnosticos/p1307-manifest.json\n?? 00_nucleo/diagnosticos/p1307-mutant-plan.json\n?? 00_nucleo/diagnosticos/p1307-oracle-measurement.json\n?? 00_nucleo/diagnosticos/p1307-oracle-receipt.json\n?? 00_nucleo/diagnosticos/p1307-oracle.json\n?? 00_nucleo/diagnosticos/p1307-oracle.py\n?? 00_nucleo/diagnosticos/p1307-pre-gate-report.md\n?? 00_nucleo/diagnosticos/p1307-pre-gate-seal.json\n?? 00_nucleo/diagnosticos/p1307-pre-gate-verification.json\n?? 00_nucleo/diagnosticos/p1307-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r2-baseline.json\n?? 00_nucleo/diagnosticos/p1307-r2-coordinator.py\n?? 00_nucleo/diagnosticos/p1307-r2-gates.json\n?? 00_nucleo/diagnosticos/p1307-r2-measurement.json\n?? 00_nucleo/diagnosticos/p1307-r2-observability.md\n?? 00_nucleo/diagnosticos/p1307-r2-observe.py\n?? 00_nucleo/diagnosticos/p1307-r2-preflight.json\n?? 00_nucleo/diagnosticos/p1307-r2-report.md\n?? 00_nucleo/diagnosticos/p1307-r2-repr-audit.md\n?? 00_nucleo/diagnosticos/p1307-r2-span-audit.md\n?? 00_nucleo/diagnosticos/p1307-verify.py\n?? 00_nucleo/materialization/typst-passo-1306.md\n?? 00_nucleo/materialization/typst-passo-1307.md\n"
+  },
+  "matrix_runs": 1152,
+  "matrix_Unknown": 0,
+  "candidate_exists": false,
+  "L0_changed": false,
+  "public_contract_approval_received": false,
+  "implementation_authorized": false,
+  "ready_encoder_seal": false,
+  "mutation_score": null,
+  "scope": "Verifies documentary integrity, fixed observation route and preservation of old code/evidence. Does not certify full encoder parity or approve proposed Args design.",
+  "reproduction_check_python": "\nimport ast, datetime, hashlib, json, subprocess\nfrom pathlib import Path\nroot=Path.cwd(); d=root/'00_nucleo/diagnosticos'\ndef read(n): return json.loads((d/n).read_text())\ndef digest(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()\ndef pin(p): return {'path':str(p),'sha256':digest(p),'bytes':p.stat().st_size}\ndef git(*a): return subprocess.check_output(['git',*a],text=True)\nb=read('p1307-r2-baseline.json'); old=read('p1307-baseline.json'); pf=read('p1307-r2-preflight.json')\nm=read('p1307-r2-measurement.json')['matrix']; gates=read('p1307-r2-gates.json')\nchecks={}\nchecks['head_unchanged']=git('rev-parse','HEAD')==b['state']['head']\nchecks['tracked_diff_unchanged']=git('diff','HEAD','--binary')==b['state']['diff']\nchecks['all_source_L0_Cargo_hashes_unchanged']=all(digest(root/p)==h for p,h in b['source_inventory'].items())\nchecks['old_P1307_artifacts_unchanged']=all(digest(r['path'])==r['sha256'] for r in b['predecessor_artifacts'].values())\nchecks['P1306_closure_unchanged']=all(digest(r['path'])==r['sha256'] for r in old['p1306_closure'].values())\nchecks['step_unchanged']=digest(old['step']['path'])==old['step']['sha256']\nchecks['new_preflight_and_coordinator_pins_match']=all(digest(b[k]['path'])==b[k]['sha256'] for k in ['preflight','script'])\nchecks['binary_pins_match']=all(digest(r['path'])==r['sha256'] for r in b['binaries'].values())\nchecks['matrix_dimensions']=len(m['cases'])==48 and set(m['orders'])=={'normal','repeat','reverse'} and all(len(rows)==384 for rows in m['orders'].values())\nnormal={(r['case'],r['profile'],r['side']):r for r in m['orders']['normal']}\nchecks['matrix_unique_keys']=len(normal)==384 and all(len({(r['case'],r['profile'],r['side']) for r in rows})==384 for rows in m['orders'].values())\nchecks['complete_output_stability']=all(all(r[k]==normal[(r['case'],r['profile'],r['side'])][k] for k in ['returncode','stdout','stderr','observable']) for rows in m['orders'].values() for r in rows)\nchecks['matrix_unknowns_zero']=not m['unknowns'] and all(r['observable']['kind']!='Unknown' for rows in m['orders'].values() for r in rows)\nchecks['context_types_really_constructed']=all(r['observable']['kind']=='transported-public-string' and r['observable']['value']==({'type-Location':'location','type-LocatedContent':'content'}[r['case']]) for r in m['orders']['normal'] if r['case'] in ('type-Location','type-LocatedContent'))\nchecks['feature_controls_not_ignored']=all((r['observable']['kind']=='transported-public-string' if ((r['case']=='feature-html' and r['profile'] in ('html','html+a11y')) or (r['case']=='feature-a11y' and r['profile'] in ('a11y','html+a11y'))) else r['observable']['kind']=='diagnostic') for r in m['orders']['normal'] if r['case'] in ('feature-html','feature-a11y'))\nchecks['CBOR_full_public_octets']=all(r['observable']['kind']=='value' and isinstance(r['observable']['value'],list) and all(type(v) is int and 0<=v<=255 for v in r['observable']['value']) for r in m['orders']['normal'] if r['case'].startswith('cbor-payload-'))\nchecks['partial_function_repr_retification']=all(r['observable']=={'kind':'value','value':['function','(..) => ..']} for r in m['orders']['normal'] if r['side']=='vanilla' and r['case'].endswith('encoder-with-identity'))\nchecks['read_only_gates_pass']=all(g['exit']==0 for g in gates if g['kind']=='read_only_gate')\nchecks['unstaged']=not git('diff','--cached','--name-only')\nexpected={'00_nucleo/diagnosticos/'+n for n in pf['outputs_exact']}\ninitial={line[3:] for line in b['state']['status'].splitlines() if line.startswith('?? ')}\nchecks['no_undeclared_files']=not (set(git('ls-files','--others','--exclude-standard').splitlines())-initial-expected)\nfiles={}\nfor n in pf['outputs_exact']:\n if n=='p1307-r2-verification.json': continue\n p=d/n; text=p.read_text()\n if p.suffix=='.json': json.loads(text)\n if p.suffix=='.py': ast.parse(text)\n assert text.endswith('\\n') and all(line==line.rstrip() for line in text.splitlines()),n\n files[n]=pin(p)\nchecks['declared_artifacts_parse_and_whitespace']=True\nresult={'schema':'p1307-r2-documentary-integrity-v1','at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'P1307_R2_AUDIT_COMPLETE_PUBLIC_CARRIER_SCOPE_REQUIRED','executor':'/root documentary coordinator; not a final independent implementation verifier','regime':'executado sem atestacao de isolamento tecnico','checks':checks,'consistent':all(checks.values()),'inputs':files,'state':{'head':git('rev-parse','HEAD'),'diff_stat':git('diff','HEAD','--stat'),'status':git('status','--short')},'matrix_runs':sum(map(len,m['orders'].values())),'matrix_Unknown':len(m['unknowns']),'candidate_exists':False,'L0_changed':False,'public_contract_approval_received':False,'implementation_authorized':False,'ready_encoder_seal':False,'mutation_score':None,'scope':'Verifies documentary integrity, fixed observation route and preservation of old code/evidence. Does not certify full encoder parity or approve proposed Args design.'}\nprint(json.dumps(result,ensure_ascii=False,indent=2))\n"
+}

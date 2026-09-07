@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags.md
-//! @prompt-hash e4e2bfb5
+//! @prompt-hash a2f4386c
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -187,7 +187,8 @@ pub fn apply_state_displays(
                         }
                     }
                     None => match value {
-                        Value::Content(c) | Value::LocatedContent(c, _) => c,
+                        Value::Content(c) => c,
+                        Value::LocatedContent(c, _) => c.into_content(),
                         Value::Str(s) => Content::text(s.as_str()),
                         // intencional: valores que não possuem renderização textual direta em state display sem callback
                         Value::None
@@ -461,7 +462,13 @@ pub fn realize_equation_elements(tags: &[Tag], intr: &mut TagIntrospector) {
                 .map(Value::Str)
                 .unwrap_or(Value::None),
         );
-        intr.elements.insert(*loc, Content::Styled(Box::new(base), styles));
+        intr.elements.insert(
+            *loc,
+            crate::entities::value::IntrospectedContent::new(
+                Content::Styled(Box::new(base.into_content()), styles),
+                None,
+            ),
+        );
     }
 }
 

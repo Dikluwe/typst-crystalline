@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash 7d943502
+//! @prompt-hash 4f0a7a5a
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -11,6 +11,7 @@ use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::scope::{Capturer, Scope};
 use crate::entities::source_result::SourceResult;
+use crate::entities::span::Span;
 use crate::entities::syntax_node::SyntaxNode;
 use crate::entities::value::Value;
 
@@ -18,7 +19,7 @@ use crate::entities::value::Value;
 ///
 /// `Arc<FuncRepr>` — clone O(1), consistente com Module e Func no original.
 #[derive(Clone)]
-pub struct Func(pub(crate) Arc<FuncRepr>);
+pub struct Func(pub(crate) Arc<FuncRepr>, Span);
 
 pub(crate) enum FuncRepr {
     Closure(ClosureRepr),
@@ -140,7 +141,7 @@ pub struct NativeFuncWithEngine {
 impl Func {
     /// Constrói uma Func a partir de uma ClosureRepr.
     pub fn closure(repr: ClosureRepr) -> Self {
-        Self(Arc::new(FuncRepr::Closure(repr)))
+        Self(Arc::new(FuncRepr::Closure(repr)), Span::detached())
     }
 
     /// Constrói uma Func nativa com um function pointer que recebe
@@ -154,7 +155,10 @@ impl Func {
             FileId,
         ) -> SourceResult<Value>,
     ) -> Self {
-        Self(Arc::new(FuncRepr::Native(NativeFunc { name, call, namespace: None })))
+        Self(
+            Arc::new(FuncRepr::Native(NativeFunc { name, call, namespace: None })),
+            Span::detached(),
+        )
     }
 
     /// **P493** — constrói uma Func nativa com namespace anexado.
@@ -168,11 +172,14 @@ impl Func {
         ) -> SourceResult<Value>,
         namespace: Arc<Scope>,
     ) -> Self {
-        Self(Arc::new(FuncRepr::Native(NativeFunc {
-            name,
-            call,
-            namespace: Some(namespace),
-        })))
+        Self(
+            Arc::new(FuncRepr::Native(NativeFunc {
+                name,
+                call,
+                namespace: Some(namespace),
+            })),
+            Span::detached(),
+        )
     }
 
     /// **P394** — constrói uma Func nativa com acesso ao `Scopes` e `Engine`
@@ -188,11 +195,14 @@ impl Func {
             &mut crate::entities::engine::Engine<'_>,
         ) -> SourceResult<Value>,
     ) -> Self {
-        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine {
-            name,
-            call,
-            namespace: None,
-        })))
+        Self(
+            Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine {
+                name,
+                call,
+                namespace: None,
+            })),
+            Span::detached(),
+        )
     }
 
     /// **P493** — constrói uma Func nativa com acesso ao `Scopes`/`Engine` e
@@ -209,11 +219,14 @@ impl Func {
         ) -> SourceResult<Value>,
         namespace: Arc<Scope>,
     ) -> Self {
-        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine {
-            name,
-            call,
-            namespace: Some(namespace),
-        })))
+        Self(
+            Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine {
+                name,
+                call,
+                namespace: Some(namespace),
+            })),
+            Span::detached(),
+        )
     }
 
     /// Constrói uma Func de elemento de utilizador (Lote F-3 inc-2) — `#name(args)`
@@ -222,20 +235,37 @@ impl Func {
         name: impl Into<String>,
         ctor: crate::entities::element_registry::ElementCtor,
     ) -> Self {
-        Self(Arc::new(FuncRepr::Element(ElementFunc { name: name.into(), ctor })))
+        Self(
+            Arc::new(FuncRepr::Element(ElementFunc { name: name.into(), ctor })),
+            Span::detached(),
+        )
     }
 
     /// **P699** — Constrói uma Func de plugin WASM a partir de um `PluginFunc`
     /// (export de módulo). Chamada delegada ao `PluginHost` em `apply_func`.
     pub fn plugin(p: crate::entities::plugin_func::PluginFunc) -> Self {
-        Self(Arc::new(FuncRepr::Plugin(p)))
+        Self(Arc::new(FuncRepr::Plugin(p)), Span::detached())
     }
 
     /// **P702** — `f.with(args)`: devolve nova `Func` com `args` pré-ligados.
     /// A fusão com os args da chamada final acontece em `apply_func`
     /// (`rules/eval/closures.rs`), não aqui.
     pub fn with(self, args: Args) -> Self {
-        Self(Arc::new(FuncRepr::With(Arc::new((self, args)))))
+        let span = self.1;
+        Self(Arc::new(FuncRepr::With(Arc::new((self, args)))), span)
+    }
+
+    /// Origem diagnóstica transportada sem participar da identidade da função.
+    pub(crate) fn diagnostic_span(&self) -> Span {
+        self.1
+    }
+
+    /// Conserva a primeira origem conhecida, inclusive através de aliases.
+    pub(crate) fn with_diagnostic_span(mut self, span: Span) -> Self {
+        if self.1.is_detached() {
+            self.1 = span;
+        }
+        self
     }
 
     /// Acesso à representação interna (restrito a crate).

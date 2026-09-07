@@ -1,5 +1,5 @@
 # Prompt L0 — `wiring/tests/p1293_contract` — oráculo black-box protegido P1293
-Hash do Código: b07eb8d6
+Hash do Código: 58d73bce
 
 **Estado:** `REOPENED-FINAL-ADVERSARIAL-CORRECTIONS` — lotes A–D aprovados; o
 oráculo substantivo permanece congelado e a finalização aguarda correções
@@ -361,3 +361,45 @@ não são alterados neste passo. Após resselo mecânico dos três consumers, de
 rodar de forma independente os testes corrigidos, V5/V15/V26, gate global
 fresco de 31/31 sem `Unknown`, adversário e adjudicação final. Até isso ocorrer,
 o estado é `final-corrections-pending`, nunca `final-approved`.
+
+## P1308 — migração independente da repr de With
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/p1308-measure.json`,
+SHA-256 `ce758b5c2a18288bf9c8433178f577b50c52df80cedcddcb1f4daa4e785573fc`,
+confirma bilateralmente `(..) => ..` para With; fonte ratificada
+`foundations/func.rs:460-470`. P1307 já corrigiu o produto, mas a expectativa
+histórica de D ainda exige o nome nativo. É morfologia de linguagem.
+
+Com autorização humana P1308, o autor independente pode alterar somente a
+expectativa de repr dos parciais no teste
+`p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved` para a forma
+anônima medida. Nomes diretos e aliases flat, chamadas, payloads e todas as
+demais expectativas permanecem intactos. Esta exceção sucede a proibição
+anterior de alteração substantiva apenas nesse assert; não revalida selos
+históricos nem dispensa testes frescos.
+
+## P1308-R2 — trace dos erros históricos de D-P04
+
+Medição anterior à decisão: `p1308-workspace-tests.json` em diagnosticos,
+SHA-256 `d6d8ac5baf46ec195a164965c5140819c1dd00ec08c93e3b0a9063c507c937c2`,
+registra 6619 testes verdes e uma falha em
+`p1293_d_preexisting_arity_and_serializer_transcript_is_frozen`: a mensagem
+de grid.cell permanece a mesma e o stderr ganha o trace da chamada. A
+verificação independente P1308 (SHA-256
+`06a57344f4e8039c1cd96a1df1aa2b2b2c159797e8080f1841844541e012ac60`)
+liga o delta à Source resolvível de eval, não à alteração de aridade.
+
+Após autorização explícita do dono para migrar esses transcripts e
+commitar, o autor independente deve medir todos os seis erros do mesmo
+teste (cell/header/footer de grid/table) e pode acrescentar somente seus
+traces naturais aos expected. Preservar expressão, mensagem portuguesa,
+exit, stdout, spans primários, ordenação e controles de sucesso/serializer.
+Os traces devem corresponder à chamada interna efetiva, não ao repr externo;
+comparar o transcript completo, sem remover ou normalizar traces.
+
+Esta exceção sucede a preservação byte-idêntica de D-P04 apenas para o
+trace que antes faltava. Não corrigir a dívida de aridade, spans detached,
+mensagens ou outros lotes. A migração anterior de With permanece válida.
+Não alterar registry de mutantes nem alegar selo histórico revalidado.
+L0 primeiro, autoria independente, resselo e testes frescos; nenhum código
+produtivo novo é autorizado por este owner test-only.

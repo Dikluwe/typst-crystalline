@@ -1,15 +1,16 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/int.md
-//! @prompt-hash 731069c1
+//! @prompt-hash e7f2095f
 //! @layer L1
 //! @updated 2026-08-24
 
 use crate::compiler::eval::EvalContext;
-use crate::entities::args::Args;
+use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::bytes::Bytes;
 use crate::entities::file_id::FileId;
 use crate::entities::func::{Func, FuncRepr};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
 
 type NativeResult = SourceResult<Value>;
@@ -53,7 +54,23 @@ pub(crate) fn dispatch_int_method(
     world: &dyn crate::contracts::world::World,
     current_file: FileId,
 ) -> NativeResult {
-    args.items.insert(0, Value::Int(receiver));
+    args = if args.occurrences.is_some() {
+        let mut occurrences = args.occurrence_sequence();
+        occurrences.insert(
+            0,
+            ArgOccurrence {
+                name: None,
+                value: Value::Int(receiver),
+                span: Span::detached(),
+                value_span: Span::detached(),
+            },
+        );
+        Args::from_occurrences(args.span, occurrences)
+    } else {
+        let mut items = args.items;
+        items.insert(0, Value::Int(receiver));
+        Args::from_parts(items, args.named, args.span)
+    };
     let Some(Value::Func(func)) = int_type_field(name) else { unreachable!() };
     let FuncRepr::Native(native) = func.repr() else { unreachable!() };
     (native.call)(ctx, &args, world, current_file)
@@ -61,6 +78,19 @@ pub(crate) fn dispatch_int_method(
 
 fn error(args: &Args, message: impl Into<String>) -> Vec<SourceDiagnostic> {
     vec![SourceDiagnostic::error(args.span, message.into())]
+}
+
+fn positional_view(args: &Args) -> Args {
+    if args.occurrences.is_some() {
+        let occurrences = args
+            .occurrence_sequence()
+            .into_iter()
+            .filter(|occurrence| occurrence.name.is_none())
+            .collect();
+        Args::from_occurrences(args.span, occurrences)
+    } else {
+        Args::from_parts(args.items.clone(), Default::default(), args.span)
+    }
 }
 
 fn no_named(args: &Args) -> Result<(), Vec<SourceDiagnostic>> {
@@ -146,11 +176,7 @@ fn shift_args(
             ))
         }
     };
-    let positional = Args {
-        items: args.items.clone(),
-        named: Default::default(),
-        span: args.span,
-    };
+    let positional = positional_view(args);
     let (value, shift) = binary(&positional)?;
     let shift =
         u32::try_from(shift).map_err(|_| error(args, "number must be at least zero"))?;
@@ -261,11 +287,7 @@ native!(native_int_to_bytes, |args: &Args| {
     {
         return Err(error(args, "unexpected argument"));
     }
-    let positional = Args {
-        items: args.items.clone(),
-        named: Default::default(),
-        span: args.span,
-    };
+    let positional = positional_view(args);
     let value = unary(&positional)?;
     let size = match args.named.get("size") {
         None => 8,

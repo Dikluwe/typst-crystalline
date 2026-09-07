@@ -1,15 +1,12 @@
-# Prompt L0 — `rules/stdlib` — comum (convenção e helpers partilhados)
-Hash do Código: 00014004
+# Prompt L0 — fachada `compiler/stdlib/mod.rs`
+Hash do Código: 8a3ced1a
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
-para agentes). Este ficheiro guarda **só** o que é partilhado por várias
-funções; os prompts finos por função citam-no. Índice da partição:
-`rules/stdlib.md` (agora índice).
-**Apontam para aqui** (linhagem `@prompt`): `stdlib/mod.rs` (registo) —
-os ficheiros cuja spec detalhada **não** estava em `stdlib.md` (dependiam
-apenas da convenção partilhada; spec dedicada é candidata futura, não
-inventada aqui).
+para agentes). O único consumer produtivo deste L0 é
+`01_core/src/compiler/stdlib/mod.rs` (fachada e helpers locais). As notas
+históricas de convenção não legitimam outros consumers: cada módulo tem
+seu owner exclusivo; compartilhamento normativo requer Núcleo (ADR-0129).
 
 > Nota: `stdlib/structural.rs` tem agora o seu próprio prompt em
 > `00_nucleo/prompts/compiler/stdlib/structural.md` (P430).
@@ -119,3 +116,31 @@ permite que o consumer da fachada alcance a função dedicada; não altera
 vetores A-D, default, fase de pipeline ou compatibilidade. Qualquer necessidade
 de lógica no hub, `pub use` externo, mudança em `layout.rs` ou segundo caminho
 de implementação refuta este amendment e exige novo owner/escopo.
+
+## P1307-R3 — ligação dos encoders, pendente do gate público
+
+### Medição anterior à decisão
+
+No snapshot `00_nucleo/diagnosticos/p1307-r3-baseline.json`, SHA-256
+`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`,
+HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais o diff P1306 integral
+ali guardado, `01_core/src/compiler/stdlib/mod.rs:134-137` reexporta as
+nativas de loading; `compiler/eval/mod.rs:1723-1725` registra os três
+decoders sem namespace. O único encoder existente é CBOR. Isso situa a
+ligação no hub, mas a implementação no owner loading.
+
+### Decisão e limite
+
+Este consumer deve reexportar explicitamente `native_json_encode`,
+`native_toml_encode` e `native_yaml_encode` de loading, apenas em
+`pub(crate)`, para o registro de eval. Não muda os reexports preexistentes,
+não contém serializers, seleção de âncoras, casts ou wrappers. A assinatura
+das nativas é a vigente em `Func::native`, não o exemplo histórico reduzido
+do Passo 71. A API Typst e os defaults são definidos pelo owner loading;
+este L0 legitima somente a ligação.
+
+O literal de Args no teste local de `mod.rs:2899` deve migrar pelo construtor
+sintético aprovado no owner Args, sem inventar origem. O código só pode ser
+materializado após aprovação ADR-0127 do conjunto P1307-R3; este rascunho
+não declara a aprovação obtida. A inferência de suficiência é refutada por
+necessidade de lógica no hub ou alteração dos demais namespaces.

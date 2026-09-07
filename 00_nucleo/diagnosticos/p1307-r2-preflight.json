@@ -1,0 +1,17 @@
+{
+  "schema": "p1307-authorized-scope-reopening-v1",
+  "authorization": "User answered Autorizado to reopening P1307 to audit repr, call_dispatch and correct the measurement strategy. This is not approval for productive implementation, a public carrier change, or encoder defaults.",
+  "predecessor": "00_nucleo/diagnosticos/p1307-pre-gate-seal.json",
+  "predecessor_sha256": "68ffc3b0c901396ba5a0808f27ae8fb91f3731e0b77fdb32b0e1f60b2830bec6",
+  "regime": "executado sem atestacao de isolamento tecnico; independent documentary audits, no candidate",
+  "source_policy": "All existing L0, Rust, Cargo, step and P1306/P1307 evidence remain unchanged during this audit. Reuse baseline binary only after exact source and binary hash validation. Any eventual L0 change requires a separately declared successor scope.",
+  "roles": {
+    "coordinator_repr_audit": {"executor": "/root", "writes": ["p1307-r2-preflight.json", "p1307-r2-coordinator.py", "p1307-r2-baseline.json", "p1307-r2-repr-audit.md", "p1307-r2-report.md", "p1307-r2-verification.json", "p1307-r2-gates.json"], "reads": "frozen P1307, current L0/ADR and sources relevant to repr, author audit outputs", "restriction": "No productive implementation or oracle repair. Documentary aggregation only, no independent final implementation verdict."},
+    "span_contract_audit": {"executor": "/root/p1307_contract", "writes": ["p1307-r2-span-audit.md"], "reads": "preflight, frozen P1307, L0 and source for call_dispatch/Args/Func/closures and related carriers", "restriction": "Audit minimal viable design, no L0 or Rust edits; no oracle or final verdict."},
+    "measurement_audit": {"executor": "/root/p1307_oracle", "writes": ["p1307-r2-observe.py", "p1307-r2-measurement.json", "p1307-r2-observability.md"], "reads": "preflight, frozen baseline/oracle/contract, existing CLI/query/metadata sources and ratified vanilla", "restriction": "Measure contextual values, four profiles, complete public CBOR bytes and finer with routes without modifying product. No L0/contract implementation or verdict."}
+  },
+  "outputs_exact": ["p1307-r2-preflight.json", "p1307-r2-coordinator.py", "p1307-r2-baseline.json", "p1307-r2-repr-audit.md", "p1307-r2-span-audit.md", "p1307-r2-observe.py", "p1307-r2-measurement.json", "p1307-r2-observability.md", "p1307-r2-report.md", "p1307-r2-verification.json", "p1307-r2-gates.json"],
+  "measurement_budget": {"focal_adapter_revisions_max": 2, "full_orders_only_after_focal_observable": true, "unrelated_627_probe_runs": 0},
+  "unknown_policy": "Unknown remains explicit and blocks any ready encoder seal; discovering a valid narrower observation does not silently remove other required profiles or classes.",
+  "forbidden": ["Rust edits", "L0 edits during this audit", "Cargo edits", "rewriting predecessor evidence", "RED", "stage", "commit", "push", "deleting artifacts"]
+}

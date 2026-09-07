@@ -1,0 +1,37 @@
+{
+  "mode": "mutant",
+  "family": "P1308-M06",
+  "candidate_root": "/dev/shm/p1308-mutant-source.PmokqQ",
+  "target_dir": "/dev/shm/p1308-mutant-target.NV7BUV",
+  "freeze": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-verification-candidate-freeze-r2.json",
+    "sha256": "49c38b596a041cfe20e3105392c322a6372b4c3862db79568f6ae62bd681711b"
+  },
+  "lease": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-lease-r2.json",
+    "sha256": "9da35cc1cce83126de4a7d9ceac9da39ef2e53af2cc38bf973f8480a85b909c2"
+  },
+  "route": "rust",
+  "tests": [
+    "p1308_args_width_boundaries",
+    "p1308_args_integral_unicode_and_long",
+    "p1308_with_repr_control"
+  ],
+  "changes": [
+    {
+      "path": "01_core/src/compiler/eval/repr.rs",
+      "before_sha256": "a54ee85615e458bbc5b102a53769e4c756e9502d69abe2be1feaed5077e78efb",
+      "after_sha256": "24e628935c9a53a67fb51e5bc488ec0d27b252c7f561a6ec90789a99e04b19e6",
+      "function": "Value::Args Some repr",
+      "defect": "The final L0 ratifies the measured Args multiline boundary. Replace Some carrier formatting with format!(\"arguments({})\", pieces.join(\", \")), retaining every item/name in causal order. This is a real formatter mutation, not an edit to the historical expected string."
+    }
+  ],
+  "patch": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-M06.patch",
+    "sha256": "b21f50bc48d7c392e6493becf97ff8f1b0887f1b4b3e20d24e8fb02152f5a47e"
+  },
+  "green_control": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1308-mutation-control.json",
+    "sha256": "612569d38fc2567d66a55b17f4bbc27eaaaf78c16ae66dad222853e7f29a85fc"
+  }
+}

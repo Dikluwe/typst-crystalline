@@ -599,9 +599,8 @@ pub fn native_math_vec(
     let mut children = Vec::with_capacity(args.items.len());
     for value in &args.items {
         let child = match value {
-            Value::Content(content) | Value::LocatedContent(content, _) => {
-                content.clone()
-            }
+            Value::Content(content) => content.clone(),
+            Value::LocatedContent(content, _) => content.content().clone(),
             Value::Str(text) => Content::text(text.as_str()),
             Value::Symbol(symbol) => Content::MathText(symbol.value.clone()),
             other => {
@@ -623,9 +622,8 @@ pub fn native_math_vec(
 
 fn p1293_math_content(value: &Value, span: Span) -> SourceResult<Content> {
     match value {
-        Value::Content(content) | Value::LocatedContent(content, _) => {
-            Ok(content.clone())
-        }
+        Value::Content(content) => Ok(content.clone()),
+        Value::LocatedContent(content, _) => Ok(content.content().clone()),
         Value::Str(text) => Ok(Content::MathText(text.clone())),
         Value::Symbol(symbol) => Ok(Content::MathText(symbol.value.clone())),
         other => Err(vec![SourceDiagnostic::error(
@@ -638,8 +636,9 @@ fn p1293_math_content(value: &Value, span: Span) -> SourceResult<Content> {
 fn p1293_math_attach_slot(value: &Value, span: Span) -> SourceResult<MathAttachSlot> {
     match value {
         Value::None => Ok(MathAttachSlot::ExplicitNone),
-        Value::Content(content) | Value::LocatedContent(content, _) => {
-            Ok(MathAttachSlot::Present(content.clone()))
+        Value::Content(content) => Ok(MathAttachSlot::Present(content.clone())),
+        Value::LocatedContent(content, _) => {
+            Ok(MathAttachSlot::Present(content.content().clone()))
         }
         Value::Str(text) => Ok(MathAttachSlot::Present(Content::MathText(text.clone()))),
         Value::Symbol(symbol) => {

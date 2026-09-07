@@ -59,3 +59,27 @@ panic()                  -> Err "panicked"
 - Não tocar em layout/render.
 - Não centralizar mensagem em catálogo i18n (ainda não existe).
 - A keyword alternativa `error(...)` do vanilla (`#[func(keywords = ["error"])]`) não está implementada.
+
+## P1308 — origem do aborto de panic
+
+Medição anterior à decisão: a matriz pública R6 final, no baseline P1308
+SHA-256 `62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`,
+separa âncora args-list de call inteiro em callbacks map/filter. Fonte
+ratificada `foundations/mod.rs:140–156` devolve erro cuja origem de chamada
+é fornecida pelo avaliador, não pelos valores exibidos na mensagem.
+
+O aborto final usa args.span da chamada inteira transportada pelo owner
+call_dispatch, inclusive alias/With. A nativa continua validando named e
+compondo mensagem na mesma ordem; não procura AST/World, não extrai origem
+do primeiro valor e não inventa trace. Aplicação sintética usa o agregado
+recebido. Esta precisão de contrato não exige alterar a implementação da
+mensagem; controles de validação preexistentes permanecem explícitos.
+
+O recibo P1308 `ce758b5c2a18288bf9c8433178f577b50c52df80cedcddcb1f4daa4e785573fc`
+mede que named inválido ainda diverge em mensagem e origem no baseline.
+Essa dívida permanece fora desta correção: não trocar sua âncora pela
+chamada inteira nem declarar esses controles paritários.
+Preservação refere-se à validação, mensagem e span primário. O overlay de
+Source pode tornar resolvível e acrescentar o trace natural de `trace_call`
+a esse erro detached; não se exige stderr baseline sem trace. Esse delta
+causal não autoriza reancorar ou traduzir o diagnóstico primário.
