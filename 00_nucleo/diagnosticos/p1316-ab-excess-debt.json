@@ -1,0 +1,615 @@
+{
+  "schema": "p1316-ab-excess-debt-v1",
+  "before": {
+    "utc": "2026-09-08T14:32:48.135064+00:00",
+    "head": "bc8213f36b7a29b4fdc30cfc74ddc23586117c64",
+    "diff_stat": "00_nucleo/prompts/compiler/stdlib/loading.md | 124 ++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs       | 199 +++++++++++++++++++++++++--\n 2 files changed, 309 insertions(+), 14 deletions(-)",
+    "status": "M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 01_core/src/compiler/stdlib/loading.rs\n?? 00_nucleo/diagnosticos/p1315-ab-baseline-final.json\n?? 00_nucleo/diagnosticos/p1315-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-candidate-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-cases.json\n?? 00_nucleo/diagnosticos/p1315-ab-comparison.json\n?? 00_nucleo/diagnosticos/p1315-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1315-ab-receipt.md\n?? 00_nucleo/diagnosticos/p1315-ab-runner.py\n?? 00_nucleo/diagnosticos/p1315-build.json\n?? 00_nucleo/diagnosticos/p1315-diff-check.json\n?? 00_nucleo/diagnosticos/p1315-final-report.md\n?? 00_nucleo/diagnosticos/p1315-fmt.json\n?? 00_nucleo/diagnosticos/p1315-lineage-final.json\n?? 00_nucleo/diagnosticos/p1315-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1315-lint.json\n?? 00_nucleo/diagnosticos/p1315-measure.py\n?? 00_nucleo/diagnosticos/p1315-measurement.json\n?? 00_nucleo/diagnosticos/p1315-record.py\n?? 00_nucleo/diagnosticos/p1315-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1315-review-candidate.md\n?? 00_nucleo/diagnosticos/p1315-review-final-audit.json\n?? 00_nucleo/diagnosticos/p1315-review-final.md\n?? 00_nucleo/diagnosticos/p1315-review-preflight.md\n?? 00_nucleo/diagnosticos/p1315-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1315-unit-green.json\n?? 00_nucleo/diagnosticos/p1315-unit-red.json\n?? 00_nucleo/diagnosticos/p1315-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1316-ab-baseline-final.json\n?? 00_nucleo/diagnosticos/p1316-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1316-ab-cases-r1.json\n?? 00_nucleo/diagnosticos/p1316-ab-cases.json\n?? 00_nucleo/diagnosticos/p1316-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1316-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1316-ab-runner.py\n?? 00_nucleo/diagnosticos/p1316-final-report.md\n?? 00_nucleo/diagnosticos/p1316-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1316-measure.py\n?? 00_nucleo/diagnosticos/p1316-measurement.json\n?? 00_nucleo/diagnosticos/p1316-record.py\n?? 00_nucleo/diagnosticos/p1316-review-preflight.md\n?? 00_nucleo/diagnosticos/p1316-unit-red.json\n?? 00_nucleo/materialization/typst-passo-1315.md\n?? 00_nucleo/materialization/typst-passo-1316.md"
+  },
+  "after": {
+    "utc": "2026-09-08T14:32:48.340509+00:00",
+    "head": "bc8213f36b7a29b4fdc30cfc74ddc23586117c64",
+    "diff_stat": "00_nucleo/prompts/compiler/stdlib/loading.md | 124 ++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs       | 199 +++++++++++++++++++++++++--\n 2 files changed, 309 insertions(+), 14 deletions(-)",
+    "status": "M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 01_core/src/compiler/stdlib/loading.rs\n?? 00_nucleo/diagnosticos/p1315-ab-baseline-final.json\n?? 00_nucleo/diagnosticos/p1315-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-candidate-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-cases.json\n?? 00_nucleo/diagnosticos/p1315-ab-comparison.json\n?? 00_nucleo/diagnosticos/p1315-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1315-ab-receipt.md\n?? 00_nucleo/diagnosticos/p1315-ab-runner.py\n?? 00_nucleo/diagnosticos/p1315-build.json\n?? 00_nucleo/diagnosticos/p1315-diff-check.json\n?? 00_nucleo/diagnosticos/p1315-final-report.md\n?? 00_nucleo/diagnosticos/p1315-fmt.json\n?? 00_nucleo/diagnosticos/p1315-lineage-final.json\n?? 00_nucleo/diagnosticos/p1315-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1315-lint.json\n?? 00_nucleo/diagnosticos/p1315-measure.py\n?? 00_nucleo/diagnosticos/p1315-measurement.json\n?? 00_nucleo/diagnosticos/p1315-record.py\n?? 00_nucleo/diagnosticos/p1315-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1315-review-candidate.md\n?? 00_nucleo/diagnosticos/p1315-review-final-audit.json\n?? 00_nucleo/diagnosticos/p1315-review-final.md\n?? 00_nucleo/diagnosticos/p1315-review-preflight.md\n?? 00_nucleo/diagnosticos/p1315-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1315-unit-green.json\n?? 00_nucleo/diagnosticos/p1315-unit-red.json\n?? 00_nucleo/diagnosticos/p1315-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1316-ab-baseline-final.json\n?? 00_nucleo/diagnosticos/p1316-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1316-ab-cases-r1.json\n?? 00_nucleo/diagnosticos/p1316-ab-cases.json\n?? 00_nucleo/diagnosticos/p1316-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1316-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1316-ab-runner.py\n?? 00_nucleo/diagnosticos/p1316-final-report.md\n?? 00_nucleo/diagnosticos/p1316-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1316-measure.py\n?? 00_nucleo/diagnosticos/p1316-measurement.json\n?? 00_nucleo/diagnosticos/p1316-record.py\n?? 00_nucleo/diagnosticos/p1316-review-preflight.md\n?? 00_nucleo/diagnosticos/p1316-unit-red.json\n?? 00_nucleo/materialization/typst-passo-1315.md\n?? 00_nucleo/materialization/typst-passo-1316.md"
+  },
+  "baseline_source_sha256": "ca6f462df02bbd1b4176301d459db18e8996f974b6e1ce0b1e66b35b6b670c99",
+  "vanilla": {
+    "path": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "scope": "Supplement outside bilateral origin oracle: original malformed-source/excess cases retain baseline parsing and vanilla excess debt; no candidate read. Baseline rows reused with original UTC.",
+  "rows": [
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:10.274971+00:00",
+      "seconds": 0.11798187901149504,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:10.474504+00:00",
+      "seconds": 0.11612815500120632,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:10.707564+00:00",
+      "seconds": 0.11740489600924775,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:10.933144+00:00",
+      "seconds": 0.11375828299787827,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:21.612872+00:00",
+      "seconds": 0.12040400601108558,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:21.836038+00:00",
+      "seconds": 0.13504055797238834,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:22.090569+00:00",
+      "seconds": 0.14100845501525328,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:22.398331+00:00",
+      "seconds": 0.19759355997666717,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:33.273218+00:00",
+      "seconds": 0.11782929199398495,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:33.513898+00:00",
+      "seconds": 0.11258912601624615,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:33.742650+00:00",
+      "seconds": 0.10911352900438942,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:33.910424+00:00",
+      "seconds": 0.11473942099837586,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:51.652907+00:00",
+      "seconds": 0.2820094769995194,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:52.079845+00:00",
+      "seconds": 0.3262194700073451,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:52.618021+00:00",
+      "seconds": 0.22034864401211962,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:28:53.059085+00:00",
+      "seconds": 0.22761212001205422,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "default",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.206742+00:00",
+      "seconds": 0.006803507974836975,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)\n  │                      ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "default",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.213553+00:00",
+      "seconds": 0.0062686029996257275,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)\n  │                                     ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "default",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.219830+00:00",
+      "seconds": 0.006331991986371577,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)\n  │                      ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "default",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.226166+00:00",
+      "seconds": 0.00636295898584649,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)\n  │                                     ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "html",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.232536+00:00",
+      "seconds": 0.006351126998197287,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)\n  │                      ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "html",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.238898+00:00",
+      "seconds": 0.006408874993212521,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)\n  │                                     ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "html",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.245312+00:00",
+      "seconds": 0.0069313760031946,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)\n  │                      ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "html",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.252250+00:00",
+      "seconds": 0.006267571996431798,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)\n  │                                     ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "a11y",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.258524+00:00",
+      "seconds": 0.006255159009015188,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)\n  │                      ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "a11y",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.264785+00:00",
+      "seconds": 0.006270126003073528,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)\n  │                                     ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "a11y",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.271065+00:00",
+      "seconds": 0.006039567990228534,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)\n  │                      ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "a11y",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.277109+00:00",
+      "seconds": 0.006077317986637354,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)\n  │                                     ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "html+a11y",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.283195+00:00",
+      "seconds": 0.006052471988368779,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)\n  │                      ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "html+a11y",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.289254+00:00",
+      "seconds": 0.006121320009697229,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)\n  │                                     ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "html+a11y",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.295385+00:00",
+      "seconds": 0.005919934978010133,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)\n  │                      ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "html+a11y",
+      "product": "vanilla",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:32:48.301311+00:00",
+      "seconds": 0.0060710160178132355,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)\n  │                                     ^^^^^^^^^^^^^^\n\n"
+    }
+  ]
+}

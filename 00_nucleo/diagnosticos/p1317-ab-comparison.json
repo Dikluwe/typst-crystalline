@@ -1,0 +1,18 @@
+{
+  "schema": "p1317-ab-comparison-v1",
+  "utc": "2026-09-08T15:13:51.949888+00:00",
+  "freeze_sha256": "0a701c7f10630c94c131f6e2923b45272a72290d29545592e49d8f370d6169f1",
+  "measurement_sha256": "3b83fc33ca7524056dcbad55240e5f8afa90be8428b49bb76096695bf19176f6",
+  "candidate": {
+    "candidate": {
+      "path": "/tmp/p1317-target.y5u9ah/release/typst",
+      "sha256": "9fcb4cbe830c74ec589506b0b86f52982abfdaab558f62cbf7a8f7de8665ccab"
+    }
+  },
+  "comparisons": 4644,
+  "unknown": 0,
+  "failures": [],
+  "status": "PASS",
+  "processes": 4644,
+  "wall_seconds": 247.60117594600888
+}

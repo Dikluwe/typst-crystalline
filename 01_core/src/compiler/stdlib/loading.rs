@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading.md
-//! @prompt-hash e1f22b24
+//! @prompt-hash cf196a42
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -942,6 +942,15 @@ pub enum RowType {
 }
 
 pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResult<Value> {
+    decode_csv_impl(bytes, delimiter, row_type, false)
+}
+
+fn decode_csv_impl(
+    bytes: &[u8],
+    delimiter: u8,
+    row_type: RowType,
+    positioned: bool,
+) -> SourceResult<Value> {
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(delimiter)
         .has_headers(false)
@@ -949,29 +958,35 @@ pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResul
         // são rejeitadas (paridade vanilla; antes aceites em silêncio, P786 B1).
         .from_reader(bytes);
 
-    // P787 — mapeamento para o formato exacto do vanilla
-    // (`loading/csv.rs:138-156`, `format_csv_error`): UnequalLengths →
-    // "found {len} instead of {expected_len} fields in line {line}" com a
-    // linha do `Position` do próprio erro (não inventada).
-    fn map_csv_err(e: csv::Error) -> Vec<SourceDiagnostic> {
-        match e.kind() {
+    // P1315 — o número de UnequalLengths é o ordinal do registro,
+    // incluindo o cabeçalho, não a linha física do Position do parser.
+    let map_csv_err = |e: csv::Error, line: usize| {
+        let mut cause = match e.kind() {
+            csv::ErrorKind::Utf8 { .. } => "file is not valid UTF-8".to_string(),
             csv::ErrorKind::UnequalLengths { expected_len, len, .. } => {
-                let line = e.position().map(|p| p.line()).unwrap_or(0);
-                err(format!(
-                    "failed to parse CSV (found {len} instead of {expected_len} fields in line {line})"
-                ))
+                format!("found {len} instead of {expected_len} fields in line {line}")
             }
-            _ => err(format!("failed to parse CSV ({e})")),
+            _ => e.to_string(),
+        };
+        if positioned {
+            let position = match e.kind().position() {
+                Some(position) => csv_error_position(bytes, position.byte()),
+                None => Some((line, 1)),
+            };
+            if let Some((line, column)) = position {
+                cause.push_str(&format!(" at {line}:{column}"));
+            }
         }
-    }
+        err(format!("failed to parse CSV ({cause})"))
+    };
 
-    let mut records = reader.records();
+    let mut records = reader.records().enumerate();
 
     // row-type dictionary: a 1ª linha são as chaves (paridade vanilla).
     let header: Option<Vec<EcoString>> = if row_type == RowType::Dictionary {
         match records.next() {
-            Some(r) => {
-                let r = r.map_err(map_csv_err)?;
+            Some((index, r)) => {
+                let r = r.map_err(|e| map_csv_err(e, index + 1))?;
                 Some(r.iter().map(EcoString::from).collect())
             }
             None => None,
@@ -981,8 +996,8 @@ pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResul
     };
 
     let mut rows = Vec::new();
-    for rec in records {
-        let rec = rec.map_err(map_csv_err)?;
+    for (index, rec) in records {
+        let rec = rec.map_err(|e| map_csv_err(e, index + 1))?;
         match &header {
             None => {
                 rows.push(Value::Array(
@@ -1003,6 +1018,44 @@ pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResul
         }
     }
     Ok(Value::Array(rows))
+}
+
+/// P1318: posição do parser, convertida somente após a falha. A validade
+/// do buffer inteiro escolhe texto vs binário, não a variante do erro CSV.
+fn csv_error_position(bytes: &[u8], offset: u64) -> Option<(usize, usize)> {
+    let offset = usize::try_from(offset.min(u64::from(u32::MAX))).ok()?;
+    let prefix = bytes.get(..offset)?;
+    if let Ok(text) = std::str::from_utf8(bytes) {
+        text.get(..offset)?;
+        let mut chars = text.char_indices().peekable();
+        let mut line = 1;
+        let mut start = 0;
+        while let Some((index, c)) = chars.next() {
+            if index >= offset {
+                break;
+            }
+            // Um offset entre CR/LF ainda pertence à linha anterior.
+            if c == '\r' && chars.peek().is_some_and(|(_, next)| *next == '\n') {
+                continue;
+            }
+            if matches!(
+                c,
+                '\n' | '\x0b' | '\x0c' | '\r' | '\u{85}' | '\u{2028}' | '\u{2029}'
+            ) {
+                line += 1;
+                start = index + c.len_utf8();
+            }
+        }
+        Some((line, text.get(start..offset)?.chars().count() + 1))
+    } else {
+        let line = prefix.iter().filter(|&&b| b == b'\n').count() + 1;
+        let start = prefix
+            .iter()
+            .rposition(|&b| b == b'\n')
+            .map_or(prefix.len(), |i| i + 1);
+        let column = String::from_utf8_lossy(&prefix[start..]).chars().count() + 1;
+        Some((line, column))
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1302,7 +1355,21 @@ pub fn native_csv(
     let row_type = csv_named_option(args, "row-type", RowType::Array, csv_row_type)?;
 
     if let Value::Bytes(data) = source {
-        return decode_csv(data.as_slice(), delimiter, row_type);
+        return decode_csv_impl(data.as_slice(), delimiter, row_type, true).map_err(
+            |mut errors| {
+                let span = args
+                    .occurrences
+                    .as_ref()
+                    .and_then(|occurrences| {
+                        occurrences.iter().find(|occurrence| occurrence.name.is_none())
+                    })
+                    .map_or(Span::detached(), |occurrence| occurrence.value_span);
+                for error in &mut errors {
+                    error.span = span;
+                }
+                errors
+            },
+        );
     }
     let (_, data) = read_bytes(world, current_file, source, "csv")?;
     decode_csv(&data[..], delimiter, row_type)
@@ -1311,6 +1378,444 @@ pub fn native_csv(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn p1318_csv_bytes_positions_follow_buffer_and_parser_offset() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for ty in [
+            crate::entities::value::Type::Array,
+            crate::entities::value::Type::Dictionary,
+        ] {
+            for (data, cause, position) in [
+                (b"a,b\n1".as_slice(), "found 1 instead of 2 fields in line 2", "2:1"),
+                (b"a,b\r\n1".as_slice(), "found 1 instead of 2 fields in line 2", "1:5"),
+                (b"a,b\r1".as_slice(), "found 1 instead of 2 fields in line 2", "2:1"),
+                (
+                    b"\n\na,b\n1".as_slice(),
+                    "found 1 instead of 2 fields in line 2",
+                    "4:1",
+                ),
+                (
+                    b"\"a\nb\",c\n1".as_slice(),
+                    "found 1 instead of 2 fields in line 2",
+                    "3:1",
+                ),
+                (
+                    b"\xef\xbb\xbfa,b\n1".as_slice(),
+                    "found 1 instead of 2 fields in line 2",
+                    "2:1",
+                ),
+                (b"\xff".as_slice(), "file is not valid UTF-8", "1:1"),
+                (b"a,b\n1,\xff".as_slice(), "file is not valid UTF-8", "2:1"),
+                (b"a,b\r\n1,\xff".as_slice(), "file is not valid UTF-8", "1:1"),
+                (b"a,b\r1,\xff".as_slice(), "file is not valid UTF-8", "1:1"),
+                (b"a,b\n\xff".as_slice(), "found 1 instead of 2 fields in line 2", "2:1"),
+                (
+                    b"a,b\r1\r\xff,2".as_slice(),
+                    "found 1 instead of 2 fields in line 2",
+                    "1:1",
+                ),
+                (
+                    "\"é\u{2028}😀\",b\r1".as_bytes(),
+                    "found 1 instead of 2 fields in line 2",
+                    "3:1",
+                ),
+                (
+                    "\"a\u{b}\u{c}\u{85}b\",c\n1".as_bytes(),
+                    "found 1 instead of 2 fields in line 2",
+                    "5:1",
+                ),
+                (
+                    "a,b\né,😀\r\n1".as_bytes(),
+                    "found 1 instead of 2 fields in line 3",
+                    "2:5",
+                ),
+                (
+                    b"a,b\n\xc3\xa9,\xf0\x9f\x98\x80\r1,\xff".as_slice(),
+                    "file is not valid UTF-8",
+                    "2:5",
+                ),
+            ] {
+                let mut args =
+                    Args::positional(vec![Value::Bytes(Bytes::new(data.to_vec()))]);
+                args.named.insert("row-type".into(), Value::Type(ty));
+                let errors = native_csv(&mut EvalContext::new(), &args, &world, tfid())
+                    .unwrap_err();
+                assert_eq!(errors.len(), 1);
+                assert_eq!(
+                    errors[0].message,
+                    format!("failed to parse CSV ({cause} at {position})"),
+                    "data {data:?}"
+                );
+                assert!(errors[0].span.is_detached());
+                assert!(errors[0].hints.is_empty());
+                assert!(errors[0].trace.is_empty());
+            }
+        }
+    }
+
+    #[test]
+    fn p1318_csv_text_position_is_not_argument_origin() {
+        let origin = Span::from_range(tfid(), 35..55);
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for value_span in [origin, Span::detached()] {
+            let args = p1316_bytes_args(
+                b"a,b\r\n1",
+                value_span,
+                crate::entities::value::Type::Dictionary,
+            );
+            let errors =
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+            assert_eq!(
+                errors[0].message,
+                "failed to parse CSV (found 1 instead of 2 fields in line 2 at 1:5)"
+            );
+            assert_eq!(errors[0].span, value_span);
+        }
+    }
+
+    #[test]
+    fn p1318_csv_pure_and_path_do_not_acquire_bytes_suffix() {
+        use crate::entities::path::{RootedPath, VirtualPath, VirtualRoot};
+        for data in [b"a,b\r\n1".as_slice(), b"a,b\r\n1,\xff".as_slice()] {
+            let mut world = MockWorld::default();
+            world.files.insert("data.csv".into(), Arc::new(data.to_vec()));
+            for (mode, ty) in [
+                (RowType::Array, crate::entities::value::Type::Array),
+                (RowType::Dictionary, crate::entities::value::Type::Dictionary),
+            ] {
+                let pure = decode_csv(data, b',', mode).unwrap_err();
+                let cause = if data.ends_with(&[255]) {
+                    "file is not valid UTF-8"
+                } else {
+                    "found 1 instead of 2 fields in line 2"
+                };
+                assert_eq!(pure[0].message, format!("failed to parse CSV ({cause})"));
+                assert!(pure[0].span.is_detached());
+                for source in [
+                    Value::Str("data.csv".into()),
+                    Value::Path(RootedPath::new(
+                        VirtualRoot::Project,
+                        VirtualPath::new("data.csv").unwrap(),
+                    )),
+                ] {
+                    let mut args = Args::positional(vec![source]);
+                    args.named.insert("row-type".into(), Value::Type(ty));
+                    let errors =
+                        native_csv(&mut EvalContext::new(), &args, &world, tfid())
+                            .unwrap_err();
+                    assert_eq!(errors[0].message, pure[0].message);
+                    assert!(errors[0].span.is_detached());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn p1317_csv_utf8_header_and_data_message() {
+        for mode in [RowType::Array, RowType::Dictionary] {
+            for (data, delimiter) in [
+                (b"\xff".as_slice(), b','),
+                (b"a,\xff\n1,2".as_slice(), b','),
+                (b"a,b\n1,\xff".as_slice(), b','),
+                (b"a,b\n1,2\n\"x\ny\",\xff".as_slice(), b','),
+                (b"\n\na;b\r\n1;\xc3".as_slice(), b';'),
+            ] {
+                let errors = decode_csv(data, delimiter, mode).unwrap_err();
+                assert_eq!(errors.len(), 1);
+                assert_eq!(
+                    errors[0].message,
+                    "failed to parse CSV (file is not valid UTF-8)"
+                );
+                assert!(errors[0].span.is_detached());
+                assert!(errors[0].hints.is_empty());
+                assert!(errors[0].trace.is_empty());
+            }
+        }
+    }
+
+    #[test]
+    fn p1317_csv_utf8_native_origin_and_synthetic() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        let origin = Span::from_range(tfid(), 35..55);
+        for ty in [
+            crate::entities::value::Type::Array,
+            crate::entities::value::Type::Dictionary,
+        ] {
+            for (args, expected_span, position) in [
+                (p1316_bytes_args(b"a,b\n1,\xff", origin, ty), origin, "2:1"),
+                (
+                    p1316_bytes_args(b"a,b\n1,\xff", Span::detached(), ty),
+                    Span::detached(),
+                    "2:1",
+                ),
+                (
+                    Args::positional(vec![Value::Bytes(Bytes::new(vec![255]))]),
+                    Span::detached(),
+                    "1:1",
+                ),
+            ] {
+                let errors = native_csv(&mut EvalContext::new(), &args, &world, tfid())
+                    .unwrap_err();
+                assert_eq!(errors.len(), 1);
+                assert_eq!(
+                    errors[0].message,
+                    format!(
+                        "failed to parse CSV (file is not valid UTF-8 at {position})"
+                    )
+                );
+                assert_eq!(errors[0].span, expected_span);
+                assert!(errors[0].hints.is_empty());
+                assert!(errors[0].trace.is_empty());
+            }
+        }
+    }
+
+    #[test]
+    fn p1317_csv_utf8_path_text_without_origin_change() {
+        use crate::entities::path::{RootedPath, VirtualPath, VirtualRoot};
+        let mut world = MockWorld::default();
+        world
+            .files
+            .insert("data.csv".into(), Arc::new(b"a,b\n1,\xff".to_vec()));
+        for source in [
+            Value::Str("data.csv".into()),
+            Value::Path(RootedPath::new(
+                VirtualRoot::Project,
+                VirtualPath::new("data.csv").unwrap(),
+            )),
+        ] {
+            for ty in [
+                crate::entities::value::Type::Array,
+                crate::entities::value::Type::Dictionary,
+            ] {
+                let mut args = Args::positional(vec![source.clone()]);
+                args.named.insert("row-type".into(), Value::Type(ty));
+                let errors = native_csv(&mut EvalContext::new(), &args, &world, tfid())
+                    .unwrap_err();
+                assert_eq!(errors.len(), 1);
+                assert_eq!(
+                    errors[0].message,
+                    "failed to parse CSV (file is not valid UTF-8)"
+                );
+                assert!(errors[0].span.is_detached());
+            }
+        }
+    }
+
+    #[test]
+    fn p1317_csv_utf8_does_not_preempt_fields_or_reject_unicode() {
+        for mode in [RowType::Array, RowType::Dictionary] {
+            for data in [b"a,b\n\xff".as_slice(), b"a,b\n1,2,\xff".as_slice()] {
+                let errors = decode_csv(data, b',', mode).unwrap_err();
+                let found = if data == b"a,b\n\xff" { 1 } else { 3 };
+                assert_eq!(errors[0].message, format!("failed to parse CSV (found {found} instead of 2 fields in line 2)"));
+            }
+        }
+        let data = "café,字\né,λ".as_bytes();
+        assert_eq!(
+            decode_csv(data, b',', RowType::Array).unwrap(),
+            Value::Array(vec![
+                Value::Array(vec![Value::Str("café".into()), Value::Str("字".into())]),
+                Value::Array(vec![Value::Str("é".into()), Value::Str("λ".into())]),
+            ])
+        );
+        assert_eq!(
+            decode_csv(data, b',', RowType::Dictionary).unwrap(),
+            Value::Array(vec![dict_of(vec![
+                ("café", Value::Str("é".into())),
+                ("字", Value::Str("λ".into()))
+            ]),])
+        );
+    }
+
+    fn p1316_bytes_args(
+        data: &[u8],
+        origin: Span,
+        row_type: crate::entities::value::Type,
+    ) -> Args {
+        use crate::entities::args::ArgOccurrence;
+        Args::from_occurrences(
+            Span::from_range(tfid(), 0..100),
+            vec![
+                ArgOccurrence {
+                    name: Some("row-type".into()),
+                    value: Value::Type(row_type),
+                    span: Span::from_range(tfid(), 1..20),
+                    value_span: Span::from_range(tfid(), 11..20),
+                },
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Bytes(Bytes::new(data.to_vec())),
+                    span: Span::from_range(tfid(), 30..60),
+                    value_span: origin,
+                },
+            ],
+        )
+    }
+
+    #[test]
+    fn p1316_csv_bytes_parse_origin_not_named_or_call() {
+        let origin = Span::from_range(tfid(), 35..55);
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for (mode, ty) in [
+            (RowType::Array, crate::entities::value::Type::Array),
+            (RowType::Dictionary, crate::entities::value::Type::Dictionary),
+        ] {
+            for (data, position) in [
+                (b"\"a\nb\",c\n1".as_slice(), "3:1"),
+                (&[255][..], "1:1"),
+                (b"a,b\n1,\xff".as_slice(), "2:1"),
+            ] {
+                let args = p1316_bytes_args(data, origin, ty);
+                let before = decode_csv(data, b',', mode).unwrap_err();
+                let actual = native_csv(&mut EvalContext::new(), &args, &world, tfid())
+                    .unwrap_err();
+                assert_eq!(actual.len(), before.len());
+                assert_eq!(
+                    actual[0].message,
+                    format!(
+                        "{} at {position})",
+                        before[0].message.strip_suffix(')').unwrap()
+                    )
+                );
+                assert_eq!(actual[0].span, origin);
+                assert!(before[0].span.is_detached());
+            }
+        }
+    }
+
+    #[test]
+    fn p1316_csv_parse_with_excess_uses_first_source_origin() {
+        use crate::entities::args::ArgOccurrence;
+        let origin = Span::from_range(tfid(), 35..55);
+        let mut occurrences =
+            p1316_bytes_args(b"a,b\n1", origin, crate::entities::value::Type::Array)
+                .occurrences
+                .unwrap();
+        occurrences.push(ArgOccurrence {
+            name: None,
+            value: Value::Bytes(Bytes::new(b"valid".to_vec())),
+            span: Span::from_range(tfid(), 70..90),
+            value_span: Span::from_range(tfid(), 75..85),
+        });
+        let args = Args::from_occurrences(Span::from_range(tfid(), 0..100), occurrences);
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        let actual =
+            native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+        // Normativo: manter parsing legado, não trocar pela rejeição de excesso vanilla.
+        assert_eq!(
+            actual[0].message,
+            "failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)"
+        );
+        assert_eq!(actual[0].span, origin);
+    }
+
+    #[test]
+    fn p1316_csv_synthetic_and_explicit_detached_preserved() {
+        let data = b"a,b\n1";
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for args in [
+            Args::positional(vec![Value::Bytes(Bytes::new(data.to_vec()))]),
+            p1316_bytes_args(data, Span::detached(), crate::entities::value::Type::Array),
+        ] {
+            let actual =
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+            assert!(actual[0].span.is_detached());
+            assert_eq!(
+                actual[0].message,
+                "failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)"
+            );
+        }
+    }
+
+    #[test]
+    fn p1316_csv_path_parse_stays_detached() {
+        use crate::entities::args::ArgOccurrence;
+        let mut world = MockWorld::default();
+        world.files.insert("data.csv".into(), Arc::new(b"a,b\n1".to_vec()));
+        let args = Args::from_occurrences(
+            Span::from_range(tfid(), 0..40),
+            vec![ArgOccurrence {
+                name: None,
+                value: Value::Str("data.csv".into()),
+                span: Span::from_range(tfid(), 4..20),
+                value_span: Span::from_range(tfid(), 4..20),
+            }],
+        );
+        let actual =
+            native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+        assert!(actual[0].span.is_detached());
+        assert_eq!(
+            actual[0].message,
+            "failed to parse CSV (found 1 instead of 2 fields in line 2)"
+        );
+    }
+
+    #[test]
+    fn p1315_csv_unequal_lengths_use_record_ordinal() {
+        for mode in [RowType::Array, RowType::Dictionary] {
+            for (data, delimiter, ordinal, found) in [
+                ("\"a\nb\",c\n1", b',', 2, 1),
+                ("a,b\n\"1\n2\",3\n4", b',', 3, 1),
+                ("\n\na,b\n1", b',', 2, 1),
+                ("a,b\n\n1,2\n\n3", b',', 3, 1),
+                ("\"a\nb\";c\n1;2;3", b';', 2, 3),
+                ("a,b\r\n\"1\r\n2\",3\r\n4", b',', 3, 1),
+                ("a,b\n1,2\n3,4\n5", b',', 4, 1),
+            ] {
+                let errors = decode_csv(data.as_bytes(), delimiter, mode).unwrap_err();
+                assert_eq!(errors.len(), 1);
+                assert_eq!(errors[0].message, format!(
+                    "failed to parse CSV (found {found} instead of 2 fields in line {ordinal})"
+                ), "input: {data:?}");
+                assert!(errors[0].span.is_detached());
+            }
+        }
+    }
+
+    #[test]
+    fn p1315_csv_native_bytes_ordinal_without_io() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for mode in [
+            crate::entities::value::Type::Array,
+            crate::entities::value::Type::Dictionary,
+        ] {
+            let mut args = Args::positional(vec![Value::Bytes(Bytes::new(
+                b"\"a\nb\",c\n1".to_vec(),
+            ))]);
+            args.named.insert("row-type".into(), Value::Type(mode));
+            let errors =
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+            assert_eq!(
+                errors[0].message,
+                "failed to parse CSV (found 1 instead of 2 fields in line 2 at 3:1)"
+            );
+            assert!(errors[0].span.is_detached());
+        }
+    }
+
+    #[test]
+    fn p1315_csv_multiline_values_preserved() {
+        let data = b"\"a\nb\",c\n1,\"2\n3\"";
+        assert_eq!(
+            decode_csv(data, b',', RowType::Array).unwrap(),
+            Value::Array(vec![
+                Value::Array(vec![Value::Str("a\nb".into()), Value::Str("c".into())]),
+                Value::Array(vec![Value::Str("1".into()), Value::Str("2\n3".into())]),
+            ])
+        );
+        assert_eq!(
+            decode_csv(data, b',', RowType::Dictionary).unwrap(),
+            Value::Array(vec![dict_of(vec![
+                ("a\nb", Value::Str("1".into())),
+                ("c", Value::Str("2\n3".into()))
+            ]),])
+        );
+        for mode in [RowType::Array, RowType::Dictionary] {
+            assert_eq!(decode_csv(b"\n\n", b',', mode).unwrap(), Value::Array(vec![]));
+        }
+    }
 
     fn p1314_csv_args(options: Vec<(&str, Value, Span)>) -> Args {
         use crate::entities::args::ArgOccurrence;
@@ -1654,7 +2159,11 @@ mod tests {
         let actual =
             native_csv(&mut EvalContext::new(), &utf8_args, &world, tfid()).unwrap_err();
         assert_eq!(actual.len(), legacy.len());
-        assert_eq!(actual[0].message, legacy[0].message);
+        assert_eq!(legacy[0].message, "failed to parse CSV (file is not valid UTF-8)");
+        assert_eq!(
+            actual[0].message,
+            "failed to parse CSV (file is not valid UTF-8 at 1:1)"
+        );
         assert_eq!(actual[0].span, legacy[0].span);
         assert!(actual[0].span.is_detached());
         let args = Args::positional(vec![Value::Bytes(Bytes::new(b"a,b\n1".to_vec()))]);
@@ -1662,7 +2171,7 @@ mod tests {
             native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
         assert_eq!(
             errors[0].message,
-            "failed to parse CSV (found 1 instead of 2 fields in line 2)"
+            "failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)"
         );
         assert!(errors[0].span.is_detached());
     }

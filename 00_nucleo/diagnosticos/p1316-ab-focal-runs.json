@@ -1,0 +1,918 @@
+{
+  "schema": "p1316-ab-runs-v1",
+  "before": {
+    "utc": "2026-09-08T14:30:54.915222+00:00",
+    "head": "bc8213f36b7a29b4fdc30cfc74ddc23586117c64",
+    "diff_stat": "00_nucleo/prompts/compiler/stdlib/loading.md | 112 ++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs       | 173 +++++++++++++++++++++++++--\n 2 files changed, 271 insertions(+), 14 deletions(-)",
+    "status": "M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 01_core/src/compiler/stdlib/loading.rs\n?? 00_nucleo/diagnosticos/p1315-ab-baseline-final.json\n?? 00_nucleo/diagnosticos/p1315-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-candidate-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-cases.json\n?? 00_nucleo/diagnosticos/p1315-ab-comparison.json\n?? 00_nucleo/diagnosticos/p1315-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1315-ab-receipt.md\n?? 00_nucleo/diagnosticos/p1315-ab-runner.py\n?? 00_nucleo/diagnosticos/p1315-build.json\n?? 00_nucleo/diagnosticos/p1315-diff-check.json\n?? 00_nucleo/diagnosticos/p1315-final-report.md\n?? 00_nucleo/diagnosticos/p1315-fmt.json\n?? 00_nucleo/diagnosticos/p1315-lineage-final.json\n?? 00_nucleo/diagnosticos/p1315-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1315-lint.json\n?? 00_nucleo/diagnosticos/p1315-measure.py\n?? 00_nucleo/diagnosticos/p1315-measurement.json\n?? 00_nucleo/diagnosticos/p1315-record.py\n?? 00_nucleo/diagnosticos/p1315-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1315-review-candidate.md\n?? 00_nucleo/diagnosticos/p1315-review-final-audit.json\n?? 00_nucleo/diagnosticos/p1315-review-final.md\n?? 00_nucleo/diagnosticos/p1315-review-preflight.md\n?? 00_nucleo/diagnosticos/p1315-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1315-unit-green.json\n?? 00_nucleo/diagnosticos/p1315-unit-red.json\n?? 00_nucleo/diagnosticos/p1315-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1316-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1316-ab-cases-r1.json\n?? 00_nucleo/diagnosticos/p1316-ab-cases.json\n?? 00_nucleo/diagnosticos/p1316-ab-runner.py\n?? 00_nucleo/diagnosticos/p1316-final-report.md\n?? 00_nucleo/diagnosticos/p1316-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1316-measure.py\n?? 00_nucleo/diagnosticos/p1316-measurement.json\n?? 00_nucleo/diagnosticos/p1316-record.py\n?? 00_nucleo/diagnosticos/p1316-review-preflight.md\n?? 00_nucleo/diagnosticos/p1316-unit-red.json\n?? 00_nucleo/materialization/typst-passo-1315.md\n?? 00_nucleo/materialization/typst-passo-1316.md"
+  },
+  "after": {
+    "utc": "2026-09-08T14:30:55.864858+00:00",
+    "head": "bc8213f36b7a29b4fdc30cfc74ddc23586117c64",
+    "diff_stat": "00_nucleo/prompts/compiler/stdlib/loading.md | 112 ++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs       | 173 +++++++++++++++++++++++++--\n 2 files changed, 271 insertions(+), 14 deletions(-)",
+    "status": "M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 01_core/src/compiler/stdlib/loading.rs\n?? 00_nucleo/diagnosticos/p1315-ab-baseline-final.json\n?? 00_nucleo/diagnosticos/p1315-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-candidate-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-cases.json\n?? 00_nucleo/diagnosticos/p1315-ab-comparison.json\n?? 00_nucleo/diagnosticos/p1315-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1315-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1315-ab-receipt.md\n?? 00_nucleo/diagnosticos/p1315-ab-runner.py\n?? 00_nucleo/diagnosticos/p1315-build.json\n?? 00_nucleo/diagnosticos/p1315-diff-check.json\n?? 00_nucleo/diagnosticos/p1315-final-report.md\n?? 00_nucleo/diagnosticos/p1315-fmt.json\n?? 00_nucleo/diagnosticos/p1315-lineage-final.json\n?? 00_nucleo/diagnosticos/p1315-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1315-lint.json\n?? 00_nucleo/diagnosticos/p1315-measure.py\n?? 00_nucleo/diagnosticos/p1315-measurement.json\n?? 00_nucleo/diagnosticos/p1315-record.py\n?? 00_nucleo/diagnosticos/p1315-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1315-review-candidate.md\n?? 00_nucleo/diagnosticos/p1315-review-final-audit.json\n?? 00_nucleo/diagnosticos/p1315-review-final.md\n?? 00_nucleo/diagnosticos/p1315-review-preflight.md\n?? 00_nucleo/diagnosticos/p1315-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1315-unit-green.json\n?? 00_nucleo/diagnosticos/p1315-unit-red.json\n?? 00_nucleo/diagnosticos/p1315-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1316-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1316-ab-cases-r1.json\n?? 00_nucleo/diagnosticos/p1316-ab-cases.json\n?? 00_nucleo/diagnosticos/p1316-ab-runner.py\n?? 00_nucleo/diagnosticos/p1316-final-report.md\n?? 00_nucleo/diagnosticos/p1316-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1316-measure.py\n?? 00_nucleo/diagnosticos/p1316-measurement.json\n?? 00_nucleo/diagnosticos/p1316-record.py\n?? 00_nucleo/diagnosticos/p1316-review-preflight.md\n?? 00_nucleo/diagnosticos/p1316-unit-red.json\n?? 00_nucleo/materialization/typst-passo-1315.md\n?? 00_nucleo/materialization/typst-passo-1316.md"
+  },
+  "runner_sha256": "528962e49848703f2750d15f18dbedabcf3b1eb15db55261827c19293f825dbe",
+  "cases_sha256": "1bc61227bfd8e2f8e1188a8ce40343f60c7157c92b7346f4eec6ec4ce58372b8",
+  "l0_normative_sha256": "2799352b953f172c00af8b48c57577ac18165a8d5b662185b4221bce204a70f2",
+  "binaries": {
+    "baseline": {
+      "path": "/dev/shm/p1315-target.V6TWEF/release/typst",
+      "sha256": "6a4a75787060ce8015ebde85ef2deb078f4b6a0b827b5533602785261ba890a1"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  },
+  "rows": [
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: array)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:54.948815+00:00",
+      "seconds": 0.10776962200179696,
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-utf8-named-before-array",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:54.948986+00:00",
+      "seconds": 0.10321691998979077,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))\n\n"
+    },
+    {
+      "id": "focal-utf8-named-before-array",
+      "profile": "default",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:54.949325+00:00",
+      "seconds": 0.00845407199813053,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n  ┌─ <input-expression>:1:37\n  │\n1 │ csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))\n  │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-array",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:54.949575+00:00",
+      "seconds": 0.10229761098162271,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-array",
+      "profile": "default",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:54.957808+00:00",
+      "seconds": 0.007522270985646173,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: array)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:54.965357+00:00",
+      "seconds": 0.10669695699471049,
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: dictionary)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.051897+00:00",
+      "seconds": 0.09491699302452616,
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-utf8-named-before-dictionary",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.052218+00:00",
+      "seconds": 0.0949457969982177,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))\n\n"
+    },
+    {
+      "id": "focal-utf8-named-before-dictionary",
+      "profile": "default",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.056623+00:00",
+      "seconds": 0.007315066002774984,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))\n  │                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-dictionary",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.063959+00:00",
+      "seconds": 0.10080385400215164,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-dictionary",
+      "profile": "default",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.072076+00:00",
+      "seconds": 0.007277666009031236,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "default",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: dictionary)"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.079379+00:00",
+      "seconds": 0.10033650600234978,
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.146854+00:00",
+      "seconds": 0.09519831597572193,
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-utf8-named-before-array",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.147177+00:00",
+      "seconds": 0.09368430299218744,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))\n\n"
+    },
+    {
+      "id": "focal-utf8-named-before-array",
+      "profile": "html",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.164802+00:00",
+      "seconds": 0.007096620014635846,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n  ┌─ <input-expression>:1:37\n  │\n1 │ csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))\n  │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-array",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.171919+00:00",
+      "seconds": 0.0971222220105119,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-array",
+      "profile": "html",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.179751+00:00",
+      "seconds": 0.006684083986328915,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.186453+00:00",
+      "seconds": 0.09592186097870581,
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.240893+00:00",
+      "seconds": 0.09776754199992865,
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-utf8-named-before-dictionary",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.242071+00:00",
+      "seconds": 0.09687796799698845,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))\n\n"
+    },
+    {
+      "id": "focal-utf8-named-before-dictionary",
+      "profile": "html",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.269064+00:00",
+      "seconds": 0.00793602000339888,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))\n  │                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-dictionary",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.277025+00:00",
+      "seconds": 0.09658820999902673,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-dictionary",
+      "profile": "html",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.282408+00:00",
+      "seconds": 0.0074761750001925975,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "html",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.289912+00:00",
+      "seconds": 0.09733097100979649,
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.338681+00:00",
+      "seconds": 0.09487482500844635,
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-utf8-named-before-array",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.338959+00:00",
+      "seconds": 0.09450947598088533,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))\n\n"
+    },
+    {
+      "id": "focal-utf8-named-before-array",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.373656+00:00",
+      "seconds": 0.007096329005435109,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n  ┌─ <input-expression>:1:37\n  │\n1 │ csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))\n  │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-array",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.380772+00:00",
+      "seconds": 0.09847829301725142,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-array",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.387290+00:00",
+      "seconds": 0.0067441550199873745,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.394056+00:00",
+      "seconds": 0.09705616001156159,
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.433498+00:00",
+      "seconds": 0.09379359599552117,
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-utf8-named-before-dictionary",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.433588+00:00",
+      "seconds": 0.0941219859814737,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))\n\n"
+    },
+    {
+      "id": "focal-utf8-named-before-dictionary",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.479287+00:00",
+      "seconds": 0.0075614429952111095,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))\n  │                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-dictionary",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.486874+00:00",
+      "seconds": 0.09806210998794995,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-dictionary",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.491134+00:00",
+      "seconds": 0.007174233993282542,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.498349+00:00",
+      "seconds": 0.09363205498084426,
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.527319+00:00",
+      "seconds": 0.09367944399127737,
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-utf8-named-before-array",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.527731+00:00",
+      "seconds": 0.09295196199673228,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))\n\n"
+    },
+    {
+      "id": "focal-utf8-named-before-array",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.584963+00:00",
+      "seconds": 0.0073536580021027476,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n  ┌─ <input-expression>:1:37\n  │\n1 │ csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))\n  │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-array",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.592007+00:00",
+      "seconds": 0.09362819799571298,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-array",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.592325+00:00",
+      "seconds": 0.007065380981657654,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: array)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.599411+00:00",
+      "seconds": 0.09746941801859066,
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.620702+00:00",
+      "seconds": 0.09285135500249453,
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": ""
+    },
+    {
+      "id": "focal-utf8-named-before-dictionary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.621017+00:00",
+      "seconds": 0.09248684698832221,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))\n\n"
+    },
+    {
+      "id": "focal-utf8-named-before-dictionary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.685662+00:00",
+      "seconds": 0.00682524498552084,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))\n  │                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-dictionary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.692507+00:00",
+      "seconds": 0.09778732902486809,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 1 (line 2, field: 0, byte: 4): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-args-map-detached-dictionary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.696905+00:00",
+      "seconds": 0.007058048009639606,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 2:1)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)\n\n"
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1315-target.V6TWEF/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1,2\"), bytes(\"valid\"), row-type: dictionary)",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "utc": "2026-09-08T14:30:55.703989+00:00",
+      "seconds": 0.0960455310123507,
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": ""
+    }
+  ]
+}

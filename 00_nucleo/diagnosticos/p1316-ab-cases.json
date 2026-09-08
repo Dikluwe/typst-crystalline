@@ -1,0 +1,2634 @@
+{
+  "schema": "p1316-ab-cases-v1",
+  "cases": [
+    {
+      "id": "replay-history-cast-int",
+      "prior_id": "history-cast-int",
+      "kind": "literal",
+      "expr": "csv(42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-int",
+      "prior_id": "history-preserve-int",
+      "kind": "literal",
+      "expr": "read(42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-float",
+      "prior_id": "history-cast-float",
+      "kind": "literal",
+      "expr": "csv(1.5)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-float",
+      "prior_id": "history-preserve-float",
+      "kind": "literal",
+      "expr": "read(1.5)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-bool",
+      "prior_id": "history-cast-bool",
+      "kind": "literal",
+      "expr": "csv(true)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-bool",
+      "prior_id": "history-preserve-bool",
+      "kind": "literal",
+      "expr": "read(true)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-none",
+      "prior_id": "history-cast-none",
+      "kind": "literal",
+      "expr": "csv(none)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-none",
+      "prior_id": "history-preserve-none",
+      "kind": "literal",
+      "expr": "read(none)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-auto",
+      "prior_id": "history-cast-auto",
+      "kind": "literal",
+      "expr": "csv(auto)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-auto",
+      "prior_id": "history-preserve-auto",
+      "kind": "literal",
+      "expr": "read(auto)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-dict",
+      "prior_id": "history-cast-dict",
+      "kind": "literal",
+      "expr": "csv((a: 1))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-dict",
+      "prior_id": "history-preserve-dict",
+      "kind": "literal",
+      "expr": "read((a: 1))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-array",
+      "prior_id": "history-cast-array",
+      "kind": "literal",
+      "expr": "csv((1, 2))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-array",
+      "prior_id": "history-preserve-array",
+      "kind": "literal",
+      "expr": "read((1, 2))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-function",
+      "prior_id": "history-cast-function",
+      "kind": "literal",
+      "expr": "csv(x => x)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-function",
+      "prior_id": "history-preserve-function",
+      "kind": "literal",
+      "expr": "read(x => x)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-native",
+      "prior_id": "history-cast-native",
+      "kind": "literal",
+      "expr": "csv(csv)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-native",
+      "prior_id": "history-preserve-native",
+      "kind": "literal",
+      "expr": "read(read)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-type",
+      "prior_id": "history-cast-type",
+      "kind": "literal",
+      "expr": "csv(int)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-type",
+      "prior_id": "history-preserve-type",
+      "kind": "literal",
+      "expr": "read(int)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-bytes",
+      "prior_id": "history-preserve-bytes",
+      "kind": "literal",
+      "expr": "read(bytes(\"a,b\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-empty-bytes",
+      "prior_id": "history-preserve-empty-bytes",
+      "kind": "literal",
+      "expr": "read(bytes(()))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-content",
+      "prior_id": "history-cast-content",
+      "kind": "literal",
+      "expr": "csv([abc])",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-content",
+      "prior_id": "history-preserve-content",
+      "kind": "literal",
+      "expr": "read([abc])",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-length",
+      "prior_id": "history-cast-length",
+      "kind": "literal",
+      "expr": "csv(2pt)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-length",
+      "prior_id": "history-preserve-length",
+      "kind": "literal",
+      "expr": "read(2pt)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-color",
+      "prior_id": "history-cast-color",
+      "kind": "literal",
+      "expr": "csv(red)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-color",
+      "prior_id": "history-preserve-color",
+      "kind": "literal",
+      "expr": "read(red)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-label",
+      "prior_id": "history-cast-label",
+      "kind": "literal",
+      "expr": "csv(<hello>)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-label",
+      "prior_id": "history-preserve-label",
+      "kind": "literal",
+      "expr": "read(<hello>)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-named-prefix",
+      "prior_id": "history-cast-named-prefix",
+      "kind": "literal",
+      "expr": "csv(delimiter: \";\", 42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-named-prefix",
+      "prior_id": "history-preserve-named-prefix",
+      "kind": "literal",
+      "expr": "read(encoding: none, 42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-named-suffix",
+      "prior_id": "history-cast-named-suffix",
+      "kind": "literal",
+      "expr": "csv(42, row-type: array)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-named-suffix",
+      "prior_id": "history-preserve-named-suffix",
+      "kind": "literal",
+      "expr": "read(42, encoding: \"utf8\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-alias",
+      "prior_id": "history-cast-alias",
+      "kind": "literal",
+      "expr": "{ let loader = csv; loader(false) }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-alias",
+      "prior_id": "history-preserve-alias",
+      "kind": "literal",
+      "expr": "{ let loader = read; loader(false) }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-with",
+      "prior_id": "history-cast-with",
+      "kind": "literal",
+      "expr": "{ let f = csv.with(42); f() }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-with",
+      "prior_id": "history-preserve-with",
+      "kind": "literal",
+      "expr": "{ let f = read.with(42); f() }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-nested-with",
+      "prior_id": "history-cast-nested-with",
+      "kind": "literal",
+      "expr": "{ let f = csv.with(delimiter: \";\").with((a: 1)); f() }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-nested-with",
+      "prior_id": "history-preserve-nested-with",
+      "kind": "literal",
+      "expr": "{ let f = read.with(encoding: none).with((a: 1)); f() }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-array-spread",
+      "prior_id": "history-cast-array-spread",
+      "kind": "literal",
+      "expr": "csv(..(42,))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-array-spread",
+      "prior_id": "history-preserve-array-spread",
+      "kind": "literal",
+      "expr": "read(..(42,))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-args-spread",
+      "prior_id": "history-cast-args-spread",
+      "kind": "literal",
+      "expr": "{ let a = arguments(delimiter: \";\", 42); csv(..a) }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-args-spread",
+      "prior_id": "history-preserve-args-spread",
+      "kind": "literal",
+      "expr": "{ let a = arguments(encoding: none, 42); read(..a) }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-sink",
+      "prior_id": "history-cast-sink",
+      "kind": "literal",
+      "expr": "{ let f(..a) = csv(..a); f(delimiter: \";\", false) }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-sink",
+      "prior_id": "history-preserve-sink",
+      "kind": "literal",
+      "expr": "{ let f(..a) = read(..a); f(encoding: none, false) }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-multiline",
+      "prior_id": "history-cast-multiline",
+      "kind": "literal",
+      "expr": "csv(\n  delimiter: \";\",\n  (a: 1),\n)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-multiline",
+      "prior_id": "history-preserve-multiline",
+      "kind": "literal",
+      "expr": "read(\n  encoding: none,\n  (a: 1),\n)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-first-only",
+      "prior_id": "history-cast-first-only",
+      "kind": "literal",
+      "expr": "csv(false, 42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-first-only",
+      "prior_id": "history-preserve-first-only",
+      "kind": "literal",
+      "expr": "read(false, 42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-stored-native",
+      "prior_id": "history-preserve-stored-native",
+      "kind": "literal",
+      "expr": "((loader: read).loader)(bytes(\"\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-symbol",
+      "prior_id": "history-cast-symbol",
+      "kind": "literal",
+      "expr": "csv(sym.alpha)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-symbol",
+      "prior_id": "history-preserve-symbol",
+      "kind": "literal",
+      "expr": "read(sym.alpha)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-symbol-prefix",
+      "prior_id": "history-cast-symbol-prefix",
+      "kind": "literal",
+      "expr": "csv(delimiter: \";\", sym.alpha)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-symbol-prefix",
+      "prior_id": "history-preserve-symbol-prefix",
+      "kind": "literal",
+      "expr": "read(encoding: none, sym.alpha)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-symbol-with",
+      "prior_id": "history-cast-symbol-with",
+      "kind": "literal",
+      "expr": "{ let f = csv.with(sym.alpha); f() }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-symbol-with",
+      "prior_id": "history-preserve-symbol-with",
+      "kind": "literal",
+      "expr": "{ let f = read.with(sym.alpha); f() }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-read-str",
+      "prior_id": "history-preserve-read-str",
+      "kind": "literal",
+      "expr": "read(\"data.txt\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-read-path",
+      "prior_id": "history-preserve-read-path",
+      "kind": "literal",
+      "expr": "read(path(\"data.txt\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-read-rooted",
+      "prior_id": "history-preserve-read-rooted",
+      "kind": "literal",
+      "expr": "{ import \"paths.typ\": rooted; read(rooted) }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-read-utf8",
+      "prior_id": "history-preserve-read-utf8",
+      "kind": "literal",
+      "expr": "read(\"data.txt\", encoding: \"utf8\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-read-binary",
+      "prior_id": "history-preserve-read-binary",
+      "kind": "literal",
+      "expr": "read(\"data.txt\", encoding: none)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-read-valid-with",
+      "prior_id": "history-preserve-read-valid-with",
+      "kind": "literal",
+      "expr": "read.with(\"data.txt\")(encoding: none)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-missing",
+      "prior_id": "history-preserve-missing",
+      "kind": "literal",
+      "expr": "read()",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-missing-with-named",
+      "prior_id": "history-preserve-missing-with-named",
+      "kind": "literal",
+      "expr": "read(encoding: none)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-path-named",
+      "prior_id": "history-preserve-path-named",
+      "kind": "literal",
+      "expr": "read(path: \"data.txt\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-extra",
+      "prior_id": "history-preserve-extra",
+      "kind": "literal",
+      "expr": "read(\"data.txt\", 2)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-unknown-named",
+      "prior_id": "history-preserve-unknown-named",
+      "kind": "literal",
+      "expr": "read(\"data.txt\", strange: 2)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-encoding-string",
+      "prior_id": "history-preserve-encoding-string",
+      "kind": "literal",
+      "expr": "read(\"data.txt\", encoding: \"latin1\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-encoding-type",
+      "prior_id": "history-preserve-encoding-type",
+      "kind": "literal",
+      "expr": "read(encoding: 42, \"data.txt\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-encoding-overridden",
+      "prior_id": "history-preserve-encoding-overridden",
+      "kind": "literal",
+      "expr": "read.with(encoding: 42)(\"data.txt\", encoding: none)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-missing-file",
+      "prior_id": "history-preserve-missing-file",
+      "kind": "literal",
+      "expr": "read(\"absent.txt\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-json-invalid",
+      "prior_id": "history-preserve-json-invalid",
+      "kind": "literal",
+      "expr": "json(42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-yaml-invalid",
+      "prior_id": "history-preserve-yaml-invalid",
+      "kind": "literal",
+      "expr": "yaml(false)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-toml-invalid",
+      "prior_id": "history-preserve-toml-invalid",
+      "kind": "literal",
+      "expr": "toml.with((a: 1))()",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-xml-invalid",
+      "prior_id": "history-preserve-xml-invalid",
+      "kind": "literal",
+      "expr": "xml(..arguments(42))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-cbor-invalid",
+      "prior_id": "history-preserve-cbor-invalid",
+      "kind": "literal",
+      "expr": "cbor(none)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-json-bytes",
+      "prior_id": "history-preserve-json-bytes",
+      "kind": "literal",
+      "expr": "json(bytes(\"{\\\"a\\\":1}\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-yaml-bytes",
+      "prior_id": "history-preserve-yaml-bytes",
+      "kind": "literal",
+      "expr": "yaml(bytes(\"a: 1\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-toml-bytes",
+      "prior_id": "history-preserve-toml-bytes",
+      "kind": "literal",
+      "expr": "toml(bytes(\"a = 1\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-xml-bytes",
+      "prior_id": "history-preserve-xml-bytes",
+      "kind": "literal",
+      "expr": "xml(bytes(\"<a/>\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-cbor-bytes",
+      "prior_id": "history-preserve-cbor-bytes",
+      "kind": "literal",
+      "expr": "cbor(cbor.encode((a: 1)))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-encoders",
+      "prior_id": "history-preserve-encoders",
+      "kind": "literal",
+      "expr": "(json.encode((a: 1)), yaml.encode((a: 1)), toml.encode((a: 1)))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-field-read",
+      "prior_id": "history-preserve-field-read",
+      "kind": "literal",
+      "expr": "read.encode",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-field-csv",
+      "prior_id": "history-preserve-field-csv",
+      "kind": "literal",
+      "expr": "csv.with().encode",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-field-xml",
+      "prior_id": "history-preserve-field-xml",
+      "kind": "literal",
+      "expr": "xml.nope",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-field-native",
+      "prior_id": "history-preserve-field-native",
+      "kind": "literal",
+      "expr": "text.with().nope",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-field-closure",
+      "prior_id": "history-preserve-field-closure",
+      "kind": "literal",
+      "expr": "(x => x).nope",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-invalid-plus-unknown",
+      "prior_id": "history-preserve-invalid-plus-unknown",
+      "kind": "literal",
+      "expr": "read(42, strange: 2)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-invalid-plus-encoding",
+      "prior_id": "history-cast-invalid-plus-encoding",
+      "kind": "literal",
+      "expr": "csv(42, delimiter: 5)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-invalid-plus-encoding",
+      "prior_id": "history-preserve-invalid-plus-encoding",
+      "kind": "literal",
+      "expr": "read(42, encoding: 5)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-args-map-detached",
+      "prior_id": "history-cast-args-map-detached",
+      "kind": "literal",
+      "expr": "csv(..arguments(42).map(x => x))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-preserve-args-map-detached",
+      "prior_id": "history-preserve-args-map-detached",
+      "kind": "literal",
+      "expr": "read(..arguments(42).map(x => x))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-rows",
+      "prior_id": "history-bytes-rows",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\\n1,2\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-empty",
+      "prior_id": "history-bytes-empty",
+      "kind": "literal",
+      "expr": "csv(bytes(()))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-empty-dict",
+      "prior_id": "history-bytes-empty-dict",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\"), row-type: dictionary)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-quoted",
+      "prior_id": "history-bytes-quoted",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\\\"a,b\\\",\\\"c\\\"\\\"d\\\"\\n\\\"x\\ny\\\",z\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-unicode",
+      "prior_id": "history-bytes-unicode",
+      "kind": "literal",
+      "expr": "csv(bytes(\"α,ação\\n東京,🦀\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-delimiter",
+      "prior_id": "history-bytes-delimiter",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a;b\\n1;2\"), delimiter: \";\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-dictionary",
+      "prior_id": "history-bytes-dictionary",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\\n1,2\\n3,4\"), row-type: dictionary)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-dict-delimiter",
+      "prior_id": "history-bytes-dict-delimiter",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a;b\\n1;2\"), row-type: dictionary, delimiter: \";\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-header-only",
+      "prior_id": "history-bytes-header-only",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: dictionary)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-empty-fields",
+      "prior_id": "history-bytes-empty-fields",
+      "kind": "literal",
+      "expr": "csv(bytes(\",b\\n1,\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-crlf",
+      "prior_id": "history-bytes-crlf",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\\r\\n1,2\\r\\n\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-with",
+      "prior_id": "history-bytes-with",
+      "kind": "literal",
+      "expr": "csv.with(bytes(\"a;b\\n1;2\"), delimiter: \";\")(row-type: dictionary)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-nested-with",
+      "prior_id": "history-bytes-nested-with",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: \";\").with(bytes(\"a;b\"))()",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-args",
+      "prior_id": "history-bytes-args",
+      "kind": "literal",
+      "expr": "csv(..arguments(row-type: dictionary, bytes(\"a,b\\n1,2\")))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-sink",
+      "prior_id": "history-bytes-sink",
+      "kind": "literal",
+      "expr": "{ let f(..a) = csv(..a); f(bytes(\"a,b\")) }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-alias",
+      "prior_id": "history-bytes-alias",
+      "kind": "literal",
+      "expr": "{ let f = csv; f(bytes(\"a,b\")) }",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-mapped",
+      "prior_id": "history-bytes-mapped",
+      "kind": "literal",
+      "expr": "csv(..arguments(bytes(\"a,b\")).map(x => x))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-path-looking",
+      "prior_id": "history-bytes-path-looking",
+      "kind": "literal",
+      "expr": "csv(bytes(\"missing.csv\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-raw-nul",
+      "prior_id": "history-bytes-raw-nul",
+      "kind": "literal",
+      "expr": "csv(bytes((97, 0, 44, 98)))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-data-file",
+      "prior_id": "history-bytes-data-file",
+      "kind": "literal",
+      "expr": "csv(read(\"data.csv\", encoding: none))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-str",
+      "prior_id": "history-legacy-str",
+      "kind": "literal",
+      "expr": "csv(\"data.csv\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-path",
+      "prior_id": "history-legacy-path",
+      "kind": "literal",
+      "expr": "csv(path(\"data.csv\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-dictionary",
+      "prior_id": "history-legacy-dictionary",
+      "kind": "literal",
+      "expr": "csv(\"data.csv\", row-type: dictionary)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-missing",
+      "prior_id": "history-legacy-missing",
+      "kind": "literal",
+      "expr": "csv()",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-missing-named",
+      "prior_id": "history-legacy-missing-named",
+      "kind": "literal",
+      "expr": "csv(delimiter: \";\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-source-named",
+      "prior_id": "history-legacy-source-named",
+      "kind": "literal",
+      "expr": "csv(source: \"data.csv\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-path-named",
+      "prior_id": "history-legacy-path-named",
+      "kind": "literal",
+      "expr": "csv(path: \"data.csv\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-excess",
+      "prior_id": "history-legacy-excess",
+      "kind": "literal",
+      "expr": "csv(\"data.csv\", 42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-unknown",
+      "prior_id": "history-legacy-unknown",
+      "kind": "literal",
+      "expr": "csv(\"data.csv\", strange: 2)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-unknown-before-cast",
+      "prior_id": "history-legacy-unknown-before-cast",
+      "kind": "literal",
+      "expr": "csv(strange: 2, false)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-unknown-after-cast",
+      "prior_id": "history-legacy-unknown-after-cast",
+      "kind": "literal",
+      "expr": "csv(false, strange: 2)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-absent",
+      "prior_id": "history-legacy-absent",
+      "kind": "literal",
+      "expr": "csv(\"absent.csv\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-option-before-io",
+      "prior_id": "history-legacy-option-before-io",
+      "kind": "literal",
+      "expr": "csv(\"absent.csv\", delimiter: \"ab\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-duplicate-delimiter",
+      "prior_id": "history-legacy-duplicate-delimiter",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: \"ab\")(\"data.csv\", delimiter: \",\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-legacy-duplicate-row",
+      "prior_id": "history-legacy-duplicate-row",
+      "kind": "literal",
+      "expr": "csv.with(row-type: 42)(\"data.csv\", row-type: array)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-unequal",
+      "prior_id": "history-bytes-legacy-unequal",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n1\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-unequal-dict",
+      "prior_id": "history-bytes-legacy-unequal-dict",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n1\"), row-type: dictionary)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-delimiter-empty",
+      "prior_id": "history-bytes-legacy-delimiter-empty",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: \"\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-delimiter-long",
+      "prior_id": "history-bytes-legacy-delimiter-long",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: \"ab\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-delimiter-unicode",
+      "prior_id": "history-bytes-legacy-delimiter-unicode",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: \"é\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-delimiter-int",
+      "prior_id": "history-bytes-legacy-delimiter-int",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: 42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-row-string",
+      "prior_id": "history-bytes-legacy-row-string",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: \"dictionary\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-row-type",
+      "prior_id": "history-bytes-legacy-row-type",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: str)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-row-bool",
+      "prior_id": "history-bytes-legacy-row-bool",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: false)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-option-priority",
+      "prior_id": "history-bytes-legacy-option-priority",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: false, delimiter: \"ab\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-unknown",
+      "prior_id": "history-bytes-legacy-unknown",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), strange: 2)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-excess",
+      "prior_id": "history-bytes-legacy-excess",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), 42)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-duplicate-delimiter",
+      "prior_id": "history-bytes-legacy-duplicate-delimiter",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: \"ab\")(bytes(\"a,b\"), delimiter: \",\")",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-legacy-duplicate-row",
+      "prior_id": "history-bytes-legacy-duplicate-row",
+      "kind": "literal",
+      "expr": "csv.with(row-type: 42)(bytes(\"a,b\"), row-type: array)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-bytes-simple",
+      "prior_id": "history-bytes-simple",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"))",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-cast-prefix-false",
+      "prior_id": "history-cast-prefix-false",
+      "kind": "literal",
+      "expr": "csv(delimiter: \";\", false)",
+      "cwd": "/tmp/p1313-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-0",
+      "prior_id": "history-options-delimiter-type-0",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: \"\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-1",
+      "prior_id": "history-options-delimiter-type-1",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: \"ab\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-2",
+      "prior_id": "history-options-delimiter-type-2",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: \"é\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-3",
+      "prior_id": "history-options-delimiter-type-3",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: 42)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-4",
+      "prior_id": "history-options-delimiter-type-4",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: 1.5)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-5",
+      "prior_id": "history-options-delimiter-type-5",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: false)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-6",
+      "prior_id": "history-options-delimiter-type-6",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: none)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-7",
+      "prior_id": "history-options-delimiter-type-7",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: auto)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-8",
+      "prior_id": "history-options-delimiter-type-8",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: (a: 1))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-9",
+      "prior_id": "history-options-delimiter-type-9",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: (1, 2))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-10",
+      "prior_id": "history-options-delimiter-type-10",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: x => x)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-11",
+      "prior_id": "history-options-delimiter-type-11",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: csv)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-12",
+      "prior_id": "history-options-delimiter-type-12",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: str)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-13",
+      "prior_id": "history-options-delimiter-type-13",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: bytes(\";\"))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-14",
+      "prior_id": "history-options-delimiter-type-14",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: [x])",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-15",
+      "prior_id": "history-options-delimiter-type-15",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: 2pt)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-16",
+      "prior_id": "history-options-delimiter-type-16",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: red)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-type-17",
+      "prior_id": "history-options-delimiter-type-17",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: <x>)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-0",
+      "prior_id": "history-options-row-type-type-0",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: \"array\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-1",
+      "prior_id": "history-options-row-type-type-1",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: 42)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-2",
+      "prior_id": "history-options-row-type-type-2",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: 1.5)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-3",
+      "prior_id": "history-options-row-type-type-3",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: false)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-4",
+      "prior_id": "history-options-row-type-type-4",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: none)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-5",
+      "prior_id": "history-options-row-type-type-5",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: auto)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-6",
+      "prior_id": "history-options-row-type-type-6",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: (a: 1))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-7",
+      "prior_id": "history-options-row-type-type-7",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: (1, 2))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-8",
+      "prior_id": "history-options-row-type-type-8",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: x => x)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-9",
+      "prior_id": "history-options-row-type-type-9",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: csv)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-10",
+      "prior_id": "history-options-row-type-type-10",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: str)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-11",
+      "prior_id": "history-options-row-type-type-11",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: bytes(\"a\"))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-12",
+      "prior_id": "history-options-row-type-type-12",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: [x])",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-13",
+      "prior_id": "history-options-row-type-type-13",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: 2pt)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-14",
+      "prior_id": "history-options-row-type-type-14",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: red)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-15",
+      "prior_id": "history-options-row-type-type-15",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: <x>)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-type-16",
+      "prior_id": "history-options-row-type-type-16",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: sym.alpha)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-alias",
+      "prior_id": "history-options-delimiter-alias",
+      "kind": "literal",
+      "expr": "{ let f = csv; f(bytes(\"a,b\"), delimiter: \"ab\") }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-with",
+      "prior_id": "history-options-delimiter-with",
+      "kind": "literal",
+      "expr": "{ let f = csv.with(delimiter: \"ab\"); f(bytes(\"a,b\")) }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-nested-with",
+      "prior_id": "history-options-delimiter-nested-with",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: \"ab\").with(bytes(\"a,b\"))()",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-first-bad-last-good",
+      "prior_id": "history-options-delimiter-first-bad-last-good",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: \"ab\")(bytes(\"a,b\"), delimiter: \",\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-first-good-last-bad",
+      "prior_id": "history-options-delimiter-first-good-last-bad",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: \",\")(bytes(\"a,b\"), delimiter: \"ab\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-bad-middle",
+      "prior_id": "history-options-delimiter-bad-middle",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: \",\").with(delimiter: \"ab\")(bytes(\"a,b\"), delimiter: \",\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-args",
+      "prior_id": "history-options-delimiter-args",
+      "kind": "literal",
+      "expr": "{ let a = arguments(delimiter: \"ab\"); csv(bytes(\"a,b\"), ..a) }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-args-overridden",
+      "prior_id": "history-options-delimiter-args-overridden",
+      "kind": "literal",
+      "expr": "{ let a = arguments(delimiter: \"ab\"); csv(bytes(\"a,b\"), ..a, delimiter: \",\") }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-dict-spread",
+      "prior_id": "history-options-delimiter-dict-spread",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), ..(delimiter: \"ab\"))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-sink",
+      "prior_id": "history-options-delimiter-sink",
+      "kind": "literal",
+      "expr": "{ let f(..a) = csv(..a); f(bytes(\"a,b\"), delimiter: \"ab\") }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-filter",
+      "prior_id": "history-options-delimiter-filter",
+      "kind": "literal",
+      "expr": "csv(..arguments(bytes(\"a,b\"), delimiter: \"ab\").filter((..a) => true))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-map",
+      "prior_id": "history-options-delimiter-map",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), ..arguments(delimiter: \"ab\").map((..a) => \"ab\"))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-multiline",
+      "prior_id": "history-options-delimiter-multiline",
+      "kind": "literal",
+      "expr": "csv(\n  row-type: array,\n  bytes(\"a,b\"),\n  delimiter: \"ab\",\n)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-absent-str",
+      "prior_id": "history-options-delimiter-absent-str",
+      "kind": "literal",
+      "expr": "csv(\"absent.csv\", delimiter: \"ab\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-absent-path",
+      "prior_id": "history-options-delimiter-absent-path",
+      "kind": "literal",
+      "expr": "csv(path(\"absent.csv\"), delimiter: \"ab\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-before-decode",
+      "prior_id": "history-options-delimiter-before-decode",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\\n1\"), delimiter: \"ab\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-alias",
+      "prior_id": "history-options-row-type-alias",
+      "kind": "literal",
+      "expr": "{ let f = csv; f(bytes(\"a,b\"), row-type: 42) }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-with",
+      "prior_id": "history-options-row-type-with",
+      "kind": "literal",
+      "expr": "{ let f = csv.with(row-type: 42); f(bytes(\"a,b\")) }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-nested-with",
+      "prior_id": "history-options-row-type-nested-with",
+      "kind": "literal",
+      "expr": "csv.with(row-type: 42).with(bytes(\"a,b\"))()",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-first-bad-last-good",
+      "prior_id": "history-options-row-type-first-bad-last-good",
+      "kind": "literal",
+      "expr": "csv.with(row-type: 42)(bytes(\"a,b\"), row-type: array)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-first-good-last-bad",
+      "prior_id": "history-options-row-type-first-good-last-bad",
+      "kind": "literal",
+      "expr": "csv.with(row-type: array)(bytes(\"a,b\"), row-type: 42)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-bad-middle",
+      "prior_id": "history-options-row-type-bad-middle",
+      "kind": "literal",
+      "expr": "csv.with(row-type: array).with(row-type: 42)(bytes(\"a,b\"), row-type: array)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-args",
+      "prior_id": "history-options-row-type-args",
+      "kind": "literal",
+      "expr": "{ let a = arguments(row-type: 42); csv(bytes(\"a,b\"), ..a) }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-args-overridden",
+      "prior_id": "history-options-row-type-args-overridden",
+      "kind": "literal",
+      "expr": "{ let a = arguments(row-type: 42); csv(bytes(\"a,b\"), ..a, row-type: array) }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-dict-spread",
+      "prior_id": "history-options-row-type-dict-spread",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), ..(row-type: 42))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-sink",
+      "prior_id": "history-options-row-type-sink",
+      "kind": "literal",
+      "expr": "{ let f(..a) = csv(..a); f(bytes(\"a,b\"), row-type: 42) }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-filter",
+      "prior_id": "history-options-row-type-filter",
+      "kind": "literal",
+      "expr": "csv(..arguments(bytes(\"a,b\"), row-type: 42).filter((..a) => true))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-map",
+      "prior_id": "history-options-row-type-map",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), ..arguments(row-type: 42).map((..a) => 42))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-multiline",
+      "prior_id": "history-options-row-type-multiline",
+      "kind": "literal",
+      "expr": "csv(\n  delimiter: \",\",\n  bytes(\"a,b\"),\n  row-type: 42,\n)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-absent-str",
+      "prior_id": "history-options-row-type-absent-str",
+      "kind": "literal",
+      "expr": "csv(\"absent.csv\", row-type: 42)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-absent-path",
+      "prior_id": "history-options-row-type-absent-path",
+      "kind": "literal",
+      "expr": "csv(path(\"absent.csv\"), row-type: 42)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-type-before-decode",
+      "prior_id": "history-options-row-type-before-decode",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\\n1\"), row-type: 42)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-last-valid",
+      "prior_id": "history-options-delimiter-last-valid",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: \",\")(bytes(\"a;b\\n1;2\"), delimiter: \";\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-last-valid",
+      "prior_id": "history-options-row-last-valid",
+      "kind": "literal",
+      "expr": "csv.with(row-type: array)(bytes(\"a,b\\n1,2\"), row-type: dictionary)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-row-last-array",
+      "prior_id": "history-options-row-last-array",
+      "kind": "literal",
+      "expr": "csv.with(row-type: dictionary)(bytes(\"a,b\\n1,2\"), row-type: array)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-both-last-valid",
+      "prior_id": "history-options-both-last-valid",
+      "kind": "literal",
+      "expr": "csv.with(row-type: array, delimiter: \",\").with(row-type: dictionary, delimiter: \";\")(bytes(\"a;b\\n1;2\"))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-delimiter-before-row",
+      "prior_id": "history-options-delimiter-before-row",
+      "kind": "literal",
+      "expr": "csv.with(row-type: 42).with(delimiter: \"ab\")(bytes(\"a,b\"))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-all-delimiter-before-row",
+      "prior_id": "history-options-all-delimiter-before-row",
+      "kind": "literal",
+      "expr": "csv.with(row-type: 42, delimiter: \",\")(bytes(\"a,b\"), delimiter: \"ab\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-first-delimiter-invalid",
+      "prior_id": "history-options-first-delimiter-invalid",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: \"é\").with(delimiter: \"ab\")(bytes(\"a,b\"))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-first-row-invalid",
+      "prior_id": "history-options-first-row-invalid",
+      "kind": "literal",
+      "expr": "csv.with(row-type: 42).with(row-type: str)(bytes(\"a,b\"))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-symbol",
+      "prior_id": "history-options-symbol",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: sym.alpha)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-symbol-with",
+      "prior_id": "history-options-symbol-with",
+      "kind": "literal",
+      "expr": "csv.with(delimiter: sym.alpha)(bytes(\"a,b\"), delimiter: \",\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-symbol-args",
+      "prior_id": "history-options-symbol-args",
+      "kind": "literal",
+      "expr": "{ let a = arguments(delimiter: sym.alpha); csv(bytes(\"a,b\"), ..a) }",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-unknown-before-options",
+      "prior_id": "history-options-unknown-before-options",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), unknown: 1, delimiter: \"ab\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-unknown-before-source",
+      "prior_id": "history-options-unknown-before-source",
+      "kind": "literal",
+      "expr": "csv(42, unknown: 1, delimiter: \"ab\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-source-before-options",
+      "prior_id": "history-options-source-before-options",
+      "kind": "literal",
+      "expr": "csv(42, delimiter: \"ab\", row-type: 42)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-missing-before-options",
+      "prior_id": "history-options-missing-before-options",
+      "kind": "literal",
+      "expr": "csv(delimiter: \"ab\", row-type: 42)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-excess-valid",
+      "prior_id": "history-options-excess-valid",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), 42, delimiter: \",\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-duplicate-syntax-delimiter",
+      "prior_id": "history-options-duplicate-syntax-delimiter",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), delimiter: \"ab\", delimiter: \",\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-duplicate-syntax-row",
+      "prior_id": "history-options-duplicate-syntax-row",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\"), row-type: 42, row-type: array)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-utf8-invalid",
+      "prior_id": "history-options-utf8-invalid",
+      "kind": "origin",
+      "expr": "csv(bytes((255, 44, 98)))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-utf8-invalid-dict",
+      "prior_id": "history-options-utf8-invalid-dict",
+      "kind": "origin",
+      "expr": "csv(bytes((255, 44, 98)), row-type: dictionary)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-parse-unequal-with",
+      "prior_id": "history-options-parse-unequal-with",
+      "kind": "origin",
+      "expr": "csv.with(delimiter: \";\")(bytes(\"a;b\\n1\"))",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-read-options-preserved",
+      "prior_id": "history-options-read-options-preserved",
+      "kind": "literal",
+      "expr": "read.with(encoding: 42)(\"data.txt\", encoding: none)",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-history-options-p1312-exact-delimiter",
+      "prior_id": "history-options-p1312-exact-delimiter",
+      "kind": "literal",
+      "expr": "csv(\"data.csv\", delimiter: \"ab\")",
+      "cwd": "/tmp/p1314-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-plain-short-array",
+      "prior_id": "plain-short-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n1\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-plain-short-dictionary",
+      "prior_id": "plain-short-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n1\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-plain-extra-array",
+      "prior_id": "plain-extra-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n1,2,3\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-plain-extra-dictionary",
+      "prior_id": "plain-extra-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n1,2,3\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-header-multiline-array",
+      "prior_id": "header-multiline-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-header-multiline-dictionary",
+      "prior_id": "header-multiline-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-header-multiline-extra-array",
+      "prior_id": "header-multiline-extra-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1,2,3\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-header-multiline-extra-dictionary",
+      "prior_id": "header-multiline-extra-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1,2,3\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-leading-blank-array",
+      "prior_id": "leading-blank-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\n\\na,b\\n1\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-leading-blank-dictionary",
+      "prior_id": "leading-blank-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\n\\na,b\\n1\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-middle-blank-array",
+      "prior_id": "middle-blank-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n\\n\\n1,2\\n\\n3\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-middle-blank-dictionary",
+      "prior_id": "middle-blank-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n\\n\\n1,2\\n\\n3\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-late-multiline-array",
+      "prior_id": "late-multiline-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n\\\"x\\ny\\\",z\\n\\\"p\\nq\\\",r\\ns\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-late-multiline-dictionary",
+      "prior_id": "late-multiline-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n\\\"x\\ny\\\",z\\n\\\"p\\nq\\\",r\\ns\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-crlf-array",
+      "prior_id": "crlf-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\r\\n\\\"x\\r\\ny\\\",z\\r\\nq\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-crlf-dictionary",
+      "prior_id": "crlf-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\r\\n\\\"x\\r\\ny\\\",z\\r\\nq\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-crlf-leading-array",
+      "prior_id": "crlf-leading-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\r\\n\\r\\na,b\\r\\n1,2,3\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-crlf-leading-dictionary",
+      "prior_id": "crlf-leading-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\r\\n\\r\\na,b\\r\\n1,2,3\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-multiline-error-array",
+      "prior_id": "multiline-error-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n\\\"x\\ny\\\"\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-multiline-error-dictionary",
+      "prior_id": "multiline-error-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n\\\"x\\ny\\\"\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-escaped-quote-array",
+      "prior_id": "escaped-quote-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\\"\\\"b\\nc\\\",d\\ne\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-escaped-quote-dictionary",
+      "prior_id": "escaped-quote-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\\"\\\"b\\nc\\\",d\\ne\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-semicolon-array",
+      "prior_id": "semicolon-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\";c\\n1;2;3\"), row-type: array, delimiter: \";\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-semicolon-dictionary",
+      "prior_id": "semicolon-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\";c\\n1;2;3\"), row-type: dictionary, delimiter: \";\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-one-field-header-array",
+      "prior_id": "one-field-header-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\"\\nx,y\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-one-field-header-dictionary",
+      "prior_id": "one-field-header-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\"\\nx,y\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-empty-field-record-array",
+      "prior_id": "empty-field-record-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n,\\n\\nx\"), row-type: array, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-empty-field-record-dictionary",
+      "prior_id": "empty-field-record-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"a,b\\n,\\n\\nx\"), row-type: dictionary, delimiter: \",\")",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-with-array",
+      "prior_id": "with-array",
+      "kind": "origin",
+      "expr": "csv.with(row-type: array)(bytes(\"\\n\\\"a\\nb\\\",c\\n1,2\\n3\"))",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-args-array",
+      "prior_id": "args-array",
+      "kind": "origin",
+      "expr": "csv(..arguments(bytes(\"\\n\\\"a\\nb\\\",c\\n1,2\\n3\"), row-type: array))",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-args-map-array",
+      "prior_id": "args-map-array",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\n\\\"a\\nb\\\",c\\n1,2\\n3\"), ..arguments(row-type: array).map((..a) => array))",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-str-path-array",
+      "prior_id": "str-path-array",
+      "kind": "literal",
+      "expr": "csv(\"multiline.csv\", row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-rooted-path-array",
+      "prior_id": "rooted-path-array",
+      "kind": "literal",
+      "expr": "csv(path(\"multiline.csv\"), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-empty-array",
+      "prior_id": "empty-array",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\"), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-only-blank-array",
+      "prior_id": "only-blank-array",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\\n\\n\"), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-header-only-array",
+      "prior_id": "header-only-array",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\"), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-valid-blank-array",
+      "prior_id": "valid-blank-array",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\\na,b\\n\\n1,2\\n\"), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-valid-multiline-array",
+      "prior_id": "valid-multiline-array",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n\\\"1\\n2\\\",3\"), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-duplicate-headers-array",
+      "prior_id": "duplicate-headers-array",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,a\\n1,2\"), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-utf8-header-array",
+      "prior_id": "utf8-header-array",
+      "kind": "origin",
+      "expr": "csv(bytes((255,44,97)), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-utf8-data-array",
+      "prior_id": "utf8-data-array",
+      "kind": "origin",
+      "expr": "csv(bytes((97,44,98,10,255,44,97)), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-utf8-after-multiline-array",
+      "prior_id": "utf8-after-multiline-array",
+      "kind": "origin",
+      "expr": "csv(bytes((34,97,10,98,34,44,99,10,255,44,97)), row-type: array)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-with-dictionary",
+      "prior_id": "with-dictionary",
+      "kind": "origin",
+      "expr": "csv.with(row-type: dictionary)(bytes(\"\\n\\\"a\\nb\\\",c\\n1,2\\n3\"))",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-args-dictionary",
+      "prior_id": "args-dictionary",
+      "kind": "origin",
+      "expr": "csv(..arguments(bytes(\"\\n\\\"a\\nb\\\",c\\n1,2\\n3\"), row-type: dictionary))",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-args-map-dictionary",
+      "prior_id": "args-map-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes(\"\\n\\\"a\\nb\\\",c\\n1,2\\n3\"), ..arguments(row-type: dictionary).map((..a) => dictionary))",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-str-path-dictionary",
+      "prior_id": "str-path-dictionary",
+      "kind": "literal",
+      "expr": "csv(\"multiline.csv\", row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-rooted-path-dictionary",
+      "prior_id": "rooted-path-dictionary",
+      "kind": "literal",
+      "expr": "csv(path(\"multiline.csv\"), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-empty-dictionary",
+      "prior_id": "empty-dictionary",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\"), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-only-blank-dictionary",
+      "prior_id": "only-blank-dictionary",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\\n\\n\"), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-header-only-dictionary",
+      "prior_id": "header-only-dictionary",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\"), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-valid-blank-dictionary",
+      "prior_id": "valid-blank-dictionary",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\\na,b\\n\\n1,2\\n\"), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-valid-multiline-dictionary",
+      "prior_id": "valid-multiline-dictionary",
+      "kind": "literal",
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n\\\"1\\n2\\\",3\"), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-duplicate-headers-dictionary",
+      "prior_id": "duplicate-headers-dictionary",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,a\\n1,2\"), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-utf8-header-dictionary",
+      "prior_id": "utf8-header-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes((255,44,97)), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-utf8-data-dictionary",
+      "prior_id": "utf8-data-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes((97,44,98,10,255,44,97)), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "replay-utf8-after-multiline-dictionary",
+      "prior_id": "utf8-after-multiline-dictionary",
+      "kind": "origin",
+      "expr": "csv(bytes((34,97,10,98,34,44,99,10,255,44,97)), row-type: dictionary)",
+      "cwd": "/tmp/p1315-ab-fixtures",
+      "historical": true
+    },
+    {
+      "id": "focal-unequal-named-before-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "csv(delimiter: \",\", row-type: array, bytes(\"a,b\\n1\"))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-bound-source-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let f = csv.with(bytes(\"a,b\\n1\"), row-type: array); f() }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-args-named-before-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let a = arguments(row-type: array, bytes(\"a,b\\n1\")); csv(..a) }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-array-spread-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "csv(..(bytes(\"a,b\\n1\"),), row-type: array)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-sink-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let f(..a) = csv(..a); f(bytes(\"a,b\\n1\"), row-type: array) }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-args-map-detached-array",
+      "kind": "origin",
+      "detached": true,
+      "expr": "csv(..arguments(0).map((..a) => bytes(\"a,b\\n1\")), row-type: array)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-second-positional-array",
+      "kind": "literal",
+      "detached": false,
+      "expr": "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: array)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-named-before-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "csv(delimiter: \",\", row-type: array, bytes((97,44,98,10,255,44,97)))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-bound-source-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let f = csv.with(bytes((97,44,98,10,255,44,97)), row-type: array); f() }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-args-named-before-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let a = arguments(row-type: array, bytes((97,44,98,10,255,44,97))); csv(..a) }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-array-spread-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "csv(..(bytes((97,44,98,10,255,44,97)),), row-type: array)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-sink-array",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let f(..a) = csv(..a); f(bytes((97,44,98,10,255,44,97)), row-type: array) }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-args-map-detached-array",
+      "kind": "origin",
+      "detached": true,
+      "expr": "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: array)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-second-positional-array",
+      "kind": "literal",
+      "detached": false,
+      "expr": "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: array)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-named-before-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "csv(delimiter: \",\", row-type: dictionary, bytes(\"a,b\\n1\"))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-bound-source-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let f = csv.with(bytes(\"a,b\\n1\"), row-type: dictionary); f() }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-args-named-before-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let a = arguments(row-type: dictionary, bytes(\"a,b\\n1\")); csv(..a) }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-array-spread-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "csv(..(bytes(\"a,b\\n1\"),), row-type: dictionary)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-sink-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let f(..a) = csv(..a); f(bytes(\"a,b\\n1\"), row-type: dictionary) }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-args-map-detached-dictionary",
+      "kind": "origin",
+      "detached": true,
+      "expr": "csv(..arguments(0).map((..a) => bytes(\"a,b\\n1\")), row-type: dictionary)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-unequal-second-positional-dictionary",
+      "kind": "literal",
+      "detached": false,
+      "expr": "csv(bytes(\"a,b\\n1\"), bytes(\"valid\"), row-type: dictionary)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-named-before-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "csv(delimiter: \",\", row-type: dictionary, bytes((97,44,98,10,255,44,97)))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-bound-source-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let f = csv.with(bytes((97,44,98,10,255,44,97)), row-type: dictionary); f() }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-args-named-before-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let a = arguments(row-type: dictionary, bytes((97,44,98,10,255,44,97))); csv(..a) }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-array-spread-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "csv(..(bytes((97,44,98,10,255,44,97)),), row-type: dictionary)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-sink-dictionary",
+      "kind": "origin",
+      "detached": false,
+      "expr": "{ let f(..a) = csv(..a); f(bytes((97,44,98,10,255,44,97)), row-type: dictionary) }",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-args-map-detached-dictionary",
+      "kind": "origin",
+      "detached": true,
+      "expr": "csv(..arguments(0).map((..a) => bytes((97,44,98,10,255,44,97))), row-type: dictionary)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "focal-utf8-second-positional-dictionary",
+      "kind": "literal",
+      "detached": false,
+      "expr": "csv(bytes((97,44,98,10,255,44,97)), bytes(\"valid\"), row-type: dictionary)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-str-parse",
+      "kind": "literal",
+      "expr": "csv(\"unequal.csv\")",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-path-parse",
+      "kind": "literal",
+      "expr": "csv(path(\"unequal.csv\"), row-type: dictionary)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-valid-bytes",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\\n1,2\"))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-valid-dict",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\\n1,2\"), row-type: dictionary)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-invalid-option-before-parse",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\\n1\"), delimiter: \"bad\")",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-unknown-before-parse",
+      "kind": "literal",
+      "expr": "csv(bytes(\"a,b\\n1\"), nope: true)",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-missing-path",
+      "kind": "literal",
+      "expr": "csv(\"absent.csv\")",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-json-parse",
+      "kind": "literal",
+      "expr": "json(bytes(\"{\"))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-yaml-parse",
+      "kind": "literal",
+      "expr": "yaml(bytes(\"[\"))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-toml-parse",
+      "kind": "literal",
+      "expr": "toml(bytes(\"[\"))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-xml-parse",
+      "kind": "literal",
+      "expr": "xml(bytes(\"<\"))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    },
+    {
+      "id": "control-cbor-parse",
+      "kind": "literal",
+      "expr": "cbor(bytes((255,)))",
+      "cwd": "/tmp/p1316-ab-fixtures",
+      "historical": false
+    }
+  ],
+  "policy": "Only predeclared origin cases use baseline message plus vanilla remainder. All other observations literal baseline. Historical cases keep exact expressions and cwd."
+}

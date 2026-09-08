@@ -1,0 +1,16 @@
+{
+  "schema": "p1316-ab-comparison-v1",
+  "utc": "2026-09-08T14:46:26.336881+00:00",
+  "freeze_sha256": "200816280fc2e1c18934103574c6d33c3d972bdfb576221c4a74d3175d385e5f",
+  "measurement_sha256": "5f784d7248a14d47ca449bbea99287a9bdb202aabd07e8d582a60c420fd26bc4",
+  "candidate": {
+    "candidate": {
+      "path": "/tmp/p1316-target.1c6HK7/release/typst",
+      "sha256": "1178fcde18dee54cb6b5c0feadcc79c8066346e0bb005060db7a2217a072e8ba"
+    }
+  },
+  "comparisons": 3960,
+  "unknown": 0,
+  "failures": [],
+  "status": "PASS"
+}

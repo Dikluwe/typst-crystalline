@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: 03ea1fcc
+Hash do Código: ae096892
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -136,7 +136,8 @@ Mapa canónico documento→`Value`:
   fica desligado — antes aceitava em silêncio, bug P786 B1). Mensagem exacta:
   `failed to parse CSV (found {len} instead of {expected_len} fields in line
   {line})` — `len`/`expected_len` do `csv::ErrorKind::UnequalLengths`, `line`
-  do `Position` do erro (não inventada).
+  do `Position` do erro nesta revisão histórica. **P1315 abaixo substitui
+  somente essa origem de `line` pelo ordinal do registro.**
 - **`delimiter:`** — 1 char ≠ → `expected exactly one character`; char
   não-ASCII → `delimiter must be an ASCII character` (a mensagem anterior
   "deve ser um único carácter" era enganadora — P786 D2).
@@ -238,6 +239,262 @@ o path usam a vpath portátil, não `PathBuf` físico.
 As assinaturas/casts públicos mudam; implementar somente após o gate P1141.
 
 ## 5. Estratificação de erro (critério de aceitação 4)
+
+### Posição textual no parsing CSV Bytes — P1318
+
+#### Medição anterior à decisão
+
+Working tree P1315/P1316/P1317 não commitado sobre HEAD
+`bc8213f36b7a29b4fdc30cfc74ddc23586117c64`, fonte/L0 completos e estado em
+`00_nucleo/diagnosticos/p1318-measurement.json`, SHA-256
+`c19f749ad22b06e07d3078d6d9a72017e3c2e1f2b2546f738042f34362302378`.
+O mapper em `loading.rs:944-1006` descarta a posição do parser; a composição
+Bytes em `loading.rs:1304-1319` só ajusta o span do argumento. O vanilla
+ratificado `a51e02804` acrescenta `at 2:1` ao erro de `a,b\n1` e `at 3:1`
+ao de `"a\nb",c\n1`, conservando `line 2` como ordinal em ambos.
+
+Na fonte ratificada, `loading/csv.rs:138-157` declara posição pelo offset
+byte do erro, com fallback ordinal/coluna 1 quando ausente. `diag.rs:845-925`
+acrescenta posição apenas para Bytes e separa texto válido de binário inválido;
+`diag.rs:1025-1035`, `typst-syntax/src/lines.rs:88-95,252-274` e
+`typst-syntax/src/lexer.rs:1144-1152` definem as duas conversões.
+A intenção explícita é informar a posição do parser; os detalhes abaixo são
+comportamento diagnóstico medido, não promessa de posição intuitiva do byte ruim.
+
+A checagem extra refuta usar Position.line, ordinal, LF-only ou valid_up_to
+indiscriminadamente: `a,b\r\n1` dá `at 1:5` (offset entre CR/LF), enquanto
+o mesmo cabeçalho seguido de dados UTF-8 inválidos dá `at 1:1`. Byte inválido
+após um registro anterior de largura errada também seleciona a conversão
+binária, mas preserva UnequalLengths como erro vencedor. Separadores Unicode
+contam como linhas no texto válido, não na conversão binária. A sonda Path
+absoluta mede I/O por resolução virtual, não parsing nem nova obrigação Path.
+
+#### Obrigação proprietária e fronteiras
+
+Somente os erros de parsing da composição nativa CSV Bytes acrescentam
+` at L:C` antes do parêntese final da causa. L/C são 1-based e derivados do
+offset byte fornecido pelo parser (saturado ao range u32 de referência),
+nunca de Position.line, ordinal, valid_up_to ou primeiro byte não UTF-8.
+Sem offset, usar ordinal do registro e coluna 1, como o fallback explícito
+da fonte. Offset impossível não pode causar panic ou origem fabricada.
+
+Após o parser escolher o erro, a validade UTF-8 do buffer inteiro seleciona
+a conversão. Texto válido: reconhecer LF/VT/FF/CR/NEL/LS/PS, CRLF como uma
+quebra cujo início seguinte vem após LF; contar colunas em chars, não bytes
+ou UTF-16. Um offset entre CR e LF ainda pertence à linha anterior. Buffer
+inválido: contar LF no prefixo até o offset; contar chars com substituição
+UTF-8 desde o último LF; sem LF no prefixo, coluna 1. A escolha pelo buffer
+inteiro vale mesmo para UnequalLengths anterior ao byte inválido. A análise
+de posição só sucede a falha; não antecipar nem trocar a precedência CSV.
+
+Preservar causa P1317, ordinal P1315, hints, severidade, erro único e origem
+P1316. With/Args/spread/map e Args sintético sem occurrences recebem o sufixo
+independentemente de span; detached permanece detached, não é motivo para
+omitir a posição textual. Dispatch/traces continuam vigentes. Parsing com
+excesso mantém a precedência legada e recebe o mesmo sufixo como efeito
+normativo, não como paridade com o erro vanilla de excesso.
+
+decode_csv público mantém assinatura, valores e mensagens sem sufixo/spans
+detached. Path/Str mantêm sua composição, mensagens e origem legadas. É
+permitida delegação privada dentro deste owner para preservar o contexto
+de posição antes de formatar o erro, com um único parser e sem reparse.
+Não construir posição a partir da mensagem formatada. Nenhuma API, entidade,
+trait, crate, flag, namespace, fase ou I/O novo; read e demais loaders intactos.
+
+Esta seção substitui somente a ausência de sufixo na rota nativa Bytes das
+preservações P1313/P1314/P1315/P1316/P1317. Não corrige mensagens de Path/Str,
+casts, opções, unknown/missing/excesso ou csv.encode. Não é paridade geral CSV.
+Expectativas locais anteriores que exigiam mensagem Bytes sem sufixo devem
+ser atualizadas antes do candidato, com delta explícito, sem retirar casos,
+asserções de origem/causa ou preservações dos decoders/caminhos.
+
+Aceitação: RED→GREEN e A/B congelado com LF/CRLF/CR, campos multilinha,
+Unicode e separadores, BOM, Utf8 em header/dados, erro anterior a byte inválido,
+origens distintas/detached e controles Path/Str/opções/valores/outros loaders.
+Comparar diagnóstico completo ao baseline acrescentando somente o sufixo
+pré-declarado; nos casos bilaterais compatíveis exigir também vanilla integral.
+Colisões de excesso usam expectativa normativa separada. Repetir/reordenar.
+É inferência que a posição ainda disponível no owner basta sem contrato novo;
+necessidade de outro owner, perda de origem ou posição divergente refuta o
+fechamento. Mensagem é observável da linguagem (ADR-0108), não identidade Rust.
+Fluxo contínuo ADR-0127: correção interna de paridade, L0 antes do código.
+
+### Causa textual de UTF-8 inválido em CSV — P1317
+
+#### Medição anterior à decisão
+
+Working tree P1315/P1316 não commitado sobre HEAD
+`bc8213f36b7a29b4fdc30cfc74ddc23586117c64`; fontes, hashes e estado em
+`00_nucleo/diagnosticos/p1317-measurement.json`, SHA-256
+`92b04d68105d573523c673c1bcd0fb64ec2ffe57d17788c79742ce0450ee2fdf`.
+`loading.rs:955-965` trata Utf8 pelo fallback Display do parser. Bytes 255
+produz `CSV parse error: record 0 ... invalid utf-8 ...`; o vanilla ratificado
+`a51e02804` produz `file is not valid UTF-8 at 1:1` dentro do mesmo envelope.
+Em `lab/typst-original/crates/typst-library/src/loading/csv.rs:138-157`,
+o formatter declara explicitamente a causa `file is not valid UTF-8` para
+ErrorKind::Utf8; `diag.rs:845-925` acrescenta localização por outra camada.
+Mensagem diagnóstica é observável da linguagem (exceção ADR-0108).
+
+A checagem extra de precedência em `p1317-measurement-focal.json`, SHA-256
+`2a995791a497c9579fa8854d0531eebc74428b71afe92d59f249ec6143fa4fe0`,
+mostra que linha curta com byte inválido gera UnequalLengths, não Utf8, nos
+dois produtos. Logo validar UTF-8 antecipadamente mudaria o erro vencedor.
+Arrays literais corrigem as sondas iniciais de concatenação Bytes, que o
+baseline não suporta; aquelas sondas não provam parsing. Sondas de arquivo
+inexistente medem somente I/O. A intenção é a causa explícita no formatter,
+não copiar a mecânica de leitura/posição do vanilla.
+
+#### Obrigação proprietária e aceitação
+
+Quando o parser CSV retornar ErrorKind::Utf8, decode_csv deve emitir um
+único erro com mensagem exata `failed to parse CSV (file is not valid UTF-8)`.
+Aplicar tanto ao cabeçalho dictionary quanto aos registros de dados em ambos
+os modos. Selecionar pela variante do erro, nunca por Display, mensagem,
+fixture ou varredura UTF-8 anterior ao parser. Preservar todos os demais
+erros literalmente, incluindo ordinal P1315 e precedência UnequalLengths.
+
+O decoder puro permanece detached. A composição Bytes conserva a origem
+P1316, inclusive With/Args e detached legítimo; Path/Str continuam detached
+como antes. A mensagem nova propaga pelo decoder às rotas Path/Str sem
+alterar leitura/resolução/ordem. Não acrescentar `at l:c`, `in path`, spans
+externos, hints ou traces. Esta seção substitui somente a preservação da
+mensagem Utf8 em P1313/P1314/P1315/P1316; demais fronteiras ficam íntegras.
+
+Preservar assinaturas, entidades, opções, delimiters, casts, valores,
+header/quoting, ordem unknown-named→cast→opções→dados→decode, I/O, outros
+loaders e encoders. Não adicionar crate, fase, API, flag ou csv.encode.
+CSV malformado com excesso positional continua chegando ao parsing legado;
+se esse erro for Utf8, sua mensagem muda como efeito normativo, não como
+paridade com o erro vanilla de excesso. Não alegar paridade geral CSV.
+
+Aceitação: RED→GREEN local com cabeçalho/dados/Unicode válido, precedência
+de UnequalLengths, origens distintas e caminho via World simulado; A/B
+independente congelado preserva diagnóstico integral baseline mudando
+somente a primeira linha dos casos Utf8 declarados. A causa deve coincidir
+com a causa vanilla medida, sem remover posições para alegar igualdade total.
+Replays, controles de opções/outros loaders e normal/repeat/reverse exigidos.
+É inferência que o mapper atual basta; perda de precedência/origem ou
+necessidade de outro owner refuta o recorte e exige nova decisão.
+Correção interna de paridade: fluxo contínuo ADR-0127, L0 antes do código.
+
+### Origem de parsing CSV em Bytes — P1316
+
+#### Medição anterior à decisão
+
+Working tree P1315 não commitado sobre HEAD
+`bc8213f36b7a29b4fdc30cfc74ddc23586117c64`; estado, fontes integrais e hashes
+anteriores em `00_nucleo/diagnosticos/p1316-measurement.json`, SHA-256
+`b5d25936d78b8584cec7469fdde2a2cd5130da2f52936bcdd9f103efc28154d7`.
+`loading.rs:1301-1302` retorna decode_csv(Bytes) diretamente, perdendo
+contexto do argumento em erros de parsing. `csv(bytes("a,b\n1"))` produz
+erro detached no baseline, mas aponta para `bytes(...)` no vanilla; With e
+spread de Args conservam a origem pré-ligada e o trace no vanilla.
+
+Na fonte ratificada `a51e02804`, `loading/mod.rs:79-110` transporta o span
+da fonte e `diag.rs:845-925` distingue explicitamente Bytes de Path: Bytes
+usa loaded.source.span, inclusive em erro UTF-8. Path com texto UTF-8 usa
+range no arquivo externo, não o argumento. Essa checagem extra impede
+generalizar incorretamente a correção a todos os sources. O comportamento
+medido com Args.map tem origem detached legítima, que deve permanecer assim.
+
+#### Obrigação proprietária e aceitação
+
+Somente falhas de parsing na rota nativa `csv(Bytes)` recebem como span a
+origem do valor da primeira ocorrência posicional de Args. Ignorar named
+anteriores; não usar span do named, da chamada, dos bytes internos ou de
+outra ocorrência. Origem explicitamente detached e Args sintético sem
+occurrences continuam detached, sem range fabricado. Usar o carrier causal
+existente. With/spread/sink preservam a origem que o carrier fornece.
+
+Preservar exatamente message, hints e demais campos dos erros produzidos
+pelo decoder; o dispatch vigente continua responsável por traces causais.
+A apresentação dos traces pode mudar como consequência da origem correta,
+de acordo com os casos congelados. Não escolher origem a partir do texto
+do erro, nome de fixture ou conteúdo CSV. Não adicionar sufixo `at l:c`,
+normalizar UTF-8 ou reescrever mensagens neste lote.
+
+decode_csv puro mantém sua assinatura, comportamento e spans detached;
+csv(Path/Str), I/O e diagnósticos de arquivo permanecem integrais. O parser,
+os valores, o ordinal P1315 e a ordem unknown-named→cast→opções→dados→decode
+não mudam. Nenhum campo público, trait, dependência, flag ou fase nova.
+Bytes permanece sem chamadas ao World. Outros loaders/encoders ficam
+protegidos. Esta cláusula substitui somente a preservação de origem detached
+de parsing CSV Bytes em P1313/P1314/P1315, não as demais fronteiras.
+
+#### Fronteira de excesso medida antes do candidato
+
+A medição independente `p1316-ab-baseline-runs.json` em diagnósticos mostra
+que Bytes malformado com positional excedente atinge parsing no baseline,
+mas excesso no vanilla. Não alterar essa precedência neste lote. Nesse caso,
+o erro de parsing legado recebe a origem do primeiro Bytes como nos demais;
+é efeito normativo explícito, não paridade com o diagnóstico vanilla de excesso.
+Exigir controle local com primeiro/segundo positional de origens distintas.
+Preservar a medição bilateral e a dívida, sem forçar oráculo de span a partir
+de erro vanilla de outro estrato. No A/B, excesso com fonte válida é controle
+de preservação; as colisões parsing+excesso não provam paridade bilateral.
+
+Aceitação: RED→GREEN local e A/B independente congelado, diagnóstico
+integral com o texto baseline e apresentação da origem/traces vanilla.
+Mensagens distintas continuam declaradas como dívida, não são removidas para
+alegar paridade total. Cobrir UnequalLengths e UTF-8, array/dictionary,
+With/Args/spread/map, origem detached e controles Path/Str, valores e opções.
+É inferência que o carrier existente basta; perda de origem conservada pelo
+vanilla refuta o fechamento e exige diagnóstico, não fallback inventado.
+Origem diagnóstica é observável de linguagem (ADR-0108), não identidade Rust.
+Correção interna de paridade: fluxo contínuo ADR-0127 com L0 primeiro.
+
+### Ordinal no erro de campos CSV — P1315
+
+#### Medição anterior à decisão
+
+Baseline commit `bc8213f36b7a29b4fdc30cfc74ddc23586117c64`, sem diff
+produtivo; medição `00_nucleo/diagnosticos/p1315-measurement.json`, SHA-256
+`ee6535435927f5ea6bbe8dadcd05663636b8cb41324151bd3d59a2a0c4019fe0`,
+registra estado, horários, argv e binários. Em `loading.rs:956-963`, o
+diagnóstico UnequalLengths usa Position.line. Para CSV com primeiro registro
+`"a\nb",c` seguido de `1`, informa `line 3`; o vanilla ratificado
+`a51e02804` informa `line 2 at 3:1`, separando ordinal e posição física.
+Linhas vazias iniciais também refutam usar a linha física como ordinal.
+
+A intenção explícita está em
+`lab/typst-original/crates/typst-library/src/loading/csv.rs:54-77,150-153`:
+o comentário rejeita Position.line devido ao comportamento do parser, e o
+diagnóstico recebe o ordinal enumerado, com cabeçalho contado. A checagem
+extra com CRLF confirma que reconstruir linhas físicas não é substituto.
+UTF-8 inválido, sufixo de posição e span continuam divergentes e não autorizam
+declarar paridade completa do diagnóstico.
+
+#### Obrigação proprietária e aceitação
+
+Somente o número `N` no fragmento `found X instead of Y fields in line N`
+de UnequalLengths passa a ser o ordinal 1-based do registro CSV rejeitado.
+Contar todos os registros retornados pelo parser, incluindo o cabeçalho em
+dictionary; não contar linhas vazias ignoradas nem quebras internas de campos
+citados como registros adicionais. Array e dictionary devem concordar no
+ordinal para os mesmos dados. Não derivar N de Position.line/byte nem contar
+newlines manualmente. X/Y continuam vindo de UnequalLengths.
+
+Preservar texto circundante, erro único, hints, spans detached e traces
+vigentes (origem de parsing na rota Bytes substituída explicitamente por
+P1316 acima). Não acrescentar `at linha:coluna` ou caminho ao erro. Outros erros,
+inclusive UTF-8 e header inválido, permanecem literais. Preservar opções,
+ordem de validação, casts, I/O, valores, quoting, delimiters, rigidez de
+campos e nomes/ordem dos dicionários. Nenhuma API, entidade, trait, crate ou
+fase nova. A assinatura pública de decode_csv permanece idêntica.
+
+Esta obrigação substitui a origem histórica de `line` em P787 e somente a
+preservação desse número em P1313/P1314. Não é um novo parser nem constructor
+dividido: a correção do ordinal é completa; o formato geral dos diagnósticos
+continua dívida separada. Mensagem é observável da linguagem (exceção
+ADR-0108). Fluxo contínuo ADR-0127, L0 primeiro, RED→GREEN e revalidação.
+É inferência que enumerar os registros já consumidos basta; divergência
+de ordinal em qualquer modo/caso obrigatório refuta o fechamento.
+
+Exigir testes locais e A/B congelado com registros multilinha, vazios,
+CRLF, cabeçalho, erro posterior e excesso/falta de campos; valores válidos
+e demais erros são controles. No A/B, comparar o fragmento com vanilla e o
+diagnóstico completo com o baseline alterando apenas N explicitamente.
+Nunca remover sufixos/spans para alegar igualdade total dos produtos.
 
 ### Opções CSV — P1314
 

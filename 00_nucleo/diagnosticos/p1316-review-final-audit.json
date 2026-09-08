@@ -1,0 +1,18 @@
+{
+  "utc": "2026-09-08T14:47:02.620Z",
+  "head": "bc8213f36b7a29b4fdc30cfc74ddc23586117c64",
+  "diff_stat": " 00_nucleo/prompts/compiler/stdlib/loading.md | 124 +++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs       | 213 +++++++++++++++++++++++++--\n 2 files changed, 322 insertions(+), 15 deletions(-)\n",
+  "script_sha256": "455abda2b982284ee50300f34a983b840a2a64fa6a9b92b1771ba59c1eb22d8b",
+  "freeze_sha256": "200816280fc2e1c18934103574c6d33c3d972bdfb576221c4a74d3175d385e5f",
+  "source_sha256": "2278316a90408fc6dae9ba2fd0f3d5479571055ef4bcde84019147a84b12d75a",
+  "l0_raw_sha256": "a4e4a71be35e5cf9008a47badb8a51e830616b6a768d0c185c24f78d79bce7d3",
+  "frozen_inputs_verified": 29,
+  "previous_artifacts_verified": 28,
+  "cases": 330,
+  "historical_cases": 290,
+  "expectations": 1320,
+  "red_expectations": 260,
+  "product_unchanged": false,
+  "candidate_comparisons": 3960,
+  "failures": []
+}

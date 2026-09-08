@@ -1,0 +1,138 @@
+{
+  "utc": "2026-09-08T13:54:43.960Z",
+  "head": "bc8213f36b7a29b4fdc30cfc74ddc23586117c64",
+  "diff_stat": " 00_nucleo/prompts/compiler/stdlib/loading.md | 57 +++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs       | 86 ++++++++++++++++++++++++----\n 2 files changed, 129 insertions(+), 14 deletions(-)\n",
+  "audit_script_sha256": "66c8a770750b5f26372ed750884f0c9c2db35e4c3ed3e8d4574e26375fd48f75",
+  "freeze_sha256": "c2cd0c90e4ea09082980b7dba5ed960dc8c9415bc4930fbeb6c68c2566ddac4f",
+  "l0_normative_sha256": "9a67fcb0cd258ba661221b844e59d149061d4b673a52618bc62092054080b40a",
+  "candidate": {
+    "path": "/dev/shm/p1315-target.V6TWEF/release/typst",
+    "sha256": "6a4a75787060ce8015ebde85ef2deb078f4b6a0b827b5533602785261ba890a1"
+  },
+  "gates": {
+    "unit-green": {
+      "sha256": "0dfa3398fd915a6ea592f479e8c56818136cf462da669c6b651a3354563213d2",
+      "argv": [
+        "cargo",
+        "test",
+        "-p",
+        "typst-core",
+        "--release",
+        "p1315",
+        "--lib"
+      ],
+      "exit": 0,
+      "utc": [
+        "2026-09-08T13:47:02.321781+00:00",
+        "2026-09-08T13:48:27.230356+00:00"
+      ],
+      "tests": {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "summaries": 1
+      }
+    },
+    "build": {
+      "sha256": "36430daaed73064e9a783cb66f8b6b021822939da86b04566df7b5eb24598b46",
+      "argv": [
+        "cargo",
+        "build",
+        "--workspace",
+        "--release"
+      ],
+      "exit": 0,
+      "utc": [
+        "2026-09-08T13:48:50.595762+00:00",
+        "2026-09-08T13:49:20.432435+00:00"
+      ]
+    },
+    "workspace-tests": {
+      "sha256": "beb222a6b7ccaf6d10c725ee850d0395038483faea51fe97440953cef391661a",
+      "argv": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--release",
+        "--no-fail-fast"
+      ],
+      "exit": 0,
+      "utc": [
+        "2026-09-08T13:49:20.516048+00:00",
+        "2026-09-08T13:51:24.978856+00:00"
+      ],
+      "tests": {
+        "passed": 6648,
+        "failed": 0,
+        "ignored": 3,
+        "summaries": 17
+      }
+    },
+    "lint": {
+      "sha256": "7e21449cc15eba0a2de38b7db7252a6e363410c3117490ce6bce000770f2e82c",
+      "argv": [
+        "crystalline-lint",
+        "."
+      ],
+      "exit": 0,
+      "utc": [
+        "2026-09-08T13:47:04.984106+00:00",
+        "2026-09-08T13:47:08.197303+00:00"
+      ],
+      "diagnostics": {
+        "errors": 0,
+        "warnings": 240,
+        "infos": 1137
+      }
+    },
+    "lineage-final": {
+      "sha256": "091791de07dee330d31a52017730fffbdddbc10d797db8da84a860de474083ba",
+      "argv": [
+        "crystalline-lint",
+        "--fix-hashes",
+        "--dry-run",
+        "."
+      ],
+      "exit": 0,
+      "utc": [
+        "2026-09-08T13:47:03.570833+00:00",
+        "2026-09-08T13:47:06.850997+00:00"
+      ]
+    },
+    "fmt": {
+      "sha256": "9dbf75d44a066bbb5edd724e946a54be99e213cf1382f8ba388777535f575d90",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "utc": [
+        "2026-09-08T13:47:28.134737+00:00",
+        "2026-09-08T13:47:30.283680+00:00"
+      ]
+    },
+    "diff-check": {
+      "sha256": "b3ebb4c97da6aecfaa6b826556040f14a3d937b0c259ba114ba6b3a03c3a6693",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "utc": [
+        "2026-09-08T13:47:30.371158+00:00",
+        "2026-09-08T13:47:30.430417+00:00"
+      ]
+    }
+  },
+  "ab": {
+    "pending": false,
+    "runs_sha256": "7091b03795a741fd6c2120506e8322b6b871c43b8d91a76f30e8f920f96efc54",
+    "comparison_sha256": "2ee04e8e626bb8d8032cbf3df66dbf4470e12096254184ff5de32fd1a164046d",
+    "comparisons": 3480,
+    "independently_recounted_failures": 0
+  },
+  "errors": []
+}

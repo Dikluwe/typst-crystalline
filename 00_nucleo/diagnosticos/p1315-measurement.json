@@ -1,0 +1,309 @@
+{
+  "before": {
+    "utc": "2026-09-08T13:35:16.946783+00:00",
+    "head": "bc8213f36b7a29b4fdc30cfc74ddc23586117c64",
+    "diff_stat": "",
+    "diff": "",
+    "staged": "",
+    "status": "?? 00_nucleo/diagnosticos/p1315-measure.py\n?? 00_nucleo/diagnosticos/p1315-record.py\n",
+    "files": {
+      "01_core/src/compiler/stdlib/loading.rs": "1e911a53392ce900e482cf020973d5c78136977c032045fdc4f66e10ea8ec83a",
+      "00_nucleo/prompts/compiler/stdlib/loading.md": "6b717ccd9ddd4784407ca2b1d052f25c63c78198062748f449538a6ff85a0097"
+    }
+  },
+  "after": {
+    "utc": "2026-09-08T13:35:19.191007+00:00",
+    "head": "bc8213f36b7a29b4fdc30cfc74ddc23586117c64",
+    "diff_stat": "",
+    "diff": "",
+    "staged": "",
+    "status": "?? 00_nucleo/diagnosticos/p1315-measure.py\n?? 00_nucleo/diagnosticos/p1315-record.py\n",
+    "files": {
+      "01_core/src/compiler/stdlib/loading.rs": "1e911a53392ce900e482cf020973d5c78136977c032045fdc4f66e10ea8ec83a",
+      "00_nucleo/prompts/compiler/stdlib/loading.md": "6b717ccd9ddd4784407ca2b1d052f25c63c78198062748f449538a6ff85a0097"
+    }
+  },
+  "rows": [
+    {
+      "expr": "csv(bytes(\"a,b\\n1\"))",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n1\"))\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a,b\\n1\"))",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n1\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\n1\"))\n  │     ^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a,b\\n\\n1\"))",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n\\n1\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n\\n1\"))\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a,b\\n\\n1\"))",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n\\n1\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\n\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 3)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 3:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"), row-type: dictionary)",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"), row-type: dictionary)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 3)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"\\\"a\\nb\\\",c\\n1\"), row-type: dictionary)\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"), row-type: dictionary)",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"), row-type: dictionary)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 3:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"\\\"a\\nb\\\",c\\n1\"), row-type: dictionary)\n  │     ^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"))",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 4)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"))\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"))",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 3 at 4:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"))\n  │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"), row-type: dictionary)",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"), row-type: dictionary)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 4)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"), row-type: dictionary)\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"), row-type: dictionary)",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"), row-type: dictionary)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 3 at 4:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\n\\\"1\\n2\\\",3\\n4\"), row-type: dictionary)\n  │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"\\n\\na,b\\n1\"))",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"\\n\\na,b\\n1\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 4)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"\\n\\na,b\\n1\"))\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"\\n\\na,b\\n1\"))",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"\\n\\na,b\\n1\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 4:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"\\n\\na,b\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a,b\\r\\n\\\"1\\r\\n2\\\",3\\r\\n4\"))",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"a,b\\r\\n\\\"1\\r\\n2\\\",3\\r\\n4\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 3)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\\r\\n\\\"1\\r\\n2\\\",3\\r\\n4\"))\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a,b\\r\\n\\\"1\\r\\n2\\\",3\\r\\n4\"))",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a,b\\r\\n\\\"1\\r\\n2\\\",3\\r\\n4\"))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 3 at 3:6)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\r\\n\\\"1\\r\\n2\\\",3\\r\\n4\"))\n  │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a;b\\n1;2;3\"), delimiter: \";\")",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"a;b\\n1;2;3\"), delimiter: \";\")"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 3 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a;b\\n1;2;3\"), delimiter: \";\")\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"a;b\\n1;2;3\"), delimiter: \";\")",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"a;b\\n1;2;3\"), delimiter: \";\")"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 3 instead of 2 fields in line 2 at 2:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a;b\\n1;2;3\"), delimiter: \";\")\n  │     ^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1,2\"))",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes(\"\\\"a\\nb\\\",c\\n1,2\"))"
+      ],
+      "exit": 0,
+      "stdout": "[[\"a\\nb\",\"c\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1,2\"))",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes(\"\\\"a\\nb\\\",c\\n1,2\"))"
+      ],
+      "exit": 0,
+      "stdout": "[[\"a\\nb\",\"c\"],[\"1\",\"2\"]]\n",
+      "stderr": ""
+    },
+    {
+      "expr": "csv(bytes((255,)))",
+      "product": "baseline",
+      "argv": [
+        "/dev/shm/p1314-target.cswujn/release/typst",
+        "eval",
+        "csv(bytes((255,)))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (CSV parse error: record 0 (line 1, field: 0, byte: 0): invalid utf-8: invalid UTF-8 in field 0 near byte index 0)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes((255,)))\n\n"
+    },
+    {
+      "expr": "csv(bytes((255,)))",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "csv(bytes((255,)))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 1:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes((255,)))\n  │     ^^^^^^^^^^^^^\n\n"
+    }
+  ],
+  "binaries": {
+    "baseline": {
+      "path": "/dev/shm/p1314-target.cswujn/release/typst",
+      "sha256": "cf9b997ac399cfb95cf15063cc417484ed28a75be18f6e7d55a28300d792114f"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  },
+  "upstream": "a51e02804",
+  "sources": {
+    "lab/typst-original/crates/typst-library/src/loading/csv.rs": "4d4c9a3ca69314904802f94f55d3a413e8f6d045de522e7c80c543f37e333fff",
+    "01_core/src/compiler/stdlib/loading.rs": "1e911a53392ce900e482cf020973d5c78136977c032045fdc4f66e10ea8ec83a",
+    "00_nucleo/prompts/compiler/stdlib/loading.md": "6b717ccd9ddd4784407ca2b1d052f25c63c78198062748f449538a6ff85a0097"
+  },
+  "script_sha256": "acc10603404e08bc5b40dcd6b7eb20b08b792a9f818bc0a4364f772471a7d41a"
+}
