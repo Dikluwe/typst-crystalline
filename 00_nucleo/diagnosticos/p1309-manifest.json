@@ -1,0 +1,55 @@
+{
+  "schema": "p1309-manifest-v1",
+  "at": "2026-09-07T22:51:05.792375+00:00",
+  "baseline_sha256": "901b3522ed27b49505ad1d6dbe83300a3172d182f0c1d94d54baae8f2db386b3",
+  "step": {
+    "path": "00_nucleo/materialization/typst-passo-1309.md",
+    "sha256": "e4c2a4857d1dc90c583dd5d96cca9d7017a14be56749ac5b85eb474da8a4b423"
+  },
+  "regime": "executado sem atestação de isolamento técnico",
+  "roles": {
+    "A": {
+      "executor": "/root/p1309_inventory",
+      "inherited_context": "none; task instructions only",
+      "write": "p1309-inventory-* and p1309-probe-catalog.json",
+      "read": "step, skill, historical method/catalog, pinned binaries; no candidate matrix"
+    },
+    "B": {
+      "executor": "/root",
+      "inherited_context": "conversation history; coordinator",
+      "write": "p1309 provenance, runners, matrices, sentinels, gates, final report",
+      "read": "step, frozen catalog, binaries, prior methods and sealed artifacts"
+    },
+    "C": {
+      "executor": "/root/p1309_classifier",
+      "inherited_context": "none; task instructions only",
+      "write": "p1309 ledgers, classification, selection, certification debt",
+      "read": "step, catalog, matrices, relevant full L0 and source"
+    },
+    "D": {
+      "executor": "/root/p1309_adversary",
+      "inherited_context": "none; task instructions only",
+      "write": "p1309-adversarial-* and p1309-audit-attacks.py",
+      "read": "step, frozen artifacts and historical auditor methods"
+    },
+    "E": {
+      "executor": "separate fresh verifier after A finishes",
+      "inherited_context": "none",
+      "write": "p1309-verification.json and p1309-certificate.json",
+      "read": "sealed artifacts and receipts only; cannot edit judged artifacts"
+    }
+  },
+  "policy": {
+    "product_read_only": true,
+    "no_commit": true,
+    "allowed_writes": "00_nucleo/diagnosticos/p1309-*; disposable dedicated build target outside repo",
+    "command_timeout_seconds": 1200,
+    "probe_timeout_seconds": 30,
+    "full_orders": [
+      "normal",
+      "repeat",
+      "reverse"
+    ],
+    "calibration_limit": "two focal revisions per failure class; two without gain stop, never turn Unknown into success"
+  }
+}

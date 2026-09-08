@@ -1,0 +1,161 @@
+{
+  "schema": "p1309-certificate-v1",
+  "issuer": "/root/p1309_verifier",
+  "role": "E",
+  "at": "2026-09-07T23:37:41.893865+00:00",
+  "verdict": "P1309_PASS_P1310_COHORT_SELECTED",
+  "regime": "executado sem atestação de isolamento técnico",
+  "technical_isolation_attested": false,
+  "scope": "P1309 R2 read-only global surface audit, current pinned bilateral corpus and deterministic selection only",
+  "verification": {
+    "path": "00_nucleo/diagnosticos/p1309-verification.json",
+    "sha256": "b981a87a4f261a260000ea23d3871ed9a062bab6bb3dfa413c97cb1d9c6a9199"
+  },
+  "baseline": {
+    "commit": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+    "receipt_sha256": "68dd669aba8d94ef80eca8a2bdf7f35ed27c60cf36f2a829ae03b1017d555bce",
+    "manifest_sha256": "d7d2f8ebfe7a5453c4fec7417248654a066d9859dd8d29abf259544c888cf9c3",
+    "tracked_diff_stat": ""
+  },
+  "binaries": {
+    "vanilla": {
+      "upstream": "a51e02804",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    },
+    "crystalline": {
+      "path": "/dev/shm/p1309-r2-target.R2ZoSj/release/typst",
+      "sha256": "e54dcc9bb6a4c45cdc710066027ea255af6fb13f17b3715583ba4e9f6f3287c7",
+      "build_receipt_sha256": "3553d0aa43ee277db4bbba9821f971466e6ad1283c952d0fe44359f7f9641a80"
+    }
+  },
+  "gates": {
+    "catalog": "PASS: 627 historical records verbatim; 2182 unique IDs; 2172 fresh union paths covered; 167 historical paths reconciled",
+    "global_matrix": "PASS: 8728 keys per order; three full orders identical; zero EXECUTION_UNKNOWN",
+    "post_closure_preservation": "PASS within frozen scopes: 1982 P1308 envelopes, 148 module cases and full arrays; 2170 supplemental pairs counted separately",
+    "temporal": "PASS: zero historical MATCH regressions, 60 cells newly matched",
+    "architecture": "PASS: 472 prompt consumers in 1:1 ownership, 27 nuclei/142 pins, no lint error",
+    "auditor_discrimination": "PASS: 18 valid attacks rejected with witness, 19 positive controls accepted; mutation score 1.0",
+    "workspace_tests": {
+      "passed": 6620,
+      "failed": 0,
+      "ignored": 3,
+      "ignored_test_names": [
+        "test 01_core/src/compiler/layout/mod.rs - compiler::layout::layout_with_introspector (line 2779) ... ignored",
+        "test 01_core/src/entities/introspector.rs - entities::introspector::TagIntrospector::inject_pages (line 543) ... ignored",
+        "test 01_core/src/entities/introspector.rs - entities::introspector::TagIntrospector::inject_positions (line 521) ... ignored"
+      ]
+    },
+    "lint": {
+      "error": 0,
+      "warning": 240,
+      "info": 1136
+    },
+    "allowlist": "PASS at final snapshot; 1033 frozen product/L0 files intact; tracked/index clean; original failed attempt remains invalid"
+  },
+  "metrics": {
+    "raw": {
+      "numerator": 8196,
+      "denominator": 8728,
+      "percentage": 93.90467461044913
+    },
+    "adjusted": {
+      "numerator": 8196,
+      "denominator": 8572,
+      "percentage": 95.61362575828278
+    }
+  },
+  "path_coverage": {
+    "INTENTIONAL_PRODUCT_EXTENSION": 39,
+    "CLOSED_CONFIRMED": 2026,
+    "MISSING_LANGUAGE_MEMBER": 103,
+    "UNRESOLVED": 3,
+    "EXPECTED_FEATURE_DISABLED": 1,
+    "WRONG_PUBLIC_REPR": 4,
+    "DIAGNOSTIC_DIVERGENCE": 4,
+    "WRONG_PUBLIC_VALUE": 2
+  },
+  "selected_cohort": {
+    "id": "loader-data-source-cast",
+    "rank": [
+      3,
+      1,
+      -5,
+      1,
+      "loader-data-source-cast"
+    ],
+    "paths": [
+      "cbor",
+      "json",
+      "toml",
+      "xml",
+      "yaml"
+    ],
+    "owner_files": [
+      "01_core/src/compiler/stdlib/loading.rs"
+    ],
+    "gate": "ADR0127_INTERNAL_PARITY_L0_FIRST_REVALIDATE",
+    "recommended_scope": "Wrong-type DataSource diagnostics in cbor/json/toml/xml/yaml only; missing-argument aggregate transport is a separate cohort with two owners.",
+    "future_materialization_authorized": false
+  },
+  "certification_debt": {
+    "families": 37,
+    "status_counts": {
+      "STILL_PENDING": 37
+    },
+    "p1307_mutation_score": null,
+    "discharged_by_p1308": 0
+  },
+  "initial_attempt": {
+    "status": "INVALIDATED_ALLOWLIST_WRITE",
+    "incident_sha256": "e3296a6506d585357473c9eea33fbe88a766d72aa0d61203890217e94b97287f",
+    "recovery": "R2 refreeze and fresh dedicated build verified; original incident and recoverable cache preserved, never waived"
+  },
+  "limitations": [
+    "This certifies only the pinned P1309 corpus, baseline, classification and deterministic selection; no general Typst equivalence, layout/export/binary output claim.",
+    "P1308 sentinel preservation uses explicitly frozen normalized language envelopes and retains raw transcripts; preservation is distinct from raw bilateral equality.",
+    "CLOSED_CONFIRMED principal paths certify the catalog identity observable only; unmeasured calls are not certified.",
+    "calc.deg, calc.log10 and calc.rad remain normative UNRESOLVED, remain in the adjusted denominator, and are excluded from parity cohort competition. They are not EXECUTION_UNKNOWN.",
+    "All 37 P1307 product mutation families remain pending. The 18/18 score concerns the auditor only; no product mutation ran in P1309.",
+    "Shared filesystem prevents technical isolation attestation; hashes and snapshots establish artifact identity and recorded order, not absence of every transient access."
+  ],
+  "protected_artifacts": {
+    "p1309-owner-ledger.tsv": "36deab222babd8edbf90b030a56977482d28c13c6b15a55b01f9ea546c7f23f4",
+    "p1309-transition-ledger.tsv": "8922aab7c85d3dfe69cf5914c5fff29b24a1ac8d82883e71b5949d171d55ce2b",
+    "p1309-selection.json": "72e0505ebe6106dd458fa89555f0667c50a10eca8ef1135fd7008559d89aa808",
+    "p1309-classification-summary.json": "0b5751799e50f07190322754582779b2ece69704cc79b28e394bc7459d543a1f",
+    "p1309-classification-sources.json": "982fc7f73f978554f3b42ae4617e7f9f64a4432591b60027340f1b91f47b11a9",
+    "p1309-audit-anchors.json": "881fa34090aaad636eced997bfa383d595dc665aaddbc2750989c1c9a18a9d15",
+    "p1309-audit-bundle.json": "eeaa851c41ce226436ccb6ef729aacac61e59bdaed444927d7d894ca4dd3e4b2",
+    "p1309-probe-catalog.json": "20a5bdec9a848d24ebe1fcf451f143ce65499184e57984e4e5389aef5aecde3a",
+    "p1304-probe-catalog.json": "78f2422d0b2dbf0b6ef65231a17db273775ddb269eef7cf002d36a38496b1661",
+    "p1304-feature-matrix.json": "7679f2438f59a3fdf3d17760f1398b3058b130b7c79f6234b86932fbecb810fb",
+    "p1304-owner-ledger.tsv": "01e038177dde246c3196af79bdb36eb13eb2e03364b0b091056cb2af8f4d6770",
+    "p1309-sentinels.json": "2af42cf65e4d59f0d199528a37a7bc7efb994d1c39bbda914b977a194618ce65",
+    "p1309-baseline-r2.json": "68dd669aba8d94ef80eca8a2bdf7f35ed27c60cf36f2a829ae03b1017d555bce",
+    "p1309-matrix-normal.json": "ed6b603578ada1a3961bbb564c272652e52b4652231b5d324c8b9afa57889e51",
+    "p1309-matrix-repeat.json": "af86b508546934b60511502d3e3768bbe9449cd8c30c4cd573c81e9f2d35c51d",
+    "p1309-matrix-reverse.json": "26021665ea875e67f61be8d8f93bc97ecd9f80def748d58fa812da24720207bd",
+    "p1309-certification-debt.json": "2a2f26ff9e1acad09dadd41d9f3527f8aff42e8f29f52a12fd6f2cec3b5505ee",
+    "p1309-stability.json": "3479b62231013a313493db0966109e3409d142dc0bb49d99107a73d0210df3df",
+    "p1308-r2-oracle.json": "7d076a223c97c33768955a22fc43dd5bd8d5d29be75dc4b57346f86de8504312",
+    "p1309-sentinels-p1308-crystalline.json": "176105ce5bfc0f218b84e310456c745c1d7ad290ae9f77953091485d10d39844",
+    "p1309-sentinels-extra.json": "e3be597ddc8f9710fdda2ffefb360cd379966c90eea63cf21917d14693d269c5",
+    "p1309-gates.json": "3bfa71d097287c8948e824987c6f60ff257c80d0994b66d228339043b18feb80",
+    "p1309-workspace-tests-r2.json": "4eed3c28ff729f9190441389f1ec24fb4757e1eb4e292609cd33ce9b2ff17f8c",
+    "p1309-lint-r2.json": "9c1b6c5b37c9ebeb2ee32237235095c2a8a374f52c1ba1c521e29d9415bc05bd",
+    "p1309-adversarial-ledger.json": "1c693fffb797a0b49d69b8ac62e8de9f815aa68dc73b03c6920aaa0c97cf351d",
+    "p1309-adversarial-cases.json": "e8663dc60676d92867056de5b34b9e67e5fed0f64e8c809d2d8106682ef68cad",
+    "p1309-verification-preliminary.json": "f7faa50b112570a2a93d505d6b9e53dd8d59267deb5413ae05f3d197d3976d50",
+    "p1309-verification-runtime.json": "5765975c420e75d6876959ab464c94c9d011b8e7d0de7a621e2025e7599320d0",
+    "p1309-verification-semantic.json": "e9ae1d8524ae7cffcc5b819a72e81dce15262836e889e17c6547d20e16f8ac2c",
+    "p1309-build-r2.json": "3553d0aa43ee277db4bbba9821f971466e6ad1283c952d0fe44359f7f9641a80",
+    "p1309-inventory-incident.json": "e3296a6506d585357473c9eea33fbe88a766d72aa0d61203890217e94b97287f"
+  },
+  "actions": {
+    "stage": false,
+    "commit": false,
+    "push": false,
+    "product_edits": false,
+    "judged_artifact_edits": false
+  }
+}

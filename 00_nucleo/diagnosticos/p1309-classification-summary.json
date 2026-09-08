@@ -1,0 +1,170 @@
+{
+  "schema": "p1309-classification-summary-v1",
+  "at": "2026-09-07T23:21:15.435Z",
+  "head": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+  "tracked_diff_stat": "",
+  "regime": "executado sem atestação de isolamento técnico",
+  "source_state_before": {
+    "head": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+    "branch": "Tekt",
+    "status": "?? 00_nucleo/diagnosticos/p1309-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1309-adversarial-preparation.json\n?? 00_nucleo/diagnosticos/p1309-adversarial-review-r0.md\n?? 00_nucleo/diagnosticos/p1309-audit-attacks.py\n?? 00_nucleo/diagnosticos/p1309-audit.py\n?? 00_nucleo/diagnosticos/p1309-baseline-r2.json\n?? 00_nucleo/diagnosticos/p1309-baseline.json\n?? 00_nucleo/diagnosticos/p1309-build-r2.json\n?? 00_nucleo/diagnosticos/p1309-build.json\n?? 00_nucleo/diagnosticos/p1309-certification-debt.json\n?? 00_nucleo/diagnosticos/p1309-classification-prepare.cjs\n?? 00_nucleo/diagnosticos/p1309-classification-sources.cjs\n?? 00_nucleo/diagnosticos/p1309-classification-sources.json\n?? 00_nucleo/diagnosticos/p1309-fmt-r2.json\n?? 00_nucleo/diagnosticos/p1309-fmt.json\n?? 00_nucleo/diagnosticos/p1309-inventory-catalog.py\n?? 00_nucleo/diagnosticos/p1309-inventory-crystalline-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-crystalline-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-crystalline-prebuild.json\n?? 00_nucleo/diagnosticos/p1309-inventory-incident.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-crystalline-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-crystalline-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-vanilla-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-vanilla-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observe.py\n?? 00_nucleo/diagnosticos/p1309-inventory-reconciliation.json\n?? 00_nucleo/diagnosticos/p1309-inventory-runner.py\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-build.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-default.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-html.json\n?? 00_nucleo/diagnosticos/p1309-lint-r2.json\n?? 00_nucleo/diagnosticos/p1309-manifest-r2.json\n?? 00_nucleo/diagnosticos/p1309-manifest.json\n?? 00_nucleo/diagnosticos/p1309-matrix.py\n?? 00_nucleo/diagnosticos/p1309-probe-catalog.json\n?? 00_nucleo/diagnosticos/p1309-record-r2.py\n?? 00_nucleo/diagnosticos/p1309-record.py\n?? 00_nucleo/diagnosticos/p1309-sentinels-p1308-crystalline.json\n?? 00_nucleo/diagnosticos/p1309-sentinels-p1308-vanilla.json\n?? 00_nucleo/diagnosticos/p1309-workspace-tests-r2.json\n?? 00_nucleo/materialization/typst-passo-1309.md\n",
+    "diff_stat": "",
+    "diff": "",
+    "staged": "",
+    "sha256": {
+      "head": "b51074d1a0734de318df0ca32b771345fed88aa42f075a9a33ebead53f75364c",
+      "branch": "b6f2d54b2cbc4a28e1684635f544c1099e3023a0fc938bf2f0fe06ec9a4e5f1f",
+      "status": "e763386f25759d8cfa85eef0d5a5b934fbaa0522f007b2ca4d44937be3dbc6f3",
+      "diff_stat": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diff": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "staged": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "source_state_after": {
+    "head": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+    "branch": "Tekt",
+    "status": "?? 00_nucleo/diagnosticos/p1309-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1309-adversarial-preparation.json\n?? 00_nucleo/diagnosticos/p1309-adversarial-review-r0.md\n?? 00_nucleo/diagnosticos/p1309-audit-attacks.py\n?? 00_nucleo/diagnosticos/p1309-audit.py\n?? 00_nucleo/diagnosticos/p1309-baseline-r2.json\n?? 00_nucleo/diagnosticos/p1309-baseline.json\n?? 00_nucleo/diagnosticos/p1309-build-r2.json\n?? 00_nucleo/diagnosticos/p1309-build.json\n?? 00_nucleo/diagnosticos/p1309-certification-debt.json\n?? 00_nucleo/diagnosticos/p1309-classification-prepare.cjs\n?? 00_nucleo/diagnosticos/p1309-classification-sources.cjs\n?? 00_nucleo/diagnosticos/p1309-classification-sources.json\n?? 00_nucleo/diagnosticos/p1309-fmt-r2.json\n?? 00_nucleo/diagnosticos/p1309-fmt.json\n?? 00_nucleo/diagnosticos/p1309-inventory-author-receipt-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-catalog.py\n?? 00_nucleo/diagnosticos/p1309-inventory-crystalline-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-crystalline-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-crystalline-prebuild.json\n?? 00_nucleo/diagnosticos/p1309-inventory-incident.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-crystalline-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-crystalline-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-vanilla-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-vanilla-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observe.py\n?? 00_nucleo/diagnosticos/p1309-inventory-reconciliation.json\n?? 00_nucleo/diagnosticos/p1309-inventory-runner.py\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-build.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-default.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-html.json\n?? 00_nucleo/diagnosticos/p1309-lint-r2.json\n?? 00_nucleo/diagnosticos/p1309-manifest-r2.json\n?? 00_nucleo/diagnosticos/p1309-manifest.json\n?? 00_nucleo/diagnosticos/p1309-matrix.py\n?? 00_nucleo/diagnosticos/p1309-probe-catalog.json\n?? 00_nucleo/diagnosticos/p1309-record-r2.py\n?? 00_nucleo/diagnosticos/p1309-record.py\n?? 00_nucleo/diagnosticos/p1309-sentinels-p1308-crystalline.json\n?? 00_nucleo/diagnosticos/p1309-sentinels-p1308-vanilla.json\n?? 00_nucleo/diagnosticos/p1309-workspace-tests-r2.json\n?? 00_nucleo/materialization/typst-passo-1309.md\n",
+    "diff_stat": "",
+    "diff": "",
+    "staged": "",
+    "sha256": {
+      "head": "b51074d1a0734de318df0ca32b771345fed88aa42f075a9a33ebead53f75364c",
+      "branch": "b6f2d54b2cbc4a28e1684635f544c1099e3023a0fc938bf2f0fe06ec9a4e5f1f",
+      "status": "a46b03522ea6b8796c9921b391f9b98e7078feb60cc43a16239ae5bce6e0ed8d",
+      "diff_stat": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diff": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "staged": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "evidence": {
+    "baseline": {
+      "path": "00_nucleo/diagnosticos/p1309-baseline-r2.json",
+      "sha256": "68dd669aba8d94ef80eca8a2bdf7f35ed27c60cf36f2a829ae03b1017d555bce"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1309-manifest-r2.json",
+      "sha256": "d7d2f8ebfe7a5453c4fec7417248654a066d9859dd8d29abf259544c888cf9c3"
+    },
+    "catalog": {
+      "path": "00_nucleo/diagnosticos/p1309-probe-catalog.json",
+      "sha256": "20a5bdec9a848d24ebe1fcf451f143ce65499184e57984e4e5389aef5aecde3a"
+    },
+    "matrices": [
+      {
+        "path": "00_nucleo/diagnosticos/p1309-matrix-normal.json",
+        "sha256": "ed6b603578ada1a3961bbb564c272652e52b4652231b5d324c8b9afa57889e51"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1309-matrix-repeat.json",
+        "sha256": "af86b508546934b60511502d3e3768bbe9449cd8c30c4cd573c81e9f2d35c51d"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1309-matrix-reverse.json",
+        "sha256": "26021665ea875e67f61be8d8f93bc97ecd9f80def748d58fa812da24720207bd"
+      }
+    ],
+    "stability": {
+      "path": "00_nucleo/diagnosticos/p1309-stability.json",
+      "sha256": "3479b62231013a313493db0966109e3409d142dc0bb49d99107a73d0210df3df"
+    },
+    "sentinels": {
+      "path": "00_nucleo/diagnosticos/p1309-sentinels.json",
+      "sha256": "2af42cf65e4d59f0d199528a37a7bc7efb994d1c39bbda914b977a194618ce65"
+    },
+    "sources": {
+      "path": "00_nucleo/diagnosticos/p1309-classification-sources.json",
+      "sha256": "982fc7f73f978554f3b42ae4617e7f9f64a4432591b60027340f1b91f47b11a9"
+    }
+  },
+  "measurements_before_decision": {
+    "main_counts": {
+      "MATCH_VALUE": 7948,
+      "DIFFERENT_DIAGNOSTIC": 16,
+      "DIFFERENT_VALUE": 24,
+      "CRYSTALLINE_ONLY": 168,
+      "VANILLA_ONLY": 324,
+      "MATCH_DIAGNOSTIC": 248
+    },
+    "main_cells": 8728,
+    "main_probe_ids": 2182,
+    "main_unique_paths": 2182,
+    "historical_paths": 167,
+    "supplement_counts": {
+      "MATCH_VALUE": 1630,
+      "MATCH_DIAGNOSTIC": 368,
+      "DIFFERENT_DIAGNOSTIC": 120,
+      "VANILLA_ONLY": 4,
+      "DIFFERENT_VALUE": 48
+    },
+    "supplement_cells": 2170
+  },
+  "decision": {
+    "historical_semantic_counts": {
+      "INTENTIONAL_PRODUCT_EXTENSION": 39,
+      "MISSING_LANGUAGE_MEMBER": 103,
+      "UNRESOLVED": 3,
+      "CLOSED_CONFIRMED": 21,
+      "EXPECTED_FEATURE_DISABLED": 1
+    },
+    "principal_unique_path_counts": {
+      "INTENTIONAL_PRODUCT_EXTENSION": 39,
+      "CLOSED_CONFIRMED": 2026,
+      "MISSING_LANGUAGE_MEMBER": 103,
+      "UNRESOLVED": 3,
+      "EXPECTED_FEATURE_DISABLED": 1,
+      "WRONG_PUBLIC_REPR": 4,
+      "DIAGNOSTIC_DIVERGENCE": 4,
+      "WRONG_PUBLIC_VALUE": 2
+    },
+    "principal_probe_row_counts": {
+      "INTENTIONAL_PRODUCT_EXTENSION": 39,
+      "CLOSED_CONFIRMED": 2026,
+      "MISSING_LANGUAGE_MEMBER": 103,
+      "UNRESOLVED": 3,
+      "EXPECTED_FEATURE_DISABLED": 1,
+      "WRONG_PUBLIC_REPR": 4,
+      "DIAGNOSTIC_DIVERGENCE": 4,
+      "WRONG_PUBLIC_VALUE": 2
+    },
+    "supplement_divergent_case_counts": {
+      "DIAGNOSTIC_DIVERGENCE": 30,
+      "MISSING_LANGUAGE_MEMBER": 1,
+      "WRONG_PUBLIC_VALUE": 18
+    },
+    "selected_cohort": "loader-data-source-cast"
+  },
+  "metrics": {
+    "raw": {
+      "numerator": 8196,
+      "denominator": 8728,
+      "percentage": 93.90467461044913,
+      "formula": "(MATCH_VALUE+MATCH_DIAGNOSTIC)/all_valid_principal_cells"
+    },
+    "adjusted": {
+      "numerator": 8196,
+      "denominator": 8572,
+      "percentage": 95.61362575828278,
+      "excluded_extension_cells": 156,
+      "extension_paths": 39,
+      "formula": "Same matching numerator; exclude only documented intentional extension cells from denominator."
+    }
+  },
+  "temporal": {
+    "rows": 8728,
+    "counts": {
+      "UNCHANGED": 2448,
+      "CLOSED_NOW": 60,
+      "ADDED_FRESH": 6220
+    },
+    "new_regressions": 0,
+    "comparison": "P1304 and P1309 retain identical historical expressions/profiles; no historical MATCH reopened. Raw transcript comparison is not silently replaced by the normalized supplemental envelope. Generated fixture paths/logistics are not regressions."
+  },
+  "limitations": [
+    "Only measured identity/value/repr/diagnostic corpus, never total language/layout/export parity.",
+    "Supplemental P1307/P1308 comparison uses the frozen normalized language envelope with raw channels retained; module/array extras use raw channels. Do not combine their denominator with principal.",
+    "Principal MATCH rows attribute registry/namespace ownership for the observed binding; this does not certify every delegated semantic implementation.",
+    "Owners are header-unique and fully read; global V15/V26 and independent D/E verdict remain gates outside Role C.",
+    "37 mutation families remain pending; the six P1308 kills do not discharge them.",
+    "Missing members kept separate unless common semantic cause is established; all future repairs require exact L0 revalidation."
+  ]
+}

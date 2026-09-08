@@ -1,0 +1,16 @@
+{
+  "schema": "p1314-ab-comparison-v1",
+  "utc": "2026-09-08T12:45:56.087325+00:00",
+  "freeze_sha256": "41ac0730e01cd31cd9660b0e229e37d5e486a2c114927f3ac49c3475733756b9",
+  "candidate_runs_sha256": "e1aa3bf594dbcd95c2ed818ec3747e8cd10193ee341f00dc79e51250e1bf1155",
+  "candidate": {
+    "candidate": {
+      "path": "/dev/shm/p1314-target.cswujn/release/typst",
+      "sha256": "cf9b997ac399cfb95cf15063cc417484ed28a75be18f6e7d55a28300d792114f"
+    }
+  },
+  "comparisons": 2808,
+  "unknown": 0,
+  "failures": [],
+  "status": "PASS"
+}

@@ -1,0 +1,2464 @@
+{
+  "schema": "p1311-ab-freeze-v1",
+  "utc": "2026-09-08T00:52:55.101638+00:00",
+  "regime": "A/B sem atestação de isolamento técnico",
+  "capabilities": {
+    "executor": "/root/p1311_tests",
+    "context": "role-scoped task; no candidate source/diff/owner tests read",
+    "read": [
+      "CLAUDE.md",
+      "01_core/CLAUDE.md",
+      "skill and references",
+      "L0 field_access",
+      "P1309 selection",
+      "P1311 baseline",
+      "vanilla source",
+      "baseline binaries",
+      "HEAD prepatch stdlib source"
+    ],
+    "write": [
+      "00_nucleo/diagnosticos/p1311-ab-*"
+    ],
+    "limitation": "shared filesystem permits access beyond declared allowlist; no technical attestation"
+  },
+  "limitations": [
+    "CLI cannot construct arbitrary custom Rust Element/native/plugin variants; owner unit tests must cover those, without claiming independent A/B coverage.",
+    "Controls intentionally preserve baseline public output including existing vanilla divergences.",
+    "eval inner diagnostic span is propagated to outer source string; no forced field-only outer span."
+  ],
+  "pre_freeze_classification": "assert is namespaceSome control; text and text.With are real Native None targets per prepatch reviewer category audit. All expressions/argv unchanged from the measurement.",
+  "l0": {
+    "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+    "raw_sha256": "5d19d634405c2a414a4cb7a1b133a202d99fd51b0478e7f96da4f0766f770758",
+    "normative_sha256": "c8f60e7a400ad1585008385d352f0f7b11d2e446918065e570868beaef0e1d51",
+    "normalization": "Remove exactly one full line matching ^Hash do Código: [0-9a-f]+ newline; all other bytes protected. This metadata reseal only is authorized by the root before implementation."
+  },
+  "inputs": {
+    "00_nucleo/diagnosticos/p1311-ab-cases.json": "ab81a96c8977d4745a41b8bf73090a1682b51bcb48e8abe7f809c2f2cc7820af",
+    "00_nucleo/diagnosticos/p1311-ab-runner.py": "c706a877162522102e60de60c7853c9eee3a584d78d182dc363e0152acdd2922",
+    "00_nucleo/diagnosticos/p1311-ab-freeze.py": "36fe4cd591cc15cd5904729a9627871f6bba15b1018841a98a2bc4307a03a791",
+    "00_nucleo/diagnosticos/p1311-ab-baseline-final.json": "6428031aa5309044bcead62e4fbcb02eab881600303abef7fdd17748bb73c590"
+  },
+  "expected": [
+    {
+      "id": "csv-encode",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-encode",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.encode\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-encode",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml.encode\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-distinct",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `missing-long-field`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.missing-long-field\n  │     ^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-alias",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `absent`\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let file-reader = read; file-reader.absent }\n  │                                       ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-multiline",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `unavailable`\n  ┌─ <input-expression>:3:10\n  │\n3 │   decoder.unavailable\n  │           ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-with",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:25\n  │\n1 │ csv.with(delimiter: \";\").encode\n  │                          ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-nested-with",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `ghost`\n  ┌─ <input-expression>:1:35\n  │\n1 │ read.with(encoding: \"utf8\").with().ghost\n  │                                    ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-nested-with",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `missing`\n  ┌─ <input-expression>:1:31\n  │\n1 │ { let f = xml.with().with(); f.missing }\n  │                                ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `nope`\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs.nope\n  │          ^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs-with",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `nope`\n  ┌─ <input-expression>:1:18\n  │\n1 │ calc.abs.with(-1).nope\n  │                   ^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs-alias",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `missing-field`\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let csv = calc.abs; csv.missing-field }\n  │                           ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "range",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `range` does not contain field `nope`\n  ┌─ <input-expression>:1:6\n  │\n1 │ range.nope\n  │       ^^^^\n\n"
+      }
+    },
+    {
+      "id": "assert",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ assert.nope\n  │ ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "repr",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `repr` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ repr.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `eval` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ eval.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate-inner",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ eval(\"csv.encode\")\n  │      ^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate-returned",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:13\n  │\n1 │ eval(\"read\").encode\n  │              ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "array-store",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `encode`\n  ┌─ <input-expression>:1:15\n  │\n1 │ (xml,).first().encode\n  │                ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "dict-store",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:21\n  │\n1 │ (loader: csv).loader.encode\n  │                      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-callee",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode(1)\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-callee",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.nope()\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-alias-callee",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:17\n  │\n1 │ { let f = csv; f.encode(1) }\n  │                  ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-missing",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "yaml-missing",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "toml-missing",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "cbor-missing",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ cbor.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-with-missing",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.with().nope\n  │ ^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "table-missing",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ table.nope\n  │ ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "text-missing",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ text.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "text-with-missing",
+      "kind": "target",
+      "profile": "default",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:21\n  │\n1 │ text.with(size: 9pt).nope\n  │                      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "closure",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).nope\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "closure-with",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).with(1).nope\n  │ ^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-closure",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv.encode }\n  │                   ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-closure-nested-with",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:19\n  │\n1 │ { let read(x) = x; read.with(1).with().nope }\n  │                    ^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "global",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `missing`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.missing\n  │     ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `missing`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.missing\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "dictionary",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ (present: 1).missing\n  │ ^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "type",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: type int does not contain field \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ int.missing\n  │ ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "content",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: strong does not have field \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ strong[hello].missing\n  │ ^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "float-is-nan",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:13\n  │\n1 │ float(\"NaN\").is-nan\n  │              ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "float-other",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:0\n  │\n1 │ (1.0).missing\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "pdf-data",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:9\n  │\n1 │ repr(pdf.data-cell)\n  │          ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      }
+    },
+    {
+      "id": "pdf-header",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:9\n  │\n1 │ repr(pdf.header-cell)\n  │          ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      }
+    },
+    {
+      "id": "pdf-summary",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:9\n  │\n1 │ repr(pdf.table-summary)\n  │          ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      }
+    },
+    {
+      "id": "metadata",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[\"function\",\"csv\",\"read\",\"xml\"]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "with-success",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "json-success",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"{\\n  \\\"a\\\": 1\\n}\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "yaml-success",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"a: 1\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "toml-success",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"a = 1\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "cbor-success",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-success",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[{\"tag\":\"root\",\"attrs\":{},\"children\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-loader-error",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml(2)\n  │     ^\n\n"
+      }
+    },
+    {
+      "id": "read-loader-error",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer string com o caminho, recebeu int\n\n  while calling `read` at <input-expression>:1:0\n    read(2)\n\n"
+      }
+    },
+    {
+      "id": "table-success",
+      "kind": "control",
+      "profile": "default",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "csv-encode",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-encode",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.encode\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-encode",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml.encode\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-distinct",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `missing-long-field`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.missing-long-field\n  │     ^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-alias",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `absent`\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let file-reader = read; file-reader.absent }\n  │                                       ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-multiline",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `unavailable`\n  ┌─ <input-expression>:3:10\n  │\n3 │   decoder.unavailable\n  │           ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-with",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:25\n  │\n1 │ csv.with(delimiter: \";\").encode\n  │                          ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-nested-with",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `ghost`\n  ┌─ <input-expression>:1:35\n  │\n1 │ read.with(encoding: \"utf8\").with().ghost\n  │                                    ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-nested-with",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `missing`\n  ┌─ <input-expression>:1:31\n  │\n1 │ { let f = xml.with().with(); f.missing }\n  │                                ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `nope`\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs.nope\n  │          ^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs-with",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `nope`\n  ┌─ <input-expression>:1:18\n  │\n1 │ calc.abs.with(-1).nope\n  │                   ^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs-alias",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `missing-field`\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let csv = calc.abs; csv.missing-field }\n  │                           ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "range",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `range` does not contain field `nope`\n  ┌─ <input-expression>:1:6\n  │\n1 │ range.nope\n  │       ^^^^\n\n"
+      }
+    },
+    {
+      "id": "assert",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ assert.nope\n  │ ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "repr",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `repr` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ repr.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `eval` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ eval.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate-inner",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ eval(\"csv.encode\")\n  │      ^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate-returned",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:13\n  │\n1 │ eval(\"read\").encode\n  │              ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "array-store",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `encode`\n  ┌─ <input-expression>:1:15\n  │\n1 │ (xml,).first().encode\n  │                ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "dict-store",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:21\n  │\n1 │ (loader: csv).loader.encode\n  │                      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-callee",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode(1)\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-callee",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.nope()\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-alias-callee",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:17\n  │\n1 │ { let f = csv; f.encode(1) }\n  │                  ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-missing",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "yaml-missing",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "toml-missing",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "cbor-missing",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ cbor.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-with-missing",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.with().nope\n  │ ^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "table-missing",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ table.nope\n  │ ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "text-missing",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ text.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "text-with-missing",
+      "kind": "target",
+      "profile": "html",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:21\n  │\n1 │ text.with(size: 9pt).nope\n  │                      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "closure",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).nope\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "closure-with",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).with(1).nope\n  │ ^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-closure",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv.encode }\n  │                   ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-closure-nested-with",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:19\n  │\n1 │ { let read(x) = x; read.with(1).with().nope }\n  │                    ^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "global",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `missing`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.missing\n  │     ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `missing`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.missing\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "dictionary",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ (present: 1).missing\n  │ ^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "type",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: type int does not contain field \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ int.missing\n  │ ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "content",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: strong does not have field \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ strong[hello].missing\n  │ ^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "float-is-nan",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:13\n  │\n1 │ float(\"NaN\").is-nan\n  │              ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "float-other",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:0\n  │\n1 │ (1.0).missing\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "pdf-data",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:9\n  │\n1 │ repr(pdf.data-cell)\n  │          ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      }
+    },
+    {
+      "id": "pdf-header",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `header-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:9\n  │\n1 │ repr(pdf.header-cell)\n  │          ^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      }
+    },
+    {
+      "id": "pdf-summary",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access field `table-summary` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:9\n  │\n1 │ repr(pdf.table-summary)\n  │          ^^^^^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+      }
+    },
+    {
+      "id": "metadata",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[\"function\",\"csv\",\"read\",\"xml\"]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "with-success",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "json-success",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"{\\n  \\\"a\\\": 1\\n}\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "yaml-success",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"a: 1\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "toml-success",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"a = 1\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "cbor-success",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-success",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[{\"tag\":\"root\",\"attrs\":{},\"children\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-loader-error",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml(2)\n  │     ^\n\n"
+      }
+    },
+    {
+      "id": "read-loader-error",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer string com o caminho, recebeu int\n\n  while calling `read` at <input-expression>:1:0\n    read(2)\n\n"
+      }
+    },
+    {
+      "id": "table-success",
+      "kind": "control",
+      "profile": "html",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "csv-encode",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-encode",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.encode\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-encode",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml.encode\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-distinct",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `missing-long-field`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.missing-long-field\n  │     ^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-alias",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `absent`\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let file-reader = read; file-reader.absent }\n  │                                       ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-multiline",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `unavailable`\n  ┌─ <input-expression>:3:10\n  │\n3 │   decoder.unavailable\n  │           ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-with",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:25\n  │\n1 │ csv.with(delimiter: \";\").encode\n  │                          ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-nested-with",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `ghost`\n  ┌─ <input-expression>:1:35\n  │\n1 │ read.with(encoding: \"utf8\").with().ghost\n  │                                    ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-nested-with",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `missing`\n  ┌─ <input-expression>:1:31\n  │\n1 │ { let f = xml.with().with(); f.missing }\n  │                                ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `nope`\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs.nope\n  │          ^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs-with",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `nope`\n  ┌─ <input-expression>:1:18\n  │\n1 │ calc.abs.with(-1).nope\n  │                   ^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs-alias",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `missing-field`\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let csv = calc.abs; csv.missing-field }\n  │                           ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "range",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `range` does not contain field `nope`\n  ┌─ <input-expression>:1:6\n  │\n1 │ range.nope\n  │       ^^^^\n\n"
+      }
+    },
+    {
+      "id": "assert",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ assert.nope\n  │ ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "repr",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `repr` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ repr.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `eval` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ eval.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate-inner",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ eval(\"csv.encode\")\n  │      ^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate-returned",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:13\n  │\n1 │ eval(\"read\").encode\n  │              ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "array-store",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `encode`\n  ┌─ <input-expression>:1:15\n  │\n1 │ (xml,).first().encode\n  │                ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "dict-store",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:21\n  │\n1 │ (loader: csv).loader.encode\n  │                      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-callee",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode(1)\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-callee",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.nope()\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-alias-callee",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:17\n  │\n1 │ { let f = csv; f.encode(1) }\n  │                  ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-missing",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "yaml-missing",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "toml-missing",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "cbor-missing",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ cbor.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-with-missing",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.with().nope\n  │ ^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "table-missing",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ table.nope\n  │ ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "text-missing",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ text.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "text-with-missing",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:21\n  │\n1 │ text.with(size: 9pt).nope\n  │                      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "closure",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).nope\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "closure-with",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).with(1).nope\n  │ ^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-closure",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv.encode }\n  │                   ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-closure-nested-with",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:19\n  │\n1 │ { let read(x) = x; read.with(1).with().nope }\n  │                    ^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "global",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `missing`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.missing\n  │     ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `missing`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.missing\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "dictionary",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ (present: 1).missing\n  │ ^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "type",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: type int does not contain field \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ int.missing\n  │ ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "content",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: strong does not have field \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ strong[hello].missing\n  │ ^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "float-is-nan",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:13\n  │\n1 │ float(\"NaN\").is-nan\n  │              ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "float-other",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:0\n  │\n1 │ (1.0).missing\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "pdf-data",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"data-cell\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "pdf-header",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"header-cell\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "pdf-summary",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"table-summary\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "metadata",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[\"function\",\"csv\",\"read\",\"xml\"]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "with-success",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "json-success",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"{\\n  \\\"a\\\": 1\\n}\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "yaml-success",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"a: 1\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "toml-success",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"a = 1\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "cbor-success",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-success",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[{\"tag\":\"root\",\"attrs\":{},\"children\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-loader-error",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml(2)\n  │     ^\n\n"
+      }
+    },
+    {
+      "id": "read-loader-error",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer string com o caminho, recebeu int\n\n  while calling `read` at <input-expression>:1:0\n    read(2)\n\n"
+      }
+    },
+    {
+      "id": "table-success",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "csv-encode",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-encode",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.encode\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-encode",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml.encode\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-distinct",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `missing-long-field`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.missing-long-field\n  │     ^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-alias",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `absent`\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let file-reader = read; file-reader.absent }\n  │                                       ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-multiline",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `unavailable`\n  ┌─ <input-expression>:3:10\n  │\n3 │   decoder.unavailable\n  │           ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-with",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:25\n  │\n1 │ csv.with(delimiter: \";\").encode\n  │                          ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-nested-with",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `ghost`\n  ┌─ <input-expression>:1:35\n  │\n1 │ read.with(encoding: \"utf8\").with().ghost\n  │                                    ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-nested-with",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `missing`\n  ┌─ <input-expression>:1:31\n  │\n1 │ { let f = xml.with().with(); f.missing }\n  │                                ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `nope`\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs.nope\n  │          ^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs-with",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `nope`\n  ┌─ <input-expression>:1:18\n  │\n1 │ calc.abs.with(-1).nope\n  │                   ^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc-abs-alias",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `abs` does not contain field `missing-field`\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let csv = calc.abs; csv.missing-field }\n  │                           ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "range",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `range` does not contain field `nope`\n  ┌─ <input-expression>:1:6\n  │\n1 │ range.nope\n  │       ^^^^\n\n"
+      }
+    },
+    {
+      "id": "assert",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ assert.nope\n  │ ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "repr",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `repr` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ repr.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `eval` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ eval.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate-inner",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ eval(\"csv.encode\")\n  │      ^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "evaluate-returned",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:13\n  │\n1 │ eval(\"read\").encode\n  │              ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "array-store",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `encode`\n  ┌─ <input-expression>:1:15\n  │\n1 │ (xml,).first().encode\n  │                ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "dict-store",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:21\n  │\n1 │ (loader: csv).loader.encode\n  │                      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-callee",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode(1)\n  │     ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "read-callee",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.nope()\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "csv-alias-callee",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:17\n  │\n1 │ { let f = csv; f.encode(1) }\n  │                  ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-missing",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "yaml-missing",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "toml-missing",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "cbor-missing",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ cbor.nope\n  │ ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-with-missing",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.with().nope\n  │ ^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "table-missing",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function does not contain field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ table.nope\n  │ ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "text-missing",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ text.nope\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "text-with-missing",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle_product": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:21\n  │\n1 │ text.with(size: 9pt).nope\n  │                      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "closure",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).nope\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "closure-with",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).with(1).nope\n  │ ^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-closure",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv.encode }\n  │                   ^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-closure-nested-with",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:19\n  │\n1 │ { let read(x) = x; read.with(1).with().nope }\n  │                    ^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "global",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: module `global` does not contain `missing`\n  ┌─ <input-expression>:1:4\n  │\n1 │ std.missing\n  │     ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "calc",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: module `calc` does not contain `missing`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.missing\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "dictionary",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: dictionary does not contain key \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ (present: 1).missing\n  │ ^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "type",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: type int does not contain field \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ int.missing\n  │ ^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "content",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: strong does not have field \"missing\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ strong[hello].missing\n  │ ^^^^^^^^^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "float-is-nan",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:13\n  │\n1 │ float(\"NaN\").is-nan\n  │              ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "float-other",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:0\n  │\n1 │ (1.0).missing\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "pdf-data",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"data-cell\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "pdf-header",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"header-cell\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "pdf-summary",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"table-summary\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "metadata",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[\"function\",\"csv\",\"read\",\"xml\"]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "with-success",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "3\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "json-success",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"{\\n  \\\"a\\\": 1\\n}\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "yaml-success",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"a: 1\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "toml-success",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"a = 1\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "cbor-success",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-success",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[{\"tag\":\"root\",\"attrs\":{},\"children\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-loader-error",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml(2)\n  │     ^\n\n"
+      }
+    },
+    {
+      "id": "read-loader-error",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer string com o caminho, recebeu int\n\n  while calling `read` at <input-expression>:1:0\n    read(2)\n\n"
+      }
+    },
+    {
+      "id": "table-success",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle_product": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"function\"\n",
+        "stderr": ""
+      }
+    }
+  ]
+}

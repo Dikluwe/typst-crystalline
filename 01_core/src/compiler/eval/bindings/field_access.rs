@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash cd93babd
+//! @prompt-hash 15b5f7af
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -28,6 +28,171 @@ use crate::compiler::eval::{eval_expr, EvalContext};
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 
 use super::method_dispatch::{expect_positional, finish_args};
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::file_id::FileId;
+    use crate::entities::scope::{Capturer, Scope};
+    use std::num::NonZeroU16;
+    use std::sync::Arc;
+
+    fn field_span() -> Span {
+        Span::from_range(FileId::from_raw(NonZeroU16::new(1).unwrap()), 20..27)
+    }
+
+    fn native(name: &'static str) -> Func {
+        Func::native(name, |_, _, _, _| panic!("field lookup must not call native"))
+    }
+
+    fn assert_error(func: Func, expected: &str) {
+        let errors = eval_value_field_access(Value::Func(func), "missing", field_span())
+            .unwrap_err();
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].message, expected);
+        assert_eq!(errors[0].span, field_span());
+        assert!(errors[0].hints.is_empty());
+        assert!(errors[0].trace.is_empty());
+    }
+
+    #[test]
+    fn p1311_plain_native_missing_field_names_function() {
+        for name in ["csv", "read", "xml", "unlisted-native"] {
+            assert_error(
+                native(name),
+                &format!("function `{name}` does not contain field `missing`"),
+            );
+        }
+    }
+
+    #[test]
+    fn p1311_native_public_name_and_nested_with() {
+        for f in [
+            native("calc.abs"),
+            native("calc.abs")
+                .with(Args::positional(vec![Value::Int(7)]))
+                .with(Args::positional(vec![])),
+        ] {
+            assert_error(f, "function `abs` does not contain field `missing`");
+        }
+    }
+
+    #[test]
+    fn p1311_engine_native_without_namespace() {
+        let f = Func::native_with_engine("eval", |_, _, _, _, _, _| {
+            panic!("field lookup must not call engine native")
+        });
+        assert_error(f, "function `eval` does not contain field `missing`");
+    }
+
+    #[test]
+    fn p1311_existing_namespaces_including_empty_preserved() {
+        for populated in [false, true] {
+            let mut scope = Scope::new();
+            if populated {
+                scope.define("present", Value::Int(42));
+            }
+            let ns = Arc::new(scope);
+            let native = Func::native_with_namespace(
+                "same-name",
+                |_, _, _, _| panic!("lookup must not call function"),
+                ns.clone(),
+            );
+            let engine = Func::native_with_engine_and_namespace(
+                "same-name",
+                |_, _, _, _, _, _| panic!("lookup must not call function"),
+                ns,
+            );
+            for f in [native, engine] {
+                if populated {
+                    assert_eq!(
+                        eval_value_field_access(
+                            Value::Func(f.clone()),
+                            "present",
+                            field_span()
+                        )
+                        .unwrap(),
+                        Value::Int(42)
+                    );
+                }
+                assert_error(f.clone(), "function does not contain field \"missing\"");
+                assert_error(
+                    f.with(Args::positional(vec![])),
+                    "function does not contain field \"missing\"",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn p1311_named_non_native_categories_preserved() {
+        use crate::contracts::plugin_host::{PluginError, PluginHost, PluginModuleId};
+        use crate::entities::bytes::Bytes;
+        struct NoCalls;
+        impl PluginHost for NoCalls {
+            fn load(&self, _: &[u8]) -> Result<PluginModuleId, PluginError> {
+                panic!("no load")
+            }
+            fn exports(&self, _: PluginModuleId) -> Result<Vec<EcoString>, PluginError> {
+                panic!("no exports")
+            }
+            fn call(
+                &self,
+                _: PluginModuleId,
+                _: &str,
+                _: &[Bytes],
+            ) -> Result<Bytes, PluginError> {
+                panic!("no call")
+            }
+            fn transition(
+                &self,
+                _: PluginModuleId,
+                _: &str,
+                _: &[Bytes],
+            ) -> Result<PluginModuleId, PluginError> {
+                panic!("no transition")
+            }
+        }
+        let closure = Func::closure(crate::entities::func::ClosureRepr {
+            name: Some("csv".into()),
+            params: vec![],
+            sink_name: None,
+            body: crate::entities::source::Source::detached("none").root().clone(),
+            captured: Arc::new(Scope::new()),
+            capturer: Capturer::Function,
+        });
+        let element = Func::element("csv", Arc::new(|_| panic!("no constructor")));
+        let plugin = Func::plugin(crate::entities::plugin_func::PluginFunc {
+            host: Arc::new(NoCalls),
+            module: PluginModuleId(1),
+            name: "csv".into(),
+        });
+        for f in [closure, element, plugin] {
+            assert_error(f.clone(), "cannot access fields on type function");
+            assert_error(
+                f.with(Args::positional(vec![])),
+                "cannot access fields on type function",
+            );
+        }
+    }
+}
+
+/// Public name of a native without a namespace, including partial applications.
+fn plain_native_name(mut func: &Func) -> Option<&str> {
+    use crate::entities::func::FuncRepr;
+    loop {
+        match func.repr() {
+            FuncRepr::Native(native) if native.namespace.is_none() => {
+                return native.name.rsplit('.').next();
+            }
+            FuncRepr::NativeWithEngine(native) if native.namespace.is_none() => {
+                return native.name.rsplit('.').next();
+            }
+            FuncRepr::With(with) => func = &with.0,
+            _ => return None,
+        }
+    }
+}
 
 pub(in crate::compiler::eval) fn eval_field_access(
     access: crate::entities::ast::expr::FieldAccess<'_>,
@@ -105,6 +270,7 @@ pub(in crate::compiler::eval) fn eval_field_access(
 
     let span = if matches!(&target, Value::Module(_))
         || field == "is-nan" && matches!(&target, Value::Float(_))
+        || matches!(&target, Value::Func(f) if plain_native_name(f).is_some())
     {
         access.field().span()
     } else {
@@ -260,7 +426,12 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
             }),
             None => Err(vec![SourceDiagnostic::error(
                 span,
-                "cannot access fields on type function".to_string(),
+                match plain_native_name(&f) {
+                    Some(name) => {
+                        format!("function `{name}` does not contain field `{field}`")
+                    }
+                    None => "cannot access fields on type function".to_string(),
+                },
             )]),
         },
         // P685 — Field access em valor-tipo

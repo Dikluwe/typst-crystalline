@@ -1,0 +1,54 @@
+{
+  "schema": "p1309-command-v1",
+  "at": "2026-09-07T22:54:31.756305+00:00",
+  "end": "2026-09-07T22:54:35.215539+00:00",
+  "seconds": 3.459220902994275,
+  "argv": [
+    "cargo",
+    "fmt",
+    "--all",
+    "--",
+    "--check"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "env": {
+    "CARGO_TARGET_DIR": "/dev/shm/p1309-target.PujwZQ"
+  },
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "before": {
+    "head": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+    "branch": "Tekt",
+    "status": "?? 00_nucleo/diagnosticos/p1309-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1309-audit-attacks.py\n?? 00_nucleo/diagnosticos/p1309-baseline.json\n?? 00_nucleo/diagnosticos/p1309-build.json\n?? 00_nucleo/diagnosticos/p1309-certification-debt.json\n?? 00_nucleo/diagnosticos/p1309-classification-prepare.cjs\n?? 00_nucleo/diagnosticos/p1309-inventory-catalog.py\n?? 00_nucleo/diagnosticos/p1309-inventory-runner.py\n?? 00_nucleo/diagnosticos/p1309-manifest.json\n?? 00_nucleo/diagnosticos/p1309-matrix.py\n?? 00_nucleo/diagnosticos/p1309-record.py\n?? 00_nucleo/materialization/typst-passo-1309.md\n",
+    "diff_stat": "",
+    "diff": "",
+    "staged": "",
+    "sha256": {
+      "head": "b51074d1a0734de318df0ca32b771345fed88aa42f075a9a33ebead53f75364c",
+      "branch": "b6f2d54b2cbc4a28e1684635f544c1099e3023a0fc938bf2f0fe06ec9a4e5f1f",
+      "status": "71b17212d3f1cc86db4bd607c3ece4383d0bcc5bdd4bda269068018e99383611",
+      "diff_stat": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diff": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "staged": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "after": {
+    "head": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+    "branch": "Tekt",
+    "status": "?? 00_nucleo/diagnosticos/p1309-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1309-audit-attacks.py\n?? 00_nucleo/diagnosticos/p1309-baseline.json\n?? 00_nucleo/diagnosticos/p1309-build.json\n?? 00_nucleo/diagnosticos/p1309-certification-debt.json\n?? 00_nucleo/diagnosticos/p1309-classification-prepare.cjs\n?? 00_nucleo/diagnosticos/p1309-inventory-catalog.py\n?? 00_nucleo/diagnosticos/p1309-inventory-runner.py\n?? 00_nucleo/diagnosticos/p1309-manifest.json\n?? 00_nucleo/diagnosticos/p1309-matrix.py\n?? 00_nucleo/diagnosticos/p1309-record.py\n?? 00_nucleo/materialization/typst-passo-1309.md\n",
+    "diff_stat": "",
+    "diff": "",
+    "staged": "",
+    "sha256": {
+      "head": "b51074d1a0734de318df0ca32b771345fed88aa42f075a9a33ebead53f75364c",
+      "branch": "b6f2d54b2cbc4a28e1684635f544c1099e3023a0fc938bf2f0fe06ec9a4e5f1f",
+      "status": "71b17212d3f1cc86db4bd607c3ece4383d0bcc5bdd4bda269068018e99383611",
+      "diff_stat": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diff": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "staged": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "manifest_sha256": "0bc37ce01d01e97128f237e6d4c552bf85d7ec2a70c64648a6f851ebe732d6b3",
+  "recorder_sha256": "9f3c5731d419481022e1c79d7dbb7b775eb5c1dfdd3278853a4add255a1b8839"
+}

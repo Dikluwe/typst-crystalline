@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading.md
-//! @prompt-hash d23f175e
+//! @prompt-hash e1f22b24
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -1010,14 +1010,47 @@ pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResul
 // (ctx, args, world, current_file). Ver `figure_image::native_image`.
 // ─────────────────────────────────────────────────────────────────────────────
 
-fn arg_path<'a>(args: &'a Args, fname: &str) -> SourceResult<&'a Value> {
+fn arg_csv_source(args: &Args) -> SourceResult<&Value> {
+    match args.items.first() {
+        Some(value @ (Value::Str(_) | Value::Path(_) | Value::Bytes(_))) => Ok(value),
+        Some(other) => {
+            let span = args
+                .occurrences
+                .as_ref()
+                .and_then(|occurrences| {
+                    occurrences.iter().find(|occurrence| occurrence.name.is_none())
+                })
+                .map_or(Span::detached(), |occurrence| occurrence.value_span);
+            Err(vec![SourceDiagnostic::error(
+                span,
+                format!(
+                    "expected path, string, or bytes, found {}",
+                    vanilla_type_name(other)
+                ),
+            )])
+        }
+        None => Err(err("csv() requer 1 argumento posicional (caminho)")),
+    }
+}
+
+/// Read accepts PathOrStr; CSV has its separate DataSource cast.
+fn arg_read_path(args: &Args) -> SourceResult<&Value> {
     match args.items.first() {
         Some(value @ (Value::Str(_) | Value::Path(_))) => Ok(value),
-        Some(other) => Err(err(format!(
-            "{fname}() requer string com o caminho, recebeu {}",
-            other.type_name()
-        ))),
-        None => Err(err(format!("{fname}() requer 1 argumento posicional (caminho)"))),
+        Some(other) => {
+            let span = args
+                .occurrences
+                .as_ref()
+                .and_then(|occurrences| {
+                    occurrences.iter().find(|occurrence| occurrence.name.is_none())
+                })
+                .map_or(Span::detached(), |occurrence| occurrence.value_span);
+            Err(vec![SourceDiagnostic::error(
+                span,
+                format!("expected path or string, found {}", vanilla_type_name(other)),
+            )])
+        }
+        None => Err(err("read() requer 1 argumento posicional (caminho)")),
     }
 }
 
@@ -1054,10 +1087,22 @@ fn resolve_data(
             read_bytes(world, current_file, value, fname).map(|(_, bytes)| bytes)
         }
         Some(Value::Bytes(b)) => Ok(std::sync::Arc::new(b.as_slice().to_vec())),
-        Some(other) => Err(err(format!(
-            "{fname}() requer caminho (str) ou bytes, recebeu {}",
-            other.type_name()
-        ))),
+        Some(other) => {
+            let span = args
+                .occurrences
+                .as_ref()
+                .and_then(|occurrences| {
+                    occurrences.iter().find(|occurrence| occurrence.name.is_none())
+                })
+                .map_or(Span::detached(), |occurrence| occurrence.value_span);
+            Err(vec![SourceDiagnostic::error(
+                span,
+                format!(
+                    "expected path, string, or bytes, found {}",
+                    vanilla_type_name(other)
+                ),
+            )])
+        }
         None => Err(err(format!(
             "{fname}() requer 1 argumento posicional (caminho ou bytes)"
         ))),
@@ -1081,7 +1126,7 @@ pub fn native_read(
             return Err(err(format!("argumento nomeado inesperado em read(): '{k}'")));
         }
     }
-    let path_value = arg_path(args, "read")?;
+    let path_value = arg_read_path(args)?;
     let (path, data) = read_bytes(world, current_file, path_value, "read")?;
     match args.named.get("encoding") {
         None => read_utf8(&data, &path),
@@ -1168,7 +1213,75 @@ pub fn native_cbor(
     decode_cbor_with_source(&data[..], path.as_deref())
 }
 
-/// `csv(path, delimiter: ",", row-type: array)`. Aceita named `delimiter`
+/// Validate every causal occurrence; only fully valid options may overwrite.
+fn csv_named_option<T>(
+    args: &Args,
+    name: &str,
+    default: T,
+    cast: fn(&Value) -> SourceResult<T>,
+) -> SourceResult<T> {
+    let mut result = default;
+    if let Some(occurrences) = &args.occurrences {
+        for occurrence in
+            occurrences.iter().filter(|item| item.name.as_deref() == Some(name))
+        {
+            result = cast(&occurrence.value).map_err(|mut errors| {
+                for error in &mut errors {
+                    error.span = occurrence.value_span;
+                }
+                errors
+            })?;
+        }
+    } else if let Some(value) = args.named.get(name) {
+        // Synthetic Args has no causal origin: the casts retain detached errors.
+        result = cast(value)?;
+    }
+    Ok(result)
+}
+
+fn csv_delimiter(value: &Value) -> SourceResult<u8> {
+    match value {
+        Value::Str(s) => {
+            // P787 — casts do vanilla (`loading/csv.rs:103-111`): 1 char ≠ →
+            // "expected exactly one character"; não-ASCII → "delimiter must
+            // be an ASCII character" (a mensagem anterior culpava o
+            // comprimento, que estava certo — P786 D2).
+            let mut chars = s.chars();
+            match (chars.next(), chars.next()) {
+                (Some(c), None) if c.is_ascii() => Ok(c as u8),
+                (Some(_), None) => {
+                    return Err(err("delimiter must be an ASCII character"))
+                }
+                _ => return Err(err("expected exactly one character")),
+            }
+        }
+        other => {
+            return Err(err(format!(
+                "expected string, found {}",
+                vanilla_type_name(other)
+            )))
+        }
+    }
+}
+
+fn csv_row_type(value: &Value) -> SourceResult<RowType> {
+    match value {
+        // P787 — API vanilla: `row-type` recebe o TIPO (`dictionary`/`array`
+        // como `Value::Type`), não a string (P786 D4 — divergência nos dois
+        // sentidos). Tipo errado → "expected `array` or `dictionary`";
+        // valor que não é tipo → "expected type, found ...".
+        Value::Type(t) => match t {
+            crate::entities::value::Type::Array => Ok(RowType::Array),
+            crate::entities::value::Type::Dictionary => Ok(RowType::Dictionary),
+            _ => return Err(err("expected `array` or `dictionary`")),
+        },
+        other => {
+            return Err(err(format!("expected type, found {}", vanilla_type_name(other))))
+        }
+    }
+}
+
+/// `csv(path | bytes, delimiter: ",", row-type: array)`. Aceita named `delimiter`
 /// (Str de 1 char ASCII) e `row-type` (**tipo** `array`/`dictionary` —
 /// API vanilla medida em P787; a forma string é rejeitada).
 /// Subset graded: sem `escape`/`encoding` cosméticos.
@@ -1183,55 +1296,622 @@ pub fn native_csv(
             return Err(err(format!("argumento nomeado inesperado em csv(): '{k}'")));
         }
     }
-    let path = arg_path(args, "csv")?;
+    let source = arg_csv_source(args)?;
 
-    let delimiter = match args.named.get("delimiter") {
-        None => b',',
-        Some(Value::Str(s)) => {
-            // P787 — casts do vanilla (`loading/csv.rs:103-111`): 1 char ≠ →
-            // "expected exactly one character"; não-ASCII → "delimiter must
-            // be an ASCII character" (a mensagem anterior culpava o
-            // comprimento, que estava certo — P786 D2).
-            let mut chars = s.chars();
-            match (chars.next(), chars.next()) {
-                (Some(c), None) if c.is_ascii() => c as u8,
-                (Some(_), None) => {
-                    return Err(err("delimiter must be an ASCII character"))
-                }
-                _ => return Err(err("expected exactly one character")),
-            }
-        }
-        Some(other) => {
-            return Err(err(format!(
-                "expected string, found {}",
-                vanilla_type_name(other)
-            )))
-        }
-    };
+    let delimiter = csv_named_option(args, "delimiter", b',', csv_delimiter)?;
+    let row_type = csv_named_option(args, "row-type", RowType::Array, csv_row_type)?;
 
-    let row_type = match args.named.get("row-type") {
-        None => RowType::Array,
-        // P787 — API vanilla: `row-type` recebe o TIPO (`dictionary`/`array`
-        // como `Value::Type`), não a string (P786 D4 — divergência nos dois
-        // sentidos). Tipo errado → "expected `array` or `dictionary`";
-        // valor que não é tipo → "expected type, found ...".
-        Some(Value::Type(t)) => match t {
-            crate::entities::value::Type::Array => RowType::Array,
-            crate::entities::value::Type::Dictionary => RowType::Dictionary,
-            _ => return Err(err("expected `array` or `dictionary`")),
-        },
-        Some(other) => {
-            return Err(err(format!("expected type, found {}", vanilla_type_name(other))))
-        }
-    };
-
-    let (_, data) = read_bytes(world, current_file, path, "csv")?;
+    if let Value::Bytes(data) = source {
+        return decode_csv(data.as_slice(), delimiter, row_type);
+    }
+    let (_, data) = read_bytes(world, current_file, source, "csv")?;
     decode_csv(&data[..], delimiter, row_type)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn p1314_csv_args(options: Vec<(&str, Value, Span)>) -> Args {
+        use crate::entities::args::ArgOccurrence;
+        let mut occurrences = vec![ArgOccurrence {
+            name: None,
+            value: Value::Bytes(Bytes::new(b"a;b\n1;2".to_vec())),
+            span: Span::from_range(tfid(), 0..20),
+            value_span: Span::from_range(tfid(), 4..19),
+        }];
+        occurrences.extend(options.into_iter().map(|(name, value, value_span)| {
+            ArgOccurrence {
+                name: Some(name.into()),
+                value,
+                span: Span::from_range(tfid(), 20..90),
+                value_span,
+            }
+        }));
+        Args::from_occurrences(Span::from_range(tfid(), 0..100), occurrences)
+    }
+
+    #[test]
+    fn p1314_csv_option_errors_use_failing_value_origin() {
+        let origin = Span::from_range(tfid(), 40..45);
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for (name, value, message) in [
+            ("delimiter", Value::Str("".into()), "expected exactly one character"),
+            ("delimiter", Value::Str("ab".into()), "expected exactly one character"),
+            ("delimiter", Value::Str("α".into()), "delimiter must be an ASCII character"),
+            ("delimiter", Value::Bool(false), "expected string, found boolean"),
+            ("delimiter", Value::Int(1), "expected string, found integer"),
+            ("delimiter", Value::None, "expected string, found none"),
+            ("row-type", Value::Str("array".into()), "expected type, found string"),
+            ("row-type", Value::Bool(true), "expected type, found boolean"),
+            (
+                "row-type",
+                Value::Type(crate::entities::value::Type::Str),
+                "expected `array` or `dictionary`",
+            ),
+        ] {
+            let args = p1314_csv_args(vec![(name, value, origin)]);
+            let errors =
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+            assert_eq!(errors.len(), 1);
+            assert_eq!(errors[0].message, message);
+            assert_eq!(errors[0].span, origin);
+            assert!(errors[0].hints.is_empty());
+            assert!(errors[0].trace.is_empty());
+        }
+    }
+
+    #[test]
+    fn p1314_csv_invalid_occurrence_cannot_be_overwritten() {
+        let first = Span::from_range(tfid(), 30..34);
+        let last = Span::from_range(tfid(), 60..64);
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for (name, bad, good, message) in [
+            (
+                "delimiter",
+                Value::Str("ab".into()),
+                Value::Str(";".into()),
+                "expected exactly one character",
+            ),
+            (
+                "row-type",
+                Value::Str("array".into()),
+                Value::Type(crate::entities::value::Type::Array),
+                "expected type, found string",
+            ),
+        ] {
+            for (options, origin) in [
+                (vec![(name, bad.clone(), first), (name, good.clone(), last)], first),
+                (vec![(name, good, first), (name, bad, last)], last),
+            ] {
+                let args = p1314_csv_args(options);
+                let errors = native_csv(&mut EvalContext::new(), &args, &world, tfid())
+                    .unwrap_err();
+                assert_eq!(errors[0].message, message);
+                assert_eq!(errors[0].span, origin);
+            }
+        }
+    }
+
+    #[test]
+    fn p1314_csv_delimiter_group_precedes_row_type_group() {
+        let first = Span::from_range(tfid(), 25..29);
+        let origin = Span::from_range(tfid(), 40..44);
+        let last = Span::from_range(tfid(), 70..73);
+        let args = p1314_csv_args(vec![
+            ("row-type", Value::Str("array".into()), first),
+            ("delimiter", Value::Str("ab".into()), origin),
+            ("delimiter", Value::Str(";".into()), last),
+        ]);
+        let errors =
+            native_csv(&mut EvalContext::new(), &args, &MockWorld::default(), tfid())
+                .unwrap_err();
+        assert_eq!(errors[0].message, "expected exactly one character");
+        assert_eq!(errors[0].span, origin);
+    }
+
+    #[test]
+    fn p1314_csv_last_valid_options_preserve_values() {
+        let args = p1314_csv_args(vec![
+            ("delimiter", Value::Str(",".into()), Span::detached()),
+            ("delimiter", Value::Str(";".into()), Span::detached()),
+            (
+                "row-type",
+                Value::Type(crate::entities::value::Type::Array),
+                Span::detached(),
+            ),
+            (
+                "row-type",
+                Value::Type(crate::entities::value::Type::Dictionary),
+                Span::detached(),
+            ),
+        ]);
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        let got = native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap();
+        assert_eq!(
+            got,
+            Value::Array(vec![dict_of(vec![
+                ("a", Value::Str("1".into())),
+                ("b", Value::Str("2".into())),
+            ])])
+        );
+    }
+
+    #[test]
+    fn p1314_csv_synthetic_and_detached_options_stay_detached() {
+        let explicit = p1314_csv_args(vec![(
+            "delimiter",
+            Value::Str("ab".into()),
+            Span::detached(),
+        )]);
+        let mut named = IndexMap::default();
+        named.insert("delimiter".into(), Value::Str("ab".into()));
+        let synthetic = Args::from_parts(
+            vec![Value::Bytes(Bytes::new(vec![]))],
+            named,
+            Span::from_range(tfid(), 0..100),
+        );
+        for args in [explicit, synthetic] {
+            let errors =
+                native_csv(&mut EvalContext::new(), &args, &MockWorld::default(), tfid())
+                    .unwrap_err();
+            assert_eq!(errors[0].message, "expected exactly one character");
+            assert!(errors[0].span.is_detached());
+        }
+    }
+
+    #[test]
+    fn p1314_csv_invalid_earlier_option_prevents_path_io() {
+        use crate::entities::args::ArgOccurrence;
+        let origin = Span::from_range(tfid(), 30..34);
+        let args = p1314_csv_args(vec![
+            ("delimiter", Value::Str("ab".into()), origin),
+            ("delimiter", Value::Str(";".into()), Span::from_range(tfid(), 60..64)),
+        ]);
+        let mut occurrences = args.occurrences.unwrap();
+        occurrences[0] = ArgOccurrence {
+            name: None,
+            value: Value::Str("never-read.csv".into()),
+            span: Span::from_range(tfid(), 0..20),
+            value_span: Span::from_range(tfid(), 4..19),
+        };
+        let args = Args::from_occurrences(Span::from_range(tfid(), 0..100), occurrences);
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        let errors =
+            native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+        assert_eq!(errors[0].message, "expected exactly one character");
+        assert_eq!(errors[0].span, origin);
+    }
+
+    #[test]
+    fn p1313_csv_bytes_values_without_world_access() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for (input, expected) in [
+            ("", Value::Array(vec![])),
+            (
+                "a,b\n1,2",
+                Value::Array(vec![
+                    Value::Array(vec![Value::Str("a".into()), Value::Str("b".into())]),
+                    Value::Array(vec![Value::Str("1".into()), Value::Str("2".into())]),
+                ]),
+            ),
+            (
+                "\"olá,mundo\",\"a\"\"b\"",
+                Value::Array(vec![Value::Array(vec![
+                    Value::Str("olá,mundo".into()),
+                    Value::Str("a\"b".into()),
+                ])]),
+            ),
+        ] {
+            let args = Args::positional(vec![Value::Bytes(Bytes::new(
+                input.as_bytes().to_vec(),
+            ))]);
+            assert_eq!(
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap(),
+                expected
+            );
+        }
+        let mut args =
+            Args::positional(vec![Value::Bytes(Bytes::new(b"a;b\n1;2".to_vec()))]);
+        args.named.insert("delimiter".into(), Value::Str(";".into()));
+        args.named.insert(
+            "row-type".into(),
+            Value::Type(crate::entities::value::Type::Dictionary),
+        );
+        assert_eq!(
+            native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap(),
+            Value::Array(vec![dict_of(vec![
+                ("a", Value::Str("1".into())),
+                ("b", Value::Str("2".into()))
+            ])])
+        );
+    }
+
+    #[test]
+    fn p1313_csv_cast_public_type_names() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for (value, name) in [
+            (Value::Int(42), "integer"),
+            (Value::Float(1.5), "float"),
+            (Value::Bool(true), "boolean"),
+            (Value::None, "none"),
+            (Value::Auto, "auto"),
+            (Value::Array(vec![]), "array"),
+            (Value::Dict(new_dict()), "dictionary"),
+        ] {
+            let errors = native_csv(
+                &mut EvalContext::new(),
+                &Args::positional(vec![value]),
+                &world,
+                tfid(),
+            )
+            .unwrap_err();
+            assert_eq!(errors.len(), 1);
+            assert_eq!(
+                errors[0].message,
+                format!("expected path, string, or bytes, found {name}")
+            );
+            assert!(errors[0].span.is_detached());
+            assert!(errors[0].hints.is_empty());
+            assert!(errors[0].trace.is_empty());
+        }
+    }
+
+    #[test]
+    fn p1313_csv_cast_positional_value_origin() {
+        use crate::entities::args::ArgOccurrence;
+        let origin = Span::from_range(tfid(), 30..32);
+        let args = Args::from_occurrences(
+            Span::from_range(tfid(), 0..80),
+            vec![
+                ArgOccurrence {
+                    name: Some("delimiter".into()),
+                    value: Value::Str(";".into()),
+                    span: Span::from_range(tfid(), 3..20),
+                    value_span: Span::from_range(tfid(), 16..19),
+                },
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Int(42),
+                    span: Span::from_range(tfid(), 25..35),
+                    value_span: origin,
+                },
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Bool(true),
+                    span: Span::from_range(tfid(), 40..44),
+                    value_span: Span::from_range(tfid(), 40..44),
+                },
+            ],
+        );
+        let errors =
+            native_csv(&mut EvalContext::new(), &args, &MockWorld::default(), tfid())
+                .unwrap_err();
+        assert_eq!(errors[0].span, origin);
+        assert_eq!(errors[0].message, "expected path, string, or bytes, found integer");
+    }
+
+    #[test]
+    fn p1313_csv_cast_detached_origin_is_not_invented() {
+        use crate::entities::args::ArgOccurrence;
+        let aggregate = Span::from_range(tfid(), 0..80);
+        for args in [
+            Args::from_parts(vec![Value::Int(42)], IndexMap::default(), aggregate),
+            Args::from_occurrences(
+                aggregate,
+                vec![ArgOccurrence {
+                    name: None,
+                    value: Value::Int(42),
+                    span: Span::from_range(tfid(), 10..20),
+                    value_span: Span::detached(),
+                }],
+            ),
+        ] {
+            let errors =
+                native_csv(&mut EvalContext::new(), &args, &MockWorld::default(), tfid())
+                    .unwrap_err();
+            assert!(errors[0].span.is_detached());
+            assert_eq!(
+                errors[0].message,
+                "expected path, string, or bytes, found integer"
+            );
+        }
+    }
+
+    #[test]
+    fn p1313_csv_validation_precedence_without_io() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        let mut unknown = Args::positional(vec![Value::Int(42)]);
+        unknown.named.insert("unknown".into(), Value::None);
+        let mut cast = Args::positional(vec![Value::Int(42)]);
+        cast.named.insert("delimiter".into(), Value::Str("ab".into()));
+        let mut delimiter = Args::positional(vec![Value::Bytes(Bytes::new(vec![255]))]);
+        delimiter.named.insert("delimiter".into(), Value::Str("ab".into()));
+        let mut path_option = Args::positional(vec![Value::Str("never-read.csv".into())]);
+        path_option.named.insert("row-type".into(), Value::Bool(true));
+        for (args, expected) in [
+            (unknown, "argumento nomeado inesperado em csv(): 'unknown'"),
+            (cast, "expected path, string, or bytes, found integer"),
+            (delimiter, "expected exactly one character"),
+            (path_option, "expected type, found boolean"),
+            (Args::positional(vec![]), "csv() requer 1 argumento posicional (caminho)"),
+        ] {
+            let errors =
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+            assert_eq!(errors[0].message, expected);
+            assert!(errors[0].span.is_detached());
+        }
+    }
+
+    #[test]
+    fn p1313_csv_bytes_preserve_legacy_parsing() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        // Decoder vigente é a referência desta preservação, não paridade vanilla.
+        let invalid_utf8 = [255];
+        let legacy = decode_csv(&invalid_utf8, b',', RowType::Array).unwrap_err();
+        let utf8_args =
+            Args::positional(vec![Value::Bytes(Bytes::new(invalid_utf8.to_vec()))]);
+        let actual =
+            native_csv(&mut EvalContext::new(), &utf8_args, &world, tfid()).unwrap_err();
+        assert_eq!(actual.len(), legacy.len());
+        assert_eq!(actual[0].message, legacy[0].message);
+        assert_eq!(actual[0].span, legacy[0].span);
+        assert!(actual[0].span.is_detached());
+        let args = Args::positional(vec![Value::Bytes(Bytes::new(b"a,b\n1".to_vec()))]);
+        let errors =
+            native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+        assert_eq!(
+            errors[0].message,
+            "failed to parse CSV (found 1 instead of 2 fields in line 2)"
+        );
+        assert!(errors[0].span.is_detached());
+    }
+
+    #[test]
+    fn p1312_read_path_cast_public_type_names() {
+        for (value, name) in [
+            (Value::Int(42), "integer"),
+            (Value::Float(1.5), "float"),
+            (Value::Bool(true), "boolean"),
+            (Value::None, "none"),
+            (Value::Auto, "auto"),
+            (Value::Array(vec![]), "array"),
+            (Value::Dict(new_dict()), "dictionary"),
+            (Value::Bytes(Bytes::new(vec![65])), "bytes"),
+        ] {
+            let errors = native_read(
+                &mut EvalContext::new(),
+                &Args::positional(vec![value]),
+                &MockWorld::default(),
+                tfid(),
+            )
+            .unwrap_err();
+            assert_eq!(errors.len(), 1);
+            assert_eq!(
+                errors[0].message,
+                format!("expected path or string, found {name}")
+            );
+            assert!(errors[0].span.is_detached());
+            assert!(errors[0].hints.is_empty());
+            assert!(errors[0].trace.is_empty());
+        }
+    }
+
+    #[test]
+    fn p1312_read_path_cast_positional_value_origin() {
+        use crate::entities::args::ArgOccurrence;
+        let value_span = Span::from_range(tfid(), 30..32);
+        let args = Args::from_occurrences(
+            Span::from_range(tfid(), 0..80),
+            vec![
+                ArgOccurrence {
+                    name: Some("encoding".into()),
+                    value: Value::None,
+                    span: Span::from_range(tfid(), 5..19),
+                    value_span: Span::from_range(tfid(), 15..19),
+                },
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Int(42),
+                    span: Span::from_range(tfid(), 25..35),
+                    value_span,
+                },
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Bool(true),
+                    span: Span::from_range(tfid(), 40..44),
+                    value_span: Span::from_range(tfid(), 40..44),
+                },
+            ],
+        );
+        let errors =
+            native_read(&mut EvalContext::new(), &args, &MockWorld::default(), tfid())
+                .unwrap_err();
+        assert_eq!(errors[0].span, value_span);
+        assert_eq!(errors[0].message, "expected path or string, found integer");
+    }
+
+    #[test]
+    fn p1312_read_path_cast_detached_origin_is_not_invented() {
+        use crate::entities::args::ArgOccurrence;
+        let aggregate = Span::from_range(tfid(), 0..80);
+        for args in [
+            Args::from_parts(vec![Value::Int(42)], IndexMap::default(), aggregate),
+            Args::from_occurrences(
+                aggregate,
+                vec![ArgOccurrence {
+                    name: None,
+                    value: Value::Int(42),
+                    span: Span::from_range(tfid(), 10..20),
+                    value_span: Span::detached(),
+                }],
+            ),
+        ] {
+            let errors = native_read(
+                &mut EvalContext::new(),
+                &args,
+                &MockWorld::default(),
+                tfid(),
+            )
+            .unwrap_err();
+            assert!(errors[0].span.is_detached());
+            assert_eq!(errors[0].message, "expected path or string, found integer");
+        }
+    }
+
+    #[test]
+    fn p1312_read_valid_paths_and_missing_preserved() {
+        use crate::entities::path::{RootedPath, VirtualPath, VirtualRoot};
+        let mut world = MockWorld::default();
+        world.files.insert("data.txt".into(), Arc::new(b"payload".to_vec()));
+        for value in [
+            Value::Str("data.txt".into()),
+            Value::Path(RootedPath::new(
+                VirtualRoot::Project,
+                VirtualPath::new("data.txt").unwrap(),
+            )),
+        ] {
+            let got = native_read(
+                &mut EvalContext::new(),
+                &Args::positional(vec![value]),
+                &world,
+                tfid(),
+            )
+            .unwrap();
+            assert_eq!(got, Value::Str("payload".into()));
+        }
+        let missing = native_read(
+            &mut EvalContext::new(),
+            &Args::positional(vec![]),
+            &world,
+            tfid(),
+        )
+        .unwrap_err();
+        assert_eq!(missing[0].message, "read() requer 1 argumento posicional (caminho)");
+        assert!(missing[0].span.is_detached());
+        // A antiga rejeição CSV Bytes/cast foi substituída pelo contrato P1313.
+    }
+
+    #[test]
+    fn p1310_data_source_cast_public_type_names() {
+        let cases = [
+            (Value::Int(42), "integer"),
+            (Value::Float(1.5), "float"),
+            (Value::Bool(true), "boolean"),
+            (Value::None, "none"),
+            (Value::Auto, "auto"),
+            (Value::Array(vec![]), "array"),
+            (Value::Dict(new_dict()), "dictionary"),
+        ];
+        let loaders = [native_json, native_yaml, native_toml, native_xml, native_cbor];
+        for loader in loaders {
+            for (value, name) in &cases {
+                let args = Args::positional(vec![value.clone()]);
+                let errors =
+                    loader(&mut EvalContext::new(), &args, &MockWorld::default(), tfid())
+                        .unwrap_err();
+                assert_eq!(errors.len(), 1);
+                assert_eq!(
+                    errors[0].message,
+                    format!("expected path, string, or bytes, found {name}")
+                );
+                assert!(errors[0].span.is_detached());
+                assert!(errors[0].hints.is_empty());
+            }
+        }
+    }
+
+    #[test]
+    fn p1310_data_source_cast_uses_positional_value_origin() {
+        use crate::entities::args::ArgOccurrence;
+        let aggregate = Span::from_range(tfid(), 0..80);
+        let value_span = Span::from_range(tfid(), 30..32);
+        let args = Args::from_occurrences(
+            aggregate,
+            vec![
+                ArgOccurrence {
+                    name: Some("ignored-by-helper".into()),
+                    value: Value::Bool(true),
+                    span: Span::from_range(tfid(), 4..20),
+                    value_span: Span::from_range(tfid(), 16..20),
+                },
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Int(42),
+                    span: Span::from_range(tfid(), 25..35),
+                    value_span,
+                },
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Bool(false),
+                    span: Span::from_range(tfid(), 40..45),
+                    value_span: Span::from_range(tfid(), 40..45),
+                },
+            ],
+        );
+        for name in ["json", "yaml", "toml", "xml", "cbor"] {
+            let errors =
+                resolve_data(&args, &MockWorld::default(), tfid(), name).unwrap_err();
+            assert_eq!(errors[0].span, value_span);
+            assert_eq!(
+                errors[0].message,
+                "expected path, string, or bytes, found integer"
+            );
+        }
+    }
+
+    #[test]
+    fn p1310_data_source_cast_does_not_invent_detached_origin() {
+        use crate::entities::args::ArgOccurrence;
+        let aggregate = Span::from_range(tfid(), 0..80);
+        let synthetic =
+            Args::from_parts(vec![Value::Int(42)], IndexMap::default(), aggregate);
+        let transformed = Args::from_occurrences(
+            aggregate,
+            vec![ArgOccurrence {
+                name: None,
+                value: Value::Int(42),
+                span: Span::from_range(tfid(), 10..20),
+                value_span: Span::detached(),
+            }],
+        );
+        for args in [synthetic, transformed] {
+            let errors =
+                resolve_data(&args, &MockWorld::default(), tfid(), "json").unwrap_err();
+            assert!(errors[0].span.is_detached());
+            assert_eq!(
+                errors[0].message,
+                "expected path, string, or bytes, found integer"
+            );
+        }
+    }
+
+    #[test]
+    fn p1310_data_source_valid_inputs_and_missing_are_preserved() {
+        use crate::entities::path::{RootedPath, VirtualPath, VirtualRoot};
+        let mut world = MockWorld::default();
+        let data = Arc::new(b"payload".to_vec());
+        world.files.insert("data.bin".into(), data.clone());
+        let path =
+            RootedPath::new(VirtualRoot::Project, VirtualPath::new("data.bin").unwrap());
+        for value in [
+            Value::Str("data.bin".into()),
+            Value::Path(path),
+            Value::Bytes(Bytes::new(data.as_ref().clone())),
+        ] {
+            let got =
+                resolve_data(&Args::positional(vec![value]), &world, tfid(), "json")
+                    .unwrap();
+            assert_eq!(got.as_slice(), data.as_slice());
+        }
+        let errors =
+            resolve_data(&Args::positional(vec![]), &world, tfid(), "json").unwrap_err();
+        assert_eq!(
+            errors[0].message,
+            "json() requer 1 argumento posicional (caminho ou bytes)"
+        );
+        assert!(errors[0].span.is_detached());
+    }
 
     fn dict_of(pairs: Vec<(&str, Value)>) -> Value {
         let mut d = new_dict();
@@ -1456,6 +2136,7 @@ mod tests {
     use std::sync::Arc;
 
     struct MockWorld {
+        forbid_io: bool,
         files: std::collections::HashMap<String, Arc<Vec<u8>>>,
         library: crate::entities::world_types::Library,
         book: crate::entities::font_book::FontBook,
@@ -1463,6 +2144,7 @@ mod tests {
     impl Default for MockWorld {
         fn default() -> Self {
             Self {
+                forbid_io: false,
                 files: std::collections::HashMap::new(),
                 library: crate::entities::world_types::Library::default(),
                 book: crate::entities::font_book::FontBook::default(),
@@ -1484,6 +2166,7 @@ mod tests {
             _: FileId,
         ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
         {
+            assert!(!self.forbid_io, "unexpected World::source");
             Err(crate::entities::world_types::FileError::NotFound)
         }
         fn file(
@@ -1491,6 +2174,7 @@ mod tests {
             _: FileId,
         ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
         {
+            assert!(!self.forbid_io, "unexpected World::file");
             Err(crate::entities::world_types::FileError::NotFound)
         }
         fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
@@ -1507,6 +2191,7 @@ mod tests {
             _current_file: FileId,
             path: &str,
         ) -> Result<Arc<Vec<u8>>, String> {
+            assert!(!self.forbid_io, "unexpected World::read_bytes");
             self.files
                 .get(path)
                 .cloned()
@@ -1517,6 +2202,7 @@ mod tests {
             _current_file: FileId,
             path: &str,
         ) -> Result<crate::entities::path::RootedPath, String> {
+            assert!(!self.forbid_io, "unexpected World::resolve_path");
             let vpath = crate::entities::path::VirtualPath::new(path)
                 .map_err(|e| format!("path inválido: {e:?}"))?;
             Ok(crate::entities::path::RootedPath::new(
@@ -1528,6 +2214,7 @@ mod tests {
             &self,
             path: &crate::entities::path::RootedPath,
         ) -> Result<Arc<Vec<u8>>, String> {
+            assert!(!self.forbid_io, "unexpected World::read_path");
             let key = path.vpath().get_with_slash().trim_start_matches('/');
             self.files
                 .get(key)

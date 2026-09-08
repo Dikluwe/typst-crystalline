@@ -1,0 +1,1098 @@
+{
+  "schema": "p1309-certification-debt-v1",
+  "executor": "/root/p1309_classifier",
+  "regime": "executado sem atestação de isolamento técnico",
+  "provenance": {
+    "head": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+    "measured_at_utc": "2026-09-07T22:52:23.841Z",
+    "tracked_diff_stat": "",
+    "source_state_receipt": "git rev-parse HEAD and git diff HEAD --stat executed separately immediately before artifact generation; stdout baseline HEAD and empty tracked diff.",
+    "inputs": [
+      {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-ledger.json",
+        "sha256": "c636972025a884bf33af0dedb316b77c82ef44535ca02ca78057d804d32e2837"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1308-verification-r2-final.json",
+        "sha256": "6f6d9cfd4d3cb8233915c0cf59f9734a1b021139486e09fb743f2646fa5c37c0"
+      }
+    ]
+  },
+  "universe": "certification_debt",
+  "family_count": 37,
+  "status_counts": {
+    "STILL_PENDING": 37
+  },
+  "families": [
+    {
+      "id": "F01",
+      "base_id": 1,
+      "operation": "Remove exactly one encode namespace binding while retaining its parent decoder.",
+      "rust_tests": [
+        "p1307_namespace_identity"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/0"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 1,
+        "defect": "install only one/two members"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F02",
+      "base_id": 2,
+      "operation": "Replace json namespace encode installation with an otherwise callable flat json_encode global.",
+      "rust_tests": [
+        "p1307_namespace_identity"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/1"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 2,
+        "defect": "flat alias instead of namespace"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F03",
+      "base_id": 3,
+      "operation": "Replace one callable namespace parent with a Module retaining its encode field.",
+      "rust_tests": [
+        "p1307_decoder_and_cbor_controls"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/2"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 3,
+        "defect": "replace callable decoder by noncallable module"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F04",
+      "base_id": 4,
+      "operation": "Change json encoder native public name encode to json.encode only.",
+      "rust_tests": [
+        "p1307_namespace_identity"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/3"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 4,
+        "defect": "long internal/public function name"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F05",
+      "base_id": 5,
+      "owner_override": "01_core/src/entities/func.rs",
+      "baseline_function": "Func::namespace",
+      "operation": "Change only FuncRepr::With namespace delegation to None, retaining direct namespace access.",
+      "rust_tests": [
+        "p1307_parent_with_does_not_prebind_encoder"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/4"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 5,
+        "defect": "lose namespace through observed with route"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F06",
+      "base_id": 6,
+      "operation": "Set omitted JSON pretty default false; leave explicit true and false unchanged.",
+      "rust_tests": [
+        "p1307_json_default_and_compact"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/5"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 6,
+        "defect": "JSON compact default"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F07",
+      "base_id": 7,
+      "operation": "Set omitted TOML pretty default false; leave explicit values unchanged.",
+      "rust_tests": [
+        "p1307_toml_default_and_compact"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/6"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 7,
+        "defect": "TOML compact default"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F08",
+      "base_id": 8,
+      "operation": "Consume and ignore YAML pretty instead of returning its unexpected-argument diagnostic.",
+      "rust_tests": [],
+      "public_required": true,
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/7"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 8,
+        "defect": "YAML silently accepts pretty"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F09",
+      "base_id": 9,
+      "operation": "Permit a non-dictionary TOML top level by wrapping it in a dictionary before serialization.",
+      "rust_tests": [],
+      "public_required": true,
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/8"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 9,
+        "defect": "TOML accepts non-dict top"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F10",
+      "base_id": 10,
+      "operation": "Reverse dictionary entry traversal in one human-readable encoder, preserving keys and values.",
+      "rust_tests": [
+        "p1307_yaml_default_order_and_newline"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/9"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 10,
+        "defect": "sort/swap dictionary keys"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F11",
+      "base_id": 11,
+      "operation": "Remove exactly one YAML final newline, preserving all other bytes.",
+      "rust_tests": [
+        "p1307_yaml_default_order_and_newline"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/10"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 11,
+        "defect": "change final newline"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F12",
+      "base_id": 12,
+      "operation": "Change one JSON control-character escape or YAML multiline representation, retaining valid output where possible.",
+      "rust_tests": [
+        "p1307_json_escape_and_raw_heading_presence"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/11"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 12,
+        "defect": "escaping or multiline morphology"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F13",
+      "base_id": 13,
+      "operation": "Use Rust Debug formatting for one opaque Value branch instead of public repr.",
+      "rust_tests": [
+        "p1307_json_special_classes_are_not_debug"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/12"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 13,
+        "defect": "Debug instead of public repr"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F14",
+      "base_id": 14,
+      "operation": "Route Symbol through generic repr fallback instead of dedicated language string conversion.",
+      "rust_tests": [
+        "p1307_json_special_classes_are_not_debug"
+      ],
+      "additional_submutant": "Separately route raw Content through generic fallback; witness json.value.Content.",
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/13"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 14,
+        "defect": "generic fallback for Symbol/Content"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F15",
+      "base_id": 15,
+      "operation": "Emit human-readable Bytes as a numeric array rather than the measured public string.",
+      "rust_tests": [
+        "p1307_json_special_classes_are_not_debug"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/14"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 15,
+        "defect": "human readable Bytes as numeric array"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F16",
+      "base_id": 16,
+      "operation": "Emit TOML none array member instead of rejecting it; separate nonfinite and negative-zero submutants remain declared.",
+      "rust_tests": [
+        "p1307_toml_none_field_omitted_but_array_rejected"
+      ],
+      "additional_submutants": [
+        "JSON NaN converted to zero instead of measured value",
+        "YAML -0.0 converted to +0.0"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/15"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 16,
+        "defect": "none/nonfinite/negative-zero"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F17",
+      "base_id": 17,
+      "operation": "Replace invalid pretty value diagnostic origin with Span::detached or whole call, leaving exact error message intact.",
+      "rust_tests": [
+        "p1307_named_value_has_exact_hint_and_argument_span",
+        "p1307_unknown_named_prebound_span"
+      ],
+      "public_required": true,
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/16"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 17,
+        "defect": "detached/whole-call error span"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "M02/M04/M05 exercise diagnostic transport nearby, but do not execute this named encoder/Args defect; no discharge.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F18",
+      "base_id": 18,
+      "operation": "Route CBOR Bytes through Text representation, preserving JSON/TOML/YAML behavior.",
+      "rust_tests": [
+        "p1307_decoder_and_cbor_controls"
+      ],
+      "additional_submutant": "Separately change JSON decoder result on its frozen valid input.",
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/17"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 18,
+        "defect": "regress CBOR/decoder"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F19",
+      "base_id": 19,
+      "operation": "Add encode namespace to csv using an existing callable encoder; preserve csv decoder.",
+      "rust_tests": [],
+      "public_required": true,
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/18"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 19,
+        "defect": "invent csv/xml encoder"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "F20",
+      "base_id": 20,
+      "operation": "Condition namespace installation on the html feature, leaving default profile without members.",
+      "rust_tests": [
+        "p1307_namespace_identity"
+      ],
+      "public_required": true,
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/families/19"
+      },
+      "predecessor": {
+        "path": "00_nucleo/diagnosticos/p1307-mutant-plan.json",
+        "sha256": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+        "base_id": 20,
+        "defect": "feature-gated encoder exposure"
+      },
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S01",
+      "owner": "01_core/src/compiler/introspect/heading.rs",
+      "baseline_function": "compute_heading_for_toc",
+      "operation": "Omit exactly one required realized Heading field from Some snapshot.",
+      "rust_tests": [
+        "p1307_query_snapshot_fields_are_complete_and_ordered"
+      ],
+      "public_cases": [
+        "r6.fields-json.default"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/0"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S02",
+      "owner": "01_core/src/compiler/introspect/heading.rs",
+      "baseline_function": "compute_heading_for_toc",
+      "operation": "Swap two insertion-ordered snapshot fields without changing values.",
+      "rust_tests": [
+        "p1307_query_snapshot_fields_are_complete_and_ordered"
+      ],
+      "public_cases": [
+        "r6.fields-json.default"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/1"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S03",
+      "owner": "01_core/src/compiler/introspect.rs",
+      "baseline_function": "walk",
+      "operation": "Invent a generated label for an unlabelled heading snapshot.",
+      "rust_tests": [
+        "p1307_snapshot_survives_array_closure_and_absent_label"
+      ],
+      "public_cases": [
+        "r6.access.unlabelled"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/2"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S04",
+      "owner": "01_core/src/compiler/introspect/heading.rs",
+      "baseline_function": "compute_heading_for_toc",
+      "operation": "Ignore captured numbering pattern I and substitute 1.",
+      "rust_tests": [
+        "p1307_snapshot_numbering_changes_language_equality"
+      ],
+      "public_cases": [
+        "r6.fields-json.numbering-I",
+        "r6.two-same-body.fields"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/3"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S05",
+      "owner": "01_core/src/compiler/introspect/heading.rs",
+      "baseline_function": "compute_heading_for_toc",
+      "operation": "Substitute default en supplement for captured pt language.",
+      "rust_tests": [],
+      "public_cases": [
+        "r6.fields-json.pt",
+        "r6.escape.before",
+        "r6.escape.after"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/4"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S06",
+      "owner": "01_core/src/compiler/stdlib/foundations/query.rs",
+      "baseline_function": "native_query",
+      "operation": "Drop Some fields when cloning query result carrier, retain raw content/location.",
+      "rust_tests": [
+        "p1307_snapshot_survives_array_closure_and_absent_label"
+      ],
+      "public_cases": [
+        "r6.escape.fields-before",
+        "r6.escape.fields-after"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/5"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S07",
+      "owner": "01_core/src/compiler/eval/bindings/value_methods.rs",
+      "baseline_function": "eval_value_method",
+      "operation": "Bypass carrier fields in static content.fields alias route only.",
+      "rust_tests": [],
+      "public_cases": [
+        "r6.access.static-alias",
+        "r6.access.static-alias-control"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/6"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S08",
+      "owner": "03_infra/src/query_helpers.rs",
+      "baseline_function": "query_elements",
+      "operation": "Discard captured fields before first context evaluation, leaving later contexts unchanged where causal hook exists.",
+      "rust_tests": [],
+      "public_cases": [
+        "r6.first-context-before-heading",
+        "r6.first-context-before-heading.fields"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/7"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S09",
+      "owner": "01_core/src/compiler/eval/operators/equality.rs",
+      "baseline_function": "value_eq",
+      "operation": "Compare only raw content morphology for Some/Some LocatedContent, ignoring numbering/language fields.",
+      "rust_tests": [
+        "p1307_snapshot_numbering_changes_language_equality"
+      ],
+      "public_cases": [
+        "r6.equality.language"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/8"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S10",
+      "owner": "01_core/src/compiler/eval/operators/equality.rs",
+      "baseline_function": "value_eq",
+      "operation": "Include label or Location in language equality of captured content.",
+      "rust_tests": [
+        "p1307_snapshot_labels_not_equality_or_location"
+      ],
+      "public_cases": [],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/9"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S11",
+      "owner": "01_core/src/compiler/eval/repr.rs",
+      "baseline_function": "repr_value",
+      "operation": "Use raw Heading repr for Some carrier instead of realized fields; preserve general Dict repr debt.",
+      "rust_tests": [],
+      "public_cases": [
+        "r5repr.default.repr",
+        "r5repr.numbering-I.repr",
+        "r5repr.pt.cbor-decoded"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/10"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "M06 alters Args formatting, not captured Heading repr; sharing formatter owner is not supersession.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "S12",
+      "owner": "01_core/src/compiler/stdlib/loading.rs",
+      "baseline_function": "native_cbor_encode",
+      "operation": "Serialize captured Heading as CBOR map rather than preserved Text(public repr).",
+      "rust_tests": [],
+      "public_cases": [
+        "r5repr.default.cbor-bytes",
+        "r5repr.numbering-I.cbor-bytes"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/11"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "A01",
+      "owner": "01_core/src/entities/args.rs",
+      "baseline_function": "Args",
+      "operation": "Deduplicate repeated named arguments during ordered construction/map/filter.",
+      "rust_tests": [
+        "p1307_args_constructor_map_filter_preserve_duplicates",
+        "p1307_invalid_prebound_pretty_cannot_disappear"
+      ],
+      "public_cases": [
+        "r4.error.with-keeps-invalid-earlier"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/12"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "M03/M04 touch filter vocabulary/origin, not duplicate occurrence preservation; no discharge.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "A02",
+      "owner": "01_core/src/compiler/eval/operators/join.rs",
+      "baseline_function": "apply_binary",
+      "operation": "Coalesce duplicate names on Args join rather than preserve sequence.",
+      "rust_tests": [
+        "p1307_args_join_and_sink_have_different_order_rules"
+      ],
+      "public_cases": [
+        "r4.error.join-retains-rhs-span",
+        "r4.error.join-retains-lhs-span"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/13"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "A03",
+      "owner": "01_core/src/compiler/eval/closures.rs",
+      "baseline_function": "call_closure",
+      "operation": "Preserve source interleave in sink Args instead of named-first sink order.",
+      "rust_tests": [
+        "p1307_args_join_and_sink_have_different_order_rules"
+      ],
+      "public_cases": [],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/14"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "No identical causal mutant in the six P1308 families.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "A04",
+      "owner": "01_core/src/entities/args.rs",
+      "baseline_function": "Args",
+      "operation": "Reuse origin from equal Args value instead of distinct factory invocation source.",
+      "rust_tests": [
+        "p1307_equal_args_keep_distinct_factory_origins",
+        "p1307_equal_sink_args_keep_distinct_factory_origins"
+      ],
+      "public_cases": [],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/15"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "M02/M04/M05 exercise diagnostic transport nearby, but do not execute this named encoder/Args defect; no discharge.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    },
+    {
+      "id": "A05",
+      "owner": "01_core/src/compiler/eval/call_dispatch.rs",
+      "baseline_function": "eval_func_call",
+      "operation": "Skip aggregate full-call span transport for an encode alias/With call missing value.",
+      "rust_tests": [
+        "p1307_missing_uses_whole_call_including_with"
+      ],
+      "public_cases": [],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json",
+        "sha256": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+        "json_pointer": "/additional_families/16"
+      },
+      "predecessor": null,
+      "status": "STILL_PENDING",
+      "actual_source_mutants_executed_in_p1309": 0,
+      "supersession": "R6 refines instrumentation anchors of original F01-F20; it does not discharge their obligations. S01-S12 and A01-A05 remain distinct causal defects.",
+      "p1308_overlap": "M02/M04/M05 exercise diagnostic transport nearby, but do not execute this named encoder/Args defect; no discharge.",
+      "reason": "The predecessor verifier explicitly states all 37 historical P1307 families were not executed or discharged. This audit executes no productive mutants."
+    }
+  ],
+  "duplicate_mapping": {
+    "original_twenty": "Original integer IDs1..20 map bijectively to R6 F01..F20; count once, not twice.",
+    "additional": "S01..S12 and A01..A05 introduce17 distinct obligations; shared owner/witness does not imply duplicate cause.",
+    "superseded_families": []
+  },
+  "p1308_separate_executed_families": [
+    {
+      "id": "M01",
+      "status": "EXECUTED_KILLED",
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-ledger.json",
+        "sha256": "c636972025a884bf33af0dedb316b77c82ef44535ca02ca78057d804d32e2837"
+      },
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-M01.json",
+        "sha256": "e1043c2642aa273f1e995298159def9e4c948928ccf022f6f70f57c5c4e1d2d2"
+      },
+      "source_change": {
+        "path": "01_core/src/compiler/eval/operators/arithmetic.rs",
+        "before_sha256": "818999e784e6b70448b08bb392f092c87bb292c60f58880e211a6d776039bec3",
+        "after_sha256": "ef012dd0fa3462aa73388129fab99c834d6584c5be6e197b326689bfdd203922",
+        "function": "apply_binary",
+        "defect": "Remove only the future approved Add Args/None identity arm, retaining Add Args/Args and the generic error fallback. If the approved successor includes None/Args separately, leave that control intact."
+      },
+      "witnesses": {
+        "p1308_none_identity": "Violated",
+        "p1308_none_identity_preserves_error_origin": "Violated",
+        "p1308_unsupported_add_control": "Preserved"
+      },
+      "causal_review": "Removing Args+None returns cannot add arguments and none; both identity/origin witnesses fail, unsupported-add control survives.",
+      "discharges_p1307": []
+    },
+    {
+      "id": "M02",
+      "status": "EXECUTED_KILLED",
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-ledger.json",
+        "sha256": "c636972025a884bf33af0dedb316b77c82ef44535ca02ca78057d804d32e2837"
+      },
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-M02.json",
+        "sha256": "75a25deeb924df79047243f544d687ab7c71c8f207bd34299d0643ccc5ebe133"
+      },
+      "source_change": {
+        "path": "01_core/src/compiler/eval/call_dispatch.rs",
+        "before_sha256": "fd34727de8570bb3dfa65ec988dcd118c4e96adac0e5528de37c373ef13dcae2",
+        "after_sha256": "1807d526d251e8badea43639c68fc5775cc6e532bea1adce4ee9c0f4743acabb",
+        "function": "transport_native_call_span",
+        "defect": "Disable only the future native-panic full-call aggregate transport or its With identity delegation, so the emitted panic error is again anchored to arguments. Keep error text, callback order and trace algorithm unchanged."
+      },
+      "witnesses": {
+        "p1308_panic_call_origins": "Violated",
+        "p1308_panic_callback_origins": "Violated",
+        "p1308_panic_named_baseline_debt": "Preserved"
+      },
+      "causal_review": "Removing only native_panic transport yields 5..14 instead of 0..14 and callback 31..40 instead of 26..40; message and named-debt control survive.",
+      "discharges_p1307": []
+    },
+    {
+      "id": "M03",
+      "status": "EXECUTED_KILLED",
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-ledger.json",
+        "sha256": "c636972025a884bf33af0dedb316b77c82ef44535ca02ca78057d804d32e2837"
+      },
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-M03.json",
+        "sha256": "5b36f6985d78884d8790a11ab1baed0d48cb42639420a621992f7a87fc5f90da"
+      },
+      "source_change": {
+        "path": "01_core/src/compiler/stdlib/collections.rs",
+        "before_sha256": "cd6be6d648af0ea4ab693f7ead7fbf567861ee974d715de78bd2ee23e5029f5c",
+        "after_sha256": "dfcc3c010a9710a39f7a3ea297723959a34d1adf391da00577dff2d12b7f0ba6",
+        "function": "arguments_filter",
+        "defect": "Restore other.type_name() in the new arguments.filter non-bool message so integer is emitted as int; retain the approved result span unchanged."
+      },
+      "witnesses": {
+        "p1308_r6_frozen_diagnostic_obligations": "Violated",
+        "p1308_filter_direct": "Violated",
+        "p1308_empty_filter_control": "Preserved"
+      },
+      "causal_review": "Legacy type_name emits int/str instead of integer/string. Empty filter survives. The planned secondary string boundary also fails for this same vocabulary cause; it is not reported preserved.",
+      "discharges_p1307": []
+    },
+    {
+      "id": "M04",
+      "status": "EXECUTED_KILLED",
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-ledger.json",
+        "sha256": "c636972025a884bf33af0dedb316b77c82ef44535ca02ca78057d804d32e2837"
+      },
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-M04.json",
+        "sha256": "6b024e4793526b7afdd7f010f5bdefa0c58e92bfd3075bf31ec47ad7acf4e5f4"
+      },
+      "source_change": {
+        "path": "01_core/src/compiler/stdlib/collections.rs",
+        "before_sha256": "cd6be6d648af0ea4ab693f7ead7fbf567861ee974d715de78bd2ee23e5029f5c",
+        "after_sha256": "81e63c889769f39c601ffde72362a569c8fa61700dec920a18544c0b698630b5",
+        "function": "arguments_filter",
+        "defect": "Replace only the callback function-origin diagnostic span with Span::detached(), leaving the approved type vocabulary and returned Value unchanged."
+      },
+      "witnesses": {
+        "p1308_filter_direct": "Violated",
+        "p1308_filter_alias": "Violated",
+        "p1308_filter_with": "Violated",
+        "p1308_overlay_preserves_external_callback_source_and_local_trace": "Violated",
+        "p1308_filter_synthetic_native": "Preserved"
+      },
+      "causal_review": "Detached callback origin loses ranges 20..25,17..24,17..32 and external FileId; vocabulary survives and synthetic-native detached control survives.",
+      "discharges_p1307": []
+    },
+    {
+      "id": "M05",
+      "status": "EXECUTED_KILLED",
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-ledger.json",
+        "sha256": "c636972025a884bf33af0dedb316b77c82ef44535ca02ca78057d804d32e2837"
+      },
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-M05.json",
+        "sha256": "8579732f271042dedcf23cf1dc3cc720e54cda5721b6ef1c8897e258043d5761"
+      },
+      "source_change": {
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "before_sha256": "115a34e8aa41b4ec5a55b0cec5d05927216dc6a4a6fcb98d2fd2c1edc98d262c",
+        "after_sha256": "0a8e0e1119176ea6f0cb63b6dd4e31e0941ab18a73c83567ec29a47edb4532ae",
+        "function": "ExpressionWorld::source",
+        "defect": "Bypass only the future expression-source exposure at the Engine/World boundary and use the original caller World, preserving the local parsed Source and evaluation. If a new pure adapter is approved, mutate its local-source branch to the existing delegated World source result instead."
+      },
+      "witnesses": {
+        "r2.with-spread-arguments-f/default": "Violated",
+        "r2.with-spread-arguments-f/html": "Violated",
+        "r2.with-spread-arguments-f/a11y": "Violated",
+        "r2.with-spread-arguments-f/combined": "Violated",
+        "r2.with-spread-arguments-g/default": "Violated",
+        "r2.with-spread-arguments-g/html": "Violated",
+        "r2.with-spread-arguments-g/a11y": "Violated",
+        "r2.with-spread-arguments-g/combined": "Violated",
+        "r4.error.map-detached-value-span/default": "Violated",
+        "r4.error.map-detached-value-span/html": "Violated",
+        "r4.error.map-detached-value-span/a11y": "Violated",
+        "r4.error.map-detached-value-span/combined": "Violated",
+        "r4.origin.filter.f/default": "Violated",
+        "r4.origin.filter.f/html": "Violated",
+        "r4.origin.filter.f/a11y": "Violated",
+        "r4.origin.filter.f/combined": "Violated",
+        "r4.origin.map.g/default": "Violated",
+        "r4.origin.map.g/html": "Violated",
+        "r4.origin.map.g/a11y": "Violated",
+        "r4.origin.map.g/combined": "Violated",
+        "panic.direct/default": "Preserved",
+        "panic.direct/html": "Preserved",
+        "panic.direct/a11y": "Preserved",
+        "panic.direct/combined": "Preserved"
+      },
+      "causal_review": "Compiled CLI loses the required trace in 20 cells while primary stderr prefix, stdout and exit remain; panic.direct survives in all four profiles.",
+      "discharges_p1307": []
+    },
+    {
+      "id": "M06",
+      "status": "EXECUTED_KILLED",
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-ledger.json",
+        "sha256": "c636972025a884bf33af0dedb316b77c82ef44535ca02ca78057d804d32e2837"
+      },
+      "receipt": {
+        "path": "00_nucleo/diagnosticos/p1308-mutation-M06.json",
+        "sha256": "75ae1de7544a41d54b922f848ae73a771b2b92bde9ac713f9a54f59611560683"
+      },
+      "source_change": {
+        "path": "01_core/src/compiler/eval/repr.rs",
+        "before_sha256": "a54ee85615e458bbc5b102a53769e4c756e9502d69abe2be1feaed5077e78efb",
+        "after_sha256": "24e628935c9a53a67fb51e5bc488ec0d27b252c7f561a6ec90789a99e04b19e6",
+        "function": "Value::Args Some repr",
+        "defect": "The final L0 ratifies the measured Args multiline boundary. Replace Some carrier formatting with format!(\"arguments({})\", pieces.join(\", \")), retaining every item/name in causal order. This is a real formatter mutation, not an edit to the historical expected string."
+      },
+      "witnesses": {
+        "p1308_args_width_boundaries": "Violated",
+        "p1308_args_integral_unicode_and_long": "Violated",
+        "p1308_with_repr_control": "Preserved"
+      },
+      "causal_review": "Some Args formatter produces integral inline text where width-49 and Unicode-long require multiline; With repr control survives.",
+      "discharges_p1307": []
+    }
+  ],
+  "p1307_mutation_score": null,
+  "recommendation": "Preparar passo adversarial próprio para as37 famílias pendentes, com candidato/controle GREEN pinados, mutação causal compilável, testemunha e restauração; não executar neste P1309.",
+  "claim_limit": "Functional encoder equality in a fresh corpus neither proves nor removes this certification debt. No language divergence is inferred from pending attacks. P1308 historical six-mutant score is not a P1307 score."
+}

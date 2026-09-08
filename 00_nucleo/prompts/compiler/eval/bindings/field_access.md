@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: e0188151
+Hash do Código: 5a601982
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -124,6 +124,66 @@ caso em que o alvo é `Symbol`/`Func`/`Type`/`Module` (nesses, `None` — não �
 erro de campo).
 
 ## Critérios de Verificação
+
+### P1311 — field ausente em nativa sem namespace
+
+#### Medição anterior à decisão
+
+Baseline P1310 não commitado sobre HEAD
+`eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, congelado em
+`00_nucleo/diagnosticos/p1311-baseline.json`, SHA-256
+`2338de6be4567c9ea03be335c5935832241d8010272b10eb29c1ca858c9af753`.
+Medição fresca `p1311-measurement.json` em diagnósticos, SHA-256
+`f444074ac6c1e8be4509b08eed480ceb1e0188f7e8afec892bdaa31938a3d6c3`,
+registra argv, UTC, diff/stat, fontes literais e saídas dos binários pinados.
+`csv.encode` e `csv.encode(1)` produzem no vanilla ratificado `a51e02804`
+``function `csv` does not contain field `encode` `` com span `4..10`;
+o cristalino emite `cannot access fields on type function` no acesso inteiro.
+Alias/With não mudam o nome público; `calc.abs.nope` nomeia `abs`.
+
+Vanilla `foundations/func.rs:280-308` distingue scope nativo vazio de ausência
+de scope de função definida pelo usuário. `typst-eval/src/code.rs:347-367`
+passa o span do identificador do field. No cristalino,
+`field_access.rs:103-112,254-268` usa span total e trata namespace None como
+proibição genérica. `entities/func.rs:24-48,291-300,355-365` já distingue as
+categorias e With; `compiler/eval/repr.rs:76-90` já projeta o nome público
+nativo a partir do último segmento do nome interno qualificado.
+
+#### Obrigação e fronteira
+
+Para função nativa Native ou NativeWithEngine cujo namespace seja None,
+incluindo With que envolva essa mesma categoria, field ausente produz
+exatamente ``function `<nome-público>` does not contain field `<field>` ``.
+Nome público vem da função subjacente, último segmento de nome qualificado,
+nunca do alias lexical, identidade de ponteiro, string da fixture ou blacklist.
+É erro único, sem hints/laterais novos; manter os traces causais existentes.
+O acesso usa `access.field().span()`, cobrindo somente o identificador ausente,
+também quando a expressão serve como callee e quando há parênteses/multilinha.
+O helper de lookup puro utiliza o span recebido; não reconstrói AST/range.
+
+Um helper privado deste owner pode distinguir a categoria já existente de
+Func, atravessando With sem alterar argumentos ou entidades. Nome presente
+não basta para classificar: closures e plugins nomeados não são nativas.
+Não confundir Native sem namespace com namespace Some vazio.
+Não fabricar namespace, membro, encoder, callable ou valor de fallback.
+
+Namespace Some (lookup presente ou ausente), Closure, Plugin e Element de
+usuário preservam mensagens e spans vigentes. Module/PDF, Dict, Type, Content,
+float/is-nan, contexto text e warnings não mudam. Esta exceção restrita substitui
+a proteção genérica de targets não Module de P1301/P1306 somente para a
+categoria nativa sem namespace aqui especificada; não generaliza field-only
+ao restante. Sem alterar assinatura, estrutura de Func, namespace ou dispatch.
+
+Texto e origem diagnóstica são observáveis de linguagem (ADR-0108); a categoria
+Rust é mecanismo, não critério de paridade. O cast de identidade nativa e o
+contrato de lookup fundamentam a intenção; texto/range são medidos. É inferência
+que os carriers atuais bastam: origem irrecuperável, nome público incompatível
+ou necessidade de outro owner refutam a suficiência e exigem reabrir o escopo.
+Correção interna de paridade ADR-0127, L0-first + RED→GREEN e revalidação.
+Testes independentes devem distinguir leitura/chamada ausente, alias/With,
+nome qualificado, span individual/total e as categorias excluídas, com controles
+de sucesso. Não alegar paridade de funções em geral ou quitação dos namespaces
+ausentes e demais dívidas.
 
 ```
 #let d = (a: 1); d.a                        → 1

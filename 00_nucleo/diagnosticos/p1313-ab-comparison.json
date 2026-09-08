@@ -1,0 +1,16 @@
+{
+  "schema": "p1313-ab-comparison-v1",
+  "utc": "2026-09-08T11:58:06.511259+00:00",
+  "freeze_sha256": "0f7ba52eb0ec820f53754274d51cb7ff4d20aab8d284d3c56161ff3d70b3e998",
+  "candidate_runs_sha256": "5b75c1a7346fb92519bcb1dff11cd99c34ef567a7ceb050f2cf6801569c9ad4b",
+  "candidate": {
+    "candidate": {
+      "path": "/dev/shm/p1313-target.keFg93/release/typst",
+      "sha256": "cefb4b485cc25ae98871cfbd7a76925d0333d6d26906dc7f7426868e899285ce"
+    }
+  },
+  "comparisons": 1728,
+  "failures": [],
+  "unknown": 0,
+  "status": "PASS"
+}

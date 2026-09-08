@@ -1,0 +1,34 @@
+{
+  "schema": "p1309-adversarial-preparation-v1",
+  "at": "2026-09-07T22:55:17.516244+00:00",
+  "executor": "/root/p1309_adversary",
+  "role": "D",
+  "regime": "executado sem atestação de isolamento técnico",
+  "head": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+  "diff_head_stat": "",
+  "input_sha256": {
+    "00_nucleo/materialization/typst-passo-1309.md": "e4c2a4857d1dc90c583dd5d96cca9d7017a14be56749ac5b85eb474da8a4b423",
+    "00_nucleo/diagnosticos/p1309-baseline.json": "901b3522ed27b49505ad1d6dbe83300a3172d182f0c1d94d54baae8f2db386b3",
+    "00_nucleo/diagnosticos/p1309-manifest.json": "0bc37ce01d01e97128f237e6d4c552bf85d7ec2a70c64648a6f851ebe732d6b3",
+    "00_nucleo/diagnosticos/p1304-probe-catalog.json": "78f2422d0b2dbf0b6ef65231a17db273775ddb269eef7cf002d36a38496b1661",
+    "00_nucleo/diagnosticos/p1304-feature-matrix.json": "7679f2438f59a3fdf3d17760f1398b3058b130b7c79f6234b86932fbecb810fb",
+    "00_nucleo/diagnosticos/p1304-owner-ledger.tsv": "01e038177dde246c3196af79bdb36eb13eb2e03364b0b091056cb2af8f4d6770",
+    "00_nucleo/diagnosticos/p1304-run-matrix.py": "6c9f60029d2e7cb422d73afcc98c9970dbde9b04723046459f70aec065f82ebc",
+    "00_nucleo/diagnosticos/p1299-run-matrix.py": "1e1a196ea17c0f8c4632e2cbd4ba38c1693b09dff2f21d85025dcd9abbb3b1a0",
+    "00_nucleo/diagnosticos/p1308-r2-public-matrix.json": "89db8675ebe23d3cd8a9ddba4347445a8354f018378b70209d8ff45e0e901882",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+  },
+  "outputs_prepared": [
+    "p1309-adversarial-plan.md",
+    "p1309-audit-attacks.py"
+  ],
+  "external_auditor_required": true,
+  "executed_audit_attacks": 0,
+  "mutation_score": null,
+  "product_mutants_executed": 0,
+  "revision": 0,
+  "calibration_limit": 2,
+  "status": "PREPARED_AWAITING_FROZEN_BUNDLE_AND_EXTERNAL_AUDITOR"
+}

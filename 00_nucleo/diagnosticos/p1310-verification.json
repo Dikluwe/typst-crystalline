@@ -1,0 +1,82 @@
+{
+  "schema": "p1310-independent-verification-v1",
+  "issuer": "/root/p1310_review",
+  "verdict": "PASS_SCOPED_WITH_DISCLOSED_AB_TEMPORAL_LIMITATION",
+  "regime": "A/B executado sem atestação de isolamento técnico",
+  "technical_isolation_attested": false,
+  "full_protocol_seal": false,
+  "reviewed_at": "2026-09-08T00:35:24.393047+00:00",
+  "scope": "Wrong-type DataSource diagnostic grammar and causal value span in cbor/json/toml/xml/yaml, with explicitly separated baseline preservation and Symbol-domain policies.",
+  "baseline": {
+    "head": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+    "receipt_sha256": "3a19c3b842c5bdcc2d4e6df3ea8778a407a9843b2fc5ec183f3b07620c25d65f",
+    "working_tree": "uncommitted; exact diff/stat and input hashes in reviewer evidence",
+    "vanilla_upstream": "a51e02804"
+  },
+  "candidate": {
+    "path": "/dev/shm/p1310-target.VeBP6Q/release/typst",
+    "sha256": "7f110b464745b880c357a9676fa302995873df5e67c5127adf0229cd25c5c146",
+    "source_sha256": "a4c574a7fcf28ee579f079a0473d56a81ebf8692aab91fd56e68bd957c407ca1",
+    "L0_sha256": "2f58b1021a2c6e1466819e864f5a30592fdfae4ae1e84b43884f711617080863"
+  },
+  "evidence": {
+    "path": "00_nucleo/diagnosticos/p1310-review-evidence.json",
+    "sha256": "9c7f4a518b4e30db174bb7b3b1a288b8626c6652aec08152ac1300f8a567b286",
+    "checker": "00_nucleo/diagnosticos/p1310-review-check.py",
+    "checker_sha256": "6c7c045282ee34fdc59efd036a25798ac29046c3c041d67bac0e6f811015fdae",
+    "command": "python3 -B 00_nucleo/diagnosticos/p1310-review-check.py",
+    "environment": "Host execution required to inspect /dev/shm; default sandbox has a separate RAM namespace. Host binary identity check passed; no deletion was found."
+  },
+  "gates": {
+    "functional_diff": "PASS: only Some(other) in resolve_data, existing canonical type formatter, first positional occurrence value_span, detached retained; no public signature, accepted type, parser, I/O or validation-order change",
+    "L0_order": "PASS: restored old Hash do Código reproduces R1 L0 hash exactly; no semantic revision after R1 freeze",
+    "RED_GREEN": "PASS: three genuine assertion failures plus one passing control before patch, four passing tests after patch",
+    "independent_AB": {
+      "cases": 259,
+      "cells_per_order": 1036,
+      "orders": ["normal", "repeat", "reverse"],
+      "preserved_per_order": 1036,
+      "unknown": 0,
+      "unstable": 0,
+      "vanilla_policy_cases": 195,
+      "baseline_policy_cases": 59,
+      "Symbol_normative_policy_cases": 5,
+      "verification": "Reviewer recomputed exact observable equality, raw-channel hashes, unique complete keys and cross-order identity."
+    },
+    "p1308_replay": {
+      "preserved": 1962,
+      "intended_changes_equal_pinned_vanilla": 20,
+      "unknown": 0,
+      "verification": "Reviewer compared every replay observable with p1308-r2-oracle.json future_expected; every difference is exactly one of five decoder wrong-type cases across four profiles and equals the corresponding pinned vanilla sentinel."
+    },
+    "workspace": {"passed": 6624, "failed": 0, "ignored": 3},
+    "lint": {"error": 0, "warning": 240, "info": 1136},
+    "build_fmt_diff_check": "PASS",
+    "ownership_nuclei_lineage": "PASS; Hash do Código 1f56a80a, effective header ec1dd115",
+    "p1309_preservation": "PASS: all 79 artifacts frozen in P1310 baseline retain hashes",
+    "scope_and_index": "PASS: only loading.rs/loading.md tracked changes; index empty; HEAD unchanged"
+  },
+  "finding_resolution": {
+    "finding": "p1310-review-r0.md: R1 incorrectly demanded vanilla validation order for named-prefix controls excluded by the pre-candidate L0",
+    "status": "RESOLVED_WITH_DISCLOSURE",
+    "R2_frozen_sha256": "50641e69dd555f5599ff94ec82c23df947bff237dca9168dbe71a6e3776d1b68",
+    "changed_cases": 15,
+    "changed_cells": 60,
+    "allowed_fields": ["expected", "policy", "policy_reason", "required_message"],
+    "expected_source": "p1310-ab-freeze-r1-measurement.json baseline rows, predating candidate",
+    "source_sha256": "357c1a896249a5327a7fb1871ab736bf1080d68415a6b1a708c53a75b17fd9de",
+    "all_other_cases_and_fixtures_unchanged": true,
+    "R2_classification_authored_after_candidate": true,
+    "all_expectations_frozen_before_candidate": false,
+    "judgment": "Acceptable proportional A/B evidence for the existing L0 scope; not a fully pre-candidate frozen or technically attested refinement chain. Product was not altered to satisfy the erroneous expectations."
+  },
+  "limitations": [
+    "Symbol remains rejected although vanilla coerces it to Str. Its diagnostic delta is separately specified and is not vanilla parity.",
+    "Missing/named/excess argument behavior, read/csv, encoders and dispatch transport remain outside this repair.",
+    "All 37 P1307 product mutation families remain pending; no product mutation score is claimed.",
+    "No general Typst equivalence, global parity percentage, renderer or binary output equivalence is certified.",
+    "Shared filesystem and post-candidate R2 policy correction prevent technical isolation and fully pre-candidate freeze claims."
+  ],
+  "unresolved_actionable_findings": [],
+  "reviewer_actions": {"solution_edits": false, "test_edits": false, "L0_edits": false, "stage": false, "commit": false, "push": false}
+}

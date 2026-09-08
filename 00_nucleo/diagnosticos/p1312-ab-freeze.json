@@ -1,0 +1,3147 @@
+{
+  "schema": "p1312-ab-freeze-v1",
+  "utc": "2026-09-08T01:39:22.046026+00:00",
+  "regime": "A/B executado sem atestação de isolamento técnico",
+  "capabilities": {
+    "executor": "/root/p1312_tests",
+    "context": "new role-scoped context; authorized P1312 baseline/measurement contain historical P1310/P1311 diffs; no P1312 candidate source/diff/owner tests read",
+    "reads": [
+      "skill and references",
+      "CLAUDE.md",
+      "01_core/CLAUDE.md",
+      "loading L0",
+      "P1312 baseline and measurement",
+      "P1311 independent test infrastructure",
+      "binary observations",
+      "git HEAD/diff stat/status"
+    ],
+    "writes": [
+      "00_nucleo/diagnosticos/p1312-ab-*",
+      "/tmp/p1312-ab-fixtures/*"
+    ],
+    "limitation": "Shared filesystem capabilities are broader than declared role; no isolation attestation."
+  },
+  "unknown_policy": "Any missing, malformed, ambiguous, timeout or unverified required observation blocks; never map Unknown to success.",
+  "budget": "One initial CLI compatibility failure; one semantic corpus preflight and one syntax correction; final baseline once, candidate normal/repeat/reverse. Revisions with unchanged failing cause require review after two attempts.",
+  "l0": {
+    "path": "00_nucleo/prompts/compiler/stdlib/loading.md",
+    "raw_sha256": "8bab906c49a25c792653654ad2d73a9489b6db0dac7fe92c4b1874a5203bfe1d",
+    "normative_sha256": "1abef2ea2a2a18076534a43d8a1e74197b14fab40afd60e8649acd0d04965807",
+    "allowed_mutation": "Only exactly one canonical full Hash do Código line; every other byte protected."
+  },
+  "baseline_binaries": {
+    "baseline": {
+      "path": "/dev/shm/p1311-target.JE8Cyy/release/typst",
+      "sha256": "4bbced9ec793fb84daa560e0d965958b33e1eb2f5ecd4bfd3bc30b5900bb09fb"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  },
+  "provenance": {
+    "utc": "2026-09-08T01:37:38.979420+00:00",
+    "head": "eb24cd657fc2333dc7ea5393f7cfebf8c7192d39",
+    "diff_stat": " .../prompts/compiler/eval/bindings/field_access.md |  62 ++++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 125 ++++++++-\n 01_core/src/compiler/eval/bindings/field_access.rs | 175 ++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             | 283 ++++++++++++++++++++-\n 4 files changed, 636 insertions(+), 9 deletions(-)\n",
+    "status": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/stdlib/loading.rs\n?? 00_nucleo/diagnosticos/p1309-adversarial-build-cases.py\n?? 00_nucleo/diagnosticos/p1309-adversarial-cases.json\n?? 00_nucleo/diagnosticos/p1309-adversarial-ledger.json\n?? 00_nucleo/diagnosticos/p1309-adversarial-plan.md\n?? 00_nucleo/diagnosticos/p1309-adversarial-preparation.json\n?? 00_nucleo/diagnosticos/p1309-adversarial-review-r0.md\n?? 00_nucleo/diagnosticos/p1309-aggregate.py\n?? 00_nucleo/diagnosticos/p1309-audit-anchors.json\n?? 00_nucleo/diagnosticos/p1309-audit-attacks.py\n?? 00_nucleo/diagnosticos/p1309-audit-bundle.json\n?? 00_nucleo/diagnosticos/p1309-audit.py\n?? 00_nucleo/diagnosticos/p1309-baseline-r2.json\n?? 00_nucleo/diagnosticos/p1309-baseline.json\n?? 00_nucleo/diagnosticos/p1309-build-r2.json\n?? 00_nucleo/diagnosticos/p1309-build.json\n?? 00_nucleo/diagnosticos/p1309-bundle.py\n?? 00_nucleo/diagnosticos/p1309-catalog-reconciliation.json\n?? 00_nucleo/diagnosticos/p1309-certificate.json\n?? 00_nucleo/diagnosticos/p1309-certification-debt.json\n?? 00_nucleo/diagnosticos/p1309-classification-final.cjs\n?? 00_nucleo/diagnosticos/p1309-classification-prepare.cjs\n?? 00_nucleo/diagnosticos/p1309-classification-sources.cjs\n?? 00_nucleo/diagnosticos/p1309-classification-sources.json\n?? 00_nucleo/diagnosticos/p1309-classification-summary.json\n?? 00_nucleo/diagnosticos/p1309-classification-supplement-sources.json\n?? 00_nucleo/diagnosticos/p1309-classification-supplement.cjs\n?? 00_nucleo/diagnosticos/p1309-cohort-table.md\n?? 00_nucleo/diagnosticos/p1309-diff-check-r2.json\n?? 00_nucleo/diagnosticos/p1309-final-gates.py\n?? 00_nucleo/diagnosticos/p1309-final-report.md\n?? 00_nucleo/diagnosticos/p1309-fmt-r2.json\n?? 00_nucleo/diagnosticos/p1309-fmt.json\n?? 00_nucleo/diagnosticos/p1309-gates.json\n?? 00_nucleo/diagnosticos/p1309-inventory-author-receipt-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-catalog.py\n?? 00_nucleo/diagnosticos/p1309-inventory-crystalline-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-crystalline-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-crystalline-prebuild.json\n?? 00_nucleo/diagnosticos/p1309-inventory-incident.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-crystalline-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-crystalline-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-vanilla-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observables-vanilla-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-observe.py\n?? 00_nucleo/diagnosticos/p1309-inventory-reconciliation.json\n?? 00_nucleo/diagnosticos/p1309-inventory-runner.py\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-build.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-default-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-default.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-html-r2.json\n?? 00_nucleo/diagnosticos/p1309-inventory-vanilla-html.json\n?? 00_nucleo/diagnosticos/p1309-lint-r2.json\n?? 00_nucleo/diagnosticos/p1309-manifest-r2.json\n?? 00_nucleo/diagnosticos/p1309-manifest.json\n?? 00_nucleo/diagnosticos/p1309-matrix-normal.json\n?? 00_nucleo/diagnosticos/p1309-matrix-repeat.json\n?? 00_nucleo/diagnosticos/p1309-matrix-reverse.json\n?? 00_nucleo/diagnosticos/p1309-matrix.py\n?? 00_nucleo/diagnosticos/p1309-owner-ledger.tsv\n?? 00_nucleo/diagnosticos/p1309-probe-catalog.json\n?? 00_nucleo/diagnosticos/p1309-record-r2.py\n?? 00_nucleo/diagnosticos/p1309-record.py\n?? 00_nucleo/diagnosticos/p1309-selection.json\n?? 00_nucleo/diagnosticos/p1309-sentinels-extra.json\n?? 00_nucleo/diagnosticos/p1309-sentinels-p1308-crystalline.json\n?? 00_nucleo/diagnosticos/p1309-sentinels-p1308-vanilla.json\n?? 00_nucleo/diagnosticos/p1309-sentinels.json\n?? 00_nucleo/diagnosticos/p1309-stability.json\n?? 00_nucleo/diagnosticos/p1309-supplement.py\n?? 00_nucleo/diagnosticos/p1309-transition-ledger.tsv\n?? 00_nucleo/diagnosticos/p1309-verification-check.py\n?? 00_nucleo/diagnosticos/p1309-verification-final.py\n?? 00_nucleo/diagnosticos/p1309-verification-preliminary.json\n?? 00_nucleo/diagnosticos/p1309-verification-runtime.json\n?? 00_nucleo/diagnosticos/p1309-verification-runtime.py\n?? 00_nucleo/diagnosticos/p1309-verification-semantic.json\n?? 00_nucleo/diagnosticos/p1309-verification-semantic.py\n?? 00_nucleo/diagnosticos/p1309-verification.json\n?? 00_nucleo/diagnosticos/p1309-workspace-tests-r2.json\n?? 00_nucleo/diagnosticos/p1310-ab-freeze-measurement.json\n?? 00_nucleo/diagnosticos/p1310-ab-freeze-r1-measurement.json\n?? 00_nucleo/diagnosticos/p1310-ab-freeze-r1.py\n?? 00_nucleo/diagnosticos/p1310-ab-frozen-r1.json\n?? 00_nucleo/diagnosticos/p1310-ab-frozen-r2.json\n?? 00_nucleo/diagnosticos/p1310-ab-frozen.json\n?? 00_nucleo/diagnosticos/p1310-ab-l0-pin.json\n?? 00_nucleo/diagnosticos/p1310-ab-normal.json\n?? 00_nucleo/diagnosticos/p1310-ab-pin-l0.py\n?? 00_nucleo/diagnosticos/p1310-ab-r2-focal.json\n?? 00_nucleo/diagnosticos/p1310-ab-r2-normal.json\n?? 00_nucleo/diagnosticos/p1310-ab-r2-repeat.json\n?? 00_nucleo/diagnosticos/p1310-ab-r2-reverse.json\n?? 00_nucleo/diagnosticos/p1310-ab-r2-stability.json\n?? 00_nucleo/diagnosticos/p1310-ab-r2.py\n?? 00_nucleo/diagnosticos/p1310-ab-report.md\n?? 00_nucleo/diagnosticos/p1310-ab-suite.py\n?? 00_nucleo/diagnosticos/p1310-baseline.json\n?? 00_nucleo/diagnosticos/p1310-build.json\n?? 00_nucleo/diagnosticos/p1310-diff-check.json\n?? 00_nucleo/diagnosticos/p1310-final-report.md\n?? 00_nucleo/diagnosticos/p1310-fmt.json\n?? 00_nucleo/diagnosticos/p1310-format-candidate.json\n?? 00_nucleo/diagnosticos/p1310-format-tests.json\n?? 00_nucleo/diagnosticos/p1310-gates.json\n?? 00_nucleo/diagnosticos/p1310-gates.py\n?? 00_nucleo/diagnosticos/p1310-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1310-lineage-preview-final.json\n?? 00_nucleo/diagnosticos/p1310-lineage-preview-prepatch.json\n?? 00_nucleo/diagnosticos/p1310-lineage-preview.json\n?? 00_nucleo/diagnosticos/p1310-lint.json\n?? 00_nucleo/diagnosticos/p1310-p1308-delta.json\n?? 00_nucleo/diagnosticos/p1310-p1308-replay.json\n?? 00_nucleo/diagnosticos/p1310-record.py\n?? 00_nucleo/diagnosticos/p1310-review-check.py\n?? 00_nucleo/diagnosticos/p1310-review-evidence.json\n?? 00_nucleo/diagnosticos/p1310-review-r0.md\n?? 00_nucleo/diagnosticos/p1310-review-r1.md\n?? 00_nucleo/diagnosticos/p1310-unit-green.json\n?? 00_nucleo/diagnosticos/p1310-unit-red.json\n?? 00_nucleo/diagnosticos/p1310-verification.json\n?? 00_nucleo/diagnosticos/p1310-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1311-ab-baseline-final.json\n?? 00_nucleo/diagnosticos/p1311-ab-candidate-runs.json\n?? 00_nucleo/diagnosticos/p1311-ab-cases.json\n?? 00_nucleo/diagnosticos/p1311-ab-comparison.json\n?? 00_nucleo/diagnosticos/p1311-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1311-ab-freeze.py\n?? 00_nucleo/diagnosticos/p1311-ab-pre-measurement.json\n?? 00_nucleo/diagnosticos/p1311-ab-receipt.md\n?? 00_nucleo/diagnosticos/p1311-ab-runner.py\n?? 00_nucleo/diagnosticos/p1311-baseline.json\n?? 00_nucleo/diagnosticos/p1311-build.json\n?? 00_nucleo/diagnosticos/p1311-diff-check.json\n?? 00_nucleo/diagnosticos/p1311-final-report.md\n?? 00_nucleo/diagnosticos/p1311-fmt.json\n?? 00_nucleo/diagnosticos/p1311-format-candidate.json\n?? 00_nucleo/diagnosticos/p1311-format-tests.json\n?? 00_nucleo/diagnosticos/p1311-gates.json\n?? 00_nucleo/diagnosticos/p1311-gates.py\n?? 00_nucleo/diagnosticos/p1311-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1311-lineage-preview-final.json\n?? 00_nucleo/diagnosticos/p1311-lineage-preview.json\n?? 00_nucleo/diagnosticos/p1311-lint.json\n?? 00_nucleo/diagnosticos/p1311-measurement.json\n?? 00_nucleo/diagnosticos/p1311-p1308-delta.json\n?? 00_nucleo/diagnosticos/p1311-p1308-delta.py\n?? 00_nucleo/diagnosticos/p1311-p1308-replay.json\n?? 00_nucleo/diagnosticos/p1311-p1310-replay.json\n?? 00_nucleo/diagnosticos/p1311-preservation.py\n?? 00_nucleo/diagnosticos/p1311-record.py\n?? 00_nucleo/diagnosticos/p1311-review-check.py\n?? 00_nucleo/diagnosticos/p1311-review-evidence.json\n?? 00_nucleo/diagnosticos/p1311-review-final.md\n?? 00_nucleo/diagnosticos/p1311-review-preflight.md\n?? 00_nucleo/diagnosticos/p1311-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1311-unit-green.json\n?? 00_nucleo/diagnosticos/p1311-unit-red.json\n?? 00_nucleo/diagnosticos/p1311-verification.json\n?? 00_nucleo/diagnosticos/p1311-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1312-ab-baseline-final-r1.json\n?? 00_nucleo/diagnosticos/p1312-ab-baseline-final.json\n?? 00_nucleo/diagnosticos/p1312-ab-cases.json\n?? 00_nucleo/diagnosticos/p1312-ab-freeze.py\n?? 00_nucleo/diagnosticos/p1312-ab-pre-measurement.json\n?? 00_nucleo/diagnosticos/p1312-ab-runner.py\n?? 00_nucleo/diagnosticos/p1312-baseline.json\n?? 00_nucleo/diagnosticos/p1312-format-tests.json\n?? 00_nucleo/diagnosticos/p1312-gates.py\n?? 00_nucleo/diagnosticos/p1312-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1312-lineage-preview.json\n?? 00_nucleo/diagnosticos/p1312-measurement.json\n?? 00_nucleo/diagnosticos/p1312-p1308-delta.py\n?? 00_nucleo/diagnosticos/p1312-preservation.py\n?? 00_nucleo/diagnosticos/p1312-record.py\n?? 00_nucleo/diagnosticos/p1312-review-preflight.md\n?? 00_nucleo/diagnosticos/p1312-selection.json\n?? 00_nucleo/diagnosticos/p1312-unit-red.json\n?? 00_nucleo/materialization/typst-passo-1309.md\n?? 00_nucleo/materialization/typst-passo-1310.md\n?? 00_nucleo/materialization/typst-passo-1311.md\n?? 00_nucleo/materialization/typst-passo-1312.md\n"
+  },
+  "inputs": {
+    "00_nucleo/diagnosticos/p1312-ab-cases.json": "d868ba1d7a902f2c93e3527f5d4cff7a315770ec6a5c73b768adb7a44f99f8fa",
+    "00_nucleo/diagnosticos/p1312-ab-runner.py": "a9a95f3a944bdc4d0f6136166afbf3fbaabff0093e6927e3130da0e4753006c4",
+    "00_nucleo/diagnosticos/p1312-ab-freeze.py": "388f06da7f940afb90ed35b97afaa69aba5a88b1fd1b327ce2db59e4d81e6db9",
+    "00_nucleo/diagnosticos/p1312-ab-baseline-sealed.json": "e6dcbc57b13bada6ab8aa319dc2928ba19823c8142b920d8bf18ab99664f83d9",
+    "00_nucleo/diagnosticos/p1312-baseline.json": "0597c75b13da999990886b32577b563bab330d8d1be4e5bf85e97ff0f03588c5",
+    "00_nucleo/diagnosticos/p1312-measurement.json": "d986f593b9d8ca8358d3bf8fc5303eade65bd47382dec0424c3cd3d9d54e07c1",
+    "/tmp/p1312-ab-fixtures/data.txt": "ad89bbc43323e529438decdafa7e945964c39851dded07e0dda5114384686e1e",
+    "/tmp/p1312-ab-fixtures/data.csv": "50cacdb757b2b3bcac4d29d550db282644d9fe74f017c234798500333b12d5bf",
+    "/tmp/p1312-ab-fixtures/paths.typ": "a3a317e9962cdb013a2c24118a6bca4344acd2268fcc9a254f1641d895bfbea6"
+  },
+  "expected": [
+    {
+      "id": "int",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "float",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found float\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(1.5)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "bool",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(true)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "none",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found none\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(none)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "auto",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found auto\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(auto)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "dict",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:1:5\n  │\n1 │ read((a: 1))\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "array",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found array\n  ┌─ <input-expression>:1:5\n  │\n1 │ read((1, 2))\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "function",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found function\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(x => x)\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "native",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found function\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(read)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "type",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found type\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(int)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "bytes",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(bytes(\"a,b\"))\n  │      ^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "empty-bytes",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(bytes(()))\n  │      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "content",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found content\n  ┌─ <input-expression>:1:5\n  │\n1 │ read([abc])\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "length",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found length\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(2pt)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "color",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found color\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(red)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "label",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found label\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(<hello>)\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-prefix",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:21\n  │\n1 │ read(encoding: none, 42)\n  │                      ^^\n\n"
+      }
+    },
+    {
+      "id": "named-suffix",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42, encoding: \"utf8\")\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "alias",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let loader = read; loader(false) }\n  │                             ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "with",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let f = read.with(42); f() }\n  │                     ^^\n\n  while calling `read` at <input-expression>:1:25\n    f()\n\n"
+      }
+    },
+    {
+      "id": "nested-with",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:1:41\n  │\n1 │ { let f = read.with(encoding: none).with((a: 1)); f() }\n  │                                          ^^^^^^\n\n  while calling `read` at <input-expression>:1:50\n    f()\n\n"
+      }
+    },
+    {
+      "id": "array-spread",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(..(42,))\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "args-spread",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let a = arguments(encoding: none, 42); read(..a) }\n  │                                     ^^\n\n  while calling `read` at <input-expression>:1:41\n    read(..a)\n\n"
+      }
+    },
+    {
+      "id": "sink",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:44\n  │\n1 │ { let f(..a) = read(..a); f(encoding: none, false) }\n  │                                             ^^^^^\n\n  while calling `read` at <input-expression>:1:15\n    read(..a)\n\n"
+      }
+    },
+    {
+      "id": "multiline",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:3:2\n  │\n3 │   (a: 1),\n  │   ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "first-only",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(false, 42)\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "stored-native",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:24\n  │\n1 │ ((loader: read).loader)(bytes(\"\"))\n  │                         ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol",
+      "kind": "symbol",
+      "profile": "default",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(sym.alpha)\n  │      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol-prefix",
+      "kind": "symbol",
+      "profile": "default",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:21\n  │\n1 │ read(encoding: none, sym.alpha)\n  │                      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol-with",
+      "kind": "symbol",
+      "profile": "default",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let f = read.with(sym.alpha); f() }\n  │                     ^^^^^^^^^\n\n  while calling `read` at <input-expression>:1:32\n    f()\n\n"
+      }
+    },
+    {
+      "id": "read-str",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-path",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-rooted",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: current file is outside its sandbox root\n\n"
+      }
+    },
+    {
+      "id": "read-utf8",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-binary",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-valid-with",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "missing",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read()\n\n"
+      }
+    },
+    {
+      "id": "missing-with-named",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read(encoding: none)\n\n"
+      }
+    },
+    {
+      "id": "path-named",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'path'\n\n  while calling `read` at <input-expression>:1:0\n    read(path: \"data.txt\")\n\n"
+      }
+    },
+    {
+      "id": "extra",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "unknown-named",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'strange'\n\n  while calling `read` at <input-expression>:1:0\n    read(\"data.txt\", strange: 2)\n\n"
+      }
+    },
+    {
+      "id": "encoding-string",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected \"utf8\" or none\n\n  while calling `read` at <input-expression>:1:0\n    read(\"data.txt\", encoding: \"latin1\")\n\n"
+      }
+    },
+    {
+      "id": "encoding-type",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected \"utf8\" or none, found integer\n\n  while calling `read` at <input-expression>:1:0\n    read(encoding: 42, \"data.txt\")\n\n"
+      }
+    },
+    {
+      "id": "encoding-overridden",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "missing-file",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read(): não foi possível ler: file not found (searched at ./absent.txt)\n\n  while calling `read` at <input-expression>:1:0\n    read(\"absent.txt\")\n\n"
+      }
+    },
+    {
+      "id": "csv-int",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu int\n\n  while calling `csv` at <input-expression>:1:0\n    csv(42)\n\n"
+      }
+    },
+    {
+      "id": "csv-bytes",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu bytes\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\"))\n\n"
+      }
+    },
+    {
+      "id": "csv-symbol",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu symbol\n\n  while calling `csv` at <input-expression>:1:0\n    csv(sym.alpha)\n\n"
+      }
+    },
+    {
+      "id": "csv-prefix",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu bool\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \";\", false)\n\n"
+      }
+    },
+    {
+      "id": "csv-valid",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[[\"name\",\"count\"],[\"alpha\",\"2\"]]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "csv-delimiter",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected exactly one character\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"data.csv\", delimiter: \"ab\")\n\n"
+      }
+    },
+    {
+      "id": "json-invalid",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ json(42)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "yaml-invalid",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ yaml(false)\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "toml-invalid",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:10\n  │\n1 │ toml.with((a: 1))()\n  │           ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-invalid",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:16\n  │\n1 │ xml(..arguments(42))\n  │                 ^^\n\n"
+      }
+    },
+    {
+      "id": "cbor-invalid",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found none\n  ┌─ <input-expression>:1:5\n  │\n1 │ cbor(none)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-bytes",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "yaml-bytes",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "toml-bytes",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-bytes",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[{\"tag\":\"a\",\"attrs\":{},\"children\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "cbor-bytes",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "encoders",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[\"{\\n  \\\"a\\\": 1\\n}\",\"a: 1\\n\",\"a = 1\\n\"]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "field-read",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.encode\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-csv",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:11\n  │\n1 │ csv.with().encode\n  │            ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-xml",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml.nope\n  │     ^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-native",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:12\n  │\n1 │ text.with().nope\n  │             ^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-closure",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).nope\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "invalid-plus-unknown",
+      "kind": "control",
+      "profile": "default",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'strange'\n\n  while calling `read` at <input-expression>:1:0\n    read(42, strange: 2)\n\n"
+      }
+    },
+    {
+      "id": "invalid-plus-encoding",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42, encoding: 5)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "args-map-detached",
+      "kind": "target",
+      "profile": "default",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n\n  while calling `read` at <input-expression>:1:0\n    read(..arguments(42).map(x => x))\n\n"
+      }
+    },
+    {
+      "id": "int",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "float",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found float\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(1.5)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "bool",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(true)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "none",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found none\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(none)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "auto",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found auto\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(auto)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "dict",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:1:5\n  │\n1 │ read((a: 1))\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "array",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found array\n  ┌─ <input-expression>:1:5\n  │\n1 │ read((1, 2))\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "function",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found function\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(x => x)\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "native",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found function\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(read)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "type",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found type\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(int)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "bytes",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(bytes(\"a,b\"))\n  │      ^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "empty-bytes",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(bytes(()))\n  │      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "content",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found content\n  ┌─ <input-expression>:1:5\n  │\n1 │ read([abc])\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "length",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found length\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(2pt)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "color",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found color\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(red)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "label",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found label\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(<hello>)\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-prefix",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:21\n  │\n1 │ read(encoding: none, 42)\n  │                      ^^\n\n"
+      }
+    },
+    {
+      "id": "named-suffix",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42, encoding: \"utf8\")\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "alias",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let loader = read; loader(false) }\n  │                             ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "with",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let f = read.with(42); f() }\n  │                     ^^\n\n  while calling `read` at <input-expression>:1:25\n    f()\n\n"
+      }
+    },
+    {
+      "id": "nested-with",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:1:41\n  │\n1 │ { let f = read.with(encoding: none).with((a: 1)); f() }\n  │                                          ^^^^^^\n\n  while calling `read` at <input-expression>:1:50\n    f()\n\n"
+      }
+    },
+    {
+      "id": "array-spread",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(..(42,))\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "args-spread",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let a = arguments(encoding: none, 42); read(..a) }\n  │                                     ^^\n\n  while calling `read` at <input-expression>:1:41\n    read(..a)\n\n"
+      }
+    },
+    {
+      "id": "sink",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:44\n  │\n1 │ { let f(..a) = read(..a); f(encoding: none, false) }\n  │                                             ^^^^^\n\n  while calling `read` at <input-expression>:1:15\n    read(..a)\n\n"
+      }
+    },
+    {
+      "id": "multiline",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:3:2\n  │\n3 │   (a: 1),\n  │   ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "first-only",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(false, 42)\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "stored-native",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:24\n  │\n1 │ ((loader: read).loader)(bytes(\"\"))\n  │                         ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol",
+      "kind": "symbol",
+      "profile": "html",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(sym.alpha)\n  │      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol-prefix",
+      "kind": "symbol",
+      "profile": "html",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:21\n  │\n1 │ read(encoding: none, sym.alpha)\n  │                      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol-with",
+      "kind": "symbol",
+      "profile": "html",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let f = read.with(sym.alpha); f() }\n  │                     ^^^^^^^^^\n\n  while calling `read` at <input-expression>:1:32\n    f()\n\n"
+      }
+    },
+    {
+      "id": "read-str",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-path",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-rooted",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: current file is outside its sandbox root\n\n"
+      }
+    },
+    {
+      "id": "read-utf8",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-binary",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-valid-with",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "missing",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read()\n\n"
+      }
+    },
+    {
+      "id": "missing-with-named",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read(encoding: none)\n\n"
+      }
+    },
+    {
+      "id": "path-named",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'path'\n\n  while calling `read` at <input-expression>:1:0\n    read(path: \"data.txt\")\n\n"
+      }
+    },
+    {
+      "id": "extra",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "unknown-named",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'strange'\n\n  while calling `read` at <input-expression>:1:0\n    read(\"data.txt\", strange: 2)\n\n"
+      }
+    },
+    {
+      "id": "encoding-string",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected \"utf8\" or none\n\n  while calling `read` at <input-expression>:1:0\n    read(\"data.txt\", encoding: \"latin1\")\n\n"
+      }
+    },
+    {
+      "id": "encoding-type",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected \"utf8\" or none, found integer\n\n  while calling `read` at <input-expression>:1:0\n    read(encoding: 42, \"data.txt\")\n\n"
+      }
+    },
+    {
+      "id": "encoding-overridden",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "missing-file",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read(): não foi possível ler: file not found (searched at ./absent.txt)\n\n  while calling `read` at <input-expression>:1:0\n    read(\"absent.txt\")\n\n"
+      }
+    },
+    {
+      "id": "csv-int",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu int\n\n  while calling `csv` at <input-expression>:1:0\n    csv(42)\n\n"
+      }
+    },
+    {
+      "id": "csv-bytes",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu bytes\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\"))\n\n"
+      }
+    },
+    {
+      "id": "csv-symbol",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu symbol\n\n  while calling `csv` at <input-expression>:1:0\n    csv(sym.alpha)\n\n"
+      }
+    },
+    {
+      "id": "csv-prefix",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu bool\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \";\", false)\n\n"
+      }
+    },
+    {
+      "id": "csv-valid",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[[\"name\",\"count\"],[\"alpha\",\"2\"]]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "csv-delimiter",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected exactly one character\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"data.csv\", delimiter: \"ab\")\n\n"
+      }
+    },
+    {
+      "id": "json-invalid",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ json(42)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "yaml-invalid",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ yaml(false)\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "toml-invalid",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:10\n  │\n1 │ toml.with((a: 1))()\n  │           ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-invalid",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:16\n  │\n1 │ xml(..arguments(42))\n  │                 ^^\n\n"
+      }
+    },
+    {
+      "id": "cbor-invalid",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found none\n  ┌─ <input-expression>:1:5\n  │\n1 │ cbor(none)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-bytes",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "yaml-bytes",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "toml-bytes",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-bytes",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[{\"tag\":\"a\",\"attrs\":{},\"children\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "cbor-bytes",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "encoders",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[\"{\\n  \\\"a\\\": 1\\n}\",\"a: 1\\n\",\"a = 1\\n\"]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "field-read",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.encode\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-csv",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:11\n  │\n1 │ csv.with().encode\n  │            ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-xml",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml.nope\n  │     ^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-native",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:12\n  │\n1 │ text.with().nope\n  │             ^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-closure",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).nope\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "invalid-plus-unknown",
+      "kind": "control",
+      "profile": "html",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'strange'\n\n  while calling `read` at <input-expression>:1:0\n    read(42, strange: 2)\n\n"
+      }
+    },
+    {
+      "id": "invalid-plus-encoding",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42, encoding: 5)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "args-map-detached",
+      "kind": "target",
+      "profile": "html",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n\n  while calling `read` at <input-expression>:1:0\n    read(..arguments(42).map(x => x))\n\n"
+      }
+    },
+    {
+      "id": "int",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "float",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found float\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(1.5)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "bool",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(true)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "none",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found none\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(none)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "auto",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found auto\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(auto)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "dict",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:1:5\n  │\n1 │ read((a: 1))\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "array",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found array\n  ┌─ <input-expression>:1:5\n  │\n1 │ read((1, 2))\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "function",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found function\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(x => x)\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "native",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found function\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(read)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "type",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found type\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(int)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "bytes",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(bytes(\"a,b\"))\n  │      ^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "empty-bytes",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(bytes(()))\n  │      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "content",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found content\n  ┌─ <input-expression>:1:5\n  │\n1 │ read([abc])\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "length",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found length\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(2pt)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "color",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found color\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(red)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "label",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found label\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(<hello>)\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-prefix",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:21\n  │\n1 │ read(encoding: none, 42)\n  │                      ^^\n\n"
+      }
+    },
+    {
+      "id": "named-suffix",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42, encoding: \"utf8\")\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "alias",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let loader = read; loader(false) }\n  │                             ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "with",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let f = read.with(42); f() }\n  │                     ^^\n\n  while calling `read` at <input-expression>:1:25\n    f()\n\n"
+      }
+    },
+    {
+      "id": "nested-with",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:1:41\n  │\n1 │ { let f = read.with(encoding: none).with((a: 1)); f() }\n  │                                          ^^^^^^\n\n  while calling `read` at <input-expression>:1:50\n    f()\n\n"
+      }
+    },
+    {
+      "id": "array-spread",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(..(42,))\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "args-spread",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let a = arguments(encoding: none, 42); read(..a) }\n  │                                     ^^\n\n  while calling `read` at <input-expression>:1:41\n    read(..a)\n\n"
+      }
+    },
+    {
+      "id": "sink",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:44\n  │\n1 │ { let f(..a) = read(..a); f(encoding: none, false) }\n  │                                             ^^^^^\n\n  while calling `read` at <input-expression>:1:15\n    read(..a)\n\n"
+      }
+    },
+    {
+      "id": "multiline",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:3:2\n  │\n3 │   (a: 1),\n  │   ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "first-only",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(false, 42)\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "stored-native",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:24\n  │\n1 │ ((loader: read).loader)(bytes(\"\"))\n  │                         ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol",
+      "kind": "symbol",
+      "profile": "a11y",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(sym.alpha)\n  │      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol-prefix",
+      "kind": "symbol",
+      "profile": "a11y",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:21\n  │\n1 │ read(encoding: none, sym.alpha)\n  │                      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol-with",
+      "kind": "symbol",
+      "profile": "a11y",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let f = read.with(sym.alpha); f() }\n  │                     ^^^^^^^^^\n\n  while calling `read` at <input-expression>:1:32\n    f()\n\n"
+      }
+    },
+    {
+      "id": "read-str",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-path",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-rooted",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: current file is outside its sandbox root\n\n"
+      }
+    },
+    {
+      "id": "read-utf8",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-binary",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-valid-with",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "missing",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read()\n\n"
+      }
+    },
+    {
+      "id": "missing-with-named",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read(encoding: none)\n\n"
+      }
+    },
+    {
+      "id": "path-named",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'path'\n\n  while calling `read` at <input-expression>:1:0\n    read(path: \"data.txt\")\n\n"
+      }
+    },
+    {
+      "id": "extra",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "unknown-named",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'strange'\n\n  while calling `read` at <input-expression>:1:0\n    read(\"data.txt\", strange: 2)\n\n"
+      }
+    },
+    {
+      "id": "encoding-string",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected \"utf8\" or none\n\n  while calling `read` at <input-expression>:1:0\n    read(\"data.txt\", encoding: \"latin1\")\n\n"
+      }
+    },
+    {
+      "id": "encoding-type",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected \"utf8\" or none, found integer\n\n  while calling `read` at <input-expression>:1:0\n    read(encoding: 42, \"data.txt\")\n\n"
+      }
+    },
+    {
+      "id": "encoding-overridden",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "missing-file",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read(): não foi possível ler: file not found (searched at ./absent.txt)\n\n  while calling `read` at <input-expression>:1:0\n    read(\"absent.txt\")\n\n"
+      }
+    },
+    {
+      "id": "csv-int",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu int\n\n  while calling `csv` at <input-expression>:1:0\n    csv(42)\n\n"
+      }
+    },
+    {
+      "id": "csv-bytes",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu bytes\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\"))\n\n"
+      }
+    },
+    {
+      "id": "csv-symbol",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu symbol\n\n  while calling `csv` at <input-expression>:1:0\n    csv(sym.alpha)\n\n"
+      }
+    },
+    {
+      "id": "csv-prefix",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu bool\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \";\", false)\n\n"
+      }
+    },
+    {
+      "id": "csv-valid",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[[\"name\",\"count\"],[\"alpha\",\"2\"]]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "csv-delimiter",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected exactly one character\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"data.csv\", delimiter: \"ab\")\n\n"
+      }
+    },
+    {
+      "id": "json-invalid",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ json(42)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "yaml-invalid",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ yaml(false)\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "toml-invalid",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:10\n  │\n1 │ toml.with((a: 1))()\n  │           ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-invalid",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:16\n  │\n1 │ xml(..arguments(42))\n  │                 ^^\n\n"
+      }
+    },
+    {
+      "id": "cbor-invalid",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found none\n  ┌─ <input-expression>:1:5\n  │\n1 │ cbor(none)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-bytes",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "yaml-bytes",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "toml-bytes",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-bytes",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[{\"tag\":\"a\",\"attrs\":{},\"children\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "cbor-bytes",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "encoders",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[\"{\\n  \\\"a\\\": 1\\n}\",\"a: 1\\n\",\"a = 1\\n\"]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "field-read",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.encode\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-csv",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:11\n  │\n1 │ csv.with().encode\n  │            ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-xml",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml.nope\n  │     ^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-native",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:12\n  │\n1 │ text.with().nope\n  │             ^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-closure",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).nope\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "invalid-plus-unknown",
+      "kind": "control",
+      "profile": "a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'strange'\n\n  while calling `read` at <input-expression>:1:0\n    read(42, strange: 2)\n\n"
+      }
+    },
+    {
+      "id": "invalid-plus-encoding",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42, encoding: 5)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "args-map-detached",
+      "kind": "target",
+      "profile": "a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n\n  while calling `read` at <input-expression>:1:0\n    read(..arguments(42).map(x => x))\n\n"
+      }
+    },
+    {
+      "id": "int",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "float",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found float\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(1.5)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "bool",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(true)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "none",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found none\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(none)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "auto",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found auto\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(auto)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "dict",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:1:5\n  │\n1 │ read((a: 1))\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "array",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found array\n  ┌─ <input-expression>:1:5\n  │\n1 │ read((1, 2))\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "function",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found function\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(x => x)\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "native",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found function\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(read)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "type",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found type\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(int)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "bytes",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(bytes(\"a,b\"))\n  │      ^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "empty-bytes",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(bytes(()))\n  │      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "content",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found content\n  ┌─ <input-expression>:1:5\n  │\n1 │ read([abc])\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "length",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found length\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(2pt)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "color",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found color\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(red)\n  │      ^^^\n\n"
+      }
+    },
+    {
+      "id": "label",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found label\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(<hello>)\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "named-prefix",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:21\n  │\n1 │ read(encoding: none, 42)\n  │                      ^^\n\n"
+      }
+    },
+    {
+      "id": "named-suffix",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42, encoding: \"utf8\")\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "alias",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let loader = read; loader(false) }\n  │                             ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "with",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let f = read.with(42); f() }\n  │                     ^^\n\n  while calling `read` at <input-expression>:1:25\n    f()\n\n"
+      }
+    },
+    {
+      "id": "nested-with",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:1:41\n  │\n1 │ { let f = read.with(encoding: none).with((a: 1)); f() }\n  │                                          ^^^^^^\n\n  while calling `read` at <input-expression>:1:50\n    f()\n\n"
+      }
+    },
+    {
+      "id": "array-spread",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(..(42,))\n  │      ^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "args-spread",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let a = arguments(encoding: none, 42); read(..a) }\n  │                                     ^^\n\n  while calling `read` at <input-expression>:1:41\n    read(..a)\n\n"
+      }
+    },
+    {
+      "id": "sink",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:44\n  │\n1 │ { let f(..a) = read(..a); f(encoding: none, false) }\n  │                                             ^^^^^\n\n  while calling `read` at <input-expression>:1:15\n    read(..a)\n\n"
+      }
+    },
+    {
+      "id": "multiline",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found dictionary\n  ┌─ <input-expression>:3:2\n  │\n3 │   (a: 1),\n  │   ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "first-only",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(false, 42)\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "stored-native",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found bytes\n  ┌─ <input-expression>:1:24\n  │\n1 │ ((loader: read).loader)(bytes(\"\"))\n  │                         ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol",
+      "kind": "symbol",
+      "profile": "html+a11y",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(sym.alpha)\n  │      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol-prefix",
+      "kind": "symbol",
+      "profile": "html+a11y",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:21\n  │\n1 │ read(encoding: none, sym.alpha)\n  │                      ^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "symbol-with",
+      "kind": "symbol",
+      "profile": "html+a11y",
+      "oracle": "normative Symbol rejection; measured vanilla value-span/trace, L0 literal message",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found symbol\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let f = read.with(sym.alpha); f() }\n  │                     ^^^^^^^^^\n\n  while calling `read` at <input-expression>:1:32\n    f()\n\n"
+      }
+    },
+    {
+      "id": "read-str",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-path",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-rooted",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: current file is outside its sandbox root\n\n"
+      }
+    },
+    {
+      "id": "read-utf8",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-binary",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "read-valid-with",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "missing",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read()\n\n"
+      }
+    },
+    {
+      "id": "missing-with-named",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read(encoding: none)\n\n"
+      }
+    },
+    {
+      "id": "path-named",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'path'\n\n  while calling `read` at <input-expression>:1:0\n    read(path: \"data.txt\")\n\n"
+      }
+    },
+    {
+      "id": "extra",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"alpha β\\n\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "unknown-named",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'strange'\n\n  while calling `read` at <input-expression>:1:0\n    read(\"data.txt\", strange: 2)\n\n"
+      }
+    },
+    {
+      "id": "encoding-string",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected \"utf8\" or none\n\n  while calling `read` at <input-expression>:1:0\n    read(\"data.txt\", encoding: \"latin1\")\n\n"
+      }
+    },
+    {
+      "id": "encoding-type",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected \"utf8\" or none, found integer\n\n  while calling `read` at <input-expression>:1:0\n    read(encoding: 42, \"data.txt\")\n\n"
+      }
+    },
+    {
+      "id": "encoding-overridden",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "\"bytes(9)\"\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "missing-file",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read(): não foi possível ler: file not found (searched at ./absent.txt)\n\n  while calling `read` at <input-expression>:1:0\n    read(\"absent.txt\")\n\n"
+      }
+    },
+    {
+      "id": "csv-int",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu int\n\n  while calling `csv` at <input-expression>:1:0\n    csv(42)\n\n"
+      }
+    },
+    {
+      "id": "csv-bytes",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu bytes\n\n  while calling `csv` at <input-expression>:1:0\n    csv(bytes(\"a,b\"))\n\n"
+      }
+    },
+    {
+      "id": "csv-symbol",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu symbol\n\n  while calling `csv` at <input-expression>:1:0\n    csv(sym.alpha)\n\n"
+      }
+    },
+    {
+      "id": "csv-prefix",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: csv() requer string com o caminho, recebeu bool\n\n  while calling `csv` at <input-expression>:1:0\n    csv(delimiter: \";\", false)\n\n"
+      }
+    },
+    {
+      "id": "csv-valid",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[[\"name\",\"count\"],[\"alpha\",\"2\"]]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "csv-delimiter",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected exactly one character\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"data.csv\", delimiter: \"ab\")\n\n"
+      }
+    },
+    {
+      "id": "json-invalid",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ json(42)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "yaml-invalid",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:5\n  │\n1 │ yaml(false)\n  │      ^^^^^\n\n"
+      }
+    },
+    {
+      "id": "toml-invalid",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:10\n  │\n1 │ toml.with((a: 1))()\n  │           ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "xml-invalid",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:16\n  │\n1 │ xml(..arguments(42))\n  │                 ^^\n\n"
+      }
+    },
+    {
+      "id": "cbor-invalid",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path, string, or bytes, found none\n  ┌─ <input-expression>:1:5\n  │\n1 │ cbor(none)\n  │      ^^^^\n\n"
+      }
+    },
+    {
+      "id": "json-bytes",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "yaml-bytes",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "toml-bytes",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "xml-bytes",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[{\"tag\":\"a\",\"attrs\":{},\"children\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "cbor-bytes",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "{\"a\":1}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "encoders",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 0,
+        "stdout": "[\"{\\n  \\\"a\\\": 1\\n}\",\"a: 1\\n\",\"a = 1\\n\"]\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "field-read",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `read` does not contain field `encode`\n  ┌─ <input-expression>:1:5\n  │\n1 │ read.encode\n  │      ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-csv",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:11\n  │\n1 │ csv.with().encode\n  │            ^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-xml",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `xml` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ xml.nope\n  │     ^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-native",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: function `text` does not contain field `nope`\n  ┌─ <input-expression>:1:12\n  │\n1 │ text.with().nope\n  │             ^^^^\n\n"
+      }
+    },
+    {
+      "id": "field-closure",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).nope\n  │ ^^^^^^^^^^^^^\n\n"
+      }
+    },
+    {
+      "id": "invalid-plus-unknown",
+      "kind": "control",
+      "profile": "html+a11y",
+      "oracle": "baseline",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: argumento nomeado inesperado em read(): 'strange'\n\n  while calling `read` at <input-expression>:1:0\n    read(42, strange: 2)\n\n"
+      }
+    },
+    {
+      "id": "invalid-plus-encoding",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42, encoding: 5)\n  │      ^^\n\n"
+      }
+    },
+    {
+      "id": "args-map-detached",
+      "kind": "target",
+      "profile": "html+a11y",
+      "oracle": "vanilla",
+      "expected": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: expected path or string, found integer\n\n  while calling `read` at <input-expression>:1:0\n    read(..arguments(42).map(x => x))\n\n"
+      }
+    }
+  ],
+  "limitations": [
+    "Symbol is an explicit normative expectation, not vanilla equality.",
+    "Controls preserve baseline divergences, including CSV Bytes, extra positional, encoding override, XML fields and rooted imported path sandbox error.",
+    "Arbitrary synthetic Rust Args and unsupported Value variants require owner unit evidence; CLI map case covers genuine detached origin.",
+    "No implementation isolation or general language equivalence attested."
+  ]
+}

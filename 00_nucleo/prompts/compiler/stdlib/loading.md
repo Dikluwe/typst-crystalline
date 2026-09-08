@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: 4a491c50
+Hash do Código: 03ea1fcc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -78,7 +78,7 @@ Assinatura `fn native_X(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<
 | Função | Args | Devolve | Decode L1 |
 |--------|------|---------|-----------|
 | `read(path, encoding:)` | path + named `encoding:` (`"utf8"` default \| `none`) — **ver §4** | `Str` (utf8) ou `Bytes` (`encoding: none`) | (sem decode; bytes→Str utf8 ou Bytes) |
-| `csv(path, delimiter:, row-type:)` | path + named | `Array` de linhas | `decode_csv` |
+| `csv(path\|bytes, delimiter:, row-type:)` | `Path\|Str\|Bytes` + named | `Array` de linhas | `decode_csv` |
 | `json(path \| bytes)` | path ou bytes | árvore `Value` | `decode_json` |
 | `yaml(path \| bytes)` | path ou bytes | árvore `Value` | `decode_yaml` |
 | `toml(path \| bytes)` | path ou bytes | árvore `Value` | `decode_toml` |
@@ -227,7 +227,8 @@ P1141 prova que re-resolver um `Value::Path` no consumer mudaria sua base.
 
 ### Decisão
 
-`read` e `csv` aceitam `Value::Path | Value::Str`; `json`, `yaml`, `toml`,
+Na decisão histórica P1141, `read` e `csv` aceitam `Value::Path | Value::Str`;
+P1313 abaixo amplia somente CSV para incluir Bytes. `json`, `yaml`, `toml`,
 `cbor` e `xml` aceitam `Value::Path | Value::Str | Value::Bytes`. Um helper
 único converte `PathOrStr`: path já enraizado segue a `World::read_path`; string
 passa uma vez por `World::resolve_path(current_file, s)` e depois por
@@ -237,6 +238,276 @@ o path usam a vpath portátil, não `PathBuf` físico.
 As assinaturas/casts públicos mudam; implementar somente após o gate P1141.
 
 ## 5. Estratificação de erro (critério de aceitação 4)
+
+### Opções CSV — P1314
+
+#### Medição anterior à decisão
+
+Baseline P1313 no HEAD `eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, working
+tree não commitado, em `00_nucleo/diagnosticos/p1314-baseline.json` (SHA-256
+`75cccd6e392df84001640f244facde73883fd414de045253e97e6a12bfad70c6`).
+Medição bilateral `p1314-measurement.json` em diagnósticos (SHA-256
+`660fd77c95fe243e22590036b03dc5e364b0e3a107888592b35c4d166d557626`)
+registra argv, UTC, fontes e estado integral. `loading.rs:1233-1273` usa
+somente Args.named e err detached para delimiter/row-type. Mensagens das
+opções inválidas ordinárias coincidem com vanilla, mas não suas origens.
+Uma opção delimiter inválida pré-ligada por With, sobreposta por outra válida,
+é aceita no cristalino e rejeitada pelo vanilla na origem da primeira.
+
+Na fonte ratificada `a51e02804`, `loading/csv.rs:32-45,103-135` declara os
+casts e a ordem delimiter antes de row-type; `foundations/args.rs:218-235`
+converte cada ocorrência e conserva a última somente após todas passarem,
+atribuindo erro ao span do valor. Essa é a intenção explícita, não inferida
+do resultado. Duplicatas sintáticas diretas são rejeitadas antes da função,
+nos dois produtos, e não provam o comportamento dos argumentos transportados.
+
+A checagem de fronteira refuta paridade geral: unknown-named vence o cast
+no cristalino; delimiter Symbol é convertido a string no vanilla, mas
+rejeitado no cristalino. Erros de parsing têm mensagem/âncora distintas.
+Essas dívidas são separadas do consumidor de opções e permanecem explícitas.
+
+#### Obrigação proprietária e aceitação
+
+Somente as opções CSV delimiter e row-type passam a consumir a sequência
+causal de Args. Validar todas as ocorrências delimiter em ordem, depois todas
+row-type em ordem, independentemente da ordem relativa entre os dois nomes.
+A primeira conversão inválida interrompe; a última válida vence se todas
+forem válidas. Nenhuma ocorrência inválida pré-ligada pode desaparecer por
+sobrescrita no mapa. Reusar o carrier existente de Args; não mudar entidade,
+trait, assinatura pública Rust, dispatch, fase ou dependência.
+
+O erro usa o value_span da ocorrência que falhou, não o named completo,
+última ocorrência, fonte CSV ou chamada agregada. Args sintético sem sequência
+usa seus named vigentes e origem detached. Origem explicitamente detached
+permanece detached; não inventar ranges. Mensagem, hints e propagação de traces
+seguem os casos medidos; não escolher origem por mensagem ou fixture.
+
+Delimiter continua aceitando somente Str de um caractere ASCII; defaults e
+mensagens permanecem (`expected exactly one character`, `delimiter must be
+an ASCII character`, `expected string, found <tipo longo>`). Row-type aceita
+somente Type::Array ou Type::Dictionary, com mensagens existentes. Os valores
+decodificados de todas as opções válidas mantêm semântica e morfologia.
+Delimiter Symbol continua rejeitado com `expected string, found symbol`
+na origem do valor: esse efeito normativo não é paridade da coerção Symbol.
+Row-type Symbol recebe `expected type, found symbol` na origem medida.
+
+Preservar a ordem externa: unknown-named, fonte/cast, delimiter, row-type,
+obtenção de dados, decode. Nenhuma falha de opção provoca I/O antecipado.
+Preservar rejeição sintática de duplicatas diretas, missing, excesso, I/O,
+parsing, cast da fonte/Bytes P1313, read P1312, outros decoders P1310 e
+encoders/campos. Não corrigir incidentalmente essas superfícies. Esta cláusula
+substitui a preservação de opções/duplicatas P1313 somente para origem dos
+erros e conversão de todas as ocorrências dos dois nomes aqui delimitados.
+
+Diagnósticos completos e valores CSV são observáveis de linguagem
+(ADR-0107/0108), não igualdade de estruturas Rust. Correção interna de
+paridade, sem nova superfície ou assinatura: fluxo contínuo ADR-0127,
+L0 primeiro, RED→GREEN, freeze A/B e revalidação. É inferência que o carrier
+existente basta: perda de uma ocorrência/origem conservada pelo vanilla antes
+do consumer refuta o fechamento local e exige diagnóstico, não fallback
+inventado. Não há promessa de paridade geral CSV.
+
+### CSV/DataSource — P1313 (aprovado pelo dono em 2026-09-08)
+
+#### Medição anterior à decisão
+
+Baseline P1312 não commitado no HEAD
+`eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, registrado em
+`00_nucleo/diagnosticos/p1313-baseline.json`, SHA-256
+`0ad67b8f92c25160f044c352241572916716e2489ad105a6314608d51f59de92`.
+Medição bilateral `p1313-measurement.json` em diagnósticos, SHA-256
+`f07efa356c554a4b80a5702c516c4e7f7bee51f4b70fc8cc419ea6cf8754cb43`,
+registra fontes, argv, UTC, saídas e estado. No vanilla ratificado `a51e02804`,
+`csv(bytes("a,b\n1,2"))` retorna duas linhas de strings; bytes vazios retornam
+array vazio; delimiter `;` e row-type dictionary funcionam com Bytes, inclusive
+via With. O cristalino rejeita todos esses casos no cast path-only.
+
+A intenção vem de `lab/typst-original/crates/typst-library/src/loading/csv.rs:27-46`
+(source: Spanned<DataSource>) e `loading/mod.rs:46-63,79-110` (PathOrStr ou
+Bytes, ramo Bytes sem leitura). No cristalino, `loading.rs:944-1006` já decodifica
+bytes puros; `loading.rs:1013-1023,1202-1262` restringe a entrada nativa a
+Path/Str. `csv(42)` deve dar `expected path, string, or bytes, found integer`
+na origem de 42, mas atualmente dá mensagem portuguesa, tipo curto e detached.
+
+A mesma medição revela limites: erro de CSV malformado do vanilla inclui
+posição textual e span da fonte; o mapper existente `loading.rs:956-970`
+produz erro detached e texto parcialmente distinto. Named desconhecido também
+vence o cast no cristalino, ao contrário do vanilla. Não confundir suporte a
+Bytes e cast correto com paridade integral de diagnóstico/validação CSV.
+
+#### Contrato aprovado
+
+CSV aceita `Value::Path | Value::Str | Value::Bytes` como primeiro positional,
+com named delimiter/row-type e defaults vigentes. Path/Str mantêm resolução e
+leitura existentes; Bytes é conteúdo já carregado, nunca nome de arquivo,
+Unicode a decodificar como caminho, nem motivo de acesso a World. Os mesmos
+bytes, opções e modo de linhas devem produzir o mesmo valor de linguagem
+quando fornecidos em RAM ou pelo caminho legado. Preservar strings, Unicode,
+quoting CSV, linhas, ordem de campos e representação array/dictionary.
+
+O cast inválido usa `expected path, string, or bytes, found <tipo público longo>`
+e value_span da primeira ocorrência posicional. Named anteriores não são a
+origem; With/Args devem preservar o carrier causal. Args sintético ou origem
+explicitamente detached continua detached, sem range inventado. O ramo de cast
+não lê arquivos e não altera valores. Não criar tipo DataSource público, trait,
+assinatura Rust nova, modo CLI, membro csv.encode ou mudança de fase.
+
+Preservar a ordem existente: rejeição de named desconhecido, validação da fonte,
+opções, obtenção de dados e decode. Opções inválidas não devem provocar leitura
+antecipada. Reusar o decoder puro existente; sua API e política de parsing não
+mudam neste recorte. Para Bytes malformados ou opções inválidas agora atingíveis,
+aplicar as mensagens/âncoras legadas do decoder/validador, com deltas explicitados
+nos testes antes do candidato. Não mascarar divergências para declarar paridade:
+o fechamento é admissão de Bytes e valores decodificados, mais o cast inválido,
+não o formato completo dos erros de parsing/opções.
+
+Symbol permanece rejeitado; recebe `expected path, string, or bytes, found symbol`
+na origem do valor. O vanilla converte Symbol para Str e tenta leitura; o efeito
+do formatter é normativo e separado de paridade. Não implementar essa coerção.
+Argumento ausente, named/excesso, opção duplicada, I/O e demais validações mantêm
+o comportamento anterior. Read/P1312, decoders P1310, campos P1311 e encoders
+ficam protegidos. Esta cláusula aprovada substitui somente a restrição
+CSV Path/Str em §2/P1141 e a preservação de rejeição Bytes/cast CSV de P1312.
+
+#### Gate e aceitação
+
+Houve paragem por dúvida ADR-0127 entre paridade contínua e ampliação do cast
+público Typst/precedente P1141. O dono respondeu especificamente «Autorizo» em
+2026-09-08 à proposta de ampliação CSV Bytes conforme P1313. O recibo
+`00_nucleo/diagnosticos/p1313-implementation-baseline.json` identifica a proposta
+aprovada e o estado anterior ao código. A aprovação não amplia o recorte acima.
+
+Congelar expectativas independentes
+para valores/Bytes, tipos inválidos, origem, Symbol e preservações; revisar
+essas políticas antes do patch. Exigir RED→GREEN, ausência de I/O no caminho
+Bytes, replays e lint. Semântica de valores e diagnóstico são observáveis de
+linguagem (ADR-0107/0108), não identidade de Vec/Arc ou algoritmo do parser.
+É inferência que o owner existente basta; perda de origem, necessidade de
+outro owner ou alteração de contrato público Rust refuta esse escopo e exige
+nova decisão antes de implementar. Nenhum selo ou paridade geral é prometido.
+
+### Cast do caminho em `read` — P1312
+
+#### Medição anterior à decisão
+
+Baseline P1311 não commitado sobre HEAD
+`eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, registrado em
+`00_nucleo/diagnosticos/p1312-baseline.json`, SHA-256
+`0597c75b13da999990886b32577b563bab330d8d1be4e5bf85e97ff0f03588c5`.
+Medição bilateral `p1312-measurement.json` em diagnósticos, SHA-256
+`d986f593b9d8ca8358d3bf8fc5303eade65bd47382dec0424c3cd3d9d54e07c1`,
+conserva fontes, argv, UTC, saídas e diff/stat. `read(42)` no vanilla ratificado
+`a51e02804` produz `expected path or string, found integer` em `42`; o
+cristalino dá mensagem portuguesa, tipo curto e origem detached. Named antes
+do positional não altera a âncora; With preserva a origem pré-ligada e o trace.
+
+`lab/typst-original/crates/typst-library/src/loading/read.rs:24-29` declara
+Spanned<PathOrStr>; `foundations/path.rs:216-224` define seu cast. Na mesma
+fonte, `loading/csv.rs:27-31` recebe Spanned<DataSource>: `csv(bytes("a,b"))`
+funciona no vanilla, enquanto o cristalino rejeita. Portanto a coorte histórica
+path-only read/csv não é semanticamente homogênea. No cristalino,
+`loading.rs:1013-1023,1085-1099,1191-1204` compartilha arg_path nos dois.
+Uma mudança indiscriminada nesse helper alteraria CSV sem corrigir seu contrato.
+
+#### Obrigação proprietária e fronteiras
+
+Somente `read` corrige o diagnóstico do primeiro positional de tipo inválido:
+`expected path or string, found <tipo público longo>`, com nomenclatura canônica
+vanilla_type_name. Bytes continuam inválidos em read. O span é o value_span
+da primeira ocorrência posicional de Args, ignorando named anteriores, não
+o span agregado nem o argumento inteiro. Origem explicitamente detached ou
+Args sintético sem ocorrências permanece detached; não inventar ranges.
+Preservar erro único, hints e propagação causal de traces pelo dispatch existente.
+
+Path e Str continuam válidos e seguem a resolução/leitura existente; o cast
+não realiza I/O nem transforma valores. É permitido helper privado próprio
+de read neste owner, separado do helper CSV; não discriminar o diagnóstico
+por comparação de fname, nome lexical, fixture ou texto de erro. As assinaturas
+públicas, entidades e pipeline permanecem inalterados.
+
+Symbol no vanilla converte a Str e tenta abrir seu Unicode, como confirma
+`foundations/value.rs:632-637` e a medição de `read(sym.alpha)`. A coerção está
+fora deste lote. A rejeição cristalina permanece, com mensagem explícita
+`expected path or string, found symbol` e origem do valor; esse efeito do
+formatter não é paridade Symbol. Deve ser testado por expectativa normativa
+separada, congelada antes do patch, sem rotulá-lo como igualdade vanilla.
+
+Preservar CSV integralmente, inclusive sua rejeição atual de Bytes/Symbol e
+mensagem antiga. O contrato CSV/DataSource exige revisão própria futura; este
+passo não o materializa nem quita. Preservar os cinco decoders P1310, encoders,
+missing positional, named/excesso, encoding e sua ordem de validação, erros de
+leitura, campos de funções P1311 e demais owners. Esta obrigação substitui
+o scope-out de read de P1310 somente para o cast inválido aqui delimitado.
+
+Intenção de rejeitar tipos incompatíveis vem do cast declarado; mensagem e
+origem são comportamento medido. Diagnósticos são observáveis de linguagem
+(exceção ADR-0108), não igualdade estrutural Rust. É inferência que os carriers
+existentes bastam; origem conservada pelo vanilla mas irrecuperável no consumer
+refuta o escopo local. Gate ADR-0127: correção interna de paridade L0-first,
+RED→GREEN e revalidação; sem nova API ou mudança de fase. Testes devem distinguir
+mensagem, tipo longo e origem em chamada direta, alias/With e transporte Args,
+com controles positivos e negativos dos casos explicitamente preservados.
+
+### Cast da fonte nos cinco decoders — P1310
+
+#### Medição anterior à decisão
+
+No baseline `eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`,
+`01_core/src/compiler/stdlib/loading.rs:1047-1064` aceita Path/Str/Bytes,
+mas o braço de tipo inválido produz mensagem portuguesa com `type_name()`
+curto e `Span::detached()`. O vanilla ratificado `a51e02804`,
+`lab/typst-original/crates/typst-library/src/loading/mod.rs:46-63`, declara
+o cast DataSource como PathOrStr ou Bytes; os decoders recebem a fonte
+Spanned. A medição bilateral P1309 de `json(42)` registra
+`expected path, string, or bytes, found integer` com origem em `42`.
+Recibo `00_nucleo/diagnosticos/p1309-sentinels-p1308-vanilla.json`, SHA-256
+`8f29121b65d5b5e7e98c9c146c4750d4b0a6d08566028f97dc08bc8691848df5`.
+O baseline P1310 preserva fonte, binários e diff/stat em
+`00_nucleo/diagnosticos/p1310-baseline.json`, SHA-256
+`3a19c3b842c5bdcc2d4e6df3ea8778a407a9843b2fc5ec183f3b07620c25d65f`.
+
+#### Decisão proprietária e aceitação
+
+Em `cbor/json/toml/xml/yaml`, tipo inválido no primeiro posicional produz
+exatamente `expected path, string, or bytes, found <tipo público longo>`.
+Reusar a nomenclatura pública canônica, inclusive integer, float, boolean,
+dictionary, function, none e os demais tipos do Value vigente. O span primário
+é o `value_span` da primeira ocorrência posicional, não o argumento completo,
+um named anterior ou a chamada agregada. A origem causal já transportada por
+With/Args/spread deve ser conservada; origem explicitamente detached e Args
+sintéticos sem ocorrências permanecem detached, sem range inventado.
+
+Os tipos admitidos Path/Str/Bytes, ordem das demais validações, parsing,
+leitura e decoders/encoders não mudam. Argumento ausente, named/excesso,
+read/csv e transporte de chamada pertencem a outros lotes; não corrigir esses
+casos incidentalmente nem alegar paridade deles. Não adicionar campo, trait,
+assinatura, dependência ou lógica de I/O ao core.
+
+Mensagem completa, hints, span primário e traces observados pertencem à
+linguagem diagnóstica (exceção ADR-0108), não à igualdade estrutural Rust.
+A intenção normativa é rejeitar tipos fora do cast declarado com sua origem;
+os textos/âncoras são comportamento medido. É inferência que o carrier Args
+vigente basta: uma rota que conserve origem no vanilla e a perca antes deste
+consumer refuta o fechamento local e exige diagnóstico, não fallback inventado.
+Testes independentes devem distinguir mensagem correta com span errado,
+nomes curtos/longos e preservação das entradas válidas. Correção de paridade
+interna: fluxo contínuo ADR-0127 com RED→GREEN e revalidação, sem novo gate
+público ou promessa de equivalência geral dos decoders.
+
+#### Fronteira Symbol medida antes do candidato
+
+A medição independente `00_nucleo/diagnosticos/p1310-ab-freeze-measurement.json`
+revela que `json(sym.alpha)` no vanilla tenta ler o arquivo `α`, em vez de
+rejeitar o cast. Na fonte ratificada, `foundations/path.rs:216-224` compõe
+PathOrStr com Str; `foundations/value.rs:632-637` converte Symbol em Str.
+Isso refuta a hipótese de que toda variante fora de Path/Str/Bytes também seja
+rejeitada pelo vanilla. Não implementar a coerção Symbol→Str neste lote.
+A rejeição cristalina já existente permanece, e o ramo comum passa a emitir
+`expected path, string, or bytes, found symbol` na origem do valor. Esse delta
+diagnóstico é efeito explícito do formatter comum, não fechamento de paridade
+Symbol nem preservação literal da mensagem anterior. Registrar a comparação
+bilateral e testar separadamente o efeito normativo; não classificar essa
+testemunha como igualdade vanilla.
 
 Mensagens distintas por estrato — o utilizador distingue I/O de malformado:
 
