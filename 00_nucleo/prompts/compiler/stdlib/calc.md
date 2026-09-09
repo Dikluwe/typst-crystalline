@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: 30ef9f29
+Hash do Código: 8d7359a9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/calc.rs`
@@ -253,6 +253,82 @@ ADR-0127: correção de paridade contínua, sem mudança deliberada de default,
 API, compatibilidade ou fase. É inferência que o owner basta: necessidade
 de editar outro consumer ou origem real obrigatória ausente refuta a
 suficiência e exige revisão antes de ampliar. Não declarar paridade geral.
+
+## P1331 — diagnóstico do fallback de tipos em calc.abs
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1331-baseline.json`, SHA-256
+`7287bfac86e29e8ff0e86955ce96f63e140b745fb781eb4b4b7410215c794b45`,
+registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
+não commitado, diff/stat/inventários e binários/argv/horários. Em
+`calc.abs("x")`, `calc.abs(sym.alpha)`, bool, none, auto, coleções e
+demais famílias rejeitadas, o baseline usa a mensagem antiga portuguesa,
+sem span do argumento. Vanilla ratificado a51e02804 lista a união de
+tipos aceitos e o tipo encontrado, com origem no argumento.
+
+`01_core/src/compiler/stdlib/calc.rs:193-195` concentra esse fallback;
+`entities/value.rs:336-374` oferece os nomes dos tipos, mas Str e Bool
+usam nomes curtos. Vanilla `foundations/calc.rs:84-94` declara ToAbs;
+`foundations/cast.rs:309-360` forma o diagnóstico pela união e pelo tipo
+encontrado; `foundations/ty.rs:179-182` imprime o nome longo. A fonte
+confirma essa construção explícita, sem inferir intenção geral dos tipos.
+As condições de hints desse cast não se aplicam aos tipos rejeitados por
+ToAbs: Int/Decimal têm seus braços próprios, e a união não pede label.
+
+`p1331-domain-probes.json`, em diagnosticos, SHA-256
+`2b40d0f6d973a580122fcaee87ef42ee742d2a4ef167919091da0b85beeb7818`,
+confirma Path construído e Relative mesmo com componentes zero; continuam
+rejeitados como path e relative length. `path()` sem argumento falha antes
+de abs e não é testemunha desse fallback. `calc.abs(location)` recebe o
+tipo, não uma instância Location. Para Location já construída, a fonte
+vanilla `introspection/location.rs:52-54` e a regra de cast declaram o nome
+location; teste nativo verifica o diagnóstico sem alegar cobertura de sua
+produção por introspecção nem mover a operação de fase.
+
+### Decisão e aceitação
+
+Depois dos guards vigentes, para exatamente um valor ainda não tratado
+pelos braços numéricos/dimensionais/conteúdo, rejeitar com um único Error:
+`expected integer, float, length, angle, ratio, fraction, or decimal, found T`.
+T é o nome diagnóstico: Str → string, Bool → boolean; as demais variantes
+conservam seu nome vigente, incluindo relative length, path e location.
+Não usar repr do valor, nome da função, conversão de strings numéricas ou
+conteúdo para decidir o tipo. Não alterar Value::type_name nem um helper
+compartilhado; esta norma legitima somente a montagem local em calc.
+
+Sem hints ou trace nativo. Usar somente value_span da primeira ocorrência
+posicional. Metadados named são ignorados nessa seleção; ausência de
+ocorrência, coleção vazia ou value_span detached permanecem detached.
+Não substituir por args.span/occurrence.span nem fabricar origem.
+Alias/With/spread conservam origem; traces externos permanecem a cargo do
+dispatcher, com dívida literal calc.abs versus abs congelada antes de C.
+
+Nenhum tipo passa a ser aceito. Esta seção substitui somente a obrigação
+de preservar o diagnóstico do fallback nas seções P1328/P1329/P1330.
+Preservar os braços de Content/LocatedContent, todos os resultados e erros
+numéricos/dimensionais, overflow, guards named/aridade, registro de nomes
+e demais funções. Parsing, construção, entidades, helpers, pipeline e
+política guard_float permanecem fora do recorte.
+
+Autor A/B migra apenas as expectativas antigas string/symbol de
+`p1330-ab-p1328-successor.rs:341-351` (mensagem, origem e trace) e suas
+células CLI; preservar os demais controles e os módulos P1329/P1330.
+Não reescrever snippets/evidências antigos. Congelar testes novos antes
+de C: famílias rejeitadas, string numérica sem coerção, Bool/Str, Relative
+zero, Path, Location nativa com limite explícito, origens conflitantes e
+detached, alias/With/nested/spread/arguments, UTF-8/linhas/warnings/math,
+quatro perfis e sentinelas de guards e todos os tipos já tratados.
+Exigir diagnóstico completo e semântica de tipo/resultado (ADR-0107/0108),
+não substring nem igualdade de bytes de render.
+
+RED compilado antes de C e GREEN dos mesmos testes; CLI integral nos três
+ordenamentos é sentinela complementar. Build/workspace/fmt/lint/V5/V15/V26
+e integridade histórica são gates. Unknown obrigatório impede fechamento.
+Regime A/B sem atestação de isolamento, correção contínua ADR-0127 sem
+API/default/fase novos. É inferência que este owner basta; necessidade de
+outro consumer ou ausência de origem real obrigatória refuta o recorte
+antes de ampliá-lo. Não se afirma paridade geral de abs, dos tipos ou calc.
 
 ## Subset `calc` — 21 entradas (trig + hiperbólicas + exp/log + constantes)
 

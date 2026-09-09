@@ -1,0 +1,235 @@
+{
+  "at": "2026-09-09T14:17:10.394Z",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "working_tree": "uncommitted",
+  "manifest_sha256": "6383d89ef0fccf78290182c1180fccaba290c1a11f36f4fe44ba75df53de81c9",
+  "report_sha256": "b36ea5065c3d7a88e154bc87bb2e4f35f4025cc5270fb1c638e1394b4f66ca0b",
+  "snapshot_provenance": "p1331-unit-green-r2.json after, identical to every final gate before/after",
+  "norm": "ef406128181e4cfa5b802b86ec0a9c58370cc4f7dab09365a088eef74523956a",
+  "owner_norm": "8d7359a9585e354c370c032b573a7133d004806b3a3c84cd881f8665bb992521",
+  "candidate_sha256": "a8d6e2f4472fefc9e63a123783feac852445191dcb82ac269d366a6419ae1a47",
+  "all_inputs_and_history_intact": true,
+  "scope_c2_identical_to_reviewed_c1_except_fixture": true,
+  "red_green_same_31_tests": true,
+  "workspace": {
+    "passed": 6717,
+    "failed": 0,
+    "ignored": 3
+  },
+  "historical": {
+    "migrated": [
+      "string/default",
+      "string/html",
+      "string/a11y",
+      "string/html+a11y",
+      "symbol/default",
+      "symbol/html",
+      "symbol/a11y",
+      "symbol/html+a11y"
+    ],
+    "preserved": 324,
+    "new": 172
+  },
+  "cli": {
+    "normal": {
+      "sha256": "02134e5dca4d4a36b102af0966eeb613ed52436c19f024eedb7bd25b6f7470f3",
+      "utc": "2026-09-09T14:10:13.681570+00:00",
+      "observations": 504,
+      "baselineFull": 252,
+      "candidateFull": 404,
+      "changed": 164,
+      "regressions": 0,
+      "correctedWithTraceDebt": 12,
+      "remaining": 100
+    },
+    "repeat": {
+      "sha256": "6c3acbef28d159068c8414b1a5c800ddfbc33fbb0f21d8f8dede61f19f6e0981",
+      "utc": "2026-09-09T14:10:18.495878+00:00",
+      "observations": 504,
+      "baselineFull": 252,
+      "candidateFull": 404,
+      "changed": 164,
+      "regressions": 0,
+      "correctedWithTraceDebt": 12,
+      "remaining": 100
+    },
+    "reverse": {
+      "sha256": "2bb25466d3bfa4ba31c7cc6c9f942e32c6512ab2d07b53cb8a9d188600aade5b",
+      "utc": "2026-09-09T14:10:24.610381+00:00",
+      "observations": 504,
+      "baselineFull": 252,
+      "candidateFull": 404,
+      "changed": 164,
+      "regressions": 0,
+      "correctedWithTraceDebt": 12,
+      "remaining": 100
+    }
+  },
+  "lint": {
+    "error": 0,
+    "warning": 240,
+    "note": 1146,
+    "removed": 0,
+    "added": [
+      {
+        "rule": "V16",
+        "level": "note",
+        "message": {
+          "text": "wildcard `_ =>` delega decisão para `other.type_name()`"
+        },
+        "uris": [
+          "./01_core/src/compiler/stdlib/calc.rs"
+        ]
+      }
+    ]
+  },
+  "gates": {
+    "final-build-r2": {
+      "sha256": "68a35561c70b3090f0c2dc1324d61afe6f82f57ad026c48e0b04e1074b3c88b0",
+      "argv": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked"
+      ],
+      "at": "2026-09-09T14:09:00.907696+00:00",
+      "end": "2026-09-09T14:09:40.107547+00:00",
+      "exit": 0
+    },
+    "unit-green-r2": {
+      "sha256": "d6b2b6df18245f1b39d844d9aef52da42db76b1705aa5760b7c324f60ad2ee67",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "-p",
+        "typst-core",
+        "compiler::stdlib::calc::p13",
+        "--",
+        "--nocapture"
+      ],
+      "at": "2026-09-09T14:05:14.431022+00:00",
+      "end": "2026-09-09T14:07:26.139881+00:00",
+      "exit": 0
+    },
+    "workspace-tests-r2": {
+      "sha256": "10b439e3bedf72805ff078c10557baa36df7f549eb84d1b7776b9f821035ae83",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--workspace"
+      ],
+      "at": "2026-09-09T14:09:55.275126+00:00",
+      "end": "2026-09-09T14:12:51.129469+00:00",
+      "exit": 0
+    },
+    "final-fmt-r2": {
+      "sha256": "eabc3442d09f849110111587ad78f4b283a8d80152f3e2d2989637ba7f79c94a",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "at": "2026-09-09T14:09:06.231939+00:00",
+      "end": "2026-09-09T14:09:08.793282+00:00",
+      "exit": 0
+    },
+    "final-lint-r2": {
+      "sha256": "185ad899b6d591b4b7f48d2f23eaa83add94e40beaa3928b5132a60d245b00ef",
+      "argv": [
+        "crystalline-lint",
+        "--format",
+        "sarif",
+        "."
+      ],
+      "at": "2026-09-09T14:09:11.098028+00:00",
+      "end": "2026-09-09T14:09:14.283106+00:00",
+      "exit": 0
+    },
+    "final-lineage-r2": {
+      "sha256": "69e9730297bc280bbec6e2e9a7123ddad5fbb8f368cfe5eaec606a073fd7e622",
+      "argv": [
+        "python3",
+        "00_nucleo/diagnosticos/p1331-lineage-r2.py"
+      ],
+      "at": "2026-09-09T14:05:21.310311+00:00",
+      "end": "2026-09-09T14:05:23.334979+00:00",
+      "exit": 0
+    },
+    "final-lineage-lint-r2": {
+      "sha256": "342788ee0f78b64cd9681626bdb530fe77627b1b3109dc43bce79cac9cae03e4",
+      "argv": [
+        "crystalline-lint",
+        "--checks",
+        "v5,v15,v26",
+        "--fail-on",
+        "warning",
+        "."
+      ],
+      "at": "2026-09-09T14:09:19.038044+00:00",
+      "end": "2026-09-09T14:09:25.512256+00:00",
+      "exit": 0
+    },
+    "final-diff-check-r2": {
+      "sha256": "f73bf0d06fafe9fd0f06cee4db6057803449d52d4be3676c89327bcf912aa71f",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "at": "2026-09-09T14:09:25.975188+00:00",
+      "end": "2026-09-09T14:09:27.076958+00:00",
+      "exit": 0
+    },
+    "cli-normal-r2": {
+      "sha256": "2ed90c6ea56f383ab91afebc20ebad07b0dbe233b1c378daa6bcd4704675345b",
+      "argv": [
+        "python3",
+        "00_nucleo/diagnosticos/p1331-ab-cli-r2.py",
+        "--candidate",
+        "/tmp/p1331-target.rtY0la/release/typst",
+        "--output",
+        "00_nucleo/diagnosticos/p1331-ab-cli-normal-r2.json"
+      ],
+      "at": "2026-09-09T14:10:13.426018+00:00",
+      "end": "2026-09-09T14:12:12.704780+00:00",
+      "exit": 0
+    },
+    "cli-repeat-r2": {
+      "sha256": "07adfc99135ae7452b1e5ca5a9c246bf83730e4a9db71d24c0f18d83bcea2400",
+      "argv": [
+        "python3",
+        "00_nucleo/diagnosticos/p1331-ab-cli-r2.py",
+        "--candidate",
+        "/tmp/p1331-target.rtY0la/release/typst",
+        "--output",
+        "00_nucleo/diagnosticos/p1331-ab-cli-repeat-r2.json"
+      ],
+      "at": "2026-09-09T14:10:18.321200+00:00",
+      "end": "2026-09-09T14:12:16.184183+00:00",
+      "exit": 0
+    },
+    "cli-reverse-r2": {
+      "sha256": "a4adc48d4dc5e474d2bf3abc559c26df4e8bf2f5940d87e60d5d3e4e1383005d",
+      "argv": [
+        "python3",
+        "00_nucleo/diagnosticos/p1331-ab-cli-r2.py",
+        "--candidate",
+        "/tmp/p1331-target.rtY0la/release/typst",
+        "--order",
+        "reverse",
+        "--output",
+        "00_nucleo/diagnosticos/p1331-ab-cli-reverse-r2.json"
+      ],
+      "at": "2026-09-09T14:10:24.450378+00:00",
+      "end": "2026-09-09T14:12:22.547030+00:00",
+      "exit": 0
+    }
+  },
+  "pass": true
+}

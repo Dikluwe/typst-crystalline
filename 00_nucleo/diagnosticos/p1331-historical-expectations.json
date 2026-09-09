@@ -1,0 +1,44 @@
+{
+  "at": "2026-09-09T13:48:44.232827+00:00",
+  "pass_gate": true,
+  "unchanged": 324,
+  "changed": [
+    [
+      "string",
+      "default"
+    ],
+    [
+      "string",
+      "html"
+    ],
+    [
+      "string",
+      "a11y"
+    ],
+    [
+      "string",
+      "html+a11y"
+    ],
+    [
+      "symbol",
+      "default"
+    ],
+    [
+      "symbol",
+      "html"
+    ],
+    [
+      "symbol",
+      "a11y"
+    ],
+    [
+      "symbol",
+      "html+a11y"
+    ]
+  ],
+  "new_observations": 172,
+  "expected_sha256": "7c088f26f58b010409fcd2396dc0a77de1eaaeca6d0027eb91dca029c566f301",
+  "previous_expected_sha256": "7eefa5cf55e10b77631cf5ef8d68be2629892fa64309c1274f20d1305112695d",
+  "baseline_sha256": "6f73013c9e951ee146089eebd2267d412d742eeee051528a7427cea016d980bb",
+  "manifest_sha256": "837bb832ce13f0686a438f672c6fe001224738a15b1a369efcc6f7533b7db141"
+}
