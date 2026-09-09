@@ -1,0 +1,8 @@
+{
+  "at": "2026-09-09T15:27:03.752167+00:00",
+  "manifest_sha256": "75eea7c2a28cd8c75098d4d8fc5b2c733c30c09b7eca52a2ce7a772a24e0e99b",
+  "events": [
+    "Root RED first escalation timed out in automatic permission review before process creation; explicitly allowed single retry succeeded, session96211.",
+    "B reported analogous baseline CLI approval timeout then allowed successful retry session26219. No functional failure is inferred from approval timeouts."
+  ]
+}

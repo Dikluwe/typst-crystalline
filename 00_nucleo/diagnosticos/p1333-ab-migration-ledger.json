@@ -1,0 +1,30 @@
+{
+  "policy": "Only first-invalid guard expectations change; test names and all remaining prior coverage preserved. P1332 traced guards migrate primary origin from detached to false.",
+  "native": [
+    {
+      "source": "p1332-ab-p1328-successor.rs",
+      "successor": "p1333-ab-p1328-successor.rs",
+      "diff": "--- p1332-ab-p1328-successor.rs\n+++ p1333-ab-p1328-successor.rs\n@@ -193,14 +193,14 @@\n             args.named.insert(\"unexpected\".into(), Value::Int(1));\n             bare_diagnostic(\n                 &native(&args, features).unwrap_err(),\n-                \"argumento nomeado inesperado: 'unexpected'\",\n+                CONTENT_ERROR,\n                 Span::detached(),\n             );\n             for count in [0, 2] {\n                 let args = Args::positional(vec![value.clone(); count]);\n                 bare_diagnostic(\n                     &native(&args, features).unwrap_err(),\n-                    &format!(\"calc.abs() requer 1 argumento, recebeu {count}\"),\n+                    &if count == 0 { format!(\"calc.abs() requer 1 argumento, recebeu {count}\") } else { CONTENT_ERROR.into() },\n                     Span::detached(),\n                 );\n             }\n"
+    },
+    {
+      "source": "p1332-ab-p1329-successor.rs",
+      "successor": "p1333-ab-p1329-successor.rs",
+      "diff": "--- p1332-ab-p1329-successor.rs\n+++ p1333-ab-p1329-successor.rs\n@@ -310,13 +310,13 @@\n                 args.named.insert(\"bad\".into(), Value::Int(1));\n                 bare_diagnostic(\n                     &native(&args, features).unwrap_err(),\n-                    \"argumento nomeado inesperado: 'bad'\",\n+                    if matches!(&value, Value::Length(l) if l.abs.to_pt() != 0.0 && l.em != 0.0) { MIXED_ERROR } else { \"argumento nomeado inesperado: 'bad'\" },\n                     Span::detached(),\n                 );\n                 args.named.clear();\n                 bare_diagnostic(\n                     &native(&args, features).unwrap_err(),\n-                    \"calc.abs() requer 1 argumento, recebeu 2\",\n+                    if matches!(&value, Value::Length(l) if l.abs.to_pt() != 0.0 && l.em != 0.0) { MIXED_ERROR } else { \"calc.abs() requer 1 argumento, recebeu 2\" },\n                     Span::detached(),\n                 );\n             }\n"
+    },
+    {
+      "source": "p1332-ab-p1330-successor.rs",
+      "successor": "p1333-ab-p1330-successor.rs",
+      "diff": "--- p1332-ab-p1330-successor.rs\n+++ p1333-ab-p1330-successor.rs\n@@ -274,14 +274,14 @@\n                 args.named.insert(\"bad\".into(), Value::Int(1));\n                 bare_diagnostic(\n                     &native(&args, features).unwrap_err(),\n-                    \"argumento nomeado inesperado: 'bad'\",\n+                    if count == 0 { \"argumento nomeado inesperado: 'bad'\" } else { OVERFLOW },\n                     Span::detached(),\n                 );\n                 if count != 1 {\n                     args.named.clear();\n                     bare_diagnostic(\n                         &native(&args, features).unwrap_err(),\n-                        &format!(\"calc.abs() requer 1 argumento, recebeu {count}\"),\n+                        &if count == 0 { format!(\"calc.abs() requer 1 argumento, recebeu {count}\") } else { OVERFLOW.into() },\n                         Span::detached(),\n                     );\n                 }\n"
+    },
+    {
+      "source": "p1332-ab-p1331-successor.rs",
+      "successor": "p1333-ab-p1331-successor.rs",
+      "diff": "--- p1332-ab-p1331-successor.rs\n+++ p1333-ab-p1331-successor.rs\n@@ -295,20 +295,20 @@\n     #[test]\n     fn p1331_native_guards_still_precede_every_rejected_family() {\n         for features in profiles() {\n-            for (value, _) in family_values(features) {\n+            for (value, kind) in family_values(features) {\n                 for count in [0, 1, 2] {\n                     let mut args = Args::positional(vec![value.clone(); count]);\n                     args.named.insert(\"bad\".into(), Value::Int(1));\n                     bare_diagnostic(\n                         &native(&args, features).unwrap_err(),\n-                        \"argumento nomeado inesperado: 'bad'\",\n+                        &if count == 0 { \"argumento nomeado inesperado: 'bad'\".into() } else { rejection(kind) },\n                         Span::detached(),\n                     );\n                     if count != 1 {\n                         args.named.clear();\n                         bare_diagnostic(\n                             &native(&args, features).unwrap_err(),\n-                            &format!(\"calc.abs() requer 1 argumento, recebeu {count}\"),\n+                            &if count == 0 { format!(\"calc.abs() requer 1 argumento, recebeu {count}\") } else { rejection(kind) },\n                             Span::detached(),\n                         );\n                     }\n"
+    },
+    {
+      "source": "p1332-ab-tests.rs",
+      "successor": "p1333-ab-p1332-successor.rs",
+      "diff": "--- p1332-ab-tests.rs\n+++ p1333-ab-p1332-successor.rs\n@@ -267,16 +267,16 @@\n             ),\n             (\n                 \"#let a=calc.abs.with(false, 1)\\n#a()\",\n-                \"calc.abs() requer 1 argumento, recebeu 2\",\n+                \"expected integer, float, length, angle, ratio, fraction, or decimal, found boolean\",\n                 \"a()\",\n             ),\n             (\n                 \"#let a=calc.abs.with(false, bad: 1)\\n#a()\",\n-                \"argumento nomeado inesperado: 'bad'\",\n+                \"expected integer, float, length, angle, ratio, fraction, or decimal, found boolean\",\n                 \"a()\",\n             ),\n         ] {\n-            traced_error(text, None, message, call, \"abs\", false);\n+            traced_error(text, if text.contains(\"with(false,\") { Some(\"false\") } else { None }, message, call, \"abs\", false);\n         }\n         traced_error(\n             \"#let a=calc.sqrt.with(\\\"x\\\")\\n#a()\",\n"
+    }
+  ]
+}

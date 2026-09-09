@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: 0f671ea9
+Hash do Código: d4d546a7
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/calc.rs`
@@ -991,3 +991,69 @@ make_calc_module().tau -> Float(TAU)
 make_calc_module().e   -> Float(E)
 make_calc_module().inf -> Float(INF)
 ```
+
+## P1333 — precedência do erro do primeiro posicional em `abs`
+
+### Medição anterior à decisão
+
+Baseline `00_nucleo/diagnosticos/p1333-baseline-public.json`, SHA-256
+`45a23be20fd81ff9b77c60ff89db3267ce615a77d3fb41df444f3af054bf8800`:
+HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, árvore não commitada,
+diff stat/inventário e UTC por comando no recibo. Cristalino SHA-256
+`dfe7c3ab89eaa145d79e5b56ac72c657e49c6c994f9a88a4338915808ec0e8ea`;
+vanilla ratificado upstream/main `a51e02804`, binário SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+`calc.abs([x], 2)` diverge: aridade no cristalino, tipo content no vanilla.
+Comprimento misto e overflow com sobras exibem a mesma precedência errada.
+
+Fonte ratificada: `lab/typst-original/crates/typst-library/src/foundations/args.rs:109-120,150-173`
+converte o primeiro posicional antes de terminar a validação das sobras
+(`:259-266`); `foundations/calc.rs:73-94` faz checked abs/try_abs nessa
+conversão. No owner cristalino, baseline `calc.rs:131-210`, named/aridade
+impedem esse processamento. `compiler/eval/call_dispatch.rs:398,451`
+transporta agregado da lista; ausência no vanilla usa chamada inteira.
+Isso refuta a hipótese de fechar toda a validação apenas neste owner.
+
+### Decisão normativa e limites
+
+É correção de semântica diagnóstica observável, não exigência de copiar
+cursores ou estruturas Rust (ADRs 0107/0108). Segue fluxo contínuo ADR-0127:
+nenhuma API, fase ou modo novo; L0 primeiro e RED→GREEN obrigatório.
+
+Quando existir primeiro valor posicional, `abs` deve processá-lo com as
+regras vigentes de valor/tipo antes de rejeitar named ou excesso. Falha de
+tipo (incluindo Content/LocatedContent), overflow inteiro e Length misto
+deve retornar o mesmo diagnóstico integral da chamada unitária, com
+severidade, hints, trace e política de origem já definidos: primeiro
+value_span posicional disponível, inclusive detached quando aplicável.
+Os valores continuam vindo de `Args.items`; metadados não substituem a
+view de valores nem inventam origem. Nenhuma mutação de Args é necessária.
+
+Se esse processamento tiver sucesso, os guards named/aridade anteriores
+continuam obrigatórios, com mensagens e origens literalmente preservadas.
+Sem posicional, preservar integralmente os guards anteriores. Não aceitar
+sobras silenciosamente, não processar valor posterior como substituto,
+não alterar tipos aceitos, valores válidos, NaN/Inf, `abs.name()` ou outras
+funções. A avaliação eager das expressões dos argumentos permanece: falha
+durante essa avaliação ainda precede a entrada na nativa.
+
+Esta seção substitui cláusulas P1328–P1332 de precedência absoluta dos
+guards **somente quando falha o primeiro posicional**. As demais
+preservações históricas permanecem. A validação de argumentos de `abs`
+continua explicitamente incompleta: P1334 deve completar mensagens/ordem
+das sobras após valor válido, ausência, named `value:` e seu hint, e origem
+agregada da chamada ausente, após medição e atualização de seus owners.
+Não se alega paridade integral de guards nem se antecipa código desse passo.
+
+### Aceitação
+
+Testes A/B congelados antes do candidato cobrem famílias rejeitadas,
+overflow/misto, named antes/depois, extras posicionais, origens normais e
+detached, With/spreads/alias/import e fronteiras sem valor/primeiro válido.
+Sucessores dos testes históricos migram apenas expectativas atingidas,
+com ledger explícito, sem editar artefatos antigos. Preservar controles de
+avaliação eager, matemática e outros débitos. Exigir RED compilado, GREEN,
+corpus CLI literal repetido/reordenado, build/workspace, fmt, linhagem,
+V15/V26 e linter sem violações. Unknown obrigatório bloqueia conclusão.
+Regime A/B sem atestação técnica de isolamento, sem selo de refinamento
+ou mutation score. Evidências e estado exato ficam em diagnósticos.

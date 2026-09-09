@@ -1,0 +1,26 @@
+{
+  "utc": "2026-09-09T15:24:09.474547+00:00",
+  "regime": "A/B without technical isolation attestation; no refinement seal",
+  "role": "/root/p1333_tests",
+  "manifest_sha256": "75eea7c2a28cd8c75098d4d8fc5b2c733c30c09b7eca52a2ce7a772a24e0e99b",
+  "l0_norm_sha256": "517e1544fbd419a5b1c13e524c02570d3c22606a7b97d25562723c278bdd2e83",
+  "artifacts": {
+    "p1333-ab-tests.rs": "3eee1e242be9cb07981461678a4808d26c26143a52d918b79a50ea173baf6296",
+    "p1333-ab-p1328-successor.rs": "eb52652f37ed32ba163f4751b50d970b9424ac34a0010fe3587bd4fc18166903",
+    "p1333-ab-p1329-successor.rs": "9ad4767a0846acaed1b00e45fc6b685106407294a3d94d3c82bc045d897ab68f",
+    "p1333-ab-p1330-successor.rs": "21bf2b7666995500a0d304b086f48d3cca8f03bdfb6d8855d6f89e0052eca5da",
+    "p1333-ab-p1331-successor.rs": "c7b8efa68ad5150074dfa870703b540a054e23165a217d32f5d0fbdd59498b2a",
+    "p1333-ab-p1332-successor.rs": "422a587cd297746c727ca7d86972bfd0b7d7f472d98fada0ac23eb4674bf9515"
+  },
+  "inputs": {
+    "p1333-manifest.json": "75eea7c2a28cd8c75098d4d8fc5b2c733c30c09b7eca52a2ce7a772a24e0e99b",
+    "p1333-baseline-public.json": "45a23be20fd81ff9b77c60ff89db3267ce615a77d3fb41df444f3af054bf8800",
+    "p1332-ab-tests.rs": "1fd2e040053636b745955829ea7b7645699044f6870d391318d1b37e0a064b4a",
+    "p1332-ab-freeze.json": "7e2e2350cefbf5316131cd8ff9ccc0baf53be0efb36d3a0a4ffe059990c21719",
+    "p1332-ab-p1328-successor.rs": "4ef96ac6c9139263f31bb06829422fa68f45a1f00ebc05c45404475559ed6c7b",
+    "p1332-ab-p1329-successor.rs": "8da9ad2652ecfe4415eecb1d661a71b6ff56b9fcf98d1c3c82d8e6c3eebc302e",
+    "p1332-ab-p1330-successor.rs": "e885c1fc15928edb4693bed00cad0328447f5497b3a2105569a69ba8aceab35c",
+    "p1332-ab-p1331-successor.rs": "27d94a4620485de1230fd02f061285dc92e60b2286498d006f796ccc73bdad3b"
+  },
+  "status": "Native tests frozen before candidate; no native execution/compilation by B. CLI BASE/VANILLA measurement pending tool response. Full freeze will preserve these exact hashes."
+}
