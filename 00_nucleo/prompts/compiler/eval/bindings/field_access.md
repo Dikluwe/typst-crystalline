@@ -1,8 +1,70 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 3a6ed279
+Hash do Código: 4e4810f3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1336 — field ausente em instância Int/Str
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1336-measurement.json`, SHA-256
+`0865c045fde6b0d3689a77d83a9d255ea927e76185ad7cfb0dcb6dfb8ca3e375`,
+concluído em `2026-09-09T17:56:26.736676+00:00`, preserva comandos, fontes,
+UTC e canais integrais. Baseline P1336 SHA-256
+`e81e034167a994ab3dd1c318a7dd7384cd18ef75e0d2b3c1c666eb26724e441f`,
+HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitada
+com diff/stat e arquivos exatos. Vanilla ratificado upstream a51e02804 SHA
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
+cristalino antecedente SHA
+`11e3164fa509030cc78dc048d5bb4f2426348e32a24edc7cd2f320c704e6ef61`.
+
+`(1).nope`, `"abc".nope` e aliases multilinha/Unicode recebem nomes `int`/`str`
+e âncora do acesso inteiro no cristalino; vanilla publica `integer`/`string`
+e ancora só o field. `field_access.rs:533–542` exclui Int/Str de field-only;
+`:834–837` usa type_name() no fallback. O helper vanilla_type_name já importado
+em `:28` possui os nomes longos em `operators/error_formatting.rs:58,60`.
+Vanilla `typst-eval/src/code.rs:347–366` fornece field.span(). O critério
+canônico deste L0 para `(1).foo` já exige `integer`; não foi revogado pelas
+preservações dos reparos estreitos anteriores. `true.nope` e `int.nope`
+medem dívidas próprias, enquanto `"abc".len()` mantém o valor válido.
+
+### Obrigação, sucessão e limites
+
+Ao chegar ao fallback de lookup deste owner com `Value::Int` ou `Value::Str`,
+o erro deve ser exatamente `cannot access fields on type integer` ou
+`cannot access fields on type string`, respectivamente, qualquer que seja o
+valor, nome do field ou alias. Não consultar ortografia da fixture nem mudar
+os nomes de type()/repr(). O acesso AST fornece todos e somente os bytes de
+access.field().span(), excluindo receiver, ponto, parênteses e whitespace;
+o lookup puro conserva exatamente o span que recebeu, sem reconstruir origem.
+Preservar erro único, severidade error, ausência de hints/laterais novos e
+os traces causais existentes, sem criar membro, callable ou valor substituto.
+
+Esta obrigação sucede expressamente a preservação de mensagem/span Int/Str
+nas cláusulas gerais P1301/P1303/P1306/P1311/P1324/P1325/P1326, somente no
+acesso que chega a este lookup. Pré-despacho de métodos, gates antecipados,
+field_callee_error e ordem de avaliação permanecem intactos: uma falha anterior
+ao lookup não é corrigida nem recebe crédito de paridade. Métodos Int/Str
+existentes e os namespaces Type::Int/Type::Str não mudam. Preservar Bool e
+outras variantes, Module, Dict, Content/LocatedContent, Float/is-nan, funções
+nativas Some/None, closures/With, PDF/features, text contextual e warnings.
+Não generalizar nomes longos ou field-only ao fallback de outros tipos.
+
+Mensagem/origem são observáveis de linguagem (ADR-0107/0108); representação
+Rust e algoritmo são mecanismo. A intenção normativa vem deste contrato de
+lookup, não é inferida como intenção histórica do vanilla. É inferência que
+AST e helper já disponíveis bastam neste owner; outro consumer, origem
+irrecuperável, efeito em método válido ou nova API/default/fase refutam o
+recorte e exigem reabrir o escopo antes de ampliá-lo.
+
+Classificação ADR-0127: correção interna de paridade em fluxo contínuo,
+L0-first + resselo, RED→GREEN e revalidação. Aceitação exige testes locais e
+A/B independentes congelados antes do candidato, nomes/valores variados,
+aliases, parênteses, multilinha e Unicode, lookup puro, sucessos e exclusões;
+comparação integral nos quatro perfis, repetição/inversão e mutantes aplicáveis
+rejeitados. Unknown obrigatório bloqueia; preservação de uma dívida não
+significa igualdade com vanilla nem fechamento geral de fields.
 
 ## P1326 — field ausente em closure definida pelo usuário
 

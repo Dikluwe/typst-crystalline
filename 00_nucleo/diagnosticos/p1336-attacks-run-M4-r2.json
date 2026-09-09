@@ -1,0 +1,71 @@
+{
+  "id": "M4",
+  "source_sha256": "48f91e9f8093b333e7a74147a5d8012630a6f01fc5a3db1aec26ea07979653e5",
+  "path": "/tmp/p1336-attacks-1e4k8nye/M4/field_access.rs",
+  "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+  "patch_sha256": "599b7a0ef4436e0addd777b153cb47a9851ec1a1dbe2db1b2b39cf439418eeaa",
+  "revision": 2,
+  "at_start": "2026-09-09T18:38:37.899348+00:00",
+  "at_end": "2026-09-09T18:41:49.189914+00:00",
+  "seconds": 191.29057191099855,
+  "argv": [
+    "cargo",
+    "test",
+    "--release",
+    "--locked",
+    "--offline",
+    "-p",
+    "typst-core",
+    "--lib",
+    "p1336_tests",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/tmp/p1336-attacks-1e4k8nye/workspace",
+  "env": {
+    "CARGO_TARGET_DIR": "/tmp/p1336-attacks-1e4k8nye/target",
+    "CARGO_BUILD_JOBS": "2"
+  },
+  "mtime_before_ns": 1788977923412115823,
+  "mtime_after_ns": 1788979117899240593,
+  "exit": 101,
+  "execution_error": null,
+  "compiled_typst_core": true,
+  "valid_execution": true,
+  "executable_path": "/tmp/p1336-attacks-1e4k8nye/target/release/deps/typst_core-34577d6f7c6d8e68",
+  "executable_sha256": "0659b5b02d593f877b750770c8fa404ee42b572ed8f610d73680a104236e5efa",
+  "stdout_path": "/tmp/p1336-attacks-1e4k8nye/M4-r2/test.stdout",
+  "stderr_path": "/tmp/p1336-attacks-1e4k8nye/M4-r2/test.stderr",
+  "stdout_sha256": "7fc3fc9c5de0dbc5aa835ecfcca1466ff8f33e7d4053a1c04ca7fb212edf7d16",
+  "stderr_sha256": "303c35e553805f7f3421127b26e048f58a964e6c83ac71713ec6238a672a1a0b",
+  "runner_sha256": "3e022ae0402b37972d03d1b1cba14d64ffb24fd00f1348ac76d92f0f8da6d448",
+  "manifest_sha256": "54864bfd67d50197560011d5aae055a0303fcc9cadc4230221dfd4f7a6daea88",
+  "baseline_sha256": "e81e034167a994ab3dd1c318a7dd7384cd18ef75e0d2b3c1c666eb26724e441f",
+  "candidate_sha256": "2fa98b5a5d5c5ed05a5d6a2541a64a42452279b172a6ba9468edebbad614321d",
+  "final_l0_sha256": "b397126b10894af4eecda44c7f5876e8e435730d2541df0f08a966922c44588f",
+  "execution_provenance": {
+    "at": "2026-09-09T18:27:10.502766+00:00",
+    "head": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+      "stderr": ""
+    },
+    "diff_stat": {
+      "argv": [
+        "git",
+        "diff",
+        "HEAD",
+        "--stat"
+      ],
+      "exit": 0,
+      "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  249 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  947 +++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6192 insertions(+), 118 deletions(-)\n",
+      "stderr": ""
+    }
+  },
+  "status": "failed_test_pending_witness_review"
+}

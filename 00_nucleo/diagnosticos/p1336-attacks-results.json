@@ -1,0 +1,355 @@
+{
+  "at": "2026-09-09T18:18:43.360920+00:00",
+  "base": "/tmp/p1336-attacks-1e4k8nye",
+  "workspace": "/tmp/p1336-attacks-1e4k8nye/workspace",
+  "candidate_sha256": "2fa98b5a5d5c5ed05a5d6a2541a64a42452279b172a6ba9468edebbad614321d",
+  "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+  "manifest_sha256": "54864bfd67d50197560011d5aae055a0303fcc9cadc4230221dfd4f7a6daea88",
+  "candidate_receipt_sha256": "d8295978c3ec103730a82e5286c75eda7c87038bd929783ad045c6a595819e94",
+  "baseline_sha256": "e81e034167a994ab3dd1c318a7dd7384cd18ef75e0d2b3c1c666eb26724e441f",
+  "plan_sha256": "821106df1e4f4a5aa78bd57720b1605a9c3a438ddbb4edbcb6026dc8b919f778",
+  "copy_policy": "shutil.copy2/copytree; distinct inodes; no mutable hardlinks",
+  "copied_roots": [
+    "Cargo.toml",
+    "Cargo.lock",
+    ".cargo",
+    "01_core",
+    "02_shell",
+    "03_infra",
+    "04_wiring",
+    "benches"
+  ],
+  "mutants": [
+    {
+      "id": "C",
+      "source_sha256": "2fa98b5a5d5c5ed05a5d6a2541a64a42452279b172a6ba9468edebbad614321d",
+      "path": "/tmp/p1336-attacks-1e4k8nye/C/field_access.rs",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "patch_sha256": null
+    },
+    {
+      "id": "M1",
+      "source_sha256": "ffb54ef4d3aa6b89b4084f91ea0ecbae52f17ea2cd47ff284330a1c8dd0b1601",
+      "path": "/tmp/p1336-attacks-1e4k8nye/M1/field_access.rs",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "patch_sha256": "490de06ad069576e28cc5002d56bf9bf9e829fcdd44bd33aebc077f96ebfc7b1"
+    },
+    {
+      "id": "M2",
+      "source_sha256": "1f23f421330a1d3d5557538da4b7ff6b515b0e8bf59805ed334f877f71d2283d",
+      "path": "/tmp/p1336-attacks-1e4k8nye/M2/field_access.rs",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "patch_sha256": "b9bff8f02a8949fd70e05b380004546a1914467ba112ac0c0db3addbb6ddcabd"
+    },
+    {
+      "id": "M3",
+      "source_sha256": "28db1166dbbb6d1f26806c08aa302d4f10f06d03fba745bc37ecba34b9a75f57",
+      "path": "/tmp/p1336-attacks-1e4k8nye/M3/field_access.rs",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "patch_sha256": "f577ebc0b83d602176bf91050e5de42a49600085a0268b6af1a88b92521af896"
+    },
+    {
+      "id": "M4",
+      "source_sha256": "48f91e9f8093b333e7a74147a5d8012630a6f01fc5a3db1aec26ea07979653e5",
+      "path": "/tmp/p1336-attacks-1e4k8nye/M4/field_access.rs",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "patch_sha256": "599b7a0ef4436e0addd777b153cb47a9851ec1a1dbe2db1b2b39cf439418eeaa"
+    },
+    {
+      "id": "M5",
+      "source_sha256": "72972c03cea76905669eb57a80ed9fc57f0970c6ca4a7303f0116af6d7d03aef",
+      "path": "/tmp/p1336-attacks-1e4k8nye/M5/field_access.rs",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "patch_sha256": "bf0e1661812a24f52ba64f936e0a46eb6a5d48b9ead2241a0d7c6cc2f8b5d9d9"
+    },
+    {
+      "id": "M6",
+      "source_sha256": "1f6892c833291b641b3861b60d304746e37dc1f4291294c9484aac3e79e8f883",
+      "path": "/tmp/p1336-attacks-1e4k8nye/M6/field_access.rs",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "patch_sha256": "eb89b1dc0d4e60750e0c7a934e28c0467949cde51f62ba9403622a6d568b0681"
+    }
+  ],
+  "runs": [
+    {
+      "id": "C",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1336_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1336-attacks-1e4k8nye/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1336-attacks-1e4k8nye/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "at_start": "2026-09-09T18:27:10.986760+00:00",
+      "at_end": "2026-09-09T18:27:11.302473+00:00",
+      "seconds": 0.3157140269759111,
+      "exit": 0,
+      "execution_error": null,
+      "source_sha256": "2fa98b5a5d5c5ed05a5d6a2541a64a42452279b172a6ba9468edebbad614321d",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "valid_execution": true,
+      "stdout_path": "/tmp/p1336-attacks-1e4k8nye/C/test.stdout",
+      "stderr_path": "/tmp/p1336-attacks-1e4k8nye/C/test.stderr",
+      "stdout_sha256": "315404d7126910d0deaf10acfabd6eb8e35bfae6c5bacb9b2247d7a5b4137c46",
+      "stderr_sha256": "cdaeec6a35ef5cd20777c1f589b24c4658b5dd9ca306d440dfa83b045e5dfa9f",
+      "status": "passed"
+    },
+    {
+      "id": "M1",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1336_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1336-attacks-1e4k8nye/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1336-attacks-1e4k8nye/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "at_start": "2026-09-09T18:27:11.310712+00:00",
+      "at_end": "2026-09-09T18:30:22.012383+00:00",
+      "seconds": 190.70755597000243,
+      "exit": 101,
+      "execution_error": null,
+      "source_sha256": "ffb54ef4d3aa6b89b4084f91ea0ecbae52f17ea2cd47ff284330a1c8dd0b1601",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "valid_execution": true,
+      "stdout_path": "/tmp/p1336-attacks-1e4k8nye/M1/test.stdout",
+      "stderr_path": "/tmp/p1336-attacks-1e4k8nye/M1/test.stderr",
+      "stdout_sha256": "76e0c934558b31754b1127b6e09b47faef219be4a3ad8eafa1157c339fe2752e",
+      "stderr_sha256": "9c2d198eb4e24facc543eb464c8980d8811024b802e88665e2cf74cf066e49a5",
+      "status": "failed_test"
+    },
+    {
+      "id": "M2",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1336_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1336-attacks-1e4k8nye/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1336-attacks-1e4k8nye/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "at_start": "2026-09-09T18:30:22.032037+00:00",
+      "at_end": "2026-09-09T18:30:22.650239+00:00",
+      "seconds": 0.6182004290167242,
+      "exit": 101,
+      "execution_error": null,
+      "source_sha256": "1f23f421330a1d3d5557538da4b7ff6b515b0e8bf59805ed334f877f71d2283d",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "valid_execution": true,
+      "stdout_path": "/tmp/p1336-attacks-1e4k8nye/M2/test.stdout",
+      "stderr_path": "/tmp/p1336-attacks-1e4k8nye/M2/test.stderr",
+      "stdout_sha256": "76e0c934558b31754b1127b6e09b47faef219be4a3ad8eafa1157c339fe2752e",
+      "stderr_sha256": "72d8a1fdd77b4a012fead9b4e73fdbe8c647ef053920bdbdad060d259a456419",
+      "status": "failed_test"
+    },
+    {
+      "id": "M3",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1336_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1336-attacks-1e4k8nye/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1336-attacks-1e4k8nye/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "at_start": "2026-09-09T18:30:22.658725+00:00",
+      "at_end": "2026-09-09T18:30:22.924046+00:00",
+      "seconds": 0.2653228580020368,
+      "exit": 101,
+      "execution_error": null,
+      "source_sha256": "28db1166dbbb6d1f26806c08aa302d4f10f06d03fba745bc37ecba34b9a75f57",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "valid_execution": true,
+      "stdout_path": "/tmp/p1336-attacks-1e4k8nye/M3/test.stdout",
+      "stderr_path": "/tmp/p1336-attacks-1e4k8nye/M3/test.stderr",
+      "stdout_sha256": "76e0c934558b31754b1127b6e09b47faef219be4a3ad8eafa1157c339fe2752e",
+      "stderr_sha256": "ce6549f7dc208b344deac3d007d8261871a09c357979a38f8ae326fadc442478",
+      "status": "failed_test"
+    },
+    {
+      "id": "M4",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1336_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1336-attacks-1e4k8nye/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1336-attacks-1e4k8nye/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "at_start": "2026-09-09T18:30:22.935556+00:00",
+      "at_end": "2026-09-09T18:30:23.200743+00:00",
+      "seconds": 0.26518726599169895,
+      "exit": 101,
+      "execution_error": null,
+      "source_sha256": "48f91e9f8093b333e7a74147a5d8012630a6f01fc5a3db1aec26ea07979653e5",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "valid_execution": true,
+      "stdout_path": "/tmp/p1336-attacks-1e4k8nye/M4/test.stdout",
+      "stderr_path": "/tmp/p1336-attacks-1e4k8nye/M4/test.stderr",
+      "stdout_sha256": "76e0c934558b31754b1127b6e09b47faef219be4a3ad8eafa1157c339fe2752e",
+      "stderr_sha256": "02e6c74164345606254957588317496826824538c6574070b0e0091fbca051da",
+      "status": "failed_test"
+    },
+    {
+      "id": "M5",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1336_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1336-attacks-1e4k8nye/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1336-attacks-1e4k8nye/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "at_start": "2026-09-09T18:30:23.212488+00:00",
+      "at_end": "2026-09-09T18:30:23.477950+00:00",
+      "seconds": 0.2654622260015458,
+      "exit": 101,
+      "execution_error": null,
+      "source_sha256": "72972c03cea76905669eb57a80ed9fc57f0970c6ca4a7303f0116af6d7d03aef",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "valid_execution": true,
+      "stdout_path": "/tmp/p1336-attacks-1e4k8nye/M5/test.stdout",
+      "stderr_path": "/tmp/p1336-attacks-1e4k8nye/M5/test.stderr",
+      "stdout_sha256": "76e0c934558b31754b1127b6e09b47faef219be4a3ad8eafa1157c339fe2752e",
+      "stderr_sha256": "6a3e2b2f1a22b294fe15d15706b9bbe3a9a4be1ae5c802e790d18f5ffa30419e",
+      "status": "failed_test"
+    },
+    {
+      "id": "M6",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1336_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1336-attacks-1e4k8nye/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1336-attacks-1e4k8nye/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "at_start": "2026-09-09T18:30:23.489661+00:00",
+      "at_end": "2026-09-09T18:30:23.754777+00:00",
+      "seconds": 0.265117116010515,
+      "exit": 101,
+      "execution_error": null,
+      "source_sha256": "1f6892c833291b641b3861b60d304746e37dc1f4291294c9484aac3e79e8f883",
+      "tests_sha256": "b30cc9449bef081d51d44d664aed04c4c26c48bcde15ecf4b31938a1ecfd9934",
+      "valid_execution": true,
+      "stdout_path": "/tmp/p1336-attacks-1e4k8nye/M6/test.stdout",
+      "stderr_path": "/tmp/p1336-attacks-1e4k8nye/M6/test.stderr",
+      "stdout_sha256": "76e0c934558b31754b1127b6e09b47faef219be4a3ad8eafa1157c339fe2752e",
+      "stderr_sha256": "4f3e34ed79e8e81bbdf44a75d13ec6f28c4af0c598352bd626d5d2e2df0699f5",
+      "status": "failed_test"
+    }
+  ],
+  "runner_sha256": "408e6389ca0dfe7563d24176479700240a00965761f856ef29b31635420f7539",
+  "final_l0_sha256": "b397126b10894af4eecda44c7f5876e8e435730d2541df0f08a966922c44588f",
+  "final_source_main_sha256": "2fa98b5a5d5c5ed05a5d6a2541a64a42452279b172a6ba9468edebbad614321d",
+  "execution_provenance": {
+    "at": "2026-09-09T18:27:10.502766+00:00",
+    "head": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+      "stderr": ""
+    },
+    "diff_stat": {
+      "argv": [
+        "git",
+        "diff",
+        "HEAD",
+        "--stat"
+      ],
+      "exit": 0,
+      "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  249 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  947 +++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6192 insertions(+), 118 deletions(-)\n",
+      "stderr": ""
+    }
+  },
+  "cache_copy": {
+    "argv": [
+      "cp",
+      "-a",
+      "--reflink=auto",
+      "/tmp/p1336-target.QiOMGq/.",
+      "/tmp/p1336-attacks-1e4k8nye/target"
+    ],
+    "at": "2026-09-09T18:27:10.544877+00:00",
+    "seconds": 0.43791342299664393,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "status": "executed_pending_independent_review"
+}

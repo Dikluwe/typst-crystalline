@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 97a2773e
+//! @prompt-hash 65cbfb3c
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -531,7 +531,12 @@ pub(in crate::compiler::eval) fn eval_field_access(
 
     let span = if matches!(
         &target,
-        Value::Module(_) | Value::Dict(_) | Value::Content(_) | Value::Float(_)
+        Value::Module(_)
+            | Value::Dict(_)
+            | Value::Content(_)
+            | Value::Float(_)
+            | Value::Int(_)
+            | Value::Str(_)
     ) || matches!(&target, Value::Func(f) if native_public_name(f).is_some() || is_user_defined_closure(f))
     {
         access.field().span()
@@ -831,6 +836,10 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
                 format!("unknown symbol modifier '{field}'"),
             )]
         }),
+        other @ (Value::Int(_) | Value::Str(_)) => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("cannot access fields on type {}", vanilla_type_name(&other)),
+        )]),
         other => Err(vec![SourceDiagnostic::error(
             span,
             format!("cannot access fields on type {}", other.type_name()),
@@ -1611,6 +1620,213 @@ mod p1325_located_tests {
             assert_eq!(world.source.span_byte_range(errors[0].span), Some(1..text.len()));
             assert!(errors[0].hints.is_empty());
             assert!(errors[0].trace.is_empty());
+        }
+    }
+}
+
+#[cfg(test)]
+mod p1336_tests {
+    use super::{eval_value_field_access, Span, Value};
+    use crate::compiler::eval::{
+        eval_expression_with_features, eval_with_full_error_target_and_features,
+        EvalTarget,
+    };
+    use crate::contracts::world::World;
+    use crate::entities::compiler_features::{Feature, Features};
+    use crate::entities::element_registry::ElementRegistry;
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::sink::Sink;
+    use crate::entities::source::Source;
+    use crate::entities::source_result::Severity;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library, Route, Routines, Traced,
+    };
+    use comemo::Track;
+    use std::num::NonZeroU16;
+
+    struct TestWorld {
+        source: Source,
+        library: Library,
+        book: FontBook,
+    }
+
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn profiles() -> Vec<Features> {
+        (0..4)
+            .map(|mask| {
+                let mut features = Features::empty();
+                if mask & 1 != 0 {
+                    features.enable(Feature::Html);
+                }
+                if mask & 2 != 0 {
+                    features.enable(Feature::A11yExtras);
+                }
+                features
+            })
+            .collect()
+    }
+
+    fn check_ast(text: &str, anchor: &str, message: &str) {
+        for features in profiles() {
+            let world = TestWorld {
+                source: Source::detached(text),
+                library: Library::new(),
+                book: FontBook::new(),
+            };
+            let mut sink = Sink::new();
+            let errors = eval_with_full_error_target_and_features(
+                &Routines::new(),
+                &world,
+                Traced::default().track(),
+                sink.track_mut(),
+                Route::root().track(),
+                &world.source,
+                &ElementRegistry::new(),
+                false,
+                EvalTarget::Paged,
+                features,
+            )
+            .unwrap_err();
+            assert!(sink.into_diagnostics().is_empty(), "{text}");
+            assert_eq!(errors.len(), 1, "{text}");
+            let d = &errors[0];
+            assert_eq!(d.message, message, "{text}");
+            assert_eq!(d.severity, Severity::Error);
+            assert!(d.hints.is_empty(), "{text}");
+            assert!(d.trace.is_empty(), "{text}");
+            let start = text.rfind(anchor).unwrap();
+            assert_eq!(
+                world.source.span_byte_range(d.span),
+                Some(start..start + anchor.len()),
+                "{text}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1336_pure_lookup_names_and_supplied_span() {
+        let file = FileId::from_raw(NonZeroU16::new(9).unwrap());
+        for span in [
+            Span::detached(),
+            Span::from_range(file, 3..8),
+            Span::from_range(file, 88..119),
+        ] {
+            for (value, name) in [
+                (Value::Int(0), "integer"),
+                (Value::Int(-812), "integer"),
+                (Value::Int(i64::MAX), "integer"),
+                (Value::Str("".into()), "string"),
+                (Value::Str("ação 🦊".into()), "string"),
+            ] {
+                for field in
+                    ["missing", "absent-long-field", "ausência", "len", "bit-and"]
+                {
+                    let errors =
+                        eval_value_field_access(value.clone(), field, span).unwrap_err();
+                    assert_eq!(errors.len(), 1);
+                    assert_eq!(
+                        errors[0].message,
+                        format!("cannot access fields on type {name}")
+                    );
+                    assert_eq!(errors[0].span, span);
+                    assert_eq!(errors[0].severity, Severity::Error);
+                    assert!(errors[0].hints.is_empty());
+                    assert!(errors[0].trace.is_empty());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn p1336_int_ast_identifier_span() {
+        for (text, field) in [
+            ("#((0).missing)", "missing"),
+            ("#(((-812)).absent-long-field)", "absent-long-field"),
+            ("#let n = 823\n#let alias = n\n#alias.unknown", "unknown"),
+            ("#let número = 19\n#número.ausência", "ausência"),
+            ("#let n = 7\n#(\n (n)\n .missing\n)", "missing"),
+            ("#((3).bit-and)", "bit-and"),
+        ] {
+            check_ast(text, field, "cannot access fields on type integer");
+        }
+    }
+
+    #[test]
+    fn p1336_str_ast_identifier_span() {
+        for (text, field) in [
+            ("#(\"\".missing)", "missing"),
+            ("#(((\"ação 🦊\")).absent-long-field)", "absent-long-field"),
+            ("#let s = \"abc\"\n#let alias = s\n#alias.unknown", "unknown"),
+            ("#let texto = \"ação\"\n#texto.ausência", "ausência"),
+            ("#let s = \"abc\"\n#(\n (s)\n .missing\n)", "missing"),
+        ] {
+            check_ast(text, field, "cannot access fields on type string");
+        }
+    }
+
+    #[test]
+    fn p1336_preserve_other_fallback_names_and_ast_span() {
+        for (text, anchor, message) in [
+            ("#(true.nope)", "true.nope", "cannot access fields on type bool"),
+            ("#(none.nope)", "none.nope", "cannot access fields on type none"),
+            ("#(auto.nope)", "auto.nope", "cannot access fields on type auto"),
+        ] {
+            check_ast(text, anchor, message);
+        }
+    }
+
+    #[test]
+    fn p1336_preserve_int_str_methods_and_type_namespaces() {
+        for features in profiles() {
+            let world = TestWorld {
+                source: Source::detached(""),
+                library: Library::new(),
+                book: FontBook::new(),
+            };
+            for (expr, expected) in [
+                ("(7).bit-and(3)", Value::Int(3)),
+                ("int.bit-and(7,3)", Value::Int(3)),
+                ("\"abc\".len()", Value::Int(3)),
+                ("str.len(\"abc\")", Value::Int(3)),
+                ("\"abc\".len", Value::Int(3)),
+                ("\"abc\".contains(\"b\")", Value::Bool(true)),
+                ("type(19) == int", Value::Bool(true)),
+                ("type(\"abc\") == str", Value::Bool(true)),
+                ("repr(19)", Value::Str("19".into())),
+                ("repr(\"abc\")", Value::Str("\"abc\"".into())),
+            ] {
+                let (result, warnings) =
+                    eval_expression_with_features(&world, expr, features);
+                assert!(warnings.is_empty(), "{expr}");
+                assert_eq!(result.unwrap(), expected, "{expr}");
+            }
         }
     }
 }

@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-09T18:26:54Z",
+  "reason": "Operator required immutable per-run receipts and explicit Unknown for command failure/timeout before any Cargo execution.",
+  "prior_runner_sha256": "d30a05a8dac9f7d0f10566fe1a7b32792b0839d70f2da329a71b1585b5788188",
+  "final_runner_sha256": "408e6389ca0dfe7563d24176479700240a00965761f856ef29b31635420f7539",
+  "changes": [
+    "Publish each run-C and run-M1..M6 as add-only apply_patch JSON guarded by absence assertions.",
+    "Publish results.json exactly once after execution, including explicit Unknown when cache copy or Cargo fails/times out.",
+    "Retain stdout/stderr with exclusive creation and keep all earlier outputs."
+  ],
+  "validation": "Python ast.parse succeeded; no Cargo execution before this revision.",
+  "protected_inputs_changed": false,
+  "mutant_families_changed": false,
+  "oracle_expectations_changed": false,
+  "discriminatory_revision": false
+}

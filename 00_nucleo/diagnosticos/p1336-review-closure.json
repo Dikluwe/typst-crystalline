@@ -1,0 +1,45 @@
+{
+  "verdict": "CLOSURE_VERIFIED",
+  "scope_verdict": "PASS_SCOPED",
+  "reviewer": "/root/p1336_review",
+  "checked_at": "2026-09-09T18:52:28.302Z",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "branch": "Tekt",
+  "working_tree": "dirty baseline preserved; no staging or commit",
+  "inputs": {
+    "00_nucleo/diagnosticos/p1336-closure.json": "01232cfd02c943d61c9b5a0aed7253d5170f795795e321113a9bf269109e075d",
+    "00_nucleo/diagnosticos/p1336-review-final.json": "53a9a588e42086b1336e74951e98bb58aa5bae7efc5f328823f3ed341fe4b1bb",
+    "00_nucleo/diagnosticos/p1336-review-postclosure-audit.json": "8750df99784ae5358f2c6019397636ee249e21138f3e774d71c0b24d4b2356b2",
+    "00_nucleo/diagnosticos/p1336-final-report.md": "31af89f8d1851430390f8d4227fd669c93743d584b2e03ff4a44f6d714962cdf",
+    "00_nucleo/diagnosticos/p1336-close.py": "5ef6398355d6a49c4b26df92222c6ba038053f67dc9566aa5ae9cb06229ceb57"
+  },
+  "verified_pin_counts": {
+    "closure_artifacts": 88,
+    "historical_preserved": 5022,
+    "retained_mutant_artifacts": 28,
+    "predecessor_active_exports_preserved": 441,
+    "independent_final_review_inputs": 89
+  },
+  "product_delta_from_dirty_baseline": [
+    "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+    "01_core/src/compiler/eval/bindings/field_access.rs"
+  ],
+  "checks": {
+    "closure_pins_recomputed": true,
+    "final_review_pins_recomputed": true,
+    "frozen_source_tests_and_normative_l0_unchanged": true,
+    "reciprocal_lineage_valid": true,
+    "historical_diagnostics_unchanged": true,
+    "predecessor_active_exports_unchanged": true,
+    "branch_and_staging_unchanged": true,
+    "no_unexpected_product_changes": true
+  },
+  "violations": [],
+  "unknowns": [],
+  "limits": [
+    "A/B execution without technical isolation attestation or refinement seal; scope and limitations of the final review remain in force.",
+    "The restricted execution-step file was not reread by the reviewer; its closure hash remains operator evidence.",
+    "Five stale-cache first-round mutant executions remain invalid historical evidence without credit; six effective mutants were independently validated.",
+    "This append-only postclosure receipt does not modify the closure or its captured artifact map; closure_execution_pending in the earlier review records its issuance-time state."
+  ]
+}
