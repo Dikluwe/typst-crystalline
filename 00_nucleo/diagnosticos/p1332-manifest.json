@@ -1,0 +1,24 @@
+{
+  "at": "2026-09-09T14:33:21.673097+00:00",
+  "regime": "A/B without technical isolation attestation or refinement seal",
+  "prompt": "00_nucleo/prompts/compiler/stdlib/calc.md",
+  "prompt_norm_sha256": "ac26a9a0492f250e4a59175256b8b1b7a4a173546dc483131a704f01262b84ad",
+  "baseline_sha256": "1e9b77f550d5e34c4d3b52df5306eae3588122a35262d19128561532c33a7d97",
+  "public_baseline_sha256": "559b83db56c457f13aa8969a3260f99fec3b90f3b759c0e844a0749ce547e1ed",
+  "name_consumers_sha256": "2d8ea9bb87879b307d1a7bd35e35c72feb02f913470b935aa8355207f8002e48",
+  "previous_closure_sha256": "2d2ac6b9510f84c085d95bc0caf5cc54591ca6d0f3fdbdf8110e5d695d3668f7",
+  "step": {
+    "path": "00_nucleo/materialization/typst-passo-1332.md",
+    "sha256": "4523e6f18de53011974a204d4f762fd82c5507ff8456327813a580d3879ee71f"
+  },
+  "target": "/tmp/p1332-target.tTIpWy",
+  "roles": {
+    "root": "L0/candidate/integration/evidence; no oracle edits",
+    "tests": "fresh context; L0 + public baseline + frozen historical test snippets only; writes p1332-ab-*; no runtime/patch/private candidate receipts",
+    "review": "read-only judged inputs; writes p1332-review-*"
+  },
+  "observable": "intrinsic abs name and all measured consumers; preserve computation/guards/origins/repr/identity; other diagnostics remain debt",
+  "unknown": "mandatory Unknown blocks closure",
+  "budget": "two focal revisions without gain reopen before full repeat",
+  "commit": false
+}

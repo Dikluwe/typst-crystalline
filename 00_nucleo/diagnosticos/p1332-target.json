@@ -1,0 +1,4 @@
+{
+  "target": "/tmp/p1332-target.tTIpWy",
+  "reason": "Dedicated copy without hardlinks; /dev/shm free 3.3G insufficient for prior build cache; previous targets preserved"
+}

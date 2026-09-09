@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: 8d7359a9
+Hash do Código: 0f671ea9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/calc.rs`
@@ -329,6 +329,76 @@ Regime A/B sem atestação de isolamento, correção contínua ADR-0127 sem
 API/default/fase novos. É inferência que este owner basta; necessidade de
 outro consumer ou ausência de origem real obrigatória refuta o recorte
 antes de ampliá-lo. Não se afirma paridade geral de abs, dos tipos ou calc.
+
+## P1332 — nome intrínseco da função abs
+
+### Medição anterior à decisão
+
+`diagnosticos/p1332-baseline.json`, SHA-256
+`1e9b77f550d5e34c4d3b52df5306eae3588122a35262d19128561532c33a7d97`,
+registra HEAD/diff/stat/inventário e argv/horários dos binários P1331 e
+vanilla ratificado a51e02804. With e arguments conservam a origem correta,
+mas seus traces cristalinos dizem calc.abs enquanto vanilla diz abs.
+`compiler/stdlib/calc.rs:58` registra o nome qualificado; a chave já é abs.
+Vanilla `foundations/calc.rs:73-79` declara a função abs. O nome aparece no
+diagnóstico de linguagem, não é uma estrutura interna a copiar.
+
+`entities/func.rs:291-300` propaga nome por With; `eval/call_dispatch.rs:1648`
+consome esse nome no trace. `eval/repr.rs:87` já retira o prefixo: repr de
+lookup/alias/import e With não precisam mudar. A checagem extra da fonte
+refuta a afirmação de que nome é apenas apresentação: igualdade/hash
+nativos também o usam (`entities/func.rs:390,404-406`). Não foi encontrado
+registro produtivo concorrente chamado abs; preservar a identidade da
+linguagem por lookup/import/alias e a distinção das demais funções.
+Não fixar valores de hash Rust como critério semântico.
+
+`diagnosticos/p1332-name-consumers-public.json`, SHA-256
+`2d8ea9bb87879b307d1a7bd35e35c72feb02f913470b935aa8355207f8002e48`,
+com proveniência e binários, mede efeitos indiretos: `stdlib/gradients.rs:649`
+e `eval/rules.rs:2488` interpolam o nome em erros de space/show. Esses
+diagnósticos não coincidem com vanilla; trocar o nome não os torna paridade.
+`.where()` já publica nome curto e permanece como dívida própria.
+O comportamento medido não prova intenção geral de nomes/identidade do
+upstream; legitima a correção local do registro desta função.
+
+### Decisão e aceitação
+
+A função acessível por calc.abs deve ter nome intrínseco abs, inclusive
+quando transportada por alias, import, With e With aninhado. Manter chave
+abs no módulo calc e o mesmo callable/assinatura. Nenhuma outra função,
+entidade ou regra de despacho muda. Não normalizar strings de diagnóstico
+no dispatcher nem criar wrapper para ocultar um nome incorreto.
+
+Todo trace externo que identifica esta função usa abs, preservando número,
+ordem, spans e demais campos. A função continua com os mesmos valores,
+erros primários, severidades, hints, origens, warnings, guards e precedência
+P1328–P1331. Mensagens primárias antigas de aridade contendo calc.abs() não
+são o nome do trace e permanecem intactas. Esta seção substitui somente
+a preservação do nome de registro e da dívida calc.abs versus abs nessas
+seções; não revoga nenhuma outra obrigação.
+
+Consumidores indiretos de nome passam a interpolar abs nos diagnósticos
+de gradientes e show já medidos, sem qualquer outra alteração nesses
+erros. São efeitos transitivos explícitos, não correções completas desses
+owners. Repr, lookup, import, alias, identidade da função na linguagem,
+distinção de outras funções e sucesso de With permanecem. Não exigir
+identidade de hashes Rust entre revisões nem reparar Func::PartialEq.
+
+Testes A/B congelados antes de C cobrem os erros content/misto/overflow/
+fallback, guards, chamadas com origem externa, aliases/imports, warnings,
+UTF-8/linhas, math e quatro perfis. Migrar somente campos de nome de trace
+históricos relativos a esta função; jamais substituir calc.abs em fonte
+de expressão, mensagem primária ou em nomes de outras funções. Evidências
+antigas não são editadas. CLI observa saídas completas com as dívidas
+restantes classificadas antes de C. RED real, GREEN dos mesmos testes,
+build/workspace/fmt/lint/V5/V15/V26 e preservação histórica são gates.
+
+Correção de nome/paridade ADR-0127 em fluxo contínuo, sem nova API/default
+deliberado/fase. Regime A/B sem atestação técnica de isolamento, sem selo
+de refinamento. É inferência que só o registro basta; colisão de identidade
+acessível, necessidade de editar outro owner ou perda de origem refuta essa
+suficiência e exige revisão antes de expandir. Unknown obrigatório bloqueia
+aceitação; não declarar paridade geral de calc.abs ou da linguagem.
 
 ## Subset `calc` — 21 entradas (trig + hiperbólicas + exp/log + constantes)
 

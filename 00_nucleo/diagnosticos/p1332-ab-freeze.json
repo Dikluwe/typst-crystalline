@@ -1,0 +1,117 @@
+{
+  "utc": "2026-09-09T14:40:08.207550+00:00",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "artifacts": {
+    "p1332-ab-tests.rs": "1fd2e040053636b745955829ea7b7645699044f6870d391318d1b37e0a064b4a",
+    "p1332-ab-p1328-successor.rs": "4ef96ac6c9139263f31bb06829422fa68f45a1f00ebc05c45404475559ed6c7b",
+    "p1332-ab-p1329-successor.rs": "8da9ad2652ecfe4415eecb1d661a71b6ff56b9fcf98d1c3c82d8e6c3eebc302e",
+    "p1332-ab-p1330-successor.rs": "e885c1fc15928edb4693bed00cad0328447f5497b3a2105569a69ba8aceab35c",
+    "p1332-ab-p1331-successor.rs": "27d94a4620485de1230fd02f061285dc92e60b2286498d006f796ccc73bdad3b",
+    "p1332-ab-cli.py": "ea12be046060e96b4a94de6a1ed183a66f6c07a6d43eb0109d2a1120c0cb5f80",
+    "p1332-ab-cli-baseline.json": "beb177279b3ec5a7b1ee4e6444bc6cf532c6aaae866d24cdf5e9af17ffea86a4",
+    "p1332-ab-cli-expected.json": "4f5b73a77097ddcd54af830600fd930d84a3d21b763010ad2eac3652dc597402"
+  },
+  "inputs": {
+    "p1331-ab-p1328-successor.rs": "994f3dc7493e1230b8ceb41e53ef4c182e58120fe6f4e487637ede014edeea3a",
+    "p1329-ab-tests-r1.rs": "567f8d4eda2fa5313af8449323248d814621cb47e5122a4ab19842dbf93fa838",
+    "p1330-ab-tests.rs": "6ed8f3af58855a88c9ea15113b38c2dad6029639448b052671b4effed4f5ca59",
+    "p1331-ab-tests-r2.rs": "de3d3797484eb721bc3af3e7f9b259db43feca596d00dc9c8e8af2fc0cb91277",
+    "p1331-ab-cli-r2.py": "c15a1694866804ba471760e308ce323da7128a3590931e12c0aac060fad884c4",
+    "p1331-ab-cli-expected-r2.json": "50f024e8506cbc5bbe3809cd71702d7b68e8cce61fdfd2d557d8dc928d7b8a1c",
+    "p1332-manifest.json": "b32fa0ac39b79d7a1b7f23f62540011b58ac68e20f0c850009f688b68b412084",
+    "p1332-baseline-public.json": "559b83db56c457f13aa8969a3260f99fec3b90f3b759c0e844a0749ce547e1ed",
+    "p1332-name-consumers-public.json": "2d8ea9bb87879b307d1a7bd35e35c72feb02f913470b935aa8355207f8002e48"
+  },
+  "regime": "A/B executed without isolation attestation; no refinement seal",
+  "role": "/root/p1332_tests",
+  "manifest_sha256": "b32fa0ac39b79d7a1b7f23f62540011b58ac68e20f0c850009f688b68b412084",
+  "l0_norm_sha256": "ac26a9a0492f250e4a59175256b8b1b7a4a173546dc483131a704f01262b84ad",
+  "capabilities": {
+    "read": "L0 full, CLAUDE instructions, ADRs 0107/0108/0127/0129, skill and references, exact historical snippets, historical CLI oracle chain, public baseline/name consumers, pinned BASE/VANILLA execution",
+    "write": "new p1332-ab-* and own /tmp; via apply_patch; rustfmt in own temporary",
+    "not_read": "runtime calc.rs, candidate patch, private p1332-baseline.json, root RED/GREEN/build receipts, materialization/context directories"
+  },
+  "baseline": "616 cells, 504 historical plus 112 new, all four profiles, measured before C. Exact head/diff-stat/UTC/binaries/argv in p1332-ab-cli-baseline.json",
+  "migration_ledger": [
+    {
+      "source": "p1331-ab-p1328-successor.rs",
+      "successor": "p1332-ab-p1328-successor.rs",
+      "changes": [
+        {
+          "line": 252,
+          "before": "                assert_eq!(d.trace[0].v, Tracepoint::Call(Some(\"calc.abs\".into())));",
+          "after": "                assert_eq!(d.trace[0].v, Tracepoint::Call(Some(\"abs\".into())));"
+        },
+        {
+          "line": 345,
+          "before": "                    \"calc.abs\",",
+          "after": "                    \"abs\","
+        },
+        {
+          "line": 350,
+          "before": "                    \"calc.abs\",",
+          "after": "                    \"abs\","
+        },
+        {
+          "line": 372,
+          "before": "                if name == \"calc.abs\" {",
+          "after": "                if name == \"abs\" {"
+        }
+      ]
+    },
+    {
+      "source": "p1329-ab-tests-r1.rs",
+      "successor": "p1332-ab-p1329-successor.rs",
+      "changes": [
+        {
+          "line": 380,
+          "before": "                assert_eq!(d.trace[0].v, Tracepoint::Call(Some(\"calc.abs\".into())));",
+          "after": "                assert_eq!(d.trace[0].v, Tracepoint::Call(Some(\"abs\".into())));"
+        }
+      ]
+    },
+    {
+      "source": "p1330-ab-tests.rs",
+      "successor": "p1332-ab-p1330-successor.rs",
+      "changes": [
+        {
+          "line": 142,
+          "before": "                assert_eq!(d.trace[0].v, Tracepoint::Call(Some(\"calc.abs\".into())));",
+          "after": "                assert_eq!(d.trace[0].v, Tracepoint::Call(Some(\"abs\".into())));"
+        }
+      ]
+    },
+    {
+      "source": "p1331-ab-tests-r2.rs",
+      "successor": "p1332-ab-p1331-successor.rs",
+      "changes": [
+        {
+          "line": 161,
+          "before": "                assert_eq!(d.trace[0].v, Tracepoint::Call(Some(\"calc.abs\".into())));",
+          "after": "                assert_eq!(d.trace[0].v, Tracepoint::Call(Some(\"abs\".into())));"
+        }
+      ]
+    }
+  ],
+  "red_expectation": {
+    "native": "p1332_intrinsic_name_follows_lookup_alias_import_and_nested_with fails on calc.abs vs abs; imported external origin traces and guard/warning trace tests also discriminate; 4 historical public-error helper trace assertions reject old names",
+    "cli_differing_cells": 144,
+    "cli_historical_changed_cells": 84,
+    "cli_new_changed_cells": 60,
+    "reason": "Only exact trace names plus 16 gradient/show cells primary name interpolation. Other fields preserved."
+  },
+  "calibration": [
+    {
+      "revision": 1,
+      "hypothesis": "Imported abs bare math name resolution might match alias route",
+      "measurement": "Exact expression {import calc: abs; $abs(-1)$}: BASE returns equation/math.delimited while vanilla rejects content; all four profiles. Complete outputs and pinned argv/binaries are in p1332-ab-cli-baseline.json; historical qualified/bare math cases remain intact.",
+      "decision": "Classification corrected to preserved-debt-imported-math-resolution before freeze; no expectation changed to an invented parity result; immutable raw baseline retains original hypothesis label",
+      "gain": "Identified one previously unclassified language debt in four cells",
+      "cost": "616 BASE + 616 VANILLA subprocesses; then freeze-only focal comparison; no full repetition"
+    }
+  ],
+  "format": "New snippet formatted in /tmp/p1332-ab-rustfmt.Z3Imuu/p1332-ab-tests.rs and copied through apply_patch; rustfmt --check successful on delivered snippet",
+  "policy": "Frozen expectations compare complete exit/stdout/stderr literals; no normalization of CANDIDATE. All historic expected observations matched BASE before transformation. Guards, where, other functions and remaining gradient/show diagnostic debt preserved. No Rust hash parity assertion.",
+  "command": "python3 00_nucleo/diagnosticos/p1332-ab-cli.py --candidate <binary> --output 00_nucleo/diagnosticos/p1332-ab-cli-<run>.json --order normal (or reverse)",
+  "status": "Frozen before C; native compilation/RED/GREEN reserved to root; no native success claim"
+}
