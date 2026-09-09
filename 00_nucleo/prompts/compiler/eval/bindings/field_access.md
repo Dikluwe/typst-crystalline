@@ -1,8 +1,69 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 48f648ca
+Hash do Código: 3a6ed279
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1326 — field ausente em closure definida pelo usuário
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1326-baseline.json`, SHA-256
+`3198d97b15c02085af158e88e44c4025e4f76b29654e7309c2ca21fdb2a41f79`,
+concluído em `2026-09-09T01:23:32.345952+00:00`, preserva HEAD
+`d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitado,
+lista exata/diff/stat dos dez arquivos tracked alterados e comandos/saídas.
+Baseline P1325 SHA `3511b08aa89d088e908dd239d8942f1eeea1978d31140ef9510e81de06023dab`;
+vanilla ratificado `a51e02804`, SHA
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+Closure nomeada, anônima, alias, With aninhado, multilinha e callee benigno
+emitem `cannot access fields on type function` com span total; vanilla emite
+`cannot access fields on user-defined functions` somente sobre o field.
+Chamada normal e With mantêm valor. `f.nope(panic("arg"))` expõe divergência
+anterior de ordem: cristalino avalia o argumento primeiro; ela fica fora.
+
+`01_core/src/compiler/eval/bindings/field_access.rs:502–510,652–664`
+seleciona span e mensagem; `01_core/src/entities/func.rs` já conserva Closure
+e With. Vanilla `lab/typst-original/crates/typst-library/src/foundations/func.rs:280–308`
+nega fields quando a função não possui scope; sua AST fornece field.span().
+As expectativas embutidas P1311/P1324 deste owner ainda preservam a mensagem
+antiga para Closure agrupada com Element/Plugin; precisam de sucessão restrita.
+
+### Obrigação e sucessão
+
+Correção interna de paridade diagnóstica, fluxo contínuo ADR-0127.
+Mensagem e origem são observáveis da linguagem (ADR-0107/0108), não igualdade
+Rust. Para `FuncRepr::Closure`, inclusive através de qualquer cadeia With,
+quando o acesso chega ao lookup de fields deste owner, emitir exatamente
+`cannot access fields on user-defined functions`, independente de nome,
+alias ou field. Acesso AST usa todos e somente os bytes de access.field();
+lookup puro respeita o span recebido. Preservar erro único, severidade,
+hints/laterais e traces existentes. Não fabricar namespace nem executar a
+closure para determinar a categoria. Helper privado pode atravessar With
+e consultar o discriminante existente sem mudar assinatura ou entidade.
+
+Substituir expressamente as proteções P1311/P1324 de mensagem e span de
+Closure/With neste owner, inclusive somente as expectativas correspondentes
+dos testes embutidos. Separar Closure dos controles Element/Plugin sem
+remover estes, relaxar comparadores ou alterar suas expectativas. Preservar
+todas as demais obrigações, em particular nativas Some/None/With, Module,
+Dict/Content raw/Float P1325, LocatedContent, Type, PDF, text contextual,
+warnings, disponibilidade e valor/args/kind/chamada de funções existentes.
+
+Não generalizar a Plugin ou Element; não alterar pré-despacho de métodos,
+gates antecipados, field_callee_error, ordem de avaliação ou pipeline.
+Uma chamada de field que alcance este lookup recebe a correção; falha
+anterior no argumento continua baseline, explicitamente sem crédito de
+paridade. Não corrigir essa ordem no owner call_dispatch neste recorte.
+É inferência que categoria e AST locais bastam; necessidade de outro
+carrier/owner funcional, API/default/fase ou divergência fora desse fragmento
+refutaria a suficiência. Não atribuir intenção histórica ao vanilla.
+
+Aceitação: testes A/B e sucessores legados derivados deste L0 antes de C,
+RED real, positivos pareados, nomes/aliases/With/Unicode/multilinha,
+fronteiras excluídas e comparação integral normal/repetida/inversa nos
+quatro perfis. Classificar todo baseline antes de C; Unknown obrigatório
+bloqueia. Preservação de residual não implica paridade geral da linguagem.
 
 ## P1325 — âncora do acesso direto em Dict, Content raw e Float
 

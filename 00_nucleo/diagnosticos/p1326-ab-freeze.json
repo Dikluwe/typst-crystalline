@@ -1,0 +1,68 @@
+{
+  "at": "2026-09-09T01:32:47.106064+00:00",
+  "regime": "A/B executed without technical isolation attestation; no refinement seal",
+  "executor": "/root/p1326_tests",
+  "environment": "shared filesystem and tools; restrictions procedural, not technically enforced",
+  "manifest_sha256": "800db40f2300d0fda0275d06365c5f3019ca0848577ee54a9c834975b231146f",
+  "prompt_norm_sha256": "4b3789c3decc0463ba553937ce7595c3a9c0ecc5fae545726ed009ad928d7451",
+  "nucleus_effective_sha256": "5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24",
+  "artifacts": {
+    "00_nucleo/diagnosticos/p1326-manifest.json": "800db40f2300d0fda0275d06365c5f3019ca0848577ee54a9c834975b231146f",
+    "00_nucleo/diagnosticos/p1326-legacy-tests-original.rs": "b120b5cdb3642cbe7313b5472a6ece936cc80dae8b3b3a57696b8170df711254",
+    "00_nucleo/diagnosticos/p1326-ab-tests.rs": "38bd68a1cd8d32f321420cda78e8aa5d22a262c9482feae5be037cc13d7c4067",
+    "00_nucleo/diagnosticos/p1326-ab-tests-r1.rs": "5a1a16d7bc74d14dd305640db4c88fbdbdbce223f5c4e972b2332dd3a7f3e008",
+    "00_nucleo/diagnosticos/p1326-ab-tests-r1.py": "29a88f07c3be2e2b7f81bf12204a290460d189681ae0b11f3fdc4132c241caee",
+    "00_nucleo/diagnosticos/p1326-ab-legacy-successor.rs": "765e4e40f8203c33d42aa267b6ff763ae38d871337033a3183636c2bf4d87ee5",
+    "00_nucleo/diagnosticos/p1326-ab-legacy-successor.py": "7614000d19776e6333418267ce195bdc95eb58ff316fd2f87dcc032ed834d464",
+    "00_nucleo/diagnosticos/p1326-ab-cli.py": "37b71be5139517054a3e94af584832785f865725c0198f94df2df1a6ef8687b1",
+    "00_nucleo/diagnosticos/p1326-ab-baseline-focal.json": "8dc920e17ec295d60f3c856ffd4cdb495d56c406c75f1bd09597a713d32e2bcc",
+    "00_nucleo/diagnosticos/p1326-ab-baseline.json": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d",
+    "00_nucleo/diagnosticos/p1326-ab-freeze.py": "9d8ebda302a028738ccb726b5db1d6d613d0f3c0224ac51e1add1548f5ee447b"
+  },
+  "permitted_reads": [
+    "task and user instructions",
+    "skill and both references",
+    "root CLAUDE.md/AGENTS.md and 01_core/CLAUDE.md",
+    "ADRs",
+    "whole frozen field_access L0 and pinned nucleus",
+    "p1326-manifest.json",
+    "public World, Source, Value, Func, Feature, Span, SourceDiagnostic, Sink, Library, Route, eval entry signatures",
+    "p1326-legacy-tests-original.rs test-only extract",
+    "pinned baseline and vanilla CLI outputs",
+    "own p1326-ab-* artifacts"
+  ],
+  "forbidden_reads_not_taken": [
+    "runtime owner field_access.rs",
+    "owner git diff",
+    "p1326-baseline.json",
+    "materialization and context folders",
+    "candidate source"
+  ],
+  "permitted_writes": [
+    "00_nucleo/diagnosticos/p1326-ab-* via apply_patch; rustfmt only formatting own Rust snippets"
+  ],
+  "head": {
+    "exit": 0,
+    "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+    "stderr": ""
+  },
+  "working_tree_stat": {
+    "exit": 0,
+    "stdout": " .../prompts/compiler/eval/bindings/field_access.md | 187 +++++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |  39 +-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 198 +++++-\n 00_nucleo/prompts/wiring.md                        |  56 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 713 ++++++++++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  92 ++-\n 01_core/src/compiler/eval/tests.rs                 |  10 +-\n 01_core/src/compiler/stdlib/loading.rs             | 466 ++++++++++++--\n 04_wiring/src/main.rs                              |  30 +-\n 10 files changed, 1760 insertions(+), 84 deletions(-)\n",
+    "stderr": ""
+  },
+  "baseline_classification": {
+    "PreservedParity": 48,
+    "RequiredCorrection": 36,
+    "ResidualPreserveBaseline": 8
+  },
+  "scope": "Closure and With closure missing fields; complete public CLI outputs compare against vanilla for correction, baseline for all other cases",
+  "residuals": [
+    "raw Content [x].text remains baseline error while vanilla succeeds",
+    "f.nope(panic(\"arg\")) preserves argument-before-lookup failure while vanilla fails lookup first"
+  ],
+  "budget": "23 cases x 4 profiles; focal first; final normal/repeat/reverse; two consecutive no-gain revisions on one cause reopen design",
+  "test_revision": "r1 replaces only expected literal in native-present control with measured pretty JSON from baseline and vanilla; r0 preserved. No obligation changed. Hypothesis: default pretty encoder output resolves instrumentation mismatch. Positive control must pass before C; no claim of gain until execution.",
+  "authoritative_unit_snippet": "00_nucleo/diagnosticos/p1326-ab-tests-r1.rs",
+  "condition": "before any candidate C; parent runs frozen unit tests for real RED; candidate release waits for freeze and RED"
+}

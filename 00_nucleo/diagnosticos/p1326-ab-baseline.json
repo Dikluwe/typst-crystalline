@@ -1,0 +1,4209 @@
+{
+  "started": "2026-09-09T01:31:03.899546+00:00",
+  "manifest_sha256": "800db40f2300d0fda0275d06365c5f3019ca0848577ee54a9c834975b231146f",
+  "head": {
+    "exit": 0,
+    "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+    "stderr": ""
+  },
+  "working_tree_stat": {
+    "exit": 0,
+    "stdout": " .../prompts/compiler/eval/bindings/field_access.md | 187 +++++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |  39 +-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 198 +++++-\n 00_nucleo/prompts/wiring.md                        |  56 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 713 ++++++++++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  92 ++-\n 01_core/src/compiler/eval/tests.rs                 |  10 +-\n 01_core/src/compiler/stdlib/loading.rs             | 466 ++++++++++++--\n 04_wiring/src/main.rs                              |  30 +-\n 10 files changed, 1760 insertions(+), 84 deletions(-)\n",
+    "stderr": ""
+  },
+  "mode": "baseline",
+  "focal": false,
+  "cases": [
+    [
+      "named",
+      "{let f(x)=x; f.nope}",
+      "closure"
+    ],
+    [
+      "anonymous",
+      "(x => x).absent",
+      "closure"
+    ],
+    [
+      "alias",
+      "{let f(x)=x; let alias=f; alias.unknown}",
+      "closure"
+    ],
+    [
+      "with",
+      "{let f(x)=x; f.with(7).nope}",
+      "closure"
+    ],
+    [
+      "nested-with",
+      "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}",
+      "closure"
+    ],
+    [
+      "unicode",
+      "{let função(x)=x; função.café}",
+      "closure"
+    ],
+    [
+      "multiline",
+      "{let f(x)=x;\n (\n f\n .ausência\n )}",
+      "closure"
+    ],
+    [
+      "callee",
+      "{let f(x)=panic(\"must not run\"); f.nope(7)}",
+      "closure"
+    ],
+    [
+      "with-callee",
+      "{let f(x)=x; let alias=f.with(4); alias.nope()}",
+      "closure"
+    ],
+    [
+      "call",
+      "{let f(x)=x+1; f(8)}",
+      "preserve"
+    ],
+    [
+      "with-call",
+      "{let f(x,y)=x+y; let a=f.with(8); a(3)}",
+      "preserve"
+    ],
+    [
+      "nested-call",
+      "{let f(x,y)=x+y; f.with(8).with(3)()}",
+      "preserve"
+    ],
+    [
+      "kind",
+      "{let f(x)=x; type(f)==function}",
+      "preserve"
+    ],
+    [
+      "native-some",
+      "json.nope",
+      "preserve"
+    ],
+    [
+      "native-none",
+      "csv.nope",
+      "preserve"
+    ],
+    [
+      "native-present",
+      "json.encode((x: 1))",
+      "preserve"
+    ],
+    [
+      "module",
+      "calc.nope",
+      "preserve"
+    ],
+    [
+      "dict",
+      "(x: 1).nope",
+      "preserve"
+    ],
+    [
+      "content",
+      "strong[x].nope",
+      "preserve"
+    ],
+    [
+      "float",
+      "(1.0).nope",
+      "preserve"
+    ],
+    [
+      "pdf-gate",
+      "repr(type(pdf.data-cell))",
+      "preserve"
+    ],
+    [
+      "raw-content-residual",
+      "[x].text",
+      "residual"
+    ],
+    [
+      "argument-order-residual",
+      "{let f(x)=x; f.nope(panic(\"arg\"))}",
+      "residual"
+    ]
+  ],
+  "profiles": {
+    "default": [],
+    "html": [
+      "--features",
+      "html"
+    ],
+    "a11y": [
+      "--features",
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "--features",
+      "html,a11y-extras"
+    ]
+  },
+  "binaries": {
+    "/tmp/p1325-target.KQl8cD/release/typst": "3511b08aa89d088e908dd239d8942f1eeea1978d31140ef9510e81de06023dab",
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "records": [
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "named",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; f.nope}"
+        ],
+        "at": "2026-09-09T01:31:04.060560+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:13\n  │\n1 │ {let f(x)=x; f.nope}\n  │              ^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; f.nope}"
+        ],
+        "at": "2026-09-09T01:31:04.164616+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:15\n  │\n1 │ {let f(x)=x; f.nope}\n  │                ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "anonymous",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "(x => x).absent"
+        ],
+        "at": "2026-09-09T01:31:04.171300+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).absent\n  │ ^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "(x => x).absent"
+        ],
+        "at": "2026-09-09T01:31:04.265808+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:9\n  │\n1 │ (x => x).absent\n  │          ^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "alias",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; let alias=f; alias.unknown}"
+        ],
+        "at": "2026-09-09T01:31:04.272620+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:26\n  │\n1 │ {let f(x)=x; let alias=f; alias.unknown}\n  │                           ^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; let alias=f; alias.unknown}"
+        ],
+        "at": "2026-09-09T01:31:04.370972+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:32\n  │\n1 │ {let f(x)=x; let alias=f; alias.unknown}\n  │                                 ^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "with",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; f.with(7).nope}"
+        ],
+        "at": "2026-09-09T01:31:04.378493+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:13\n  │\n1 │ {let f(x)=x; f.with(7).nope}\n  │              ^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; f.with(7).nope}"
+        ],
+        "at": "2026-09-09T01:31:04.482928+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:23\n  │\n1 │ {let f(x)=x; f.with(7).nope}\n  │                        ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "nested-with",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}"
+        ],
+        "at": "2026-09-09T01:31:04.490375+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:17\n  │\n1 │ {let f(x,y)=x+y; f.with(7).with(8).missing-long-field}\n  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}"
+        ],
+        "at": "2026-09-09T01:31:04.586975+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:35\n  │\n1 │ {let f(x,y)=x+y; f.with(7).with(8).missing-long-field}\n  │                                    ^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "unicode",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let função(x)=x; função.café}"
+        ],
+        "at": "2026-09-09T01:31:04.594107+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:18\n  │\n1 │ {let função(x)=x; função.café}\n  │                   ^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let função(x)=x; função.café}"
+        ],
+        "at": "2026-09-09T01:31:04.689942+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:25\n  │\n1 │ {let função(x)=x; função.café}\n  │                          ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "multiline",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x;\n (\n f\n .ausência\n )}"
+        ],
+        "at": "2026-09-09T01:31:04.696890+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:3:1\n  │  \n3 │ ╭  f\n4 │ │  .ausência\n  │ ╰──────────^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x;\n (\n f\n .ausência\n )}"
+        ],
+        "at": "2026-09-09T01:31:04.794648+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:4:2\n  │\n4 │  .ausência\n  │   ^^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "callee",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=panic(\"must not run\"); f.nope(7)}"
+        ],
+        "at": "2026-09-09T01:31:04.801196+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:33\n  │\n1 │ {let f(x)=panic(\"must not run\"); f.nope(7)}\n  │                                  ^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=panic(\"must not run\"); f.nope(7)}"
+        ],
+        "at": "2026-09-09T01:31:04.905027+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:35\n  │\n1 │ {let f(x)=panic(\"must not run\"); f.nope(7)}\n  │                                    ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "with-callee",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; let alias=f.with(4); alias.nope()}"
+        ],
+        "at": "2026-09-09T01:31:04.912398+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:34\n  │\n1 │ {let f(x)=x; let alias=f.with(4); alias.nope()}\n  │                                   ^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; let alias=f.with(4); alias.nope()}"
+        ],
+        "at": "2026-09-09T01:31:05.008525+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:40\n  │\n1 │ {let f(x)=x; let alias=f.with(4); alias.nope()}\n  │                                         ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x+1; f(8)}"
+        ],
+        "at": "2026-09-09T01:31:05.015982+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "9\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x+1; f(8)}"
+        ],
+        "at": "2026-09-09T01:31:05.117495+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "9\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "with-call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x,y)=x+y; let a=f.with(8); a(3)}"
+        ],
+        "at": "2026-09-09T01:31:05.124401+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x,y)=x+y; let a=f.with(8); a(3)}"
+        ],
+        "at": "2026-09-09T01:31:05.222230+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "nested-call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x,y)=x+y; f.with(8).with(3)()}"
+        ],
+        "at": "2026-09-09T01:31:05.230482+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x,y)=x+y; f.with(8).with(3)()}"
+        ],
+        "at": "2026-09-09T01:31:05.330510+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "kind",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; type(f)==function}"
+        ],
+        "at": "2026-09-09T01:31:05.337274+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; type(f)==function}"
+        ],
+        "at": "2026-09-09T01:31:05.431645+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "native-some",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "json.nope"
+        ],
+        "at": "2026-09-09T01:31:05.438159+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `json` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ json.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "json.nope"
+        ],
+        "at": "2026-09-09T01:31:05.535878+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `json` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ json.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "native-none",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "csv.nope"
+        ],
+        "at": "2026-09-09T01:31:05.542464+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `csv` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.nope\n  │     ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "csv.nope"
+        ],
+        "at": "2026-09-09T01:31:05.640906+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `csv` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.nope\n  │     ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "native-present",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "json.encode((x: 1))"
+        ],
+        "at": "2026-09-09T01:31:05.647746+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"{\\n  \\\"x\\\": 1\\n}\"\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "json.encode((x: 1))"
+        ],
+        "at": "2026-09-09T01:31:05.749711+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"{\\n  \\\"x\\\": 1\\n}\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "module",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "calc.nope"
+        ],
+        "at": "2026-09-09T01:31:05.757151+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "calc.nope"
+        ],
+        "at": "2026-09-09T01:31:05.857018+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "dict",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "(x: 1).nope"
+        ],
+        "at": "2026-09-09T01:31:05.863794+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "(x: 1).nope"
+        ],
+        "at": "2026-09-09T01:31:05.960792+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "content",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "strong[x].nope"
+        ],
+        "at": "2026-09-09T01:31:05.967878+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: strong does not have field \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ strong[x].nope\n  │           ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "strong[x].nope"
+        ],
+        "at": "2026-09-09T01:31:06.063695+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: strong does not have field \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ strong[x].nope\n  │           ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "float",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "(1.0).nope"
+        ],
+        "at": "2026-09-09T01:31:06.070304+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "(1.0).nope"
+        ],
+        "at": "2026-09-09T01:31:06.168583+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "pdf-gate",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "repr(type(pdf.data-cell))"
+        ],
+        "at": "2026-09-09T01:31:06.175924+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "repr(type(pdf.data-cell))"
+        ],
+        "at": "2026-09-09T01:31:06.269821+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "raw-content-residual",
+      "policy": "residual",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "[x].text"
+        ],
+        "at": "2026-09-09T01:31:06.276888+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: text does not have field \"text\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].text\n  │     ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "[x].text"
+        ],
+        "at": "2026-09-09T01:31:06.375030+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"x\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "ResidualPreserveBaseline"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "id": "argument-order-residual",
+      "policy": "residual",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; f.nope(panic(\"arg\"))}"
+        ],
+        "at": "2026-09-09T01:31:06.381982+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: arg\n  ┌─ <input-expression>:1:20\n  │\n1 │ {let f(x)=x; f.nope(panic(\"arg\"))}\n  │                     ^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "{let f(x)=x; f.nope(panic(\"arg\"))}"
+        ],
+        "at": "2026-09-09T01:31:06.479525+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:15\n  │\n1 │ {let f(x)=x; f.nope(panic(\"arg\"))}\n  │                ^^^^\n\n"
+        }
+      },
+      "classification": "ResidualPreserveBaseline"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "named",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; f.nope}"
+        ],
+        "at": "2026-09-09T01:31:06.486671+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:13\n  │\n1 │ {let f(x)=x; f.nope}\n  │              ^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; f.nope}"
+        ],
+        "at": "2026-09-09T01:31:06.583641+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:15\n  │\n1 │ {let f(x)=x; f.nope}\n  │                ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "anonymous",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "(x => x).absent"
+        ],
+        "at": "2026-09-09T01:31:06.590606+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).absent\n  │ ^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "(x => x).absent"
+        ],
+        "at": "2026-09-09T01:31:06.689114+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:9\n  │\n1 │ (x => x).absent\n  │          ^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "alias",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; let alias=f; alias.unknown}"
+        ],
+        "at": "2026-09-09T01:31:06.696093+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:26\n  │\n1 │ {let f(x)=x; let alias=f; alias.unknown}\n  │                           ^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; let alias=f; alias.unknown}"
+        ],
+        "at": "2026-09-09T01:31:06.795414+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:32\n  │\n1 │ {let f(x)=x; let alias=f; alias.unknown}\n  │                                 ^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "with",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; f.with(7).nope}"
+        ],
+        "at": "2026-09-09T01:31:06.802503+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:13\n  │\n1 │ {let f(x)=x; f.with(7).nope}\n  │              ^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; f.with(7).nope}"
+        ],
+        "at": "2026-09-09T01:31:06.907538+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:23\n  │\n1 │ {let f(x)=x; f.with(7).nope}\n  │                        ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "nested-with",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}"
+        ],
+        "at": "2026-09-09T01:31:06.914559+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:17\n  │\n1 │ {let f(x,y)=x+y; f.with(7).with(8).missing-long-field}\n  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}"
+        ],
+        "at": "2026-09-09T01:31:07.019687+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:35\n  │\n1 │ {let f(x,y)=x+y; f.with(7).with(8).missing-long-field}\n  │                                    ^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "unicode",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let função(x)=x; função.café}"
+        ],
+        "at": "2026-09-09T01:31:07.027052+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:18\n  │\n1 │ {let função(x)=x; função.café}\n  │                   ^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let função(x)=x; função.café}"
+        ],
+        "at": "2026-09-09T01:31:07.127867+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:25\n  │\n1 │ {let função(x)=x; função.café}\n  │                          ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "multiline",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x;\n (\n f\n .ausência\n )}"
+        ],
+        "at": "2026-09-09T01:31:07.134803+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:3:1\n  │  \n3 │ ╭  f\n4 │ │  .ausência\n  │ ╰──────────^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x;\n (\n f\n .ausência\n )}"
+        ],
+        "at": "2026-09-09T01:31:07.238761+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:4:2\n  │\n4 │  .ausência\n  │   ^^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "callee",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=panic(\"must not run\"); f.nope(7)}"
+        ],
+        "at": "2026-09-09T01:31:07.245779+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:33\n  │\n1 │ {let f(x)=panic(\"must not run\"); f.nope(7)}\n  │                                  ^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=panic(\"must not run\"); f.nope(7)}"
+        ],
+        "at": "2026-09-09T01:31:07.345071+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:35\n  │\n1 │ {let f(x)=panic(\"must not run\"); f.nope(7)}\n  │                                    ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "with-callee",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; let alias=f.with(4); alias.nope()}"
+        ],
+        "at": "2026-09-09T01:31:07.352147+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:34\n  │\n1 │ {let f(x)=x; let alias=f.with(4); alias.nope()}\n  │                                   ^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; let alias=f.with(4); alias.nope()}"
+        ],
+        "at": "2026-09-09T01:31:07.452023+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:40\n  │\n1 │ {let f(x)=x; let alias=f.with(4); alias.nope()}\n  │                                         ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x+1; f(8)}"
+        ],
+        "at": "2026-09-09T01:31:07.459320+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "9\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x+1; f(8)}"
+        ],
+        "at": "2026-09-09T01:31:07.556239+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "9\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "with-call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x,y)=x+y; let a=f.with(8); a(3)}"
+        ],
+        "at": "2026-09-09T01:31:07.563414+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x,y)=x+y; let a=f.with(8); a(3)}"
+        ],
+        "at": "2026-09-09T01:31:07.660177+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "nested-call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x,y)=x+y; f.with(8).with(3)()}"
+        ],
+        "at": "2026-09-09T01:31:07.667549+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x,y)=x+y; f.with(8).with(3)()}"
+        ],
+        "at": "2026-09-09T01:31:07.763295+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "kind",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; type(f)==function}"
+        ],
+        "at": "2026-09-09T01:31:07.771014+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; type(f)==function}"
+        ],
+        "at": "2026-09-09T01:31:07.875859+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "native-some",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "json.nope"
+        ],
+        "at": "2026-09-09T01:31:07.883554+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `json` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ json.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "json.nope"
+        ],
+        "at": "2026-09-09T01:31:07.979382+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `json` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ json.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "native-none",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "csv.nope"
+        ],
+        "at": "2026-09-09T01:31:07.985822+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `csv` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.nope\n  │     ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "csv.nope"
+        ],
+        "at": "2026-09-09T01:31:08.076102+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `csv` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.nope\n  │     ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "native-present",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "json.encode((x: 1))"
+        ],
+        "at": "2026-09-09T01:31:08.082326+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"{\\n  \\\"x\\\": 1\\n}\"\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "json.encode((x: 1))"
+        ],
+        "at": "2026-09-09T01:31:08.173874+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"{\\n  \\\"x\\\": 1\\n}\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "module",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "calc.nope"
+        ],
+        "at": "2026-09-09T01:31:08.180838+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "calc.nope"
+        ],
+        "at": "2026-09-09T01:31:08.273770+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "dict",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "(x: 1).nope"
+        ],
+        "at": "2026-09-09T01:31:08.281271+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "(x: 1).nope"
+        ],
+        "at": "2026-09-09T01:31:08.373890+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "content",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "strong[x].nope"
+        ],
+        "at": "2026-09-09T01:31:08.381326+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: strong does not have field \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ strong[x].nope\n  │           ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "strong[x].nope"
+        ],
+        "at": "2026-09-09T01:31:08.473902+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: strong does not have field \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ strong[x].nope\n  │           ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "float",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "(1.0).nope"
+        ],
+        "at": "2026-09-09T01:31:08.480708+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "(1.0).nope"
+        ],
+        "at": "2026-09-09T01:31:08.573305+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "pdf-gate",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "repr(type(pdf.data-cell))"
+        ],
+        "at": "2026-09-09T01:31:08.579908+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "repr(type(pdf.data-cell))"
+        ],
+        "at": "2026-09-09T01:31:08.671808+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "raw-content-residual",
+      "policy": "residual",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "[x].text"
+        ],
+        "at": "2026-09-09T01:31:08.678151+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: text does not have field \"text\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].text\n  │     ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "[x].text"
+        ],
+        "at": "2026-09-09T01:31:08.769076+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"x\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "ResidualPreserveBaseline"
+    },
+    {
+      "order": "normal",
+      "profile": "html",
+      "id": "argument-order-residual",
+      "policy": "residual",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; f.nope(panic(\"arg\"))}"
+        ],
+        "at": "2026-09-09T01:31:08.775741+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: arg\n  ┌─ <input-expression>:1:20\n  │\n1 │ {let f(x)=x; f.nope(panic(\"arg\"))}\n  │                     ^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html",
+          "{let f(x)=x; f.nope(panic(\"arg\"))}"
+        ],
+        "at": "2026-09-09T01:31:08.868107+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:15\n  │\n1 │ {let f(x)=x; f.nope(panic(\"arg\"))}\n  │                ^^^^\n\n"
+        }
+      },
+      "classification": "ResidualPreserveBaseline"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "named",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; f.nope}"
+        ],
+        "at": "2026-09-09T01:31:08.874726+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:13\n  │\n1 │ {let f(x)=x; f.nope}\n  │              ^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; f.nope}"
+        ],
+        "at": "2026-09-09T01:31:08.967474+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:15\n  │\n1 │ {let f(x)=x; f.nope}\n  │                ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "anonymous",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "(x => x).absent"
+        ],
+        "at": "2026-09-09T01:31:08.974078+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).absent\n  │ ^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "(x => x).absent"
+        ],
+        "at": "2026-09-09T01:31:09.066088+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:9\n  │\n1 │ (x => x).absent\n  │          ^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "alias",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; let alias=f; alias.unknown}"
+        ],
+        "at": "2026-09-09T01:31:09.072802+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:26\n  │\n1 │ {let f(x)=x; let alias=f; alias.unknown}\n  │                           ^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; let alias=f; alias.unknown}"
+        ],
+        "at": "2026-09-09T01:31:09.165479+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:32\n  │\n1 │ {let f(x)=x; let alias=f; alias.unknown}\n  │                                 ^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "with",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; f.with(7).nope}"
+        ],
+        "at": "2026-09-09T01:31:09.172016+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:13\n  │\n1 │ {let f(x)=x; f.with(7).nope}\n  │              ^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; f.with(7).nope}"
+        ],
+        "at": "2026-09-09T01:31:09.263466+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:23\n  │\n1 │ {let f(x)=x; f.with(7).nope}\n  │                        ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "nested-with",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}"
+        ],
+        "at": "2026-09-09T01:31:09.270041+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:17\n  │\n1 │ {let f(x,y)=x+y; f.with(7).with(8).missing-long-field}\n  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}"
+        ],
+        "at": "2026-09-09T01:31:09.363563+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:35\n  │\n1 │ {let f(x,y)=x+y; f.with(7).with(8).missing-long-field}\n  │                                    ^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "unicode",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let função(x)=x; função.café}"
+        ],
+        "at": "2026-09-09T01:31:09.370063+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:18\n  │\n1 │ {let função(x)=x; função.café}\n  │                   ^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let função(x)=x; função.café}"
+        ],
+        "at": "2026-09-09T01:31:09.468440+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:25\n  │\n1 │ {let função(x)=x; função.café}\n  │                          ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "multiline",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x;\n (\n f\n .ausência\n )}"
+        ],
+        "at": "2026-09-09T01:31:09.475121+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:3:1\n  │  \n3 │ ╭  f\n4 │ │  .ausência\n  │ ╰──────────^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x;\n (\n f\n .ausência\n )}"
+        ],
+        "at": "2026-09-09T01:31:09.570456+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:4:2\n  │\n4 │  .ausência\n  │   ^^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "callee",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=panic(\"must not run\"); f.nope(7)}"
+        ],
+        "at": "2026-09-09T01:31:09.576748+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:33\n  │\n1 │ {let f(x)=panic(\"must not run\"); f.nope(7)}\n  │                                  ^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=panic(\"must not run\"); f.nope(7)}"
+        ],
+        "at": "2026-09-09T01:31:09.668550+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:35\n  │\n1 │ {let f(x)=panic(\"must not run\"); f.nope(7)}\n  │                                    ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "with-callee",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; let alias=f.with(4); alias.nope()}"
+        ],
+        "at": "2026-09-09T01:31:09.675169+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:34\n  │\n1 │ {let f(x)=x; let alias=f.with(4); alias.nope()}\n  │                                   ^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; let alias=f.with(4); alias.nope()}"
+        ],
+        "at": "2026-09-09T01:31:09.769780+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:40\n  │\n1 │ {let f(x)=x; let alias=f.with(4); alias.nope()}\n  │                                         ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x+1; f(8)}"
+        ],
+        "at": "2026-09-09T01:31:09.777168+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "9\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x+1; f(8)}"
+        ],
+        "at": "2026-09-09T01:31:09.873356+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "9\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "with-call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x,y)=x+y; let a=f.with(8); a(3)}"
+        ],
+        "at": "2026-09-09T01:31:09.879984+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x,y)=x+y; let a=f.with(8); a(3)}"
+        ],
+        "at": "2026-09-09T01:31:09.975803+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "nested-call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x,y)=x+y; f.with(8).with(3)()}"
+        ],
+        "at": "2026-09-09T01:31:09.982367+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x,y)=x+y; f.with(8).with(3)()}"
+        ],
+        "at": "2026-09-09T01:31:10.077880+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "kind",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; type(f)==function}"
+        ],
+        "at": "2026-09-09T01:31:10.084709+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; type(f)==function}"
+        ],
+        "at": "2026-09-09T01:31:10.183957+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "native-some",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "json.nope"
+        ],
+        "at": "2026-09-09T01:31:10.190610+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `json` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ json.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "json.nope"
+        ],
+        "at": "2026-09-09T01:31:10.286844+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `json` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ json.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "native-none",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "csv.nope"
+        ],
+        "at": "2026-09-09T01:31:10.293824+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `csv` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.nope\n  │     ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "csv.nope"
+        ],
+        "at": "2026-09-09T01:31:10.391643+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `csv` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.nope\n  │     ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "native-present",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "json.encode((x: 1))"
+        ],
+        "at": "2026-09-09T01:31:10.398549+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"{\\n  \\\"x\\\": 1\\n}\"\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "json.encode((x: 1))"
+        ],
+        "at": "2026-09-09T01:31:10.496627+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"{\\n  \\\"x\\\": 1\\n}\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "module",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "calc.nope"
+        ],
+        "at": "2026-09-09T01:31:10.503259+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "calc.nope"
+        ],
+        "at": "2026-09-09T01:31:10.593936+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "dict",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "(x: 1).nope"
+        ],
+        "at": "2026-09-09T01:31:10.600349+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "(x: 1).nope"
+        ],
+        "at": "2026-09-09T01:31:10.692696+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "content",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "strong[x].nope"
+        ],
+        "at": "2026-09-09T01:31:10.699202+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: strong does not have field \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ strong[x].nope\n  │           ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "strong[x].nope"
+        ],
+        "at": "2026-09-09T01:31:10.790341+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: strong does not have field \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ strong[x].nope\n  │           ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "float",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "(1.0).nope"
+        ],
+        "at": "2026-09-09T01:31:10.796904+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "(1.0).nope"
+        ],
+        "at": "2026-09-09T01:31:10.889677+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "pdf-gate",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "repr(type(pdf.data-cell))"
+        ],
+        "at": "2026-09-09T01:31:10.896073+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"function\"\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "repr(type(pdf.data-cell))"
+        ],
+        "at": "2026-09-09T01:31:10.986866+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"function\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "raw-content-residual",
+      "policy": "residual",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "[x].text"
+        ],
+        "at": "2026-09-09T01:31:10.993609+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: text does not have field \"text\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].text\n  │     ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "[x].text"
+        ],
+        "at": "2026-09-09T01:31:11.086765+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"x\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "ResidualPreserveBaseline"
+    },
+    {
+      "order": "normal",
+      "profile": "a11y",
+      "id": "argument-order-residual",
+      "policy": "residual",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; f.nope(panic(\"arg\"))}"
+        ],
+        "at": "2026-09-09T01:31:11.093503+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: arg\n  ┌─ <input-expression>:1:20\n  │\n1 │ {let f(x)=x; f.nope(panic(\"arg\"))}\n  │                     ^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "a11y-extras",
+          "{let f(x)=x; f.nope(panic(\"arg\"))}"
+        ],
+        "at": "2026-09-09T01:31:11.183897+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:15\n  │\n1 │ {let f(x)=x; f.nope(panic(\"arg\"))}\n  │                ^^^^\n\n"
+        }
+      },
+      "classification": "ResidualPreserveBaseline"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "named",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; f.nope}"
+        ],
+        "at": "2026-09-09T01:31:11.190692+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:13\n  │\n1 │ {let f(x)=x; f.nope}\n  │              ^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; f.nope}"
+        ],
+        "at": "2026-09-09T01:31:11.282517+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:15\n  │\n1 │ {let f(x)=x; f.nope}\n  │                ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "anonymous",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "(x => x).absent"
+        ],
+        "at": "2026-09-09T01:31:11.289286+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x => x).absent\n  │ ^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "(x => x).absent"
+        ],
+        "at": "2026-09-09T01:31:11.380889+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:9\n  │\n1 │ (x => x).absent\n  │          ^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "alias",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; let alias=f; alias.unknown}"
+        ],
+        "at": "2026-09-09T01:31:11.387433+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:26\n  │\n1 │ {let f(x)=x; let alias=f; alias.unknown}\n  │                           ^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; let alias=f; alias.unknown}"
+        ],
+        "at": "2026-09-09T01:31:11.481759+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:32\n  │\n1 │ {let f(x)=x; let alias=f; alias.unknown}\n  │                                 ^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "with",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; f.with(7).nope}"
+        ],
+        "at": "2026-09-09T01:31:11.489765+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:13\n  │\n1 │ {let f(x)=x; f.with(7).nope}\n  │              ^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; f.with(7).nope}"
+        ],
+        "at": "2026-09-09T01:31:11.594773+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:23\n  │\n1 │ {let f(x)=x; f.with(7).nope}\n  │                        ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "nested-with",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}"
+        ],
+        "at": "2026-09-09T01:31:11.601645+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:17\n  │\n1 │ {let f(x,y)=x+y; f.with(7).with(8).missing-long-field}\n  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}"
+        ],
+        "at": "2026-09-09T01:31:11.700329+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:35\n  │\n1 │ {let f(x,y)=x+y; f.with(7).with(8).missing-long-field}\n  │                                    ^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "unicode",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let função(x)=x; função.café}"
+        ],
+        "at": "2026-09-09T01:31:11.708117+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:18\n  │\n1 │ {let função(x)=x; função.café}\n  │                   ^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let função(x)=x; função.café}"
+        ],
+        "at": "2026-09-09T01:31:11.803463+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:25\n  │\n1 │ {let função(x)=x; função.café}\n  │                          ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "multiline",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x;\n (\n f\n .ausência\n )}"
+        ],
+        "at": "2026-09-09T01:31:11.810292+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:3:1\n  │  \n3 │ ╭  f\n4 │ │  .ausência\n  │ ╰──────────^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x;\n (\n f\n .ausência\n )}"
+        ],
+        "at": "2026-09-09T01:31:11.906224+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:4:2\n  │\n4 │  .ausência\n  │   ^^^^^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "callee",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=panic(\"must not run\"); f.nope(7)}"
+        ],
+        "at": "2026-09-09T01:31:11.912428+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:33\n  │\n1 │ {let f(x)=panic(\"must not run\"); f.nope(7)}\n  │                                  ^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=panic(\"must not run\"); f.nope(7)}"
+        ],
+        "at": "2026-09-09T01:31:12.005807+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:35\n  │\n1 │ {let f(x)=panic(\"must not run\"); f.nope(7)}\n  │                                    ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "with-callee",
+      "policy": "closure",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; let alias=f.with(4); alias.nope()}"
+        ],
+        "at": "2026-09-09T01:31:12.012982+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type function\n  ┌─ <input-expression>:1:34\n  │\n1 │ {let f(x)=x; let alias=f.with(4); alias.nope()}\n  │                                   ^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; let alias=f.with(4); alias.nope()}"
+        ],
+        "at": "2026-09-09T01:31:12.108789+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:40\n  │\n1 │ {let f(x)=x; let alias=f.with(4); alias.nope()}\n  │                                         ^^^^\n\n"
+        }
+      },
+      "classification": "RequiredCorrection"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x+1; f(8)}"
+        ],
+        "at": "2026-09-09T01:31:12.115562+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "9\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x+1; f(8)}"
+        ],
+        "at": "2026-09-09T01:31:12.211386+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "9\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "with-call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x,y)=x+y; let a=f.with(8); a(3)}"
+        ],
+        "at": "2026-09-09T01:31:12.219688+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x,y)=x+y; let a=f.with(8); a(3)}"
+        ],
+        "at": "2026-09-09T01:31:12.311336+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "nested-call",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x,y)=x+y; f.with(8).with(3)()}"
+        ],
+        "at": "2026-09-09T01:31:12.317914+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x,y)=x+y; f.with(8).with(3)()}"
+        ],
+        "at": "2026-09-09T01:31:12.411012+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "11\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "kind",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; type(f)==function}"
+        ],
+        "at": "2026-09-09T01:31:12.417657+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; type(f)==function}"
+        ],
+        "at": "2026-09-09T01:31:12.511761+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "native-some",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "json.nope"
+        ],
+        "at": "2026-09-09T01:31:12.518272+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `json` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ json.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "json.nope"
+        ],
+        "at": "2026-09-09T01:31:12.609867+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `json` does not contain field `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ json.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "native-none",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "csv.nope"
+        ],
+        "at": "2026-09-09T01:31:12.616520+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `csv` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.nope\n  │     ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "csv.nope"
+        ],
+        "at": "2026-09-09T01:31:12.707968+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: function `csv` does not contain field `nope`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.nope\n  │     ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "native-present",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "json.encode((x: 1))"
+        ],
+        "at": "2026-09-09T01:31:12.714594+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"{\\n  \\\"x\\\": 1\\n}\"\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "json.encode((x: 1))"
+        ],
+        "at": "2026-09-09T01:31:12.805036+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"{\\n  \\\"x\\\": 1\\n}\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "module",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "calc.nope"
+        ],
+        "at": "2026-09-09T01:31:12.811478+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "calc.nope"
+        ],
+        "at": "2026-09-09T01:31:12.904526+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: module `calc` does not contain `nope`\n  ┌─ <input-expression>:1:5\n  │\n1 │ calc.nope\n  │      ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "dict",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "(x: 1).nope"
+        ],
+        "at": "2026-09-09T01:31:12.911052+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "(x: 1).nope"
+        ],
+        "at": "2026-09-09T01:31:13.000440+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "content",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "strong[x].nope"
+        ],
+        "at": "2026-09-09T01:31:13.007178+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: strong does not have field \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ strong[x].nope\n  │           ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "strong[x].nope"
+        ],
+        "at": "2026-09-09T01:31:13.100906+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: strong does not have field \"nope\"\n  ┌─ <input-expression>:1:10\n  │\n1 │ strong[x].nope\n  │           ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "float",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "(1.0).nope"
+        ],
+        "at": "2026-09-09T01:31:13.107759+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "(1.0).nope"
+        ],
+        "at": "2026-09-09T01:31:13.200724+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "pdf-gate",
+      "policy": "preserve",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "repr(type(pdf.data-cell))"
+        ],
+        "at": "2026-09-09T01:31:13.207011+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"function\"\n",
+          "stderr": ""
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "repr(type(pdf.data-cell))"
+        ],
+        "at": "2026-09-09T01:31:13.296719+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"function\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "PreservedParity"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "raw-content-residual",
+      "policy": "residual",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "[x].text"
+        ],
+        "at": "2026-09-09T01:31:13.303552+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: text does not have field \"text\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].text\n  │     ^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "[x].text"
+        ],
+        "at": "2026-09-09T01:31:13.394224+00:00",
+        "output": {
+          "exit": 0,
+          "stdout": "\"x\"\n",
+          "stderr": ""
+        }
+      },
+      "classification": "ResidualPreserveBaseline"
+    },
+    {
+      "order": "normal",
+      "profile": "html+a11y",
+      "id": "argument-order-residual",
+      "policy": "residual",
+      "baseline": {
+        "argv": [
+          "/tmp/p1325-target.KQl8cD/release/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; f.nope(panic(\"arg\"))}"
+        ],
+        "at": "2026-09-09T01:31:13.400433+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: panicked with: arg\n  ┌─ <input-expression>:1:20\n  │\n1 │ {let f(x)=x; f.nope(panic(\"arg\"))}\n  │                     ^^^^^^^^^^^^\n\n"
+        }
+      },
+      "vanilla": {
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color",
+          "never",
+          "eval",
+          "--format",
+          "json",
+          "--features",
+          "html,a11y-extras",
+          "{let f(x)=x; f.nope(panic(\"arg\"))}"
+        ],
+        "at": "2026-09-09T01:31:13.494398+00:00",
+        "output": {
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot access fields on user-defined functions\n  ┌─ <input-expression>:1:15\n  │\n1 │ {let f(x)=x; f.nope(panic(\"arg\"))}\n  │                ^^^^\n\n"
+        }
+      },
+      "classification": "ResidualPreserveBaseline"
+    }
+  ],
+  "finished": "2026-09-09T01:31:13.500910+00:00",
+  "elapsed_seconds": 9.723607932013692,
+  "counts": {
+    "PreservedParity": 48,
+    "RequiredCorrection": 36,
+    "ResidualPreserveBaseline": 8
+  }
+}
