@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: 8a3ced1a
+Hash do Código: 70c9dd6c
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -144,3 +144,26 @@ sintético aprovado no owner Args, sem inventar origem. O código só pode ser
 materializado após aprovação ADR-0127 do conjunto P1307-R3; este rascunho
 não declara a aprovação obtida. A inferência de suficiência é refutada por
 necessidade de lógica no hub ou alteração dos demais namespaces.
+
+## P1334 — ligação interna de calc_abs
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1334-baseline-public.json`, SHA-256
+`bb1e8dde73ba8ae771b72d5c2e344092d797b0a6cf89c9418fa3c553503631aa`,
+identifica a árvore/UTC e perda de origem missing. Em
+`01_core/src/compiler/stdlib/mod.rs:24,76,211-214`, calc é privado,
+make_calc_module é reexportado e calc_abs só é importado em testes;
+`compiler/stdlib/calc.rs:131` já declara calc_abs pub(crate). O helper
+`compiler/eval/call_dispatch.rs:455-487` precisa alcançar esse ponteiro.
+
+### Obrigação
+
+Reexportar explicitamente calc_abs de calc em pub(crate), sem wrapper,
+wildcard, registro paralelo, módulo público ou API Rust externa nova.
+Este owner legitima somente a ligação; função/assinatura continuam em
+`compiler/stdlib/calc.md`, transporte em `compiler/eval/call_dispatch.md`.
+Nenhum helper, fórmula, registro ou reexport anterior muda. Necessidade de
+lógica no hub refuta o recorte. Glue interno de paridade ADR-0127 contínuo,
+sem entidade, contrato público ou fase nova. Verificar build/testes de
+identidade via fachada, ownership 1:1, linhagem e preservação do módulo.

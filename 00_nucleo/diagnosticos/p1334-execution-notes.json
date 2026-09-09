@@ -1,0 +1,11 @@
+{
+  "at": "2026-09-09T16:00:54.600239+00:00",
+  "manifest_sha256": "2cac9aab9dc8e911e2a14e932515db3efd5be64b10b1089d06caac0b310be1da",
+  "events": [
+    "Recorder initial mechanical adaptation self-imported and failed before any product measurement; corrected before baseline capture.",
+    "Initial raw-only hash check did not include dispatcher nucleus; effective lineage was then recomputed from the existing nucleus algorithm and strict V5/V15/V26 preflight passed. No drift repair by raw hash.",
+    "First multi-file L0 patch failed context validation atomically; no partial product write. Corrected patch applied before headers and tests.",
+    "Reviewer initial unrestricted git status showed historical step filenames incidentally; reviewer recorded incident and used constrained access subsequently. No historical step contents read."
+  ],
+  "regime": "A/B without technical isolation attestation"
+}

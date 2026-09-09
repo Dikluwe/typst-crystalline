@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash d22a84dd
+//! @prompt-hash ea0a25b7
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -73,6 +73,7 @@ mod numbering;
 pub use crate::compiler::stdlib::assert::{
     native_assert, native_assert_eq, native_assert_ne,
 };
+pub(crate) use crate::compiler::stdlib::calc::calc_abs;
 pub use crate::compiler::stdlib::calc::make_calc_module;
 pub use crate::compiler::stdlib::eval::native_eval;
 pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};

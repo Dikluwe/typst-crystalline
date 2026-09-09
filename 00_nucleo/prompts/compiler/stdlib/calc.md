@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: d4d546a7
+Hash do Código: dd012312
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/calc.rs`
@@ -1057,3 +1057,84 @@ corpus CLI literal repetido/reordenado, build/workspace, fmt, linhagem,
 V15/V26 e linter sem violações. Unknown obrigatório bloqueia conclusão.
 Regime A/B sem atestação técnica de isolamento, sem selo de refinamento
 ou mutation score. Evidências e estado exato ficam em diagnósticos.
+
+## P1334 — ausência e sobras na assinatura de abs
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1334-baseline-public.json`, SHA-256
+`bb1e8dde73ba8ae771b72d5c2e344092d797b0a6cf89c9418fa3c553503631aa`,
+registra árvore não commitada sobre HEAD
+`d31047d7b8af7837c84adae4ded3d2ff50c62093`, inventário/diff stat, UTC/argv
+e binários: cristalino P1333 SHA-256
+`79470612fc121fa42a6898846f85d0b0325edf517c90a830c01cde947f748ffe`;
+vanilla ratificado upstream/main `a51e02804`, SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+Missing tem mensagem/origem divergentes; named value carece de hint;
+primeiro extra antes de named perde precedência. With/spreads conservam
+origens externas à chamada final no vanilla.
+
+Fonte ratificada `lab/typst-original/crates/typst-library/src/foundations/args.rs:112-120,150-173,259-266`
+consome primeiro posicional, diagnostica ausência e rejeita primeira sobra.
+`foundations/calc.rs:73-94` calcula o módulo no cast antes de finish.
+Owner atual `01_core/src/compiler/stdlib/calc.rs:206-224` ainda usa guards
+portugueses. `compiler/eval/call_dispatch.rs:398,455-487` passa somente
+lista para abs; este owner isolado não basta para a origem missing inteira.
+A fonte explicita mensagem/hint, sem provar intenção geral da mecânica Rust.
+
+### Obrigação e limites
+
+Completar o subconjunto de assinatura adiado por P1333 para a nativa abs:
+
+1. Havendo primeiro posicional, processá-lo pelas regras vigentes; seu
+   erro de tipo/content, overflow ou Length misto vence todas as sobras,
+   com os mesmos campos/value_span P1328–P1333.
+2. Sem posicional, procurar a **primeira** ocorrência named chamada value,
+   mesmo depois de outro named. Se existir, emitir um único Error
+   ``the argument `value` is positional`` no span completo dessa ocorrência,
+   com um único hint `` try removing `value:` ``. Não converter seu valor,
+   escolher a última duplicata nem apontar só para value_span.
+3. Sem posicional nem named value, emitir um único Error
+   `missing argument: value` em args.span, sem hints. O agregado vem do
+   caller: não o reconstruir por texto, AST ou World dentro de calc.
+4. Após primeiro posicional válido, excluir somente essa ocorrência para
+   decidir a primeira sobra na ordem conjunta. Emitir `unexpected argument`
+   para sobra posicional ou `unexpected argument: NAME` para named, no span
+   completo da ocorrência, sem hints. Não processar outro valor como
+   substituto nem aceitar sobras silenciosamente. Named value nessa rota
+   é sobra comum, sem hint de posicional.
+5. Sem sobra, devolver o mesmo resultado, espécie e magnitude vigentes.
+
+A sequência Some de `entities/args.md` conserva ordem, duplicatas e
+origens; suas views são coerentes. Síntese None usa posicionais antes de
+named na ordem da view, spans individuais detached, nunca o agregado como
+substituto. Missing usa o agregado recebido inclusive detached. Não mutar
+Args nem legitimar estado stale/escolha silenciosa entre cópias divergentes.
+Ensaios incoerentes históricos são somente robustez fora do domínio causal,
+não evidência de paridade; novos testes normativos devem ser coerentes.
+
+Traces externos continuam no dispatcher, nenhum trace nativo novo.
+Preservar avaliação eager, fórmulas/tipos, NaN/Inf locais, nome/identidade/
+repr, outras funções e helpers. Esta seção substitui apenas preservações
+de guards portugueses, ordem named/aridade e suas âncoras antigas nas
+seções P1328–P1333. A assinatura da nativa fica completa nesse domínio,
+não a paridade geral de abs/calc. `{import calc: abs; $abs()$}` ainda
+resolve por rota matemática distinta: preservar esse débito sem alterar
+resolução/fase/spelling neste recorte.
+
+### Aceitação
+
+Diagnósticos são observáveis de linguagem ADR-0107/0108; correção contínua
+ADR-0127 sem assinatura pública, entidade, default ou fase novos. É inferência
+que os três owners manifestados bastam; necessidade de Args/math ou perda
+de origem obrigatória refuta a suficiência antes de expandir.
+Autor A/B congela sucessores e casos novos antes de C, migrando somente
+guards autorizados e conservando artefatos antigos. Cobrir ausência/named
+value/duplicatas legais, ordem conjunta, primeiro inválido, espécies válidas
+com sobras, arg-span/value-span, None/detached, With encadeado, arguments,
+spreads Array/Dict/None, alias/import/cross-source, UTF-8 e warnings.
+Math qualificada já resolvida é coberta; dívidas de resolução são preservadas.
+Exigir diagnóstico integral, resultados semânticos, RED compilado, GREEN,
+build/workspace/fmt/lint/linhagem e corpus CLI anterior mais fronteiras nos
+quatro perfis, repetido/reordenado. Unknown obrigatório bloqueia. A/B sem
+atestação técnica de isolamento, sem refinamento/mutation score.

@@ -1,0 +1,27 @@
+{
+  "at": "2026-09-09T16:14:21.098614+00:00",
+  "pass_gate": true,
+  "policy": "Complete stdout messages equal as a multiset, ignoring source line coordinates only; no new warnings or infos.",
+  "counts": [
+    {
+      "[V16]": 233,
+      "[V18]": 4,
+      "[V17]": 7,
+      "[V12]": 8,
+      "[V19]": 423,
+      "[V20]": 711
+    },
+    {
+      "[V16]": 233,
+      "[V18]": 4,
+      "[V17]": 7,
+      "[V12]": 8,
+      "[V19]": 423,
+      "[V20]": 711
+    }
+  ],
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1334-preflight-all.json": "a9caa9ab4f24201e220060fc7bbee074ef44e4bc78e0719c6ac23511ff470a2c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1334-final-lint.json": "620c41c8599548b840104e8f2b3d4ecc1c31686451de655c7f0efb9ea187b3b6"
+  }
+}

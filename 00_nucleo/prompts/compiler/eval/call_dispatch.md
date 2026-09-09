@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 01a0d090
+Hash do Código: e18f9669
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -741,3 +741,38 @@ refazer freeze normativo dos dois owners antes do patch; focal missing e
 fronteiras antes do A/B integral/repetido/reordenado. Unknown bloqueia.
 Diagnóstico é observável de linguagem; trata-se de correção interna/entrada
 em mapeamento em fluxo contínuo ADR-0127, não mudança de contrato público.
+
+## P1334 — agregado de abs por identidade nativa
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1334-baseline-public.json`, SHA-256
+`bb1e8dde73ba8ae771b72d5c2e344092d797b0a6cf89c9418fa3c553503631aa`,
+registra HEAD/árvore/UTC/binários e missing em calc.abs, With vazio e
+`$std.calc.abs()$`. `01_core/src/compiler/eval/call_dispatch.rs:398,455-487,1634`
+tem a AST/helper seletivo, mas não inclui abs. Vanilla ratificado a51e02804,
+`lab/typst-original/crates/typst-eval/src/call.rs:56-78,458-460`, transporta
+chamada inteira; `typst-library/src/foundations/args.rs:160-173` usa-a no missing.
+
+### Obrigação e limites
+
+Adicionar somente calc_abs à whitelist de transport_native_call_span,
+via fachada `compiler/stdlib/_comum.md`. Comparar ponteiros, percorrer With
+recursivamente e atribuir call.span() a args.span antes da aplicação,
+incondicionalmente para a identidade resolvida. Não inspecionar argumentos,
+aridade, mensagem, nome público, binding ou spelling. Toda validação permanece
+no owner `compiler/stdlib/calc.md`. Manter encoders, panic e CSV intactos.
+
+Não alterar ocorrências/preargs/views/merge, trace_call ou avaliação.
+O agregado é da chamada final; math que já usa o helper recebe a mesma
+política, sem nova rota/resolução. apply_func sintético preserva o agregado
+recebido, inclusive detached. Homônimos do usuário e nativas alheias não
+recebem transporte. Esta seção estende exclusividades P1307-R4/P1308/P1321-R2
+somente por abs; não amplia os seletores anteriores oportunisticamente.
+
+Correção diagnóstica/mapeamento ADR-0127 contínuo, sem API pública, entidade,
+dependência ou fase nova. Inferência de suficiência refutada por carrier/math
+novo, origem perdida ou transporte de homônimo. Aceitação independente
+RED→GREEN por identidade, With aninhado, agregado distinto de individuais,
+preargs intactos, falsa identidade com nome abs e controles encoders/panic/
+CSV/nativas alheias; gates integrais do conjunto manifestado.

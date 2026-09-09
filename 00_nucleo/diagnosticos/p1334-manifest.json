@@ -1,0 +1,44 @@
+{
+  "protocol": 1,
+  "at": "2026-09-09T15:56:46.884417+00:00",
+  "regime": "A/B without technical isolation attestation or refinement seal",
+  "prompt": "00_nucleo/prompts/compiler/stdlib/calc.md",
+  "prompt_norm_sha256": "05736e494ca184ce7c13b8eb5a9296275cce0e5c4605fde251b7ab2b17ec8666",
+  "owners": [
+    {
+      "prompt": "00_nucleo/prompts/compiler/stdlib/calc.md",
+      "source": "01_core/src/compiler/stdlib/calc.rs",
+      "norm_sha256": "05736e494ca184ce7c13b8eb5a9296275cce0e5c4605fde251b7ab2b17ec8666",
+      "effective_a": "05736e494ca184ce7c13b8eb5a9296275cce0e5c4605fde251b7ab2b17ec8666"
+    },
+    {
+      "prompt": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "source": "01_core/src/compiler/eval/call_dispatch.rs",
+      "norm_sha256": "d66af10f56669db6fac398d43bc73645981a2e2121ee6488054e44ec59a99f38",
+      "effective_a": "1ddee9967f21df96078e8906ef52d405247bc79703e3c9dfaedc74479c02f7a2"
+    },
+    {
+      "prompt": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "source": "01_core/src/compiler/stdlib/mod.rs",
+      "norm_sha256": "ea0a25b75a6d59aa3f6085072379499003df314435c3ed98468bb16a6439bfe6",
+      "effective_a": "ea0a25b75a6d59aa3f6085072379499003df314435c3ed98468bb16a6439bfe6"
+    }
+  ],
+  "baseline_sha256": "6643993d43b905e878095c722c99019c5f98cdd724cddfc3b90961153b205819",
+  "public_baseline_sha256": "bb1e8dde73ba8ae771b72d5c2e344092d797b0a6cf89c9418fa3c553503631aa",
+  "previous_closure_sha256": "896a4eee492cf4b5f37520b055e4e5f5d01da60130d8a852f9ef06302e5f0425",
+  "step": {
+    "path": "00_nucleo/materialization/typst-passo-1334.md",
+    "sha256": "9875ed3416d973889814da1453faa4368ee1753000942a8967c7a75f77f2db2b"
+  },
+  "target": "/tmp/p1334-target.Ujq0xU",
+  "roles": {
+    "root": "L0/candidate/integration/evidence; no oracle edits",
+    "tests": "fresh context; normative L0 + public baseline + frozen historical snippets/CLI only; writes p1334-ab-*; no runtime or private candidate receipts",
+    "review": "read-only judgments; writes p1334-review-*"
+  },
+  "observable": "Native abs missing/named value hint/first remaining argument diagnostics; resolved identity aggregate transport; preserve first invalid and all out-of-scope behavior",
+  "unknown": "mandatory Unknown blocks closure",
+  "budget": "two focal revisions without gain reopen; full corpus only after focal GREEN",
+  "commit": false
+}
