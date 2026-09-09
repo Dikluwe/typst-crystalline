@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: 4f58eb82
+Hash do Código: 33f8772f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/calc.rs`
@@ -10,6 +10,69 @@ assinatura e helpers partilhados: ver `stdlib/_comum.md`.
 ADR-0054 (perfil graded).
 
 ---
+
+## P1328 — diagnóstico de conteúdo em calc.abs
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1328-baseline.json`, SHA-256
+`e049418db46ea039235b336254bfdbffd492253ac66c38782ac6bc56564f2ffb`,
+registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
+não commitado, diff/stat integral, binários e argv, com UTC inicial
+`2026-09-09T11:35:18.901045+00:00`. O vanilla ratificado `a51e02804`
+rejeita conteúdo em `calc.abs`, inclusive `$std.calc.abs(-1)$` e alias
+bare em math, com a mensagem abaixo e o span do argumento. O baseline
+P1327 usa mensagem portuguesa, span detached e, em código, trace adicional
+devido à ausência de âncora. Conteúdo continua conteúdo; não vira número.
+
+`01_core/src/compiler/stdlib/calc.rs:139-148` valida named/quantidade,
+preserva Int/Float/Decimal e usa `err` detached no fallback.
+`lab/typst-original/crates/typst-library/src/foundations/calc.rs:74-94`
+declara o cast ToAbs; `01_core/src/compiler/eval/math.rs:329-348` já
+transporta ocorrências com `value_span`. Args conserva essas origens em
+`entities/args.rs:19-20,60-84`. `eval/call_dispatch.rs:1031-1044` já evita
+trace redundante para erro contido na chamada; não é preciso alterá-lo.
+`Value::Content` e `Value::LocatedContent` publicam o mesmo tipo content
+em `entities/value.rs:348`; Symbol publica symbol e não pertence ao recorte.
+
+### Decisão e aceitação
+
+Somente depois dos guards existentes, para exatamente um argumento
+posicional de tipo da linguagem content (Content ou LocatedContent),
+retornar um erro de severidade Error, sem hints nem trace próprio, com texto:
+
+```text
+expected integer, float, length, angle, ratio, fraction, or decimal, found content
+```
+
+A âncora é `value_span` da primeira ocorrência posicional disponível em
+Args. Preservar essa origem, inclusive em alias, With e spread; não usar
+span agregado, nome da função, texto do conteúdo, pesquisa textual ou
+origem adivinhada como substitutos. Sem ocorrência, ou com value_span
+detached, manter detached no erro nativo. Não fabricar posição usando
+`args.span` ou `occurrence.span`. Traces de chamadas externas continuam
+responsabilidade do dispatcher vigente e são observados integralmente.
+
+Preservar Int/Float/Decimal, inclusive a política saturating_abs existente,
+o guard de named antes da aridade, erros de zero/múltiplos argumentos,
+e rejeições dos demais tipos. Não ampliar suporte a Length/Angle/Ratio/Fr,
+não corrigir overflow/NaN/Inf, não alterar outras funções calc ou helpers
+compartilhados. Essas diferenças são dívidas medidas, não paridade.
+A lista de tipos no diagnóstico espelha a linguagem ratificada, mas não
+declara que todos já são aceitos por este subset cristalino.
+
+Correção diagnóstica interna ADR-0127 em fluxo contínuo: L0-first,
+testes independentes no próprio owner, RED real e GREEN dos mesmos casos.
+Cobrir rotas math qualificada/bare sem mudança de fase, conteúdo markup,
+alias/With/spread, origens distintas, UTF-8/linhas, wrappers de conteúdo,
+argumento sintético sem origem, perfis default/html/a11y/html+a11y e controles
+numéricos/de guard/outros tipos. Comparar mensagem, severidade, hints,
+traces, quantidade e span resolvível, não apenas substring. CLI integral
+normal/repetida/invertida e suíte completa são gates; nenhuma expectativa
+histórica é alterada sem nova medição. É inferência que este owner basta;
+origem ausente nas rotas reais obrigatórias, outro consumer necessário ou
+mudança de fase refuta a suficiência antes de ampliar escopo. Unknown não
+satisfaz aceitação. Não se afirma paridade geral de abs ou calc.
 
 ## Subset `calc` — 21 entradas (trig + hiperbólicas + exp/log + constantes)
 
