@@ -1,0 +1,31 @@
+{
+  "at": "2026-09-09T12:27:44.861Z",
+  "manifest_sha256": "d1e9d154733644b2e170c9872bd2cb1aeb165ed95fe34945960ccbc1550f9080",
+  "baseline_public_sha256": "e7af5fca1897431c6060ded8a8072df03e8946aa7be95ab71aa3ebd366d40063",
+  "p1328_tests_sha256": "b689de73f3bbe572ed4cc9a0fea0fc29a792f91a8125cc8e1a657a19e676315e",
+  "successor_sha256": "1fb3d1c0b6ddfd486aa1cfd4cbdaffbdf2ecd774021b5512d217b769e92c3a7c",
+  "p1328_expected_sha256": "9d633ccf379d5a1124723ff1919f388b0603aab8cd4cd940456aa33144369623",
+  "expected_sha256": "699ab2fe050a1207a7ad9a98d8b4d78e7366fa421324f5d64aa06826c2289c51",
+  "old_cli_total": 112,
+  "new_cli_total": 252,
+  "changed_historical_expectations": [
+    "length/default",
+    "length/html",
+    "length/a11y",
+    "length/html+a11y",
+    "angle/default",
+    "angle/html",
+    "angle/a11y",
+    "angle/html+a11y",
+    "ratio/default",
+    "ratio/html",
+    "ratio/a11y",
+    "ratio/html+a11y",
+    "fraction/default",
+    "fraction/html",
+    "fraction/a11y",
+    "fraction/html+a11y"
+  ],
+  "preserved_historical": 96,
+  "successor_unified_diff": "--- 00_nucleo/diagnosticos/p1328-ab-tests-r2.rs\t2026-09-09 08:50:22.981057889 -0300\n+++ 00_nucleo/diagnosticos/p1329-ab-p1328-successor.rs\t2026-09-09 09:21:14.039198503 -0300\n@@ -12,6 +12,7 @@\n     use crate::entities::element_registry::ElementRegistry;\n     use crate::entities::file_id::FileId;\n     use crate::entities::font_book::FontBook;\n+    use crate::entities::layout_types::{Angle, Length, Ratio};\n     use crate::entities::locator::Locator;\n     use crate::entities::module::Module;\n     use crate::entities::sink::Sink;\n@@ -302,6 +303,10 @@\n         let world = TestWorld::new(\"\");\n         for features in profiles() {\n             for (expr, expected) in [\n+                (\"calc.abs(-2pt)\", Value::Length(Length::pt(2.0))),\n+                (\"calc.abs(-2deg)\", Value::Angle(Angle::deg(2.0))),\n+                (\"calc.abs(-2%)\", Value::Ratio(Ratio::from_percent(2.0))),\n+                (\"calc.abs(-2fr)\", Value::Fraction(2.0)),\n                 (\"calc.abs(-19)\", Value::Int(19)),\n                 (\"calc.abs(-1.25)\", Value::Float(1.25)),\n                 (\"calc.abs(decimal(\\\"-1.25\\\"))\", Value::Decimal(Decimal::new(125, 2))),\n@@ -324,26 +329,6 @@\n                     \"calc.abs\",\n                 ),\n                 (\n-                    \"calc.abs(-2pt)\",\n-                    \"calc.abs() requer Int ou Float, recebeu length\",\n-                    \"calc.abs\",\n-                ),\n-                (\n-                    \"calc.abs(-2deg)\",\n-                    \"calc.abs() requer Int ou Float, recebeu angle\",\n-                    \"calc.abs\",\n-                ),\n-                (\n-                    \"calc.abs(-2%)\",\n-                    \"calc.abs() requer Int ou Float, recebeu ratio\",\n-                    \"calc.abs\",\n-                ),\n-                (\n-                    \"calc.abs(-2fr)\",\n-                    \"calc.abs() requer Int ou Float, recebeu fraction\",\n-                    \"calc.abs\",\n-                ),\n-                (\n                     \"calc.sqrt([x])\",\n                     \"calc.sqrt(): esperava Int ou Float, recebeu content\",\n                     \"calc.sqrt\",\n"
+}

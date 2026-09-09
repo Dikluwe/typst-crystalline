@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: 33f8772f
+Hash do Código: 483d55d0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/calc.rs`
@@ -54,12 +54,13 @@ detached, manter detached no erro nativo. Não fabricar posição usando
 responsabilidade do dispatcher vigente e são observados integralmente.
 
 Preservar Int/Float/Decimal, inclusive a política saturating_abs existente,
-o guard de named antes da aridade, erros de zero/múltiplos argumentos,
-e rejeições dos demais tipos. Não ampliar suporte a Length/Angle/Ratio/Fr,
-não corrigir overflow/NaN/Inf, não alterar outras funções calc ou helpers
-compartilhados. Essas diferenças são dívidas medidas, não paridade.
-A lista de tipos no diagnóstico espelha a linguagem ratificada, mas não
-declara que todos já são aceitos por este subset cristalino.
+o guard de named antes da aridade e erros de zero/múltiplos argumentos.
+P1329, abaixo, substitui explicitamente a antiga rejeição de
+Length/Angle/Ratio/Fr; os demais tipos, overflow inteiro, outras funções
+calc e helpers compartilhados continuam fora desta correção de conteúdo.
+As diferenças remanescentes são dívidas medidas, não paridade. A lista de
+tipos no diagnóstico não implica suporte irrestrito: comprimentos mistos
+têm a restrição normativa especificada em P1329.
 
 Correção diagnóstica interna ADR-0127 em fluxo contínuo: L0-first,
 testes independentes no próprio owner, RED real e GREEN dos mesmos casos.
@@ -73,6 +74,109 @@ histórica é alterada sem nova medição. É inferência que este owner basta;
 origem ausente nas rotas reais obrigatórias, outro consumer necessário ou
 mudança de fase refuta a suficiência antes de ampliar escopo. Unknown não
 satisfaz aceitação. Não se afirma paridade geral de abs ou calc.
+
+## P1329 — valores dimensionais em calc.abs
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1329-baseline.json`, SHA-256
+`d0e1787fac8b6264122ca6dcf5e29e4729552e8031e591ce6f4ee725e14cbd23`,
+registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
+não commitado, lista exata/diff/stat/inventários, argv e binários, início
+UTC `2026-09-09T12:08:08.824769+00:00`. O baseline P1328 rejeita
+`calc.abs(-2pt)`, `calc.abs(-2em)`, `calc.abs(-2deg)`, `calc.abs(-2%)` e
+`calc.abs(-2fr)`; o vanilla ratificado `a51e02804` devolve o módulo na
+mesma espécie de valor. Unidades cm/mm/in e rad também foram medidas.
+
+`lab/typst-original/crates/typst-library/src/foundations/calc.rs:84-94`
+declara os casts dimensionais de ToAbs. `layout/length.rs:58-61` admite
+somente comprimentos com componente absoluta ou em igual a zero. A
+medição refuta a regra intuitiva de aceitar componentes de mesmo sinal:
+`calc.abs(2pt + 3em)` e `calc.abs(-2pt - 3em)` também são rejeitados com
+`cannot take absolute value of this length`, ancorado no argumento.
+`layout/angle.rs:76-78`, `layout/ratio.rs:103-105` e `layout/fr.rs:49-51`
+calculam módulo sem normalização angular ou resolução de contexto.
+
+`01_core/src/compiler/stdlib/calc.rs:139-161` já concentra despacho,
+guards e origem de Content; `entities/layout_types.rs:1102-1115,1162-1212,
+1259-1293` e `entities/value.rs:113` já representam as grandezas requeridas
+com APIs públicas suficientes. Não é necessário criar campo ou método.
+`p1328-ab-tests-r2.rs:326-345`, em diagnosticos, identifica quatro controles
+históricos de rejeição que deixam de ser a obrigação vigente.
+
+As sondas com `0.0/0.0` falham antes da chamada e não medem abs/NaN.
+Float multiplicado por fraction também tem lacuna anterior à chamada no
+cristalino; não a corrigir neste owner. Casos nativos com valores já
+construídos devem distinguir essa fronteira da operação abs. A fonte
+expressa o módulo escalar; não se infere intenção geral de design de
+eventuais diferenças de construção ou impressão de não finitos.
+
+Reabertura de domínio P1329-R2, ainda antes de C:
+`lab/typst-original/crates/typst-utils/src/scalar.rs:29-31` normaliza NaN
+para zero; Angle, Ratio, Fr, Abs e Em usam Scalar nos construtores. Portanto
+NaN dimensional já construído no cristalino não tem entrada equivalente
+nesse vanilla. `p1329-nan-domain-probe-r2.json`, em diagnosticos, SHA-256
+`8ca6f55fbcde70a3a4edcc521dccaa248caedd872650b6b735e113991ea84b9c`,
+UTC `2026-09-09T12:31:40.046287+00:00`, guarda HEAD/diff/stat e mostra
+`(calc.inf - calc.inf) * 1deg` e `* 1%` como NaN no cristalino e zero no
+vanilla. Não são apenas estados sintéticos: há dívida anterior à chamada
+também na linguagem. Impressão de Length não prova a identidade de suas
+componentes. Inf, por outro lado, é representável no domínio vanilla.
+Não copiar Scalar nem corrigir essa construção dentro de abs.
+
+### Decisão e aceitação
+
+Depois dos guards existentes, exatamente um argumento Angle, Ratio ou
+Fraction deve produzir o módulo da magnitude na mesma espécie de valor,
+sem converter em Float, limitar percentagens ou reduzir ângulos a uma
+volta. Length só é aceito quando `abs == 0` ou `em == 0`, devolvendo o
+módulo de suas componentes, sem resolver font-size e sem converter em Float.
+Zero, incluindo zero negativo, conta como zero nessa condição. Se ambas
+as componentes forem não zero, rejeitar mesmo com sinais iguais.
+
+O erro de Length misto é Error, mensagem exata
+`cannot take absolute value of this length`, sem hints ou trace nativo.
+Usar somente o `value_span` da primeira ocorrência posicional; ausência
+ou detached permanecem detached. Preservar origens em alias/With/spread,
+inclusive fora da chamada final. Os traces externos continuam no
+dispatcher; sua dívida de nome `calc.abs` versus `abs` é preservada e
+deve ter expectativas integrais congeladas antes de C, não normalizadas.
+
+Abs não usa guard_float. Para a representação cristalina já construída,
+o módulo escalar propaga NaN e transforma infinitos negativos em positivos,
+mantendo a espécie. Para Length já construído, a condição de componente
+zero continua valendo, inclusive para não finitos. Essa obrigação local
+para NaN dimensional não é evidência de paridade: o domínio de comparação
+exige entradas equivalentes já construídas nos dois sistemas e exclui
+esses estados divergentes. Testes nativos NaN verificam somente a regra
+local, nunca uma correspondência inexistente. Não corrigir construção,
+casts ou operações anteriores à chamada; registrar sua dívida explicitamente.
+Preservar Content/LocatedContent P1328, Int/Float/Decimal, saturação de
+i64::MIN, guards named/aridade, demais rejeições e outras funções calc.
+Este escopo substitui somente as quatro rejeições dimensionais de P1328;
+não declara paridade geral de abs nem altera a política das outras funções.
+
+Autor A/B deve migrar somente os quatro controles dimensionais antigos
+para resultados positivos, mantendo todas as demais asserções de P1328,
+e escrever testes independentes novos no mesmo owner. Os arquivos de
+evidência e snippets antigos em diagnosticos permanecem imutáveis.
+Conferir RED real antes de C e GREEN dos mesmos testes; cobrir tipo e
+magnitude, sinais/zeros/unidades, mistos de todos os sinais, entrada
+sintética/âncora detached, alias/With/spread, UTF-8, math sem coerção,
+warnings e os quatro perfis default/html/a11y/html+a11y. NaN/Inf nativos
+precisam de testes próprios, não de sondas que falham antes de abs; a
+classificação local-versus-paridade acima é obrigatória nos resultados.
+
+Aceitação primária é semântica de tipo/valor e diagnóstico na linguagem
+(ADR-0107/0108), não igualdade de estrutura Rust ou bytes de render.
+CLI integral normal/repetida/invertida é sentinela complementar, com
+dívidas explicitamente classificadas antes de C; Unknown obrigatório
+bloqueia fechamento. Executar build, workspace, fmt, lint e V5/V15/V26.
+Regime ADR-0127 contínuo: correção de paridade sem mudança de contrato
+Rust público, default deliberado, compatibilidade ou fase. É inferência
+que este owner basta; necessidade de editar operadores/entidades/dispatcher
+ou ausência de origem real obrigatória refuta a suficiência e exige
+revisão de escopo antes de expandir a implementação.
 
 ## Subset `calc` — 21 entradas (trig + hiperbólicas + exp/log + constantes)
 
@@ -580,7 +684,7 @@ anteriores. Mantêm-se as tabelas do estado actual de `calc.md`.
 
 | Função | Tipos | Semântica |
 |--------|-------|-----------|
-| `calc_abs` | `Int`, `Float` ou `Decimal` (P817-D) | `Int.saturating_abs()` / `Float.abs()` / `Decimal.abs()` |
+| `calc_abs` | `Int`, `Float`, `Decimal`, `Length`, `Angle`, `Ratio`, `Fraction` (P1329) | Módulo na mesma espécie; Int saturado preservado; Length exige componente abs ou em zero; diagnóstico de conteúdo P1328 |
 | `calc_pow` | `(Int,Int)`, `(Num,Num)` ou `(Decimal,Int)` (P817-C/D) | `0^0` → Err; exp Int não-i32 → Err; exp Float não-normal → Err; `(Int,Int≥0)` → `Int` (`checked_pow`, overflow → Err); `(Int,Int<0)` → `Float` (`powi`); `(Decimal,Int)` → `Decimal` (`checked_powi`); `(Decimal,Float)` → erro dedicado + hint; resto → `powf` |
 | `calc_sqrt` | `Int` ou `Float` | argumento negativo → Err |
 | `calc_floor` | `Int`, `Float` ou `Decimal` (P817-D) | `Int`→`Int` (identidade); `Float`→`Int`; `Decimal`→`Int` (overflow → Err) |
@@ -621,7 +725,7 @@ escalares (`pow`, `sqrt`, trig, hiperbólicas, log, exp, root, norm, atan2).
 
 **Política transversal cristalina** (ADR-0101):
 - `eval`/layout/operators: **IEEE 754 puro** (paridade vanilla).
-- `stdlib` funções matemáticas: **rejeita NaN+Inf** (divergência consciente).
+- `stdlib` funções matemáticas que usam `guard_float` acima: **rejeita NaN+Inf** (divergência consciente). `abs` não usa esse guard; ver P1329.
 
 ---
 

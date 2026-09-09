@@ -1,0 +1,1249 @@
+{
+  "at": "2026-09-09T12:08:08.824769+00:00",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "state": "working tree não commitado; full diff/stat/inventory in protected baseline",
+  "diff_stat": " .../prompts/compiler/eval/bindings/field_access.md | 187 +++++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |  47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |  78 ++-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  65 +-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 198 +++++-\n 00_nucleo/prompts/wiring.md                        | 104 ++-\n 01_core/src/compiler/eval/bindings/field_access.rs | 731 ++++++++++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  92 ++-\n 01_core/src/compiler/eval/modules.rs               |   5 +-\n 01_core/src/compiler/eval/tests.rs                 | 236 ++++++-\n 01_core/src/compiler/stdlib/calc.rs                | 388 ++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             | 466 +++++++++++--\n 04_wiring/src/main.rs                              |  50 +-\n 14 files changed, 2596 insertions(+), 104 deletions(-)\n",
+  "binaries": {
+    "baseline": {
+      "path": "/tmp/p1328-target.T7Tg57/release/typst",
+      "sha256": "94c3d8cec16dc98784757227f554b2851fad186a9e76605272bdaab0e6f925f9"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  },
+  "rows": [
+    {
+      "expression": "calc.abs(-2pt)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt)"
+      ],
+      "at": "2026-09-09T12:08:09.576350+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2pt)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2pt)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt)"
+      ],
+      "at": "2026-09-09T12:08:09.657825+00:00",
+      "exit": 0,
+      "stdout": "\"2pt\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-2em)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2em)"
+      ],
+      "at": "2026-09-09T12:08:09.664060+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2em)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2em)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2em)"
+      ],
+      "at": "2026-09-09T12:08:09.751182+00:00",
+      "exit": 0,
+      "stdout": "\"2em\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-2cm)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2cm)"
+      ],
+      "at": "2026-09-09T12:08:09.757283+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2cm)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2cm)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2cm)"
+      ],
+      "at": "2026-09-09T12:08:09.843674+00:00",
+      "exit": 0,
+      "stdout": "\"56.69pt\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-2mm)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2mm)"
+      ],
+      "at": "2026-09-09T12:08:09.849842+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2mm)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2mm)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2mm)"
+      ],
+      "at": "2026-09-09T12:08:09.933975+00:00",
+      "exit": 0,
+      "stdout": "\"5.67pt\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-2in)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2in)"
+      ],
+      "at": "2026-09-09T12:08:09.939738+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2in)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2in)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2in)"
+      ],
+      "at": "2026-09-09T12:08:10.025209+00:00",
+      "exit": 0,
+      "stdout": "\"144pt\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-2deg)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2deg)"
+      ],
+      "at": "2026-09-09T12:08:10.031619+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu angle\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2deg)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2deg)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2deg)"
+      ],
+      "at": "2026-09-09T12:08:10.118042+00:00",
+      "exit": 0,
+      "stdout": "\"2deg\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-2rad)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2rad)"
+      ],
+      "at": "2026-09-09T12:08:10.124310+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu angle\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2rad)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2rad)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2rad)"
+      ],
+      "at": "2026-09-09T12:08:10.211388+00:00",
+      "exit": 0,
+      "stdout": "\"114.59deg\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-2%)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2%)"
+      ],
+      "at": "2026-09-09T12:08:10.217941+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu ratio\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2%)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2%)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2%)"
+      ],
+      "at": "2026-09-09T12:08:10.307256+00:00",
+      "exit": 0,
+      "stdout": "\"2%\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-2fr)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2fr)"
+      ],
+      "at": "2026-09-09T12:08:10.313686+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu fraction\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2fr)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2fr)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2fr)"
+      ],
+      "at": "2026-09-09T12:08:10.401704+00:00",
+      "exit": 0,
+      "stdout": "\"2fr\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(0pt)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(0pt)"
+      ],
+      "at": "2026-09-09T12:08:10.408170+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(0pt)\n\n"
+    },
+    {
+      "expression": "calc.abs(0pt)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(0pt)"
+      ],
+      "at": "2026-09-09T12:08:10.494818+00:00",
+      "exit": 0,
+      "stdout": "\"0pt\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-0em)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-0em)"
+      ],
+      "at": "2026-09-09T12:08:10.500987+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-0em)\n\n"
+    },
+    {
+      "expression": "calc.abs(-0em)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-0em)"
+      ],
+      "at": "2026-09-09T12:08:10.589959+00:00",
+      "exit": 0,
+      "stdout": "\"0pt\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(2pt + 3em)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(2pt + 3em)"
+      ],
+      "at": "2026-09-09T12:08:10.596332+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(2pt + 3em)\n\n"
+    },
+    {
+      "expression": "calc.abs(2pt + 3em)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(2pt + 3em)"
+      ],
+      "at": "2026-09-09T12:08:10.683574+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot take absolute value of this length\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs(2pt + 3em)\n  │          ^^^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs(-2pt - 3em)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt - 3em)"
+      ],
+      "at": "2026-09-09T12:08:10.689958+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2pt - 3em)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2pt - 3em)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt - 3em)"
+      ],
+      "at": "2026-09-09T12:08:10.778684+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot take absolute value of this length\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs(-2pt - 3em)\n  │          ^^^^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs(2pt - 3em)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(2pt - 3em)"
+      ],
+      "at": "2026-09-09T12:08:10.785100+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(2pt - 3em)\n\n"
+    },
+    {
+      "expression": "calc.abs(2pt - 3em)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(2pt - 3em)"
+      ],
+      "at": "2026-09-09T12:08:10.872940+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot take absolute value of this length\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs(2pt - 3em)\n  │          ^^^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs(0pt - 3em)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(0pt - 3em)"
+      ],
+      "at": "2026-09-09T12:08:10.879531+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(0pt - 3em)\n\n"
+    },
+    {
+      "expression": "calc.abs(0pt - 3em)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(0pt - 3em)"
+      ],
+      "at": "2026-09-09T12:08:10.969451+00:00",
+      "exit": 0,
+      "stdout": "\"3em\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-2pt + 0em)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt + 0em)"
+      ],
+      "at": "2026-09-09T12:08:10.976162+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2pt + 0em)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2pt + 0em)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt + 0em)"
+      ],
+      "at": "2026-09-09T12:08:11.065654+00:00",
+      "exit": 0,
+      "stdout": "\"2pt\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "{let ab=calc.abs; ab(-2em)}",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "{let ab=calc.abs; ab(-2em)}"
+      ],
+      "at": "2026-09-09T12:08:11.072138+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:18\n    ab(-2em)\n\n"
+    },
+    {
+      "expression": "{let ab=calc.abs; ab(-2em)}",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "{let ab=calc.abs; ab(-2em)}"
+      ],
+      "at": "2026-09-09T12:08:11.160716+00:00",
+      "exit": 0,
+      "stdout": "\"2em\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "{let ab=calc.abs.with(-2em); ab()}",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "{let ab=calc.abs.with(-2em); ab()}"
+      ],
+      "at": "2026-09-09T12:08:11.167105+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:29\n    ab()\n\n"
+    },
+    {
+      "expression": "{let ab=calc.abs.with(-2em); ab()}",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "{let ab=calc.abs.with(-2em); ab()}"
+      ],
+      "at": "2026-09-09T12:08:11.255255+00:00",
+      "exit": 0,
+      "stdout": "\"2em\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(..(-2%,))",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(..(-2%,))"
+      ],
+      "at": "2026-09-09T12:08:11.261906+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu ratio\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(..(-2%,))\n\n"
+    },
+    {
+      "expression": "calc.abs(..(-2%,))",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(..(-2%,))"
+      ],
+      "at": "2026-09-09T12:08:11.351098+00:00",
+      "exit": 0,
+      "stdout": "\"2%\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "{let aa=arguments(2pt + 3em); calc.abs(..aa)}",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "{let aa=arguments(2pt + 3em); calc.abs(..aa)}"
+      ],
+      "at": "2026-09-09T12:08:11.357773+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:30\n    calc.abs(..aa)\n\n"
+    },
+    {
+      "expression": "{let aa=arguments(2pt + 3em); calc.abs(..aa)}",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "{let aa=arguments(2pt + 3em); calc.abs(..aa)}"
+      ],
+      "at": "2026-09-09T12:08:11.447827+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot take absolute value of this length\n  ┌─ <input-expression>:1:18\n  │\n1 │ {let aa=arguments(2pt + 3em); calc.abs(..aa)}\n  │                   ^^^^^^^^^\n\n  while calling `abs` at <input-expression>:1:30\n    calc.abs(..aa)\n\n"
+    },
+    {
+      "expression": "{let ab=calc.abs.with(2pt + 3em); ab()}",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "{let ab=calc.abs.with(2pt + 3em); ab()}"
+      ],
+      "at": "2026-09-09T12:08:11.454680+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:34\n    ab()\n\n"
+    },
+    {
+      "expression": "{let ab=calc.abs.with(2pt + 3em); ab()}",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "{let ab=calc.abs.with(2pt + 3em); ab()}"
+      ],
+      "at": "2026-09-09T12:08:11.541871+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot take absolute value of this length\n  ┌─ <input-expression>:1:22\n  │\n1 │ {let ab=calc.abs.with(2pt + 3em); ab()}\n  │                       ^^^^^^^^^\n\n  while calling `abs` at <input-expression>:1:34\n    ab()\n\n"
+    },
+    {
+      "expression": "calc.abs(-calc.inf * 1deg)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-calc.inf * 1deg)"
+      ],
+      "at": "2026-09-09T12:08:11.548462+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu angle\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-calc.inf * 1deg)\n\n"
+    },
+    {
+      "expression": "calc.abs(-calc.inf * 1deg)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-calc.inf * 1deg)"
+      ],
+      "at": "2026-09-09T12:08:11.638164+00:00",
+      "exit": 0,
+      "stdout": "\"float.inf * 1deg\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-calc.inf * 1fr)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-calc.inf * 1fr)"
+      ],
+      "at": "2026-09-09T12:08:11.644860+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot multiply float with fraction\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs(-calc.inf * 1fr)\n  │          ^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs(-calc.inf * 1fr)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-calc.inf * 1fr)"
+      ],
+      "at": "2026-09-09T12:08:11.733825+00:00",
+      "exit": 0,
+      "stdout": "\"float.inf * 1fr\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-calc.inf * 1%)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-calc.inf * 1%)"
+      ],
+      "at": "2026-09-09T12:08:11.740150+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu ratio\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-calc.inf * 1%)\n\n"
+    },
+    {
+      "expression": "calc.abs(-calc.inf * 1%)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-calc.inf * 1%)"
+      ],
+      "at": "2026-09-09T12:08:11.827862+00:00",
+      "exit": 0,
+      "stdout": "\"float.inf * 1%\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs((0.0/0.0) * 1deg)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs((0.0/0.0) * 1deg)"
+      ],
+      "at": "2026-09-09T12:08:11.834240+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot divide by zero\n  ┌─ <input-expression>:1:10\n  │\n1 │ calc.abs((0.0/0.0) * 1deg)\n  │           ^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs((0.0/0.0) * 1deg)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs((0.0/0.0) * 1deg)"
+      ],
+      "at": "2026-09-09T12:08:11.920982+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot divide by zero\n  ┌─ <input-expression>:1:10\n  │\n1 │ calc.abs((0.0/0.0) * 1deg)\n  │           ^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs((0.0/0.0) * 1fr)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs((0.0/0.0) * 1fr)"
+      ],
+      "at": "2026-09-09T12:08:11.927285+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot divide by zero\n  ┌─ <input-expression>:1:10\n  │\n1 │ calc.abs((0.0/0.0) * 1fr)\n  │           ^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs((0.0/0.0) * 1fr)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs((0.0/0.0) * 1fr)"
+      ],
+      "at": "2026-09-09T12:08:12.017076+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot divide by zero\n  ┌─ <input-expression>:1:10\n  │\n1 │ calc.abs((0.0/0.0) * 1fr)\n  │           ^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs((0.0/0.0) * 1%)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs((0.0/0.0) * 1%)"
+      ],
+      "at": "2026-09-09T12:08:12.023528+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot divide by zero\n  ┌─ <input-expression>:1:10\n  │\n1 │ calc.abs((0.0/0.0) * 1%)\n  │           ^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs((0.0/0.0) * 1%)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs((0.0/0.0) * 1%)"
+      ],
+      "at": "2026-09-09T12:08:12.111458+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot divide by zero\n  ┌─ <input-expression>:1:10\n  │\n1 │ calc.abs((0.0/0.0) * 1%)\n  │           ^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs(-calc.inf * 1pt)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-calc.inf * 1pt)"
+      ],
+      "at": "2026-09-09T12:08:12.118494+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu length\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-calc.inf * 1pt)\n\n"
+    },
+    {
+      "expression": "calc.abs(-calc.inf * 1pt)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-calc.inf * 1pt)"
+      ],
+      "at": "2026-09-09T12:08:12.207103+00:00",
+      "exit": 0,
+      "stdout": "\"float.inf * 1pt\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs((0.0/0.0) * 1pt)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs((0.0/0.0) * 1pt)"
+      ],
+      "at": "2026-09-09T12:08:12.213439+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot divide by zero\n  ┌─ <input-expression>:1:10\n  │\n1 │ calc.abs((0.0/0.0) * 1pt)\n  │           ^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs((0.0/0.0) * 1pt)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs((0.0/0.0) * 1pt)"
+      ],
+      "at": "2026-09-09T12:08:12.301423+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot divide by zero\n  ┌─ <input-expression>:1:10\n  │\n1 │ calc.abs((0.0/0.0) * 1pt)\n  │           ^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs(-3)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-3)"
+      ],
+      "at": "2026-09-09T12:08:12.308016+00:00",
+      "exit": 0,
+      "stdout": "3\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-3)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-3)"
+      ],
+      "at": "2026-09-09T12:08:12.398179+00:00",
+      "exit": 0,
+      "stdout": "3\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-3.5)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-3.5)"
+      ],
+      "at": "2026-09-09T12:08:12.405216+00:00",
+      "exit": 0,
+      "stdout": "3.5\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-3.5)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-3.5)"
+      ],
+      "at": "2026-09-09T12:08:12.495386+00:00",
+      "exit": 0,
+      "stdout": "3.5\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(decimal(\"-3.5\"))",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(decimal(\"-3.5\"))"
+      ],
+      "at": "2026-09-09T12:08:12.501408+00:00",
+      "exit": 0,
+      "stdout": "\"decimal(\\\"3.5\\\")\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(decimal(\"-3.5\"))",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(decimal(\"-3.5\"))"
+      ],
+      "at": "2026-09-09T12:08:12.587066+00:00",
+      "exit": 0,
+      "stdout": "\"decimal(\\\"3.5\\\")\"\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-9223372036854775807 - 1)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-9223372036854775807 - 1)"
+      ],
+      "at": "2026-09-09T12:08:12.593030+00:00",
+      "exit": 0,
+      "stdout": "9223372036854775807\n",
+      "stderr": ""
+    },
+    {
+      "expression": "calc.abs(-9223372036854775807 - 1)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-9223372036854775807 - 1)"
+      ],
+      "at": "2026-09-09T12:08:12.681020+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the result is too large\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs(-9223372036854775807 - 1)\n  │          ^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs([x])",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs([x])"
+      ],
+      "at": "2026-09-09T12:08:12.687462+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected integer, float, length, angle, ratio, fraction, or decimal, found content\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs([x])\n  │          ^^^\n\n"
+    },
+    {
+      "expression": "calc.abs([x])",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs([x])"
+      ],
+      "at": "2026-09-09T12:08:12.776533+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected integer, float, length, angle, ratio, fraction, or decimal, found content\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs([x])\n  │          ^^^\n\n"
+    },
+    {
+      "expression": "$std.calc.abs(-1)$",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "$std.calc.abs(-1)$"
+      ],
+      "at": "2026-09-09T12:08:12.783420+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected integer, float, length, angle, ratio, fraction, or decimal, found content\n  ┌─ <input-expression>:1:14\n  │\n1 │ $std.calc.abs(-1)$\n  │               ^^\n\n"
+    },
+    {
+      "expression": "$std.calc.abs(-1)$",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "$std.calc.abs(-1)$"
+      ],
+      "at": "2026-09-09T12:08:12.869702+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected integer, float, length, angle, ratio, fraction, or decimal, found content\n  ┌─ <input-expression>:1:14\n  │\n1 │ $std.calc.abs(-1)$\n  │               ^^\n\n"
+    },
+    {
+      "expression": "calc.abs(\"x\")",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(\"x\")"
+      ],
+      "at": "2026-09-09T12:08:12.876150+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu str\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(\"x\")\n\n"
+    },
+    {
+      "expression": "calc.abs(\"x\")",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(\"x\")"
+      ],
+      "at": "2026-09-09T12:08:12.964492+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected integer, float, length, angle, ratio, fraction, or decimal, found string\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs(\"x\")\n  │          ^^^\n\n"
+    },
+    {
+      "expression": "calc.abs(sym.alpha)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(sym.alpha)"
+      ],
+      "at": "2026-09-09T12:08:12.970842+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer Int ou Float, recebeu symbol\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(sym.alpha)\n\n"
+    },
+    {
+      "expression": "calc.abs(sym.alpha)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(sym.alpha)"
+      ],
+      "at": "2026-09-09T12:08:13.058313+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected integer, float, length, angle, ratio, fraction, or decimal, found symbol\n  ┌─ <input-expression>:1:9\n  │\n1 │ calc.abs(sym.alpha)\n  │          ^^^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs()",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs()"
+      ],
+      "at": "2026-09-09T12:08:13.064874+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer 1 argumento, recebeu 0\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs()\n\n"
+    },
+    {
+      "expression": "calc.abs()",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs()"
+      ],
+      "at": "2026-09-09T12:08:13.151316+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ calc.abs()\n  │ ^^^^^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.abs(-2pt, 1)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt, 1)"
+      ],
+      "at": "2026-09-09T12:08:13.157353+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.abs() requer 1 argumento, recebeu 2\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2pt, 1)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2pt, 1)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt, 1)"
+      ],
+      "at": "2026-09-09T12:08:13.246855+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:15\n  │\n1 │ calc.abs(-2pt, 1)\n  │                ^\n\n"
+    },
+    {
+      "expression": "calc.abs(-2pt, bad: 1)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt, bad: 1)"
+      ],
+      "at": "2026-09-09T12:08:13.253536+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: argumento nomeado inesperado: 'bad'\n\n  while calling `calc.abs` at <input-expression>:1:0\n    calc.abs(-2pt, bad: 1)\n\n"
+    },
+    {
+      "expression": "calc.abs(-2pt, bad: 1)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.abs(-2pt, bad: 1)"
+      ],
+      "at": "2026-09-09T12:08:13.343278+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: bad\n  ┌─ <input-expression>:1:15\n  │\n1 │ calc.abs(-2pt, bad: 1)\n  │                ^^^^^^\n\n"
+    },
+    {
+      "expression": "calc.sqrt(-2pt)",
+      "role": "baseline",
+      "argv": [
+        "/tmp/p1328-target.T7Tg57/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.sqrt(-2pt)"
+      ],
+      "at": "2026-09-09T12:08:13.349402+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: calc.sqrt(): esperava Int ou Float, recebeu length\n\n  while calling `calc.sqrt` at <input-expression>:1:0\n    calc.sqrt(-2pt)\n\n"
+    },
+    {
+      "expression": "calc.sqrt(-2pt)",
+      "role": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "calc.sqrt(-2pt)"
+      ],
+      "at": "2026-09-09T12:08:13.436860+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected integer or float, found length\n  ┌─ <input-expression>:1:10\n  │\n1 │ calc.sqrt(-2pt)\n  │           ^^^^\n\n"
+    }
+  ],
+  "baseline_sha256": "d0e1787fac8b6264122ca6dcf5e29e4729552e8031e591ce6f4ee725e14cbd23"
+}

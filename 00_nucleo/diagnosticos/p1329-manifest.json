@@ -1,0 +1,30 @@
+{
+  "at": "2026-09-09T12:18:26.297Z",
+  "protocol": "skill A/B without technical isolation attestation; no refinement seal",
+  "baseline_sha256": "d0e1787fac8b6264122ca6dcf5e29e4729552e8031e591ce6f4ee725e14cbd23",
+  "public_baseline_sha256": "e7af5fca1897431c6060ded8a8072df03e8946aa7be95ab71aa3ebd366d40063",
+  "previous_closure_sha256": "82aae74f3177f4c42fe29f2ccc69299b37f5b53bbdc41e8ba417b0860778ef00",
+  "prompt": "00_nucleo/prompts/compiler/stdlib/calc.md",
+  "prompt_norm_sha256": "3756c7998c5a81cfdc54119b6fc152ca1f186f0f74df654e01877b73bdadbe0d",
+  "owner": "01_core/src/compiler/stdlib/calc.rs",
+  "step_sha256": "4e2aaabfc0b1fe0ff3736bff0ee6e1fab675df6b523ddeabf125f0c5c04b4520",
+  "observables": [
+    "dimensional absolute values keep language species/magnitude; Length needs abs zero OR em zero, mixed same sign rejects",
+    "mixed Length diagnostic exact message/error/value_span/no native hints or trace; external dispatcher name debt retained",
+    "P1328 Content, other types, named/arity, Int saturation, old numeric paths unchanged",
+    "only four dimensional rejection controls P1328 migrate to success; old diagnostic artifacts immutable",
+    "language semantics primary; full CLI four profiles including all prior P1328 cases plus new cases normal/repeat/reverse"
+  ],
+  "unknown": "Mandatory opaque observations block; upstream construction/operation debts explicitly distinguishable from abs",
+  "roles": {
+    "root": "L0 and candidate; blind integration of frozen test artifacts; cannot edit oracles",
+    "p1329_tests": "fresh L0/public interface/test-only context; calc runtime and full state receipts forbidden; writes p1329-ab-*",
+    "p1329_review": "read-only product/oracles; writes p1329-review-*"
+  },
+  "budget": "maximum two no-gain revisions for same cause then scope/method review; focal before full corpus",
+  "limits": [
+    "shared environment without enforced isolation",
+    "no generic abs/calc parity",
+    "no API/default/pipeline/other owner changes"
+  ]
+}
