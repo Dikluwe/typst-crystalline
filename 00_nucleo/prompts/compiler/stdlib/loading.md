@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: ae096892
+Hash do Código: ed0ff72c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -239,6 +239,96 @@ o path usam a vpath portátil, não `PathBuf` físico.
 As assinaturas/casts públicos mudam; implementar somente após o gate P1141.
 
 ## 5. Estratificação de erro (critério de aceitação 4)
+
+### Diagnóstico CSV de arquivo com buffer UTF-8 inválido — P1319
+
+#### Medição anterior à decisão
+
+Baseline commit `d31047d7b8af7837c84adae4ded3d2ff50c62093`, que integra
+P1315–P1318. `00_nucleo/diagnosticos/p1319-measurement.json`, SHA-256
+`4396b098d5f5db30bfd832d210c1027eb9529d8120c18c5a63fd9bc16d8ae3bd`,
+preserva fonte/L0, estado, UTC, bytes das fixtures reais, argv/cwd e saídas.
+Em `loading.rs:1375-1376`, CSV Path/Str descarta o caminho resolvido e retorna
+o decoder detached. A referência ratificada `a51e02804` indica
+`found 1 instead of 2 fields in line 2 in invalid-after-earlier-ls.csv:1:1`
+e sublinha o argumento; o cristalino omite caminho/posição e origem.
+
+`lab/typst-original/crates/typst-library/src/diag.rs:851-855,895-923`
+seleciona apresentação binária pela validade do buffer inteiro, não pelo
+tipo de erro. O byte inválido posterior ao registro curto comprova que
+UnequalLengths continua vencedor. O caminho de Project não tem slash inicial;
+Package usa a spec seguida da vpath com slash. A intenção explícita é não
+apresentar conteúdo ilegível como fonte externa; a posição peculiar é
+comportamento medido, não promessa de localizar o byte inválido.
+
+A checagem extra com texto válido encontra range no arquivo externo
+(`diag.rs:858-873`), não sufixo binário. O contrato `World::read_path`
+(`contracts/world.rs:58-60`) fornece bytes, não FileId; RootedPath conserva
+root/vpath, sem identidade numérica. `include_path` é contrato de inclusão
+de Source, não atalho para fabricar identidade diagnóstica. Esse outro
+estrato não cabe nesta correção local e permanece explicitamente aberto.
+Detached Str e excesso também refutam paridade geral: vanilla pode falhar
+na resolução/validação antes do parsing, enquanto o baseline chega ao CSV.
+
+#### Obrigação proprietária e fronteiras
+
+Somente parsing nativo `csv(Path|Str)` cujo buffer inteiro não seja UTF-8
+válido recebe, antes do parêntese final da causa, ` in P:L:C`, com P o
+caminho virtual resolvido. Project: vpath sem slash inicial. Package:
+representação canônica da PackageSpec concatenada à vpath com slash.
+Não usar caminho físico, string original não normalizada, nome de fixture,
+basename isolado ou nova resolução de um Path já enraizado.
+
+A posição continua sendo o offset byte do parser saturado a u32, convertido
+pela regra binária P1318 (LF no prefixo; chars com substituição após o último
+LF; sem LF, coluna 1), com fallback ordinal/1 se não houver posição.
+Offset impossível não deve causar panic ou posição inventada: preservar
+o caminho sem o componente L:C. A validade do buffer e conversão só são
+consultadas após o parser escolher a falha. Não validar UTF-8 antecipadamente,
+não reparsear e não reconstruir dados estruturados pelo texto do erro.
+
+O span primário passa a ser o value_span da primeira ocorrência posicional
+de Args, ignorando named e posicionais posteriores. With/Args/spread/sink
+conservam a origem causal fornecida; detached explícito ou Args sintético
+sem occurrences continua detached, mas não suprime o caminho/posição.
+Preservar causa Utf8/UnequalLengths, ordinal, hints, severidade e erro único;
+dispatch conserva seu papel nos traces. Não apontar para bytes do arquivo
+inválido. Parsing com excesso e leitura Str detached mantêm as precedências
+legadas: seus deltas são normativos separados, não paridade com vanilla.
+
+Reusar resolução/leitura existentes uma única vez e reter RootedPath até o
+diagnóstico. Str continua resolvido no current_file vigente; não corrigir
+incidentalmente a dívida de resolução causal entre arquivos. Path preserva
+root/base já capturados. Erros de resolução/leitura permanecem literalmente
+os anteriores, assim como ordem unknown/cast/opções/dados/parsing. Nenhum
+erro de opção deve realizar leitura. Não usar include_path/source nem
+adicionar consulta World para obter FileId nesta etapa.
+
+O decoder público puro, CSV Bytes P1318, arquivos UTF-8 válidos (valores e
+erros), outros loaders/encoders, casts/opções/unknown/missing/excesso e
+csv.encode permanecem inalterados. Esta seção substitui somente a preservação
+de mensagens/spans Path/Str dos passos anteriores para buffers inválidos.
+É permitida representação privada do contexto diagnóstico no mesmo owner,
+mantendo um único parser; não criar API pública, entidade, trait, crate,
+flag, namespace, fase ou I/O em L1. Não é paridade geral CSV/Path.
+
+#### Aceitação e classe
+
+Atualizar explicitamente antes do candidato as expectativas Path inválido
+dos testes anteriores; conservar decoder puro, controles UTF-8 válido,
+causas e asserções restantes. Exigir RED→GREEN, teste de identidade Project/
+Package e caminho normalizado, byte inválido após erro anterior, CR/LF/CRLF,
+Unicode, ambos row-types, origem distinta e detached, validação sem I/O,
+resolução/leitura única e preservação Bytes. A/B independente congela
+diagnósticos integrais vanilla nos casos compatíveis e expectativas normativas
+separadas para precedências/resolução divergentes; repete e reordena.
+
+Diagnóstico é observável de linguagem (exceção ADR-0108); a forma Rust é
+livre. É inferência que RootedPath e Args atuais bastam neste ramo binário;
+necessidade de FileId/novo contrato ou perda de informação a refuta e exige
+nova decisão. Correção de paridade interna: fluxo contínuo ADR-0127 com L0
+primeiro e revalidação. O ramo de texto válido é dívida separada, não um
+constructor parcialmente materializado nem fechamento implícito futuro.
 
 ### Posição textual no parsing CSV Bytes — P1318
 

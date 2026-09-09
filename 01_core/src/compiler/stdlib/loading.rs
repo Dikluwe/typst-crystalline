@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading.md
-//! @prompt-hash cf196a42
+//! @prompt-hash 94cfda0e
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -942,14 +942,21 @@ pub enum RowType {
 }
 
 pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResult<Value> {
-    decode_csv_impl(bytes, delimiter, row_type, false)
+    decode_csv_impl(bytes, delimiter, row_type, CsvErrorContext::Pure)
+}
+
+#[derive(Clone, Copy)]
+enum CsvErrorContext<'a> {
+    Pure,
+    Bytes,
+    File(&'a crate::entities::path::RootedPath, Span),
 }
 
 fn decode_csv_impl(
     bytes: &[u8],
     delimiter: u8,
     row_type: RowType,
-    positioned: bool,
+    context: CsvErrorContext<'_>,
 ) -> SourceResult<Value> {
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(delimiter)
@@ -968,16 +975,43 @@ fn decode_csv_impl(
             }
             _ => e.to_string(),
         };
-        if positioned {
-            let position = match e.kind().position() {
-                Some(position) => csv_error_position(bytes, position.byte()),
-                None => Some((line, 1)),
-            };
-            if let Some((line, column)) = position {
-                cause.push_str(&format!(" at {line}:{column}"));
+        let position = || match e.kind().position() {
+            Some(position) => csv_error_position(bytes, position.byte()),
+            None => Some((line, 1)),
+        };
+        let mut span = Span::detached();
+        match context {
+            CsvErrorContext::Bytes => {
+                if let Some((line, column)) = position() {
+                    cause.push_str(&format!(" at {line}:{column}"));
+                }
             }
+            // P1319: validade integral seleciona apresentação, depois da falha.
+            CsvErrorContext::File(path, origin)
+                if std::str::from_utf8(bytes).is_err() =>
+            {
+                use crate::entities::path::VirtualRoot;
+                span = origin;
+                cause.push_str(" in ");
+                match path.root() {
+                    VirtualRoot::Project => {
+                        cause.push_str(
+                            path.vpath().get_with_slash().trim_start_matches('/'),
+                        );
+                    }
+                    VirtualRoot::Package(package) => {
+                        cause.push_str(&package.to_string());
+                        cause.push_str(path.vpath().get_with_slash());
+                    }
+                }
+                if let Some((line, column)) = position() {
+                    cause.push_str(&format!(":{line}:{column}"));
+                }
+            }
+            CsvErrorContext::Pure => {}
+            CsvErrorContext::File(_, _) => {}
         }
-        err(format!("failed to parse CSV ({cause})"))
+        vec![SourceDiagnostic::error(span, format!("failed to parse CSV ({cause})"))]
     };
 
     let mut records = reader.records().enumerate();
@@ -1355,29 +1389,164 @@ pub fn native_csv(
     let row_type = csv_named_option(args, "row-type", RowType::Array, csv_row_type)?;
 
     if let Value::Bytes(data) = source {
-        return decode_csv_impl(data.as_slice(), delimiter, row_type, true).map_err(
-            |mut errors| {
-                let span = args
-                    .occurrences
-                    .as_ref()
-                    .and_then(|occurrences| {
-                        occurrences.iter().find(|occurrence| occurrence.name.is_none())
-                    })
-                    .map_or(Span::detached(), |occurrence| occurrence.value_span);
-                for error in &mut errors {
-                    error.span = span;
-                }
-                errors
-            },
-        );
+        return decode_csv_impl(
+            data.as_slice(),
+            delimiter,
+            row_type,
+            CsvErrorContext::Bytes,
+        )
+        .map_err(|mut errors| {
+            let span = args
+                .occurrences
+                .as_ref()
+                .and_then(|occurrences| {
+                    occurrences.iter().find(|occurrence| occurrence.name.is_none())
+                })
+                .map_or(Span::detached(), |occurrence| occurrence.value_span);
+            for error in &mut errors {
+                error.span = span;
+            }
+            errors
+        });
     }
-    let (_, data) = read_bytes(world, current_file, source, "csv")?;
-    decode_csv(&data[..], delimiter, row_type)
+    let (path, data) =
+        crate::compiler::stdlib::read_path_value(source, world, current_file)
+            .map_err(|message| err(format!("csv(): não foi possível ler: {message}")))?;
+    let origin = args
+        .occurrences
+        .as_ref()
+        .and_then(|occurrences| {
+            occurrences.iter().find(|occurrence| occurrence.name.is_none())
+        })
+        .map_or(Span::detached(), |occurrence| occurrence.value_span);
+    decode_csv_impl(&data, delimiter, row_type, CsvErrorContext::File(&path, origin))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn p1319_csv_binary_files_keep_cause_path_and_argument_origin() {
+        use crate::entities::args::ArgOccurrence;
+        use crate::entities::path::{RootedPath, VirtualPath, VirtualRoot};
+        for (data, cause, position) in [
+            (b"\xff".as_slice(), "file is not valid UTF-8", "1:1"),
+            (b"a,b\n1,\xff".as_slice(), "file is not valid UTF-8", "2:1"),
+            (b"a,b\r\n1,\xff".as_slice(), "file is not valid UTF-8", "1:1"),
+            (b"a,b\r1,\xff".as_slice(), "file is not valid UTF-8", "1:1"),
+            (b"a,b\n\xff".as_slice(), "found 1 instead of 2 fields in line 2", "2:1"),
+            (
+                b"a,b\r\n1\n\xff,2".as_slice(),
+                "found 1 instead of 2 fields in line 2",
+                "1:1",
+            ),
+            (
+                b"a,b\n1\n\xff,2".as_slice(),
+                "found 1 instead of 2 fields in line 2",
+                "2:1",
+            ),
+            ("a,b\né,😀\r1,\u{fffd}".as_bytes(), "valid control", "unused"),
+        ] {
+            for (root, expected_path) in [
+                (VirtualRoot::Project, "dir/δ.csv"),
+                (
+                    VirtualRoot::Package("@preview/csv-test:1.2.3".parse().unwrap()),
+                    "@preview/csv-test:1.2.3/dir/δ.csv",
+                ),
+            ] {
+                for ty in [
+                    crate::entities::value::Type::Array,
+                    crate::entities::value::Type::Dictionary,
+                ] {
+                    for origin in [Span::from_range(tfid(), 30..48), Span::detached()] {
+                        let mut world =
+                            MockWorld { forbid_sources: true, ..MockWorld::default() };
+                        world.files.insert("dir/δ.csv".into(), Arc::new(data.to_vec()));
+                        let args = Args::from_occurrences(
+                            Span::from_range(tfid(), 0..100),
+                            vec![
+                                ArgOccurrence {
+                                    name: Some("row-type".into()),
+                                    value: Value::Type(ty),
+                                    span: Span::from_range(tfid(), 1..25),
+                                    value_span: Span::from_range(tfid(), 11..25),
+                                },
+                                ArgOccurrence {
+                                    name: None,
+                                    value: Value::Path(RootedPath::new(
+                                        root.clone(),
+                                        VirtualPath::new("dir/./x/../δ.csv").unwrap(),
+                                    )),
+                                    span: origin,
+                                    value_span: origin,
+                                },
+                                ArgOccurrence {
+                                    name: None,
+                                    value: Value::Int(42),
+                                    span: Span::from_range(tfid(), 60..62),
+                                    value_span: Span::from_range(tfid(), 60..62),
+                                },
+                            ],
+                        );
+                        let result =
+                            native_csv(&mut EvalContext::new(), &args, &world, tfid());
+                        if cause == "valid control" {
+                            assert!(result.is_ok());
+                        } else {
+                            let errors = result.unwrap_err();
+                            assert_eq!(errors.len(), 1);
+                            assert_eq!(errors[0].message, format!("failed to parse CSV ({cause} in {expected_path}:{position})"));
+                            assert_eq!(errors[0].span, origin);
+                            assert_eq!(
+                                errors[0].severity,
+                                crate::entities::source_result::Severity::Error
+                            );
+                            assert!(errors[0].hints.is_empty());
+                            assert!(errors[0].trace.is_empty());
+                        }
+                        assert!(
+                            world.resolved.lock().unwrap().is_empty(),
+                            "RootedPath must not be resolved again"
+                        );
+                        let reads = world.read_paths.lock().unwrap();
+                        assert_eq!(reads.len(), 1);
+                        assert_eq!(reads[0].root(), &root);
+                        assert_eq!(reads[0].vpath().get_with_slash(), "/dir/δ.csv");
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn p1319_csv_str_resolves_once_and_invalid_options_do_not_read() {
+        let mut world = MockWorld { forbid_sources: true, ..MockWorld::default() };
+        world
+            .files
+            .insert("dir/data.csv".into(), Arc::new(b"a,b\n1,\xff".to_vec()));
+        let args = Args::positional(vec![Value::Str("dir/./x/../data.csv".into())]);
+        let errors =
+            native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+        assert_eq!(
+            errors[0].message,
+            "failed to parse CSV (file is not valid UTF-8 in dir/data.csv:2:1)"
+        );
+        assert!(errors[0].span.is_detached());
+        assert_eq!(
+            *world.resolved.lock().unwrap(),
+            vec![(tfid(), "dir/./x/../data.csv".to_string())]
+        );
+        assert_eq!(world.read_paths.lock().unwrap().len(), 1);
+        let mut args = args;
+        args.named.insert("delimiter".into(), Value::Str("xx".into()));
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        let errors =
+            native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+        assert_eq!(errors[0].message, "expected exactly one character");
+        assert!(world.resolved.lock().unwrap().is_empty());
+        assert!(world.read_paths.lock().unwrap().is_empty());
+    }
 
     #[test]
     fn p1318_csv_bytes_positions_follow_buffer_and_parser_offset() {
@@ -1504,7 +1673,13 @@ mod tests {
                     let errors =
                         native_csv(&mut EvalContext::new(), &args, &world, tfid())
                             .unwrap_err();
-                    assert_eq!(errors[0].message, pure[0].message);
+                    // P1319: invalid file gains its own suffix, never Bytes `at`.
+                    let expected = if data.ends_with(&[255]) {
+                        "failed to parse CSV (file is not valid UTF-8 in data.csv:1:1)"
+                    } else {
+                        pure[0].message.as_str()
+                    };
+                    assert_eq!(errors[0].message, expected);
                     assert!(errors[0].span.is_detached());
                 }
             }
@@ -1596,7 +1771,7 @@ mod tests {
                 assert_eq!(errors.len(), 1);
                 assert_eq!(
                     errors[0].message,
-                    "failed to parse CSV (file is not valid UTF-8)"
+                    "failed to parse CSV (file is not valid UTF-8 in data.csv:2:1)"
                 );
                 assert!(errors[0].span.is_detached());
             }
@@ -2646,6 +2821,9 @@ mod tests {
 
     struct MockWorld {
         forbid_io: bool,
+        forbid_sources: bool,
+        resolved: std::sync::Mutex<Vec<(FileId, String)>>,
+        read_paths: std::sync::Mutex<Vec<crate::entities::path::RootedPath>>,
         files: std::collections::HashMap<String, Arc<Vec<u8>>>,
         library: crate::entities::world_types::Library,
         book: crate::entities::font_book::FontBook,
@@ -2654,6 +2832,9 @@ mod tests {
         fn default() -> Self {
             Self {
                 forbid_io: false,
+                forbid_sources: false,
+                resolved: std::sync::Mutex::new(Vec::new()),
+                read_paths: std::sync::Mutex::new(Vec::new()),
                 files: std::collections::HashMap::new(),
                 library: crate::entities::world_types::Library::default(),
                 book: crate::entities::font_book::FontBook::default(),
@@ -2675,7 +2856,7 @@ mod tests {
             _: FileId,
         ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
         {
-            assert!(!self.forbid_io, "unexpected World::source");
+            assert!(!self.forbid_io && !self.forbid_sources, "unexpected World::source");
             Err(crate::entities::world_types::FileError::NotFound)
         }
         fn file(
@@ -2708,10 +2889,11 @@ mod tests {
         }
         fn resolve_path(
             &self,
-            _current_file: FileId,
+            current_file: FileId,
             path: &str,
         ) -> Result<crate::entities::path::RootedPath, String> {
             assert!(!self.forbid_io, "unexpected World::resolve_path");
+            self.resolved.lock().unwrap().push((current_file, path.to_string()));
             let vpath = crate::entities::path::VirtualPath::new(path)
                 .map_err(|e| format!("path inválido: {e:?}"))?;
             Ok(crate::entities::path::RootedPath::new(
@@ -2724,6 +2906,7 @@ mod tests {
             path: &crate::entities::path::RootedPath,
         ) -> Result<Arc<Vec<u8>>, String> {
             assert!(!self.forbid_io, "unexpected World::read_path");
+            self.read_paths.lock().unwrap().push(path.clone());
             let key = path.vpath().get_with_slash().trim_start_matches('/');
             self.files
                 .get(key)

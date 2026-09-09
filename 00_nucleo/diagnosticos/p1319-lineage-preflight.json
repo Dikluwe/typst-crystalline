@@ -1,0 +1,41 @@
+{
+  "before": {
+    "utc": "2026-09-08T15:57:14.179034+00:00",
+    "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+    "diff_stat": "",
+    "diff": "",
+    "staged": "",
+    "status": "?? 00_nucleo/diagnosticos/p1319-measure.py\n?? 00_nucleo/diagnosticos/p1319-measurement.json\n?? 00_nucleo/diagnosticos/p1319-record.py\n",
+    "files": {
+      "01_core/src/compiler/stdlib/loading.rs": "870f861651c35f44afd5f3f68548bb0364463b2ca3d4d2087b5460bdbc986f5a",
+      "00_nucleo/prompts/compiler/stdlib/loading.md": "8cfa574ea121eb053598a5a45b7d54d4c1546ed920f519a3e2341b833f3e8246"
+    }
+  },
+  "after": {
+    "utc": "2026-09-08T15:57:20.677852+00:00",
+    "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+    "diff_stat": "",
+    "diff": "",
+    "staged": "",
+    "status": "?? 00_nucleo/diagnosticos/p1319-measure.py\n?? 00_nucleo/diagnosticos/p1319-measurement.json\n?? 00_nucleo/diagnosticos/p1319-record.py\n",
+    "files": {
+      "01_core/src/compiler/stdlib/loading.rs": "870f861651c35f44afd5f3f68548bb0364463b2ca3d4d2087b5460bdbc986f5a",
+      "00_nucleo/prompts/compiler/stdlib/loading.md": "8cfa574ea121eb053598a5a45b7d54d4c1546ed920f519a3e2341b833f3e8246"
+    }
+  },
+  "argv": [
+    "crystalline-lint",
+    "--checks",
+    "v15,v26",
+    "--fail-on",
+    "warning",
+    "."
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "target": null,
+  "seconds": 6.510043490008684,
+  "exit": 0,
+  "stdout": "\u2713 No violations found\n",
+  "stderr": "",
+  "recorder_sha256": "a09cfa46e3dab2bcc1fe9b853eeb92cd5d71094e8d69855b4cde85b6e7eb7b01"
+}
