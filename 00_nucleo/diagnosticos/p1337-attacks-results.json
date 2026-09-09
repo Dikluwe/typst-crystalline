@@ -1,0 +1,464 @@
+{
+  "at": "2026-09-09T19:43:05.250094+00:00",
+  "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+  "runs": [
+    {
+      "id": "C",
+      "path": "/tmp/p1337-attacks-t3z0gk4f/C/field_access.rs",
+      "source_sha256": "fac712d833e2aeeb932605300240f6148edae5aac0225a55b7cc334e35658a64",
+      "patch_path": "/tmp/p1337-attacks-t3z0gk4f/C/change.diff",
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tests_sha256": "3de9f2e62e7ce3ee4b353b39c964e26251fddabf52cf09bb0abd6a3856bd1235",
+      "at_start": "2026-09-09T19:38:44.901705+00:00",
+      "at_end": "2026-09-09T19:39:36.556748+00:00",
+      "seconds": 51.65504499201779,
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--config",
+        "profile.release.package.typst-core.opt-level=0",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1337_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1337-attacks-t3z0gk4f/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1337-attacks-t3z0gk4f/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "profile_config": "profile.release.package.typst-core.opt-level=0",
+      "mtime_before_ns": 1788982438966612930,
+      "mtime_fresh_ns": 1788982724900635181,
+      "exit": 0,
+      "execution_error": null,
+      "compiled_typst_core": true,
+      "valid_execution": true,
+      "executed_tests": 4,
+      "original_executable": "/tmp/p1337-attacks-t3z0gk4f/target/release/deps/typst_core-e927dba2270ac06e",
+      "preserved_executable": "/tmp/p1337-attacks-t3z0gk4f/C/test-executable",
+      "executable_sha256": "ea3eaf4c4a85d09c7b9617e6a7793818099667115fcc178136781aa49092f1b3",
+      "stdout_path": "/tmp/p1337-attacks-t3z0gk4f/C/test.stdout",
+      "stderr_path": "/tmp/p1337-attacks-t3z0gk4f/C/test.stderr",
+      "stdout_sha256": "90b41ccf1d24f0aa37d4c0609b41f0a3766ad7cfdd00dd88c3eab4dca4fcb3c2",
+      "stderr_sha256": "eb0bdf682384d47c268c10655b984e1b250b5161b317793c101f39509508c3cc",
+      "status": "control_passed",
+      "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+      "plan_sha256": "b555a0bec8abebc1b0a51cf85b9f21bea374076303067ac1bf84a857e48cca4d",
+      "candidate_sha256": "fac712d833e2aeeb932605300240f6148edae5aac0225a55b7cc334e35658a64",
+      "baseline_sha256": "d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672",
+      "runner_sha256": "29e3abd140c830ed44886792f3148bcd325abbed84dcb793fd21b7c0e074a62c",
+      "prepared_sha256": "e375ddb3877b928980b57e138c154beece646a92bf5ddd150e121065d5d432c1",
+      "provenance": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exit": 0,
+          "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "HEAD",
+            "--stat"
+          ],
+          "exit": 0,
+          "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  313 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1160 +++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6469 insertions(+), 118 deletions(-)\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "id": "M1",
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M1/field_access.rs",
+      "source_sha256": "6074cf2aea280309540fda7916e115a32cf807131817bfc139d4a5c2515ef89c",
+      "patch_path": "/tmp/p1337-attacks-t3z0gk4f/M1/change.diff",
+      "patch_sha256": "f4bb54cb47f2adb276763891e23ab7152fa5d280b1be44c5ae3658e8bb8c10d9",
+      "tests_sha256": "3de9f2e62e7ce3ee4b353b39c964e26251fddabf52cf09bb0abd6a3856bd1235",
+      "at_start": "2026-09-09T19:39:36.589292+00:00",
+      "at_end": "2026-09-09T19:40:25.158854+00:00",
+      "seconds": 48.56956117801019,
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--config",
+        "profile.release.package.typst-core.opt-level=0",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1337_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1337-attacks-t3z0gk4f/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1337-attacks-t3z0gk4f/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "profile_config": "profile.release.package.typst-core.opt-level=0",
+      "mtime_before_ns": 1788982776578484506,
+      "mtime_fresh_ns": 1788982776588485032,
+      "exit": 101,
+      "execution_error": null,
+      "compiled_typst_core": true,
+      "valid_execution": true,
+      "executed_tests": 4,
+      "original_executable": "/tmp/p1337-attacks-t3z0gk4f/target/release/deps/typst_core-e927dba2270ac06e",
+      "preserved_executable": "/tmp/p1337-attacks-t3z0gk4f/M1/test-executable",
+      "executable_sha256": "83bb527430bfae7337dfa9d59d66f3db2fd411ee41cfebc23c48aa7e81f4a0ed",
+      "stdout_path": "/tmp/p1337-attacks-t3z0gk4f/M1/test.stdout",
+      "stderr_path": "/tmp/p1337-attacks-t3z0gk4f/M1/test.stderr",
+      "stdout_sha256": "ddb526f3577e87db2997fd530a5634cf20510deea8d840b808425ebc0bcbe105",
+      "stderr_sha256": "e77313e6a79d5894c7edd60656e1284486217cdc26af709645f9e67be7ee13ac",
+      "status": "failed_test_pending_witness_review",
+      "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+      "plan_sha256": "b555a0bec8abebc1b0a51cf85b9f21bea374076303067ac1bf84a857e48cca4d",
+      "candidate_sha256": "fac712d833e2aeeb932605300240f6148edae5aac0225a55b7cc334e35658a64",
+      "baseline_sha256": "d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672",
+      "runner_sha256": "29e3abd140c830ed44886792f3148bcd325abbed84dcb793fd21b7c0e074a62c",
+      "prepared_sha256": "e375ddb3877b928980b57e138c154beece646a92bf5ddd150e121065d5d432c1",
+      "provenance": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exit": 0,
+          "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "HEAD",
+            "--stat"
+          ],
+          "exit": 0,
+          "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  313 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1160 +++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6469 insertions(+), 118 deletions(-)\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M2/field_access.rs",
+      "source_sha256": "ded04028b99b92111914485da842fdf5948adc01d27604f04a5aa966a5d63399",
+      "patch_path": "/tmp/p1337-attacks-t3z0gk4f/M2/change.diff",
+      "patch_sha256": "9b6b75c741a23cd4784478d6dfcdd09273c09b514d2fab6dab93e668f98442b0",
+      "tests_sha256": "3de9f2e62e7ce3ee4b353b39c964e26251fddabf52cf09bb0abd6a3856bd1235",
+      "at_start": "2026-09-09T19:40:25.189443+00:00",
+      "at_end": "2026-09-09T19:40:59.706031+00:00",
+      "seconds": 34.51659360001213,
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--config",
+        "profile.release.package.typst-core.opt-level=0",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1337_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1337-attacks-t3z0gk4f/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1337-attacks-t3z0gk4f/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "profile_config": "profile.release.package.typst-core.opt-level=0",
+      "mtime_before_ns": 1788982825179935983,
+      "mtime_fresh_ns": 1788982825187936370,
+      "exit": 101,
+      "execution_error": null,
+      "compiled_typst_core": true,
+      "valid_execution": true,
+      "executed_tests": 4,
+      "original_executable": "/tmp/p1337-attacks-t3z0gk4f/target/release/deps/typst_core-e927dba2270ac06e",
+      "preserved_executable": "/tmp/p1337-attacks-t3z0gk4f/M2/test-executable",
+      "executable_sha256": "f44626c20ba3927b4a47acbd4a8b4d6e16e1ffdefb419d41abd1db9ea35b1f05",
+      "stdout_path": "/tmp/p1337-attacks-t3z0gk4f/M2/test.stdout",
+      "stderr_path": "/tmp/p1337-attacks-t3z0gk4f/M2/test.stderr",
+      "stdout_sha256": "910b8652e929cecd19cfa0ecfd7d38e5a21b6d1f82ebe12039a8801929692554",
+      "stderr_sha256": "1ba1cf896c92905ef5303c1406bfdeb9634de0b87f8f7c3eab83b9c496a77ed9",
+      "status": "failed_test_pending_witness_review",
+      "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+      "plan_sha256": "b555a0bec8abebc1b0a51cf85b9f21bea374076303067ac1bf84a857e48cca4d",
+      "candidate_sha256": "fac712d833e2aeeb932605300240f6148edae5aac0225a55b7cc334e35658a64",
+      "baseline_sha256": "d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672",
+      "runner_sha256": "29e3abd140c830ed44886792f3148bcd325abbed84dcb793fd21b7c0e074a62c",
+      "prepared_sha256": "e375ddb3877b928980b57e138c154beece646a92bf5ddd150e121065d5d432c1",
+      "provenance": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exit": 0,
+          "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "HEAD",
+            "--stat"
+          ],
+          "exit": 0,
+          "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  313 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1160 +++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6469 insertions(+), 118 deletions(-)\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M3/field_access.rs",
+      "source_sha256": "ceb875586b6b7803b49b51be206a9fa5ccd2d8b84872033490cb0a66c2868512",
+      "patch_path": "/tmp/p1337-attacks-t3z0gk4f/M3/change.diff",
+      "patch_sha256": "093473ca172fc8ba84292fee4a09bbf83abff093388f14dc44c530ca7bc2d700",
+      "tests_sha256": "3de9f2e62e7ce3ee4b353b39c964e26251fddabf52cf09bb0abd6a3856bd1235",
+      "at_start": "2026-09-09T19:40:59.734351+00:00",
+      "at_end": "2026-09-09T19:41:46.961812+00:00",
+      "seconds": 47.22747603798052,
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--config",
+        "profile.release.package.typst-core.opt-level=0",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1337_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1337-attacks-t3z0gk4f/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1337-attacks-t3z0gk4f/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "profile_config": "profile.release.package.typst-core.opt-level=0",
+      "mtime_before_ns": 1788982859725555302,
+      "mtime_fresh_ns": 1788982859733555666,
+      "exit": 101,
+      "execution_error": null,
+      "compiled_typst_core": true,
+      "valid_execution": true,
+      "executed_tests": 4,
+      "original_executable": "/tmp/p1337-attacks-t3z0gk4f/target/release/deps/typst_core-e927dba2270ac06e",
+      "preserved_executable": "/tmp/p1337-attacks-t3z0gk4f/M3/test-executable",
+      "executable_sha256": "ec37cfaa2851d4e162d6388ea06ad070f2fcf6cb9da7bd37f12edc50e2a8bb01",
+      "stdout_path": "/tmp/p1337-attacks-t3z0gk4f/M3/test.stdout",
+      "stderr_path": "/tmp/p1337-attacks-t3z0gk4f/M3/test.stderr",
+      "stdout_sha256": "a808b129b69590532692fe7040a8468a7977b1a44506efed76b64e237269bcdc",
+      "stderr_sha256": "b9139d55e9e877775b774fb5bf8c86ed73a072bcfba84b9f79249d8d504fe76e",
+      "status": "failed_test_pending_witness_review",
+      "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+      "plan_sha256": "b555a0bec8abebc1b0a51cf85b9f21bea374076303067ac1bf84a857e48cca4d",
+      "candidate_sha256": "fac712d833e2aeeb932605300240f6148edae5aac0225a55b7cc334e35658a64",
+      "baseline_sha256": "d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672",
+      "runner_sha256": "29e3abd140c830ed44886792f3148bcd325abbed84dcb793fd21b7c0e074a62c",
+      "prepared_sha256": "e375ddb3877b928980b57e138c154beece646a92bf5ddd150e121065d5d432c1",
+      "provenance": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exit": 0,
+          "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "HEAD",
+            "--stat"
+          ],
+          "exit": 0,
+          "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  313 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1160 +++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6469 insertions(+), 118 deletions(-)\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "id": "M4",
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M4/field_access.rs",
+      "source_sha256": "b805b22f91d916ad3f123e632424d22e1aa1eda2a6a8735039f7a0ad2f9066f4",
+      "patch_path": "/tmp/p1337-attacks-t3z0gk4f/M4/change.diff",
+      "patch_sha256": "1a47cc5c30f97146451c14bce76079acfed1b0b7c1f264329384bdeccbfc17c6",
+      "tests_sha256": "3de9f2e62e7ce3ee4b353b39c964e26251fddabf52cf09bb0abd6a3856bd1235",
+      "at_start": "2026-09-09T19:41:47.069227+00:00",
+      "at_end": "2026-09-09T19:42:30.592735+00:00",
+      "seconds": 43.52350459501031,
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--config",
+        "profile.release.package.typst-core.opt-level=0",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1337_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1337-attacks-t3z0gk4f/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1337-attacks-t3z0gk4f/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "profile_config": "profile.release.package.typst-core.opt-level=0",
+      "mtime_before_ns": 1788982907037620518,
+      "mtime_fresh_ns": 1788982907067621774,
+      "exit": 101,
+      "execution_error": null,
+      "compiled_typst_core": true,
+      "valid_execution": true,
+      "executed_tests": 4,
+      "original_executable": "/tmp/p1337-attacks-t3z0gk4f/target/release/deps/typst_core-e927dba2270ac06e",
+      "preserved_executable": "/tmp/p1337-attacks-t3z0gk4f/M4/test-executable",
+      "executable_sha256": "9027b693e7631376ce57005c1f41e3614e479b3ab53ace5004e913f3bfc59625",
+      "stdout_path": "/tmp/p1337-attacks-t3z0gk4f/M4/test.stdout",
+      "stderr_path": "/tmp/p1337-attacks-t3z0gk4f/M4/test.stderr",
+      "stdout_sha256": "11f0a0f02135883f1675b4e481d1b5e88623bd438fca9b368e070e2e1c081e2b",
+      "stderr_sha256": "3b1ea0d82affe4a9bc8e80265f365ccffddc5152bff8bb8add23d8f6a37cdda5",
+      "status": "failed_test_pending_witness_review",
+      "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+      "plan_sha256": "b555a0bec8abebc1b0a51cf85b9f21bea374076303067ac1bf84a857e48cca4d",
+      "candidate_sha256": "fac712d833e2aeeb932605300240f6148edae5aac0225a55b7cc334e35658a64",
+      "baseline_sha256": "d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672",
+      "runner_sha256": "29e3abd140c830ed44886792f3148bcd325abbed84dcb793fd21b7c0e074a62c",
+      "prepared_sha256": "e375ddb3877b928980b57e138c154beece646a92bf5ddd150e121065d5d432c1",
+      "provenance": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exit": 0,
+          "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "HEAD",
+            "--stat"
+          ],
+          "exit": 0,
+          "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  313 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1160 +++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6469 insertions(+), 118 deletions(-)\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "id": "M5",
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M5/field_access.rs",
+      "source_sha256": "11b91b6c56b68ebabdff5bf75c24e1872276d9b8d1719d206bf9119777baf2e8",
+      "patch_path": "/tmp/p1337-attacks-t3z0gk4f/M5/change.diff",
+      "patch_sha256": "9cea1ed1deda26f9c97b114e3cdb24283720ee693bed8de9c0771e38d7df19ac",
+      "tests_sha256": "3de9f2e62e7ce3ee4b353b39c964e26251fddabf52cf09bb0abd6a3856bd1235",
+      "at_start": "2026-09-09T19:42:30.619267+00:00",
+      "at_end": "2026-09-09T19:43:05.238737+00:00",
+      "seconds": 34.619472132995725,
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--config",
+        "profile.release.package.typst-core.opt-level=0",
+        "--locked",
+        "--offline",
+        "-p",
+        "typst-core",
+        "--lib",
+        "p1337_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/tmp/p1337-attacks-t3z0gk4f/workspace",
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/p1337-attacks-t3z0gk4f/target",
+        "CARGO_BUILD_JOBS": "2"
+      },
+      "profile_config": "profile.release.package.typst-core.opt-level=0",
+      "mtime_before_ns": 1788982950611378789,
+      "mtime_fresh_ns": 1788982950618379061,
+      "exit": 101,
+      "execution_error": null,
+      "compiled_typst_core": true,
+      "valid_execution": true,
+      "executed_tests": 4,
+      "original_executable": "/tmp/p1337-attacks-t3z0gk4f/target/release/deps/typst_core-e927dba2270ac06e",
+      "preserved_executable": "/tmp/p1337-attacks-t3z0gk4f/M5/test-executable",
+      "executable_sha256": "b4a607e84f97c2afff1893d67285f8ebae52de72f57233cb3fed387b1230348d",
+      "stdout_path": "/tmp/p1337-attacks-t3z0gk4f/M5/test.stdout",
+      "stderr_path": "/tmp/p1337-attacks-t3z0gk4f/M5/test.stderr",
+      "stdout_sha256": "17ec58e113ee7471b4fe96d740a1a07e4b04ad5b7d1fb5d2e37847e4096bcc32",
+      "stderr_sha256": "0bc92259c959d6a728784d6fff7b86eaefecaa18b22ed6b35fb14babe9ff97d8",
+      "status": "failed_test_pending_witness_review",
+      "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+      "plan_sha256": "b555a0bec8abebc1b0a51cf85b9f21bea374076303067ac1bf84a857e48cca4d",
+      "candidate_sha256": "fac712d833e2aeeb932605300240f6148edae5aac0225a55b7cc334e35658a64",
+      "baseline_sha256": "d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672",
+      "runner_sha256": "29e3abd140c830ed44886792f3148bcd325abbed84dcb793fd21b7c0e074a62c",
+      "prepared_sha256": "e375ddb3877b928980b57e138c154beece646a92bf5ddd150e121065d5d432c1",
+      "provenance": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exit": 0,
+          "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "HEAD",
+            "--stat"
+          ],
+          "exit": 0,
+          "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  313 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1160 +++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6469 insertions(+), 118 deletions(-)\n",
+          "stderr": ""
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "scope": "instrumental opt-level=0 for typst-core only; not release normal proof; no technical isolation attestation or refinement seal"
+}

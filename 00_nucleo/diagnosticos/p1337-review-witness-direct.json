@@ -1,0 +1,93 @@
+{
+  "at": "2026-09-09 19:45:24 UTC",
+  "kind": "Independent direct tool execution of retained executables; no rebuild. Combined tool output is supplemental, not a replacement for original separate stdout/stderr.",
+  "instrumentation_history": "Node spawnSync attempt returned EPERM alongside completed test output and was not used as clean acceptance evidence. Direct exec_command replay below completed without transport errors.",
+  "binaries": {
+    "C": {
+      "path": "/tmp/p1337-attacks-t3z0gk4f/C/test-executable",
+      "expected": "ea3eaf4c4a85d09c7b9617e6a7793818099667115fcc178136781aa49092f1b3",
+      "actual": "ea3eaf4c4a85d09c7b9617e6a7793818099667115fcc178136781aa49092f1b3"
+    },
+    "M1": {
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M1/test-executable",
+      "expected": "83bb527430bfae7337dfa9d59d66f3db2fd411ee41cfebc23c48aa7e81f4a0ed",
+      "actual": "83bb527430bfae7337dfa9d59d66f3db2fd411ee41cfebc23c48aa7e81f4a0ed"
+    },
+    "M2": {
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M2/test-executable",
+      "expected": "f44626c20ba3927b4a47acbd4a8b4d6e16e1ffdefb419d41abd1db9ea35b1f05",
+      "actual": "f44626c20ba3927b4a47acbd4a8b4d6e16e1ffdefb419d41abd1db9ea35b1f05"
+    },
+    "M3": {
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M3/test-executable",
+      "expected": "ec37cfaa2851d4e162d6388ea06ad070f2fcf6cb9da7bd37f12edc50e2a8bb01",
+      "actual": "ec37cfaa2851d4e162d6388ea06ad070f2fcf6cb9da7bd37f12edc50e2a8bb01"
+    },
+    "M4": {
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M4/test-executable",
+      "expected": "9027b693e7631376ce57005c1f41e3614e479b3ab53ace5004e913f3bfc59625",
+      "actual": "9027b693e7631376ce57005c1f41e3614e479b3ab53ace5004e913f3bfc59625"
+    },
+    "M5": {
+      "path": "/tmp/p1337-attacks-t3z0gk4f/M5/test-executable",
+      "expected": "b4a607e84f97c2afff1893d67285f8ebae52de72f57233cb3fed387b1230348d",
+      "actual": "b4a607e84f97c2afff1893d67285f8ebae52de72f57233cb3fed387b1230348d"
+    }
+  },
+  "runs": [
+    {
+      "id": "C",
+      "start": "2026-09-09 19:45:03 UTC",
+      "chunk_id": "e831d8",
+      "wall_time_seconds": 0.084745871,
+      "exit_code": 0,
+      "original_token_count": 152,
+      "output": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.19s\n\n"
+    },
+    {
+      "id": "M1",
+      "start": "2026-09-09 19:45:04 UTC",
+      "chunk_id": "947273",
+      "wall_time_seconds": 0.000003777,
+      "exit_code": 101,
+      "original_token_count": 406,
+      "output": "\nrunning 4 tests\n\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans' (6) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1774:21:\nassertion `left == right` failed\n  left: \"cannot access fields on type bool\"\n right: \"cannot access fields on type boolean\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... FAILED\n\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline' (3) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1729:13:\nassertion `left == right` failed: #((true).nope)\n  left: \"cannot access fields on type bool\"\n right: \"cannot access fields on type boolean\"\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... FAILED\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline\n    compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.10s\n\n"
+    },
+    {
+      "id": "M2",
+      "start": "2026-09-09 19:45:04 UTC",
+      "chunk_id": "e0f76d",
+      "wall_time_seconds": 0.000003407,
+      "exit_code": 101,
+      "original_token_count": 281,
+      "output": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\n\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline' (3) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1729:13:\nassertion `left == right` failed: #((true).nope)\n  left: Some(2..13)\n right: Some(9..13)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... FAILED\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.10s\n\n"
+    },
+    {
+      "id": "M3",
+      "start": "2026-09-09 19:45:04 UTC",
+      "chunk_id": "63f48f",
+      "wall_time_seconds": 0.002318177,
+      "exit_code": 101,
+      "original_token_count": 281,
+      "output": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\n\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline' (3) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1729:13:\nassertion `left == right` failed: #((none).nope)\n  left: Some(2..13)\n right: Some(9..13)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... FAILED\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.11s\n\n"
+    },
+    {
+      "id": "M4",
+      "start": "2026-09-09 19:45:05 UTC",
+      "chunk_id": "774c2f",
+      "wall_time_seconds": 0.041339854,
+      "exit_code": 101,
+      "original_token_count": 281,
+      "output": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\n\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline' (3) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1729:13:\nassertion `left == right` failed: #((auto).nope)\n  left: Some(2..13)\n right: Some(9..13)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... FAILED\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.15s\n\n"
+    },
+    {
+      "id": "M5",
+      "start": "2026-09-09 19:45:05 UTC",
+      "chunk_id": "fb5909",
+      "wall_time_seconds": 0.088584755,
+      "exit_code": 101,
+      "original_token_count": 278,
+      "output": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\n\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt' (4) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1731:13:\nassertion `left == right` failed: #((1, 2).missing)\n  left: Some(9..16)\n right: Some(2..16)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... FAILED\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... ok\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.20s\n\n"
+    }
+  ]
+}

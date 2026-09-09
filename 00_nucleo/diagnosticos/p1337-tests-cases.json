@@ -1,0 +1,227 @@
+[
+  {
+    "id": "bool-true",
+    "policy": "converge",
+    "expr": "true.missing"
+  },
+  {
+    "id": "bool-false",
+    "policy": "converge",
+    "expr": "false.ausência"
+  },
+  {
+    "id": "bool-parentheses",
+    "policy": "converge",
+    "expr": "(((false))).long-absent-field"
+  },
+  {
+    "id": "bool-alias",
+    "policy": "converge",
+    "expr": "{let original = true; let renamed = original; renamed.unknown}"
+  },
+  {
+    "id": "bool-multiline",
+    "policy": "converge",
+    "expr": "{\n let variável = false\n (\n variável\n ).desconhecido\n}"
+  },
+  {
+    "id": "bool-computed",
+    "policy": "converge",
+    "expr": "(2 > 3).missing"
+  },
+  {
+    "id": "none-direct",
+    "policy": "converge",
+    "expr": "none.absent"
+  },
+  {
+    "id": "none-alias",
+    "policy": "converge",
+    "expr": "{let vazio = none; let alias = vazio; alias.ausência}"
+  },
+  {
+    "id": "none-multiline",
+    "policy": "converge",
+    "expr": "{\n let n = none\n ((n))\n .missing-long-field\n}"
+  },
+  {
+    "id": "auto-direct",
+    "policy": "converge",
+    "expr": "auto.nope"
+  },
+  {
+    "id": "auto-alias",
+    "policy": "converge",
+    "expr": "{let automático = auto; let alias = automático; alias.ausência}"
+  },
+  {
+    "id": "auto-multiline",
+    "policy": "converge",
+    "expr": "{\n let a = auto\n ((a))\n .long-missing-field\n}"
+  },
+  {
+    "id": "int-preserved",
+    "policy": "preserve",
+    "expr": "(-812).ausência"
+  },
+  {
+    "id": "str-preserved",
+    "policy": "preserve",
+    "expr": "{let s = \"ação 🦊\"; s.unknown}"
+  },
+  {
+    "id": "int-method-value",
+    "policy": "preserve",
+    "expr": "(3).bit-and"
+  },
+  {
+    "id": "str-method-value",
+    "policy": "preserve",
+    "expr": "\"abc\".len"
+  },
+  {
+    "id": "array-debt",
+    "policy": "preserve",
+    "expr": "(1, 2).missing"
+  },
+  {
+    "id": "type-bool-debt",
+    "policy": "preserve",
+    "expr": "bool.nope"
+  },
+  {
+    "id": "type-int-str-debt",
+    "policy": "preserve",
+    "expr": "int.nope"
+  },
+  {
+    "id": "valid-singletons",
+    "policy": "preserve",
+    "expr": "(true, false, repr(none), repr(auto), repr(type(true)), repr(type(none)), repr(type(auto)))"
+  },
+  {
+    "id": "valid-dict-singletons",
+    "policy": "preserve",
+    "expr": "{let d = (flag: false, n: none, a: auto); (d.flag, repr(d.n), repr(d.a))}"
+  },
+  {
+    "id": "valid-methods",
+    "policy": "preserve",
+    "expr": "((7).bit-and(3), int.bit-and(7,3), \"abc\".len(), str.len(\"abc\"))"
+  },
+  {
+    "id": "bool-callee",
+    "policy": "preserve",
+    "expr": "true.nope(1)"
+  },
+  {
+    "id": "none-callee",
+    "policy": "preserve",
+    "expr": "none.nope(1)"
+  },
+  {
+    "id": "auto-callee",
+    "policy": "preserve",
+    "expr": "auto.nope(1)"
+  },
+  {
+    "id": "bool-panic-order",
+    "policy": "preserve",
+    "expr": "false.nope(panic(\"argument\"))"
+  },
+  {
+    "id": "none-panic-order",
+    "policy": "preserve",
+    "expr": "none.nope(panic(\"argument\"))"
+  },
+  {
+    "id": "auto-panic-order",
+    "policy": "preserve",
+    "expr": "auto.nope(panic(\"argument\"))"
+  },
+  {
+    "id": "module",
+    "policy": "preserve",
+    "expr": "{let alias = calc; alias.ausência}"
+  },
+  {
+    "id": "dict",
+    "policy": "preserve",
+    "expr": "(a: 1).missing"
+  },
+  {
+    "id": "content",
+    "policy": "preserve",
+    "expr": "strong[x].missing"
+  },
+  {
+    "id": "content-positive",
+    "policy": "preserve",
+    "expr": "(strong[x].has(\"body\"), strong[x].at(\"absent\", default: 17))"
+  },
+  {
+    "id": "content-debt",
+    "policy": "preserve",
+    "expr": "[x].text"
+  },
+  {
+    "id": "float",
+    "policy": "preserve",
+    "expr": "(1.0).missing"
+  },
+  {
+    "id": "float-is-nan",
+    "policy": "preserve",
+    "expr": "float(\"NaN\").is-nan"
+  },
+  {
+    "id": "native-some",
+    "policy": "preserve",
+    "expr": "json.nope"
+  },
+  {
+    "id": "native-none",
+    "policy": "preserve",
+    "expr": "csv.nope"
+  },
+  {
+    "id": "closure",
+    "policy": "preserve",
+    "expr": "{let f(x)=x; f.nope}"
+  },
+  {
+    "id": "with",
+    "policy": "preserve",
+    "expr": "{let f(x,y)=x+y; f.with(1).with(2).nope}"
+  },
+  {
+    "id": "valid-closure-with",
+    "policy": "preserve",
+    "expr": "{let f(x,y)=x+y; f.with(1).with(2)()}"
+  },
+  {
+    "id": "pdf-data",
+    "policy": "preserve",
+    "expr": "(repr(type(pdf.data-cell)), repr(pdf.data-cell))"
+  },
+  {
+    "id": "pdf-header",
+    "policy": "preserve",
+    "expr": "(repr(type(pdf.header-cell)), repr(pdf.header-cell))"
+  },
+  {
+    "id": "pdf-summary",
+    "policy": "preserve",
+    "expr": "(repr(type(pdf.table-summary)), repr(pdf.table-summary))"
+  },
+  {
+    "id": "text-context-boundary",
+    "policy": "preserve",
+    "expr": "text.size"
+  },
+  {
+    "id": "warnings-boundary",
+    "policy": "preserve",
+    "expr": "sym.integral.cont"
+  }
+]

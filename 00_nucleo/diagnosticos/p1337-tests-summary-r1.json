@@ -1,0 +1,83 @@
+{
+  "at": "2026-09-09T19:41:50.925945+00:00",
+  "regime": "A/B without technical isolation attestation; no refinement seal",
+  "supersedes_invalid_summary": {
+    "file": "p1337-tests-summary.json",
+    "sha256": "94bf04f35f37372d23dbd0f6a4b6255bfbd8af7dd92d341b5930926a104b5d34",
+    "reason": "Tool output token truncation damaged the first summary serialization. Preserved as failed instrumentation; authoritative candidate/comparison receipts are valid and unchanged. This compact successor references their complete provenance."
+  },
+  "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+  "effective_freeze_sha256": "2629ad4e34aa94048370662196b24f7e1a85f1afc7c9f8d67304931a87d46294",
+  "cli_freeze_sha256": "b17d78f305ad0925115325a201ea9ceac113af3bfe4a9df224a7dbe94812390f",
+  "candidate_build_receipt_sha256": "9a721a7fc36f0a77edde6c8bf26cabf0ee50753214ad8760084535cd5bd863af",
+  "candidate_binary": {
+    "path": "/tmp/p1337-target.F7jPNj/release/typst",
+    "sha256": "55b5dc263bba15b050e9caab755c17deb22f617eec35b1e9259a20a57f9b350b"
+  },
+  "baseline_receipt_sha256": "74df8c62860eaf40a70183153f7cd481cd7c6ff97886bf7010da55e13fd6770e",
+  "candidate_receipt_sha256": "b740e67437ac285f038155abf061af1bab8bbaabc9aaa0db32ca05bceb51954e",
+  "comparison_sha256": "363deffe0c1b96fcd86b7da8bf80ebd81d90be879d0750369d6288eda59f6a81",
+  "runner_sha256": "e10991930066432e868ff5ae702c5cf00ce308df5d169571f32f932688ff2df8",
+  "provenance": {
+    "start_utc": "2026-09-09T19:40:04.446853+00:00",
+    "end_utc": "2026-09-09T19:40:22.406447+00:00",
+    "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+    "working_tree": "uncommitted; exact changed files, diff stat and state are retained in candidate receipt before/after",
+    "before_diff_stat": " .../prompts/compiler/eval/bindings/field_access.md |  313 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1160 +++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6469 insertions(+), 118 deletions(-)\n",
+    "before_changed_files": "00_nucleo/prompts/compiler/eval/bindings/field_access.md\n00_nucleo/prompts/compiler/eval/call_dispatch.md\n00_nucleo/prompts/compiler/eval/modules.md\n00_nucleo/prompts/compiler/eval/tests.md\n00_nucleo/prompts/compiler/stdlib/_comum.md\n00_nucleo/prompts/compiler/stdlib/calc.md\n00_nucleo/prompts/compiler/stdlib/loading.md\n00_nucleo/prompts/wiring.md\n01_core/src/compiler/eval/bindings/field_access.rs\n01_core/src/compiler/eval/call_dispatch.rs\n01_core/src/compiler/eval/modules.rs\n01_core/src/compiler/eval/tests.rs\n01_core/src/compiler/stdlib/calc.rs\n01_core/src/compiler/stdlib/loading.rs\n01_core/src/compiler/stdlib/mod.rs\n04_wiring/src/main.rs\n"
+  },
+  "baseline_runs": 1080,
+  "candidate_runs": 540,
+  "unique_cases": 45,
+  "profiles": [
+    "a11y",
+    "default",
+    "html",
+    "html+a11y"
+  ],
+  "orders": [
+    "normal",
+    "repeat",
+    "reverse"
+  ],
+  "comparison_classes": {
+    "CONVERGENCE_REQUIRED": 144,
+    "PRESERVE_PARITY": 300,
+    "PRESERVE_EXISTING_DEBT": 96
+  },
+  "verdicts": {
+    "Satisfied": 540
+  },
+  "mandatory_unknowns": 0,
+  "planned_opaque_harness": {
+    "controls": 6,
+    "all_expected_classifications": true,
+    "unknown_expected": 5
+  },
+  "existing_debt_cases": [
+    "array-debt",
+    "auto-panic-order",
+    "bool-panic-order",
+    "content-debt",
+    "none-panic-order",
+    "str-method-value",
+    "type-bool-debt",
+    "type-int-str-debt"
+  ],
+  "complete_channels_compared": [
+    "exit",
+    "stdout_base64",
+    "stderr_base64"
+  ],
+  "normalization": "none",
+  "repeat_reverse_stable": true,
+  "protected_inputs_unchanged": true,
+  "candidate_source_read": false,
+  "limits": [
+    "No general parity claim; preservation of debt is not convergence credit.",
+    "Rust tests and mutations belong to separate operator/adversary receipts; this report records CLI A/B only.",
+    "LocatedContent not constructed by eval CLI; preserved prior Rust tests are a separate gate, not new independent introspection coverage.",
+    "Text.size/sym.integral.cont boundary sentinels generated no warnings and do not prove all contextual styles or warning paths.",
+    "PDF trio covers feature gating, full diagnostics/hints and exposed function kind/repr, not exported PDF or global accessibility."
+  ]
+}

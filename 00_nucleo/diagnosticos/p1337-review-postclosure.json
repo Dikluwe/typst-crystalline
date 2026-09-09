@@ -1,0 +1,35 @@
+{
+  "at": "2026-09-09T19:50:12.223Z",
+  "phase": "postclosure",
+  "verdict": "PASS_SCOPED",
+  "violations": [],
+  "unknowns": [],
+  "checks": 10175,
+  "counts": {
+    "review_inputs": 108,
+    "closure_artifacts": 87,
+    "history": 5113,
+    "prior_temporaries": 469,
+    "mutant_artifacts": 30,
+    "prior_exports": 441,
+    "product_state": 3912
+  },
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "step": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/materialization/typst-passo-1337.md",
+    "sha256": "8419556c42ae048efb10430afeae1794e0a214e33a771a81d3f2a09ccaee4369",
+    "verification": "Field recorded by root only; tactical file was not read or rehashed by reviewer."
+  },
+  "limitations": "No product gates rerun. Closure and final evidence verified read-only; A/B scope and all final limitations remain unchanged.",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1337-closure.json": "04d5c3cc470025fd10062861b4429873fa56f2c881a3c7c4bcea911fc5a6015e",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1337-review-final.json": "abc90b9e1e8cc32585a1e101dfefbaf50ddea7e390f075af609eef74198e1242",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1337-baseline.json": "d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1337-manifest-r1.json": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+    "/tmp/p1337-target.F7jPNj/release/typst": "55b5dc263bba15b050e9caab755c17deb22f617eec35b1e9259a20a57f9b350b",
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "/tmp/p1336-target.QiOMGq/release/typst": "646a8d97400c0abe262a65c9b9559b47a3ecf7d10eafd82fa79a64ade0504497",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1337-close.py": "5f49ae75fc8a6ec6fe8a1a21049ec62d75662a15e93fbda24987ce6b17f35a0b",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1337-review-postclosure.cjs": "8922ba124307e189d6077eaa1bb2361522aa3c2a50324e269ff7c6fc9021972c"
+  }
+}

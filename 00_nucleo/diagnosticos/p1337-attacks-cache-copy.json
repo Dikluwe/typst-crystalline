@@ -1,0 +1,15 @@
+{
+  "at": "2026-09-09T19:38:44.400971+00:00",
+  "seconds": 0.43605408500297926,
+  "argv": [
+    "cp",
+    "-a",
+    "--reflink=auto",
+    "/tmp/p1336-target.QiOMGq/.",
+    "/tmp/p1337-attacks-t3z0gk4f/target"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff"
+}

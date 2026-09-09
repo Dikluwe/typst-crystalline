@@ -1,0 +1,133 @@
+{
+  "at": "2026-09-09T19:44:35.545Z",
+  "kind": "Independent fresh execution of retained test executables, not an independent rebuild",
+  "attack_results_sha256": "92044932e60cba153bd51beb3c06656e3429485331f1689aacc0fbfdc328d025",
+  "rows": [
+    {
+      "id": "C",
+      "argv": [
+        "/tmp/p1337-attacks-t3z0gk4f/C/test-executable",
+        "p1337_tests",
+        "--nocapture"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "at": "2026-09-09T19:44:33.562Z",
+      "end": "2026-09-09T19:44:33.775Z",
+      "exit": 0,
+      "error": "Error: spawnSync /tmp/p1337-attacks-t3z0gk4f/C/test-executable EPERM",
+      "stdout": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.19s\n\n",
+      "stderr": "",
+      "binary_before": "ea3eaf4c4a85d09c7b9617e6a7793818099667115fcc178136781aa49092f1b3",
+      "binary_after": "ea3eaf4c4a85d09c7b9617e6a7793818099667115fcc178136781aa49092f1b3",
+      "expected_binary": "ea3eaf4c4a85d09c7b9617e6a7793818099667115fcc178136781aa49092f1b3",
+      "summary": [
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.19s"
+      ]
+    },
+    {
+      "id": "M1",
+      "argv": [
+        "/tmp/p1337-attacks-t3z0gk4f/M1/test-executable",
+        "p1337_tests",
+        "--nocapture"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "at": "2026-09-09T19:44:33.966Z",
+      "end": "2026-09-09T19:44:34.082Z",
+      "exit": 101,
+      "error": "Error: spawnSync /tmp/p1337-attacks-t3z0gk4f/M1/test-executable EPERM",
+      "stdout": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... FAILED\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... FAILED\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline\n    compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.11s\n\n",
+      "stderr": "\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans' (19) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1774:21:\nassertion `left == right` failed\n  left: \"cannot access fields on type bool\"\n right: \"cannot access fields on type boolean\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline' (16) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1729:13:\nassertion `left == right` failed: #((true).nope)\n  left: \"cannot access fields on type bool\"\n right: \"cannot access fields on type boolean\"\n",
+      "binary_before": "83bb527430bfae7337dfa9d59d66f3db2fd411ee41cfebc23c48aa7e81f4a0ed",
+      "binary_after": "83bb527430bfae7337dfa9d59d66f3db2fd411ee41cfebc23c48aa7e81f4a0ed",
+      "expected_binary": "83bb527430bfae7337dfa9d59d66f3db2fd411ee41cfebc23c48aa7e81f4a0ed",
+      "summary": [
+        "test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.11s"
+      ]
+    },
+    {
+      "id": "M2",
+      "argv": [
+        "/tmp/p1337-attacks-t3z0gk4f/M2/test-executable",
+        "p1337_tests",
+        "--nocapture"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "at": "2026-09-09T19:44:34.268Z",
+      "end": "2026-09-09T19:44:34.388Z",
+      "exit": 101,
+      "error": "Error: spawnSync /tmp/p1337-attacks-t3z0gk4f/M2/test-executable EPERM",
+      "stdout": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... FAILED\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.11s\n\n",
+      "stderr": "\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline' (21) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1729:13:\nassertion `left == right` failed: #((true).nope)\n  left: Some(2..13)\n right: Some(9..13)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "binary_before": "f44626c20ba3927b4a47acbd4a8b4d6e16e1ffdefb419d41abd1db9ea35b1f05",
+      "binary_after": "f44626c20ba3927b4a47acbd4a8b4d6e16e1ffdefb419d41abd1db9ea35b1f05",
+      "expected_binary": "f44626c20ba3927b4a47acbd4a8b4d6e16e1ffdefb419d41abd1db9ea35b1f05",
+      "summary": [
+        "test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.11s"
+      ]
+    },
+    {
+      "id": "M3",
+      "argv": [
+        "/tmp/p1337-attacks-t3z0gk4f/M3/test-executable",
+        "p1337_tests",
+        "--nocapture"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "at": "2026-09-09T19:44:34.579Z",
+      "end": "2026-09-09T19:44:34.708Z",
+      "exit": 101,
+      "error": "Error: spawnSync /tmp/p1337-attacks-t3z0gk4f/M3/test-executable EPERM",
+      "stdout": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... FAILED\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.12s\n\n",
+      "stderr": "\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline' (26) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1729:13:\nassertion `left == right` failed: #((none).nope)\n  left: Some(2..13)\n right: Some(9..13)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "binary_before": "ec37cfaa2851d4e162d6388ea06ad070f2fcf6cb9da7bd37f12edc50e2a8bb01",
+      "binary_after": "ec37cfaa2851d4e162d6388ea06ad070f2fcf6cb9da7bd37f12edc50e2a8bb01",
+      "expected_binary": "ec37cfaa2851d4e162d6388ea06ad070f2fcf6cb9da7bd37f12edc50e2a8bb01",
+      "summary": [
+        "test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.12s"
+      ]
+    },
+    {
+      "id": "M4",
+      "argv": [
+        "/tmp/p1337-attacks-t3z0gk4f/M4/test-executable",
+        "p1337_tests",
+        "--nocapture"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "at": "2026-09-09T19:44:34.902Z",
+      "end": "2026-09-09T19:44:35.061Z",
+      "exit": 101,
+      "error": "Error: spawnSync /tmp/p1337-attacks-t3z0gk4f/M4/test-executable EPERM",
+      "stdout": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... FAILED\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.15s\n\n",
+      "stderr": "\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline' (31) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1729:13:\nassertion `left == right` failed: #((auto).nope)\n  left: Some(2..13)\n right: Some(9..13)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "binary_before": "9027b693e7631376ce57005c1f41e3614e479b3ab53ace5004e913f3bfc59625",
+      "binary_after": "9027b693e7631376ce57005c1f41e3614e479b3ab53ace5004e913f3bfc59625",
+      "expected_binary": "9027b693e7631376ce57005c1f41e3614e479b3ab53ace5004e913f3bfc59625",
+      "summary": [
+        "test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.15s"
+      ]
+    },
+    {
+      "id": "M5",
+      "argv": [
+        "/tmp/p1337-attacks-t3z0gk4f/M5/test-executable",
+        "p1337_tests",
+        "--nocapture"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "at": "2026-09-09T19:44:35.251Z",
+      "end": "2026-09-09T19:44:35.453Z",
+      "exit": 101,
+      "error": "Error: spawnSync /tmp/p1337-attacks-t3z0gk4f/M5/test-executable EPERM",
+      "stdout": "\nrunning 4 tests\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_pure_all_singletons_bool_values_names_and_supplied_spans ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt ... FAILED\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_values_type_and_repr_and_ordinary_calls ... ok\ntest compiler::eval::bindings::field_access::p1337_tests::p1337_ast_variants_aliases_parentheses_unicode_and_multiline ... ok\n\nfailures:\n\nfailures:\n    compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.19s\n\n",
+      "stderr": "\nthread 'compiler::eval::bindings::field_access::p1337_tests::p1337_preserve_array_ast_message_and_total_span_debt' (37) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1731:13:\nassertion `left == right` failed: #((1, 2).missing)\n  left: Some(9..16)\n right: Some(2..16)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "binary_before": "b4a607e84f97c2afff1893d67285f8ebae52de72f57233cb3fed387b1230348d",
+      "binary_after": "b4a607e84f97c2afff1893d67285f8ebae52de72f57233cb3fed387b1230348d",
+      "expected_binary": "b4a607e84f97c2afff1893d67285f8ebae52de72f57233cb3fed387b1230348d",
+      "summary": [
+        "test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5635 filtered out; finished in 0.19s"
+      ]
+    }
+  ]
+}

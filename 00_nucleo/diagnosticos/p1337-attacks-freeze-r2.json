@@ -1,0 +1,20 @@
+{
+  "at": "2026-09-09T19:31:59.968066+00:00",
+  "manifest_sha256": "7c09595cde021b89fffa7c316b7706797ba3898aa5b6687cdfaf2deacb0e65ff",
+  "inputs": {
+    "p1337-attacks-plan.md": "b555a0bec8abebc1b0a51cf85b9f21bea374076303067ac1bf84a857e48cca4d",
+    "p1337-attacks-plan-addendum-r1.md": "ef0ce67dccd4aa581c0e198e6aba5fcd547cb4bf978d79e0ff31618d4a53a290",
+    "p1337-attacks-freeze-r1.json": "dc15a9bbee5533506702def151bb89480c544c1e5e39b42c7830ec49867ffd11",
+    "p1337-attacks-runner.py": "29e3abd140c830ed44886792f3148bcd325abbed84dcb793fd21b7c0e074a62c",
+    "p1337-tests-module-r2.rs.txt": "8045f10b9fea8ac26ea10313a0680cf29510adc1607b568afa737d29ace77c1f",
+    "p1337-tests-freeze-r2.json": "2629ad4e34aa94048370662196b24f7e1a85f1afc7c9f8d67304931a87d46294",
+    "p1337-tests-format-proof.json": "63cce081c8bba78a036c83e31276a187221a4180776ce3c90ff9bc6a93b14bac"
+  },
+  "state": "pre-C mechanical successor R2 linked; candidate not read; Cargo adversarial not executed",
+  "families_unchanged": true,
+  "profile_unchanged": true,
+  "runner_unchanged": true,
+  "oracles_unchanged": true,
+  "succession": "Private full R2 diff inspected: formatting and two optional trailing tuple commas only; all literals/assertions/order and Array sentinel unchanged. Effective candidate tests must match module R2; supersedes R1 module binding only. Root reports reviewer permits RED-r1 carry-forward; C control required.",
+  "observation_revision": 1
+}

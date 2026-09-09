@@ -1,0 +1,190 @@
+#[cfg(test)]
+mod p1337_tests {
+    use super::{eval_value_field_access, Span, Value};
+    use crate::compiler::eval::{
+        eval_expression_with_features, eval_with_full_error_target_and_features,
+        EvalTarget,
+    };
+    use crate::contracts::world::World;
+    use crate::entities::compiler_features::{Feature, Features};
+    use crate::entities::element_registry::ElementRegistry;
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::sink::Sink;
+    use crate::entities::source::Source;
+    use crate::entities::source_result::Severity;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library, Route, Routines, Traced,
+    };
+    use comemo::Track;
+    use std::num::NonZeroU16;
+
+    struct TestWorld {
+        source: Source,
+        library: Library,
+        book: FontBook,
+    }
+
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn profiles() -> Vec<Features> {
+        (0..4)
+            .map(|mask| {
+                let mut features = Features::empty();
+                if mask & 1 != 0 {
+                    features.enable(Feature::Html);
+                }
+                if mask & 2 != 0 {
+                    features.enable(Feature::A11yExtras);
+                }
+                features
+            })
+            .collect()
+    }
+
+    fn check_ast(text: &str, anchor: &str, message: &str) {
+        for features in profiles() {
+            let world = TestWorld {
+                source: Source::detached(text),
+                library: Library::new(),
+                book: FontBook::new(),
+            };
+            let mut sink = Sink::new();
+            let errors = eval_with_full_error_target_and_features(
+                &Routines::new(),
+                &world,
+                Traced::default().track(),
+                sink.track_mut(),
+                Route::root().track(),
+                &world.source,
+                &ElementRegistry::new(),
+                false,
+                EvalTarget::Paged,
+                features,
+            )
+            .unwrap_err();
+            assert!(sink.into_diagnostics().is_empty(), "{text}");
+            assert_eq!(errors.len(), 1, "{text}");
+            let d = &errors[0];
+            assert_eq!(d.message, message, "{text}");
+            assert_eq!(d.severity, Severity::Error);
+            assert!(d.hints.is_empty(), "{text}");
+            assert!(d.trace.is_empty(), "{text}");
+            let start = text.rfind(anchor).unwrap();
+            assert_eq!(
+                world.source.span_byte_range(d.span),
+                Some(start..start + anchor.len()),
+                "{text}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1337_preserve_array_ast_message_and_total_span_debt() {
+        // Array is an excluded baseline debt, not a P1337 parity correction.
+        check_ast(
+            "#((1, 2).missing)",
+            "(1, 2).missing",
+            "array does not contain field \"missing\"",
+        );
+    }
+
+    #[test]
+    fn p1337_pure_all_singletons_bool_values_names_and_supplied_spans() {
+        let id = FileId::from_raw(NonZeroU16::new(37).unwrap());
+        for span in [
+            Span::detached(),
+            Span::from_range(id, 0..0),
+            Span::from_range(id, 7..19),
+            Span::from_range(id, 81..113),
+        ] {
+            for (value, name) in [
+                (Value::Bool(true), "boolean"),
+                (Value::Bool(false), "boolean"),
+                (Value::None, "none"),
+                (Value::Auto, "auto"),
+            ] {
+                for field in ["nope", "ausência", "unknown-long-field", "len", "value", ""] {
+                    let errors = eval_value_field_access(value.clone(), field, span).unwrap_err();
+                    assert_eq!(errors.len(), 1);
+                    let d = &errors[0];
+                    assert_eq!(d.message, format!("cannot access fields on type {name}"));
+                    assert_eq!(d.span, span);
+                    assert_eq!(d.severity, Severity::Error);
+                    assert!(d.hints.is_empty());
+                    assert!(d.trace.is_empty());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn p1337_ast_variants_aliases_parentheses_unicode_and_multiline() {
+        for (literal, name) in [
+            ("true", "boolean"), ("false", "boolean"), ("none", "none"), ("auto", "auto"),
+        ] {
+            for (text, field) in [
+                (format!("#(({literal}).nope)"), "nope"),
+                (format!("#((({literal})).absent-long-field)"), "absent-long-field"),
+                (format!("#let início = {literal}\n#let alias = início\n#alias.ausência"), "ausência"),
+                (format!("#let variável = {literal}\n#(\n (variável)\n .campo-ausente\n)"), "campo-ausente"),
+                (format!("#let repeated = {literal}\n#repeated.repeated"), "repeated"),
+            ] {
+                check_ast(&text, field, &format!("cannot access fields on type {name}"));
+            }
+        }
+    }
+
+    #[test]
+    fn p1337_preserve_values_type_and_repr_and_ordinary_calls() {
+        for features in profiles() {
+            let world = TestWorld {
+                source: Source::detached(""),
+                library: Library::new(),
+                book: FontBook::new(),
+            };
+            for (expr, expected) in [
+                ("type(true) == bool", Value::Bool(true)),
+                ("type(false) == bool", Value::Bool(true)),
+                ("repr(true)", Value::Str("true".into())),
+                ("repr(false)", Value::Str("false".into())),
+                ("repr(none)", Value::Str("none".into())),
+                ("repr(auto)", Value::Str("auto".into())),
+                ("{let flag = false; not flag}", Value::Bool(true)),
+                ("{let identity(x) = x; identity(none)}", Value::None),
+                ("{let identity(x) = x; identity.with(auto)()}", Value::Auto),
+                ("(truth: true, nothing: none, automatic: auto).nothing", Value::None),
+                ("(truth: true, nothing: none, automatic: auto).automatic", Value::Auto),
+            ] {
+                let (value, warnings) = eval_expression_with_features(&world, expr, features);
+                assert!(warnings.is_empty(), "{expr}");
+                assert_eq!(value.unwrap(), expected, "{expr}");
+            }
+        }
+    }
+}

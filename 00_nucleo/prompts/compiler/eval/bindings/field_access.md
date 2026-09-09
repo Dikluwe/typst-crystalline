@@ -1,8 +1,72 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 4e4810f3
+Hash do Código: ee628f5f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1337 — field ausente em Bool, None e Auto
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1337-measurement.json`, SHA-256
+`f318ee743fa9adfc372f1b44946897438ffdbd5eba0ba329f57ddee10bb8eab2`,
+concluído em `2026-09-09T19:09:59.299611+00:00`, mede `true.nope` e
+`false.ausência`: cristalino publica bool, vanilla boolean. `none.nope`,
+`auto.nope` e aliases multilinha já têm o nome correto, mas, como Bool,
+marcam o acesso inteiro em vez do field. Valores válidos coincidem.
+Baseline SHA-256 `d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672`,
+HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitada
+com diff/stat e inventário exatos. Vanilla ratificado upstream a51e02804 SHA
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
+antecedente cristalino SHA
+`646a8d97400c0abe262a65c9b9559b47a3ecf7d10eafd82fa79a64ade0504497`.
+
+`field_access.rs:532–547` omite Bool/None/Auto da seleção field-only;
+`:843–846` usa type_name no fallback. `operators/error_formatting.rs:55–57`
+já distingue none/auto/boolean, sem alterar nomes de type/repr. Vanilla
+`typst-eval/src/code.rs:347–366` transmite field.span(). O teste legado
+`field_access.rs:1795–1803` preserva precisamente os três diagnósticos antigos.
+Array tem ramo próprio em `:667–677`; bool.nope usa Value::Type, não Bool.
+Ambos divergem, mas não são a mesma obrigação. A medição de chamada com panic
+mostra causa anterior ao lookup, também excluída.
+
+### Obrigação e sucessão
+
+Quando Bool, None ou Auto chegam ao lookup deste owner, o diagnóstico é
+respectivamente `cannot access fields on type boolean`,
+`cannot access fields on type none` e `cannot access fields on type auto`.
+Qualquer valor Bool, alias ou nome de field obedece à regra. O acesso AST usa
+todos e somente os bytes de access.field().span(), inclusive Unicode,
+parênteses e multilinha; o lookup puro conserva exatamente o span recebido.
+Manter erro único, severidade error, ausência de hints/laterais novos e traces
+causais existentes. Não fabricar campo, valor ou método, não alterar type/repr.
+
+Esta obrigação sucede explicitamente as preservações de Bool/None/Auto em
+P1336 e nas cláusulas gerais P1301/P1303/P1306/P1311/P1324/P1325/P1326,
+somente no acesso que chega ao lookup. Migrar somente as três expectativas
+de `p1336_preserve_other_fallback_names_and_ast_span` para os nomes/spans
+acima e renomear o teste como sucessor P1337; não apagar casos nem relaxar
+comparadores. Demais testes e a evidência antecedente permanecem intactos.
+
+Int/Str P1336 conservam sua obrigação; Array, valores-tipo (inclusive Bool),
+pré-despacho, field_callee_error, ordem de argumentos/panic, valores válidos,
+Dict, Content/LocatedContent, Module, nativas/closures/With, Float/is-nan,
+PDF/features, text contextual e warnings não mudam. Não generalizar field-only
+nem nomes longos a outras categorias; não mudar entidade, owner, API, default,
+compatibilidade ou fase do pipeline.
+
+Mensagem e origem são observáveis de linguagem ADR-0107/0108; enum e algoritmo
+Rust são mecanismo. Não inferir intenção histórica do vanilla. É inferência
+que o discriminante e o span existentes neste owner bastam; necessidade de
+outro owner, origem irrecuperável ou alteração fora deste fragmento refutam
+o recorte e exigem reabertura antes de ampliar o código. Correção interna de
+paridade ADR-0127: L0 primeiro, resselo, RED→GREEN e revalidação contínua.
+
+Aceitação: testes independentes puro/AST e matriz bilateral congelados antes
+de C, positivos, fronteiras e dívidas pré-classificadas, quatro perfis e
+três ordens; mutantes aplicáveis compilados e rejeitados por testemunhas.
+Unknown obrigatório bloqueia. Não declarar paridade geral nem somar
+preservação de dívida como convergência.
 
 ## P1336 — field ausente em instância Int/Str
 
