@@ -1,0 +1,5 @@
+#set page(width: 360pt, height: 300pt, margin: 0pt, fill: none)
+#let g = (gradient.linear((red, 0%), (rgb(46, 204, 64), 33.3333333333333%), (blue, 66.6666666666667%), (yellow, 100%), space: color.oklab, angle: 45deg)).repeat(2, mirror: false)
+#let body = rect(width: 120pt, height: 120pt, stroke: 8pt + g)
+#let transformed = move(dx: 5pt, dy: 9pt, body)
+#align(center + horizon, transformed)

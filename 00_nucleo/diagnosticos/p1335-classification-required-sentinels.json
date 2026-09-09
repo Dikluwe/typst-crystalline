@@ -1,0 +1,4077 @@
+{
+  "schema": "p1335-classification-required-sentinels-v1",
+  "at": "2026-09-09T16:50:30.548Z",
+  "executor": "/root/p1335_classifier",
+  "policy": "All cases supplement only. Deduplicate on exact expression, format, fixture bytes, route and effective profile while retaining every historical origin. Copy fixtures under p1335 namespace; compare current bilateral full channels. Historical output at moved paths requires location control, never broad normalization.",
+  "cases": [
+    {
+      "id": "p1324.json-read",
+      "historical_step": "p1324",
+      "historical_id": "json-read",
+      "expression": "json.nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.yaml-read",
+      "historical_step": "p1324",
+      "historical_id": "yaml-read",
+      "expression": "yaml.absent_1324",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.toml-read",
+      "historical_step": "p1324",
+      "historical_id": "toml-read",
+      "expression": "toml.unlisted",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.cbor-read",
+      "historical_step": "p1324",
+      "historical_id": "cbor-read",
+      "expression": "cbor.zeta",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.assert-read",
+      "historical_step": "p1324",
+      "historical_id": "assert-read",
+      "expression": "assert.unknown_name",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.table-read",
+      "historical_step": "p1324",
+      "historical_id": "table-read",
+      "expression": "table.no_such_member",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.grid-read",
+      "historical_step": "p1324",
+      "historical_id": "grid-read",
+      "expression": "grid.unregistered",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.json-callee",
+      "historical_step": "p1324",
+      "historical_id": "json-callee",
+      "expression": "json.nope(41)",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.json-callee-before-argument",
+      "historical_step": "p1324",
+      "historical_id": "json-callee-before-argument",
+      "expression": "json.nope(panic(\"argument-must-not-run\"))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.json-alias",
+      "historical_step": "p1324",
+      "historical_id": "json-alias",
+      "expression": "{ let pretender = json; pretender.other_field }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.yaml-shadow-name",
+      "historical_step": "p1324",
+      "historical_id": "yaml-shadow-name",
+      "expression": "{ let json = yaml; json.nope }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.table-with",
+      "historical_step": "p1324",
+      "historical_id": "table-with",
+      "expression": "table.with(columns: 2).unexpected",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.json-with-nested",
+      "historical_step": "p1324",
+      "historical_id": "json-with-nested",
+      "expression": "{ let renamed = json.with().with().with(); renamed.absent_1324(1) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.toml-parentheses",
+      "historical_step": "p1324",
+      "historical_id": "toml-parentheses",
+      "expression": "(((toml))).absent",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.json-multiline",
+      "historical_step": "p1324",
+      "historical_id": "json-multiline",
+      "expression": "{\n  let encoded = json;\n  (encoded)\n    .a_long_absent_field\n}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.json-multiline-callee",
+      "historical_step": "p1324",
+      "historical_id": "json-multiline-callee",
+      "expression": "(\n  json\n).missing_member(\n  9\n)",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.yaml-call-trace",
+      "historical_step": "p1324",
+      "historical_id": "yaml-call-trace",
+      "expression": "{ let relay() = yaml.missing_xyz; relay() }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.cbor-two-traces",
+      "historical_step": "p1324",
+      "historical_id": "cbor-two-traces",
+      "expression": "{ let inner() = cbor.gone; let outer() = inner(); outer() }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.none-csv",
+      "historical_step": "p1324",
+      "historical_id": "none-csv",
+      "expression": "csv.encode",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.none-qualified-abs",
+      "historical_step": "p1324",
+      "historical_id": "none-qualified-abs",
+      "expression": "calc.abs.unavailable",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.none-alias-with",
+      "historical_step": "p1324",
+      "historical_id": "none-alias-with",
+      "expression": "{ let x = csv.with().with(); x.another }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.none-qualified-callee",
+      "historical_step": "p1324",
+      "historical_id": "none-qualified-callee",
+      "expression": "(calc.abs).unavailable(1)",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.json-present-call",
+      "historical_step": "p1324",
+      "historical_id": "json-present-call",
+      "expression": "(type(json.encode), repr(json.encode), json.encode(42))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.yaml-present-call",
+      "historical_step": "p1324",
+      "historical_id": "yaml-present-call",
+      "expression": "(type(yaml.encode), repr(yaml.encode), yaml.encode((x: 7)))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.toml-present-call",
+      "historical_step": "p1324",
+      "historical_id": "toml-present-call",
+      "expression": "(type(toml.encode), repr(toml.encode), toml.encode((x: 7)))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.cbor-present-call",
+      "historical_step": "p1324",
+      "historical_id": "cbor-present-call",
+      "expression": "(type(cbor.encode), repr(cbor.encode), cbor.encode(42) == bytes((24, 42)))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.assert-present-call",
+      "historical_step": "p1324",
+      "historical_id": "assert-present-call",
+      "expression": "(type(assert.eq), repr(assert.eq), assert.eq(7, 7))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.json-alias-present-call",
+      "historical_step": "p1324",
+      "historical_id": "json-alias-present-call",
+      "expression": "{ let renamed = json; renamed.encode(42) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.closure-named",
+      "historical_step": "p1324",
+      "historical_id": "closure-named",
+      "expression": "{ let json(x) = x; json.nope }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.closure-anonymous",
+      "historical_step": "p1324",
+      "historical_id": "closure-anonymous",
+      "expression": "(x => x).missing",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.closure-with",
+      "historical_step": "p1324",
+      "historical_id": "closure-with",
+      "expression": "{ let table(x) = x; table.with(7).with().missing(3) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.closure-positive",
+      "historical_step": "p1324",
+      "historical_id": "closure-positive",
+      "expression": "{ let json(x) = x; json.with(7)() }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.dictionary-negative",
+      "historical_step": "p1324",
+      "historical_id": "dictionary-negative",
+      "expression": "{ let d = (exists: 1); d.absent }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.dictionary-positive",
+      "historical_step": "p1324",
+      "historical_id": "dictionary-positive",
+      "expression": "{ let d = (exists: 1); d.exists }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.type-negative",
+      "historical_step": "p1324",
+      "historical_id": "type-negative",
+      "expression": "int.missing",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.type-positive",
+      "historical_step": "p1324",
+      "historical_id": "type-positive",
+      "expression": "int.max",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.content-negative",
+      "historical_step": "p1324",
+      "historical_id": "content-negative",
+      "expression": "strong[ok].absent",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.content-positive",
+      "historical_step": "p1324",
+      "historical_id": "content-positive",
+      "expression": "strong[ok].body",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.float-is-nan",
+      "historical_step": "p1324",
+      "historical_id": "float-is-nan",
+      "expression": "float(\"NaN\").is-nan",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.float-is-nan-call",
+      "historical_step": "p1324",
+      "historical_id": "float-is-nan-call",
+      "expression": "float(\"NaN\").is-nan()",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.module-negative",
+      "historical_step": "p1324",
+      "historical_id": "module-negative",
+      "expression": "calc.missing",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.module-positive",
+      "historical_step": "p1324",
+      "historical_id": "module-positive",
+      "expression": "calc.abs(-3)",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.pdf-feature-data-cell",
+      "historical_step": "p1324",
+      "historical_id": "pdf-feature-data-cell",
+      "expression": "(type(pdf.data-cell), repr(pdf.data-cell))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.pdf-feature-header-cell",
+      "historical_step": "p1324",
+      "historical_id": "pdf-feature-header-cell",
+      "expression": "(type(pdf.header-cell), repr(pdf.header-cell))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.pdf-feature-table-summary",
+      "historical_step": "p1324",
+      "historical_id": "pdf-feature-table-summary",
+      "expression": "(type(pdf.table-summary), repr(pdf.table-summary))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.text-contextual-preservation",
+      "historical_step": "p1324",
+      "historical_id": "text-contextual-preservation",
+      "expression": "repr(context text.size)",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.table-present-call",
+      "historical_step": "p1324",
+      "historical_id": "table-present-call",
+      "expression": "(type(table.cell), repr(table.cell), table.cell[ok].body)",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.with-present-call",
+      "historical_step": "p1324",
+      "historical_id": "with-present-call",
+      "expression": "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.table-direct-kind-call",
+      "historical_step": "p1324",
+      "historical_id": "table-direct-kind-call",
+      "expression": "(type(table.cell), repr(table.cell), type(table.cell[ok]))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1324.table-with-kind-call",
+      "historical_step": "p1324",
+      "historical_id": "table-with-kind-call",
+      "expression": "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), type(x.cell[ok])) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+        "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7"
+      },
+      "historical_category": "scope-and-boundary",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.dict-direct",
+      "historical_step": "p1325",
+      "historical_id": "dict-direct",
+      "expression": "(x: 1).nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.dict-alias",
+      "historical_step": "p1325",
+      "historical_id": "dict-alias",
+      "expression": "{ let d = (x: 1); let alias = d; alias.absent }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.dict-multiline",
+      "historical_step": "p1325",
+      "historical_id": "dict-multiline",
+      "expression": "{\n let d = (x: 1)\n (d).long-missing-field\n}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.dict-unicode",
+      "historical_step": "p1325",
+      "historical_id": "dict-unicode",
+      "expression": "{ let d = (x: 1); d.ausência }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.dict-empty",
+      "historical_step": "p1325",
+      "historical_id": "dict-empty",
+      "expression": "(:).missing",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.content-direct",
+      "historical_step": "p1325",
+      "historical_id": "content-direct",
+      "expression": "[x].nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.strong-direct",
+      "historical_step": "p1325",
+      "historical_id": "strong-direct",
+      "expression": "strong[x].absent",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.content-alias-unicode",
+      "historical_step": "p1325",
+      "historical_id": "content-alias-unicode",
+      "expression": "{\n let c = strong[x]\n let alias = c\n alias.ausência\n}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.content-lookup-residual",
+      "historical_step": "p1325",
+      "historical_id": "content-lookup-residual",
+      "expression": "[x].text",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "lookup-residual",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.float-direct",
+      "historical_step": "p1325",
+      "historical_id": "float-direct",
+      "expression": "(1.0).nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.float-alias",
+      "historical_step": "p1325",
+      "historical_id": "float-alias",
+      "expression": "{ let f = 1.0; f.is-infinite }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.float-unicode",
+      "historical_step": "p1325",
+      "historical_id": "float-unicode",
+      "expression": "{\n let f = 1.0\n f.ausência\n}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "scope",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.float-is-nan",
+      "historical_step": "p1325",
+      "historical_id": "float-is-nan",
+      "expression": "(1.0).is-nan",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.dict-value",
+      "historical_step": "p1325",
+      "historical_id": "dict-value",
+      "expression": "(x: 1).x",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.dict-unicode-value",
+      "historical_step": "p1325",
+      "historical_id": "dict-unicode-value",
+      "expression": "(ausência: 17).ausência",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.dict-nested-value",
+      "historical_step": "p1325",
+      "historical_id": "dict-nested-value",
+      "expression": "(x: (y: 4)).x.y",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.content-morphology",
+      "historical_step": "p1325",
+      "historical_id": "content-morphology",
+      "expression": "strong[x].body == [x]",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.float-call-value",
+      "historical_step": "p1325",
+      "historical_id": "float-call-value",
+      "expression": "(1.0).is-nan()",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.dict-callee",
+      "historical_step": "p1325",
+      "historical_id": "dict-callee",
+      "expression": "(x: 1).nope(2)",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.content-callee",
+      "historical_step": "p1325",
+      "historical_id": "content-callee",
+      "expression": "strong[x].nope(2)",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.float-callee",
+      "historical_step": "p1325",
+      "historical_id": "float-callee",
+      "expression": "(1.0).nope(2)",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.integer-boundary",
+      "historical_step": "p1325",
+      "historical_id": "integer-boundary",
+      "expression": "(1).nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.string-boundary",
+      "historical_step": "p1325",
+      "historical_id": "string-boundary",
+      "expression": "\"abc\".nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.closure-boundary",
+      "historical_step": "p1325",
+      "historical_id": "closure-boundary",
+      "expression": "{ let f = x => x; f.nope }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.native-boundary",
+      "historical_step": "p1325",
+      "historical_id": "native-boundary",
+      "expression": "json.nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.module-boundary",
+      "historical_step": "p1325",
+      "historical_id": "module-boundary",
+      "expression": "calc.nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.pdf-gate",
+      "historical_step": "p1325",
+      "historical_id": "pdf-gate",
+      "expression": "type(pdf.data-cell) == function",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1325.receiver-first",
+      "historical_step": "p1325",
+      "historical_id": "receiver-first",
+      "expression": "{ let d = panic(\"receiver-first\"); d.nope }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+        "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.named",
+      "historical_step": "p1326",
+      "historical_id": "named",
+      "expression": "{let f(x)=x; f.nope}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "closure",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.anonymous",
+      "historical_step": "p1326",
+      "historical_id": "anonymous",
+      "expression": "(x => x).absent",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "closure",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.alias",
+      "historical_step": "p1326",
+      "historical_id": "alias",
+      "expression": "{let f(x)=x; let alias=f; alias.unknown}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "closure",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.with",
+      "historical_step": "p1326",
+      "historical_id": "with",
+      "expression": "{let f(x)=x; f.with(7).nope}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "closure",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.nested-with",
+      "historical_step": "p1326",
+      "historical_id": "nested-with",
+      "expression": "{let f(x,y)=x+y; f.with(7).with(8).missing-long-field}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "closure",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.unicode",
+      "historical_step": "p1326",
+      "historical_id": "unicode",
+      "expression": "{let função(x)=x; função.café}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "closure",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.multiline",
+      "historical_step": "p1326",
+      "historical_id": "multiline",
+      "expression": "{let f(x)=x;\n (\n f\n .ausência\n )}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "closure",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.callee",
+      "historical_step": "p1326",
+      "historical_id": "callee",
+      "expression": "{let f(x)=panic(\"must not run\"); f.nope(7)}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "closure",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.with-callee",
+      "historical_step": "p1326",
+      "historical_id": "with-callee",
+      "expression": "{let f(x)=x; let alias=f.with(4); alias.nope()}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "closure",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.call",
+      "historical_step": "p1326",
+      "historical_id": "call",
+      "expression": "{let f(x)=x+1; f(8)}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.with-call",
+      "historical_step": "p1326",
+      "historical_id": "with-call",
+      "expression": "{let f(x,y)=x+y; let a=f.with(8); a(3)}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.nested-call",
+      "historical_step": "p1326",
+      "historical_id": "nested-call",
+      "expression": "{let f(x,y)=x+y; f.with(8).with(3)()}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.kind",
+      "historical_step": "p1326",
+      "historical_id": "kind",
+      "expression": "{let f(x)=x; type(f)==function}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.native-some",
+      "historical_step": "p1326",
+      "historical_id": "native-some",
+      "expression": "json.nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.native-none",
+      "historical_step": "p1326",
+      "historical_id": "native-none",
+      "expression": "csv.nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.native-present",
+      "historical_step": "p1326",
+      "historical_id": "native-present",
+      "expression": "json.encode((x: 1))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.module",
+      "historical_step": "p1326",
+      "historical_id": "module",
+      "expression": "calc.nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.dict",
+      "historical_step": "p1326",
+      "historical_id": "dict",
+      "expression": "(x: 1).nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.content",
+      "historical_step": "p1326",
+      "historical_id": "content",
+      "expression": "strong[x].nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.float",
+      "historical_step": "p1326",
+      "historical_id": "float",
+      "expression": "(1.0).nope",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.pdf-gate",
+      "historical_step": "p1326",
+      "historical_id": "pdf-gate",
+      "expression": "repr(type(pdf.data-cell))",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "preserve",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.raw-content-residual",
+      "historical_step": "p1326",
+      "historical_id": "raw-content-residual",
+      "expression": "[x].text",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "residual",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1326.argument-order-residual",
+      "historical_step": "p1326",
+      "historical_id": "argument-order-residual",
+      "expression": "{let f(x)=x; f.nope(panic(\"arg\"))}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1326-ab-baseline.json",
+        "sha256": "7d137c0fa1b776b294717b46e24fcea2105617f91662134dce35f7e11c71b08d"
+      },
+      "historical_category": "residual",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.std",
+      "historical_step": "p1327",
+      "historical_id": "std",
+      "expression": "{ import std; std.calc.abs(-7) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.alias",
+      "historical_step": "p1327",
+      "historical_id": "alias",
+      "expression": "{ let renamed = std; import renamed; renamed.calc.abs(-8) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.calc",
+      "historical_step": "p1327",
+      "historical_id": "calc",
+      "expression": "{ import calc; calc.abs(-9) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.ordinary",
+      "historical_step": "p1327",
+      "historical_id": "ordinary",
+      "expression": "{ import \"ordinary.typ\" as original; import original; original.x }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.math-name",
+      "historical_step": "p1327",
+      "historical_id": "math-name",
+      "expression": "{ import \"math.typ\" as math; import math; math.x }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.shadow",
+      "historical_step": "p1327",
+      "historical_id": "shadow",
+      "expression": "{ import \"ordinary.typ\" as original; let std = original; import std; std.x }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.closure",
+      "historical_step": "p1327",
+      "historical_id": "closure",
+      "expression": "{ let f() = { import std; std.calc.abs(-11) }; f() }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.same-span-twice",
+      "historical_step": "p1327",
+      "historical_id": "same-span-twice",
+      "expression": "{ let f() = { import std; std.calc.abs(-11) }; (f(), f()) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.distinct-spans",
+      "historical_step": "p1327",
+      "historical_id": "distinct-spans",
+      "expression": "{ import std; import std; std.calc.abs(-12) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.utf8-offset",
+      "historical_step": "p1327",
+      "historical_id": "utf8-offset",
+      "expression": "{\n let prefix = \"á🦀\";\n let módulo = std;\n import módulo; módulo.calc.abs(-13)\n}",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.later-error",
+      "historical_step": "p1327",
+      "historical_id": "later-error",
+      "expression": "{ import std; global }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.alias-later-error",
+      "historical_step": "p1327",
+      "historical_id": "alias-later-error",
+      "expression": "{ let renamed = std; import renamed; global }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.field",
+      "historical_step": "p1327",
+      "historical_id": "field",
+      "expression": "{ let box = (saved: std); import box.saved; saved.calc.abs(-14) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.rename",
+      "historical_step": "p1327",
+      "historical_id": "rename",
+      "expression": "{ import std as chosen; chosen.calc.abs(-15) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.redundant-rename",
+      "historical_step": "p1327",
+      "historical_id": "redundant-rename",
+      "expression": "{ import std as std; std.calc.abs(-16) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "preserved-debt",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.items",
+      "historical_step": "p1327",
+      "historical_id": "items",
+      "expression": "{ import std: calc; calc.abs(-17) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.wildcard",
+      "historical_step": "p1327",
+      "historical_id": "wildcard",
+      "expression": "{ import calc: *; abs(-18) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.file",
+      "historical_step": "p1327",
+      "historical_id": "file",
+      "expression": "{ import \"ordinary.typ\"; ordinary.x }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.dynamic-bare",
+      "historical_step": "p1327",
+      "historical_id": "dynamic-bare",
+      "expression": "{ import (std); none }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.dynamic-block",
+      "historical_step": "p1327",
+      "historical_id": "dynamic-block",
+      "expression": "{ import { std }; none }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.dynamic-call",
+      "historical_step": "p1327",
+      "historical_id": "dynamic-call",
+      "expression": "{ let f() = std; import f(); none }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.dynamic-rename",
+      "historical_step": "p1327",
+      "historical_id": "dynamic-rename",
+      "expression": "{ import (std) as chosen; chosen.calc.abs(-20) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.dynamic-items",
+      "historical_step": "p1327",
+      "historical_id": "dynamic-items",
+      "expression": "{ import (std): calc; calc.abs(-21) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.dynamic-wildcard",
+      "historical_step": "p1327",
+      "historical_id": "dynamic-wildcard",
+      "expression": "{ import (calc): *; abs(-22) }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.resolution-error",
+      "historical_step": "p1327",
+      "historical_id": "resolution-error",
+      "expression": "{ import absent; none }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.type-error",
+      "historical_step": "p1327",
+      "historical_id": "type-error",
+      "expression": "{ let specimen = 42; import specimen; none }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "preserved-debt",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.error-before",
+      "historical_step": "p1327",
+      "historical_id": "error-before",
+      "expression": "{ global; import std; none }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "parity",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327.imported-route",
+      "historical_step": "p1327",
+      "historical_id": "imported-route",
+      "expression": "{ import \"warning.typ\" as warned; warned.x }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+        "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+      },
+      "historical_category": "correction",
+      "fixtures": {
+        "holder.typ": {
+          "sha256": "ca352d961ef6179ee60fc9e42dc6e0aaa834cc9f2978130f1ce79adfe1861f5d",
+          "text": "#let saved = std\n"
+        },
+        "math.typ": {
+          "sha256": "cb12af4c6708689286547ce20bd10c3d384bf7d420bb6ee3b741939145cc1481",
+          "text": "#let x = 23\n"
+        },
+        "ordinary.typ": {
+          "sha256": "351e200194ad44fd186757bc82b38c4649619cf9cafc9b2e84f72979ff319349",
+          "text": "#let x = 17\n"
+        },
+        "warning.typ": {
+          "sha256": "9deecb4845a8c7c880c5f4a5b71d1b1837bcc4537c951c0956452df46569dc65",
+          "text": "#import std\n#let x = std.calc.abs(-19)\n"
+        }
+      },
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327r2.deprecated-error",
+      "historical_step": "p1327r2",
+      "historical_id": "deprecated-error",
+      "expression": "{ let x = sym.join; global }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-r2-candidate.json",
+        "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0"
+      },
+      "historical_category": "order-correction",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327r2.deprecated-warning-only",
+      "historical_step": "p1327r2",
+      "historical_id": "deprecated-warning-only",
+      "expression": "{ let x = sym.join; 7 }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-r2-candidate.json",
+        "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0"
+      },
+      "historical_category": "parity",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327r2.mixed-warnings-error",
+      "historical_step": "p1327r2",
+      "historical_id": "mixed-warnings-error",
+      "expression": "{ let x = sym.join; import std; global }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-r2-candidate.json",
+        "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0"
+      },
+      "historical_category": "order-correction",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327r2.two-deprecated-error",
+      "historical_step": "p1327r2",
+      "historical_id": "two-deprecated-error",
+      "expression": "{ let x = sym.join; let y = sym.join; global }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-r2-candidate.json",
+        "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0"
+      },
+      "historical_category": "order-correction",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327r2.error-only",
+      "historical_step": "p1327r2",
+      "historical_id": "error-only",
+      "expression": "global",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-r2-candidate.json",
+        "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0"
+      },
+      "historical_category": "parity",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327r2.no-warning",
+      "historical_step": "p1327r2",
+      "historical_id": "no-warning",
+      "expression": "{ let x = 2; x + 5 }",
+      "route": "eval",
+      "format": "json",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-r2-candidate.json",
+        "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0"
+      },
+      "historical_category": "parity",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327r2.serialization-warning",
+      "historical_step": "p1327r2",
+      "historical_id": "serialization-warning",
+      "expression": "{ let x = sym.join; 7 }",
+      "route": "eval",
+      "format": "raw",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-r2-candidate.json",
+        "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0"
+      },
+      "historical_category": "preserve-success-path",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    },
+    {
+      "id": "p1327r2.serialization-no-warning",
+      "historical_step": "p1327r2",
+      "historical_id": "serialization-no-warning",
+      "expression": "7",
+      "route": "eval",
+      "format": "raw",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "origin": {
+        "path": "00_nucleo/diagnosticos/p1327-ab-r2-candidate.json",
+        "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0"
+      },
+      "historical_category": "preserve-success-path",
+      "fixtures": {},
+      "mandatory_channels": [
+        "exit",
+        "stdout",
+        "stderr"
+      ],
+      "historical_expectation_is_not_current_parity": true
+    }
+  ],
+  "html_required": {
+    "source": {
+      "path": "00_nucleo/diagnosticos/p1323-ab-frozen-suite-r2.json",
+      "sha256": "d98a1b73c0dcc5167f145c1195db6ccb9a84294dfce08b2c731c69b9f2248cb1"
+    },
+    "covered_by_root_transversal": true,
+    "requirement": "Compile/legacy HTML enabled and disabled; error+warning ordering; three hints and paragraph termination; default/pdf/svg/png/query/eval no HTML warning. Preserve raw channels alongside DOM/PDF projections."
+  },
+  "historical_final_sources": [
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-candidate-v3.json",
+      "sha256": "0a9ef0dc59229a575690b003b786a8642c1c2d4339e5eed5519c0fa7485fbb72"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+      "sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1326-ab-final.json",
+      "sha256": "73f74a2aa5eee7faaab3ad6c8d56d3fee9a30ed7ced37001bb482409b409be29"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1327-ab-cli-candidate-c2.json",
+      "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1327-ab-r2-candidate.json",
+      "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0"
+    }
+  ],
+  "status": "FROZEN_REQUIREMENT_BEFORE_P1335_CURRENT_RESULTS_NOT_A_VERDICT"
+}

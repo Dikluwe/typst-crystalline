@@ -1,0 +1,39 @@
+{
+  "at": "2026-09-09T17:17:39.436757+00:00",
+  "manifest_sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-math-controls-r1.py": "6dedb01e22f6dbb12a1c3c337ba5111821683ad7e2f4fe625a72afd247c31d6e",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-runtime-freeze.json": "d4723b6d4cc635ae0477c9f6b7330e06008e9e5691e41a17a8a405dc0f600fc9"
+  },
+  "binaries": {
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "upstream": "a51e02804"
+    },
+    "crystalline": {
+      "path": "/tmp/p1335-target.EkAvyv/release/typst",
+      "sha256": "11e3164fa509030cc78dc048d5bb4f2426348e32a24edc7cd2f320c704e6ef61"
+    }
+  },
+  "cases": [
+    {
+      "id": "math-multiletter-generic-content",
+      "expression": "{let custom(x)=[ok]; $custom(1)$}"
+    }
+  ],
+  "profiles": {
+    "default": [],
+    "html": [
+      "html"
+    ],
+    "a11y": [
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "html",
+      "a11y-extras"
+    ]
+  },
+  "policy": "Successor control: prior single-letter f is math text, not a generic function call. Multi-letter custom follows MathIdent call path; original result retained as refutation. Complements shadow boundary8\u201311. Raw bilateral equality, separate denominator."
+}

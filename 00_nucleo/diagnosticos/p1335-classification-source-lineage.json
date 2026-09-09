@@ -1,0 +1,642 @@
+{
+  "at": "2026-09-09T17:39:01.172Z",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "working_tree": "uncommitted; exact sixteen tracked paths/stat pinned in baseline",
+  "baseline": {
+    "path": "00_nucleo/diagnosticos/p1335-baseline.json",
+    "sha256": "0ec240607d173acd513a21d2728c66a1e514f3ad294b88bad60f3fdc8e984254"
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1335-manifest.json",
+    "sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53"
+  },
+  "inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1335-baseline.json",
+      "sha256": "0ec240607d173acd513a21d2728c66a1e514f3ad294b88bad60f3fdc8e984254"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-manifest.json",
+      "sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-matrix-normal.json",
+      "sha256": "148a31137b459fa10972a4d7479e0654e2f189f1d0f9673b8d15b0deffd3cf5e"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-matrix-repeat.json",
+      "sha256": "d95638f91bd0b13245c4bcd49efbc46cc9c336912da13bafdf0c36b9c55072be"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-matrix-reverse.json",
+      "sha256": "d4b9af3923e645609bb06e958ae3a4f5835274d695b627ad8304e9e128cbd188"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-probe-catalog.json",
+      "sha256": "988bab4e5a88e400db2533f1db8a428328f1a5fcec51d4415ea171d20d5832d8"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-extension-evidence.json",
+      "sha256": "9d1c11687ba2267264348ffb48a5a3a2d365f406984f8dffc22755574d80784a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-classification-supplemental-summary.json",
+      "sha256": "805d4261278cdc433c02ab7ababfdbf5eff2c516abd30bd0b7eb8bb360c4056e"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-classification-supplemental-cohorts.json",
+      "sha256": "8aeb223d3fc3ec25931ccaae681746b776610bbe7bf2acd9dbd3c781cd0f0218"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-classification-preservation-reconciliation.json",
+      "sha256": "7e78d2d712f2218595b2d44a758f01a44560298371c7f7b1dd96c81af1fd9ba6"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-classification-certification-debt.json",
+      "sha256": "478d043dac1bcbd2c9762f00bef48dfba2291eefec747059272a282833c306be"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-transversal-r3.json",
+      "sha256": "d1bce731750f66b723297bb159465cd091d570ce8184631b4f181d6d886ef35b"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-cli-capability-overlay.json",
+      "sha256": "471e43204df06b31f51b897207c02e435a79ae4be6b55529b743ad65e2913259"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-math-controls-r1.json",
+      "sha256": "54bf7d33884aab01063bc32d0726a1f7f9d3a8351c7121c6c9a9a22c6766b0cf"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-review-transversal-final-r4.json",
+      "sha256": "e0725a157d10dba4c7f1e6ba64d4c683ffcf87774eab2ed5e881955b12b046d9"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-review-boundaries.json",
+      "sha256": "7b43c598f5728d6ffd32f4a1e259f521eb7925be285ce39724d8cd58aa459b42"
+    }
+  ],
+  "classifier": {
+    "path": "00_nucleo/diagnosticos/p1335-classification-finalize-r2.cjs",
+    "sha256": "b3a37ad9b072dabc60a9d2872337093b31a33329840140f2dd067a164c3cdd40"
+  },
+  "verdict": "NOT_SELF_APPROVED_ROLE_REVIEW_REQUIRED",
+  "implementation_authorized": false,
+  "owners": [
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+      "sha256": "4c0fe0f10d5d673f5de36ce48ceef9871307b13d2d229dad0a458062f9cdc7fb",
+      "consumer": "01_core/src/compiler/stdlib/structural/math.rs",
+      "consumer_sha256": "cc901a05d573fa2cef0753f85ffcef4584682aa8dd9e0cd727d5094d7d22c03d",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "80412483c8353a736f5c11842511cdef6c5e854728281a780c0183d6b73875cf",
+      "consumer": "01_core/src/compiler/eval/mod.rs",
+      "consumer_sha256": "115a34e8aa41b4ec5a55b0cec5d05927216dc6a4a6fcb98d2fd2c1edc98d262c",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "sha256": "af3c783de9f62b74907252f0ce7d078103f5769e969e43f35327d4556643ba3f",
+      "consumer": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "consumer_sha256": "4c0045831976a08e414820c831be0b0c957d522f121d3f9a59ee92e05d67d449",
+      "historical_prompt_unchanged": false,
+      "historical_consumer_unchanged": false,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/document.md",
+      "sha256": "efeabfeb8286212f9c29ad97caf225efc38977139671cb74a6813dc744ee1a92",
+      "consumer": "01_core/src/compiler/stdlib/structural/document.rs",
+      "consumer_sha256": "ddf6a1c0b212acbe87dfe937f826c4be3c53d6673a01dfad092c008e799d8657",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+      "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+      "consumer": "01_core/src/compiler/stdlib/math_style.rs",
+      "consumer_sha256": "6624abb69bbdc0dc71e0b879b160afa0642ffd23ddbb67952db710da52ead961",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/calc.md",
+      "sha256": "cb0f678f029de9a06781a177ed26baf158f573a3a5a90d9b7c85bf29693fefbf",
+      "consumer": "01_core/src/compiler/stdlib/calc.rs",
+      "consumer_sha256": "96196911a437819483766b9d21da08270063527721286dbf9d59c86b30fc9f61",
+      "historical_prompt_unchanged": false,
+      "historical_consumer_unchanged": false,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "a6ccb7181acc01b07e7a78215f990741e21013fa7e0c4751c4d66348f19285a5",
+      "consumer": "01_core/src/compiler/eval/repr.rs",
+      "consumer_sha256": "a54ee85615e458bbc5b102a53769e4c756e9502d69abe2be1feaed5077e78efb",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/color.md",
+      "sha256": "60de24ea6496a1c95fcc4af1883278164a2cd031351ef59278e654d7d485ff01",
+      "consumer": "01_core/src/compiler/stdlib/color.rs",
+      "consumer_sha256": "4bbff0858e5da0224e628d9ea6996fd0c511e2763c646e1374ee7c04d058b362",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+      "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243",
+      "consumer": "01_core/src/compiler/stdlib/counter.rs",
+      "consumer_sha256": "c9058627737fb4726f3fd627e84f5050972b20f817752d01e050d3188f47f270",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/foundations/float.md",
+      "sha256": "b8826f091cdd330bb92a32848784fc14cfb5f693d26793252aa12384724c4081",
+      "consumer": "01_core/src/compiler/stdlib/foundations/float.rs",
+      "consumer_sha256": "0d1024c0dd9bf13ac9de17cd44396bab5a37321047b3b1408868a60e73f8a9b6",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/entities/func.md",
+      "sha256": "909cd5a85e4968d42a381b33d343e50a7a37e875817d581a6a2ebe9076057a1a",
+      "consumer": "01_core/src/entities/func.rs",
+      "consumer_sha256": "9bcd2e2b0c79cae5c2478b55d9d902f78983f9119d634a04a846d93210307bde",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+      "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd",
+      "consumer": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "consumer_sha256": "859b1305cb8912a32ef5a7f656caad9fbc3cb000b2706f6dd14acac1fd672ee2",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/html.md",
+      "sha256": "df741b13ec8a3630180d65c3b606aca20385ab2b00d3d93836e85b5fbdca9ac9",
+      "consumer": "01_core/src/compiler/stdlib/html.rs",
+      "consumer_sha256": "c6186114b04108e83b1382753bec4146aa126cf8055200e5695141881d95ff52",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/loading.md",
+      "sha256": "bf6e830de31aab2b0cd113872e258949e46e6d54e3f041bcc21ed62cc43f57d4",
+      "consumer": "01_core/src/compiler/stdlib/loading.rs",
+      "consumer_sha256": "f4ebb73fac0d64d412adbda475eaef65fb45e01ac2cf44a13c5b9d9aa408bf8f",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+      "sha256": "e8dc3b96fd9a03ae21f87f602d85bb7b0b5b6eb95d6267dcbfe280a80d3b0632",
+      "consumer": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "consumer_sha256": "4c494e4abca686e7a5713b01c5148cb9bba323ba87f0efd282da42792b2886e6",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/shapes.md",
+      "sha256": "335af3fc7e890f0c01b94819e9f793ed2a0e0ba5fb051514574f39810e0d8ce9",
+      "consumer": "01_core/src/compiler/stdlib/shapes.rs",
+      "consumer_sha256": "f8adf97bc7e6857c6f159f7d2e6f256f81c48624d934b899e3d502984393248f",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/markup.md",
+      "sha256": "4983d15545df3edcb29826da03fa6653693c03dcca9a90fae62c647d9349399c",
+      "consumer": "01_core/src/compiler/stdlib/structural/markup.rs",
+      "consumer_sha256": "dd7293909aec9bf3bb6a7f26f3d311943abf22ee74894a2b8c5c2604ce7ebf18",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/text/case.md",
+      "sha256": "b40155505b65b4ff0d9b41c7c9ecaff1c51b467bdfab7fc356ac808288adbc2c",
+      "consumer": "01_core/src/compiler/stdlib/text/case.rs",
+      "consumer_sha256": "a6dc97b1d230b74ac4807ae94f136e0d7ac817f378190a916e50fde7acc96578",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/foundations/selector.md",
+      "sha256": "1a603e05d436e5f2359f77e3e71c0e233478ecf13209f71801fb45ae40214799",
+      "consumer": "01_core/src/compiler/stdlib/foundations/selector.rs",
+      "consumer_sha256": "b8c1460f1ddd97b70b20a00366d1a5e8c2cd76e37cefb295e1baf757b1cdd179",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+      "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+      "consumer": "01_core/src/compiler/stdlib/state.rs",
+      "consumer_sha256": "fadb34bdcea4d4c0bf29332d93371c62eed47a5857390f93ab82814f806c7c15",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/sym.md",
+      "sha256": "42a2127215e9a37d69c90695e1be66a61320fa086ffd36b51a1ac3441c816f3d",
+      "consumer": "01_core/src/compiler/stdlib/sym.rs",
+      "consumer_sha256": "8f45dc0953e591b8b058370b6a935a7982dcf25aeb3dcf625bcdf05898fa256f",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/primitives-constructors/version.md",
+      "sha256": "6e775351938a8480df7f2fbd1658cdd3d8ae7b5908c4ee8dc34e46a778ce4e5c",
+      "consumer": "01_core/src/compiler/stdlib/primitives_constructors/version.rs",
+      "consumer_sha256": "ea53bd989c8ad1ffcde6f387df1f5ae522816fda9ec72adad0631ac4ccab4c1d",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/emoji.md",
+      "sha256": "d5fda4cff41bab53b5e877061a63aeb1fda57896d328552a637e6e9cc8e3291f",
+      "consumer": "01_core/src/compiler/stdlib/emoji.rs",
+      "consumer_sha256": "4a31ea32e78cec391a4088fd953fa03871dea8039be45bc05ff13029a462077c",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/entities/symbol.md",
+      "sha256": "159d961a5b85fcfad3dd668fce7097f52e5cb635a05a7ee9bfb983e1291aa95a",
+      "consumer": "01_core/src/entities/symbol.rs",
+      "consumer_sha256": "abdf49eb37fc68ecd72f39634bbd29231da8f38e4c24fa337077bd120e8bcf03",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/sys.md",
+      "sha256": "b0eba943a4e7649c0db5d22b79f57ed4d8f7b96da3727b62e76e87fd2e9cec0e",
+      "consumer": "01_core/src/compiler/stdlib/sys.rs",
+      "consumer_sha256": "09393585313930552112a4613df6c7fff05c56450b15acdc8cc306e802c386fa",
+      "historical_prompt_unchanged": true,
+      "historical_consumer_unchanged": true,
+      "ownership_current_header": true,
+      "effective_lineage": {
+        "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+        "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+      }
+    }
+  ],
+  "additional_causal_sources": [
+    {
+      "path": "01_core/src/compiler/stdlib/loading.rs",
+      "sha256": "f4ebb73fac0d64d412adbda475eaef65fb45e01ac2cf44a13c5b9d9aa408bf8f"
+    },
+    {
+      "path": "01_core/src/compiler/eval/call_dispatch.rs",
+      "sha256": "1bfe1af535e7f73c90163f856f0edcbd62acce01466c4398dceeac57f673be7d"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/mod.rs",
+      "sha256": "a8d828535a135463106723e27013b75b89c63df4810662ff2cf35a775a100f80"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/loading/cbor.rs",
+      "sha256": "5ae01308870f3057cfc822b254372f0af17317d9282d499446fb92cdcef595d9"
+    },
+    {
+      "path": "01_core/src/compiler/eval/mod.rs",
+      "sha256": "115a34e8aa41b4ec5a55b0cec5d05927216dc6a4a6fcb98d2fd2c1edc98d262c"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/loading.md",
+      "sha256": "bf6e830de31aab2b0cd113872e258949e46e6d54e3f041bcc21ed62cc43f57d4"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "80412483c8353a736f5c11842511cdef6c5e854728281a780c0183d6b73875cf"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/loading/read.rs",
+      "sha256": "75bbb1b5a2a82473fb765b661a3c0318795d8d5def25953f08de4f20a490cbc6"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/loading/mod.rs",
+      "sha256": "e5501e41ceb4c47771b4b111563367e69c73691d260da4ba2ec7b26eeb382504"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "sha256": "dd9bd7970c821c8539b6a78f38e7a7317a02afe749dd14d755f0d6dec5ec820f"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/loading/xml.rs",
+      "sha256": "4132f89efb6c46e0a83a12a0bfd67d47b2da6cbf484bebf2cc4edebeb005f68a"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/value.rs",
+      "sha256": "c25a2bdb0a96c707414f1138f34bcc21c63ac06c507a32c81f029f6a374da885"
+    },
+    {
+      "path": "01_core/src/compiler/eval/closures.rs",
+      "sha256": "8bec8fa5a99a8604241ec7cae3613485cc6b9f262e42b8f661be282e07975e42"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-eval/src/call.rs",
+      "sha256": "cb2fa9dfa313b60d39aae320d90f161685fe9bdfbc5ac7aa71419b36447f2862"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/closures.md",
+      "sha256": "e278e1b6b401c4788559469007db3d99cef4dfc4c667fe0e55febe3310d4c0da"
+    },
+    {
+      "path": "01_core/src/compiler/eval/modules.rs",
+      "sha256": "f094fb15083d1375fcd973b8c28be4fb541a66ea1d25d677b8d327af54c78666"
+    },
+    {
+      "path": "01_core/src/entities/source_result.rs",
+      "sha256": "3711d7ff0dceac68e33ba5b8b58f28d6f967f456041b5ce66e8565240a910e1f"
+    },
+    {
+      "path": "02_shell/src/diagnostic.rs",
+      "sha256": "40f2ef922f4f5dbc355a4c1b0242bc12bebb8e30d4e5e1def36bce16fd3a274d"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-eval/src/import.rs",
+      "sha256": "2c2119823006a7ec1be06fa9a060c91f7a89d8199b244c0097b818b067c03016"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/modules.md",
+      "sha256": "93a479e7a403b7c434314ff3acc2e0501819b1d5333f8bb96051a8378a3609ff"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "sha256": "af3c783de9f62b74907252f0ce7d078103f5769e969e43f35327d4556643ba3f"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/math.md",
+      "sha256": "1a045fcd7f867248eb2a87bcd0d33b0f611cccc4582c2042a2c51a2ff232b7ab"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/calc.rs",
+      "sha256": "96196911a437819483766b9d21da08270063527721286dbf9d59c86b30fc9f61"
+    },
+    {
+      "path": "01_core/src/compiler/eval/operators/arithmetic.rs",
+      "sha256": "818999e784e6b70448b08bb392f092c87bb292c60f58880e211a6d776039bec3"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/foundations/path.rs",
+      "sha256": "98297baf51bc64cfcc80b8e569846b34eda6944febbb6e534908afd9fc1a7f9e"
+    },
+    {
+      "path": "01_core/src/compiler/eval/math.rs",
+      "sha256": "679c8f3a67879d7bc82da1da023060dcf3470a7403da13497791dfcdc9af8b23"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-eval/src/math.rs",
+      "sha256": "4aad95925fbc3542fc5709ca4e053895e6aac4c6620195a305a07dab6a24bf7f"
+    },
+    {
+      "path": "01_core/src/compiler/scopes.rs",
+      "sha256": "1c06d7304feccb68b25e956191026d8fd3d19d4e09844c665f75338e56595362"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/gradients.rs",
+      "sha256": "a3e0e811ce89b2b5658ce3ea595bd179aba8c6493e2ca8db6f2fd2c44bfd5fd9"
+    },
+    {
+      "path": "01_core/src/compiler/eval/rules.rs",
+      "sha256": "d1b2a493682ba0989d397360b5c3781b15a1e130d460f6e6854980bc001b267c"
+    },
+    {
+      "path": "01_core/src/compiler/eval/repr.rs",
+      "sha256": "a54ee85615e458bbc5b102a53769e4c756e9502d69abe2be1feaed5077e78efb"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "a6ccb7181acc01b07e7a78215f990741e21013fa7e0c4751c4d66348f19285a5"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/context.rs",
+      "sha256": "259527ad0d9bea23790dd96df3d163ad39199adbe6aff68e1d5cd8bf10d7cd98"
+    },
+    {
+      "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "sha256": "4c0045831976a08e414820c831be0b0c957d522f121d3f9a59ee92e05d67d449"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-eval/src/code.rs",
+      "sha256": "807f20641f9b3145a46fd160a192c2b83ec2a12bb33a21a519736aad0dd0effc"
+    },
+    {
+      "path": "01_core/src/compiler/eval/operators/error_formatting.rs",
+      "sha256": "85671a80fa20c0428330e671b92561b04b2dc7aa6204d16b9f2a593a8e5285c2"
+    },
+    {
+      "path": "04_wiring/src/main.rs",
+      "sha256": "c8ccf3b17f613241a903d8264ecd76bb1d798a8e1808b9790f75e7b56f1d8f30"
+    },
+    {
+      "path": "02_shell/src/cli.rs",
+      "sha256": "32ff00e7470caebadbf0cf7acc87aa0c5c14e3a094753475da76e8c884ffb958"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/color.rs",
+      "sha256": "4bbff0858e5da0224e628d9ea6996fd0c511e2763c646e1374ee7c04d058b362"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/foundations/float.rs",
+      "sha256": "0d1024c0dd9bf13ac9de17cd44396bab5a37321047b3b1408868a60e73f8a9b6"
+    },
+    {
+      "path": "01_core/src/entities/func.rs",
+      "sha256": "9bcd2e2b0c79cae5c2478b55d9d902f78983f9119d634a04a846d93210307bde"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/html.rs",
+      "sha256": "c6186114b04108e83b1382753bec4146aa126cf8055200e5695141881d95ff52"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/math.rs",
+      "sha256": "cc901a05d573fa2cef0753f85ffcef4584682aa8dd9e0cd727d5094d7d22c03d"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "sha256": "4c494e4abca686e7a5713b01c5148cb9bba323ba87f0efd282da42792b2886e6"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/shapes.rs",
+      "sha256": "f8adf97bc7e6857c6f159f7d2e6f256f81c48624d934b899e3d502984393248f"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/markup.rs",
+      "sha256": "dd7293909aec9bf3bb6a7f26f3d311943abf22ee74894a2b8c5c2604ce7ebf18"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/foundations/selector.rs",
+      "sha256": "b8c1460f1ddd97b70b20a00366d1a5e8c2cd76e37cefb295e1baf757b1cdd179"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/primitives_constructors/version.rs",
+      "sha256": "ea53bd989c8ad1ffcde6f387df1f5ae522816fda9ec72adad0631ac4ccab4c1d"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/math/op.rs",
+      "sha256": "8b4ee3ebcb085a4810b164d03f1eb0fbb4f2ce9b01224cd32ef4352d3631a1d3"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+      "sha256": "4c0fe0f10d5d673f5de36ce48ceef9871307b13d2d229dad0a458062f9cdc7fb"
+    },
+    {
+      "path": "01_core/src/entities/symbol.rs",
+      "sha256": "abdf49eb37fc68ecd72f39634bbd29231da8f38e4c24fa337077bd120e8bcf03"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/symbol.md",
+      "sha256": "159d961a5b85fcfad3dd668fce7097f52e5cb635a05a7ee9bfb983e1291aa95a"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/symbol.rs",
+      "sha256": "4213a43cc71d0653992ce4af5af40848ef491e81a1a5fbcdb560736b1adad18a"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring.md",
+      "sha256": "f0f49c7f57eaa15739c5d88c222cfa1bbb2f36d13be1a49113bcb346e43d34a2"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-cli/src/compile.rs",
+      "sha256": "d7339d0b8545d550aa6c73461564c49faf554ab6561d9f2a06858dc020260232"
+    }
+  ],
+  "extension_documentary_evidence": {
+    "path": "00_nucleo/diagnosticos/p1335-inventory-extension-evidence.json",
+    "sha256": "9d1c11687ba2267264348ffb48a5a3a2d365f406984f8dffc22755574d80784a"
+  },
+  "effective_lint": {
+    "path": "00_nucleo/diagnosticos/p1335-lineage.json",
+    "sha256": "f5f33f89b2f88216c67979c36467115086cc14b90a101dd6b9cd5b606e56b4bc"
+  }
+}

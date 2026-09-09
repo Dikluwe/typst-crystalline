@@ -1,0 +1,322 @@
+{
+  "schema": "p1335-classification-historical-inputs-v1",
+  "at": "2026-09-09T16:50:30.654Z",
+  "historical_only": true,
+  "ancestors": [
+    {
+      "path": "00_nucleo/diagnosticos/p1322-o-que-falta-para-paridade.md",
+      "sha256": "1fec4e8816ee649244cdbaa3c86d9c8516ac84c944677e5b0d9c9929ff039b94"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-probe-catalog.json",
+      "sha256": "a9853e4c54663a258a9dd706c1c974930579c65e335b283243b10eae19b4889a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-classification-owner-ledger.tsv",
+      "sha256": "6fdf058c92dda6f3ac11dd691c1a53b4edf8c4fc3d5529cb32b9cd23bc1cce3a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+      "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-classification-final.cjs",
+      "sha256": "505889e343264f6319634379d082391dc8f2f255ee687b6b90db4277a15f9a2e"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.cjs",
+      "sha256": "7f4ba334c061951b0ceb71c039de525fab54a93d21ba42e6d5095da5652bb3d5"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-classification-query-hint-addendum-r2.md",
+      "sha256": "b899fce9920ad2799e84ff539c43e57c362222efb62b05cc099fb304afd00995"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-classification-certification-debt.json",
+      "sha256": "2174e78bb976915167492423531ec2b7a69003487b056b349094979c6ac9b636"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-closure.json",
+      "sha256": "46ed343a40d48070a4f3e7ea0cf69633b089fb56111361d10f21274bb77f5042"
+    }
+  ],
+  "history": [
+    {
+      "step": "P1323",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1323-final-report.md",
+        "sha256": "11c42438e05e2d5f926efdafd6b563a9278bd6e8c2ddc1316fef5b69ae3c32d2"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1323-closure.json",
+        "sha256": "57fcef64a9fe84ca482d295001f16af300cb560051ab562100e73771df5f8df3"
+      },
+      "historical_at": "2026-09-08T23:36:38.957618+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "0ffe55374fa98a5b6ddc40284a52fef616069b38517f582cf79fa52e577cd260",
+      "binary_sha256": null,
+      "previous_closure_sha256": null,
+      "limits": [
+        "A/B without technical isolation attestation",
+        "No global HTML, ANSI or PDF parity claim",
+        "No commit, stage or push",
+        "R1 failure retained; its ephemeral PDFs are unavailable"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1324",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1324-final-report.md",
+        "sha256": "a729addf4dd31027b8916fdbddc00c267ab9389082b64717912dd0278ed12825"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1324-closure.json",
+        "sha256": "6fed78604b337e21a317281b57853155baf7c0ba433b40164da81c0829165c6a"
+      },
+      "historical_at": "2026-09-09T00:33:02.235081+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d",
+      "binary_sha256": null,
+      "previous_closure_sha256": "57fcef64a9fe84ca482d295001f16af300cb560051ab562100e73771df5f8df3",
+      "limits": [
+        "No technical isolation attestation or refinement seal",
+        "Only namespace-native missing-field diagnostic parity",
+        "A/B successor scope classification revised after C existed, before its author observed C",
+        "First zero-test run is instrumentation failure, not RED",
+        "Previous dirty product and evidence preserved; no stage, commit or push"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1325",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1325-final-report.md",
+        "sha256": "57d5812f6a524404926194606790667c0bf08de5a98ae70068539ed234b6d504"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1325-closure.json",
+        "sha256": "0689489d99d063adc982c119799e77d7aa03cfcac0f037bd9baccf04db6125f4"
+      },
+      "historical_at": "2026-09-09T01:21:41.745509+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "b4057fe02a65105654a2379be04b826179ce4ee2573e69a4d1f347c089347dce",
+      "binary_sha256": null,
+      "previous_closure_sha256": "6fed78604b337e21a317281b57853155baf7c0ba433b40164da81c0829165c6a",
+      "limits": [
+        "A/B without technical isolation attestation or refinement seal",
+        "Direct Dict/raw Content/Float diagnostic anchor only",
+        "math native identity and raw text lookup remain open",
+        "Previous dirty product and evidence preserved; no stage, commit or push"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1326",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1326-final-report.md",
+        "sha256": "bb0eadedceffff855d696b883708b792d52fd631a99e9464ec180071cf080b05"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1326-closure.json",
+        "sha256": "4110136e833ca11dbb4c45ae63d99d2f92557b460aabef18f3e4d22f2a32ef47"
+      },
+      "historical_at": "2026-09-09T01:45:19.715881+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "800db40f2300d0fda0275d06365c5f3019ca0848577ee54a9c834975b231146f",
+      "binary_sha256": "bd86b34602323a390a60a8f41b97b180f93077affcd30b6b1e85aa5926dee811",
+      "previous_closure_sha256": "0689489d99d063adc982c119799e77d7aa03cfcac0f037bd9baccf04db6125f4",
+      "limits": [
+        "A/B without technical isolation attestation or refinement seal",
+        "Closure/With missing-field diagnostic only; no general parity claim",
+        "Argument-before-field order, math native identity and raw text lookup remain open",
+        "Previous dirty product and evidence preserved; no stage, commit or push"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1327",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1327-final-report.md",
+        "sha256": "96cd39a2a9d7f85f9c46927fb5942e74bdd14e950e8d91285cc77d0902d9c84a"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1327-closure.json",
+        "sha256": "d33de800bab4c91cbcb4a4733d3e87305e0259ab9a246d96ed75f8f5c65be72e"
+      },
+      "historical_at": "2026-09-09T11:17:12.482634+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "9ebf13c2cf9a1c1daf186671194c7c4e15db16d8d4e47a12ad5ff4fb597f8ad0",
+      "binary_sha256": "75e8b97b3788c0feaf457cb4c06b1c2c6735cff5ef3b9804a75ec57f8b148e31",
+      "previous_closure_sha256": "4110136e833ca11dbb4c45ae63d99d2f92557b460aabef18f3e4d22f2a32ef47",
+      "limits": [
+        "A/B without technical isolation attestation or refinement seal",
+        "Bare Ident Module warning and run_eval Err presentation only; no general parity claim",
+        "Redundant rename, unsupported import type, import trace and native math identity remain outside",
+        "Previous dirty product and evidence preserved; no stage, commit or push"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1328",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1328-final-report.md",
+        "sha256": "6dde32461bd3208b7fc49b9a221890cc8dd55e644917ff6d49fa821aa090afec"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1328-closure.json",
+        "sha256": "82aae74f3177f4c42fe29f2ccc69299b37f5b53bbdc41e8ba417b0860778ef00"
+      },
+      "historical_at": "2026-09-09T12:04:42.982632+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "f7a0c4d6e7d6358fc5d34ff75465aca5da8d11188a2731e9275b9efbfe803098",
+      "binary_sha256": "94c3d8cec16dc98784757227f554b2851fad186a9e76605272bdaab0e6f925f9",
+      "previous_closure_sha256": "d33de800bab4c91cbcb4a4733d3e87305e0259ab9a246d96ed75f8f5c65be72e",
+      "limits": [
+        "A/B without technical isolation attestation or refinement seal",
+        "Only Content diagnostic in calc.abs; no general calc parity",
+        "External trace names, other types, numeric support/overflow and guards retain explicit baseline debts",
+        "Previous dirty files and evidence preserved; no stage, commit or push"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1329",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1329-final-report.md",
+        "sha256": "aaab16679a4e2d37f8190fe08f5c465aa7a9b7201da280504280e9e644300b9b"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1329-closure.json",
+        "sha256": "c1c7420364af83b2a629b638afeea72c423a795b15ba7dec2860449ba3f88852"
+      },
+      "historical_at": "2026-09-09T12:52:51.135379+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "c7f5963d2735226ae3ddf653deb13856e187f723312fcfd7521c42ae5011fbe1",
+      "binary_sha256": "9f347f742a5cdb5c4c36a4af985b4ff122ac1bb118a1e018b960e7f5d105c2ec",
+      "previous_closure_sha256": "82aae74f3177f4c42fe29f2ccc69299b37f5b53bbdc41e8ba417b0860778ef00",
+      "limits": [
+        "A/B without technical isolation attestation or refinement seal",
+        "Only dimensional calc.abs values and mixed length diagnostics; no general calc parity",
+        "External trace names, upstream construction/operations, other types, Int overflow and guards retain explicit baseline debts",
+        "Previous dirty files and evidence preserved; no stage, commit or push"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1330",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1330-final-report.md",
+        "sha256": "6a53f4aa62d7cdaa96f150d06cea1455dad46f3749f4128988d8892618684c68"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1330-closure.json",
+        "sha256": "e01d3a9eb4a26c7b2bc226fdc53d17ea17c8f56fc4cb7b3d9474a85e47532f0f"
+      },
+      "historical_at": "2026-09-09T13:30:33.644796+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "fa90e9d05855842467eb7baac85d81a157af03bb285b9c1d40df0faf1f660acf",
+      "binary_sha256": "6f1db621bc0b2a7fe4fc9d05925fb96636f33232b8527b83c040b793970fbda0",
+      "previous_closure_sha256": "c1c7420364af83b2a629b638afeea72c423a795b15ba7dec2860449ba3f88852",
+      "limits": [
+        "Only calc.abs Int overflow; no general parity",
+        "A/B without technical isolation attestation or refinement seal",
+        "Parser, guards, traces and dimensional construction debts preserved",
+        "No stage, commit or push; prior dirty files preserved"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1331",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1331-final-report.md",
+        "sha256": "b36ea5065c3d7a88e154bc87bb2e4f35f4025cc5270fb1c638e1394b4f66ca0b"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1331-closure.json",
+        "sha256": "2d2ac6b9510f84c085d95bc0caf5cc54591ca6d0f3fdbdf8110e5d695d3668f7"
+      },
+      "historical_at": "2026-09-09T14:18:58.854311+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "6383d89ef0fccf78290182c1180fccaba290c1a11f36f4fe44ba75df53de81c9",
+      "binary_sha256": "a8d6e2f4472fefc9e63a123783feac852445191dcb82ac269d366a6419ae1a47",
+      "previous_closure_sha256": "e01d3a9eb4a26c7b2bc226fdc53d17ea17c8f56fc4cb7b3d9474a85e47532f0f",
+      "limits": [
+        "Only calc.abs fallback diagnostic; no accepted types or general parity",
+        "A/B without technical isolation attestation or refinement seal",
+        "Parser, guards, traces and dimensional construction debts preserved",
+        "No stage, commit or push; prior dirty files preserved"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1332",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1332-final-report.md",
+        "sha256": "991d0a37a368442e9719b99856d05514d32594eec24dc092e08273996bf37e6d"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1332-closure.json",
+        "sha256": "2226cc5325eff32376adcdee290393979ba52cecda015a9546604800627caecc"
+      },
+      "historical_at": "2026-09-09T14:56:18.578991+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "b32fa0ac39b79d7a1b7f23f62540011b58ac68e20f0c850009f688b68b412084",
+      "binary_sha256": "dfe7c3ab89eaa145d79e5b56ac72c657e49c6c994f9a88a4338915808ec0e8ea",
+      "previous_closure_sha256": "2d2ac6b9510f84c085d95bc0caf5cc54591ca6d0f3fdbdf8110e5d695d3668f7",
+      "limits": [
+        "Intrinsic abs name only; guards/calculation/other function names unchanged",
+        "Indirect gradient/show diagnostic name changes are not full parity",
+        "A/B without technical isolation attestation or refinement seal",
+        "No stage, commit or push"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1333",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1333-final-report.md",
+        "sha256": "0117ea2bb04383b641eb9b62bc50191762ae800fda7f29271d582a8b4cd26566"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1333-closure.json",
+        "sha256": "896a4eee492cf4b5f37520b055e4e5f5d01da60130d8a852f9ef06302e5f0425"
+      },
+      "historical_at": "2026-09-09T15:44:55.508037+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "75eea7c2a28cd8c75098d4d8fc5b2c733c30c09b7eca52a2ce7a772a24e0e99b",
+      "binary_sha256": "79470612fc121fa42a6898846f85d0b0325edf517c90a830c01cde947f748ffe",
+      "previous_closure_sha256": "2226cc5325eff32376adcdee290393979ba52cecda015a9546604800627caecc",
+      "limits": [
+        "First-invalid positional precedence only; no-value/valid-first guards remain debt",
+        "No whole-call span or dispatcher change; no full argument parity",
+        "A/B without technical isolation attestation or refinement seal",
+        "No stage, commit or push"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    },
+    {
+      "step": "P1334",
+      "report": {
+        "path": "00_nucleo/diagnosticos/p1334-final-report.md",
+        "sha256": "ca2d8080d08093a776416a66d844b1cf31ed887426b30060cf3c4afead3b4092"
+      },
+      "closure": {
+        "path": "00_nucleo/diagnosticos/p1334-closure.json",
+        "sha256": "4eda2f0d1ad7598471c088773c180f63ed453d88e5e2fb99e96d3ae84f63ade8"
+      },
+      "historical_at": "2026-09-09T16:20:50.503137+00:00",
+      "historical_head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+      "manifest_sha256": "2cac9aab9dc8e911e2a14e932515db3efd5be64b10b1089d06caac0b310be1da",
+      "binary_sha256": "11e3164fa509030cc78dc048d5bb4f2426348e32a24edc7cd2f320c704e6ef61",
+      "previous_closure_sha256": "896a4eee492cf4b5f37520b055e4e5f5d01da60130d8a852f9ef06302e5f0425",
+      "limits": [
+        "Native abs signature diagnostics completed in coherent argument domain; no general parity claim",
+        "Dispatcher only resolved abs identity span; internal facade reexport; imported math resolution remains debt",
+        "A/B without technical isolation attestation or refinement seal",
+        "No stage, commit or push"
+      ],
+      "current_decision": "PENDING_FRESH_SENTINELS"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "at": "2026-09-09T17:11:07.314638+00:00",
+  "manifest_sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53",
+  "receipt_sha256": "91f30473e373ee54c10dc452a56c646a263b680125471eda37fd9996345c120e",
+  "affected": [
+    {
+      "path": "/tmp/p1335-transversal-mcdgg6n8/focal/default/P1138-L-001/oracle.pdf",
+      "recorded": "687150d053f9169ce42595adc3929694f4422ede308e00d2bb118ec64f625c88",
+      "current": "586b406efa3b4ea07c99c0ae7b7603116af5747ea6f06a0fdc07e192122e7d3d"
+    },
+    {
+      "path": "/tmp/p1335-transversal-mcdgg6n8/focal/default/P1138-L-001/crystalline.pdf",
+      "recorded": "4fb8b5bf88619db8f2358320deb1c74b7ff9f169cf39bf7dc2c445402850c3a0",
+      "current": "541198d1441fc6dcc7ff4155b77e072039cebdc354799c3ff7d6c96bd42f3945"
+    },
+    {
+      "path": "/tmp/p1335-transversal-mcdgg6n8/focal/html/P1138-L-001/oracle.pdf",
+      "recorded": "be19b05cb6332a9b071b213d05769c8e733100a3e81d6f99b0fff899d8c48bd2",
+      "current": "f069b2578eb4307e062b3f8d0ff51ec82b2ca6e294475bc48e9ade638109b880"
+    },
+    {
+      "path": "/tmp/p1335-transversal-mcdgg6n8/focal/html/P1138-L-001/crystalline.pdf",
+      "recorded": "e449bc335904f6be4da3927518f92b85288ced276fe606891d8e799e49e34ed1",
+      "current": "b214f48ec6645044fa99e5eac2300aa588f90da75d18cbca4854f9bff2a4de81"
+    },
+    {
+      "path": "/tmp/p1335-transversal-mcdgg6n8/focal/a11y/P1138-L-001/oracle.pdf",
+      "recorded": "98498d94b42ea28ce1acfe68c3315ab256e611ae10b7856d73e15bd30606a132",
+      "current": "cadccb1a20dbe1f89a50b0366e6581f82639492de6eaff079230bffd86d811b0"
+    },
+    {
+      "path": "/tmp/p1335-transversal-mcdgg6n8/focal/a11y/P1138-L-001/crystalline.pdf",
+      "recorded": "629ae5b87f920d3c24598ba8ce5d50af631c6c937149196401c2e0e37e2242b7",
+      "current": "b827beff9070e18feef06beefc99c2418881fb8416fbb1a17a50ec492955f727"
+    },
+    {
+      "path": "/tmp/p1335-transversal-mcdgg6n8/focal/html+a11y/P1138-L-001/oracle.pdf",
+      "recorded": "099753d7a91d65ce2d020fd5b0bc9d35db05df88e156c2f78d3b2f53bd5cff55",
+      "current": "cadccb1a20dbe1f89a50b0366e6581f82639492de6eaff079230bffd86d811b0"
+    },
+    {
+      "path": "/tmp/p1335-transversal-mcdgg6n8/focal/html+a11y/P1138-L-001/crystalline.pdf",
+      "recorded": "c9c0f7fb0745187eb80f08babf6eecf04106ebb32767c6fe5f6ff2a8f3c729f3",
+      "current": "6b5ded818008f06356a49f8386c4f460bab25aa9ac3fd84d207933ed5f893ad8"
+    }
+  ],
+  "reason": "R1 focal reused R0 focal output paths. Original R0 PDF bytes not recoverable from receipt; original JSON/raw CLI channels remain. Do not claim R0 PDF preservation. Current R1 outputs preserved; R2 uses exclusive phase roots and refuses existing roots.",
+  "scope": "Audit-generated temporary PDFs only; no product/L0/historical baseline evidence changed",
+  "consequence": "R0 output retention invalid, not current parity evidence. R2 fresh independent artifact observations required."
+}

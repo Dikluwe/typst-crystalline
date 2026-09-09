@@ -1,0 +1,5 @@
+#set page(width: 360pt, height: 300pt, margin: 0pt, fill: none)
+#let g = (gradient.radial((rgb(38, 70, 83).transparentize(20%), 0%), (rgb(42, 157, 143).transparentize(60%), 11.1111111111111%), (rgb(233, 196, 106).transparentize(35%), 44.4444444444444%), (rgb(244, 162, 97).transparentize(80%), 100%), space: color.linear-rgb, center: (50%, 50%), radius: 65%, focal-center: (30%, 40%), focal-radius: 10%)).repeat(2, mirror: true)
+#let body = rect(width: 220pt, height: 80pt, fill: g)
+#let transformed = rotate(180deg, body)
+#align(center + horizon, transformed)

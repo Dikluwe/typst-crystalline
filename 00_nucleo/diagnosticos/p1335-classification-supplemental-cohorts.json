@@ -1,0 +1,2203 @@
+{
+  "at": "2026-09-09T17:25:03.872Z",
+  "selection": null,
+  "implementation_authorized": false,
+  "cohorts": [
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/stdlib/loading.rs:875",
+        "01_core/src/compiler/eval/call_dispatch.rs:455",
+        "01_core/src/compiler/stdlib/mod.rs:135",
+        "lab/typst-original/crates/typst-library/src/loading/cbor.rs:104",
+        "01_core/src/compiler/eval/mod.rs:1836"
+      ],
+      "causal_hypothesis": "Empty encoder argument list hits Portuguese detached arity error; pointer-specific span transport is absent. Missing-only must not be conflated with named/excess and indirect cbor.encode identity issues.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Only direct empty cbor.encode measured; historical and current namespace identity is cbor.encode at eval/mod.rs:1836. Before a complete repair claim, indirect missing-only trace must be isolated; actual named/excess With trace proves a third-owner hazard. No cheap two-owner assumption."
+      },
+      "refutation": "Missing-only With produces an unavoidable extra named trace requiring eval registration ownership; then complete-owner claim is false.",
+      "id": "cbor-argument-missing",
+      "owners": [
+        "01_core/src/compiler/eval/call_dispatch.rs",
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 2,
+      "paths": [
+        "cbor.encode"
+      ],
+      "witnesses": [
+        {
+          "id": "p1307.cbor.arg.missing",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.cbor.arg.missing"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "cbor-argument-missing",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        2,
+        -1,
+        null,
+        "cbor-argument-missing"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md",
+        "00_nucleo/prompts/compiler/eval.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md:1",
+        "00_nucleo/prompts/compiler/eval.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "cbor-argument-validation",
+      "owners": [
+        "01_core/src/compiler/eval/mod.rs",
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 2,
+      "paths": [
+        "cbor.encode"
+      ],
+      "witnesses": [
+        {
+          "id": "p1307.cbor.arg.extra",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.cbor.arg.extra"
+        },
+        {
+          "id": "p1307.cbor.arg.unexpected",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.cbor.arg.unexpected"
+        },
+        {
+          "id": "p1307.cbor.arg.named-value",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.cbor.arg.named-value"
+        },
+        {
+          "id": "causal-cbor.0",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#causal-cbor.0"
+        },
+        {
+          "id": "causal-cbor.1",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#causal-cbor.1"
+        },
+        {
+          "id": "causal-cbor.2",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#causal-cbor.2"
+        },
+        {
+          "id": "causal-cbor.4",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#causal-cbor.4"
+        },
+        {
+          "id": "causal-cbor.5",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#causal-cbor.5"
+        },
+        {
+          "id": "causal-cbor.6",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#causal-cbor.6"
+        },
+        {
+          "id": "causal-cbor.7",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#causal-cbor.7"
+        },
+        {
+          "id": "causal-cbor.8",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#causal-cbor.8"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "cbor-argument-validation",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        2,
+        -1,
+        null,
+        "cbor-argument-validation"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/stdlib/loading.rs:1155",
+        "01_core/src/compiler/eval/call_dispatch.rs:455",
+        "01_core/src/compiler/stdlib/mod.rs:135",
+        "lab/typst-original/crates/typst-library/src/loading/read.rs:24"
+      ],
+      "causal_hypothesis": "read has separate PathOrStr missing message and no complete native-call span transport. Existing native_read reexport suffices. This is not the DataSource branch and not read I/O.",
+      "owner_set_complete": true,
+      "regression_surface": {
+        "rank": 2,
+        "scope": "Only read empty-argument native/With calls; preserve casts, options and external reads."
+      },
+      "refutation": "Current read missing call equals vanilla, or complete output needs another consumer.",
+      "id": "loader-path-missing",
+      "owners": [
+        "01_core/src/compiler/eval/call_dispatch.rs",
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 2,
+      "paths": [
+        "read"
+      ],
+      "witnesses": [
+        {
+          "id": "p1307.decoder.read.missing",
+          "path": "read",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.decoder.read.missing"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": true,
+      "historical_cohort_pointer": {
+        "id": "loader-path-missing",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        2,
+        -1,
+        2,
+        "loader-path-missing"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/stdlib/loading.rs:1197",
+        "01_core/src/compiler/stdlib/loading.rs:1225",
+        "01_core/src/compiler/eval/call_dispatch.rs:455",
+        "01_core/src/compiler/stdlib/mod.rs:135",
+        "lab/typst-original/crates/typst-library/src/loading/mod.rs:54",
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md:628"
+      ],
+      "causal_hypothesis": "Five decoders share resolve_data's detached Portuguese missing-source error; direct/indirect whole-call origin is restricted by transport_native_call_span to different native identities. All five native pointers are already reexported, so no third facade owner is needed. Restrict to no positional/named; named-first precedence remains separate.",
+      "owner_set_complete": true,
+      "regression_surface": {
+        "rank": 2,
+        "scope": "Five native identities plus With recursion and source-missing branch. Preserve actual supplied DataSource casts/options/I/O."
+      },
+      "refutation": "A decoder's complete missing observable needs distinct identity/trace transport or named validation outside these owners.",
+      "id": "loader-data-source-missing",
+      "owners": [
+        "01_core/src/compiler/eval/call_dispatch.rs",
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 2,
+      "paths": [
+        "cbor",
+        "json",
+        "toml",
+        "xml",
+        "yaml"
+      ],
+      "witnesses": [
+        {
+          "id": "p1307.decoder.json.missing",
+          "path": "json",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.decoder.json.missing"
+        },
+        {
+          "id": "p1307.decoder.yaml.missing",
+          "path": "yaml",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.decoder.yaml.missing"
+        },
+        {
+          "id": "p1307.decoder.toml.missing",
+          "path": "toml",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.decoder.toml.missing"
+        },
+        {
+          "id": "p1307.decoder.cbor.missing",
+          "path": "cbor",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.decoder.cbor.missing"
+        },
+        {
+          "id": "p1307.decoder.xml.missing",
+          "path": "xml",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.decoder.xml.missing"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": true,
+      "historical_cohort_pointer": {
+        "id": "loader-data-source-missing",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 5,
+      "rank_key": [
+        3,
+        2,
+        -5,
+        2,
+        "loader-data-source-missing"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 4,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/stdlib/loading.rs:910",
+        "lab/typst-original/crates/typst-library/src/loading/xml.rs:85",
+        "00_nucleo/prompts/compiler/stdlib/loading.md:152"
+      ],
+      "causal_hypothesis": "XML converter emits tag/attrs/children but omits namespace already carried by roxmltree::Node. Existing Dict/None/Str can represent namespace without new entity, changing successful function output deliberately toward language parity.",
+      "owner_set_complete": true,
+      "regression_surface": {
+        "rank": 2,
+        "scope": "Namespace key for every converted XML element including absent namespaces and nesting; parser/root/comment behavior remains separate."
+      },
+      "refutation": "Current namespace probe equals vanilla or fixing complete node result requires root/comment changes beyond namespace.",
+      "id": "xml-node-namespace",
+      "owners": [
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "xml"
+      ],
+      "witnesses": [
+        {
+          "id": "p1307.decoder.xml",
+          "path": "xml",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.decoder.xml"
+        },
+        {
+          "id": "p1311.xml-success",
+          "path": "xml",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1311.xml-success"
+        },
+        {
+          "id": "p1321.protected_xml",
+          "path": "xml",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.protected_xml"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": true,
+      "historical_cohort_pointer": {
+        "id": "xml-node-namespace",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        4,
+        1,
+        -1,
+        2,
+        "xml-node-namespace"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 4,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/stdlib/loading.rs:854",
+        "00_nucleo/prompts/compiler/stdlib/loading.md:172",
+        "lab/typst-original/crates/typst-library/src/foundations/value.rs:343"
+      ],
+      "causal_hypothesis": "Symbol/Content go to textual repr fallback rather than dedicated encoding. Symbol has complete scalar value; Content requires its structured serialization surface, not just replace one match branch. Split before proposing any complete repair; historical combined one-owner low-risk cohort is not adopted.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Combined Symbol/Content repair lacks measured complete content-field coverage."
+      },
+      "refutation": "All relevant Content fields are available through an existing canonical interface and generic encoders can reuse it without extra owners.",
+      "id": "cbor-symbol-content-fallback",
+      "owners": [
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "cbor.encode"
+      ],
+      "witnesses": [
+        {
+          "id": "p1307.cbor.preserve.Symbol",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.cbor.preserve.Symbol"
+        },
+        {
+          "id": "p1307.cbor.preserve.Content",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1307.cbor.preserve.Content"
+        },
+        {
+          "id": "r2.cbor-payload-Symbol",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r2.cbor-payload-Symbol"
+        },
+        {
+          "id": "r2.cbor-payload-Content",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r2.cbor-payload-Content"
+        },
+        {
+          "id": "r5repr.default.cbor-decoded",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.default.cbor-decoded"
+        },
+        {
+          "id": "r5repr.default.cbor-bytes",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.default.cbor-bytes"
+        },
+        {
+          "id": "r5repr.en.cbor-decoded",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.en.cbor-decoded"
+        },
+        {
+          "id": "r5repr.en.cbor-bytes",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.en.cbor-bytes"
+        },
+        {
+          "id": "r5repr.pt.cbor-decoded",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.pt.cbor-decoded"
+        },
+        {
+          "id": "r5repr.pt.cbor-bytes",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.pt.cbor-bytes"
+        },
+        {
+          "id": "r5repr.numbering-1.cbor-decoded",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.numbering-1.cbor-decoded"
+        },
+        {
+          "id": "r5repr.numbering-1.cbor-bytes",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.numbering-1.cbor-bytes"
+        },
+        {
+          "id": "r5repr.numbering-I.cbor-decoded",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.numbering-I.cbor-decoded"
+        },
+        {
+          "id": "r5repr.numbering-I.cbor-bytes",
+          "path": "cbor.encode",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r5repr.numbering-I.cbor-bytes"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "cbor-symbol-content-fallback",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        4,
+        1,
+        -1,
+        null,
+        "cbor-symbol-content-fallback"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 4,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/closures.md",
+        "00_nucleo/prompts/entities/func.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/closures.rs:70",
+        "01_core/src/compiler/eval/closures.rs:116",
+        "lab/typst-original/crates/typst-eval/src/call.rs:693",
+        "00_nucleo/prompts/compiler/eval/closures.md:143"
+      ],
+      "causal_hypothesis": "All positional parameters are consumed before sink remainder, but source sink position is not retained. L0 explicitly preserves this separate debt. A repair requires distinguishing original sink position in closure data and all constructors; historical two-owner/risk claim cannot stand without complete constructor inventory.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Closure representation and public carrier compatibility must be classified explicitly; no architecture proposed."
+      },
+      "refutation": "Existing data already retains sink position and suffices without modifying public ClosureRepr or other construction owners.",
+      "id": "closure-nonterminal-sink-binding",
+      "owners": [
+        "01_core/src/compiler/eval/closures.rs",
+        "01_core/src/entities/func.rs"
+      ],
+      "owner_count": 2,
+      "paths": [
+        "closure.nonterminal-sink"
+      ],
+      "witnesses": [
+        {
+          "id": "r4.args.sink-before-positional",
+          "path": "closure.nonterminal-sink",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#r4.args.sink-before-positional"
+        }
+      ],
+      "gate_class": "ADR0127_PUBLIC_CARRIER_GATE_UNRESOLVED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "closure-nonterminal-sink-binding",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        4,
+        2,
+        -1,
+        null,
+        "closure-nonterminal-sink-binding"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/modules.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/modules.rs:177",
+        "01_core/src/compiler/eval/modules.rs:318",
+        "01_core/src/entities/source_result.rs:1",
+        "02_shell/src/diagnostic.rs:162",
+        "lab/typst-original/crates/typst-eval/src/import.rs:36",
+        "00_nucleo/prompts/compiler/eval/modules.md:1"
+      ],
+      "causal_hypothesis": "Imported evaluation propagates errors through ? without adding Tracepoint::Import. Include already transports its analogous trace, the entity already has Import, and L2 formatter handles Import. Narrow addition at imported source evaluation, not resolution/package/include errors, may be one complete owner.",
+      "owner_set_complete": true,
+      "regression_surface": {
+        "rank": 1,
+        "scope": "Import evaluation failure trace only; successful imports, include trace and original source error remain unchanged."
+      },
+      "refutation": "Location-controlled import error already carries the complete trace, or outer formatting/path provenance requires another consumer.",
+      "id": "module-import-error-trace",
+      "owners": [
+        "01_core/src/compiler/eval/modules.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "module.import-error-trace"
+      ],
+      "witnesses": [
+        {
+          "id": "p1306.imported-error",
+          "path": "module.import-error-trace",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1306.imported-error"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": true,
+      "historical_cohort_pointer": {
+        "id": "module-import-error-trace",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        1,
+        "module-import-error-trace"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/bindings/field_access.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/eval/bindings/field_access.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "type-field-diagnostic",
+      "owners": [
+        "01_core/src/compiler/eval/bindings/field_access.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "int.missing-field"
+      ],
+      "witnesses": [
+        {
+          "id": "p1311.type",
+          "path": "int.missing-field",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1311.type"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "type-field-diagnostic",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "type-field-diagnostic"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "csv-valid-file-error-anchor",
+      "owners": [
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "csv"
+      ],
+      "witnesses": [
+        {
+          "id": "p1321.preserve_path_bad",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.preserve_path_bad"
+        },
+        {
+          "id": "p1320.csv-unequal-array-str",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-unequal-array-str"
+        },
+        {
+          "id": "p1320.csv-unequal-array-path",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-unequal-array-path"
+        },
+        {
+          "id": "p1320.csv-unequal-dictionary-str",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-unequal-dictionary-str"
+        },
+        {
+          "id": "p1320.csv-unequal-dictionary-path",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-unequal-dictionary-path"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "csv-valid-file-error-anchor",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "csv-valid-file-error-anchor"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "loader-io-envelope",
+      "owners": [
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "csv",
+        "read"
+      ],
+      "witnesses": [
+        {
+          "id": "p1321.preserve_io",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.preserve_io"
+        },
+        {
+          "id": "p1320.csv-missing-file",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-missing-file"
+        },
+        {
+          "id": "p1320.csv-missing-file-path",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-missing-file-path"
+        },
+        {
+          "id": "causal-cbor.10",
+          "path": "read",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#causal-cbor.10"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "loader-io-envelope",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 2,
+      "rank_key": [
+        3,
+        1,
+        -2,
+        null,
+        "loader-io-envelope"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "csv-symbol-source",
+      "owners": [
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "csv"
+      ],
+      "witnesses": [
+        {
+          "id": "p1321.protected_source",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.protected_source"
+        },
+        {
+          "id": "p1321.normative_symbol_source",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.normative_symbol_source"
+        },
+        {
+          "id": "p1320.csv-symbol-source",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-symbol-source"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "csv-symbol-source",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "csv-symbol-source"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "csv-symbol-delimiter",
+      "owners": [
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "csv"
+      ],
+      "witnesses": [
+        {
+          "id": "p1321.protected_delimiter",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.protected_delimiter"
+        },
+        {
+          "id": "p1321.normative_symbol_delimiter",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.normative_symbol_delimiter"
+        },
+        {
+          "id": "p1320.csv-symbol-delimiter",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-symbol-delimiter"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "csv-symbol-delimiter",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "csv-symbol-delimiter"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "00_nucleo/prompts/compiler/eval/closures.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md:1",
+        "00_nucleo/prompts/compiler/eval/closures.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "closure-missing-call-span",
+      "owners": [
+        "01_core/src/compiler/eval/call_dispatch.rs",
+        "01_core/src/compiler/eval/closures.rs"
+      ],
+      "owner_count": 2,
+      "paths": [
+        "closure.missing-argument"
+      ],
+      "witnesses": [
+        {
+          "id": "p1321.r2.r2_user_csv_missing",
+          "path": "closure.missing-argument",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.r2.r2_user_csv_missing"
+        },
+        {
+          "id": "p1321.r2.r2_user_csv_alias",
+          "path": "closure.missing-argument",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.r2.r2_user_csv_alias"
+        },
+        {
+          "id": "p1321.r2.r2_user_csv_with",
+          "path": "closure.missing-argument",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.r2.r2_user_csv_with"
+        },
+        {
+          "id": "p1321.r2.r2_user_panic",
+          "path": "closure.missing-argument",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.r2.r2_user_panic"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "closure-missing-call-span",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        2,
+        -1,
+        null,
+        "closure-missing-call-span"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/math.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/eval/math.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "math-direct-csv-lookup",
+      "owners": [
+        "01_core/src/compiler/eval/math.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "math.csv"
+      ],
+      "witnesses": [
+        {
+          "id": "p1321.r2.r2_math_csv_direct",
+          "path": "math.csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1321.r2.r2_math_csv_direct"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "math-direct-csv-lookup",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "math-direct-csv-lookup"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 5,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/modules.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/eval/modules.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "eval-import-path-boundary",
+      "owners": [
+        "01_core/src/compiler/eval/modules.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "eval.import"
+      ],
+      "witnesses": [
+        {
+          "id": "p1320.csv-captured-eval",
+          "path": "eval.import",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-captured-eval"
+        },
+        {
+          "id": "p1320.csv-closure-eval",
+          "path": "eval.import",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-closure-eval"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "eval-import-path-boundary",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        5,
+        1,
+        -1,
+        null,
+        "eval-import-path-boundary"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 7,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/stdlib/loading.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "detached-source-origin",
+      "owners": [
+        "01_core/src/compiler/stdlib/loading.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "csv"
+      ],
+      "witnesses": [
+        {
+          "id": "p1320.csv-detached-good",
+          "path": "csv",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.csv-detached-good"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "detached-source-origin",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        7,
+        1,
+        -1,
+        null,
+        "detached-source-origin"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 5,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md"
+      ],
+      "causal_evidence": [
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md:1"
+      ],
+      "causal_hypothesis": "Fresh output confirms a residual at this historical search pointer; historical complete owner, rank, risk and proposed repair are NOT reused.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "array-bytes-constructor",
+      "owners": [
+        "01_core/src/compiler/eval/call_dispatch.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "array"
+      ],
+      "witnesses": [
+        {
+          "id": "p1320.bytes-roundtrip",
+          "path": "array",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1320.bytes-roundtrip"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "array-bytes-constructor",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        5,
+        1,
+        -1,
+        null,
+        "array-bytes-constructor"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/calc.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/stdlib/calc.rs:1"
+      ],
+      "causal_hypothesis": "sqrt error remains outside the abs contract: type name, primary message and value origin differ.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "calc-sqrt-diagnostics",
+      "owners": [
+        "01_core/src/compiler/stdlib/calc.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "calc.sqrt"
+      ],
+      "witnesses": [
+        {
+          "id": "p1334.sqrt",
+          "path": "calc.sqrt",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.sqrt"
+        },
+        {
+          "id": "p1334.name-other-sqrt",
+          "path": "calc.sqrt",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.name-other-sqrt"
+        },
+        {
+          "id": "p1334.signature-foreign-sqrt",
+          "path": "calc.sqrt",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.signature-foreign-sqrt"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "calc-sqrt-diagnostics"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 5,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/operators/arithmetic.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/operators/arithmetic.rs:368"
+      ],
+      "causal_hypothesis": "The expression fails constructing the fractional argument before abs; abs dimensional semantics are not refuted.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "float-fraction-multiplication",
+      "owners": [
+        "01_core/src/compiler/eval/operators/arithmetic.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "operator.float-times-fraction"
+      ],
+      "witnesses": [
+        {
+          "id": "p1334.prior-float-fraction",
+          "path": "operator.float-times-fraction",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.prior-float-fraction"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        5,
+        1,
+        -1,
+        null,
+        "float-fraction-multiplication"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 7,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/mod.rs:1"
+      ],
+      "causal_hypothesis": "Direct minimum literal differs before abs; arithmetic construction of minimum is independently closed. Parser/AST complete owner scope is unresolved.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "integer-literal-minimum-boundary",
+      "owners": [
+        "01_core/src/compiler/eval/mod.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "syntax.integer-minimum"
+      ],
+      "witnesses": [
+        {
+          "id": "p1334.parser-direct-minimum-debt",
+          "path": "syntax.integer-minimum",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.parser-direct-minimum-debt"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        7,
+        1,
+        -1,
+        null,
+        "integer-literal-minimum-boundary"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/foundations/path.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/stdlib/foundations/path.rs:1"
+      ],
+      "causal_hypothesis": "path() fails before abs: separate constructor/aggregate diagnostic, not abs fallback.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "path-constructor-missing",
+      "owners": [
+        "01_core/src/compiler/stdlib/foundations/path.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "path.constructor.empty"
+      ],
+      "witnesses": [
+        {
+          "id": "p1334.fallback-path-construction-debt",
+          "path": "path.constructor.empty",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.fallback-path-construction-debt"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "path-constructor-missing"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 2,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/math.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/math.rs:516",
+        "01_core/src/compiler/eval/math.rs:393",
+        "01_core/src/compiler/eval/math.rs:875",
+        "01_core/src/compiler/eval/math.rs:619",
+        "00_nucleo/prompts/compiler/eval/math.md:36",
+        "00_nucleo/prompts/compiler/eval/math.md:43",
+        "lab/typst-original/crates/typst-eval/src/math.rs:1",
+        "01_core/src/compiler/eval/math.rs:1301",
+        "01_core/src/compiler/scopes.rs:177"
+      ],
+      "causal_hypothesis": "Bare MathIdent callee dispatch extracts spelling before consulting the lexical callable. abs/sqrt shadowed by functions returning Content therefore can still take the hardcoded builtin branch. Local/captured scope and generic Content-returning invocation already exist in this owner. Only lexical shadowing is proposed; arbitrary non-Content returns, imported numeric functions, generic math casts and qualified-field spans remain separate.",
+      "owner_set_complete": true,
+      "regression_surface": {
+        "rank": 2,
+        "scope": "Math call resolution branch, not scalar formula nor return conversion. A future repair must preserve unshadowed native branches, aliases/captured scope, names that are not functions, warning behavior and argument occurrences. Current Content-only controls isolate this branch."
+      },
+      "refutation": "Same-literal shadowed Content-returning abs/sqrt equals vanilla, or source shows lexical binding already used. Any need to revise scopes/Func/Args/public return contract refutes this one-owner scope.",
+      "requires": "Current shadowed Content-returning abs/sqrt plus multi-letter custom generic-call control and unshadowed controls. Inspect bodies/diagnostics, not raw JSON equality alone; f single-letter and numeric aliases do not prove this cause.",
+      "id": "math-lexical-callee-resolution",
+      "owners": [
+        "01_core/src/compiler/eval/math.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "math.syntax.abs"
+      ],
+      "witnesses": [
+        {
+          "id": "p1334.name-math-import",
+          "path": "math.syntax.abs",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.name-math-import"
+        },
+        {
+          "id": "p1334.precedence-math-import-known-debt",
+          "path": "math.syntax.abs",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.precedence-math-import-known-debt"
+        },
+        {
+          "id": "p1334.signature-imported-math-debt",
+          "path": "math.syntax.abs",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.signature-imported-math-debt"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": true,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        2,
+        1,
+        -1,
+        2,
+        "math-lexical-callee-resolution"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/stdlib/gradients.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/stdlib/gradients.rs:649"
+      ],
+      "causal_hypothesis": "Shared parse_space_named reports internal optional name and aggregate span instead of accepted color-space function diagnostic; occurrence/duplicate policy must be measured before full repair.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "gradient-space-function-diagnostic",
+      "owners": [
+        "01_core/src/compiler/stdlib/gradients.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "gradient.conic.space",
+        "gradient.linear.space",
+        "gradient.radial.space"
+      ],
+      "witnesses": [
+        {
+          "id": "p1334.name-gradient-linear",
+          "path": "gradient.linear.space",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.name-gradient-linear"
+        },
+        {
+          "id": "p1334.name-gradient-radial",
+          "path": "gradient.radial.space",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.name-gradient-radial"
+        },
+        {
+          "id": "p1334.name-gradient-conic",
+          "path": "gradient.conic.space",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.name-gradient-conic"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 3,
+      "rank_key": [
+        3,
+        1,
+        -3,
+        null,
+        "gradient-space-function-diagnostic"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/rules.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/rules.rs:2484"
+      ],
+      "causal_hypothesis": "Show selector rejection uses Portuguese function-name-specific message. Full selector casting scope remains unresolved.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "non-element-show-selector",
+      "owners": [
+        "01_core/src/compiler/eval/rules.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "show.selector.function"
+      ],
+      "witnesses": [
+        {
+          "id": "p1334.name-show",
+          "path": "show.selector.function",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.name-show"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "non-element-show-selector"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/call_dispatch.rs:1"
+      ],
+      "causal_hypothesis": "Non-element where call falls through field lookup rather than the vanilla method rejection. Full method identity scope unresolved.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "non-element-where-call",
+      "owners": [
+        "01_core/src/compiler/eval/call_dispatch.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "function.where.non-element"
+      ],
+      "witnesses": [
+        {
+          "id": "p1334.name-where",
+          "path": "function.where.non-element",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1334.name-where"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "non-element-where-call"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/call_dispatch.rs:1"
+      ],
+      "causal_hypothesis": "Current arguments panic before missing-field lookup; complete method/callee ordering scope remains unresolved.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "callee-before-argument-evaluation",
+      "owners": [
+        "01_core/src/compiler/eval/call_dispatch.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "closure.missing-field.callee",
+        "json.missing-field.callee"
+      ],
+      "witnesses": [
+        {
+          "id": "p1324.json-callee-before-argument",
+          "path": "json.missing-field.callee",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1324.json-callee-before-argument"
+        },
+        {
+          "id": "p1326.argument-order-residual",
+          "path": "closure.missing-field.callee",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1326.argument-order-residual"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 2,
+      "rank_key": [
+        3,
+        1,
+        -2,
+        null,
+        "callee-before-argument-evaluation"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 4,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/repr.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/repr.rs:1013",
+        "00_nucleo/prompts/compiler/eval/repr.md:94",
+        "lab/typst-original/crates/typst-library/src/foundations/context.rs:65"
+      ],
+      "causal_hypothesis": "ContextBlock opaque repr emits context(...) while the same context text.size value is context() in vanilla. Existing variant identifies context block without executing it. Repr fallback consumers need future scoped preservation/delta checks; no promise to fix contextual execution.",
+      "owner_set_complete": true,
+      "regression_surface": {
+        "rank": 2,
+        "scope": "ContextBlock public repr and inherited textual encoder fallbacks, not contextual evaluation."
+      },
+      "refutation": "The opaque form depends on state not in the existing variant, or executing/reconstructing context is necessary.",
+      "id": "context-block-repr",
+      "owners": [
+        "01_core/src/compiler/eval/repr.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "context.repr"
+      ],
+      "witnesses": [
+        {
+          "id": "p1324.text-contextual-preservation",
+          "path": "context.repr",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1324.text-contextual-preservation"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": true,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        4,
+        1,
+        -1,
+        2,
+        "context-block-repr"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 5,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/bindings/field_access.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/bindings/field_access.rs:995"
+      ],
+      "causal_hypothesis": "table.cell lookup exists but constructed raw Content body field is missing; namespace is not the missing capability.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "table-cell-body-field",
+      "owners": [
+        "01_core/src/compiler/eval/bindings/field_access.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "table.cell.body"
+      ],
+      "witnesses": [
+        {
+          "id": "p1324.table-present-call",
+          "path": "table.cell.body",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1324.table-present-call"
+        },
+        {
+          "id": "p1324.with-present-call",
+          "path": "table.cell.body",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1324.with-present-call"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        5,
+        1,
+        -1,
+        null,
+        "table-cell-body-field"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 5,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/bindings/field_access.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/bindings/field_access.rs:995"
+      ],
+      "causal_hypothesis": "Raw text carrier exists, but generic raw field projection does not expose text; located content is separate.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "raw-text-text-field",
+      "owners": [
+        "01_core/src/compiler/eval/bindings/field_access.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "text.text"
+      ],
+      "witnesses": [
+        {
+          "id": "p1325.content-lookup-residual",
+          "path": "text.text",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1325.content-lookup-residual"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        5,
+        1,
+        -1,
+        null,
+        "raw-text-text-field"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 2,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/bindings/field_access.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/bindings/field_access.rs:533",
+        "01_core/src/compiler/eval/bindings/field_access.rs:836",
+        "01_core/src/compiler/eval/bindings/field_access.rs:28",
+        "00_nucleo/prompts/compiler/eval/bindings/field_access.md:68",
+        "lab/typst-original/crates/typst-eval/src/code.rs:347",
+        "00_nucleo/prompts/compiler/eval/bindings/field_access.md:320",
+        "01_core/src/compiler/eval/operators/error_formatting.rs:58"
+      ],
+      "causal_hypothesis": "Direct Int/Str unknown-field access uses aggregate access span and type_name int/str; vanilla reports field-only and integer/string. Existing AST field span and imported vanilla_type_name suffice. This is the generic instance fallback, not Type namespace or function callee evaluation order.",
+      "owner_set_complete": true,
+      "regression_surface": {
+        "rank": 1,
+        "scope": "Only direct Int/Str fallback; preserve existing actual collection methods, namespace Type errors, field values and other variants."
+      },
+      "refutation": "Current integer/string-boundary becomes bilateral, helper changes a successful method, or the full direct transcript requires any second productive consumer.",
+      "priority_refinement": {
+        "path": "00_nucleo/diagnosticos/p1335-classification-priority-refinement.md",
+        "sha256": "11247bc66c0ff70eb6ca5d7ed66e0a1d82045c5d96acf02a17fc2873baf44a9a"
+      },
+      "id": "primitive-instance-field-diagnostic",
+      "owners": [
+        "01_core/src/compiler/eval/bindings/field_access.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "integer.instance.missing-field",
+        "string.instance.missing-field"
+      ],
+      "witnesses": [
+        {
+          "id": "p1325.integer-boundary",
+          "path": "integer.instance.missing-field",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1325.integer-boundary"
+        },
+        {
+          "id": "p1325.string-boundary",
+          "path": "string.instance.missing-field",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1325.string-boundary"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": true,
+      "historical_cohort_pointer": null,
+      "path_count": 2,
+      "rank_key": [
+        2,
+        1,
+        -2,
+        1,
+        "primitive-instance-field-diagnostic"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/modules.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/modules.rs:204",
+        "01_core/src/compiler/eval/modules.rs:218",
+        "lab/typst-original/crates/typst-eval/src/import.rs:63",
+        "00_nucleo/prompts/compiler/eval/modules.md:143"
+      ],
+      "causal_hypothesis": "Renaming a bare identifier to itself skips the warning present in vanilla. Existing rename AST/new_name span and sink suffice for a narrowly scoped warning, excluding imported-item rename until independently measured.",
+      "owner_set_complete": true,
+      "regression_surface": {
+        "rank": 1,
+        "scope": "One bare rename guard with existing warning transport. Does not change ordinary import or lookup."
+      },
+      "refutation": "The current redundant-rename observation is equal, or item rename/callback origin requires broader transport.",
+      "id": "module-redundant-rename-warning",
+      "owners": [
+        "01_core/src/compiler/eval/modules.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "module.bare-rename"
+      ],
+      "witnesses": [
+        {
+          "id": "p1327.redundant-rename",
+          "path": "module.bare-rename",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1327.redundant-rename"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": true,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        1,
+        "module-redundant-rename-warning"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/modules.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/modules.rs:198"
+      ],
+      "causal_hypothesis": "Portuguese accepted-source diagnostic differs; actual supported Type/Func/Path imports are separate unproven capabilities.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "module-invalid-source-diagnostic",
+      "owners": [
+        "01_core/src/compiler/eval/modules.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "module.import.source-type"
+      ],
+      "witnesses": [
+        {
+          "id": "p1327.type-error",
+          "path": "module.import.source-type",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1327.type-error"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "module-invalid-source-diagnostic"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/wiring.md"
+      ],
+      "causal_evidence": [
+        "04_wiring/src/main.rs:511"
+      ],
+      "causal_hypothesis": "Successful eval drains warning before serializer fails; vanilla raw serialization error suppresses that warning. This is explicitly outside P1327 error-before-warning scope.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "eval-raw-warning-retention",
+      "owners": [
+        "04_wiring/src/main.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "CLI.eval.raw.warning"
+      ],
+      "witnesses": [
+        {
+          "id": "p1327r2.serialization-warning",
+          "path": "CLI.eval.raw.warning",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1327r2.serialization-warning"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "eval-raw-warning-retention"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 3,
+      "owner_prompts": [
+        "00_nucleo/prompts/shell/cli.md"
+      ],
+      "causal_evidence": [
+        "02_shell/src/cli.rs:654"
+      ],
+      "causal_hypothesis": "Raw serializer names int rather than integer. No data serializer change proposed.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "eval-raw-type-name",
+      "owners": [
+        "02_shell/src/cli.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "CLI.eval.raw.type-name"
+      ],
+      "witnesses": [
+        {
+          "id": "p1327r2.serialization-no-warning",
+          "path": "CLI.eval.raw.type-name",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#p1327r2.serialization-no-warning"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": null,
+      "path_count": 1,
+      "rank_key": [
+        3,
+        1,
+        -1,
+        null,
+        "eval-raw-type-name"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    },
+    {
+      "priority": 5,
+      "owner_prompts": [
+        "00_nucleo/prompts/compiler/eval/closures.md"
+      ],
+      "causal_evidence": [
+        "01_core/src/compiler/eval/closures.rs:160"
+      ],
+      "causal_hypothesis": "Captured body string is resolved from caller file; captured-only control passes.",
+      "owner_set_complete": false,
+      "regression_surface": {
+        "rank": null,
+        "scope": "Complete current implementation/compatibility scope not established; Unknown is not low risk."
+      },
+      "refutation": "Same-source complete parity refutes the gap; complete current source and measured carrier/owners may refine it.",
+      "id": "closure-source-file-origin",
+      "owners": [
+        "01_core/src/compiler/eval/closures.rs"
+      ],
+      "owner_count": 1,
+      "paths": [
+        "closure.source-file-origin"
+      ],
+      "witnesses": [
+        {
+          "id": "closure.closure-only",
+          "path": "closure.source-file-origin",
+          "profile": "default",
+          "universe": "supplement",
+          "measurement_ref": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json#closure.closure-only"
+        }
+      ],
+      "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_NO_IMPLEMENTATION_AUTHORIZED",
+      "eligible": false,
+      "historical_cohort_pointer": {
+        "id": "closure-source-file-origin",
+        "origin": {
+          "path": "00_nucleo/diagnosticos/p1322-classification-selection-r2.json",
+          "sha256": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345"
+        },
+        "priority_and_risk_not_reused": true
+      },
+      "path_count": 1,
+      "rank_key": [
+        5,
+        1,
+        -1,
+        null,
+        "closure-source-file-origin"
+      ],
+      "current_redecision": "Current normal/repeat/reverse observations checked; only explicit current causal specs make owner/risk complete. Historical pointers never establish eligibility."
+    }
+  ],
+  "blockers": []
+}

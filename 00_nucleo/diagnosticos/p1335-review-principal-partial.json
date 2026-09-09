@@ -1,0 +1,136 @@
+{
+  "at": "2026-09-09T17:15:35.467702+00:00",
+  "role": "D",
+  "manifest_sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53",
+  "checker_sha256": "bd55091f89b599986ce159ab7a77ff3929d18785113bdaeeb63a74ab5c3d5278",
+  "semantic_checker_sha256": "40a1a60f838c2dd77107b5a70584afa877afadf0e5d208ffb60be39ebd2e9126",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-baseline.json": "0ec240607d173acd513a21d2728c66a1e514f3ad294b88bad60f3fdc8e984254",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-manifest.json": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-build.json": "6050159267586726d4289504dfc08432646ab9b3ac2780bea1c20377557fd341",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-probe-catalog.json": "988bab4e5a88e400db2533f1db8a428328f1a5fcec51d4415ea171d20d5832d8",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-matrix-normal.json": "148a31137b459fa10972a4d7479e0654e2f189f1d0f9673b8d15b0deffd3cf5e",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-matrix-normal.json": "0d1d2ecfcfa6f696ee817d07882df0af31a22b1b60ef66c7048ae488b0228f0d",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-classification-principal-owner-ledger.tsv": "b7aae9dcfcec744ebee25bbca0f221736081f3f377cec6a81d4a5e675c11a4a5",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-classification-principal-transitions.tsv": "9790b51f87130485a9343253957d694e5688cbb433586ef61a0d56ddc22d5e23",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-classification-principal-summary.json": "e339ceef45528e54dd8414eeb69431662e56ce50e3b8a088bcb56d459f799a64"
+  },
+  "counts": {
+    "MATCH_VALUE": 17960,
+    "MATCH_DIAGNOSTIC": 260,
+    "DIFFERENT_VALUE": 40,
+    "DIFFERENT_DIAGNOSTIC": 120,
+    "CRYSTALLINE_ONLY": 168,
+    "VANILLA_ONLY": 324
+  },
+  "scope": "NORMAL_ONLY ledger, denominator and literal transitions; selection/adjustment pending",
+  "attacks": [
+    {
+      "id": "R09",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 11,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 11,
+        "violations": [
+          {
+            "code": "PRESENCE_ONLY_CLOSURE",
+            "witness": [
+              "path-json",
+              "CLOSED_MEASURED_FUNCTIONAL_SENTINEL",
+              "CLOSED_MEASURED_LOOKUP_REPR_ONLY"
+            ]
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "6b6263a27e01765849938b64b696b0cfb00e45264c9ca2f08447f633bb8c4a62",
+      "mutant_sha256": "50530c6ac2f22c893c2f8331eb4b8487dd0ca3ba1c172099f3846e321c4a16f1",
+      "transformation": {
+        "promote": "lookup/type/repr only to functional closure"
+      },
+      "valid": true,
+      "rejected": true
+    },
+    {
+      "id": "R10",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 6,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 2,
+        "violations": [
+          {
+            "code": "TRANSITION_OMITTED",
+            "witness": [
+              [
+                "path-json",
+                "default"
+              ]
+            ]
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "9d46279311f222e08a591c451dc53273c03aababab384e1be186f34a376f7669",
+      "mutant_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "transformation": {
+        "scenario": "simulated changed current transcript, real historical MATCH",
+        "omit": "required regression candidate transition",
+        "current_copy_sha256": "0da8d9e3077a48867659bc5cec1463d8424ba737440eec45a0e379c1aa588410"
+      },
+      "valid": true,
+      "rejected": true
+    },
+    {
+      "id": "R12",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 10,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 11,
+        "violations": [
+          {
+            "code": "EXTENSION_WITHOUT_L0",
+            "witness": [
+              "path-calc.deg",
+              ""
+            ]
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "65a2d6e4ad2de6c238a5ac97cfcd47146f57202062105c1888a513605c5dd3b1",
+      "mutant_sha256": "5d8e6c3a61fc219707da503f0d7779daba4f396212cce4a1c5ea31a6004ce249",
+      "transformation": {
+        "promote": "pending extension to documented extension, erase L0 foundation"
+      },
+      "valid": true,
+      "rejected": true
+    }
+  ],
+  "valid": 3,
+  "rejected": 3,
+  "verdict": "Preserved",
+  "checks": 130323,
+  "violations": [],
+  "unknowns": []
+}

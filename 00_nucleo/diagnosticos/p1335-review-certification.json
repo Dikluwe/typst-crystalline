@@ -1,0 +1,192 @@
+{
+  "at": "2026-09-09T17:00:25.059Z",
+  "role": "D",
+  "manifest_sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53",
+  "checker_sha256": "e99fa625797f95b389ec4ecec72456027855f058ca68c1d5e2140dd2d3715d36",
+  "inputs": {
+    "00_nucleo/diagnosticos/p1335-classification-certification-debt.json": "478d043dac1bcbd2c9762f00bef48dfba2291eefec747059272a282833c306be",
+    "00_nucleo/diagnosticos/p1322-classification-certification-debt.json": "2174e78bb976915167492423531ec2b7a69003487b056b349094979c6ac9b636",
+    "00_nucleo/diagnosticos/p1322-baseline.json": "951604c8113dfd23992b677037430a74379759b70518ff7234dc62959e2d7e44",
+    "00_nucleo/diagnosticos/p1322-manifest.json": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c",
+    "00_nucleo/diagnosticos/p1309-certification-debt.json": "2a2f26ff9e1acad09dadd41d9f3527f8aff42e8f29f52a12fd6f2cec3b5505ee",
+    "00_nucleo/diagnosticos/p1310-final-report.md": "67a00bf8e37d96c7e9cb2495ce471bfd015b67c2c9c5226f2a348d203137b5d7",
+    "00_nucleo/diagnosticos/p1311-final-report.md": "363cf17eede0868bc322977134468829b8969cace9052122b2d64b27096ce055",
+    "00_nucleo/diagnosticos/p1312-final-report.md": "d1cd8ba23adfef0460bfd8d0d75885e8f899c65d396d4caf042a525bcc39c19d",
+    "00_nucleo/diagnosticos/p1313-final-report.md": "183c6f500260f46860f9d9e6ce07fe7056963d419da4afb96e56315375daa19a",
+    "00_nucleo/diagnosticos/p1314-final-report.md": "5f826c0154edd3b2dd56898f7a5cf94714844fdb1225cb9ec51f2cf22b21bfb7",
+    "00_nucleo/diagnosticos/p1315-final-report.md": "18b8a3686ec0fed73f0b4774d48a1c3a8c388c297e1d643a73abb2ed1d38e918",
+    "00_nucleo/diagnosticos/p1316-final-report.md": "54694abc908dd83bb0490fa3d0b564ec1154b0f45a149c664e1e07fc5be6ba29",
+    "00_nucleo/diagnosticos/p1317-final-report.md": "1e235f25d5f1cdeec18e1f85548d96c951e44194de37b7fdef59cce7df72434e",
+    "00_nucleo/diagnosticos/p1318-final-report.md": "37b0aeadb604c8d1a07eb955e368a4f60e018f952f99048b6a7874c7b18dc28b",
+    "00_nucleo/diagnosticos/p1319-final-report.md": "f33a78c5593630b34e27e75d7a431ab27ab34da5068e45f8615b9579ffc9f324",
+    "00_nucleo/diagnosticos/p1321-final-report.md": "b5f04d62ddea0f1f7d8ec6656a86f14385101bb5762ad4794704de466681768d",
+    "00_nucleo/diagnosticos/p1313-implementation-report.md": "c6fff64eceed2b13df55a9c80b3748e25dfea0a8386f1182bc7fc2e276bf61ca",
+    "00_nucleo/diagnosticos/p1320-o-que-falta-para-paridade.md": "8ec8ad7a18d8a59150a8a7d5dedbc2b3c08a49ce86ddb860830c8e72b8a4c80c",
+    "00_nucleo/diagnosticos/p1307-r6-mutation-plan.json": "06e2e125e583adc901350a944dacfc84a5610db257f095c267d1c17b3369440b",
+    "00_nucleo/diagnosticos/p1307-mutant-plan.json": "69e3a40c813bb74cf9a8e73c2c9e2b0f8ecc46ddd403d1da262a99ab5da6de61",
+    "00_nucleo/diagnosticos/p1308-mutation-ledger.json": "c636972025a884bf33af0dedb316b77c82ef44535ca02ca78057d804d32e2837",
+    "00_nucleo/diagnosticos/p1308-mutation-M01.json": "e1043c2642aa273f1e995298159def9e4c948928ccf022f6f70f57c5c4e1d2d2",
+    "00_nucleo/diagnosticos/p1308-mutation-M02.json": "75a25deeb924df79047243f544d687ab7c71c8f207bd34299d0643ccc5ebe133",
+    "00_nucleo/diagnosticos/p1308-mutation-M03.json": "5b36f6985d78884d8790a11ab1baed0d48cb42639420a621992f7a87fc5f90da",
+    "00_nucleo/diagnosticos/p1308-mutation-M04.json": "6b024e4793526b7afdd7f010f5bdefa0c58e92bfd3075bf31ec47ad7acf4e5f4",
+    "00_nucleo/diagnosticos/p1308-mutation-M05.json": "8579732f271042dedcf23cf1dc3cc720e54cda5721b6ef1c8897e258043d5761",
+    "00_nucleo/diagnosticos/p1308-mutation-M06.json": "75ae1de7544a41d54b922f848ae73a771b2b92bde9ac713f9a54f59611560683",
+    "00_nucleo/diagnosticos/p1323-final-report.md": "11c42438e05e2d5f926efdafd6b563a9278bd6e8c2ddc1316fef5b69ae3c32d2",
+    "00_nucleo/diagnosticos/p1324-final-report.md": "a729addf4dd31027b8916fdbddc00c267ab9389082b64717912dd0278ed12825",
+    "00_nucleo/diagnosticos/p1325-final-report.md": "57d5812f6a524404926194606790667c0bf08de5a98ae70068539ed234b6d504",
+    "00_nucleo/diagnosticos/p1326-final-report.md": "bb0eadedceffff855d696b883708b792d52fd631a99e9464ec180071cf080b05",
+    "00_nucleo/diagnosticos/p1327-final-report.md": "96cd39a2a9d7f85f9c46927fb5942e74bdd14e950e8d91285cc77d0902d9c84a",
+    "00_nucleo/diagnosticos/p1328-final-report.md": "6dde32461bd3208b7fc49b9a221890cc8dd55e644917ff6d49fa821aa090afec",
+    "00_nucleo/diagnosticos/p1329-final-report.md": "aaab16679a4e2d37f8190fe08f5c465aa7a9b7201da280504280e9e644300b9b",
+    "00_nucleo/diagnosticos/p1330-final-report.md": "6a53f4aa62d7cdaa96f150d06cea1455dad46f3749f4128988d8892618684c68",
+    "00_nucleo/diagnosticos/p1331-final-report.md": "b36ea5065c3d7a88e154bc87bb2e4f35f4025cc5270fb1c638e1394b4f66ca0b",
+    "00_nucleo/diagnosticos/p1332-final-report.md": "991d0a37a368442e9719b99856d05514d32594eec24dc092e08273996bf37e6d",
+    "00_nucleo/diagnosticos/p1333-final-report.md": "0117ea2bb04383b641eb9b62bc50191762ae800fda7f29271d582a8b4cd26566",
+    "00_nucleo/diagnosticos/p1334-final-report.md": "ca2d8080d08093a776416a66d844b1cf31ed887426b30060cf3c4afead3b4092"
+  },
+  "verdict": "Preserved",
+  "violations": [],
+  "reportAnchors": [
+    {
+      "path": "00_nucleo/diagnosticos/p1323-final-report.md",
+      "anchors": [
+        {
+          "line": 86,
+          "text": "de cópias do observável, não mutantes do código produtivo."
+        },
+        {
+          "line": 120,
+          "text": "sem editar o que julgou. O ambiente é compartilhado: execução sem atestação"
+        },
+        {
+          "line": 121,
+          "text": "técnica de isolamento, sem selo de refinamento ou equivalência funcional geral."
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-final-report.md",
+      "anchors": [
+        {
+          "line": 66,
+          "text": "A skill `tekt-materializacao-segregada` orienta regime A/B, sem selo de"
+        },
+        {
+          "line": 69,
+          "text": "audita sem editar julgados. Ambiente compartilhado, sem atestação técnica de"
+        },
+        {
+          "line": 70,
+          "text": "isolamento. As calibrações do observador não são mutantes produtivos."
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1325-final-report.md",
+      "anchors": [
+        {
+          "line": 60,
+          "text": "sem atestação técnica de isolamento e sem selo de refinamento."
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1326-final-report.md",
+      "anchors": [
+        {
+          "line": 65,
+          "text": "compartilhado, sem atestação técnica de isolamento ou selo de refinamento."
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1327-final-report.md",
+      "anchors": [
+        {
+          "line": 84,
+          "text": "Tekt A/B executado sem atestação técnica de isolamento e sem selo de"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1328-final-report.md",
+      "anchors": [
+        {
+          "line": 129,
+          "text": "sem editá-los. O ambiente é compartilhado: **executado sem atestação"
+        },
+        {
+          "line": 130,
+          "text": "técnica de isolamento**, sem selo de refinamento ou mutation score."
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1329-final-report.md",
+      "anchors": [
+        {
+          "line": 159,
+          "text": "compartilhado, **sem atestação técnica de isolamento e sem selo de"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1330-final-report.md",
+      "anchors": [
+        {
+          "line": 70,
+          "text": "ou oráculos. **Sem atestação técnica de isolamento**, sem selo de"
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1331-final-report.md",
+      "anchors": [
+        {
+          "line": 78,
+          "text": "de isolamento**, sem selo de refinamento, sem alegação de paridade geral."
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1332-final-report.md",
+      "anchors": [
+        {
+          "line": 48,
+          "text": "compartilhado sem atestação técnica de isolamento; sem selo de refinamento."
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1333-final-report.md",
+      "anchors": [
+        {
+          "line": 122,
+          "text": "Executado sem atestação técnica de isolamento, em filesystem compartilhado;"
+        },
+        {
+          "line": 123,
+          "text": "sem selo de refinamento, mutation score ou alegação de equivalência geral."
+        }
+      ]
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1334-final-report.md",
+      "anchors": [
+        {
+          "line": 121,
+          "text": "testes/expectativas pré-C e revisão. Regime A/B **sem atestação técnica de isolamento**,"
+        },
+        {
+          "line": 122,
+          "text": "sem selo de refinamento e sem alegação de mutation score. Testes B não receberam"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "inherited_families": 37,
+    "current_product_mutants": 0
+  },
+  "scope": "Revalidated identities and explicit continued debt; not a current product mutation score or a proof of product semantics."
+}

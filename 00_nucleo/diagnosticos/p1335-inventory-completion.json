@@ -1,0 +1,313 @@
+{
+  "author": "/root/p1335_inventory",
+  "role": "A",
+  "regime": "executado sem atestação de isolamento",
+  "runner": {
+    "path": "00_nucleo/diagnosticos/p1335-inventory-runner.py",
+    "sha256": "c568e6b95f1e330c8819140a30c114a48cd2343b6baa8e4a74ebf4462a9f60be"
+  },
+  "baseline_receipt": {
+    "path": "00_nucleo/diagnosticos/p1335-baseline.json",
+    "sha256": "0ec240607d173acd513a21d2728c66a1e514f3ad294b88bad60f3fdc8e984254"
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1335-manifest.json",
+    "sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53"
+  },
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "source_state": "working tree não commitado",
+  "diff_head_stat": " .../prompts/compiler/eval/bindings/field_access.md |  187 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  731 ++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 5914 insertions(+), 118 deletions(-)\n",
+  "temporary_root": "/tmp/p1335-inventory.mZcVD2",
+  "created_at": "2026-09-09T16:54:49.270056+00:00",
+  "catalog": {
+    "path": "00_nucleo/diagnosticos/p1335-probe-catalog.json",
+    "sha256": "988bab4e5a88e400db2533f1db8a428328f1a5fcec51d4415ea171d20d5832d8"
+  },
+  "author_receipt": {
+    "path": "00_nucleo/diagnosticos/p1335-inventory-author-receipt.json",
+    "sha256": "f7610cda3b75c0f90ad2aa33c9ea1da99a29b965da370b7de379c8a223e32e1d"
+  },
+  "reconciliation": {
+    "path": "00_nucleo/diagnosticos/p1335-inventory-reconciliation.json",
+    "sha256": "368226df91a44f44149f2755086cf09d4df3398b2d884b92371d4e287a9a6cfa"
+  },
+  "counts": {
+    "probes": 4718,
+    "historical_probes": 4718,
+    "added_probes": 0,
+    "fresh_union_paths": 4708
+  },
+  "historical_probes_preserved_verbatim": true,
+  "source_integrity": {
+    "vanilla": {
+      "build": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-vanilla-build.json",
+        "sha256": "2180f4971b593a32e07c397b6065d44ded3a9fbfd9a59a4ca43c6d14377db8b1"
+      },
+      "initial_sha256": "c4a83fae82b5a8e95000b622c7028dde45d74191b6e0ed2fcc17f3e7503aa81f",
+      "final_sha256": "c4a83fae82b5a8e95000b622c7028dde45d74191b6e0ed2fcc17f3e7503aa81f",
+      "source_unchanged": true
+    },
+    "crystalline": {
+      "build": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-crystalline-build.json",
+        "sha256": "b9716e3db02904f45334eac2071fee71e42366cfa5cbc94c9dae184ca19827a6"
+      },
+      "initial_sha256": "4b0609ef9cbf86b5ee4bbda8096e4713a98d0a125f5c58c4499bf8872ee63ca0",
+      "final_sha256": "4b0609ef9cbf86b5ee4bbda8096e4713a98d0a125f5c58c4499bf8872ee63ca0",
+      "source_unchanged": true
+    }
+  },
+  "canonical_inventory_inputs": [
+    {
+      "input": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-vanilla-default.json",
+        "sha256": "5e062810763aea5f31a6830c0da955e66cb29178e6d3f1860dc6f5cee95d93c1"
+      },
+      "observations": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-observables-vanilla-default.json",
+        "sha256": "586ff66bc6c86851f28c81b18659841a9cc6e83a4b3b8ff4426c6ef0850dce00"
+      },
+      "side": "vanilla",
+      "profile": "default",
+      "raw_routes": 2015,
+      "max_emitted_raw_dotted_depth": 2,
+      "expanded_routes": 4551,
+      "unknowns": []
+    },
+    {
+      "input": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-vanilla-html.json",
+        "sha256": "71940383cf96f4f9850e8dbfa99b618039612aa40b9406f0ade18a08709d543d"
+      },
+      "observations": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-observables-vanilla-html.json",
+        "sha256": "98d8774bc43c07556478c0c03ff7a3ee0e4e476bc331e619918e6a1908a2d9a0"
+      },
+      "side": "vanilla",
+      "profile": "html",
+      "raw_routes": 2130,
+      "max_emitted_raw_dotted_depth": 2,
+      "expanded_routes": 4666,
+      "unknowns": []
+    },
+    {
+      "input": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-crystalline-default.json",
+        "sha256": "c4edacc6b3b648a23fbf31062b49de412f14f7412aac32f335b0c3a57877a18a"
+      },
+      "observations": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-observables-crystalline-default.json",
+        "sha256": "1900e99db9d618400d83891082f9d4f6c907d944e857df63fb92a327e095bec3"
+      },
+      "side": "crystalline",
+      "profile": "default",
+      "raw_routes": 1998,
+      "max_emitted_raw_dotted_depth": 2,
+      "expanded_routes": 4534,
+      "unknowns": []
+    },
+    {
+      "input": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-crystalline-html.json",
+        "sha256": "ce23cb92ec3c109377bcd3074e9bc7d2f2a0704e112d9f39f2708024e8e3c874"
+      },
+      "observations": {
+        "path": "00_nucleo/diagnosticos/p1335-inventory-observables-crystalline-html.json",
+        "sha256": "2b097162ee9a5c3acf73c2c8e22c7b75597591829ec0b3eb6d0588ffcb9f29e6"
+      },
+      "side": "crystalline",
+      "profile": "html",
+      "raw_routes": 2069,
+      "max_emitted_raw_dotted_depth": 2,
+      "expanded_routes": 4605,
+      "unknowns": []
+    }
+  ],
+  "capabilities": {
+    "executor": "/root/p1335_inventory",
+    "inherited_context": "Bounded inventory task; no P1335 candidate matrix/classification/selection.",
+    "permitted_read": "P1335 plan, skill/references, ADRs, historical inventory/catalog/method, current source, root baseline/build/manifest, pinned binaries",
+    "forbidden_read": "P1335 candidate matrices, classification, cohorts, selection",
+    "permitted_write": [
+      "00_nucleo/diagnosticos/p1335-inventory-*",
+      "00_nucleo/diagnosticos/p1335-probe-catalog.json",
+      "/tmp/p1335-inventory.mZcVD2"
+    ],
+    "technical_limit": "Shared tools/filesystem: procedural segregation, no isolation attestation"
+  },
+  "readable_inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1335.md",
+      "sha256": "35bdf054a87ea41911aa4a1697e93145814b09fb770f97d6383be468cafc5913"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-runner-r2.py",
+      "sha256": "2f819d50511cb06b015d7fd333f7d38ec61694ae471c8862f879eeb36f23051f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-runner.py",
+      "sha256": "1b2e93593f409a8b6e170491d5cf20b2d441592ad8a1e9bce00d4427284a595f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-incident.json",
+      "sha256": "ce0802a8c74bf59f494f6eaa7bcfc50c0ae708a7c7d4b2f2be2bd9b3d3c76879"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-focal-validation.json",
+      "sha256": "5a6a8fee50e0f2cca214f708986bbe4728cac73d824a2c7607f6afaece422613"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-probe-catalog.json",
+      "sha256": "a9853e4c54663a258a9dd706c1c974930579c65e335b283243b10eae19b4889a"
+    },
+    {
+      "path": "00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md",
+      "sha256": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d"
+    },
+    {
+      "path": "00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md",
+      "sha256": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405"
+    },
+    {
+      "path": "lab/surface-inventory/src/main.rs",
+      "sha256": "1f56149b1be5d93c24d686259186314708d806b69279e70097eec755ce828056"
+    },
+    {
+      "path": "lab/surface-inventory/Cargo.toml",
+      "sha256": "f45e70888ca0a5ebf721cf00e65bf25e637b795a7cb610f00e91c084548aea0a"
+    },
+    {
+      "path": "lab/surface-inventory/Cargo.lock",
+      "sha256": "f1c17cedcd804ce0bb40942621a50c09b5c3c757bd63482f99bd547c220c961d"
+    },
+    {
+      "path": "lab/surface-inventory/extra_seeds.json",
+      "sha256": "ec398902ad74aa7f7d21b733674e3712ed47ee84e6f79fd12fbdca5293d87623"
+    },
+    {
+      "path": "lab/typst-original/crates/p1140-inventory/src/main.rs",
+      "sha256": "8db995426edb0e48371544018aa996467b42aa7b4404acc8e020a944dac653c1"
+    },
+    {
+      "path": "lab/typst-original/crates/p1140-inventory/Cargo.toml",
+      "sha256": "14121e85309845c983ee2715b932e338fb63e9c8ae0124cda9af1ede4f1157d5"
+    },
+    {
+      "path": "lab/typst-original/Cargo.toml",
+      "sha256": "4552a01c861dcc9e5d4bb9e200836019ac390da9df24c829dd136d565b523fcc"
+    },
+    {
+      "path": "lab/typst-original/Cargo.lock",
+      "sha256": "de45b3b5393f074087ccdcd27c8847c6085d7c064afff3a801e86e28def47f7c"
+    }
+  ],
+  "additional_historical_inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-author-receipt.json",
+      "sha256": "2b0b2961e4965f076484add8eda31c4dee2bede6823a0274217136387f50cff7"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-reconciliation.json",
+      "sha256": "5bb2ec28d229d86807f30370b1226286428cd2dcf802a792713dacb6422b8db3"
+    }
+  ],
+  "focal_controls": [
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-focal-validation-vanilla.json",
+      "sha256": "d8bac6c929391c0cf662d2b7f740e2617f3899c0674bccc86d3e02904faf430e"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-focal-validation-crystalline.json",
+      "sha256": "f15b76a26337e1681a74c8b6d5f5aa3b0d4a5254dd5acf95b6a23b72ac6ecbd6"
+    }
+  ],
+  "method_history": "Final effective P1322 method lives in p1322-inventory-runner.py; its -r2.py snapshot still fed expanded vanilla input. P1335 adopts raw vanilla input and expands only declared variants once.",
+  "limits": [
+    "Only finite public route access/type/repr was observed; no complete function behavior, language-wide percentage, selection or independent verification verdict.",
+    "Raw emitted routes have at most two dots; configured recursive scanner cap is eight. Crystalline main loop filters failed eval candidates (lab/surface-inventory/src/main.rs:106); a hypothetical inaccessible truncation sentinel can be dropped. No direct prefilter traversal counter was recorded, so absence of hidden truncation is not separately attested. All historical routes remain in the catalog even when not re-enumerated.",
+    "All four structural inventories and default/html public observations are fresh. a11y distinctions and repeat/reverse are delegated to the bilateral operator; no result is presumed."
+  ],
+  "artifacts": [
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-author-receipt.json",
+      "sha256": "f7610cda3b75c0f90ad2aa33c9ea1da99a29b965da370b7de379c8a223e32e1d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-crystalline-build.json",
+      "sha256": "b9716e3db02904f45334eac2071fee71e42366cfa5cbc94c9dae184ca19827a6"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-crystalline-default.json",
+      "sha256": "c4edacc6b3b648a23fbf31062b49de412f14f7412aac32f335b0c3a57877a18a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-crystalline-html.json",
+      "sha256": "ce23cb92ec3c109377bcd3074e9bc7d2f2a0704e112d9f39f2708024e8e3c874"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-focal-validation-crystalline.json",
+      "sha256": "f15b76a26337e1681a74c8b6d5f5aa3b0d4a5254dd5acf95b6a23b72ac6ecbd6"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-focal-validation-vanilla.json",
+      "sha256": "d8bac6c929391c0cf662d2b7f740e2617f3899c0674bccc86d3e02904faf430e"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-observables-crystalline-default.json",
+      "sha256": "1900e99db9d618400d83891082f9d4f6c907d944e857df63fb92a327e095bec3"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-observables-crystalline-html.json",
+      "sha256": "2b097162ee9a5c3acf73c2c8e22c7b75597591829ec0b3eb6d0588ffcb9f29e6"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-observables-vanilla-default.json",
+      "sha256": "586ff66bc6c86851f28c81b18659841a9cc6e83a4b3b8ff4426c6ef0850dce00"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-observables-vanilla-html.json",
+      "sha256": "98d8774bc43c07556478c0c03ff7a3ee0e4e476bc331e619918e6a1908a2d9a0"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-reconciliation.json",
+      "sha256": "368226df91a44f44149f2755086cf09d4df3398b2d884b92371d4e287a9a6cfa"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-runner.py",
+      "sha256": "c568e6b95f1e330c8819140a30c114a48cd2343b6baa8e4a74ebf4462a9f60be"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-vanilla-build.json",
+      "sha256": "2180f4971b593a32e07c397b6065d44ded3a9fbfd9a59a4ca43c6d14377db8b1"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-vanilla-default.json",
+      "sha256": "5e062810763aea5f31a6830c0da955e66cb29178e6d3f1860dc6f5cee95d93c1"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-vanilla-html.json",
+      "sha256": "71940383cf96f4f9850e8dbfa99b618039612aa40b9406f0ade18a08709d543d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-vanilla-structural-input-default.json",
+      "sha256": "2f70d832f2b24f8c8eae8ffb15dd1e2770c667b9bfb24fcadefdcad43b4cfb27"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-inventory-vanilla-structural-input-html.json",
+      "sha256": "2ef941beab9ef3e2859de83c8bcfadc7a4482af417db23029b1bec0997f22c61"
+    }
+  ]
+}

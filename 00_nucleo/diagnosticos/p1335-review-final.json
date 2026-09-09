@@ -1,0 +1,189 @@
+{
+  "at": "2026-09-09T17:45:55.479770+00:00",
+  "role": "D",
+  "regime": "executado sem atestação técnica de isolamento",
+  "manifest_sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53",
+  "baseline_sha256": "0ec240607d173acd513a21d2728c66a1e514f3ad294b88bad60f3fdc8e984254",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "working_tree": "uncommitted exact sixteen tracked files/diff in pinned baseline",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-inventory.json": "bdefb65cb7d8c265e25304287fb9452527f52e403ca0d1d8904e18a0f9209402",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-gates.json": "e08c081c2174278e4c0bddc7241e1e97e9d172a576c037544af8d54b1eb26d59",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-runtime-final.json": "9354d08ed438fd05dd839fbfad5294a453ec78e6865a884beca4713640ae3e1f",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-supplement-final-r3.json": "76b947503cad418f2806a72f717b21e89bbe3337300a4ae89f774ccbecff7f13",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-transversal-final-r4.json": "e0725a157d10dba4c7f1e6ba64d4c683ffcf87774eab2ed5e881955b12b046d9",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-boundaries.json": "7b43c598f5728d6ffd32f4a1e259f521eb7925be285ce39724d8cd58aa459b42",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-preservation-ledger-r1.json": "794a2800e1fcb01882432f60e4c6b47d17d8cbf9e2b1d88db4c782355905d28e",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-extensions.json": "28ad034323acc9aaca37b2f30c18270adf0a046c04934922aff4ddfbcd40e21f",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-certification.json": "baffc328cd1c2e1327213182cb47b8a5955f135bce8c1b72442ffc3d5971abd5",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-selection-r1.json": "8dc26973a1e5233de737baaa6901a7727d8c161815c3f25b11bcdb524fe5ddc7",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-final-ledger-r1.json": "6b2d44bc025c40f7a507d153bc7b0e501f13c7350f960ed8615f3668d6b7a6fa",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-preservation-final.json": "41e6e5fe6b53fdd1c4c8e24163752aff2eea6e2e3c63ef1adbaae18c59344001",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-attacks-catalog.json": "1da93d70b11379500101e605b821edb7d423ad8744eee17b76d285d6034bde5d",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-attacks-runtime.json": "8c3dd862c166fdcc628f574289fd6b638451460450be93839eb500880b674da4",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-principal-partial.json": "1c1319a100ed1eabb3472565e72ffd509cb01bb1836cd2fb1f4e1dc1a31f7fba",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-close.py": "66b2d662e89a2d09bae00b79873f0075a01edc8156084a7d52db76c1f16923ea",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-o-que-falta-para-paridade.md": "4f3b6ae9b1d3a4f98ea7579fe6b3bbddde9cdef740c3a2f234ade3223dd0a797",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-classification-summary-r1.json": "1097fd8ef579a8edce4a2c3a659535d5435de5042d35abe8d5a4fb2220d71aad",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-classification-selection-r1.json": "5b66e4a7da5bda63179d4240e25832d7b648f00450ad6af94b3ca4859d79b9a3",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-classification-functional-reconciliation-r1.json": "8bead5da0c1ec01d6756f80fa981164bad02f936fa660e44c0b1bb7e0f3de935",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-classification-source-lineage-r1.json": "bffde9ca36d13730c1acf289fc4b25dd61aff09fd6280538b458611613af8a9c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-classification-recommendation.md": "5521d13ec126a6b743c2d661ca19bb51ada4a7f5616293911664f2b845a9f9e9",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-final.md": "02218226e5564e76cf15e9c3d79bdb2d2a82c0488cf2bc8e34b70108b427a8b7",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-plan.md": "610ec46e05245b03fe8fd1ac77990594e9c60b348f083c342483f09edc78f903",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-transversal-retention-incident.json": "d64f886da5d42cf035ef6100c0871a8bf1ab5a2b31a1bf8bf31caa6fe047ad20",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-aggregate-r1.json": "1cb3ce7aee1c17a7f6722841a344a2fc8af0541376774adbc3cf3cc1da85aac4",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-transversal-metrics.json": "a20baa4a493c622d7f76066e9338c901072321eb100386a098c18cb97501226c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-visual-qa.json": "fd048aa0a3c2db62d7415a31a8bdcefd346dc215a68ca582334dfb9d56172f22",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-close.py": "ccd28db643fc8f56038704f2595e9962a3c5e78801bac2f6f73e09883cd7b02b",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-attacks.py": "d230e80fd4969f39f40b416b52216c11685785a525438ea379440b8889abc13c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-boundaries.py": "a01410ce88b270b337ab141c1c968cf76cca29bcf8018ab8073d949358edffb7",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-check-r1.py": "aa9e701dad84fd7a4a800a81dff78573f7e0d84da5fb273217661e8116789b65",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-check.py": "15b934370c32c5054408c4a14d65abecdd882e93844870a19d743ba33bb6938f",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-extensions.py": "fa9023c328a4cf71291491cfdc00996f54ce372a48fd0a29fdfa80d78e769f76",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-final-ledger-r1.py": "3aa7d8ee098b3e6c8a09f8ec0b972b6a5fa65bfcde15920acdfbbc29339e6441",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-final-ledger.py": "d1c6578c744d10ba8f38601e742fde268168180fc756dcb65beffee585f85401",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-inventory.py": "1a6c03fcbee0144db90b451099628eee25ef2f5d483f51298d4477c77ccf2236",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-preservation-ledger-r1.py": "3d6c7c12885f8c43f35c0383b7c7c66923c10271ddfd099a88ca68adce6df7fd",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-preservation-ledger.py": "cd77d7cb70444dabfee7378be18bb4b8cde5dfbdf6fd221b0a099608fd63ea1b",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-principal.py": "bd55091f89b599986ce159ab7a77ff3929d18785113bdaeeb63a74ab5c3d5278",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-selection-r1.py": "dd7bc1848b520c56b30ea7866013e3c443e54948e594487e353bc5a2e56965d5",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-selection.py": "502b384e09fd098765b49c4eff829854d644b30b28062a45a71e5e37bdf765cc",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-semantic.py": "40a1a60f838c2dd77107b5a70584afa877afadf0e5d208ffb60be39ebd2e9126",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-supplement-r3.py": "7a66ffe8ec2ea967f47758b8cdc9c09c050504f92819d14621c480065c287376",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-supplement.py": "dc69ff5f1d27d52cfe08450d09c6a3d5169c2fb6033ebd5d8727b3718c74c6f1",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-transversal-r2.py": "32c402598310b09c4d4ae66d95e3ebfbc30e97f16f172a9e4e5debaf83b50b09",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-transversal-r3.py": "f141560d31272d872e3103efc1674c1927bf71eb81b48eca40fa202673bc16e8",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-transversal-r4.py": "32d8d866e5b85a3fe073b3698c66121cb65511617cecd92ae9c573328748a782",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-transversal.py": "de6c49a3348b89fcf10afbb59986106370eaf5cbcb0c425578e39d5af0e5c511"
+  },
+  "components": {
+    "inventory": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-inventory.json",
+      "sha256": "bdefb65cb7d8c265e25304287fb9452527f52e403ca0d1d8904e18a0f9209402",
+      "verdict": "Preserved",
+      "checks": 113792
+    },
+    "gates": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-gates.json",
+      "sha256": "e08c081c2174278e4c0bddc7241e1e97e9d172a576c037544af8d54b1eb26d59",
+      "verdict": "Preserved",
+      "checks": 7860
+    },
+    "runtime-final": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-runtime-final.json",
+      "sha256": "9354d08ed438fd05dd839fbfad5294a453ec78e6865a884beca4713640ae3e1f",
+      "verdict": "Preserved",
+      "checks": 1984211
+    },
+    "supplement-final-r3": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-supplement-final-r3.json",
+      "sha256": "76b947503cad418f2806a72f717b21e89bbe3337300a4ae89f774ccbecff7f13",
+      "verdict": "Preserved",
+      "checks": 338120
+    },
+    "transversal-final-r4": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-transversal-final-r4.json",
+      "sha256": "e0725a157d10dba4c7f1e6ba64d4c683ffcf87774eab2ed5e881955b12b046d9",
+      "verdict": "Preserved",
+      "checks": 12684
+    },
+    "boundaries": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-boundaries.json",
+      "sha256": "7b43c598f5728d6ffd32f4a1e259f521eb7925be285ce39724d8cd58aa459b42",
+      "verdict": "Preserved",
+      "checks": 13896
+    },
+    "preservation-ledger-r1": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-preservation-ledger-r1.json",
+      "sha256": "794a2800e1fcb01882432f60e4c6b47d17d8cbf9e2b1d88db4c782355905d28e",
+      "verdict": "Preserved",
+      "checks": 15518
+    },
+    "extensions": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-extensions.json",
+      "sha256": "28ad034323acc9aaca37b2f30c18270adf0a046c04934922aff4ddfbcd40e21f",
+      "verdict": "Preserved",
+      "checks": 8091
+    },
+    "certification": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-certification.json",
+      "sha256": "baffc328cd1c2e1327213182cb47b8a5955f135bce8c1b72442ffc3d5971abd5",
+      "verdict": "Preserved",
+      "checks": null
+    },
+    "selection-r1": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-selection-r1.json",
+      "sha256": "8dc26973a1e5233de737baaa6901a7727d8c161815c3f25b11bcdb524fe5ddc7",
+      "verdict": "Preserved",
+      "checks": 131436
+    },
+    "final-ledger-r1": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-final-ledger-r1.json",
+      "sha256": "6b2d44bc025c40f7a507d153bc7b0e501f13c7350f960ed8615f3668d6b7a6fa",
+      "verdict": "Preserved",
+      "checks": 17078
+    },
+    "preservation-final": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-review-preservation-final.json",
+      "sha256": "41e6e5fe6b53fdd1c4c8e24163752aff2eea6e2e3c63ef1adbaae18c59344001",
+      "verdict": "Preserved",
+      "checks": 16513
+    }
+  },
+  "attacks": {
+    "planned": 14,
+    "executed": 14,
+    "valid": 14,
+    "rejected": 14,
+    "ids": [
+      "R01",
+      "R02",
+      "R03",
+      "R04",
+      "R05",
+      "R06",
+      "R07",
+      "R08",
+      "R09",
+      "R10",
+      "R11",
+      "R12",
+      "R13",
+      "R14"
+    ],
+    "scope": "Data-auditor attacks only; not product mutation score"
+  },
+  "preservation": {
+    "historical_untracked_preserved": 4333,
+    "product_files_preserved": 3912,
+    "historical_input_pins_preserved": 9,
+    "step_pin_preserved": true
+  },
+  "selected": "primitive-instance-field-diagnostic",
+  "rank": [
+    2,
+    1,
+    -2,
+    1,
+    "primitive-instance-field-diagnostic"
+  ],
+  "implementation_authorized": false,
+  "production_mutants_executed": 0,
+  "certification_debt_discharged": false,
+  "global_language_parity_claim": false,
+  "closure_algorithm_reviewed": true,
+  "operator_closure_execution_pending": true,
+  "limits": [
+    "Finite scanner/pre-filter does not establish unlimited enumeration.",
+    "Eight R0 PDFs overwritten and unrecoverable; no R0 PDF retention claim.",
+    "Current raw CLI absence requires exact policy; old Unknown receipts retained.",
+    "Visual/export QA remains sampled, not global.",
+    "64 comparable functional closures and12 relocated current closures remain distinct.",
+    "Shared filesystem/tools provide procedural separation, not technical isolation."
+  ],
+  "verdict": "Preserved",
+  "checks": 16684,
+  "violations": [],
+  "unknowns": []
+}

@@ -1,0 +1,1638 @@
+{
+  "schema": "p1335-documentary-extension-evidence-v1",
+  "created_at": "2026-09-09T17:21:28.969273+00:00",
+  "executor": "/root/p1335_inventory",
+  "regime": "Documentary audit under explicit capability addendum; executed without technical isolation attestation.",
+  "capability_addendum": {
+    "path": "00_nucleo/diagnosticos/p1335-capabilities-addendum.json",
+    "sha256": "572f25e3780ceae56e196e0efbe12314b997ebadfe1752d600533b9c845ea485"
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1335-manifest.json",
+    "sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53"
+  },
+  "baseline": {
+    "path": "00_nucleo/diagnosticos/p1335-baseline.json",
+    "sha256": "0ec240607d173acd513a21d2728c66a1e514f3ad294b88bad60f3fdc8e984254"
+  },
+  "historical_input": {
+    "path": "00_nucleo/diagnosticos/p1322-classification-sources.json",
+    "sha256": "94c19aad94c699978ce3ea17a4cf6e31345875321a041a88165a1721622e080f"
+  },
+  "historical_read_projection": "extension_normative_evidence only; other fields were not printed or interpreted",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "source_state": "working tree não commitado",
+  "diff_head_stat": " .../prompts/compiler/eval/bindings/field_access.md |  187 +-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |  731 ++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 5914 insertions(+), 118 deletions(-)\n",
+  "inputs": {
+    "math_style": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+        "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 258,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/math_style.rs",
+        "sha256": "6624abb69bbdc0dc71e0b879b160afa0642ffd23ddbb67952db710da52ead961"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/math_style.md\n//! @prompt-hash a36c31b4\n//! @layer L1\n//! @updated 2026-08-31\n//!\n//! 12 funções math style — `bb`/`bold`/`cal`/`frak`/`italic`/`mono`/\n//! `sans`/`scr`/`script`/`serif`/`sscript`/`upright` (P311b.3 per",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+      "header_prompt_hash": "a36c31b4",
+      "prompt_code_hash": "56b9e300",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "counter": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+        "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 331,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/counter.rs",
+        "sha256": "c9058627737fb4726f3fd627e84f5050972b20f817752d01e050d3188f47f270"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md\n//! @prompt-hash 5eedc937\n//! @layer L1\n//! @updated 2026-08-13\n//!\n//! `counter(selector)` como valor de primeira classe + métodos `.update()`,\n//! `.step()`, `.get()`, `.display()` e `.at()`. P506 — runtime state via",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/counter.md",
+      "header_prompt_hash": "5eedc937",
+      "prompt_code_hash": "4ac1e283",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "state": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+        "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 223,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/state.rs",
+        "sha256": "fadb34bdcea4d4c0bf29332d93371c62eed47a5857390f93ab82814f806c7c15"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/state.md\n//! @prompt-hash 794c9ac3\n//! @layer L1\n//! @updated 2026-08-13\n//!\n//! `state(key, init)` como valor de primeira classe + métodos `.update()`,\n//! `.get()` e `.display()`. P506 — runtime state via `context`.",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/state.md",
+      "header_prompt_hash": "794c9ac3",
+      "prompt_code_hash": "b4929ec0",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "eval": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/eval.md",
+        "sha256": "80412483c8353a736f5c11842511cdef6c5e854728281a780c0183d6b73875cf"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 341,
+      "owner": {
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "sha256": "115a34e8aa41b4ec5a55b0cec5d05927216dc6a4a6fcb98d2fd2c1edc98d262c"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/eval.md\n//! @prompt-hash 467b7445\n//! @layer L1\n//! @updated 2026-09-01\n//!\n//! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`\n//! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando",
+      "header_prompt": "00_nucleo/prompts/compiler/eval.md",
+      "header_prompt_hash": "467b7445",
+      "prompt_code_hash": "823ed329",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "structural": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+        "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 1281,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/structural/mod.rs",
+        "sha256": "f6a1fc1a6e4f0c692b8acf35287ba81af7cc63b32a593c15f562150cf0d1141f"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md\n//! @prompt-hash 3f3de5c3\n//! @layer L1\n//! @updated 2026-08-12\n//!\n//! Funções nativas estruturais do stdlib. Extraído de `stdlib.rs` no\n//! Passo 96.5 conforme ADR-0037.",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/structural.md",
+      "header_prompt_hash": "3f3de5c3",
+      "prompt_code_hash": "0718ad63",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "math": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+        "sha256": "4c0fe0f10d5d673f5de36ce48ceef9871307b13d2d229dad0a458062f9cdc7fb"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 413,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/structural/math.rs",
+        "sha256": "cc901a05d573fa2cef0753f85ffcef4584682aa8dd9e0cd727d5094d7d22c03d"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md\n//! @prompt-hash e658276b\n//! @layer L1\n//! @updated 2026-08-31\n//!\n//! Nativas de matemática: `accent`, `cancel`, `class`, `underover`, `op`,\n//! e a montagem do módulo `math`.",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+      "header_prompt_hash": "e658276b",
+      "prompt_code_hash": "4a4d07ab",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "table_grid": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+        "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 84,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+        "sha256": "859b1305cb8912a32ef5a7f656caad9fbc3cb000b2706f6dd14acac1fd672ee2"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/structural/table_grid.md\n//! @prompt-hash f4d50af8\n//! @layer L1\n//! @updated 2026-08-12\n//!\n//! Nativas de tabela e grelha — a estrutura: `table`/`grid` e as suas\n//! células, cabeçalhos e rodapés, com os extractores de argumento partilhados.",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+      "header_prompt_hash": "f4d50af8",
+      "prompt_code_hash": "d4d8c07e",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "outline": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+        "sha256": "e8dc3b96fd9a03ae21f87f602d85bb7b0b5b6eb95d6267dcbfe280a80d3b0632"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 114,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/structural/outline.rs",
+        "sha256": "4c494e4abca686e7a5713b01c5148cb9bba323ba87f0efd282da42792b2886e6"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/structural/outline.md\n//! @prompt-hash 39789383\n//! @layer L1\n//! @updated 2026-08-13\n//!\n//! `outline`, `lof`, `lot` — sumários sobre `OutlineElem`.\n//!",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+      "header_prompt_hash": "39789383",
+      "prompt_code_hash": "01b891e9",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "document": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/structural/document.md",
+        "sha256": "efeabfeb8286212f9c29ad97caf225efc38977139671cb74a6813dc744ee1a92"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 53,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/structural/document.rs",
+        "sha256": "ddf6a1c0b212acbe87dfe937f826c4be3c53d6673a01dfad092c008e799d8657"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/structural/document.md\n//! @prompt-hash 8df80d09\n//! @layer L1\n//! @updated 2026-08-12\n//!\n//! Nativas de metadados do documento: `document` e `asset`.\n//!",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/structural/document.md",
+      "header_prompt_hash": "8df80d09",
+      "prompt_code_hash": "093b7ea0",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "text": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/text.md",
+        "sha256": "1dadbba93127f2b62a8728bf0a92c5378c8f52b15bff5aa9152290faf0ac72a5"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 185,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/text/mod.rs",
+        "sha256": "876a4170bdc3c79e0f0d6b92dea175ead2420d66420c5023fe052fa27ecfb61a"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/text.md\n//! @prompt-hash ef353b6e\n//! @layer L1\n//! @updated 2026-08-13\n//!\n//! Hub do módulo `text`: nativas globais que produzem, transformam ou decoram\n//! texto. Extraído de `stdlib.rs` em 2026-04-23 conforme ADR-0037 e fatiado em",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/text.md",
+      "header_prompt_hash": "ef353b6e",
+      "prompt_code_hash": "a8732f7f",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "case": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/text/case.md",
+        "sha256": "b40155505b65b4ff0d9b41c7c9ecaff1c51b467bdfab7fc356ac808288adbc2c"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 69,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/text/case.rs",
+        "sha256": "a6dc97b1d230b74ac4807ae94f136e0d7ac817f378190a916e50fde7acc96578"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/text/case.md\n//! @prompt-hash 2a4a2f67\n//! @layer L1\n//! @updated 2026-08-13\n//!\n//! Transformação de caixa e substituição: `upper`, `lower`, `replace`.\n//!",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/text/case.md",
+      "header_prompt_hash": "2a4a2f67",
+      "prompt_code_hash": "4382da9f",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "calc": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/calc.md",
+        "sha256": "cb0f678f029de9a06781a177ed26baf158f573a3a5a90d9b7c85bf29693fefbf"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 1140,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/calc.rs",
+        "sha256": "96196911a437819483766b9d21da08270063527721286dbf9d59c86b30fc9f61"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/calc.md\n//! @prompt-hash 05736e49\n//! @layer L1\n//! @updated 2026-05-20\n//!\n//! Módulo `calc` — operações matemáticas escalares.\n//! P27: base aritmética (abs, pow, sqrt, floor, ceil, round, min, max, clamp).",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/calc.md",
+      "header_prompt_hash": "05736e49",
+      "prompt_code_hash": "dd012312",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    },
+    "sym": {
+      "prompt": {
+        "path": "00_nucleo/prompts/compiler/stdlib/sym.md",
+        "sha256": "42a2127215e9a37d69c90695e1be66a61320fa086ffd36b51a1ac3441c816f3d"
+      },
+      "read_scope": "full current L0 through EOF",
+      "line_count": 117,
+      "owner": {
+        "path": "01_core/src/compiler/stdlib/sym.rs",
+        "sha256": "8f45dc0953e591b8b058370b6a935a7982dcf25aeb3dcf625bcdf05898fa256f"
+      },
+      "owner_header": "//! Crystalline Lineage\n//! @prompt 00_nucleo/prompts/compiler/stdlib/sym.md\n//! @prompt-hash a4e31465\n//! @layer L1\n//! @updated 2026-08-30\n//!\n//! Módulo `sym` — tabela estática de símbolos Unicode prioritários.\n//!",
+      "header_prompt": "00_nucleo/prompts/compiler/stdlib/sym.md",
+      "header_prompt_hash": "a4e31465",
+      "prompt_code_hash": "9bfa8e7f",
+      "ownership_check": "Owner header directly names this L0; full V5/V15/V26 validation belongs to root gates/reviewer, not this documentary record."
+    }
+  },
+  "entries": [
+    {
+      "path": "accent",
+      "measured_current_claims": [
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 14,
+          "end_line": 14,
+          "text": "Este módulo implementa as funções globais de conteúdo estrutural e semântico de Typst: estilo inline (strong/emph), verbatim (raw), separadores, termos, citações em bloco, tabela/grid, bibliografia/citação, hiperligações, notas de rodapé, elementos matemáticos accent/cancel/underover/op, e os wrappers de metadata `document`/`asset`."
+        },
+        {
+          "input": "math",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+          "sha256": "4c0fe0f10d5d673f5de36ce48ceef9871307b13d2d229dad0a458062f9cdc7fb",
+          "line": 56,
+          "end_line": 56,
+          "text": "| `accent` | `accent(base, accent)` — ambos posicionais obrigatórios | `Content::MathAccent` |"
+        },
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 1024,
+          "end_line": 1026,
+          "text": "**Registo**: vive no **scope do módulo `math`** (`make_math_module()`), não\nno scope global — ao contrário de `cancel`/`accent`, que são globais\n(`rules/eval/mod.rs`)."
+        }
+      ],
+      "productive_owner_keys": [
+        "math",
+        "structural"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 removes the explicit global route, or limits these native names exclusively to math namespace. Native implementation existence alone would not justify an extra global.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/structural.md:14",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "asset",
+      "measured_current_claims": [
+        {
+          "input": "document",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/document.md",
+          "sha256": "efeabfeb8286212f9c29ad97caf225efc38977139671cb74a6813dc744ee1a92",
+          "line": 10,
+          "end_line": 10,
+          "text": "**Vanilla**: `typst-library/src/model/{document,asset}.rs`. `asset` é extensão cristalina — não existe no vanilla com esta forma."
+        },
+        {
+          "input": "document",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/document.md",
+          "sha256": "efeabfeb8286212f9c29ad97caf225efc38977139671cb74a6813dc744ee1a92",
+          "line": 22,
+          "end_line": 22,
+          "text": "| `document` | `document(title: ?, author: ?, date: ?, keywords: ?)` — metadata pura |"
+        },
+        {
+          "input": "document",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/document.md",
+          "sha256": "efeabfeb8286212f9c29ad97caf225efc38977139671cb74a6813dc744ee1a92",
+          "line": 28,
+          "end_line": 29,
+          "text": "- `kind` de `asset`, quando ausente, é inferido da extensão do path por\n  `infer_asset_kind`; extensão desconhecida → sem kind (não é erro)."
+        },
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 760,
+          "end_line": 767,
+          "text": "`measure_content_constrained` são no-op.\n\n**Scope-outs**:\n- Resource registry real (carregamento / embed / deduplicação) — scope-out\n  ADR-0054 graded.\n- Sem paridade vanilla porque `asset` não existe como elemento vanilla.\n\n**Testes canónicos**:"
+        }
+      ],
+      "productive_owner_keys": [
+        "document"
+      ],
+      "documentary_finding": "EXPLICIT_CRYSTALLINE_EXTENSION",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding owner contract removes asset or authorizes a different public surface; a product observation alone cannot establish normative withdrawal.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/structural/document.md:10",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "bb",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 15,
+          "end_line": 15,
+          "text": "pub fn native_bb     (...) -> SourceResult<Value>;  // DoubleStruck"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "bold",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 16,
+          "end_line": 16,
+          "text": "pub fn native_bold   (...) -> SourceResult<Value>;  // bold=Some(true)"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "cal",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 17,
+          "end_line": 17,
+          "text": "pub fn native_cal    (...) -> SourceResult<Value>;  // Chancery"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "calc.deg",
+      "measured_current_claims": [
+        {
+          "input": "calc",
+          "path": "00_nucleo/prompts/compiler/stdlib/calc.md",
+          "sha256": "cb0f678f029de9a06781a177ed26baf158f573a3a5a90d9b7c85bf29693fefbf",
+          "line": 403,
+          "end_line": 407,
+          "text": "## Subset `calc` — 21 entradas (trig + hiperbólicas + exp/log + constantes)\n\nEste prompt cobre o subset fechável do módulo `calc` identificado no P433:\nas 7 funções trigonométricas, as 6 hiperbólicas, `exp`, `ln`, `log` (incluindo\na variante com base explícita), e as 4 constantes `pi`/`tau`/`e`/`inf`."
+        }
+      ],
+      "productive_owner_keys": [
+        "calc"
+      ],
+      "documentary_finding": "NO_BINDING_AUTHORIZATION_FOUND_IN_CURRENT_OWNER",
+      "interpretation": "Full current calc L0 contains no normative public binding declaration for this exact qualified path. This bounded reading does not prove absence from every possible other normative document. No intentional-extension adjustment is justified by this owner evidence alone.",
+      "refutation": "An explicit current L0/ADR claim authorizing exactly calc.deg as a public binding; references to the rad unit or an internal log10 formula do not satisfy it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/calc.md:14",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "calc.log10",
+      "measured_current_claims": [
+        {
+          "input": "calc",
+          "path": "00_nucleo/prompts/compiler/stdlib/calc.md",
+          "sha256": "cb0f678f029de9a06781a177ed26baf158f573a3a5a90d9b7c85bf29693fefbf",
+          "line": 403,
+          "end_line": 407,
+          "text": "## Subset `calc` — 21 entradas (trig + hiperbólicas + exp/log + constantes)\n\nEste prompt cobre o subset fechável do módulo `calc` identificado no P433:\nas 7 funções trigonométricas, as 6 hiperbólicas, `exp`, `ln`, `log` (incluindo\na variante com base explícita), e as 4 constantes `pi`/`tau`/`e`/`inf`."
+        },
+        {
+          "input": "calc",
+          "path": "00_nucleo/prompts/compiler/stdlib/calc.md",
+          "sha256": "cb0f678f029de9a06781a177ed26baf158f573a3a5a90d9b7c85bf29693fefbf",
+          "line": 784,
+          "end_line": 784,
+          "text": "`log10(x)`; outras → `ln(x) / ln(base)`. Valida `x > 0`, `base` finita,"
+        }
+      ],
+      "productive_owner_keys": [
+        "calc"
+      ],
+      "documentary_finding": "NO_BINDING_AUTHORIZATION_FOUND_IN_CURRENT_OWNER",
+      "interpretation": "Full current calc L0 contains no normative public binding declaration for this exact qualified path. This bounded reading does not prove absence from every possible other normative document. No intentional-extension adjustment is justified by this owner evidence alone.",
+      "refutation": "An explicit current L0/ADR claim authorizing exactly calc.log10 as a public binding; references to the rad unit or an internal log10 formula do not satisfy it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/calc.md:14",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "calc.rad",
+      "measured_current_claims": [
+        {
+          "input": "calc",
+          "path": "00_nucleo/prompts/compiler/stdlib/calc.md",
+          "sha256": "cb0f678f029de9a06781a177ed26baf158f573a3a5a90d9b7c85bf29693fefbf",
+          "line": 403,
+          "end_line": 407,
+          "text": "## Subset `calc` — 21 entradas (trig + hiperbólicas + exp/log + constantes)\n\nEste prompt cobre o subset fechável do módulo `calc` identificado no P433:\nas 7 funções trigonométricas, as 6 hiperbólicas, `exp`, `ln`, `log` (incluindo\na variante com base explícita), e as 4 constantes `pi`/`tau`/`e`/`inf`."
+        },
+        {
+          "input": "calc",
+          "path": "00_nucleo/prompts/compiler/stdlib/calc.md",
+          "sha256": "cb0f678f029de9a06781a177ed26baf158f573a3a5a90d9b7c85bf29693fefbf",
+          "line": 89,
+          "end_line": 89,
+          "text": "mesma espécie de valor. Unidades cm/mm/in e rad também foram medidas."
+        }
+      ],
+      "productive_owner_keys": [
+        "calc"
+      ],
+      "documentary_finding": "NO_BINDING_AUTHORIZATION_FOUND_IN_CURRENT_OWNER",
+      "interpretation": "Full current calc L0 contains no normative public binding declaration for this exact qualified path. This bounded reading does not prove absence from every possible other normative document. No intentional-extension adjustment is justified by this owner evidence alone.",
+      "refutation": "An explicit current L0/ADR claim authorizing exactly calc.rad as a public binding; references to the rad unit or an internal log10 formula do not satisfy it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/calc.md:14",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "cancel",
+      "measured_current_claims": [
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 14,
+          "end_line": 14,
+          "text": "Este módulo implementa as funções globais de conteúdo estrutural e semântico de Typst: estilo inline (strong/emph), verbatim (raw), separadores, termos, citações em bloco, tabela/grid, bibliografia/citação, hiperligações, notas de rodapé, elementos matemáticos accent/cancel/underover/op, e os wrappers de metadata `document`/`asset`."
+        },
+        {
+          "input": "math",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+          "sha256": "4c0fe0f10d5d673f5de36ce48ceef9871307b13d2d229dad0a458062f9cdc7fb",
+          "line": 57,
+          "end_line": 57,
+          "text": "| `cancel` | `cancel(body)` | `Content::MathCancel` |"
+        },
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 1024,
+          "end_line": 1026,
+          "text": "**Registo**: vive no **scope do módulo `math`** (`make_math_module()`), não\nno scope global — ao contrário de `cancel`/`accent`, que são globais\n(`rules/eval/mod.rs`)."
+        }
+      ],
+      "productive_owner_keys": [
+        "math",
+        "structural"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 removes the explicit global route, or limits these native names exclusively to math namespace. Native implementation existence alone would not justify an extra global.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/structural.md:14",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "counter_at",
+      "measured_current_claims": [
+        {
+          "input": "counter",
+          "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+          "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243",
+          "line": 213,
+          "end_line": 216,
+          "text": "## 8. Nativas globais absorvidas de `foundations` (Passo 1032)\n\nPara compatibilidade histórica, as seguintes funções de escopo global também\nvivem neste módulo:"
+        },
+        {
+          "input": "counter",
+          "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+          "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243",
+          "line": 219,
+          "end_line": 219,
+          "text": "- `native_counter_at(key, label)` → `Value::Str` formatado hierarquicamente."
+        }
+      ],
+      "productive_owner_keys": [
+        "counter"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 withdraws the explicit historical global compatibility rule for this native.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/counter.md:213",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "counter_display",
+      "measured_current_claims": [
+        {
+          "input": "counter",
+          "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+          "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243",
+          "line": 213,
+          "end_line": 216,
+          "text": "## 8. Nativas globais absorvidas de `foundations` (Passo 1032)\n\nPara compatibilidade histórica, as seguintes funções de escopo global também\nvivem neste módulo:"
+        },
+        {
+          "input": "counter",
+          "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+          "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243",
+          "line": 218,
+          "end_line": 218,
+          "text": "- `native_counter_display(key, [callback])` → `Content::CounterDisplayCallback(...)`."
+        }
+      ],
+      "productive_owner_keys": [
+        "counter"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 withdraws the explicit historical global compatibility rule for this native.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/counter.md:213",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "counter_final",
+      "measured_current_claims": [
+        {
+          "input": "counter",
+          "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+          "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243",
+          "line": 213,
+          "end_line": 216,
+          "text": "## 8. Nativas globais absorvidas de `foundations` (Passo 1032)\n\nPara compatibilidade histórica, as seguintes funções de escopo global também\nvivem neste módulo:"
+        },
+        {
+          "input": "counter",
+          "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+          "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243",
+          "line": 220,
+          "end_line": 220,
+          "text": "- `native_counter_final(key)` → `Value::Str` com o valor final do counter."
+        }
+      ],
+      "productive_owner_keys": [
+        "counter"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 withdraws the explicit historical global compatibility rule for this native.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/counter.md:213",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "counter_step",
+      "measured_current_claims": [
+        {
+          "input": "counter",
+          "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+          "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243",
+          "line": 213,
+          "end_line": 216,
+          "text": "## 8. Nativas globais absorvidas de `foundations` (Passo 1032)\n\nPara compatibilidade histórica, as seguintes funções de escopo global também\nvivem neste módulo:"
+        },
+        {
+          "input": "counter",
+          "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+          "sha256": "3435825c70539ec4c0c03d4d15ee9fa19698f1c7f66808723bf4e9c596e9a243",
+          "line": 221,
+          "end_line": 221,
+          "text": "- `native_counter_step(key)` → `Content::CounterUpdate(Step)`."
+        }
+      ],
+      "productive_owner_keys": [
+        "counter"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 withdraws the explicit historical global compatibility rule for this native.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/counter.md:213",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "display",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 18,
+          "end_line": 18,
+          "text": "pub fn native_display(...) -> SourceResult<Value>;  // MathSize::Display (size variant)"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "frak",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 19,
+          "end_line": 19,
+          "text": "pub fn native_frak   (...) -> SourceResult<Value>;  // Fraktur"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "grid_cell",
+      "measured_current_claims": [
+        {
+          "input": "eval",
+          "path": "00_nucleo/prompts/compiler/eval.md",
+          "sha256": "80412483c8353a736f5c11842511cdef6c5e854728281a780c0183d6b73875cf",
+          "line": 193,
+          "end_line": 197,
+          "text": "Chaves de scope, function pointers, argumentos, payloads e chamada direta ou\nvia `.with(...)` permanecem os vigentes. Os seis aliases flat cristalinos\n`grid_cell`, `grid_header`, `grid_footer`, `table_cell`, `table_header` e\n`table_footer` conservam seus nomes históricos; P1293 não cria aliases flat\n`*_hline`/`*_vline` nem renomeia símbolos Rust."
+        },
+        {
+          "input": "table_grid",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+          "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd",
+          "line": 25,
+          "end_line": 31,
+          "text": "| Nativa | Assinatura | Emite |\n|---|---|---|\n| `table` | `table(columns?, rows?, ..children)` | `Content::Table` |\n| `table_cell` | `table_cell(body, x:?, y:?, colspan:?, rowspan:?)` | `Content::TableCell` |\n| `table_header` / `table_footer` | `(body, repeat: true)` | `Content::TableHeader` / `TableFooter` |\n| `grid_cell` | `grid_cell(body, x?, y?, colspan?, rowspan?)` | `Content::GridCell` — placement algorítmico (P224.C) |\n| `grid_header` / `grid_footer` | `(body, repeat: true)` | `Content::GridHeader` / `GridFooter` |"
+        }
+      ],
+      "productive_owner_keys": [
+        "eval",
+        "table_grid"
+      ],
+      "documentary_finding": "EXPLICIT_RETAINED_GLOBAL_ALIAS",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A later authoritative clause removes or renames any of these six flat aliases; short names under grid/table alone do not refute retention of flat names.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/eval.md:194",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "grid_footer",
+      "measured_current_claims": [
+        {
+          "input": "eval",
+          "path": "00_nucleo/prompts/compiler/eval.md",
+          "sha256": "80412483c8353a736f5c11842511cdef6c5e854728281a780c0183d6b73875cf",
+          "line": 193,
+          "end_line": 197,
+          "text": "Chaves de scope, function pointers, argumentos, payloads e chamada direta ou\nvia `.with(...)` permanecem os vigentes. Os seis aliases flat cristalinos\n`grid_cell`, `grid_header`, `grid_footer`, `table_cell`, `table_header` e\n`table_footer` conservam seus nomes históricos; P1293 não cria aliases flat\n`*_hline`/`*_vline` nem renomeia símbolos Rust."
+        },
+        {
+          "input": "table_grid",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+          "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd",
+          "line": 25,
+          "end_line": 31,
+          "text": "| Nativa | Assinatura | Emite |\n|---|---|---|\n| `table` | `table(columns?, rows?, ..children)` | `Content::Table` |\n| `table_cell` | `table_cell(body, x:?, y:?, colspan:?, rowspan:?)` | `Content::TableCell` |\n| `table_header` / `table_footer` | `(body, repeat: true)` | `Content::TableHeader` / `TableFooter` |\n| `grid_cell` | `grid_cell(body, x?, y?, colspan?, rowspan?)` | `Content::GridCell` — placement algorítmico (P224.C) |\n| `grid_header` / `grid_footer` | `(body, repeat: true)` | `Content::GridHeader` / `GridFooter` |"
+        }
+      ],
+      "productive_owner_keys": [
+        "eval",
+        "table_grid"
+      ],
+      "documentary_finding": "EXPLICIT_RETAINED_GLOBAL_ALIAS",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A later authoritative clause removes or renames any of these six flat aliases; short names under grid/table alone do not refute retention of flat names.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/eval.md:194",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "grid_header",
+      "measured_current_claims": [
+        {
+          "input": "eval",
+          "path": "00_nucleo/prompts/compiler/eval.md",
+          "sha256": "80412483c8353a736f5c11842511cdef6c5e854728281a780c0183d6b73875cf",
+          "line": 193,
+          "end_line": 197,
+          "text": "Chaves de scope, function pointers, argumentos, payloads e chamada direta ou\nvia `.with(...)` permanecem os vigentes. Os seis aliases flat cristalinos\n`grid_cell`, `grid_header`, `grid_footer`, `table_cell`, `table_header` e\n`table_footer` conservam seus nomes históricos; P1293 não cria aliases flat\n`*_hline`/`*_vline` nem renomeia símbolos Rust."
+        },
+        {
+          "input": "table_grid",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+          "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd",
+          "line": 25,
+          "end_line": 31,
+          "text": "| Nativa | Assinatura | Emite |\n|---|---|---|\n| `table` | `table(columns?, rows?, ..children)` | `Content::Table` |\n| `table_cell` | `table_cell(body, x:?, y:?, colspan:?, rowspan:?)` | `Content::TableCell` |\n| `table_header` / `table_footer` | `(body, repeat: true)` | `Content::TableHeader` / `TableFooter` |\n| `grid_cell` | `grid_cell(body, x?, y?, colspan?, rowspan?)` | `Content::GridCell` — placement algorítmico (P224.C) |\n| `grid_header` / `grid_footer` | `(body, repeat: true)` | `Content::GridHeader` / `GridFooter` |"
+        }
+      ],
+      "productive_owner_keys": [
+        "eval",
+        "table_grid"
+      ],
+      "documentary_finding": "EXPLICIT_RETAINED_GLOBAL_ALIAS",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A later authoritative clause removes or renames any of these six flat aliases; short names under grid/table alone do not refute retention of flat names.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/eval.md:194",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "inline",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 20,
+          "end_line": 20,
+          "text": "pub fn native_inline (...) -> SourceResult<Value>;  // MathSize::Text (size variant)"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "italic",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 21,
+          "end_line": 21,
+          "text": "pub fn native_italic (...) -> SourceResult<Value>;  // italic=Some(true)  [native_math_italic]"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "lof",
+      "measured_current_claims": [
+        {
+          "input": "outline",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+          "sha256": "e8dc3b96fd9a03ae21f87f602d85bb7b0b5b6eb95d6267dcbfe280a80d3b0632",
+          "line": 9,
+          "end_line": 10,
+          "text": "**Vanilla**: `typst-library/src/model/outline.rs` (`OutlineElem`). `lof`/`lot` **não têm\nhomólogo vanilla** — são extensão cristalina, aliases de `outline(target:)`."
+        },
+        {
+          "input": "outline",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+          "sha256": "e8dc3b96fd9a03ae21f87f602d85bb7b0b5b6eb95d6267dcbfe280a80d3b0632",
+          "line": 59,
+          "end_line": 64,
+          "text": "### `lof(title: ?)` / `lot(title: ?)`\n\nSó `title` (`Content | Str | none`); **zero** posicionais. Emitem `Content::lof(title)` /\n`Content::lot(title)` — equivalentes a `outline(target: \"figures\")` e\n`outline(target: \"tables\")`. Tipo errado → `{fn}(title:): espera content ou string,\nrecebeu {tipo}`."
+        },
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 827,
+          "end_line": 827,
+          "text": "**Paridade vanilla**: Divergência intencional — vanilla não tem `lof()` global; cristalin introduz como função stdlib por conveniência."
+        }
+      ],
+      "productive_owner_keys": [
+        "outline"
+      ],
+      "documentary_finding": "EXPLICIT_CRYSTALLINE_EXTENSION",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 removes the global alias or changes the normative retention; presence of outline(target:) alone is not equivalent evidence for an extra global.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/structural/outline.md:9",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "lot",
+      "measured_current_claims": [
+        {
+          "input": "outline",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+          "sha256": "e8dc3b96fd9a03ae21f87f602d85bb7b0b5b6eb95d6267dcbfe280a80d3b0632",
+          "line": 9,
+          "end_line": 10,
+          "text": "**Vanilla**: `typst-library/src/model/outline.rs` (`OutlineElem`). `lof`/`lot` **não têm\nhomólogo vanilla** — são extensão cristalina, aliases de `outline(target:)`."
+        },
+        {
+          "input": "outline",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/outline.md",
+          "sha256": "e8dc3b96fd9a03ae21f87f602d85bb7b0b5b6eb95d6267dcbfe280a80d3b0632",
+          "line": 59,
+          "end_line": 64,
+          "text": "### `lof(title: ?)` / `lot(title: ?)`\n\nSó `title` (`Content | Str | none`); **zero** posicionais. Emitem `Content::lof(title)` /\n`Content::lot(title)` — equivalentes a `outline(target: \"figures\")` e\n`outline(target: \"tables\")`. Tipo errado → `{fn}(title:): espera content ou string,\nrecebeu {tipo}`."
+        },
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 850,
+          "end_line": 850,
+          "text": "**Paridade vanilla**: Divergência intencional — vanilla não tem `lot()` global; cristalin introduz como função stdlib por conveniência."
+        }
+      ],
+      "productive_owner_keys": [
+        "outline"
+      ],
+      "documentary_finding": "EXPLICIT_CRYSTALLINE_EXTENSION",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 removes the global alias or changes the normative retention; presence of outline(target:) alone is not equivalent evidence for an extra global.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/structural/outline.md:9",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "math.registered",
+      "measured_current_claims": [
+        {
+          "input": "math",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+          "sha256": "4c0fe0f10d5d673f5de36ce48ceef9871307b13d2d229dad0a458062f9cdc7fb",
+          "line": 90,
+          "end_line": 91,
+          "text": "`math.registered`, herdado de `sym.registered`, permanece extensão cristalina\nindividualizada, sem crédito de paridade e sem remoção automática."
+        }
+      ],
+      "productive_owner_keys": [
+        "math"
+      ],
+      "documentary_finding": "EXPLICIT_EXTENSION_WITHOUT_PARITY_CREDIT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding owner clause withdraws retention/no-credit status or the ratified symbol catalogue changes through an explicitly authorized resync.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/structural/math.md:90",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "mono",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 22,
+          "end_line": 22,
+          "text": "pub fn native_mono   (...) -> SourceResult<Value>;  // Monospace"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "op",
+      "measured_current_claims": [
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 14,
+          "end_line": 14,
+          "text": "Este módulo implementa as funções globais de conteúdo estrutural e semântico de Typst: estilo inline (strong/emph), verbatim (raw), separadores, termos, citações em bloco, tabela/grid, bibliografia/citação, hiperligações, notas de rodapé, elementos matemáticos accent/cancel/underover/op, e os wrappers de metadata `document`/`asset`."
+        },
+        {
+          "input": "math",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+          "sha256": "4c0fe0f10d5d673f5de36ce48ceef9871307b13d2d229dad0a458062f9cdc7fb",
+          "line": 60,
+          "end_line": 60,
+          "text": "| `op` | `op(text, limits: false)` | `Content::MathOp` |"
+        },
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 1161,
+          "end_line": 1167,
+          "text": "\n- **`op`**: `math.op(...)` (namespace explícito) não existia — só o `op(...)`\n  bare (scope global, `eval/mod.rs`) funcionava. Registo adicional em\n  `make_math_module()` reutilizando o mesmo `native_op` já existente\n  (`dict.insert(\"op\".into(), Value::Func(Func::native(\"op\", native_op)))`) —\n  paridade vanilla (namespace `math` reexpõe as funções de operador).\n- **`thin`/`med`/`thick`/`quad`/`wide`**: espaçamentos nomeados de modo math"
+        }
+      ],
+      "productive_owner_keys": [
+        "math",
+        "structural"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 removes the explicit global route, or limits these native names exclusively to math namespace. Native implementation existence alone would not justify an extra global.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/structural.md:14",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "replace",
+      "measured_current_claims": [
+        {
+          "input": "case",
+          "path": "00_nucleo/prompts/compiler/stdlib/text/case.md",
+          "sha256": "b40155505b65b4ff0d9b41c7c9ecaff1c51b467bdfab7fc356ac808288adbc2c",
+          "line": 29,
+          "end_line": 43,
+          "text": "| Nativa | Assinatura | Devolve |\n|---|---|---|\n| `upper` | `upper(str \\| content)` | mesmo tipo, texto em maiúsculas |\n| `lower` | `lower(str \\| content)` | mesmo tipo, texto em minúsculas |\n| `replace` | `replace(fonte, padrão, substituição, count: ?)` | mesmo tipo da fonte |\n\n- `upper`/`lower`: exactamente 1 posicional, zero nomeados. `Str` → `Value::Str`\n  transformado; `Content` → `map_text` com `to_uppercase`/`to_lowercase`.\n- `replace`: 3 posicionais (`fonte: Str | Content`, `padrão: Str`, `substituição: Str`)\n  + nomeado opcional `count: Int`. Qualquer outro nomeado → erro.\n- **Padrão vazio é rejeitado** — `replacen(\"\", …)` entraria em ciclo infinito.\n- **`count` é global ao documento, não por nó de texto**: o contador vive numa closure\n  `FnMut` capturada por `map_text`, portanto o orçamento de substituições decresce à\n  medida que os nós são visitados e esgota-se uma vez só. Quando chega a zero, os nós\n  restantes passam intactos. Sem `count`, substitui todas as ocorrências."
+        },
+        {
+          "input": "case",
+          "path": "00_nucleo/prompts/compiler/stdlib/text/case.md",
+          "sha256": "b40155505b65b4ff0d9b41c7c9ecaff1c51b467bdfab7fc356ac808288adbc2c",
+          "line": 63,
+          "end_line": 68,
+          "text": "#replace(\"aaa\", \"a\", \"b\")         → Str(\"bbb\")\n#replace(\"aaa\", \"a\", \"b\", count: 2) → Str(\"bba\")\n#replace([a a], \"a\", \"b\", count: 1) → só a primeira ocorrência do documento inteiro\n#replace(\"a\", \"\", \"b\")            → Err (padrão vazio)\n#replace(\"a\", \"b\")                → Err (requer 3 posicionais)\n#replace(\"a\", \"b\", \"c\", foo: 1)   → Err (nomeado inesperado)"
+        },
+        {
+          "input": "text",
+          "path": "00_nucleo/prompts/compiler/stdlib/text.md",
+          "sha256": "1dadbba93127f2b62a8728bf0a92c5378c8f52b15bff5aa9152290faf0ac72a5",
+          "line": 16,
+          "end_line": 16,
+          "text": "O módulo `text` reúne as nativas globais que produzem, transformam ou decoram texto. Era"
+        },
+        {
+          "input": "text",
+          "path": "00_nucleo/prompts/compiler/stdlib/text.md",
+          "sha256": "1dadbba93127f2b62a8728bf0a92c5378c8f52b15bff5aa9152290faf0ac72a5",
+          "line": 35,
+          "end_line": 38,
+          "text": "| Nó | Ficheiro | Superfície da linguagem | Vanilla homólogo |\n|---|---|---|---|\n| `constructor` | `text/constructor.rs` | `text(...)` + 6 validadores privados | `text/mod.rs::TextElem` |\n| `case` | `text/case.rs` | `upper`, `lower`, `replace` | `text/case.rs` (+ `foundations/str.rs`) |"
+        },
+        {
+          "input": "text",
+          "path": "00_nucleo/prompts/compiler/stdlib/text.md",
+          "sha256": "1dadbba93127f2b62a8728bf0a92c5378c8f52b15bff5aa9152290faf0ac72a5",
+          "line": 55,
+          "end_line": 59,
+          "text": "```\nconstructor  → native_text\ncase         → native_upper, native_lower, native_replace\ndeco         → native_underline, native_strike, native_overline, native_highlight\nsmallcaps    → native_smallcaps"
+        }
+      ],
+      "productive_owner_keys": [
+        "case",
+        "text"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A later case-owner clause restricts replace to a method or removes the explicit global examples; mere Rust reexport without these public claims would not suffice.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/text/case.md:33",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "sans",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 23,
+          "end_line": 23,
+          "text": "pub fn native_sans   (...) -> SourceResult<Value>;  // SansSerif"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "scr",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 24,
+          "end_line": 24,
+          "text": "pub fn native_scr    (...) -> SourceResult<Value>;  // Roundhand"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "script",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 25,
+          "end_line": 25,
+          "text": "pub fn native_script (...) -> SourceResult<Value>;  // Script + cramped"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "serif",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 26,
+          "end_line": 26,
+          "text": "pub fn native_serif  (...) -> SourceResult<Value>;  // Plain (force serif)"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "sscript",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 27,
+          "end_line": 27,
+          "text": "pub fn native_sscript(...) -> SourceResult<Value>;  // SScript + cramped"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "state_at",
+      "measured_current_claims": [
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 142,
+          "end_line": 145,
+          "text": "## 6. Nativas globais absorvidas de `foundations` (Passo 1032)\n\nPara compatibilidade histórica, as seguintes funções de escopo global também\nvivem neste módulo:"
+        },
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 151,
+          "end_line": 151,
+          "text": "- `native_state_at(key, label)` → valor do state na `Location` do label."
+        }
+      ],
+      "productive_owner_keys": [
+        "state"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 withdraws the explicit historical global compatibility rule for this native.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/state.md:142",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "state_display",
+      "measured_current_claims": [
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 142,
+          "end_line": 145,
+          "text": "## 6. Nativas globais absorvidas de `foundations` (Passo 1032)\n\nPara compatibilidade histórica, as seguintes funções de escopo global também\nvivem neste módulo:"
+        },
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 149,
+          "end_line": 149,
+          "text": "- `native_state_display(key, [callback])` → `Content::StateDisplay(...)`."
+        }
+      ],
+      "productive_owner_keys": [
+        "state"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 withdraws the explicit historical global compatibility rule for this native.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/state.md:142",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "state_final",
+      "measured_current_claims": [
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 142,
+          "end_line": 145,
+          "text": "## 6. Nativas globais absorvidas de `foundations` (Passo 1032)\n\nPara compatibilidade histórica, as seguintes funções de escopo global também\nvivem neste módulo:"
+        },
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 150,
+          "end_line": 150,
+          "text": "- `native_state_final(key)` → valor final do state no introspector."
+        }
+      ],
+      "productive_owner_keys": [
+        "state"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 withdraws the explicit historical global compatibility rule for this native.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/state.md:142",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "state_update",
+      "measured_current_claims": [
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 142,
+          "end_line": 145,
+          "text": "## 6. Nativas globais absorvidas de `foundations` (Passo 1032)\n\nPara compatibilidade histórica, as seguintes funções de escopo global também\nvivem neste módulo:"
+        },
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 147,
+          "end_line": 147,
+          "text": "- `native_state_update(key, value)` → `Content::StateUpdate(Set(value))`."
+        }
+      ],
+      "productive_owner_keys": [
+        "state"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 withdraws the explicit historical global compatibility rule for this native.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/state.md:142",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "state_update_with",
+      "measured_current_claims": [
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 142,
+          "end_line": 145,
+          "text": "## 6. Nativas globais absorvidas de `foundations` (Passo 1032)\n\nPara compatibilidade histórica, as seguintes funções de escopo global também\nvivem neste módulo:"
+        },
+        {
+          "input": "state",
+          "path": "00_nucleo/prompts/compiler/stdlib/state.md",
+          "sha256": "13d8a137e64a22c3f76a0b43021f4cd126bb9889dcf4421757f4a5dd3c5081ef",
+          "line": 148,
+          "end_line": 148,
+          "text": "- `native_state_update_with(key, fn)` → `Content::StateUpdate(Func(fn))` (stub P172)."
+        }
+      ],
+      "productive_owner_keys": [
+        "state"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 withdraws the explicit historical global compatibility rule for this native.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/state.md:142",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "sym.registered",
+      "measured_current_claims": [
+        {
+          "input": "sym",
+          "path": "00_nucleo/prompts/compiler/stdlib/sym.md",
+          "sha256": "42a2127215e9a37d69c90695e1be66a61320fa086ffd36b51a1ac3441c816f3d",
+          "line": 94,
+          "end_line": 95,
+          "text": "`sym.registered` é extensão cristalina histórica, ausente do codex pinado. P1283 a\npreserva sem crédito de paridade e sem remoção automática, conforme a proibição do passo."
+        }
+      ],
+      "productive_owner_keys": [
+        "sym"
+      ],
+      "documentary_finding": "EXPLICIT_EXTENSION_WITHOUT_PARITY_CREDIT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding owner clause withdraws retention/no-credit status or the ratified symbol catalogue changes through an explicitly authorized resync.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/sym.md:94",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "table_cell",
+      "measured_current_claims": [
+        {
+          "input": "eval",
+          "path": "00_nucleo/prompts/compiler/eval.md",
+          "sha256": "80412483c8353a736f5c11842511cdef6c5e854728281a780c0183d6b73875cf",
+          "line": 193,
+          "end_line": 197,
+          "text": "Chaves de scope, function pointers, argumentos, payloads e chamada direta ou\nvia `.with(...)` permanecem os vigentes. Os seis aliases flat cristalinos\n`grid_cell`, `grid_header`, `grid_footer`, `table_cell`, `table_header` e\n`table_footer` conservam seus nomes históricos; P1293 não cria aliases flat\n`*_hline`/`*_vline` nem renomeia símbolos Rust."
+        },
+        {
+          "input": "table_grid",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+          "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd",
+          "line": 25,
+          "end_line": 31,
+          "text": "| Nativa | Assinatura | Emite |\n|---|---|---|\n| `table` | `table(columns?, rows?, ..children)` | `Content::Table` |\n| `table_cell` | `table_cell(body, x:?, y:?, colspan:?, rowspan:?)` | `Content::TableCell` |\n| `table_header` / `table_footer` | `(body, repeat: true)` | `Content::TableHeader` / `TableFooter` |\n| `grid_cell` | `grid_cell(body, x?, y?, colspan?, rowspan?)` | `Content::GridCell` — placement algorítmico (P224.C) |\n| `grid_header` / `grid_footer` | `(body, repeat: true)` | `Content::GridHeader` / `GridFooter` |"
+        }
+      ],
+      "productive_owner_keys": [
+        "eval",
+        "table_grid"
+      ],
+      "documentary_finding": "EXPLICIT_RETAINED_GLOBAL_ALIAS",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A later authoritative clause removes or renames any of these six flat aliases; short names under grid/table alone do not refute retention of flat names.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/eval.md:194",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "table_footer",
+      "measured_current_claims": [
+        {
+          "input": "eval",
+          "path": "00_nucleo/prompts/compiler/eval.md",
+          "sha256": "80412483c8353a736f5c11842511cdef6c5e854728281a780c0183d6b73875cf",
+          "line": 193,
+          "end_line": 197,
+          "text": "Chaves de scope, function pointers, argumentos, payloads e chamada direta ou\nvia `.with(...)` permanecem os vigentes. Os seis aliases flat cristalinos\n`grid_cell`, `grid_header`, `grid_footer`, `table_cell`, `table_header` e\n`table_footer` conservam seus nomes históricos; P1293 não cria aliases flat\n`*_hline`/`*_vline` nem renomeia símbolos Rust."
+        },
+        {
+          "input": "table_grid",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+          "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd",
+          "line": 25,
+          "end_line": 31,
+          "text": "| Nativa | Assinatura | Emite |\n|---|---|---|\n| `table` | `table(columns?, rows?, ..children)` | `Content::Table` |\n| `table_cell` | `table_cell(body, x:?, y:?, colspan:?, rowspan:?)` | `Content::TableCell` |\n| `table_header` / `table_footer` | `(body, repeat: true)` | `Content::TableHeader` / `TableFooter` |\n| `grid_cell` | `grid_cell(body, x?, y?, colspan?, rowspan?)` | `Content::GridCell` — placement algorítmico (P224.C) |\n| `grid_header` / `grid_footer` | `(body, repeat: true)` | `Content::GridHeader` / `GridFooter` |"
+        }
+      ],
+      "productive_owner_keys": [
+        "eval",
+        "table_grid"
+      ],
+      "documentary_finding": "EXPLICIT_RETAINED_GLOBAL_ALIAS",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A later authoritative clause removes or renames any of these six flat aliases; short names under grid/table alone do not refute retention of flat names.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/eval.md:194",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "table_header",
+      "measured_current_claims": [
+        {
+          "input": "eval",
+          "path": "00_nucleo/prompts/compiler/eval.md",
+          "sha256": "80412483c8353a736f5c11842511cdef6c5e854728281a780c0183d6b73875cf",
+          "line": 193,
+          "end_line": 197,
+          "text": "Chaves de scope, function pointers, argumentos, payloads e chamada direta ou\nvia `.with(...)` permanecem os vigentes. Os seis aliases flat cristalinos\n`grid_cell`, `grid_header`, `grid_footer`, `table_cell`, `table_header` e\n`table_footer` conservam seus nomes históricos; P1293 não cria aliases flat\n`*_hline`/`*_vline` nem renomeia símbolos Rust."
+        },
+        {
+          "input": "table_grid",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+          "sha256": "153a22b018f247e1b37943a257afa3ad55da414b92886655a1415079118c3edd",
+          "line": 25,
+          "end_line": 31,
+          "text": "| Nativa | Assinatura | Emite |\n|---|---|---|\n| `table` | `table(columns?, rows?, ..children)` | `Content::Table` |\n| `table_cell` | `table_cell(body, x:?, y:?, colspan:?, rowspan:?)` | `Content::TableCell` |\n| `table_header` / `table_footer` | `(body, repeat: true)` | `Content::TableHeader` / `TableFooter` |\n| `grid_cell` | `grid_cell(body, x?, y?, colspan?, rowspan?)` | `Content::GridCell` — placement algorítmico (P224.C) |\n| `grid_header` / `grid_footer` | `(body, repeat: true)` | `Content::GridHeader` / `GridFooter` |"
+        }
+      ],
+      "productive_owner_keys": [
+        "eval",
+        "table_grid"
+      ],
+      "documentary_finding": "EXPLICIT_RETAINED_GLOBAL_ALIAS",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A later authoritative clause removes or renames any of these six flat aliases; short names under grid/table alone do not refute retention of flat names.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/eval.md:194",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "underover",
+      "measured_current_claims": [
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 14,
+          "end_line": 14,
+          "text": "Este módulo implementa as funções globais de conteúdo estrutural e semântico de Typst: estilo inline (strong/emph), verbatim (raw), separadores, termos, citações em bloco, tabela/grid, bibliografia/citação, hiperligações, notas de rodapé, elementos matemáticos accent/cancel/underover/op, e os wrappers de metadata `document`/`asset`."
+        },
+        {
+          "input": "math",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+          "sha256": "4c0fe0f10d5d673f5de36ce48ceef9871307b13d2d229dad0a458062f9cdc7fb",
+          "line": 59,
+          "end_line": 59,
+          "text": "| `underover` | `underover(base, under: ?, over: ?)` | `Content::MathUnderover` |"
+        },
+        {
+          "input": "structural",
+          "path": "00_nucleo/prompts/compiler/stdlib/structural.md",
+          "sha256": "7b4589610a6370ccfb38019c9dc778e1e1f08f8311787dad129947f480bf622b",
+          "line": 632,
+          "end_line": 643,
+          "text": "### `native_underover(base, under:?, over:?)`\n\n**Assinatura**: `underover(base: Content | Str, under: Content | Str | None, over: Content | Str | None) -> Content`\n\n**Argumentos**:\n- 1º posicional `base`: `Content` ou `Str`.\n- `under`: `Content`/`Str`/`none` (named; default `None`).\n- `over`: `Content`/`Str`/`none` (named; default `None`).\n\n**Semântica**: Emite `Content::MathUnderover { base, under, over }`. Agregação cristalina de vários elementos vanilla (`underline`, `overline`, `underbrace`, `overbrace`, etc.) num único variant.\n\n**Paridade vanilla**: Divergência intencional ADR-0033 / ADR-0054 graded — Typst vanilla fragmenta em 12+ elementos."
+        }
+      ],
+      "productive_owner_keys": [
+        "math",
+        "structural"
+      ],
+      "documentary_finding": "EXPLICIT_INTENTIONAL_GLOBAL_AGGREGATION",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding L0 removes the explicit global route, or limits these native names exclusively to math namespace. Native implementation existence alone would not justify an extra global.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/structural.md:14",
+      "historical_interpretation_used_as_authority": false
+    },
+    {
+      "path": "upright",
+      "measured_current_claims": [
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 28,
+          "end_line": 28,
+          "text": "pub fn native_upright(...) -> SourceResult<Value>;  // italic=Some(false)"
+        },
+        {
+          "input": "math_style",
+          "path": "00_nucleo/prompts/compiler/stdlib/math_style.md",
+          "sha256": "02a1dadb6c08f3ea9ae109ff7bd2dc87e2616a5da5d4a4cfbf5a1269bc4c9603",
+          "line": 70,
+          "end_line": 73,
+          "text": "### Registo\n\nCada função registada em `make_root_scope` (`eval/mod.rs`) como\n`Func::native(<nome>, native_<nome>)`. User-facing:"
+        }
+      ],
+      "productive_owner_keys": [
+        "math_style"
+      ],
+      "documentary_finding": "EXPLICIT_PUBLIC_GLOBAL_CONTRACT",
+      "interpretation": "The current normative text deliberately retains this public global spelling. This is documentary intent, not evidence that implementation or behavior conforms.",
+      "refutation": "A superseding current L0 removes or namespaces this specific global, or the root-scope registration clause ceases to cover it.",
+      "parity_credit": false,
+      "adjustment_decision": "Reserved for classifier using fresh public outputs; this artifact supplies intent only.",
+      "historical_locator_only": "00_nucleo/prompts/compiler/stdlib/math_style.md:72",
+      "historical_interpretation_used_as_authority": false
+    }
+  ],
+  "scope": {
+    "read": "Current full referenced L0s plus relevant text/table_grid hubs, productive owner headers, historical evidence map projection, addendum/baseline/manifest. No P1335 candidate matrix, supplements, classification or selection.",
+    "write": "Only this new p1335-inventory-extension-evidence.json; frozen inventory and catalogue untouched.",
+    "interpretation": "This is normative documentary support, not measured product parity or a denominator adjustment. Separate classifier and reviewer judge use."
+  },
+  "limits": [
+    "Hash do Código and @prompt-hash are recorded as declared fields, not confused with whole-file SHA-256; root strict lineage gates own their validation.",
+    "structural.md line5 still names pre-atomization structural.rs; the final atomization section names structural/mod.rs and the actual owner header points to this L0. The earlier line is not used as current owner authority.",
+    "No historical score or count is adopted. Every historical map key is individually paired with current lines; documentary absence for calc aliases is bounded to the full current calc owner."
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "start": "2026-09-09T16:54:36.002327+00:00",
+  "end": "2026-09-09T16:54:37.165645+00:00",
+  "seconds": 1.1633371509960853,
+  "role": "D",
+  "isolation": "not technically attested",
+  "phase": "catalog",
+  "plan_sha256": "610ec46e05245b03fe8fd1ac77990594e9c60b348f083c342483f09edc78f903",
+  "manifest_sha256": "8123cf1a53b2551fd6954475d21f85725b8c8535cfe0252d90afd554306b3a53",
+  "checker_sha256": "15b934370c32c5054408c4a14d65abecdd882e93844870a19d743ba33bb6938f",
+  "adversary_sha256": "a846b02d39a9b355de386aca23cb5e08295fffa33e98c4f4133ff619181feab3",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-probe-catalog.json": "988bab4e5a88e400db2533f1db8a428328f1a5fcec51d4415ea171d20d5832d8",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-inventory-reconciliation.json": "368226df91a44f44149f2755086cf09d4df3398b2d884b92371d4e287a9a6cfa",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-probe-catalog.json": "a9853e4c54663a258a9dd706c1c974930579c65e335b283243b10eae19b4889a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-inventory-vanilla-default.json": "5e062810763aea5f31a6830c0da955e66cb29178e6d3f1860dc6f5cee95d93c1",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-inventory-vanilla-html.json": "71940383cf96f4f9850e8dbfa99b618039612aa40b9406f0ade18a08709d543d",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-inventory-crystalline-default.json": "c4edacc6b3b648a23fbf31062b49de412f14f7412aac32f335b0c3a57877a18a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1335-inventory-crystalline-html.json": "ce23cb92ec3c109377bcd3074e9bc7d2f2a0704e112d9f39f2708024e8e3c874"
+  },
+  "attacks": [
+    {
+      "id": "R01",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 14159,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 14157,
+        "violations": [
+          {
+            "code": "HISTORICAL_ID_OMITTED",
+            "witness": "path-accent"
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "538e6650f808a6043ecb88b2780f4ec31d9ce39694a9903fdb12becbab4904d5",
+      "mutant_sha256": "1c8b9adb6ed9c977a72a14bbd73e8cdcb8dc80729c1ee1a19ca4edd72bf52312",
+      "transformation": {
+        "remove_historical_id": "path-accent"
+      },
+      "valid": true,
+      "rejected": true
+    },
+    {
+      "id": "R02",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 14159,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 14159,
+        "violations": [
+          {
+            "code": "CATALOG_DUPLICATE_ID",
+            "witness": 4719
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "538e6650f808a6043ecb88b2780f4ec31d9ce39694a9903fdb12becbab4904d5",
+      "mutant_sha256": "a3a13292d7bd11e2aaada42588ca505b130c8e4b42f97a85ede1da88371ee904",
+      "transformation": {
+        "duplicate_id": "path-accent"
+      },
+      "valid": true,
+      "rejected": true
+    },
+    {
+      "id": "R03",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 14159,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 14160,
+        "violations": [
+          {
+            "code": "SYMBOL_ROUTE_FABRICATED",
+            "witness": [
+              "sym.registered.__p1335_fiction__.r.double"
+            ]
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "538e6650f808a6043ecb88b2780f4ec31d9ce39694a9903fdb12becbab4904d5",
+      "mutant_sha256": "baac87193a7cee9e4fedfeb6426db1decf26085b5fcc5621d71a9fdca7eeaf36",
+      "transformation": {
+        "fictional_symbol_route": {
+          "expression": "repr((type(sym.registered.__p1335_fiction__.r.double), repr(sym.registered.__p1335_fiction__.r.double)))",
+          "id": "p1335-review-fiction",
+          "inventory_classes": [
+            "EXTRA_BINDING"
+          ],
+          "origins": [
+            "inventory:default",
+            "inventory:html"
+          ],
+          "path": "sym.registered.__p1335_fiction__.r.double",
+          "profiles": [
+            "default",
+            "html",
+            "a11y",
+            "html+a11y"
+          ],
+          "roles": [
+            "inventory_non_match"
+          ]
+        }
+      },
+      "valid": true,
+      "rejected": true
+    }
+  ],
+  "controls": {
+    "reordered": {
+      "verdict": "Preserved",
+      "checks": 14159,
+      "violations": [],
+      "unknowns": []
+    }
+  },
+  "valid": 3,
+  "rejected": 3,
+  "scope": "Audit data only; not a product mutation score."
+}

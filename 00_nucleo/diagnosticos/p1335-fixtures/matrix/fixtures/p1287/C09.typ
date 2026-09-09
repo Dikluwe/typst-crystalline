@@ -1,0 +1,6 @@
+#let boxy(fill) = rect(width: 62pt, height: 24pt, fill: fill)
+#boxy(gradient.linear(red, blue, space: luma))
+#boxy(gradient.radial(cmyk(0%, 100%, 100%, 0%), cmyk(100%, 0%, 0%, 0%), space: cmyk))
+#boxy(gradient.conic(red.transparentize(40%), blue, space: rgb))
+#boxy(tiling([T], size: (10pt, 10pt), relative: "self"))
+#box(clip: true, radius: 6pt, boxy(gradient.linear(red.transparentize(70%), green)))

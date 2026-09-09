@@ -1,0 +1,50 @@
+{
+  "at": "2026-09-09T16:49:00.932790+00:00",
+  "baseline_sha256": "0ec240607d173acd513a21d2728c66a1e514f3ad294b88bad60f3fdc8e984254",
+  "step": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/materialization/typst-passo-1335.md",
+    "sha256": "35bdf054a87ea41911aa4a1697e93145814b09fb770f97d6383be468cafc5913"
+  },
+  "regime": "Auditoria segregada executada sem atesta\u00e7\u00e3o t\u00e9cnica de isolamento; sem implementa\u00e7\u00e3o/mutantes produtivos ou selo de refinamento",
+  "roles": {
+    "inventory": {
+      "executor": "/root/p1335_inventory",
+      "context": "fresh task only",
+      "read": "step, skill, historical inventory methods/catalogs, current enumerator/product source, pinned binaries; no P1335 candidate matrix or selection",
+      "write": "p1335-inventory-* and p1335-probe-catalog.json; dedicated tmp"
+    },
+    "operator": {
+      "executor": "/root",
+      "context": "conversation",
+      "read": "frozen inputs, sources, outputs and historical methods",
+      "write": "p1335 provenance, runners, matrices, supplements, gates, final report and closure"
+    },
+    "classifier": {
+      "executor": "/root/p1335_classifier",
+      "context": "fresh task only",
+      "read": "step, history, source/full relevant L0, frozen catalog and public outputs",
+      "write": "p1335-classification-*"
+    },
+    "reviewer": {
+      "executor": "/root/p1335_review",
+      "context": "fresh task only",
+      "read": "protected inputs and judged outputs",
+      "write": "p1335-review-* only; no edits to judged inputs"
+    }
+  },
+  "policy": {
+    "unknown": "mandatory Unknown or instability blocks closure/selection; report valid partial findings",
+    "product_readonly": true,
+    "commit": false,
+    "outputs": "new p1335-* diagnostics and exclusive temporaries",
+    "orders": [
+      "normal",
+      "repeat",
+      "reverse"
+    ],
+    "max_workers": 8,
+    "probe_timeout_seconds": 30,
+    "observables": "public lookup/kind/repr and full exit/stdout/stderr; functional and transversal projections separate from inventory denominator",
+    "budget": "Two focal revisions without discriminatory gain require method review; run each full order once per validated runner; bounded command timeout 2700s; no unbounded retries or weakening Unknown"
+  }
+}

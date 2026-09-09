@@ -1,0 +1,21 @@
+{
+  "at": "2026-09-09T17:47:11.446Z",
+  "role": "D",
+  "closure": {
+    "path": "00_nucleo/diagnosticos/p1335-closure.json",
+    "sha256": "624c5784b8977f4a3fc36c0215f7822c383588520580b33b80ea055457cebd1d"
+  },
+  "verdict": "Preserved",
+  "checks": 9414,
+  "violations": [],
+  "unknowns": [],
+  "counts": {
+    "active_inputs": 38,
+    "artifacts": 687,
+    "export_artifacts": 441,
+    "historical_preserved": 4333
+  },
+  "product_files": 3912,
+  "selected": "primitive-instance-field-diagnostic",
+  "scope": "Post-closure read-only verification. This receipt is later than the immutable closure snapshot and is not claimed among its artifacts; no judged file modified."
+}

@@ -1,0 +1,77 @@
+{
+  "schema": "p1335-classification-supplement-v1",
+  "at": "2026-09-09T17:25:03.796Z",
+  "inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1335-sentinels-normal-r3.json",
+      "sha256": "1ceb634fcb0211935e8125d6825d4f7a018ba2c4f2e129ded73bba483fdcddbb"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-sentinels-repeat-r3.json",
+      "sha256": "9a526eb7f5c188dd47bd7fc2f4b747bad345c29a56d731a98181247a3fb74840"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-sentinels-reverse-r3.json",
+      "sha256": "323fd12ac30fac9451cc7125b87e4e4c4cce27dd876d4a2f9dbe13c3c457c7c1"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-sentinels-cases-r2.json",
+      "sha256": "bccc2b4ab11c4ec6a9944cb0df467d01bf99e61b1d04599fbde5098395bd5ed7"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-sentinels-freeze-r3.json",
+      "sha256": "42b86d31f461d1a3193d279f653c466468e1da3ffb40f6253354d4016d012891"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-classification-causal-specs-r2.json",
+      "sha256": "2230ed28231bfe391383db2f5c5bf6b4284c28ff23c52bb2f5b6a979ace1173d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-classification-priority-refinement.md",
+      "sha256": "11247bc66c0ff70eb6ca5d7ed66e0a1d82045c5d96acf02a17fc2873baf44a9a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-location-control.json",
+      "sha256": "d504ec27a52d3063404993d4356d0e1987247e8d7f149bef4d0899ddf2f75047"
+    }
+  ],
+  "classifier": {
+    "path": "00_nucleo/diagnosticos/p1335-classification-supplement.cjs",
+    "sha256": "bd1d701350d557e8afedb079567e178965d2630030ff39bbefbe85218dfd2feb"
+  },
+  "cases": 1125,
+  "cells": 4422,
+  "raw_counts": {
+    "MATCH_VALUE": 1992,
+    "MATCH_DIAGNOSTIC": 1938,
+    "DIFFERENT_DIAGNOSTIC": 404,
+    "DIFFERENT_VALUE": 36,
+    "VANILLA_ONLY": 40,
+    "CRYSTALLINE_ONLY": 12
+  },
+  "language_projection": {
+    "Preserved": 1866,
+    "Violated": 80,
+    "NOT_USED": 2476
+  },
+  "language_classes": {
+    "CLOSED_MEASURED_FUNCTIONAL_SENTINEL": 984,
+    "OPEN_LANGUAGE_DIVERGENCE": 89,
+    "MATCH_PROJECTED_LANGUAGE_RAW_TRANSPORT_DIFFERENCE": 52
+  },
+  "three_orders_checked": true,
+  "outside_principal_denominator": true,
+  "temporal": {
+    "UNCHANGED_COMPLETE_CHANNELS": 2486,
+    "LOCATION_OR_ROUTE_CHANGED_NO_RAW_TEMPORAL_CLAIM": 524,
+    "CLOSED_NOW": 76,
+    "ADDED_SUPPLEMENT": 1336
+  },
+  "preservation": {
+    "PRESERVED_LITERAL": 1332,
+    "AUTHORIZED_LATER_CORRECTION": 32,
+    "PRESERVED_LITERAL_AT_ORIGINAL_LOCATION": 12
+  },
+  "blockers": [],
+  "verdict": "NOT_SELF_APPROVED_ROLE_REVIEW_REQUIRED"
+}
