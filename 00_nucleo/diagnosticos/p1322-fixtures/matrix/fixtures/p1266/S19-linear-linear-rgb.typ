@@ -1,0 +1,5 @@
+#set page(width: 360pt, height: 300pt, margin: 0pt, fill: none)
+#let g = gradient.linear(rgb(38, 70, 83), rgb(42, 157, 143), rgb(233, 196, 106), space: color.linear-rgb, angle: 15deg)
+#let body = rect(width: 0.02pt, height: 120pt, fill: g)
+#let transformed = scale(x: 0.01%, y: 100%, body)
+#align(center + horizon, transformed)

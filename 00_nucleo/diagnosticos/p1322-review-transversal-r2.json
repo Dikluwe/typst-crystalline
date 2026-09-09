@@ -1,0 +1,89 @@
+{
+  "role": "D",
+  "isolation": "not technically attested",
+  "start": "2026-09-08T22:39:41.921303+00:00",
+  "end": "2026-09-08T22:39:42.297367+00:00",
+  "seconds": 0.37606189100188203,
+  "checker_sha256": "4ac1bcbeef0e88c156e2d3a43544753d353889f8e5e2ad31f794d8fe77ae6ecd",
+  "plan_sha256": "6910ab8559e91b4a456c8ebd38c69e2093b4b1fb608f0cbf6dc5d6578a8bf9a9",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-baseline.json": "951604c8113dfd23992b677037430a74379759b70518ff7234dc62959e2d7e44",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-manifest.json": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-build.json": "1544fe0db6070acc22204904569c0fbe392c02acac14e7c0b8ff95a90cba0eeb",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-transversal-r2.json": "92be1cf09282fc96354a68deadaed4210fb78aa75b09bb1ef0f488efd6a6a5b3",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-transversal-r2-freeze.json": "9e428fb1cecbf91e5fcacfe12f64761cd546b3fbd1e93e60564371153005144b",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-transversal-cases.json": "fdb49fe88668eefeb117fb41d7c7e96ddaff6b1707c155f021dca30ffaed771c"
+  },
+  "scope": "transversal-r2",
+  "counts": {
+    "normal/default": {
+      "MATCH": 12,
+      "DISABLED_BY_PROFILE": 3,
+      "DIFFERENCE": 5
+    },
+    "normal/html": {
+      "MATCH": 13,
+      "DIFFERENCE": 6,
+      "DISABLED_BY_PROFILE": 1
+    },
+    "normal/a11y": {
+      "MATCH": 12,
+      "DIFFERENCE": 6,
+      "DISABLED_BY_PROFILE": 2
+    },
+    "normal/html+a11y": {
+      "MATCH": 14,
+      "DIFFERENCE": 6
+    },
+    "repeat/default": {
+      "MATCH": 12,
+      "DISABLED_BY_PROFILE": 3,
+      "DIFFERENCE": 5
+    },
+    "repeat/html": {
+      "MATCH": 13,
+      "DIFFERENCE": 6,
+      "DISABLED_BY_PROFILE": 1
+    },
+    "repeat/a11y": {
+      "MATCH": 12,
+      "DIFFERENCE": 6,
+      "DISABLED_BY_PROFILE": 2
+    },
+    "repeat/html+a11y": {
+      "MATCH": 14,
+      "DIFFERENCE": 6
+    },
+    "reverse/default": {
+      "DISABLED_BY_PROFILE": 3,
+      "DIFFERENCE": 5,
+      "MATCH": 12
+    },
+    "reverse/html": {
+      "DISABLED_BY_PROFILE": 1,
+      "MATCH": 13,
+      "DIFFERENCE": 6
+    },
+    "reverse/a11y": {
+      "MATCH": 12,
+      "DISABLED_BY_PROFILE": 2,
+      "DIFFERENCE": 6
+    },
+    "reverse/html+a11y": {
+      "MATCH": 14,
+      "DIFFERENCE": 6
+    }
+  },
+  "artifact_hashes_checked": 228,
+  "recognized_query_rejection_policy_sha256": "8ede1d3fb9da56c1831333df9f3315245b279e7f72661ef85851971d8cd2df56",
+  "semantic_limits": [
+    "PDF subset font name difference alone is mechanics, not language debt.",
+    "Raster exact-pixel difference does not by itself establish visible language divergence.",
+    "Path spelling changes across outside-root fixtures require causal isolation before regression attribution.",
+    "Artifact presence and exit status only certify the explicitly named smoke observable."
+  ],
+  "verdict": "Preserved",
+  "checks": 9702,
+  "violations": [],
+  "unknowns": []
+}

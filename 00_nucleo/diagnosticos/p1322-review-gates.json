@@ -1,0 +1,101 @@
+{
+  "role": "D",
+  "isolation": "not technically attested",
+  "start": "2026-09-08T22:42:12.901481+00:00",
+  "end": "2026-09-08T22:42:13.210773+00:00",
+  "seconds": 0.3092947419791017,
+  "checker_sha256": "7b019e10c7ff6614e5318036afd3e6c45386c66253610caa7de3bdb59e0fb982",
+  "plan_sha256": "6910ab8559e91b4a456c8ebd38c69e2093b4b1fb608f0cbf6dc5d6578a8bf9a9",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-baseline.json": "951604c8113dfd23992b677037430a74379759b70518ff7234dc62959e2d7e44",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-manifest.json": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-build.json": "1544fe0db6070acc22204904569c0fbe392c02acac14e7c0b8ff95a90cba0eeb",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-workspace-tests.json": "f1267d32566d0f8f9764a60de198090f19ac1970afe4f7a20dd7c5f755afce73",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-fmt.json": "ca69492379d264cfd3c82ebc1d671fcb70e4f8900c7f1e2260176032b1c50ac4",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-lint.json": "b618192702b1210cebe2d95dcb1ea2282404c384f811b8ce3bd0157fa4d213b7",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-lineage.json": "3b67c04487272a4cc8e8a30c0c8577e5e8e755cd6045713d6d54fb59fc6a2e20",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-diff-check.json": "86de9d531c6e52430c8d77465c3c231c5c153edaed7d108731f09d59c71b44c8"
+  },
+  "scope": "gates",
+  "gates": {
+    "build": {
+      "exit": 0,
+      "argv": [
+        "cargo",
+        "build",
+        "--workspace",
+        "--release",
+        "--locked"
+      ],
+      "seconds": 5.800111529999413
+    },
+    "workspace-tests": {
+      "exit": 0,
+      "argv": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--release",
+        "--locked",
+        "--no-fail-fast"
+      ],
+      "seconds": 50.64352551300544,
+      "test_totals": {
+        "passed": 6666,
+        "failed": 0,
+        "ignored": 3
+      },
+      "ignored_lines": [
+        "test 01_core/src/compiler/layout/mod.rs - compiler::layout::layout_with_introspector (line 2779) ... ignored",
+        "test 01_core/src/entities/introspector.rs - entities::introspector::TagIntrospector::inject_pages (line 543) ... ignored",
+        "test 01_core/src/entities/introspector.rs - entities::introspector::TagIntrospector::inject_positions (line 521) ... ignored"
+      ]
+    },
+    "fmt": {
+      "exit": 0,
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "seconds": 3.5236339629918803
+    },
+    "lint": {
+      "exit": 0,
+      "argv": [
+        "crystalline-lint",
+        "."
+      ],
+      "seconds": 4.285971103003249,
+      "error_lines": 0,
+      "warning_lines": 240,
+      "info_lines": 1138
+    },
+    "lineage": {
+      "exit": 0,
+      "argv": [
+        "crystalline-lint",
+        "--checks",
+        "v5,v15,v26",
+        "--fail-on",
+        "warning",
+        "."
+      ],
+      "seconds": 3.6188343339890707
+    },
+    "diff-check": {
+      "exit": 0,
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "seconds": 0.24985124700469896
+    }
+  },
+  "verdict": "Preserved",
+  "checks": 7860,
+  "violations": [],
+  "unknowns": []
+}

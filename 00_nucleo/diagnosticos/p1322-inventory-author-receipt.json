@@ -1,0 +1,356 @@
+{
+  "author": "/root/p1322_inventory",
+  "role": "A",
+  "regime": "executado sem atestação de isolamento",
+  "runner": {
+    "path": "00_nucleo/diagnosticos/p1322-inventory-runner.py",
+    "sha256": "1b2e93593f409a8b6e170491d5cf20b2d441592ad8a1e9bce00d4427284a595f"
+  },
+  "baseline_receipt": {
+    "path": "00_nucleo/diagnosticos/p1322-baseline.json",
+    "sha256": "951604c8113dfd23992b677037430a74379759b70518ff7234dc62959e2d7e44"
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1322-manifest.json",
+    "sha256": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c"
+  },
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "source_state": "working tree não commitado",
+  "diff_head_stat": " 00_nucleo/prompts/compiler/eval/call_dispatch.md |  53 ++-\n 00_nucleo/prompts/compiler/stdlib/loading.md     | 198 +++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs       |  92 ++++-\n 01_core/src/compiler/stdlib/loading.rs           | 466 ++++++++++++++++++++---\n 4 files changed, 756 insertions(+), 53 deletions(-)\n",
+  "temporary_root": "/tmp/p1322-inventory.jkHC1q",
+  "schema_version": "p1322-inventory-author-receipt-v1",
+  "created_at": "2026-09-08T22:21:36.792756+00:00",
+  "catalog": {
+    "path": "00_nucleo/diagnosticos/p1322-probe-catalog.json",
+    "sha256": "a9853e4c54663a258a9dd706c1c974930579c65e335b283243b10eae19b4889a"
+  },
+  "reconciliation": {
+    "path": "00_nucleo/diagnosticos/p1322-inventory-reconciliation.json",
+    "sha256": "5bb2ec28d229d86807f30370b1226286428cd2dcf802a792713dacb6422b8db3"
+  },
+  "counts": {
+    "probes": 4718,
+    "historical_probes": 2182,
+    "added_probes": 2536,
+    "fresh_union_paths": 4708
+  },
+  "unknowns": [],
+  "source_integrity": {
+    "vanilla": {
+      "before_sha256": "c4a83fae82b5a8e95000b622c7028dde45d74191b6e0ed2fcc17f3e7503aa81f",
+      "after_sha256": "c4a83fae82b5a8e95000b622c7028dde45d74191b6e0ed2fcc17f3e7503aa81f",
+      "unchanged": true
+    },
+    "crystalline": {
+      "before_sha256": "7576dcdce371b81ca3062fca1fcad30ab7dc40be3873272e148b94450c8d4331",
+      "after_sha256": "7576dcdce371b81ca3062fca1fcad30ab7dc40be3873272e148b94450c8d4331",
+      "unchanged": true
+    }
+  },
+  "readable_inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1322.md",
+      "sha256": "40dc97700ea3184aaf3db914f6251bbd7eb4dfb33fc0563a8a480a2f1ab443d4"
+    },
+    {
+      "path": "00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md",
+      "sha256": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d"
+    },
+    {
+      "path": "00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md",
+      "sha256": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1309-probe-catalog.json",
+      "sha256": "20a5bdec9a848d24ebe1fcf451f143ce65499184e57984e4e5389aef5aecde3a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1309-inventory-runner.py",
+      "sha256": "58b496b30b556d21bb9662bb1deeca8181b3b9b6f1b149aad76a4b090fe37a97"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1309-inventory-observe.py",
+      "sha256": "14a62c65bc66d25b61cac746bbe4e2af0b39bc1863b2015f9a27438cd65ec373"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1309-inventory-catalog.py",
+      "sha256": "bca8143c65827c6da06624c9103bffd1ccb8380c51a3640d8b22ed368d0e654e"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1309-inventory-crystalline-prebuild.json",
+      "sha256": "c531ed8b737b790f77bbc721287f1a94343c0e9e346adc54e0226cf60a13d414"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1309-inventory-vanilla-build.json",
+      "sha256": "4b71ba923e3eb2c410c09334a63067c5b459300eb13764b867abbd173af0b8cf"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1309-inventory-vanilla-html-r2.json",
+      "sha256": "8a1a9f89b09374f1b9b4223204ac0a4e305660444071844ca8093929d9ecb7c7"
+    },
+    {
+      "path": "lab/surface-inventory/Cargo.toml",
+      "sha256": "f45e70888ca0a5ebf721cf00e65bf25e637b795a7cb610f00e91c084548aea0a"
+    },
+    {
+      "path": "lab/surface-inventory/Cargo.lock",
+      "sha256": "f1c17cedcd804ce0bb40942621a50c09b5c3c757bd63482f99bd547c220c961d"
+    },
+    {
+      "path": "lab/surface-inventory/src/main.rs",
+      "sha256": "1f56149b1be5d93c24d686259186314708d806b69279e70097eec755ce828056"
+    },
+    {
+      "path": "lab/surface-inventory/extra_seeds.json",
+      "sha256": "ec398902ad74aa7f7d21b733674e3712ed47ee84e6f79fd12fbdca5293d87623"
+    },
+    {
+      "path": "lab/typst-original/Cargo.toml",
+      "sha256": "4552a01c861dcc9e5d4bb9e200836019ac390da9df24c829dd136d565b523fcc"
+    },
+    {
+      "path": "lab/typst-original/Cargo.lock",
+      "sha256": "de45b3b5393f074087ccdcd27c8847c6085d7c064afff3a801e86e28def47f7c"
+    },
+    {
+      "path": "lab/typst-original/crates/p1140-inventory/Cargo.toml",
+      "sha256": "14121e85309845c983ee2715b932e338fb63e9c8ae0124cda9af1ede4f1157d5"
+    },
+    {
+      "path": "lab/typst-original/crates/p1140-inventory/src/main.rs",
+      "sha256": "8db995426edb0e48371544018aa996467b42aa7b4404acc8e020a944dac653c1"
+    }
+  ],
+  "capabilities": {
+    "executor": "/root/p1322_inventory",
+    "inherited_context": "Fresh bounded role task from root, repository instructions and authorized P1322 plan; no candidate matrices or selection interpretation.",
+    "permitted_read": "Plan, skill, listed historical inventory artifacts, current product/L0/source identity, pinned baseline/build/manifests and binaries",
+    "forbidden_read": "P1322 candidate matrices, causal classification, cohorts and selection",
+    "permitted_write": [
+      "00_nucleo/diagnosticos/p1322-inventory-*",
+      "00_nucleo/diagnosticos/p1322-probe-catalog.json",
+      "/tmp/p1322-inventory.jkHC1q"
+    ],
+    "technical_limit": "Shared filesystem and tools do not enforce per-role ACLs. Isolation is procedural, not attested."
+  },
+  "budget": {
+    "initial_build_minutes": 45,
+    "initial_observation_minutes": 15,
+    "threads": 8,
+    "per_probe_timeout_seconds": 30,
+    "focal_revisions": 1,
+    "unknown_never_accepted": true
+  },
+  "canonical_inventory_inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-vanilla-default.json",
+      "sha256": "58fe7be6979a0bd9865c3caae2a9d1c3c9a1daa44a9a4b8bfdd7cbdb95ad5e9f",
+      "side": "vanilla",
+      "profile": "default",
+      "entries": 4551,
+      "language_observations": {
+        "path": "00_nucleo/diagnosticos/p1322-inventory-observables-vanilla-default.json",
+        "sha256": "4fa5b7bd620711e3c864647966734a135b1f9e5303b94c0368821968d88ad74a"
+      }
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-vanilla-html.json",
+      "sha256": "feef7f3d1ddf60a0d43d1444e60ca6a0d9b6329d34d59c6786f4d03450f2b888",
+      "side": "vanilla",
+      "profile": "html",
+      "entries": 4666,
+      "language_observations": {
+        "path": "00_nucleo/diagnosticos/p1322-inventory-observables-vanilla-html.json",
+        "sha256": "bede9c7d6ab0c11152a7d298185be7d6f09b43f268d1865a88b547bd22f59ad7"
+      }
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-default-r2.json",
+      "sha256": "0030c1e20d9881b1ae6d6f30c8aa3c2e0b6c9abbc8b28f0ef43279b2a732a24d",
+      "side": "crystalline",
+      "profile": "default",
+      "entries": 4534,
+      "language_observations": {
+        "path": "00_nucleo/diagnosticos/p1322-inventory-observables-crystalline-default-r2.json",
+        "sha256": "31971a24320d99a1d75ae1a4162e09cdfe6d03cd327106b790534a7a1b8d5bbe"
+      }
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-html-r2.json",
+      "sha256": "e4ce6fa0ed8dbb77026d8c1ede56dcdbd95e56ddd3a7ae29c96d1d5279591e7a",
+      "side": "crystalline",
+      "profile": "html",
+      "entries": 4605,
+      "language_observations": {
+        "path": "00_nucleo/diagnosticos/p1322-inventory-observables-crystalline-html-r2.json",
+        "sha256": "364784531c10b326f26be9e49211b9da2ef70859c07f4fb4ac03bce3a902edba"
+      }
+    }
+  ],
+  "new_modifier_reason": "Finite modifier paths were declared in old Symbol metadata but absent from historical probe denominator; discovery is historical catalog coverage expansion, not evidence of temporal regression.",
+  "not_enumerated_historical": [
+    {
+      "probe_id": "path-hsl",
+      "path": "hsl",
+      "verbatim": true,
+      "currently_enumerated": false
+    },
+    {
+      "probe_id": "path-hsv",
+      "path": "hsv",
+      "verbatim": true,
+      "currently_enumerated": false
+    },
+    {
+      "probe_id": "path-linear_rgb",
+      "path": "linear_rgb",
+      "verbatim": true,
+      "currently_enumerated": false
+    },
+    {
+      "probe_id": "path-pdf.data-cell",
+      "path": "pdf.data-cell",
+      "verbatim": true,
+      "currently_enumerated": false
+    },
+    {
+      "probe_id": "path-pdf.header-cell",
+      "path": "pdf.header-cell",
+      "verbatim": true,
+      "currently_enumerated": false
+    },
+    {
+      "probe_id": "path-pdf.table-summary",
+      "path": "pdf.table-summary",
+      "verbatim": true,
+      "currently_enumerated": false
+    },
+    {
+      "probe_id": "p1304-repr-std",
+      "path": "std",
+      "verbatim": true,
+      "currently_enumerated": false
+    },
+    {
+      "probe_id": "p1309-path-csv.encode",
+      "path": "csv.encode",
+      "verbatim": true,
+      "currently_enumerated": false
+    },
+    {
+      "probe_id": "p1309-path-xml.encode",
+      "path": "xml.encode",
+      "verbatim": true,
+      "currently_enumerated": false
+    },
+    {
+      "probe_id": "p1309-path-read.encode",
+      "path": "read.encode",
+      "verbatim": true,
+      "currently_enumerated": false
+    }
+  ],
+  "incident": {
+    "path": "00_nucleo/diagnosticos/p1322-inventory-incident.json",
+    "sha256": "ce0802a8c74bf59f494f6eaa7bcfc50c0ae708a7c7d4b2f2be2bd9b3d3c76879"
+  },
+  "focal_validation": {
+    "path": "00_nucleo/diagnosticos/p1322-inventory-focal-validation.json",
+    "sha256": "5a6a8fee50e0f2cca214f708986bbe4728cac73d824a2c7607f6afaece422613"
+  },
+  "artifacts": [
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-build.json",
+      "sha256": "0711917b413eb1ddc9b8f51036cac2ea518158d4b834c21fc14adf8ab1f23880"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-default-r2.json",
+      "sha256": "0030c1e20d9881b1ae6d6f30c8aa3c2e0b6c9abbc8b28f0ef43279b2a732a24d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-default.json",
+      "sha256": "0e78792186296fcd9c7bc395f14fef6682f391e53084510d4784a3dc1a3d9307"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-html-r2.json",
+      "sha256": "e4ce6fa0ed8dbb77026d8c1ede56dcdbd95e56ddd3a7ae29c96d1d5279591e7a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-html.json",
+      "sha256": "81e72692dbda24a719a556663fe971730ad5547425b0d158370fc0fc15c56bff"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-focal-validation.json",
+      "sha256": "5a6a8fee50e0f2cca214f708986bbe4728cac73d824a2c7607f6afaece422613"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-incident.json",
+      "sha256": "ce0802a8c74bf59f494f6eaa7bcfc50c0ae708a7c7d4b2f2be2bd9b3d3c76879"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-observables-crystalline-default-r2.json",
+      "sha256": "31971a24320d99a1d75ae1a4162e09cdfe6d03cd327106b790534a7a1b8d5bbe"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-observables-crystalline-html-r2.json",
+      "sha256": "364784531c10b326f26be9e49211b9da2ef70859c07f4fb4ac03bce3a902edba"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-observables-vanilla-default.json",
+      "sha256": "4fa5b7bd620711e3c864647966734a135b1f9e5303b94c0368821968d88ad74a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-observables-vanilla-html.json",
+      "sha256": "bede9c7d6ab0c11152a7d298185be7d6f09b43f268d1865a88b547bd22f59ad7"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-reconciliation.json",
+      "sha256": "5bb2ec28d229d86807f30370b1226286428cd2dcf802a792713dacb6422b8db3"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-runner-r1.py",
+      "sha256": "d8818f8aae55f1de3d577783511ae01fb2bb8569be376bad4525465946b45ff2"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-runner-r2.py",
+      "sha256": "2f819d50511cb06b015d7fd333f7d38ec61694ae471c8862f879eeb36f23051f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-runner.py",
+      "sha256": "1b2e93593f409a8b6e170491d5cf20b2d441592ad8a1e9bce00d4427284a595f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-vanilla-build.json",
+      "sha256": "b512be2ca355247622e0d7d5b3162dd2490d9907450cfaf0ec54bf29d483995a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-vanilla-default.json",
+      "sha256": "58fe7be6979a0bd9865c3caae2a9d1c3c9a1daa44a9a4b8bfdd7cbdb95ad5e9f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-vanilla-html.json",
+      "sha256": "feef7f3d1ddf60a0d43d1444e60ca6a0d9b6329d34d59c6786f4d03450f2b888"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-vanilla-structural-input-default.json",
+      "sha256": "2f70d832f2b24f8c8eae8ffb15dd1e2770c667b9bfb24fcadefdcad43b4cfb27"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-vanilla-structural-input-html.json",
+      "sha256": "2ef941beab9ef3e2859de83c8bcfadc7a4482af417db23029b1bec0997f22c61"
+    }
+  ],
+  "verdict_scope": "Author reports catalog identity/fresh enumeration only. No behavioral closure, semantic classification, priority, selection or independent audit verdict is asserted."
+}

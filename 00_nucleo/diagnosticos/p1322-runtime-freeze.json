@@ -1,0 +1,46 @@
+{
+  "at": "2026-09-08T22:21:26.520712+00:00",
+  "manifest_sha256": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-probe-catalog.json": "a9853e4c54663a258a9dd706c1c974930579c65e335b283243b10eae19b4889a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1309-probe-catalog.json": "20a5bdec9a848d24ebe1fcf451f143ce65499184e57984e4e5389aef5aecde3a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-build.json": "1544fe0db6070acc22204904569c0fbe392c02acac14e7c0b8ff95a90cba0eeb",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-manifest.json": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-record.py": "668e87377d8d6eb6c32b42bdfe59ee4e64ec192bd514cbd81893073ebd9ecf40",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-matrix.py": "cbad11a2b506872829c484d2b1fcb08742b6a59313588ad62b7e2c99a0062cc7",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1309-matrix.py": "7bf0b67dd52d640237a7667eca19d23c7b6d831624e373e1361982299bccc079",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1309-record-r2.py": "39b7a6f76446dad597c61905aa18c391bba7512cfbc667cf8116aa452d714cea"
+  },
+  "binaries": {
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "upstream": "a51e02804"
+    },
+    "crystalline": {
+      "path": "/tmp/p1322-target.Ir19xI/release/typst",
+      "sha256": "756b1c85a5879ea0afb79fc35184525aebfafa6ccb926ae86679a868691f99fa"
+    }
+  },
+  "profiles": {
+    "default": [],
+    "html": [
+      "html"
+    ],
+    "a11y": [
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "html",
+      "a11y-extras"
+    ]
+  },
+  "projection": "exact stdout/stderr bytes; successful JSON must parse; no normalization",
+  "orders": [
+    "normal",
+    "repeat",
+    "reverse"
+  ],
+  "timeout": 30,
+  "workers": 8
+}

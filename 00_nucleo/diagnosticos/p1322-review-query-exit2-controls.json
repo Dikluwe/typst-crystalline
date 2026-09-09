@@ -1,0 +1,50 @@
+{
+  "role": "D",
+  "isolation": "not technically attested",
+  "start": "2026-09-08T22:40:17.319055+00:00",
+  "end": "2026-09-08T22:40:17.336791+00:00",
+  "seconds": 0.017742600990459323,
+  "checker_sha256": "7b019e10c7ff6614e5318036afd3e6c45386c66253610caa7de3bdb59e0fb982",
+  "plan_sha256": "6910ab8559e91b4a456c8ebd38c69e2093b4b1fb608f0cbf6dc5d6578a8bf9a9",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-transversal-r2.json": "92be1cf09282fc96354a68deadaed4210fb78aa75b09bb1ef0f488efd6a6a5b3"
+  },
+  "scope": "query-controls",
+  "focal_controls": [
+    {
+      "name": "genuine_public_rejection",
+      "expected": "PUBLIC_CLI_ABSENT",
+      "observed": "PUBLIC_CLI_ABSENT"
+    },
+    {
+      "name": "stderr_absent",
+      "expected": "Unknown",
+      "observed": "Unknown"
+    },
+    {
+      "name": "stderr_truncated",
+      "expected": "Unknown",
+      "observed": "Unknown"
+    },
+    {
+      "name": "other_exit2",
+      "expected": "Unknown",
+      "observed": "Unknown"
+    },
+    {
+      "name": "crash",
+      "expected": "Unknown",
+      "observed": "Unknown"
+    },
+    {
+      "name": "other_command",
+      "expected": "Unknown",
+      "observed": "Unknown"
+    }
+  ],
+  "policy_sha256": "8ede1d3fb9da56c1831333df9f3315245b279e7f72661ef85851971d8cd2df56",
+  "verdict": "Preserved",
+  "checks": 6,
+  "violations": [],
+  "unknowns": []
+}

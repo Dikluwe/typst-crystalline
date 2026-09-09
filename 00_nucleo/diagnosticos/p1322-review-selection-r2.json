@@ -1,0 +1,78 @@
+{
+  "at": "2026-09-08T22:57:44.062478+00:00",
+  "role": "D",
+  "scope": "Successor ranking and repeated frozen D12; no increase to unique 13-attack score",
+  "checker_sha256": "254228d8b5ea60429f1c8ebeeccb87e0e5241e0426ebfff39cc51224e9f00603",
+  "semantic_checker_sha256": "2569afd4496e551e33f591b8d465df070827790a543875c5a30bc383ab46008d",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-classification-selection-r2.json": "26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-classification-selection.json": "3d8ff907008cb4a380ca730b59e6c52a127696842d859c88482f0ae59fe83bc8",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-classification-query-hint-addendum.md": "cca16ba1b8ad9f4776fdfd49ca5236641c056fb17f249681c76da5e198604381",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-classification-query-hint-addendum-r2.md": "b899fce9920ad2799e84ff539c43e57c362222efb62b05cc099fb304afd00995",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-review-channels.json": "5e02f75f37e64b8ddad15189060898dfc3def145e96f659b539347265382df8c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-review-channels-objection.md": "23a126a515ca81675140581740f55b8681b7e002a85cc98545a592820e6030c9"
+  },
+  "selected": {
+    "id": "html-experimental-warning-hints",
+    "priority": 2,
+    "owner_prompts": [
+      "00_nucleo/prompts/wiring.md"
+    ],
+    "owners": [
+      "04_wiring/src/main.rs"
+    ],
+    "owner_count": 1,
+    "paths": [
+      "CLI.compile.html.warning"
+    ],
+    "path_count": 1,
+    "rank_key": [
+      2,
+      1,
+      -1,
+      1,
+      "html-experimental-warning-hints"
+    ],
+    "gate_class": "ADR0127_INTERNAL_PARITY_L0_FIRST_RED_GREEN_REVALIDATE"
+  },
+  "attack": {
+    "id": "D12",
+    "expected": "Violated",
+    "control_expected": "Preserved",
+    "control": {
+      "verdict": "Preserved",
+      "checks": 313,
+      "violations": [],
+      "unknowns": []
+    },
+    "observed": {
+      "verdict": "Violated",
+      "checks": 313,
+      "violations": [
+        {
+          "code": "INVALID_PRIORITY_SELECTION",
+          "witness": [
+            "namespace-function-missing-field",
+            "html-experimental-warning-hints"
+          ]
+        }
+      ],
+      "unknowns": []
+    },
+    "control_sha256": "d2f6775915f3ddb383f48aba677a18450b6d7aa1462caa673c5536925952c293",
+    "mutant_sha256": "6917738ede62c5653e730b2b571eebac82e4e2f0a483f8f510a426162ef02e61",
+    "transformation": [
+      {
+        "replace": "selected",
+        "value": "namespace-function-missing-field",
+        "fault": "Lower priority old winner retained after actual HTML L0 contradiction added"
+      }
+    ],
+    "valid": true,
+    "rejected": true
+  },
+  "verdict": "Preserved",
+  "checks": 313,
+  "violations": [],
+  "unknowns": []
+}

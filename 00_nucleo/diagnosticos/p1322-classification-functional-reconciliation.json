@@ -1,0 +1,701 @@
+{
+  "schema": "p1322-classification-v1",
+  "at": "2026-09-08T22:41:47.392Z",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "working_tree": " M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 01_core/src/compiler/eval/call_dispatch.rs\n M 01_core/src/compiler/stdlib/loading.rs\n?? 00_nucleo/diagnosticos/p1319-ab-baseline-runs-r1.json\n?? 00_nucleo/diagnosticos/p1319-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-calibration.py\n?? 00_nucleo/diagnosticos/p1319-ab-candidate-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-cases-r0.json\n?? 00_nucleo/diagnosticos/p1319-ab-cases.json\n?? 00_nucleo/diagnosticos/p1319-ab-comparison.json\n?? 00_nucleo/diagnosticos/p1319-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1319-ab-receipt.md\n?? 00_nucleo/diagnosticos/p1319-ab-runner-r0.py\n?? 00_nucleo/diagnosticos/p1319-ab-runner.py\n?? 00_nucleo/diagnosticos/p1319-build-r2.json\n?? 00_nucleo/diagnosticos/p1319-build.json\n?? 00_nucleo/diagnosticos/p1319-diff-check-r1.json\n?? 00_nucleo/diagnosticos/p1319-diff-check-r2.json\n?? 00_nucleo/diagnosticos/p1319-diff-check.json\n?? 00_nucleo/diagnosticos/p1319-final-report.md\n?? 00_nucleo/diagnosticos/p1319-fmt-r1.json\n?? 00_nucleo/diagnosticos/p1319-fmt-r2.json\n?? 00_nucleo/diagnosticos/p1319-fmt.json\n?? 00_nucleo/diagnosticos/p1319-lineage-before-repair.json\n?? 00_nucleo/diagnosticos/p1319-lineage-check.py\n?? 00_nucleo/diagnosticos/p1319-lineage-final-r1.json\n?? 00_nucleo/diagnosticos/p1319-lineage-final-r2.json\n?? 00_nucleo/diagnosticos/p1319-lineage-final.json\n?? 00_nucleo/diagnosticos/p1319-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1319-lineage-verified-r1.json\n?? 00_nucleo/diagnosticos/p1319-lineage-verified-r2.json\n?? 00_nucleo/diagnosticos/p1319-lint-r1.json\n?? 00_nucleo/diagnosticos/p1319-lint-r2.json\n?? 00_nucleo/diagnosticos/p1319-lint.json\n?? 00_nucleo/diagnosticos/p1319-measure.py\n?? 00_nucleo/diagnosticos/p1319-measurement.json\n?? 00_nucleo/diagnosticos/p1319-record.py\n?? 00_nucleo/diagnosticos/p1319-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1319-review-candidate-and-lineage.md\n?? 00_nucleo/diagnosticos/p1319-review-final-audit.json\n?? 00_nucleo/diagnosticos/p1319-review-final.md\n?? 00_nucleo/diagnosticos/p1319-review-l0.md\n?? 00_nucleo/diagnosticos/p1319-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1319-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1319-review-red.md\n?? 00_nucleo/diagnosticos/p1319-test-delta.json\n?? 00_nucleo/diagnosticos/p1319-test-delta.py\n?? 00_nucleo/diagnosticos/p1319-unit-green-r1.json\n?? 00_nucleo/diagnosticos/p1319-unit-green-r2.json\n?? 00_nucleo/diagnosticos/p1319-unit-green.json\n?? 00_nucleo/diagnosticos/p1319-unit-red.json\n?? 00_nucleo/diagnosticos/p1319-workspace-tests-r2.json\n?? 00_nucleo/diagnosticos/p1319-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1320-audit-r0.py\n?? 00_nucleo/diagnosticos/p1320-audit.py\n?? 00_nucleo/diagnosticos/p1320-close.py\n?? 00_nucleo/diagnosticos/p1320-fixtures/\n?? 00_nucleo/diagnosticos/p1320-focal-r1.json\n?? 00_nucleo/diagnosticos/p1320-harness-tests-r1.json\n?? 00_nucleo/diagnosticos/p1320-harness-tests.json\n?? 00_nucleo/diagnosticos/p1320-measurement.json\n?? 00_nucleo/diagnosticos/p1320-o-que-falta-para-paridade.md\n?? 00_nucleo/diagnosticos/p1320-reconciliation.json\n?? 00_nucleo/diagnosticos/p1320-supplement.json\n?? 00_nucleo/diagnosticos/p1320-supplement.py\n?? 00_nucleo/diagnosticos/p1321-ab-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab-runner.cjs\n?? 00_nucleo/diagnosticos/p1321-ab2-baseline.json\n?? 00_nucleo/diagnosticos/p1321-ab2-candidate.json\n?? 00_nucleo/diagnosticos/p1321-ab2-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab2-expectations.json\n?? 00_nucleo/diagnosticos/p1321-ab2-freeze.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-expectations.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-focal.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-freeze.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-full.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-measurement.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-receipt.md\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-runner.py\n?? 00_nucleo/diagnosticos/p1321-ab2-receipt.md\n?? 00_nucleo/diagnosticos/p1321-ab2-runner.py\n?? 00_nucleo/diagnosticos/p1321-baseline.json\n?? 00_nucleo/diagnosticos/p1321-build.json\n?? 00_nucleo/diagnosticos/p1321-final-report.md\n?? 00_nucleo/diagnosticos/p1321-fmt.json\n?? 00_nucleo/diagnosticos/p1321-lineage-final.json\n?? 00_nucleo/diagnosticos/p1321-lineage.py\n?? 00_nucleo/diagnosticos/p1321-lint.json\n?? 00_nucleo/diagnosticos/p1321-measure.py\n?? 00_nucleo/diagnosticos/p1321-measurement.json\n?? 00_nucleo/diagnosticos/p1321-r2-baseline.json\n?? 00_nucleo/diagnosticos/p1321-r2-build.json\n?? 00_nucleo/diagnosticos/p1321-r2-diff-check.json\n?? 00_nucleo/diagnosticos/p1321-r2-fmt.json\n?? 00_nucleo/diagnosticos/p1321-r2-lineage-final.json\n?? 00_nucleo/diagnosticos/p1321-r2-lineage.py\n?? 00_nucleo/diagnosticos/p1321-r2-lint.json\n?? 00_nucleo/diagnosticos/p1321-r2-record.py\n?? 00_nucleo/diagnosticos/p1321-r2-reseal.json\n?? 00_nucleo/diagnosticos/p1321-r2-unit-green.json\n?? 00_nucleo/diagnosticos/p1321-r2-unit-red.json\n?? 00_nucleo/diagnosticos/p1321-r2-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1321-record.py\n?? 00_nucleo/diagnosticos/p1321-reseal.json\n?? 00_nucleo/diagnosticos/p1321-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1321-review-candidate-audit.json\n?? 00_nucleo/diagnosticos/p1321-review-candidate.md\n?? 00_nucleo/diagnosticos/p1321-review-final-r2.md\n?? 00_nucleo/diagnosticos/p1321-review-l0.md\n?? 00_nucleo/diagnosticos/p1321-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1321-review-prepatch-r2.md\n?? 00_nucleo/diagnosticos/p1321-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1321-review-r2-ab-audit.json\n?? 00_nucleo/diagnosticos/p1321-review-r2-audit.cjs\n?? 00_nucleo/diagnosticos/p1321-review-r2-final-audit.json\n?? 00_nucleo/diagnosticos/p1321-review-reopen-r2.md\n?? 00_nucleo/diagnosticos/p1321-unit-green.json\n?? 00_nucleo/diagnosticos/p1321-unit-red.json\n?? 00_nucleo/diagnosticos/p1321-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1322-record.py\n?? 00_nucleo/materialization/typst-passo-1319.md\n?? 00_nucleo/materialization/typst-passo-1320.md\n?? 00_nucleo/materialization/typst-passo-1321.md\n?? 00_nucleo/materialization/typst-passo-1322.md\n",
+  "diff_stat": " 00_nucleo/prompts/compiler/eval/call_dispatch.md |  53 ++-\n 00_nucleo/prompts/compiler/stdlib/loading.md     | 198 +++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs       |  92 ++++-\n 01_core/src/compiler/stdlib/loading.rs           | 466 ++++++++++++++++++++---\n 4 files changed, 756 insertions(+), 53 deletions(-)\n",
+  "regime": "executado sem atestação técnica de isolamento",
+  "inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1322-baseline.json",
+      "sha256": "951604c8113dfd23992b677037430a74379759b70518ff7234dc62959e2d7e44"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-manifest.json",
+      "sha256": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-probe-catalog.json",
+      "sha256": "a9853e4c54663a258a9dd706c1c974930579c65e335b283243b10eae19b4889a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-runtime-freeze.json",
+      "sha256": "366d308fbe635531e469e879244e98c398d41ce31d0d450bbdea1f5994387dfc"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-classification-sources.json",
+      "sha256": "94c19aad94c699978ce3ea17a4cf6e31345875321a041a88165a1721622e080f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-classification-certification-debt.json",
+      "sha256": "2174e78bb976915167492423531ec2b7a69003487b056b349094979c6ac9b636"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-matrix-normal.json",
+      "sha256": "0d1d2ecfcfa6f696ee817d07882df0af31a22b1b60ef66c7048ae488b0228f0d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-matrix-repeat.json",
+      "sha256": "7c64182bb4e258b0546f22b10f8402c6766b9c386f2b83e748727d4049ebc1f9"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-matrix-reverse.json",
+      "sha256": "bc775283f853f38df4a6fc975cbc192a821966000d3c9771c041ae0de751ac6f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-sentinels-cases.json",
+      "sha256": "5cefc478768bba2126c6f818075c3409ef03b41c3850b42579a2e84eb9afe2b2"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-sentinels-freeze.json",
+      "sha256": "31b442bf426fe360af642fcce748cd18d7b3183089ef10fd8c00fd2f3d798205"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+      "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-sentinels-repeat.json",
+      "sha256": "fd6f4e9b9fb0dcb9351b9d38adcf70f2b741d2bce3337e26ffb1af9df00722b8"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-sentinels-reverse.json",
+      "sha256": "905518e51734d14ca73f1b2705e6381e588a5e3051ad846361980dff666f5f18"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-transversal.json",
+      "sha256": "02eeef9f9f9ba52d8b4c1cff6af7297c3b0c4ae8466576478fd15e736ad9f8c5"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-transversal-freeze.json",
+      "sha256": "c35f861bb05d2b9b074c0301f2e7e13d90d0b05c5422a141cab979231a3b483f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-transversal-r2.json",
+      "sha256": "92be1cf09282fc96354a68deadaed4210fb78aa75b09bb1ef0f488efd6a6a5b3"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-transversal-r2-freeze.json",
+      "sha256": "9e428fb1cecbf91e5fcacfe12f64761cd546b3fbd1e93e60564371153005144b"
+    }
+  ],
+  "classifier": {
+    "path": "00_nucleo/diagnosticos/p1322-classification-final.cjs",
+    "sha256": "505889e343264f6319634379d082391dc8f2f255ee687b6b90db4277a15f9a2e"
+  },
+  "verdict": "NOT_SELF_APPROVED_ROLE_D_REQUIRED",
+  "closureClaims": [
+    {
+      "step": "P1310",
+      "historical_claim": "Five invalid DataSource casts, public type and original offending span",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1307.decoder.json.wrong-type",
+        "p1307.decoder.yaml.wrong-type",
+        "p1307.decoder.toml.wrong-type",
+        "p1307.decoder.cbor.wrong-type",
+        "p1307.decoder.xml.wrong-type"
+      ],
+      "cells": 20,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 20
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Symbol/missing/named/excess/I/O remain separate."
+    },
+    {
+      "step": "P1311",
+      "historical_claim": "Native namespace None field identity and field span",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1311.csv-encode",
+        "p1311.read-encode",
+        "p1311.xml-encode",
+        "p1311.csv-distinct",
+        "p1311.read-alias",
+        "p1311.xml-multiline",
+        "p1311.csv-with",
+        "p1311.read-nested-with",
+        "p1311.xml-nested-with",
+        "p1311.csv-callee",
+        "p1311.read-callee",
+        "p1311.csv-alias-callee",
+        "p1311.xml-loader-error",
+        "p1311.read-loader-error"
+      ],
+      "cells": 56,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 56
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Some namespace and user closures explicitly preserved as open boundaries; absent encode is bilateral diagnostic, not missing functionality."
+    },
+    {
+      "step": "P1312",
+      "historical_claim": "Read invalid path cast with original argument span",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "read-cast.794",
+        "read-cast.795",
+        "read-cast.796",
+        "read-cast.797",
+        "read-cast.798",
+        "read-cast.799",
+        "read-cast.800",
+        "read-cast.801",
+        "read-cast.802",
+        "read-cast.803",
+        "read-cast.804"
+      ],
+      "cells": 44,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 44
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Read missing and I/O are not closed; CSV is not Path-only."
+    },
+    {
+      "step": "P1313",
+      "historical_claim": "CSV Bytes success and invalid DataSource cast",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1321.cast_int",
+        "p1321.cast_bool",
+        "p1321.cast_content",
+        "p1321.valid_array"
+      ],
+      "cells": 16,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 12,
+        "MATCH_VALUE": 4
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Symbol source remains rejected; functional implementation report is historical authority, not initial proposal."
+    },
+    {
+      "step": "P1314",
+      "historical_claim": "CSV validates each option occurrence and retains origin",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1321.option_empty",
+        "p1321.option_unknown_empty",
+        "p1321.option_long",
+        "p1321.option_unknown_long",
+        "p1321.option_unicode",
+        "p1321.option_unknown_unicode",
+        "p1321.option_int",
+        "p1321.option_unknown_int",
+        "p1321.option_row_str",
+        "p1321.option_unknown_row_str",
+        "p1321.option_row_type",
+        "p1321.option_unknown_row_type",
+        "p1321.option_row_int",
+        "p1321.option_unknown_row_int",
+        "p1321.with_delimiter_firstbad",
+        "p1321.with_delimiter_lastbad",
+        "p1321.with_delimiter_good",
+        "p1321.with_row_firstbad",
+        "p1321.with_row_lastbad",
+        "p1321.with_row_good",
+        "p1321.with_cross",
+        "p1321.args_dup_delimiter",
+        "p1321.sink_dup_row"
+      ],
+      "cells": 92,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 84,
+        "MATCH_VALUE": 8
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Syntactic duplicate and Symbol are separate strata."
+    },
+    {
+      "step": "P1315",
+      "historical_claim": "CSV unequal record ordinal",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1321.preserve_unequal",
+        "p1321.preserve_multiline",
+        "p1321.preserve_crlf"
+      ],
+      "cells": 12,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 12
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Ordinal alone does not close the complete diagnostic; the current complete Bytes diagnostics match."
+    },
+    {
+      "step": "P1316",
+      "historical_claim": "CSV Bytes parser error original argument span",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1321.preserve_unequal"
+      ],
+      "cells": 4,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 4
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "UTF-8-valid file external excerpts remain open."
+    },
+    {
+      "step": "P1317",
+      "historical_claim": "CSV UTF-8 public cause and first-error precedence",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1321.preserve_utf8",
+        "p1320.csv-binary-bytes"
+      ],
+      "cells": 8,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 8
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Later invalid byte/earlier fields also rechecked by transversal boundary extras."
+    },
+    {
+      "step": "P1318",
+      "historical_claim": "CSV Bytes textual line/column including multiline/CRLF",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1321.preserve_utf8",
+        "p1321.preserve_multiline",
+        "p1321.preserve_crlf"
+      ],
+      "cells": 12,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 12
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Unicode and later invalid byte are separately measured in frozen boundary extras."
+    },
+    {
+      "step": "P1319",
+      "historical_claim": "CSV invalid-buffer file virtual path and caller origin",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1320.csv-binary-file-str",
+        "p1320.csv-binary-file-path"
+      ],
+      "cells": 8,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 8
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Valid UTF-8 file excerpt, I/O and closure Str origin are not closed."
+    },
+    {
+      "step": "P1320",
+      "historical_claim": "Focal audit lacunas remeasured, not a historical global denominator",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1320.csv-good-array-str",
+        "p1320.csv-good-array-path",
+        "p1320.csv-good-array-bytes",
+        "p1320.csv-unequal-array-str",
+        "p1320.csv-unequal-array-path",
+        "p1320.csv-unequal-array-bytes",
+        "p1320.csv-good-dictionary-str",
+        "p1320.csv-good-dictionary-path",
+        "p1320.csv-good-dictionary-bytes",
+        "p1320.csv-unequal-dictionary-str",
+        "p1320.csv-unequal-dictionary-path",
+        "p1320.csv-unequal-dictionary-bytes",
+        "p1320.csv-empty",
+        "p1320.csv-duplicate-headers",
+        "p1320.csv-quoted-multiline",
+        "p1320.csv-symbol-delimiter",
+        "p1320.csv-symbol-source",
+        "p1320.csv-spread",
+        "p1320.csv-with",
+        "p1320.csv-subdir-path",
+        "p1320.csv-captured-eval",
+        "p1320.csv-closure-eval",
+        "p1320.csv-missing-source",
+        "p1320.csv-unknown-option",
+        "p1320.csv-extra-valid",
+        "p1320.csv-extra-bad",
+        "p1320.csv-missing-file",
+        "p1320.csv-missing-file-path",
+        "p1320.csv-source-cast",
+        "p1320.csv-delimiter-cast",
+        "p1320.csv-delimiter-long",
+        "p1320.csv-row-type-invalid",
+        "p1320.csv-options-precedence",
+        "p1320.csv-unknown-before-source",
+        "p1320.csv-unknown-before-missing",
+        "p1320.csv-detached-good",
+        "p1320.csv-binary-bytes",
+        "p1320.csv-encode-member",
+        "p1320.sys-version",
+        "p1320.content-heading-body",
+        "p1320.content-strong",
+        "p1320.numeric",
+        "p1320.bytes-roundtrip",
+        "p1320.json-roundtrip",
+        "p1320.yaml-load",
+        "p1320.toml-load",
+        "p1320.path-normalized",
+        "p1320.html-binding",
+        "p1320.a11y-binding",
+        "p1320.csv-binary-file-str",
+        "p1320.csv-binary-file-path"
+      ],
+      "cells": 204,
+      "raw_counts": {
+        "MATCH_VALUE": 84,
+        "DIFFERENT_DIAGNOSTIC": 24,
+        "MATCH_DIAGNOSTIC": 72,
+        "VANILLA_ONLY": 20,
+        "CRYSTALLINE_ONLY": 4
+      },
+      "current_decision": "FOCAL_OPEN_AND_CLOSED_ROWS_RECONCILED",
+      "boundary": "Current open focal rows remain explicit; csv.encode is bilateral absence, not new encoder."
+    },
+    {
+      "step": "P1321",
+      "historical_claim": "CSV source/options/remaining/read precedence and missing aggregate spans",
+      "measurement": {
+        "path": "00_nucleo/diagnosticos/p1322-sentinels-normal.json",
+        "sha256": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34"
+      },
+      "witness_ids": [
+        "p1321.missing_none",
+        "p1321.missing_delimiter",
+        "p1321.missing_unknown",
+        "p1321.missing_source",
+        "p1321.missing_source_unknown",
+        "p1321.missing_unknown_source",
+        "p1321.missing_source_options",
+        "p1321.cast_int",
+        "p1321.cast_unknown_int",
+        "p1321.cast_bool",
+        "p1321.cast_unknown_bool",
+        "p1321.cast_none",
+        "p1321.cast_dict",
+        "p1321.cast_unknown_dict",
+        "p1321.cast_array",
+        "p1321.cast_type",
+        "p1321.cast_unknown_type",
+        "p1321.cast_float",
+        "p1321.cast_content",
+        "p1321.remaining_extra",
+        "p1321.remaining_unknown",
+        "p1321.remaining_z_a",
+        "p1321.remaining_a_z",
+        "p1321.remaining_extra_unknown",
+        "p1321.remaining_unknown_extra",
+        "p1321.remaining_source_named",
+        "p1321.precedence_missingfile_extra",
+        "p1321.precedence_missingfile_unknown",
+        "p1321.precedence_missingfile_options",
+        "p1321.precedence_unequal_extra",
+        "p1321.precedence_unequal_unknown",
+        "p1321.precedence_unequal_options",
+        "p1321.precedence_utf8_extra",
+        "p1321.precedence_utf8_unknown",
+        "p1321.precedence_utf8_options",
+        "p1321.with_delimiter_firstbad",
+        "p1321.with_delimiter_lastbad",
+        "p1321.with_delimiter_good",
+        "p1321.with_row_firstbad",
+        "p1321.with_row_lastbad",
+        "p1321.with_row_good",
+        "p1321.with_cross",
+        "p1321.syntax_duplicate",
+        "p1321.alias_missing",
+        "p1321.alias_source",
+        "p1321.alias_cast",
+        "p1321.alias_excess",
+        "p1321.alias_unknown",
+        "p1321.args_missing",
+        "p1321.args_source",
+        "p1321.args_cast",
+        "p1321.args_excess",
+        "p1321.args_unknown",
+        "p1321.sink_missing",
+        "p1321.sink_source",
+        "p1321.sink_cast",
+        "p1321.sink_excess",
+        "p1321.sink_unknown",
+        "p1321.with_missing",
+        "p1321.with_source",
+        "p1321.with_cast",
+        "p1321.with_excess",
+        "p1321.with_unknown",
+        "p1321.map_missing",
+        "p1321.map_source",
+        "p1321.map_cast",
+        "p1321.map_excess",
+        "p1321.map_unknown",
+        "p1321.spread_dict_unknown",
+        "p1321.spread_array_excess",
+        "p1321.args_dup_delimiter",
+        "p1321.sink_dup_row",
+        "p1321.valid_array",
+        "p1321.valid_dict",
+        "p1321.valid_semicolon",
+        "p1321.valid_empty",
+        "p1321.valid_quoted"
+      ],
+      "cells": 308,
+      "raw_counts": {
+        "MATCH_DIAGNOSTIC": 280,
+        "MATCH_VALUE": 28
+      },
+      "current_decision": "CLOSED_ONLY_STATED_FRAGMENT",
+      "boundary": "Native identity stays restricted: user closures, read/json/cbor missing, direct math csv, Symbol, I/O/external-origin remain scoped debt."
+    }
+  ],
+  "extraSummary": {
+    "counts": {
+      "MATCH_DIAGNOSTIC": 32
+    },
+    "cells": 32,
+    "scope": "Boundary CSV multiline/Unicode/late byte invalid and JSON invalid source alias/With; see complete expressions and raw receipts."
+  },
+  "closureBoundary": {
+    "measurement": {
+      "path": "00_nucleo/diagnosticos/p1322-transversal.json",
+      "sha256": "02eeef9f9f9ba52d8b4c1cff6af7297c3b0c4ae8466576478fd15e736ad9f8c5"
+    },
+    "rows": [
+      {
+        "id": "captured-only",
+        "profile": "default",
+        "phase": "normal",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "default",
+        "phase": "normal",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "html",
+        "phase": "normal",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "html",
+        "phase": "normal",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "a11y",
+        "phase": "normal",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "a11y",
+        "phase": "normal",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "html+a11y",
+        "phase": "normal",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "html+a11y",
+        "phase": "normal",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "default",
+        "phase": "repeat",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "default",
+        "phase": "repeat",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "html",
+        "phase": "repeat",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "html",
+        "phase": "repeat",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "a11y",
+        "phase": "repeat",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "a11y",
+        "phase": "repeat",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "html+a11y",
+        "phase": "repeat",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "html+a11y",
+        "phase": "repeat",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "default",
+        "phase": "reverse",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "default",
+        "phase": "reverse",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "html",
+        "phase": "reverse",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "html",
+        "phase": "reverse",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "a11y",
+        "phase": "reverse",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "a11y",
+        "phase": "reverse",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      },
+      {
+        "id": "captured-only",
+        "profile": "html+a11y",
+        "phase": "reverse",
+        "state": "MATCH_ASSERTIONS_ONLY",
+        "vanilla_exit": 0,
+        "crystalline_exit": 0
+      },
+      {
+        "id": "closure-only",
+        "profile": "html+a11y",
+        "phase": "reverse",
+        "state": "DIFFERENCE",
+        "vanilla_exit": 0,
+        "crystalline_exit": 1
+      }
+    ],
+    "interpretation": "Captured-only document assertions pass. Closure-only fails by reading root data.csv rather than module sub/data.csv. Eval imported source rejects sandbox boundary earlier; these are not one cause and not P1321 native missing-source debt.",
+    "evidence": [
+      "01_core/src/compiler/eval/closures.rs:160",
+      "01_core/src/compiler/eval/closures.rs:169",
+      "01_core/src/compiler/stdlib/foundations/path.rs:15",
+      "03_infra/src/world.rs:723"
+    ],
+    "owner_set_complete": false,
+    "risk": "Unknown",
+    "gate_class": "ADR0127_PUBLIC_OR_COMPATIBILITY_GATE_REQUIRES_FUTURE_CONCRETE_L0"
+  }
+}

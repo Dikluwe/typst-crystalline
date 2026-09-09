@@ -1,0 +1,11 @@
+{
+  "at": "2026-09-08T22:43:58.528646+00:00",
+  "checker_sha256": "b276364560c477ca13a9cdc42b78b62de14b64d7e9f52216ae669f4da3fd8456",
+  "base_checker_sha256": "7b019e10c7ff6614e5318036afd3e6c45386c66253610caa7de3bdb59e0fb982",
+  "input_set": "Same consumed hashes as p1322-review-semantic-r0.json, matching final C freeze; schema-display adapter only changed.",
+  "verdict": "Violated",
+  "checks": 114187,
+  "violations": [{"code": "FUNCTIONAL_SOURCE_BINDING", "witness": "r4.context.calibration"}],
+  "unknowns": [],
+  "receipt_note": "Compact transcription of tool stdout; 12 prior TSV display mismatches reduced to one quoted-cell parser mismatch. Not accepted as final."
+}

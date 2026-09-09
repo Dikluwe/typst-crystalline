@@ -1,0 +1,80 @@
+{
+  "author": "/root/p1322_inventory",
+  "role": "A",
+  "regime": "executado sem atestação de isolamento",
+  "runner": {
+    "path": "00_nucleo/diagnosticos/p1322-inventory-runner.py",
+    "sha256": "1b2e93593f409a8b6e170491d5cf20b2d441592ad8a1e9bce00d4427284a595f"
+  },
+  "baseline_receipt": {
+    "path": "00_nucleo/diagnosticos/p1322-baseline.json",
+    "sha256": "951604c8113dfd23992b677037430a74379759b70518ff7234dc62959e2d7e44"
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1322-manifest.json",
+    "sha256": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c"
+  },
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "source_state": "working tree não commitado",
+  "diff_head_stat": " 00_nucleo/prompts/compiler/eval/call_dispatch.md |  53 ++-\n 00_nucleo/prompts/compiler/stdlib/loading.md     | 198 +++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs       |  92 ++++-\n 01_core/src/compiler/stdlib/loading.rs           | 466 ++++++++++++++++++++---\n 4 files changed, 756 insertions(+), 53 deletions(-)\n",
+  "temporary_root": "/tmp/p1322-inventory.jkHC1q",
+  "schema_version": "p1322-inventory-incident-v1",
+  "created_at": "2026-09-08T22:18:05.159209+00:00",
+  "cause": "Adapter fed vanilla catalogs expanded with Symbol modifiers into crystalline candidate hints; crystalline per-value metadata repeats all Symbol variants, so a second expansion manufactured modifier combinations.",
+  "invalidated": [
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-default.json",
+      "sha256": "0e78792186296fcd9c7bc395f14fef6682f391e53084510d4784a3dc1a3d9307",
+      "profile": "default",
+      "entries": 88143,
+      "enumerator_stdout_routes": 4534
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-html.json",
+      "sha256": "81e72692dbda24a719a556663fe971730ad5547425b0d158370fc0fc15c56bff",
+      "profile": "html",
+      "entries": 88214,
+      "enumerator_stdout_routes": 4605
+    }
+  ],
+  "replacement": [
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-default-r2.json",
+      "sha256": "0030c1e20d9881b1ae6d6f30c8aa3c2e0b6c9abbc8b28f0ef43279b2a732a24d",
+      "profile": "default",
+      "entries": 4534,
+      "enumerator_stdout_routes": 1998
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-crystalline-html-r2.json",
+      "sha256": "e4ce6fa0ed8dbb77026d8c1ede56dcdbd95e56ddd3a7ae29c96d1d5279591e7a",
+      "profile": "html",
+      "entries": 4605,
+      "enumerator_stdout_routes": 2069
+    }
+  ],
+  "policy": "Invalid structural inventories preserved; no CLI observations or bilateral matrix consumed those artifacts; catalog uses crystalline -r2 only.",
+  "hypothesis": "Use raw unexpanded vanilla enumerator stdout as crystalline candidate hints and expand each resulting binding once.",
+  "focal_validation": "Current crystalline structural entries return to finite declared-owner expansion; original unexpanded vanilla inputs are preserved as p1322-inventory-vanilla-structural-input-default/html.json.",
+  "revision_cost": {
+    "focal_revisions": 1,
+    "invalid_cli_processes": 0
+  },
+  "source_and_oracle_changed": false,
+  "runner_versions": [
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-runner-r1.py",
+      "sha256": "d8818f8aae55f1de3d577783511ae01fb2bb8569be376bad4525465946b45ff2"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-runner-r2.py",
+      "sha256": "2f819d50511cb06b015d7fd333f7d38ec61694ae471c8862f879eeb36f23051f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1322-inventory-runner.py",
+      "sha256": "1b2e93593f409a8b6e170491d5cf20b2d441592ad8a1e9bce00d4427284a595f"
+    }
+  ],
+  "runner_provenance_note": "R1 source is an exact retained snapshot of d8818f8a. The crystalline build process loaded R1 before the file changed to R2; its runner field hashes the on-disk R2 at completion. Build implementation is byte-identical across R1/R2. No other receipt execution crosses runner revisions.",
+  "unknown_policy": "None of invalid structural counts may be used as discovered language routes; they are adapter failure evidence only."
+}

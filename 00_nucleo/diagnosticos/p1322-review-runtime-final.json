@@ -1,0 +1,62 @@
+{
+  "role": "D",
+  "isolation": "not technically attested",
+  "start": "2026-09-08T22:40:43.897881+00:00",
+  "end": "2026-09-08T22:40:48.472389+00:00",
+  "seconds": 4.574517443019431,
+  "checker_sha256": "7b019e10c7ff6614e5318036afd3e6c45386c66253610caa7de3bdb59e0fb982",
+  "plan_sha256": "6910ab8559e91b4a456c8ebd38c69e2093b4b1fb608f0cbf6dc5d6578a8bf9a9",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-baseline.json": "951604c8113dfd23992b677037430a74379759b70518ff7234dc62959e2d7e44",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-manifest.json": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-build.json": "1544fe0db6070acc22204904569c0fbe392c02acac14e7c0b8ff95a90cba0eeb",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-probe-catalog.json": "a9853e4c54663a258a9dd706c1c974930579c65e335b283243b10eae19b4889a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-inventory-reconciliation.json": "5bb2ec28d229d86807f30370b1226286428cd2dcf802a792713dacb6422b8db3",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1309-probe-catalog.json": "20a5bdec9a848d24ebe1fcf451f143ce65499184e57984e4e5389aef5aecde3a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-inventory-vanilla-default.json": "58fe7be6979a0bd9865c3caae2a9d1c3c9a1daa44a9a4b8bfdd7cbdb95ad5e9f",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-inventory-observables-vanilla-default.json": "4fa5b7bd620711e3c864647966734a135b1f9e5303b94c0368821968d88ad74a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-inventory-vanilla-html.json": "feef7f3d1ddf60a0d43d1444e60ca6a0d9b6329d34d59c6786f4d03450f2b888",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-inventory-observables-vanilla-html.json": "bede9c7d6ab0c11152a7d298185be7d6f09b43f268d1865a88b547bd22f59ad7",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-inventory-crystalline-default-r2.json": "0030c1e20d9881b1ae6d6f30c8aa3c2e0b6c9abbc8b28f0ef43279b2a732a24d",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-inventory-observables-crystalline-default-r2.json": "31971a24320d99a1d75ae1a4162e09cdfe6d03cd327106b790534a7a1b8d5bbe",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-inventory-crystalline-html-r2.json": "e4ce6fa0ed8dbb77026d8c1ede56dcdbd95e56ddd3a7ae29c96d1d5279591e7a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-inventory-observables-crystalline-html-r2.json": "364784531c10b326f26be9e49211b9da2ef70859c07f4fb4ac03bce3a902edba",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-runtime-freeze.json": "366d308fbe635531e469e879244e98c398d41ce31d0d450bbdea1f5994387dfc",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-matrix-normal.json": "0d1d2ecfcfa6f696ee817d07882df0af31a22b1b60ef66c7048ae488b0228f0d",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-matrix-repeat.json": "7c64182bb4e258b0546f22b10f8402c6766b9c386f2b83e748727d4049ebc1f9",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-matrix-reverse.json": "bc775283f853f38df4a6fc975cbc192a821966000d3c9771c041ae0de751ac6f"
+  },
+  "scope": "runtime",
+  "counts": {
+    "normal": {
+      "MATCH_VALUE": 17960,
+      "MATCH_DIAGNOSTIC": 260,
+      "DIFFERENT_VALUE": 40,
+      "DIFFERENT_DIAGNOSTIC": 120,
+      "CRYSTALLINE_ONLY": 168,
+      "VANILLA_ONLY": 324
+    },
+    "repeat": {
+      "MATCH_VALUE": 17960,
+      "MATCH_DIAGNOSTIC": 260,
+      "DIFFERENT_VALUE": 40,
+      "DIFFERENT_DIAGNOSTIC": 120,
+      "CRYSTALLINE_ONLY": 168,
+      "VANILLA_ONLY": 324
+    },
+    "reverse": {
+      "MATCH_VALUE": 17960,
+      "VANILLA_ONLY": 324,
+      "CRYSTALLINE_ONLY": 168,
+      "MATCH_DIAGNOSTIC": 260,
+      "DIFFERENT_DIAGNOSTIC": 120,
+      "DIFFERENT_VALUE": 40
+    }
+  },
+  "catalog_paths": 4718,
+  "catalog_probes": 4718,
+  "verdict": "Preserved",
+  "checks": 1979138,
+  "violations": [],
+  "unknowns": []
+}

@@ -1,0 +1,19 @@
+{
+  "role": "D",
+  "isolation": "not technically attested",
+  "start": "2026-09-08T22:15:14.319494+00:00",
+  "end": "2026-09-08T22:15:14.646555+00:00",
+  "seconds": 0.3270740099833347,
+  "checker_sha256": "9feaf2d9545d6e4e93c0eaee5fd6070d98ca1800a667bdf4beba43d87ab29123",
+  "plan_sha256": "6910ab8559e91b4a456c8ebd38c69e2093b4b1fb608f0cbf6dc5d6578a8bf9a9",
+  "inputs": {
+    "p1322-baseline.json": "951604c8113dfd23992b677037430a74379759b70518ff7234dc62959e2d7e44",
+    "p1322-manifest.json": "ce32eb373b5e2b1dbc598f1bb01f0c666985578406123980f216ecef1e63cd7c",
+    "p1322-build.json": "1544fe0db6070acc22204904569c0fbe392c02acac14e7c0b8ff95a90cba0eeb"
+  },
+  "scope": "preflight",
+  "verdict": "Preserved",
+  "checks": 7833,
+  "violations": [],
+  "unknowns": []
+}

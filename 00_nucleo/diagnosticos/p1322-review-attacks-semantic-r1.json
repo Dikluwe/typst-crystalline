@@ -1,0 +1,275 @@
+{
+  "schema": "p1322-review-attacks-v1",
+  "phase": "semantic",
+  "start": "2026-09-08T22:47:29.827834+00:00",
+  "end": "2026-09-08T22:47:31.041762+00:00",
+  "seconds": 1.2139343179878779,
+  "plan_sha256": "6910ab8559e91b4a456c8ebd38c69e2093b4b1fb608f0cbf6dc5d6578a8bf9a9",
+  "checker_sha256": "d25211d8ec57c8897d51c671ab19fa8f083d556752bddae6b97a542681c307a3",
+  "adversary_sha256": "c6477868bcd2708233518e323568bbda8d2287ac389fedda45409d32d384a374",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-probe-catalog.json": "a9853e4c54663a258a9dd706c1c974930579c65e335b283243b10eae19b4889a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-matrix-normal.json": "0d1d2ecfcfa6f696ee817d07882df0af31a22b1b60ef66c7048ae488b0228f0d",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-sentinels-normal.json": "c3d937946149b9948b8c91999599e1d2b726ed7cba0b0a5aec9c303a780d8d34",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-classification-selection.json": "3d8ff907008cb4a380ca730b59e6c52a127696842d859c88482f0ae59fe83bc8",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1309-matrix-normal.json": "ed6b603578ada1a3961bbb564c272652e52b4652231b5d324c8b9afa57889e51",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-classification-owner-ledger.tsv": "6fdf058c92dda6f3ac11dd691c1a53b4edf8c4fc3d5529cb32b9cd23bc1cce3a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-classification-supplemental-ledger.tsv": "3d499a3405534e7501948919868cf569f42930a7d85daed868adec869be200d6",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-classification-transitions.tsv": "2204911c65914d344697604323d5dd71752fc46b53ceea5957adf5a73179bd01",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1322-review-semantic.py": "2569afd4496e551e33f591b8d465df070827790a543875c5a30bc383ab46008d"
+  },
+  "isolation": "not technically attested",
+  "attacks": [
+    {
+      "id": "D07",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 11,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 11,
+        "violations": [
+          {
+            "code": "PRESENCE_ONLY_CLOSURE",
+            "witness": [
+              "path-json",
+              "CLOSED_MEASURED_FUNCTIONAL_SENTINEL",
+              "CLOSED_MEASURED_LOOKUP_REPR_ONLY"
+            ]
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "4fe42824f7c74924a2831acc37bbab7bf28b403a17e30026ea53a9ad09d6c7fb",
+      "mutant_sha256": "cf91700abf1b7928a9f0706e86d8f23efa448774fea7df1f270db054c572a5a9",
+      "transformation": [
+        {
+          "probe_id": "path-json",
+          "replace": "current_language_class",
+          "value": "CLOSED_MEASURED_FUNCTIONAL_SENTINEL",
+          "fault": "lookup/type/repr alone promoted to functional closure"
+        }
+      ],
+      "valid": true,
+      "rejected": true
+    },
+    {
+      "id": "D08",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 3,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 4,
+        "violations": [
+          {
+            "code": "NOMINAL_IDENTITY_CAPTURE",
+            "witness": [
+              "p1311.named-closure",
+              "00_nucleo/diagnosticos/p1322-sentinels-normal.json#p1307.negative.csv.encode"
+            ]
+          },
+          {
+            "code": "FALSE_FUNCTIONAL_CLOSURE",
+            "witness": "p1311.named-closure"
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "3e97b76c38d9537106419baa0064cf29d4814b4bacd0c7442bb2f0b7ba590f4f",
+      "mutant_sha256": "ae0827a848089c960d768ea504b959db14ee6aed68a7645145cc8ab3e3ac27ae",
+      "transformation": [
+        {
+          "replace": "named-closure measurement_ref",
+          "value": "00_nucleo/diagnosticos/p1322-sentinels-normal.json#p1307.negative.csv.encode",
+          "fault": "same nominal spelling csv used to substitute native evidence for a user closure",
+          "native_expression": "csv.encode",
+          "closure_expression": "{ let csv(x) = x; csv.encode }"
+        }
+      ],
+      "valid": true,
+      "rejected": true
+    },
+    {
+      "id": "D09",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 5,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 2,
+        "violations": [
+          {
+            "code": "TRANSITION_OMITTED",
+            "witness": [
+              [
+                "path-json",
+                "default"
+              ]
+            ]
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "cc1f90b8027e30ada04126ff6619b43aafc4d568b68dcb28a4882fb579a24791",
+      "mutant_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "transformation": [
+        {
+          "scenario": "genuine historical MATCH and explicit simulated changed current value in copied row",
+          "current_copy_sha256": "0390733b562a40969d35e72c80242357326dc90b9aacfd7fd38d9f8b8868c33f",
+          "previous_row_sha256": "0106c764be92198decd45bbdd94fa67d7ddde56db50de9e2d5cf1d9db252ab13"
+        },
+        {
+          "remove": "the resulting REGRESSION_CANDIDATE transition"
+        }
+      ],
+      "valid": true,
+      "rejected": true
+    },
+    {
+      "id": "D11",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 10,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 12,
+        "violations": [
+          {
+            "code": "EXTENSION_WITHOUT_L0",
+            "witness": [
+              "path-calc.deg",
+              ""
+            ]
+          },
+          {
+            "code": "UNRESOLVED_EXTENSION_PROMOTED",
+            "witness": "calc.deg"
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "e0a6a2e36865ad96d4f2f8c15603e6fc470bf56fd4f9690810fe8ee3a4e2a981",
+      "mutant_sha256": "309d3740ebbcee0e8c868998b2a5c3ef983b62defb84f7697a0ca55794883e76",
+      "transformation": [
+        {
+          "probe_id": "path-calc.deg",
+          "replace": "current_language_class",
+          "value": "DOCUMENTED_PRODUCT_EXTENSION",
+          "normative_evidence": ""
+        }
+      ],
+      "valid": true,
+      "rejected": true
+    },
+    {
+      "id": "D12",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 300,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 300,
+        "violations": [
+          {
+            "code": "INVALID_PRIORITY_SELECTION",
+            "witness": [
+              "closure-nonterminal-sink-binding",
+              "namespace-function-missing-field"
+            ]
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "e323b2169ba8e9b34d68a36142bae1d923f32f31bc186164b8f18917b7a82224",
+      "mutant_sha256": "488650eff7ccd72e3075a2d84fb4c19d832365c30820299887935ae24eec79f6",
+      "transformation": [
+        {
+          "replace": "selected",
+          "value": "closure-nonterminal-sink-binding",
+          "fault": "select inferior priority/tie-break instead of complete causal rank"
+        }
+      ],
+      "valid": true,
+      "rejected": true
+    },
+    {
+      "id": "D13",
+      "expected": "Violated",
+      "control_expected": "Preserved",
+      "control": {
+        "verdict": "Preserved",
+        "checks": 300,
+        "violations": [],
+        "unknowns": []
+      },
+      "observed": {
+        "verdict": "Violated",
+        "checks": 300,
+        "violations": [
+          {
+            "code": "OWNER_UNDERCOUNT",
+            "witness": [
+              "loader-data-source-missing",
+              [
+                "01_core/src/compiler/eval/call_dispatch.rs"
+              ]
+            ]
+          }
+        ],
+        "unknowns": []
+      },
+      "control_sha256": "e323b2169ba8e9b34d68a36142bae1d923f32f31bc186164b8f18917b7a82224",
+      "mutant_sha256": "d00d4c01b1cd118f4fbbb191c66b2be93eaffa4b82effb5ad3c80790c2f3cca2",
+      "transformation": [
+        {
+          "cohort": "loader-data-source-missing",
+          "omit_owner": "01_core/src/compiler/eval/call_dispatch.rs",
+          "fault": "remove whole-call origin transport while claiming complete diagnostic",
+          "independent_source_anchors": [
+            "01_core/src/compiler/stdlib/loading.rs:1197",
+            "01_core/src/compiler/eval/call_dispatch.rs:455",
+            "01_core/src/compiler/eval/call_dispatch.rs:1633"
+          ]
+        }
+      ],
+      "valid": true,
+      "rejected": true
+    }
+  ],
+  "controls": {
+    "selection_control": {
+      "verdict": "Preserved",
+      "checks": 300,
+      "violations": [],
+      "unknowns": []
+    }
+  },
+  "valid": 6,
+  "rejected": 6
+}

@@ -1,0 +1,9 @@
+# P1322 — revisão focal D após falha de serialização
+
+Em 2026-09-08, a primeira chamada `PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1322-review-check.py transversal --output 00_nucleo/diagnosticos/p1322-review-transversal.json` terminou com exit 1 antes de publicar: `TypeError: Object of type set is not JSON serializable`. O witness de `TRANSVERSAL_PROFILE` continha um set Python. Não houve recibo válido dessa chamada nem alteração das entradas julgadas.
+
+Snapshot anterior preservado em `p1322-review-check-transversal-r0.py`. A correção focal converteu somente a apresentação do witness para `sorted(features)`. Não mudou o predicado, a comparação, a matriz, o perfil esperado ou o oráculo. A repetição focal publicou `p1322-review-transversal-r0.json`, com 9600 checks, zero Unknown e 306 violações de perfil. A falha de serialização impedia apenas a publicação das violações, não as fazia desaparecer.
+
+O defeito observado no auditor operado é distinto: `lab/parity/matrix/runner.py:552` usa o perfil para gating, mas suas regras históricas de `with_profile_features` retêm somente os requisitos do caso. Por exemplo, `P1137-B-001` rotulado `html` executou `eval calc.gcd(12, 18)` sem `--features html`; em `html+a11y`, o caso HTML não incluía `a11y-extras`. Portanto, não está demonstrada a execução transversal de todas as células nos quatro perfis anunciados. O recibo bruto permanece válido como registro do comando realmente executado, mas não satisfaz o perfil anunciado. Requer sucessor focal do adapter e nova revisão antes de repetir o transversal. Não requer rerun do corpus principal ou das sentinelas que usam outro adapter correto.
+
+Não há alegação de regressão do produto nesta descoberta. Nenhum arquivo produtivo ou L0 foi editado pelo revisor; o plano de ataques congelado permanece inalterado. Esta é a primeira revisão focal desta causa; o limite continua sendo duas revisões consecutivas sem ganho antes de rever observabilidade.
