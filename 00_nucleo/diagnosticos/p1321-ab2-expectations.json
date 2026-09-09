@@ -1,0 +1,4842 @@
+[
+  {
+    "id": "missing_none",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv()\n  │ ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_none",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv()\n  │ ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_none",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv()\n  │ ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_none",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv()\n  │ ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_delimiter",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv(delimiter: \"ab\")\n  │ ^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_delimiter",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv(delimiter: \"ab\")\n  │ ^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_delimiter",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv(delimiter: \"ab\")\n  │ ^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_delimiter",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv(delimiter: \"ab\")\n  │ ^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv(zeta: 1)\n  │ ^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv(zeta: 1)\n  │ ^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv(zeta: 1)\n  │ ^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv(zeta: 1)\n  │ ^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(source: 42)\n  │     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(source: 42)\n  │     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(source: 42)\n  │     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(source: 42)\n  │     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, source: 42)\n  │              ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, source: 42)\n  │              ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, source: 42)\n  │              ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, source: 42)\n  │              ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown_source",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(source: 42, zeta: 1)\n  │     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown_source",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(source: 42, zeta: 1)\n  │     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown_source",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(source: 42, zeta: 1)\n  │     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown_source",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(source: 42, zeta: 1)\n  │     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_options",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(delimiter: \"ab\", source: 42)\n  │                      ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_options",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(delimiter: \"ab\", source: 42)\n  │                      ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_options",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(delimiter: \"ab\", source: 42)\n  │                      ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_options",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(delimiter: \"ab\", source: 42)\n  │                      ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_int",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(42)\n  │     ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_int",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(42)\n  │     ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_int",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(42)\n  │     ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_int",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(42)\n  │     ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_int",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, 42, delimiter: \"ab\")\n  │              ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_int",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, 42, delimiter: \"ab\")\n  │              ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_int",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, 42, delimiter: \"ab\")\n  │              ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_int",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, 42, delimiter: \"ab\")\n  │              ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_bool",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(true)\n  │     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_bool",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(true)\n  │     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_bool",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(true)\n  │     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_bool",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(true)\n  │     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_bool",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, true, delimiter: \"ab\")\n  │              ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_bool",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, true, delimiter: \"ab\")\n  │              ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_bool",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, true, delimiter: \"ab\")\n  │              ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_bool",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found boolean\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, true, delimiter: \"ab\")\n  │              ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_none",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found none\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(none)\n  │     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_none",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found none\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(none)\n  │     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_none",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found none\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(none)\n  │     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_none",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found none\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(none)\n  │     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_dict",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv((a: 1))\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_dict",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv((a: 1))\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_dict",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv((a: 1))\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_dict",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv((a: 1))\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_dict",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, (a: 1), delimiter: \"ab\")\n  │              ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_dict",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, (a: 1), delimiter: \"ab\")\n  │              ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_dict",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, (a: 1), delimiter: \"ab\")\n  │              ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_dict",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found dictionary\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, (a: 1), delimiter: \"ab\")\n  │              ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_array",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found array\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv((1, 2))\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_array",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found array\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv((1, 2))\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_array",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found array\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv((1, 2))\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_array",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found array\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv((1, 2))\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_type",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found type\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(array)\n  │     ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_type",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found type\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(array)\n  │     ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_type",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found type\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(array)\n  │     ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_type",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found type\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(array)\n  │     ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_type",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found type\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, array, delimiter: \"ab\")\n  │              ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_type",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found type\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, array, delimiter: \"ab\")\n  │              ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_type",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found type\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, array, delimiter: \"ab\")\n  │              ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_type",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found type\n  ┌─ <input-expression>:1:13\n  │\n1 │ csv(zeta: 1, array, delimiter: \"ab\")\n  │              ^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_float",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found float\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(1.5)\n  │     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_float",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found float\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(1.5)\n  │     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_float",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found float\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(1.5)\n  │     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_float",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found float\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(1.5)\n  │     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_content",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found content\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv([x])\n  │     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_content",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found content\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv([x])\n  │     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_content",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found content\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv([x])\n  │     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_content",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found content\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv([x])\n  │     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_empty",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"\")\n  │                                   ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_empty",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"\")\n  │                                   ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_empty",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"\")\n  │                                   ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_empty",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"\")\n  │                                   ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_empty",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"\")\n  │                                            ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_empty",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"\")\n  │                                            ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_empty",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"\")\n  │                                            ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_empty",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"\")\n  │                                            ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_long",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"ab\")\n  │                                   ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_long",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"ab\")\n  │                                   ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_long",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"ab\")\n  │                                   ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_long",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"ab\")\n  │                                   ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_long",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"ab\")\n  │                                            ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_long",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"ab\")\n  │                                            ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_long",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"ab\")\n  │                                            ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_long",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"ab\")\n  │                                            ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unicode",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: delimiter must be an ASCII character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"é\")\n  │                                   ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unicode",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: delimiter must be an ASCII character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"é\")\n  │                                   ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unicode",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: delimiter must be an ASCII character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"é\")\n  │                                   ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unicode",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: delimiter must be an ASCII character\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \"é\")\n  │                                   ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_unicode",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: delimiter must be an ASCII character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"é\")\n  │                                            ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_unicode",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: delimiter must be an ASCII character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"é\")\n  │                                            ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_unicode",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: delimiter must be an ASCII character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"é\")\n  │                                            ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_unicode",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: delimiter must be an ASCII character\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"é\")\n  │                                            ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_int",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found integer\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: 3)\n  │                                   ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_int",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found integer\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: 3)\n  │                                   ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_int",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found integer\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: 3)\n  │                                   ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_int",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found integer\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: 3)\n  │                                   ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_int",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found integer\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: 3)\n  │                                            ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_int",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found integer\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: 3)\n  │                                            ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_int",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found integer\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: 3)\n  │                                            ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_int",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found integer\n  ┌─ <input-expression>:1:43\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: 3)\n  │                                            ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_str",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found string\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: \"array\")\n  │                                  ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_str",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found string\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: \"array\")\n  │                                  ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_str",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found string\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: \"array\")\n  │                                  ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_str",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found string\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: \"array\")\n  │                                  ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_str",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found string\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: \"array\")\n  │                                           ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_str",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found string\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: \"array\")\n  │                                           ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_str",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found string\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: \"array\")\n  │                                           ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_str",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found string\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: \"array\")\n  │                                           ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_type",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: str)\n  │                                  ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_type",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: str)\n  │                                  ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_type",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: str)\n  │                                  ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_type",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: str)\n  │                                  ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_type",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: str)\n  │                                           ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_type",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: str)\n  │                                           ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_type",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: str)\n  │                                           ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_type",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: str)\n  │                                           ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_int",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found integer\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: 3)\n  │                                  ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_int",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found integer\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: 3)\n  │                                  ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_int",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found integer\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: 3)\n  │                                  ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_int",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found integer\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), row-type: 3)\n  │                                  ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_int",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found integer\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: 3)\n  │                                           ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_int",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found integer\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: 3)\n  │                                           ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_int",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found integer\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: 3)\n  │                                           ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_int",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected type, found integer\n  ┌─ <input-expression>:1:42\n  │\n1 │ csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: 3)\n  │                                           ^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), 17)\n  │                        ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), 17)\n  │                        ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), 17)\n  │                        ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), 17)\n  │                        ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_z_a",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_z_a",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_z_a",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_z_a",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_a_z",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: alpha\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), alpha: 2, zeta: 1)\n  │                        ^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_a_z",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: alpha\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), alpha: 2, zeta: 1)\n  │                        ^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_a_z",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: alpha\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), alpha: 2, zeta: 1)\n  │                        ^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_a_z",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: alpha\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), alpha: 2, zeta: 1)\n  │                        ^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), 17, zeta: 1)\n  │                        ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), 17, zeta: 1)\n  │                        ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), 17, zeta: 1)\n  │                        ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), 17, zeta: 1)\n  │                        ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown_extra",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1, 17)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown_extra",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1, 17)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown_extra",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1, 17)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown_extra",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), zeta: 1, 17)\n  │                        ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_source_named",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: source\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), source: 17)\n  │                        ^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_source_named",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: source\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), source: 17)\n  │                        ^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_source_named",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: source\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), source: 17)\n  │                        ^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_source_named",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: source\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), source: 17)\n  │                        ^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_extra",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", 17)\n  │                                  ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_extra",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", 17)\n  │                                  ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_extra",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", 17)\n  │                                  ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_extra",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", 17)\n  │                                  ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", zeta: 1)\n  │                                  ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", zeta: 1)\n  │                                  ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", zeta: 1)\n  │                                  ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:33\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", zeta: 1)\n  │                                  ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_options",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:59\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                                            ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_options",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:59\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                                            ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_options",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:59\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                                            ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_options",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:59\n  │\n1 │ csv(\"p1321-ab2-nonexistent.csv\", row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                                            ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_extra",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), 17)\n  │                      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_extra",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), 17)\n  │                      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_extra",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), 17)\n  │                      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_extra",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), 17)\n  │                      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), zeta: 1)\n  │                      ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), zeta: 1)\n  │                      ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), zeta: 1)\n  │                      ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:21\n  │\n1 │ csv(bytes(\"a,b\\n1\"), zeta: 1)\n  │                      ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_options",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:47\n  │\n1 │ csv(bytes(\"a,b\\n1\"), row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                                ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_options",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:47\n  │\n1 │ csv(bytes(\"a,b\\n1\"), row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                                ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_options",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:47\n  │\n1 │ csv(bytes(\"a,b\\n1\"), row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                                ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_options",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:47\n  │\n1 │ csv(bytes(\"a,b\\n1\"), row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                                ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_extra",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:19\n  │\n1 │ csv(bytes((255,)), 17)\n  │                    ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_extra",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:19\n  │\n1 │ csv(bytes((255,)), 17)\n  │                    ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_extra",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:19\n  │\n1 │ csv(bytes((255,)), 17)\n  │                    ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_extra",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:19\n  │\n1 │ csv(bytes((255,)), 17)\n  │                    ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:19\n  │\n1 │ csv(bytes((255,)), zeta: 1)\n  │                    ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:19\n  │\n1 │ csv(bytes((255,)), zeta: 1)\n  │                    ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:19\n  │\n1 │ csv(bytes((255,)), zeta: 1)\n  │                    ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:19\n  │\n1 │ csv(bytes((255,)), zeta: 1)\n  │                    ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_options",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:45\n  │\n1 │ csv(bytes((255,)), row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                              ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_options",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:45\n  │\n1 │ csv(bytes((255,)), row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                              ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_options",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:45\n  │\n1 │ csv(bytes((255,)), row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                              ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_options",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:45\n  │\n1 │ csv(bytes((255,)), row-type: str, delimiter: \"ab\", zeta: 1)\n  │                                              ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_firstbad",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let f = csv.with(delimiter: \"ab\"); f(bytes(\"a,b\\n1,2\"), delimiter: \";\") }\n  │                               ^^^^\n\n  while calling `csv` at <input-expression>:1:37\n    f(bytes(\"a,b\\n1,2\"), delimiter: \";\")\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_firstbad",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let f = csv.with(delimiter: \"ab\"); f(bytes(\"a,b\\n1,2\"), delimiter: \";\") }\n  │                               ^^^^\n\n  while calling `csv` at <input-expression>:1:37\n    f(bytes(\"a,b\\n1,2\"), delimiter: \";\")\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_firstbad",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let f = csv.with(delimiter: \"ab\"); f(bytes(\"a,b\\n1,2\"), delimiter: \";\") }\n  │                               ^^^^\n\n  while calling `csv` at <input-expression>:1:37\n    f(bytes(\"a,b\\n1,2\"), delimiter: \";\")\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_firstbad",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let f = csv.with(delimiter: \"ab\"); f(bytes(\"a,b\\n1,2\"), delimiter: \";\") }\n  │                               ^^^^\n\n  while calling `csv` at <input-expression>:1:37\n    f(bytes(\"a,b\\n1,2\"), delimiter: \";\")\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_lastbad",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:68\n  │\n1 │ { let f = csv.with(delimiter: \";\"); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }\n  │                                                                     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_lastbad",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:68\n  │\n1 │ { let f = csv.with(delimiter: \";\"); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }\n  │                                                                     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_lastbad",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:68\n  │\n1 │ { let f = csv.with(delimiter: \";\"); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }\n  │                                                                     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_lastbad",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:68\n  │\n1 │ { let f = csv.with(delimiter: \";\"); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }\n  │                                                                     ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_good",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_good",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_good",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_good",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_firstbad",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), row-type: array) }\n  │                              ^^^\n\n  while calling `csv` at <input-expression>:1:35\n    f(bytes(\"a,b\\n1,2\"), row-type: array)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_firstbad",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), row-type: array) }\n  │                              ^^^\n\n  while calling `csv` at <input-expression>:1:35\n    f(bytes(\"a,b\\n1,2\"), row-type: array)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_firstbad",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), row-type: array) }\n  │                              ^^^\n\n  while calling `csv` at <input-expression>:1:35\n    f(bytes(\"a,b\\n1,2\"), row-type: array)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_firstbad",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), row-type: array) }\n  │                              ^^^\n\n  while calling `csv` at <input-expression>:1:35\n    f(bytes(\"a,b\\n1,2\"), row-type: array)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_lastbad",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:68\n  │\n1 │ { let f = csv.with(row-type: array); f(bytes(\"a,b\\n1,2\"), row-type: str) }\n  │                                                                     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_lastbad",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:68\n  │\n1 │ { let f = csv.with(row-type: array); f(bytes(\"a,b\\n1,2\"), row-type: str) }\n  │                                                                     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_lastbad",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:68\n  │\n1 │ { let f = csv.with(row-type: array); f(bytes(\"a,b\\n1,2\"), row-type: str) }\n  │                                                                     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_lastbad",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:68\n  │\n1 │ { let f = csv.with(row-type: array); f(bytes(\"a,b\\n1,2\"), row-type: str) }\n  │                                                                     ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_good",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_good",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_good",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_good",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cross",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:67\n  │\n1 │ { let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }\n  │                                                                    ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cross",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:67\n  │\n1 │ { let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }\n  │                                                                    ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cross",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:67\n  │\n1 │ { let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }\n  │                                                                    ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cross",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:67\n  │\n1 │ { let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }\n  │                                                                    ^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "syntax_duplicate",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: duplicate argument: delimiter\n  ┌─ <input-expression>:1:39\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \";\", delimiter: \",\")\n  │                                        ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "syntax_duplicate",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: duplicate argument: delimiter\n  ┌─ <input-expression>:1:39\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \";\", delimiter: \",\")\n  │                                        ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "syntax_duplicate",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: duplicate argument: delimiter\n  ┌─ <input-expression>:1:39\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \";\", delimiter: \",\")\n  │                                        ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "syntax_duplicate",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: duplicate argument: delimiter\n  ┌─ <input-expression>:1:39\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: \";\", delimiter: \",\")\n  │                                        ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "alias_missing",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:15\n  │\n1 │ { let f = csv; f(zeta: 1) }\n  │                ^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_missing",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:15\n  │\n1 │ { let f = csv; f(zeta: 1) }\n  │                ^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_missing",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:15\n  │\n1 │ { let f = csv; f(zeta: 1) }\n  │                ^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_missing",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:15\n  │\n1 │ { let f = csv; f(zeta: 1) }\n  │                ^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_source",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:17\n  │\n1 │ { let f = csv; f(source: 42) }\n  │                  ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_source",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:17\n  │\n1 │ { let f = csv; f(source: 42) }\n  │                  ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_source",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:17\n  │\n1 │ { let f = csv; f(source: 42) }\n  │                  ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_source",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:17\n  │\n1 │ { let f = csv; f(source: 42) }\n  │                  ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_cast",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let f = csv; f(zeta: 1, 42) }\n  │                           ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_cast",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let f = csv; f(zeta: 1, 42) }\n  │                           ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_cast",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let f = csv; f(zeta: 1, 42) }\n  │                           ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_cast",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:26\n  │\n1 │ { let f = csv; f(zeta: 1, 42) }\n  │                           ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_excess",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f = csv; f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }\n  │                                     ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_excess",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f = csv; f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }\n  │                                     ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_excess",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f = csv; f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }\n  │                                     ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_excess",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f = csv; f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }\n  │                                     ^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f = csv; f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }\n  │                                     ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f = csv; f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }\n  │                                     ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f = csv; f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }\n  │                                     ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f = csv; f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }\n  │                                     ^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_missing",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let a = arguments(zeta: 1); csv(..a) }\n  │                               ^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_missing",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let a = arguments(zeta: 1); csv(..a) }\n  │                               ^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_missing",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let a = arguments(zeta: 1); csv(..a) }\n  │                               ^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_missing",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let a = arguments(zeta: 1); csv(..a) }\n  │                               ^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_source",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let a = arguments(source: 42); csv(..a) }\n  │                     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:33\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_source",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let a = arguments(source: 42); csv(..a) }\n  │                     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:33\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_source",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let a = arguments(source: 42); csv(..a) }\n  │                     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:33\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_source",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let a = arguments(source: 42); csv(..a) }\n  │                     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:33\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_cast",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let a = arguments(zeta: 1, 42); csv(..a) }\n  │                              ^^\n\n  while calling `csv` at <input-expression>:1:34\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_cast",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let a = arguments(zeta: 1, 42); csv(..a) }\n  │                              ^^\n\n  while calling `csv` at <input-expression>:1:34\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_cast",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let a = arguments(zeta: 1, 42); csv(..a) }\n  │                              ^^\n\n  while calling `csv` at <input-expression>:1:34\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_cast",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let a = arguments(zeta: 1, 42); csv(..a) }\n  │                              ^^\n\n  while calling `csv` at <input-expression>:1:34\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_excess",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a) }\n  │                                        ^^\n\n  while calling `csv` at <input-expression>:1:53\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_excess",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a) }\n  │                                        ^^\n\n  while calling `csv` at <input-expression>:1:53\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_excess",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a) }\n  │                                        ^^\n\n  while calling `csv` at <input-expression>:1:53\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_excess",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a) }\n  │                                        ^^\n\n  while calling `csv` at <input-expression>:1:53\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a) }\n  │                                        ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:59\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a) }\n  │                                        ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:59\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a) }\n  │                                        ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:59\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a) }\n  │                                        ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:59\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_missing",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:15\n  │\n1 │ { let f(..a) = csv(..a); f(zeta: 1) }\n  │                ^^^^^^^^\n\n  while calling `f` at <input-expression>:1:25\n    f(zeta: 1)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_missing",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:15\n  │\n1 │ { let f(..a) = csv(..a); f(zeta: 1) }\n  │                ^^^^^^^^\n\n  while calling `f` at <input-expression>:1:25\n    f(zeta: 1)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_missing",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:15\n  │\n1 │ { let f(..a) = csv(..a); f(zeta: 1) }\n  │                ^^^^^^^^\n\n  while calling `f` at <input-expression>:1:25\n    f(zeta: 1)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_missing",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:15\n  │\n1 │ { let f(..a) = csv(..a); f(zeta: 1) }\n  │                ^^^^^^^^\n\n  while calling `f` at <input-expression>:1:25\n    f(zeta: 1)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_source",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let f(..a) = csv(..a); f(source: 42) }\n  │                            ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_source",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let f(..a) = csv(..a); f(source: 42) }\n  │                            ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_source",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let f(..a) = csv(..a); f(source: 42) }\n  │                            ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_source",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let f(..a) = csv(..a); f(source: 42) }\n  │                            ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_cast",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f(..a) = csv(..a); f(zeta: 1, 42) }\n  │                                     ^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_cast",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f(..a) = csv(..a); f(zeta: 1, 42) }\n  │                                     ^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_cast",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f(..a) = csv(..a); f(zeta: 1, 42) }\n  │                                     ^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_cast",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:36\n  │\n1 │ { let f(..a) = csv(..a); f(zeta: 1, 42) }\n  │                                     ^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_excess",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:50\n  │\n1 │ { let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }\n  │                                                   ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_excess",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:50\n  │\n1 │ { let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }\n  │                                                   ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_excess",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:50\n  │\n1 │ { let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }\n  │                                                   ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_excess",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:50\n  │\n1 │ { let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }\n  │                                                   ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:46\n  │\n1 │ { let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }\n  │                                               ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:46\n  │\n1 │ { let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }\n  │                                               ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:46\n  │\n1 │ { let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }\n  │                                               ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:46\n  │\n1 │ { let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }\n  │                                               ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(..a)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_missing",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let f = csv.with(zeta: 1); f() }\n  │                              ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_missing",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let f = csv.with(zeta: 1); f() }\n  │                              ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_missing",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let f = csv.with(zeta: 1); f() }\n  │                              ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_missing",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:29\n  │\n1 │ { let f = csv.with(zeta: 1); f() }\n  │                              ^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_source",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:19\n  │\n1 │ { let f = csv.with(source: 42); f() }\n  │                    ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:32\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_source",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:19\n  │\n1 │ { let f = csv.with(source: 42); f() }\n  │                    ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:32\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_source",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:19\n  │\n1 │ { let f = csv.with(source: 42); f() }\n  │                    ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:32\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_source",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:19\n  │\n1 │ { let f = csv.with(source: 42); f() }\n  │                    ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:32\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cast",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let f = csv.with(zeta: 1, 42); f() }\n  │                             ^^\n\n  while calling `csv` at <input-expression>:1:33\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cast",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let f = csv.with(zeta: 1, 42); f() }\n  │                             ^^\n\n  while calling `csv` at <input-expression>:1:33\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cast",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let f = csv.with(zeta: 1, 42); f() }\n  │                             ^^\n\n  while calling `csv` at <input-expression>:1:33\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cast",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let f = csv.with(zeta: 1, 42); f() }\n  │                             ^^\n\n  while calling `csv` at <input-expression>:1:33\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_excess",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let f = csv.with(bytes(\"a,b\\n1,2\"), 17, zeta: 1); f() }\n  │                                       ^^\n\n  while calling `csv` at <input-expression>:1:52\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_excess",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let f = csv.with(bytes(\"a,b\\n1,2\"), 17, zeta: 1); f() }\n  │                                       ^^\n\n  while calling `csv` at <input-expression>:1:52\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_excess",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let f = csv.with(bytes(\"a,b\\n1,2\"), 17, zeta: 1); f() }\n  │                                       ^^\n\n  while calling `csv` at <input-expression>:1:52\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_excess",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let f = csv.with(bytes(\"a,b\\n1,2\"), 17, zeta: 1); f() }\n  │                                       ^^\n\n  while calling `csv` at <input-expression>:1:52\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let f = csv.with(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); f() }\n  │                                       ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:58\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let f = csv.with(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); f() }\n  │                                       ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:58\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let f = csv.with(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); f() }\n  │                                       ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:58\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let f = csv.with(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); f() }\n  │                                       ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:58\n    f()\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_missing",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let a = arguments(zeta: 1); csv(..a.map(x => x)) }\n  │                               ^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_missing",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let a = arguments(zeta: 1); csv(..a.map(x => x)) }\n  │                               ^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_missing",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let a = arguments(zeta: 1); csv(..a.map(x => x)) }\n  │                               ^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_missing",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:30\n  │\n1 │ { let a = arguments(zeta: 1); csv(..a.map(x => x)) }\n  │                               ^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_source",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let a = arguments(source: 42); csv(..a.map(x => x)) }\n  │                     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:33\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_source",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let a = arguments(source: 42); csv(..a.map(x => x)) }\n  │                     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:33\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_source",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let a = arguments(source: 42); csv(..a.map(x => x)) }\n  │                     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:33\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_source",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let a = arguments(source: 42); csv(..a.map(x => x)) }\n  │                     ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n  while calling `csv` at <input-expression>:1:33\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_cast",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n\n  while calling `csv` at <input-expression>:1:34\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_cast",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n\n  while calling `csv` at <input-expression>:1:34\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_cast",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n\n  while calling `csv` at <input-expression>:1:34\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_cast",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n\n  while calling `csv` at <input-expression>:1:34\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_excess",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a.map(x => x)) }\n  │                                        ^^\n\n  while calling `csv` at <input-expression>:1:53\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_excess",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a.map(x => x)) }\n  │                                        ^^\n\n  while calling `csv` at <input-expression>:1:53\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_excess",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a.map(x => x)) }\n  │                                        ^^\n\n  while calling `csv` at <input-expression>:1:53\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_excess",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a.map(x => x)) }\n  │                                        ^^\n\n  while calling `csv` at <input-expression>:1:53\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a.map(x => x)) }\n  │                                        ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:59\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a.map(x => x)) }\n  │                                        ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:59\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a.map(x => x)) }\n  │                                        ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:59\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:39\n  │\n1 │ { let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a.map(x => x)) }\n  │                                        ^^^^^^^\n\n  while calling `csv` at <input-expression>:1:59\n    csv(..a.map(x => x))\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_dict_unknown",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), ..(zeta: 1, alpha: 2))\n  │                        ^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_dict_unknown",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), ..(zeta: 1, alpha: 2))\n  │                        ^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_dict_unknown",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), ..(zeta: 1, alpha: 2))\n  │                        ^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_dict_unknown",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument: zeta\n  ┌─ <input-expression>:1:23\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), ..(zeta: 1, alpha: 2))\n  │                        ^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_array_excess",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(..(bytes(\"a,b\\n1,2\"), 17))\n  │     ^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_array_excess",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(..(bytes(\"a,b\\n1,2\"), 17))\n  │     ^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_array_excess",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(..(bytes(\"a,b\\n1,2\"), 17))\n  │     ^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_array_excess",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unexpected argument\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(..(bytes(\"a,b\\n1,2\"), 17))\n  │     ^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_dup_delimiter",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:31\n  │\n1 │ { let a = arguments(delimiter: \"ab\"); csv(bytes(\"a,b\\n1,2\"), ..a, delimiter: \",\", zeta: 1) }\n  │                                ^^^^\n\n  while calling `csv` at <input-expression>:1:38\n    csv(bytes(\"a,b\\n1,2\"), ..a, delimiter: \",\", zeta: 1)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_dup_delimiter",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:31\n  │\n1 │ { let a = arguments(delimiter: \"ab\"); csv(bytes(\"a,b\\n1,2\"), ..a, delimiter: \",\", zeta: 1) }\n  │                                ^^^^\n\n  while calling `csv` at <input-expression>:1:38\n    csv(bytes(\"a,b\\n1,2\"), ..a, delimiter: \",\", zeta: 1)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_dup_delimiter",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:31\n  │\n1 │ { let a = arguments(delimiter: \"ab\"); csv(bytes(\"a,b\\n1,2\"), ..a, delimiter: \",\", zeta: 1) }\n  │                                ^^^^\n\n  while calling `csv` at <input-expression>:1:38\n    csv(bytes(\"a,b\\n1,2\"), ..a, delimiter: \",\", zeta: 1)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_dup_delimiter",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected exactly one character\n  ┌─ <input-expression>:1:31\n  │\n1 │ { let a = arguments(delimiter: \"ab\"); csv(bytes(\"a,b\\n1,2\"), ..a, delimiter: \",\", zeta: 1) }\n  │                                ^^^^\n\n  while calling `csv` at <input-expression>:1:38\n    csv(bytes(\"a,b\\n1,2\"), ..a, delimiter: \",\", zeta: 1)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_dup_row",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { let f(..a) = csv(bytes(\"a,b\\n1,2\"), ..a, row-type: array); f(row-type: str, zeta: 1) }\n  │                                                                          ^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(bytes(\"a,b\\n1,2\"), ..a, row-type: array)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_dup_row",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { let f(..a) = csv(bytes(\"a,b\\n1,2\"), ..a, row-type: array); f(row-type: str, zeta: 1) }\n  │                                                                          ^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(bytes(\"a,b\\n1,2\"), ..a, row-type: array)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_dup_row",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { let f(..a) = csv(bytes(\"a,b\\n1,2\"), ..a, row-type: array); f(row-type: str, zeta: 1) }\n  │                                                                          ^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(bytes(\"a,b\\n1,2\"), ..a, row-type: array)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_dup_row",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected `array` or `dictionary`\n  ┌─ <input-expression>:1:73\n  │\n1 │ { let f(..a) = csv(bytes(\"a,b\\n1,2\"), ..a, row-type: array); f(row-type: str, zeta: 1) }\n  │                                                                          ^^^\n\n  while calling `csv` at <input-expression>:1:15\n    csv(bytes(\"a,b\\n1,2\"), ..a, row-type: array)\n\n",
+      "unknown": null
+    },
+    "policy": "vanilla"
+  },
+  {
+    "id": "valid_array",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_array",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_array",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_array",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_dict",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_dict",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_dict",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_dict",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"a\":\"1\",\"b\":\"2\"}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_semicolon",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_semicolon",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_semicolon",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_semicolon",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_empty",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "[]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_empty",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "[]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_empty",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_empty",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_quoted",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a,b\",\"c\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_quoted",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a,b\",\"c\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_quoted",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a,b\",\"c\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_quoted",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a,b\",\"c\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_unequal",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\n1\"))\n  │     ^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_unequal",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\n1\"))\n  │     ^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_unequal",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\n1\"))\n  │     ^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_unequal",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\n1\"))\n  │     ^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_utf8",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 1:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes((255,)))\n  │     ^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_utf8",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 1:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes((255,)))\n  │     ^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_utf8",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 1:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes((255,)))\n  │     ^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_utf8",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (file is not valid UTF-8 at 1:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes((255,)))\n  │     ^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_multiline",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 3:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_multiline",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 3:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_multiline",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 3:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_multiline",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 3:1)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_crlf",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 1:5)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\r\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_crlf",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 1:5)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\r\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_crlf",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 1:5)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\r\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_crlf",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2 at 1:5)\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(bytes(\"a,b\\r\\n1\"))\n  │     ^^^^^^^^^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_good",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_good",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_good",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_good",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[[\"a\",\"b\"],[\"1\",\"2\"]]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_bad",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"00_nucleo/diagnosticos/p1320-fixtures/unequal.csv\")\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_bad",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"00_nucleo/diagnosticos/p1320-fixtures/unequal.csv\")\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_bad",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"00_nucleo/diagnosticos/p1320-fixtures/unequal.csv\")\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_bad",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: failed to parse CSV (found 1 instead of 2 fields in line 2)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"00_nucleo/diagnosticos/p1320-fixtures/unequal.csv\")\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_io",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: csv(): não foi possível ler: file not found (searched at ./p1321-ab2-nonexistent.csv)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"p1321-ab2-nonexistent.csv\")\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_io",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: csv(): não foi possível ler: file not found (searched at ./p1321-ab2-nonexistent.csv)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"p1321-ab2-nonexistent.csv\")\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_io",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: csv(): não foi possível ler: file not found (searched at ./p1321-ab2-nonexistent.csv)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"p1321-ab2-nonexistent.csv\")\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_io",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: csv(): não foi possível ler: file not found (searched at ./p1321-ab2-nonexistent.csv)\n\n  while calling `csv` at <input-expression>:1:0\n    csv(\"p1321-ab2-nonexistent.csv\")\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_source",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found symbol\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(sym.alpha)\n  │     ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_source",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found symbol\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(sym.alpha)\n  │     ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_source",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found symbol\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(sym.alpha)\n  │     ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_source",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found symbol\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(sym.alpha)\n  │     ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_delimiter",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found symbol\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha)\n  │                                   ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_delimiter",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found symbol\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha)\n  │                                   ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_delimiter",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found symbol\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha)\n  │                                   ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_delimiter",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found symbol\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha)\n  │                                   ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_read",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42)\n  │      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_read",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42)\n  │      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_read",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42)\n  │      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_read",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path or string, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ read(42)\n  │      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_json",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ json(42)\n  │      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_json",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ json(42)\n  │      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_json",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ json(42)\n  │      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_json",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found integer\n  ┌─ <input-expression>:1:5\n  │\n1 │ json(42)\n  │      ^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_yaml",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_yaml",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_yaml",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_yaml",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_toml",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_toml",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_toml",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_toml",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_xml",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"tag\":\"a\",\"attrs\":{},\"children\":[]}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_xml",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"tag\":\"a\",\"attrs\":{},\"children\":[]}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_xml",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"tag\":\"a\",\"attrs\":{},\"children\":[]}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_xml",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "[{\"tag\":\"a\",\"attrs\":{},\"children\":[]}]\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_cbor",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_cbor",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_cbor",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_cbor",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "{\"a\":1}\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_encode",
+    "profile": "default",
+    "expected": {
+      "exit": 0,
+      "stdout": "\"{\\\"a\\\":1}\"\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_encode",
+    "profile": "html",
+    "expected": {
+      "exit": 0,
+      "stdout": "\"{\\\"a\\\":1}\"\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_encode",
+    "profile": "a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "\"{\\\"a\\\":1}\"\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_encode",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 0,
+      "stdout": "\"{\\\"a\\\":1}\"\n",
+      "stderr": "",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_missingfield",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode(1)\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_missingfield",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode(1)\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_missingfield",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode(1)\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_missingfield",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: function `csv` does not contain field `encode`\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv.encode(1)\n  │     ^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "baseline"
+  },
+  {
+    "id": "normative_symbol_source",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found symbol\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(sym.alpha, zeta: 1)\n  │     ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "symbol-source"
+  },
+  {
+    "id": "normative_symbol_source",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found symbol\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(sym.alpha, zeta: 1)\n  │     ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "symbol-source"
+  },
+  {
+    "id": "normative_symbol_source",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found symbol\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(sym.alpha, zeta: 1)\n  │     ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "symbol-source"
+  },
+  {
+    "id": "normative_symbol_source",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected path, string, or bytes, found symbol\n  ┌─ <input-expression>:1:4\n  │\n1 │ csv(sym.alpha, zeta: 1)\n  │     ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "symbol-source"
+  },
+  {
+    "id": "normative_symbol_delimiter",
+    "profile": "default",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found symbol\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha, zeta: 1)\n  │                                   ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "symbol-delimiter"
+  },
+  {
+    "id": "normative_symbol_delimiter",
+    "profile": "html",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found symbol\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha, zeta: 1)\n  │                                   ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "symbol-delimiter"
+  },
+  {
+    "id": "normative_symbol_delimiter",
+    "profile": "a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found symbol\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha, zeta: 1)\n  │                                   ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "symbol-delimiter"
+  },
+  {
+    "id": "normative_symbol_delimiter",
+    "profile": "html-a11y",
+    "expected": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found symbol\n  ┌─ <input-expression>:1:34\n  │\n1 │ csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha, zeta: 1)\n  │                                   ^^^^^^^^^\n\n",
+      "unknown": null
+    },
+    "policy": "symbol-delimiter"
+  }
+]

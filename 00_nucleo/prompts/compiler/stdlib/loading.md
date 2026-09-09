@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: ed0ff72c
+Hash do Código: c0f17d3b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -239,6 +239,112 @@ o path usam a vpath portátil, não `PathBuf` físico.
 As assinaturas/casts públicos mudam; implementar somente após o gate P1141.
 
 ## 5. Estratificação de erro (critério de aceitação 4)
+
+### Validação causal de argumentos CSV — P1321
+
+#### Medição anterior à decisão
+
+Working tree P1319/P1320 sobre HEAD
+`d31047d7b8af7837c84adae4ded3d2ff50c62093`, identificado com fonte/L0,
+diff/stat, horários e executáveis em `p1321-baseline.json` e
+`00_nucleo/diagnosticos/p1321-measurement.json`, SHA-256
+`f13c4ea33fe8d8f91a5ef443d3183d1cbb3f77d9ac6726c0e4c5e23c54fbef05`.
+Em loading.rs:1381–1389 o unknown precede fonte/opções; excedentes não são
+rejeitados antes do parser. No vanilla ratificado `a51e02804`, fonte inválida
+vence unknown, delimiter inválido vence unknown, e remanescente vence tanto
+arquivo inexistente quanto CSV malformado. Duas ordens de unknown/excesso
+mostram que a primeira ocorrência restante decide o diagnóstico.
+
+A intenção explícita está em `typst-macros/src/func.rs:375–425`: handlers
+dos parâmetros, finish, chamada; `typst-library/src/loading/csv.rs:27–46`
+declara source, delimiter, row-type nessa ordem. `foundations/args.rs:152–183`
+declara missing/positional e hint, :218–235 converte todas as ocorrências
+named, :259–266 rejeita o primeiro remanescente em seu span completo.
+A checagem extra `csv(source: ...)` versus `csv(bytes(...), source: ...)`
+refuta tratar o nome source sempre como missing: havendo positional válido,
+ele é um unknown remanescente. Mensagens/âncoras são comportamento medido;
+a política de rejeição está documentada na fonte, não inferida de um acidente.
+
+#### Obrigação proprietária
+
+Somente a validação nativa CSV passa a seguir esta ordem, antes de obter dados:
+
+1. Primeiro positional obrigatório source e seu cast vigente Path/Str/Bytes.
+   Ausente: se houver named source, erro `the argument `source` is positional`
+   no span completo da primeira ocorrência source, hint `try removing `source:``.
+   Sem named source: `missing argument: source` no span agregado de Args.
+   Havendo positional, seu cast precede opções e qualquer remanescente;
+   preservar mensagem/cast e value_span P1313, inclusive rejeição de Symbol.
+2. Todas as ocorrências delimiter e depois todas row-type, com as conversões,
+   ordem interna, último válido e value_span P1314. Falha interrompe antes
+   da validação de remanescentes. Defaults/casts não mudam.
+3. Ignorar o primeiro positional consumido e todas as ocorrências dos dois
+   nomes de opção; rejeitar a primeira ocorrência restante na ordem causal.
+   Positional excedente: `unexpected argument`; named: `unexpected argument: N`.
+   Usar span completo, não value_span nem chamada, com erro único, severidade
+   Error e sem hints adicionais. Named source com positional é remanescente
+   comum, não ganha conselho de argumento ausente.
+4. Somente argumentos integralmente válidos chegam à resolução/leitura e
+   ao parser. Não há I/O por falha de validação nem parsing que a antecipe.
+
+With/Args/spread/sink conservam ocorrência e origem transportadas; detached
+explícito continua detached, sem inventar range. Args sintético sem occurrences
+segue a política existente de occurrence_sequence: items na ordem, depois
+named na ordem do mapa, com spans individuais detached. Missing sem named usa
+args.span também no sintético. Args não muda. A reabertura R2 abaixo autoriza
+somente o transporte agregado CSV no owner de dispatch; demais owners intactos.
+
+Esta seção substitui expressamente as preservações de missing/unknown/excesso
+e da ordem externa de validação em P1313–P1319. Excesso com CSV inválido deixa
+de atingir o parser; isso é o delta pretendido, não regressão a esconder.
+Testes anteriores que misturavam parsing com excesso devem conservar ambos
+os controles: parsing sem excesso e rejeição sem leitura com excesso.
+
+#### Fronteiras e aceitação
+
+Preservar parser único, decode_csv puro, valores e diagnósticos após validação
+bem-sucedida, origem/sufixo P1319 binário, texto UTF-8 válido e erros de I/O
+legados, resolução current_file/Path e demais loaders/encoders. Coerção Symbol
+continua fora: casos mistos podem ganhar a precedência contratada sobre unknown,
+mas não receberão alegação indevida de paridade Symbol. Não criar csv.encode,
+API pública Rust, campo/trait, crate, flag, fase, contrato de I/O ou helper público.
+
+Aceitação no nível da língua e do diagnóstico integral: RED→GREEN local,
+origens distintas de span/value_span/args.span, fallback sintético, ausência
+de I/O, colisões de erros, named source com/sem positional, ordem causal e
+transporte With/Args, controles de opções/parser/outros loaders. A/B separado
+congela antes do patch as correções vanilla e preservações/deltas normativos
+explicitamente delimitados, repete/reordena; Unknown obrigatório bloqueia.
+É inferência que os carriers atuais bastam no owner: origem irrecuperável,
+contrato público novo ou perda de precedência a refuta e exige nova decisão.
+Correção de paridade interna em fluxo contínuo ADR-0127, L0 primeiro, sem
+mudança arquitetural de fase/pipeline e sem promessa de paridade geral CSV.
+
+#### P1321-R2 — agregado recebido pelo validador
+
+Medição anterior à decisão: o candidato R1, binário SHA-256
+`deb6aed85d133665b00d416fabee92aeda04196ff76b6a734ef0451bbdeaea3c`,
+falhou no A/B imutável `p1321-ab2-candidate.json`, SHA-256
+`d1699b5ae42327c7ba7254f5f1f2830453d0cd225fce8f79807cf329aa2a1a25`:
+as oito fontes missing sem named source marcam a lista, não a chamada inteira.
+Estado, diff/stat e UTC anteriores à reabertura constam de
+`00_nucleo/diagnosticos/p1321-r2-baseline.json`, SHA-256
+`8ca670bb4ab656a29667abd67fc06bc4d227a3dcc0afa9330a5e9ad49537f065`.
+Em call_dispatch.rs:398, Args recebe args_node.span(); :455–487 transporta
+a chamada só para encoders e panic. A perda de origem refutou a suficiência
+do owner único, não o resultado esperado. A fonte ratificada
+`typst-eval/src/call.rs:56–78` entrega a chamada ao agregado e
+`foundations/args.rs:160–173` usa esse agregado no missing.
+
+Loading continua dono exclusivo da validação e usa o args.span recebido,
+sem procurar AST/Source, comparar mensagens ou fabricar ranges. O L0 de
+call_dispatch passa a legitimar separadamente o transporte de call.span()
+para CSV por identidade nativa e através de With, antes da aplicação. Esta
+é a única exceção R2 à proibição inicial de alterar dispatch. Aplicação
+sintética sem AST conserva o span recebido. Mensagens, hints, ocorrências,
+value_spans, demais validações e todos os oráculos R1 permanecem inalterados.
+Correção interna de paridade/entrada em mapeamento existente: fluxo contínuo
+ADR-0127, dois owners com L0s 1:1, sem novo campo, assinatura ou fase.
 
 ### Diagnóstico CSV de arquivo com buffer UTF-8 inválido — P1319
 

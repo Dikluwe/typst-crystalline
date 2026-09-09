@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading.md
-//! @prompt-hash 94cfda0e
+//! @prompt-hash b8c5243a
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -1116,8 +1116,39 @@ fn arg_csv_source(args: &Args) -> SourceResult<&Value> {
                 ),
             )])
         }
-        None => Err(err("csv() requer 1 argumento posicional (caminho)")),
+        None => {
+            if let Some(argument) = args
+                .occurrence_sequence()
+                .iter()
+                .find(|argument| argument.name.as_deref() == Some("source"))
+            {
+                return Err(vec![SourceDiagnostic::error(
+                    argument.span,
+                    "the argument `source` is positional",
+                )
+                .with_hint("try removing `source:`")]);
+            }
+            Err(vec![SourceDiagnostic::error(args.span, "missing argument: source")])
+        }
     }
+}
+
+/// After parameter casts, reject the first unconsumed causal argument.
+fn csv_finish_args(args: &Args) -> SourceResult<()> {
+    let mut source_consumed = false;
+    for argument in args.occurrence_sequence() {
+        let message = match argument.name.as_deref() {
+            Some("delimiter" | "row-type") => continue,
+            None if !source_consumed => {
+                source_consumed = true;
+                continue;
+            }
+            Some(name) => format!("unexpected argument: {name}"),
+            None => "unexpected argument".into(),
+        };
+        return Err(vec![SourceDiagnostic::error(argument.span, message)]);
+    }
+    Ok(())
 }
 
 /// Read accepts PathOrStr; CSV has its separate DataSource cast.
@@ -1378,15 +1409,11 @@ pub fn native_csv(
     world: &dyn crate::contracts::world::World,
     current_file: FileId,
 ) -> SourceResult<Value> {
-    for k in args.named.keys() {
-        if k.as_str() != "delimiter" && k.as_str() != "row-type" {
-            return Err(err(format!("argumento nomeado inesperado em csv(): '{k}'")));
-        }
-    }
     let source = arg_csv_source(args)?;
 
     let delimiter = csv_named_option(args, "delimiter", b',', csv_delimiter)?;
     let row_type = csv_named_option(args, "row-type", RowType::Array, csv_row_type)?;
+    csv_finish_args(args)?;
 
     if let Value::Bytes(data) = source {
         return decode_csv_impl(
@@ -1425,6 +1452,159 @@ pub fn native_csv(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn p1321_occ(
+        name: Option<&str>,
+        value: Value,
+        start: usize,
+    ) -> crate::entities::args::ArgOccurrence {
+        crate::entities::args::ArgOccurrence {
+            name: name.map(Into::into),
+            value,
+            span: Span::from_range(tfid(), start..start + 10),
+            value_span: Span::from_range(tfid(), start + 3..start + 8),
+        }
+    }
+
+    #[test]
+    fn p1321_csv_missing_and_named_source() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        let call = Span::from_range(tfid(), 0..100);
+        for args in [
+            Args::from_occurrences(call, vec![]),
+            Args::from_parts(vec![], IndexMap::default(), call),
+        ] {
+            let e =
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+            assert_eq!(e.len(), 1);
+            assert_eq!(e[0].message, "missing argument: source");
+            assert_eq!(e[0].span, call);
+            assert!(e[0].hints.is_empty());
+        }
+        for detached in [false, true] {
+            let mut source = p1321_occ(Some("source"), Value::Int(42), 30);
+            if detached {
+                source.span = Span::detached();
+            }
+            let expected = source.span;
+            let args = Args::from_occurrences(
+                call,
+                vec![
+                    p1321_occ(Some("unknown"), Value::None, 10),
+                    source,
+                    p1321_occ(Some("source"), Value::None, 50),
+                ],
+            );
+            let e =
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+            assert_eq!(e[0].message, "the argument `source` is positional");
+            assert_eq!(e[0].span, expected);
+            assert_eq!(e[0].hints, vec![String::from("try removing `source:`")]);
+        }
+    }
+
+    #[test]
+    fn p1321_csv_first_remnant_before_io_or_parsing() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for source in [
+            Value::Str("never-read.csv".into()),
+            Value::Bytes(Bytes::new(b"a,b\n1".to_vec())),
+        ] {
+            for named_first in [false, true] {
+                for name in ["unknown", "source"] {
+                    let mut tails = vec![
+                        p1321_occ(None, Value::Int(42), 30),
+                        p1321_occ(Some(name), Value::None, 60),
+                    ];
+                    if named_first {
+                        tails.reverse();
+                    }
+                    let expected_span = tails[0].span;
+                    let mut occurrences = vec![
+                        p1321_occ(Some("delimiter"), Value::Str(",".into()), 10),
+                        p1321_occ(None, source.clone(), 20),
+                    ];
+                    occurrences.extend(tails);
+                    let args = Args::from_occurrences(
+                        Span::from_range(tfid(), 0..100),
+                        occurrences,
+                    );
+                    let e = native_csv(&mut EvalContext::new(), &args, &world, tfid())
+                        .unwrap_err();
+                    assert_eq!(e.len(), 1);
+                    assert_eq!(
+                        e[0].message,
+                        if named_first {
+                            format!("unexpected argument: {name}")
+                        } else {
+                            "unexpected argument".into()
+                        }
+                    );
+                    assert_eq!(e[0].span, expected_span);
+                    assert!(e[0].hints.is_empty());
+                    assert!(e[0].trace.is_empty());
+                }
+            }
+        }
+        let mut named = IndexMap::default();
+        named.insert("zeta".into(), Value::None);
+        named.insert("alpha".into(), Value::None);
+        for extra in [false, true] {
+            let mut items = vec![Value::Bytes(Bytes::new(b"a,b".to_vec()))];
+            if extra {
+                items.push(Value::Int(42));
+            }
+            let args =
+                Args::from_parts(items, named.clone(), Span::from_range(tfid(), 0..100));
+            let e =
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+            assert_eq!(
+                e[0].message,
+                if extra { "unexpected argument" } else { "unexpected argument: zeta" }
+            );
+            assert!(e[0].span.is_detached());
+        }
+    }
+
+    #[test]
+    fn p1321_csv_parameter_order_precedes_remaining_order() {
+        let world = MockWorld { forbid_io: true, ..MockWorld::default() };
+        for (source, delimiter, expected, start) in [
+            (
+                Value::Int(42),
+                Value::Str("xx".into()),
+                "expected path, string, or bytes, found integer",
+                20,
+            ),
+            (
+                Value::Str("never-read.csv".into()),
+                Value::Str("xx".into()),
+                "expected exactly one character",
+                60,
+            ),
+            (
+                Value::Str("never-read.csv".into()),
+                Value::Str(",".into()),
+                "expected type, found integer",
+                40,
+            ),
+        ] {
+            let args = Args::from_occurrences(
+                Span::from_range(tfid(), 0..100),
+                vec![
+                    p1321_occ(Some("unknown"), Value::None, 10),
+                    p1321_occ(None, source, 20),
+                    p1321_occ(None, Value::Int(99), 30),
+                    p1321_occ(Some("row-type"), Value::Int(1), 40),
+                    p1321_occ(Some("delimiter"), delimiter, 60),
+                ],
+            );
+            let e =
+                native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
+            assert_eq!(e[0].message, expected);
+            assert_eq!(e[0].span, Span::from_range(tfid(), start + 3..start + 8));
+        }
+    }
 
     #[test]
     fn p1319_csv_binary_files_keep_cause_path_and_argument_origin() {
@@ -1481,12 +1661,6 @@ mod tests {
                                     span: origin,
                                     value_span: origin,
                                 },
-                                ArgOccurrence {
-                                    name: None,
-                                    value: Value::Int(42),
-                                    span: Span::from_range(tfid(), 60..62),
-                                    value_span: Span::from_range(tfid(), 60..62),
-                                },
                             ],
                         );
                         let result =
@@ -1513,6 +1687,26 @@ mod tests {
                         assert_eq!(reads.len(), 1);
                         assert_eq!(reads[0].root(), &root);
                         assert_eq!(reads[0].vpath().get_with_slash(), "/dir/δ.csv");
+                        // P1321: parsing control retained; excess separately rejects before I/O.
+                        let mut occurrences = args.occurrences.unwrap();
+                        occurrences.push(ArgOccurrence {
+                            name: None,
+                            value: Value::Int(42),
+                            span: Span::from_range(tfid(), 60..62),
+                            value_span: Span::from_range(tfid(), 61..62),
+                        });
+                        let excess = Args::from_occurrences(args.span, occurrences);
+                        let forbidden =
+                            MockWorld { forbid_io: true, ..MockWorld::default() };
+                        let e = native_csv(
+                            &mut EvalContext::new(),
+                            &excess,
+                            &forbidden,
+                            tfid(),
+                        )
+                        .unwrap_err();
+                        assert_eq!(e[0].message, "unexpected argument");
+                        assert_eq!(e[0].span, Span::from_range(tfid(), 60..62));
                     }
                 }
             }
@@ -1878,12 +2072,9 @@ mod tests {
         let world = MockWorld { forbid_io: true, ..MockWorld::default() };
         let actual =
             native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();
-        // Normativo: manter parsing legado, não trocar pela rejeição de excesso vanilla.
-        assert_eq!(
-            actual[0].message,
-            "failed to parse CSV (found 1 instead of 2 fields in line 2 at 2:1)"
-        );
-        assert_eq!(actual[0].span, origin);
+        // P1321 supersedes the historical parsing-with-excess behavior.
+        assert_eq!(actual[0].message, "unexpected argument");
+        assert_eq!(actual[0].span, Span::from_range(tfid(), 70..90));
     }
 
     #[test]
@@ -2310,11 +2501,11 @@ mod tests {
         let mut path_option = Args::positional(vec![Value::Str("never-read.csv".into())]);
         path_option.named.insert("row-type".into(), Value::Bool(true));
         for (args, expected) in [
-            (unknown, "argumento nomeado inesperado em csv(): 'unknown'"),
+            (unknown, "expected path, string, or bytes, found integer"),
             (cast, "expected path, string, or bytes, found integer"),
             (delimiter, "expected exactly one character"),
             (path_option, "expected type, found boolean"),
-            (Args::positional(vec![]), "csv() requer 1 argumento posicional (caminho)"),
+            (Args::positional(vec![]), "missing argument: source"),
         ] {
             let errors =
                 native_csv(&mut EvalContext::new(), &args, &world, tfid()).unwrap_err();

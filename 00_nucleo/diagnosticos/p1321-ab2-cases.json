@@ -1,0 +1,552 @@
+[
+  {
+    "id": "missing_none",
+    "expr": "csv()",
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_delimiter",
+    "expr": "csv(delimiter: \"ab\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown",
+    "expr": "csv(zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source",
+    "expr": "csv(source: 42)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_unknown",
+    "expr": "csv(zeta: 1, source: 42)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_unknown_source",
+    "expr": "csv(source: 42, zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing_source_options",
+    "expr": "csv(delimiter: \"ab\", source: 42)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_int",
+    "expr": "csv(42)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_int",
+    "expr": "csv(zeta: 1, 42, delimiter: \"ab\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_bool",
+    "expr": "csv(true)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_bool",
+    "expr": "csv(zeta: 1, true, delimiter: \"ab\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_none",
+    "expr": "csv(none)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_dict",
+    "expr": "csv((a: 1))",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_dict",
+    "expr": "csv(zeta: 1, (a: 1), delimiter: \"ab\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_array",
+    "expr": "csv((1, 2))",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_type",
+    "expr": "csv(array)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_unknown_type",
+    "expr": "csv(zeta: 1, array, delimiter: \"ab\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_float",
+    "expr": "csv(1.5)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "cast_content",
+    "expr": "csv([x])",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_empty",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), delimiter: \"\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_empty",
+    "expr": "csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_long",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), delimiter: \"ab\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_long",
+    "expr": "csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"ab\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unicode",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), delimiter: \"é\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_unicode",
+    "expr": "csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: \"é\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_int",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), delimiter: 3)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_int",
+    "expr": "csv(zeta: 1, bytes(\"a,b\\n1,2\"), delimiter: 3)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_str",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), row-type: \"array\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_str",
+    "expr": "csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: \"array\")",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_type",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), row-type: str)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_type",
+    "expr": "csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: str)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_row_int",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), row-type: 3)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "option_unknown_row_int",
+    "expr": "csv(zeta: 1, bytes(\"a,b\\n1,2\"), row-type: 3)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), 17)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_z_a",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_a_z",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), alpha: 2, zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_extra_unknown",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), 17, zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_unknown_extra",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), zeta: 1, 17)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "remaining_source_named",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), source: 17)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_extra",
+    "expr": "csv(\"p1321-ab2-nonexistent.csv\", 17)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_unknown",
+    "expr": "csv(\"p1321-ab2-nonexistent.csv\", zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_missingfile_options",
+    "expr": "csv(\"p1321-ab2-nonexistent.csv\", row-type: str, delimiter: \"ab\", zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_extra",
+    "expr": "csv(bytes(\"a,b\\n1\"), 17)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_unknown",
+    "expr": "csv(bytes(\"a,b\\n1\"), zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_unequal_options",
+    "expr": "csv(bytes(\"a,b\\n1\"), row-type: str, delimiter: \"ab\", zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_extra",
+    "expr": "csv(bytes((255,)), 17)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_unknown",
+    "expr": "csv(bytes((255,)), zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "precedence_utf8_options",
+    "expr": "csv(bytes((255,)), row-type: str, delimiter: \"ab\", zeta: 1)",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_firstbad",
+    "expr": "{ let f = csv.with(delimiter: \"ab\"); f(bytes(\"a,b\\n1,2\"), delimiter: \";\") }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_lastbad",
+    "expr": "{ let f = csv.with(delimiter: \";\"); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_delimiter_good",
+    "expr": "{ let f = csv.with(delimiter: \";\"); f(bytes(\"a,b\\n1,2\"), delimiter: \",\") }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_firstbad",
+    "expr": "{ let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), row-type: array) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_lastbad",
+    "expr": "{ let f = csv.with(row-type: array); f(bytes(\"a,b\\n1,2\"), row-type: str) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_row_good",
+    "expr": "{ let f = csv.with(row-type: array); f(bytes(\"a,b\\n1,2\"), row-type: dictionary) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cross",
+    "expr": "{ let f = csv.with(row-type: str); f(bytes(\"a,b\\n1,2\"), delimiter: \"ab\") }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "syntax_duplicate",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), delimiter: \";\", delimiter: \",\")",
+    "policy": "baseline"
+  },
+  {
+    "id": "alias_missing",
+    "expr": "{ let f = csv; f(zeta: 1) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_source",
+    "expr": "{ let f = csv; f(source: 42) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_cast",
+    "expr": "{ let f = csv; f(zeta: 1, 42) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_excess",
+    "expr": "{ let f = csv; f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "alias_unknown",
+    "expr": "{ let f = csv; f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_missing",
+    "expr": "{ let a = arguments(zeta: 1); csv(..a) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_source",
+    "expr": "{ let a = arguments(source: 42); csv(..a) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_cast",
+    "expr": "{ let a = arguments(zeta: 1, 42); csv(..a) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_excess",
+    "expr": "{ let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_unknown",
+    "expr": "{ let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_missing",
+    "expr": "{ let f(..a) = csv(..a); f(zeta: 1) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_source",
+    "expr": "{ let f(..a) = csv(..a); f(source: 42) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_cast",
+    "expr": "{ let f(..a) = csv(..a); f(zeta: 1, 42) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_excess",
+    "expr": "{ let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), 17, zeta: 1) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_unknown",
+    "expr": "{ let f(..a) = csv(..a); f(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_missing",
+    "expr": "{ let f = csv.with(zeta: 1); f() }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_source",
+    "expr": "{ let f = csv.with(source: 42); f() }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_cast",
+    "expr": "{ let f = csv.with(zeta: 1, 42); f() }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_excess",
+    "expr": "{ let f = csv.with(bytes(\"a,b\\n1,2\"), 17, zeta: 1); f() }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with_unknown",
+    "expr": "{ let f = csv.with(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); f() }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_missing",
+    "expr": "{ let a = arguments(zeta: 1); csv(..a.map(x => x)) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_source",
+    "expr": "{ let a = arguments(source: 42); csv(..a.map(x => x)) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_cast",
+    "expr": "{ let a = arguments(zeta: 1, 42); csv(..a.map(x => x)) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_excess",
+    "expr": "{ let a = arguments(bytes(\"a,b\\n1,2\"), 17, zeta: 1); csv(..a.map(x => x)) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "map_unknown",
+    "expr": "{ let a = arguments(bytes(\"a,b\\n1,2\"), zeta: 1, alpha: 2); csv(..a.map(x => x)) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_dict_unknown",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), ..(zeta: 1, alpha: 2))",
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread_array_excess",
+    "expr": "csv(..(bytes(\"a,b\\n1,2\"), 17))",
+    "policy": "vanilla"
+  },
+  {
+    "id": "args_dup_delimiter",
+    "expr": "{ let a = arguments(delimiter: \"ab\"); csv(bytes(\"a,b\\n1,2\"), ..a, delimiter: \",\", zeta: 1) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink_dup_row",
+    "expr": "{ let f(..a) = csv(bytes(\"a,b\\n1,2\"), ..a, row-type: array); f(row-type: str, zeta: 1) }",
+    "policy": "vanilla"
+  },
+  {
+    "id": "valid_array",
+    "expr": "csv(bytes(\"a,b\\n1,2\"))",
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_dict",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), row-type: dictionary)",
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_semicolon",
+    "expr": "csv(bytes(\"a;b\\n1;2\"), delimiter: \";\")",
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_empty",
+    "expr": "csv(bytes(()))",
+    "policy": "baseline"
+  },
+  {
+    "id": "valid_quoted",
+    "expr": "csv(bytes(\"\\\"a,b\\\",c\"))",
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_unequal",
+    "expr": "csv(bytes(\"a,b\\n1\"))",
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_utf8",
+    "expr": "csv(bytes((255,)))",
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_multiline",
+    "expr": "csv(bytes(\"\\\"a\\nb\\\",c\\n1\"))",
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_crlf",
+    "expr": "csv(bytes(\"a,b\\r\\n1\"))",
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_good",
+    "expr": "csv(\"00_nucleo/diagnosticos/p1320-fixtures/good.csv\")",
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_path_bad",
+    "expr": "csv(\"00_nucleo/diagnosticos/p1320-fixtures/unequal.csv\")",
+    "policy": "baseline"
+  },
+  {
+    "id": "preserve_io",
+    "expr": "csv(\"p1321-ab2-nonexistent.csv\")",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_source",
+    "expr": "csv(sym.alpha)",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_delimiter",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha)",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_read",
+    "expr": "read(42)",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_json",
+    "expr": "json(42)",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_yaml",
+    "expr": "yaml(bytes(\"a: 1\"))",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_toml",
+    "expr": "toml(bytes(\"a = 1\"))",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_xml",
+    "expr": "xml(bytes(\"<a/>\"))",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_cbor",
+    "expr": "cbor(cbor.encode((a: 1)))",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_encode",
+    "expr": "json.encode((a: 1), pretty: false)",
+    "policy": "baseline"
+  },
+  {
+    "id": "protected_missingfield",
+    "expr": "csv.encode(1)",
+    "policy": "baseline"
+  },
+  {
+    "id": "normative_symbol_source",
+    "expr": "csv(sym.alpha, zeta: 1)",
+    "policy": "symbol-source"
+  },
+  {
+    "id": "normative_symbol_delimiter",
+    "expr": "csv(bytes(\"a,b\\n1,2\"), delimiter: sym.alpha, zeta: 1)",
+    "policy": "symbol-delimiter"
+  }
+]

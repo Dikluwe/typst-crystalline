@@ -1,0 +1,268 @@
+{
+  "utc": "2026-09-08T20:53:15.815Z",
+  "regime": "A/B without technical isolation attestation",
+  "checks": [
+    "receipt pin r2-baseline",
+    "receipt pin r2-unit-red",
+    "receipt pin ab2-r2-freeze",
+    "receipt pin r2-reseal",
+    "receipt pin ab2-candidate",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-cases.json",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-baseline.json",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-expectations.json",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-runner.py",
+    "frozen input /repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/csv.rs",
+    "frozen input /repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/args.rs",
+    "frozen input /repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/func.rs",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0127-gate-l0-paragem-vs-fluxo.md",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0129-nucleos-tekt-l0-compartilhado.md",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/good.csv",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/unequal.csv",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/,",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/captured.typ",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/captured-only.typ",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/closure-only.typ",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/sub/data.csv",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/sub/module.typ",
+    "frozen input /home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+    "frozen input /home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+    "frozen input /home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-freeze.json",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-candidate.json",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-r2-cases.json",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-r2-measurement.json",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-r2-expectations.json",
+    "frozen input /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-r2-runner.py",
+    "frozen input /tmp/p1321-r1-preserved.Tdbgy8/typst",
+    "frozen input /usr/local/bin/typst",
+    "reviewed pair 01_core/src/compiler/stdlib/loading.rs",
+    "canonical metadata 01_core/src/compiler/stdlib/loading.rs",
+    "independent B 01_core/src/compiler/stdlib/loading.rs",
+    "single shared nucleus 01_core/src/compiler/stdlib/loading.rs",
+    "dependency-free nucleus 01_core/src/compiler/stdlib/loading.rs",
+    "effective nucleus pin 01_core/src/compiler/stdlib/loading.rs",
+    "independent effective A 01_core/src/compiler/stdlib/loading.rs",
+    "frozen norm 01_core/src/compiler/stdlib/loading.rs",
+    "all tests unchanged since RED R2 01_core/src/compiler/stdlib/loading.rs",
+    "RED productive prefix predates R2 01_core/src/compiler/stdlib/loading.rs",
+    "reviewed pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "canonical metadata 01_core/src/compiler/eval/call_dispatch.rs",
+    "independent B 01_core/src/compiler/eval/call_dispatch.rs",
+    "single shared nucleus 01_core/src/compiler/eval/call_dispatch.rs",
+    "dependency-free nucleus 01_core/src/compiler/eval/call_dispatch.rs",
+    "effective nucleus pin 01_core/src/compiler/eval/call_dispatch.rs",
+    "independent effective A 01_core/src/compiler/eval/call_dispatch.rs",
+    "frozen norm 01_core/src/compiler/eval/call_dispatch.rs",
+    "all tests unchanged since RED R2 01_core/src/compiler/eval/call_dispatch.rs",
+    "RED productive prefix predates R2 01_core/src/compiler/eval/call_dispatch.rs",
+    "genuine R2 RED",
+    "loading tests unchanged since original RED",
+    "129 cases in four profiles",
+    "no accepted Unknown",
+    "unique keys",
+    "A/B focal freeze identity",
+    "A/B focal binary bytes",
+    "focal/focal complete count",
+    "focal/focal independent result agrees",
+    "focal required execution orders",
+    "A/B full freeze identity",
+    "A/B full binary bytes",
+    "focal passed before full on same binary",
+    "full/normal complete count",
+    "full/normal independent result agrees",
+    "full/repeat complete count",
+    "full/repeat independent result agrees",
+    "full/reverse complete count",
+    "full/reverse independent result agrees",
+    "full required execution orders",
+    "build exit zero",
+    "build HEAD",
+    "build exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "build exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "build HEAD",
+    "build exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "build exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "unit-green exit zero",
+    "unit-green HEAD",
+    "unit-green exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "unit-green exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "unit-green HEAD",
+    "unit-green exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "unit-green exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "unit-green successful test summary",
+    "workspace-tests exit zero",
+    "workspace-tests HEAD",
+    "workspace-tests exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "workspace-tests exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "workspace-tests HEAD",
+    "workspace-tests exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "workspace-tests exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "workspace-tests successful test summary",
+    "fmt exit zero",
+    "fmt HEAD",
+    "fmt exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "fmt exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "fmt HEAD",
+    "fmt exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "fmt exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "diff-check exit zero",
+    "diff-check HEAD",
+    "diff-check exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "diff-check exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "diff-check HEAD",
+    "diff-check exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "diff-check exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "lint exit zero",
+    "lint HEAD",
+    "lint exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "lint exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "lint HEAD",
+    "lint exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "lint exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "lineage-final exit zero",
+    "lineage-final HEAD",
+    "lineage-final exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "lineage-final exact pair 01_core/src/compiler/eval/call_dispatch.rs",
+    "lineage-final HEAD",
+    "lineage-final exact pair 01_core/src/compiler/stdlib/loading.rs",
+    "lineage-final exact pair 01_core/src/compiler/eval/call_dispatch.rs"
+  ],
+  "pending": [],
+  "failures": [],
+  "hashes": {
+    "01_core/src/compiler/stdlib/loading.rs": {
+      "source": "f4ebb73fac0d64d412adbda475eaef65fb45e01ac2cf44a13c5b9d9aa408bf8f",
+      "l0": "bf6e830de31aab2b0cd113872e258949e46e6d54e3f041bcc21ed62cc43f57d4",
+      "normative": "aae08307fdd8602d6a4bd2700d282b89aa35ea5d4e28e189f64ae3bbb110558b",
+      "tests": "42219b7843fbcfb14b5241cd0d1b7b88be050d42a7b084c5820ed49cf59542fd",
+      "A": "b8c5243a3b7cb129324bc91247a49019a2b04ec318c50b047ff8b5294af041ba",
+      "B": "c0f17d3b47e3d98cd8255cd8c36dd35279bbdf98247a1077a50dc81ab1922210",
+      "nucleus": "5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24"
+    },
+    "01_core/src/compiler/eval/call_dispatch.rs": {
+      "source": "9b11c388cf50666beecad9a6c92fbebfb323cdf5edbb550f4be04a96e0c3e9d4",
+      "l0": "d11ca271808ccdda640fea58a3bfa0354816299a42c3736c72373c76859f5ebf",
+      "normative": "95c34064e36713e44f239d168029153d3c8010d2af5c9a5984369d61ffc9bfa7",
+      "tests": "e2af2efd553dce0c23692fbd40b89609def22699397cea9185552d1deb35643e",
+      "A": "c80d41d0d946a98dd4917d30a922d39e50c4863f9304225783d2fb09962e2abb",
+      "B": "01a0d0903f2a52d51a3cc8434a4a5d8ad55257b28be67f67169e2e71878b5654",
+      "nucleus": "5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24"
+    }
+  },
+  "receipts": {
+    "ab2-r2-focal": "1b9bf87a405c47dccd0ab603bc8de51830bfc25f7bea718230a19055aecf8f94",
+    "ab2-r2-full": "d384d510f380b6cc67bada50a7cb6270b5a68cc01611891db728bfdea06e93c7",
+    "build": {
+      "sha256": "3cd594329afb5f93ccd461b8678e67c37d29625b15abcae8beb47f8e8ff1cad7",
+      "argv": [
+        "cargo",
+        "build",
+        "--workspace",
+        "--release"
+      ],
+      "utc": [
+        "2026-09-08T20:45:21.947375+00:00",
+        "2026-09-08T20:46:01.025140+00:00"
+      ]
+    },
+    "unit-green": {
+      "sha256": "095880f88dc4878d7b32d8ae4d1ba70ca0842a3e8c04834ad404f1485fddd2d3",
+      "argv": [
+        "cargo",
+        "test",
+        "-p",
+        "typst-core",
+        "--release",
+        "p1321_csv_transport",
+        "--",
+        "--nocapture"
+      ],
+      "utc": [
+        "2026-09-08T20:45:58.729309+00:00",
+        "2026-09-08T20:48:02.774052+00:00"
+      ]
+    },
+    "workspace-tests": {
+      "sha256": "afbc5559ef9efad6a8dcb54dcbbd6686b952eafdb0ba5a3aa6fec460379754df",
+      "argv": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--release",
+        "--no-fail-fast"
+      ],
+      "utc": [
+        "2026-09-08T20:48:02.903704+00:00",
+        "2026-09-08T20:52:38.930214+00:00"
+      ]
+    },
+    "fmt": {
+      "sha256": "008d9b6e673d887c2695af6682087cb4385a00a7b2af233ed7b2ab052e76ccbd",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "utc": [
+        "2026-09-08T20:46:07.044102+00:00",
+        "2026-09-08T20:46:09.697131+00:00"
+      ]
+    },
+    "diff-check": {
+      "sha256": "520b7e10506a1d582d39d4b886d726e6c5e2b297f3125340ea82e7cb18392713",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "utc": [
+        "2026-09-08T20:46:09.826795+00:00",
+        "2026-09-08T20:46:09.905256+00:00"
+      ]
+    },
+    "lint": {
+      "sha256": "cbf868c9f5499ba4b1a9691bc19e4539f7a467ff7a133142982e3a00233bd3c8",
+      "argv": [
+        "crystalline-lint",
+        "."
+      ],
+      "utc": [
+        "2026-09-08T20:46:03.405464+00:00",
+        "2026-09-08T20:46:06.918502+00:00"
+      ]
+    },
+    "lineage-final": {
+      "sha256": "9cc28178e87a76d14c1251dfaf4a7df1e4f63c9d9ea2fa0e1160a4b02e699cf5",
+      "argv": [
+        "crystalline-lint",
+        "--checks",
+        "v5,v15,v26",
+        "--fail-on",
+        "warning",
+        "."
+      ],
+      "utc": [
+        "2026-09-08T20:45:14.275529+00:00",
+        "2026-09-08T20:45:17.518188+00:00"
+      ]
+    }
+  },
+  "binary": {
+    "path": "/tmp/p1321-target.669PuL/release/typst",
+    "sha256": "756b1c85a5879ea0afb79fc35184525aebfafa6ccb926ae86679a868691f99fa"
+  },
+  "unit-green_totals": [
+    2,
+    0,
+    0
+  ],
+  "workspace-tests_totals": [
+    6666,
+    0,
+    3
+  ],
+  "status": "PASS_REVIEWED_FRAGMENT_WITH_LIMITATIONS"
+}

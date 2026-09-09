@@ -1,0 +1,287 @@
+[
+  {
+    "id": "missing",
+    "source": "#metadata(csv()) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing-option",
+    "source": "#metadata(csv(delimiter: 2, weird: true)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing-named-source",
+    "source": "#metadata(csv(weird: true, source: 42, delimiter: 2)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "named-source-with",
+    "source": "#let f = csv.with(source: bytes(\"a,b\"))\n#metadata(f()) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "missing-with",
+    "source": "#let f = csv.with(delimiter: \";\")\n#metadata(f()) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "source-before-unknown",
+    "source": "#metadata(csv(42, weird: true, delimiter: 2)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "source-after-unknown",
+    "source": "#metadata(csv(weird: true, 42)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "source-before-option",
+    "source": "#metadata(csv(delimiter: 2, false, row-type: 3)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "source-args-map",
+    "source": "#let a = arguments(42, weird: true).map(v => v)\n#metadata(csv(..a)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "delimiter-before-unknown",
+    "source": "#metadata(csv(bytes(\"a,b\"), weird: true, delimiter: \"xx\")) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "delimiter-before-row",
+    "source": "#metadata(csv(bytes(\"a,b\"), row-type: 3, delimiter: \"é\", weird: true)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "row-before-unknown",
+    "source": "#metadata(csv(bytes(\"a,b\"), weird: true, row-type: str)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "delimiter-before-io",
+    "source": "#metadata(csv(\"missing.csv\", delimiter: \"xx\", 8)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "row-before-excess",
+    "source": "#metadata(csv(bytes(\"a,b\\n1\"), 8, row-type: 4)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "excess-valid",
+    "source": "#metadata(csv(bytes(\"a,b\"), 7)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "excess-malformed",
+    "source": "#metadata(csv(bytes(\"a,b\\n1\"), 7)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "excess-invalid-utf8",
+    "source": "#metadata(csv(bytes((255,)), 7)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "excess-missing-path",
+    "source": "#metadata(csv(\"missing.csv\", 7)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "excess-text-path",
+    "source": "#metadata(csv(\"short.csv\", 7)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "excess-binary-path",
+    "source": "#metadata(csv(\"invalid.csv\", 7)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "unknown-before-excess",
+    "source": "#metadata(csv(bytes(\"a,b\\n1\"), zeta: 1, 7, alpha: 2)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "excess-before-unknown",
+    "source": "#metadata(csv(bytes(\"a,b\\n1\"), 7, zeta: 1)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "unknown-order-z-a",
+    "source": "#metadata(csv(bytes(\"a,b\"), zeta: 1, alpha: 2)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "unknown-order-a-z",
+    "source": "#metadata(csv(bytes(\"a,b\"), alpha: 1, zeta: 2)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "named-source-after-pos",
+    "source": "#metadata(csv(bytes(\"a,b\"), source: bytes(\"c,d\"))) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "unknown-before-source",
+    "source": "#metadata(csv(zeta: 1, bytes(\"a,b\"), delimiter: \",\")) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with-unknown-first",
+    "source": "#let f = csv.with(bytes(\"a,b\"), zeta: 4)\n#metadata(f(8)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "with-excess-first",
+    "source": "#let f = csv.with(bytes(\"a,b\"), 8)\n#metadata(f(zeta: 4)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "args-excess",
+    "source": "#let a = arguments(bytes(\"a,b\"), 8)\n#metadata(csv(..a)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "args-map-excess",
+    "source": "#let a = arguments(bytes(\"a,b\"), 8).map(v => v)\n#metadata(csv(..a)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "args-filter-unknown",
+    "source": "#let a = arguments(bytes(\"a,b\"), zeta: 8, alpha: 1).filter(v => true)\n#metadata(csv(..a)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "sink-unknown",
+    "source": "#let f(..a) = csv(..a)\n#metadata(f(bytes(\"a,b\"), zeta: 4, 8)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread-array-excess",
+    "source": "#metadata(csv(..(bytes(\"a,b\"), 8))) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "spread-dict-unknown",
+    "source": "#metadata(csv(bytes(\"a,b\"), ..(zeta: 1, alpha: 2))) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "duplicate-option-with",
+    "source": "#let f = csv.with(bytes(\"a,b\"), delimiter: \"xx\")\n#metadata(f(delimiter: \",\", zeta: 8)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "duplicate-option-spread",
+    "source": "#let a = arguments(bytes(\"a,b\"), delimiter: \"xx\")\n#metadata(csv(..a, delimiter: \",\", zeta: 8)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "map-delimiter-detached",
+    "source": "#let a = arguments(bytes(\"a,b\"), delimiter: \"xx\", zeta: 8).map(v => v)\n#metadata(csv(..a)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "map-path-with-excess",
+    "source": "#let a = arguments(\"good.csv\", 8).map(v => v)\n#metadata(csv(..a)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "default-bytes",
+    "source": "#metadata(csv(bytes(\"a,b\\n1,2\"))) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "default-empty",
+    "source": "#metadata(csv(bytes(\"\"))) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "dictionary-value",
+    "source": "#metadata(csv(bytes(\"a;b\\n1;2\"), delimiter: \";\", row-type: dictionary)) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "override-valid",
+    "source": "#let f = csv.with(bytes(\"a;b\"), delimiter: \",\")\n#metadata(f(delimiter: \";\")) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "valid-path",
+    "source": "#metadata(csv(\"good.csv\")) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "parse-bytes",
+    "source": "#metadata(csv(bytes(\"a,b\\n1\"))) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "parse-binary-path",
+    "source": "#metadata(csv(\"invalid.csv\")) <result>\n",
+    "policy": "vanilla"
+  },
+  {
+    "id": "parse-text-path-preserve",
+    "source": "#metadata(csv(\"short.csv\")) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "missing-path-preserve",
+    "source": "#metadata(csv(\"missing.csv\")) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "map-path-preserve",
+    "source": "#let a = arguments(\"good.csv\").map(v => v)\n#metadata(csv(..a)) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "source-symbol-preserve",
+    "source": "#metadata(csv(sym.alpha)) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "delimiter-symbol-preserve",
+    "source": "#metadata(csv(bytes(\"a,b\"), delimiter: sym.comma)) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "read-control",
+    "source": "#metadata(read(42, zeta: 1)) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "json-control",
+    "source": "#metadata(json(bytes(\"{}\"), zeta: 1)) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "yaml-control",
+    "source": "#metadata(yaml(bytes(\"a: 1\"), 8)) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "toml-control",
+    "source": "#metadata(toml(bytes(\"a=1\"))) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "cbor-control",
+    "source": "#metadata(cbor(cbor.encode((a: 1)))) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "xml-control",
+    "source": "#metadata(xml(bytes(\"<a/>\"))) <result>\n",
+    "policy": "baseline"
+  },
+  {
+    "id": "json-encoder-control",
+    "source": "#metadata(json.encode((a: 1), pretty: false)) <result>\n",
+    "policy": "baseline"
+  }
+]

@@ -1,0 +1,2498 @@
+{
+  "state": {
+    "utc": "2026-09-08T20:42:20.570643+00:00",
+    "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+    "diff_stat": " 00_nucleo/prompts/compiler/eval/call_dispatch.md |  51 ++-\n 00_nucleo/prompts/compiler/stdlib/loading.md     | 198 +++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs       |  84 ++++\n 01_core/src/compiler/stdlib/loading.rs           | 466 ++++++++++++++++++++---\n 4 files changed, 749 insertions(+), 50 deletions(-)\n",
+    "status": " M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 01_core/src/compiler/eval/call_dispatch.rs\n M 01_core/src/compiler/stdlib/loading.rs\n?? 00_nucleo/diagnosticos/p1319-ab-baseline-runs-r1.json\n?? 00_nucleo/diagnosticos/p1319-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-calibration.py\n?? 00_nucleo/diagnosticos/p1319-ab-candidate-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-cases-r0.json\n?? 00_nucleo/diagnosticos/p1319-ab-cases.json\n?? 00_nucleo/diagnosticos/p1319-ab-comparison.json\n?? 00_nucleo/diagnosticos/p1319-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1319-ab-receipt.md\n?? 00_nucleo/diagnosticos/p1319-ab-runner-r0.py\n?? 00_nucleo/diagnosticos/p1319-ab-runner.py\n?? 00_nucleo/diagnosticos/p1319-build-r2.json\n?? 00_nucleo/diagnosticos/p1319-build.json\n?? 00_nucleo/diagnosticos/p1319-diff-check-r1.json\n?? 00_nucleo/diagnosticos/p1319-diff-check-r2.json\n?? 00_nucleo/diagnosticos/p1319-diff-check.json\n?? 00_nucleo/diagnosticos/p1319-final-report.md\n?? 00_nucleo/diagnosticos/p1319-fmt-r1.json\n?? 00_nucleo/diagnosticos/p1319-fmt-r2.json\n?? 00_nucleo/diagnosticos/p1319-fmt.json\n?? 00_nucleo/diagnosticos/p1319-lineage-before-repair.json\n?? 00_nucleo/diagnosticos/p1319-lineage-check.py\n?? 00_nucleo/diagnosticos/p1319-lineage-final-r1.json\n?? 00_nucleo/diagnosticos/p1319-lineage-final-r2.json\n?? 00_nucleo/diagnosticos/p1319-lineage-final.json\n?? 00_nucleo/diagnosticos/p1319-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1319-lineage-verified-r1.json\n?? 00_nucleo/diagnosticos/p1319-lineage-verified-r2.json\n?? 00_nucleo/diagnosticos/p1319-lint-r1.json\n?? 00_nucleo/diagnosticos/p1319-lint-r2.json\n?? 00_nucleo/diagnosticos/p1319-lint.json\n?? 00_nucleo/diagnosticos/p1319-measure.py\n?? 00_nucleo/diagnosticos/p1319-measurement.json\n?? 00_nucleo/diagnosticos/p1319-record.py\n?? 00_nucleo/diagnosticos/p1319-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1319-review-candidate-and-lineage.md\n?? 00_nucleo/diagnosticos/p1319-review-final-audit.json\n?? 00_nucleo/diagnosticos/p1319-review-final.md\n?? 00_nucleo/diagnosticos/p1319-review-l0.md\n?? 00_nucleo/diagnosticos/p1319-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1319-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1319-review-red.md\n?? 00_nucleo/diagnosticos/p1319-test-delta.json\n?? 00_nucleo/diagnosticos/p1319-test-delta.py\n?? 00_nucleo/diagnosticos/p1319-unit-green-r1.json\n?? 00_nucleo/diagnosticos/p1319-unit-green-r2.json\n?? 00_nucleo/diagnosticos/p1319-unit-green.json\n?? 00_nucleo/diagnosticos/p1319-unit-red.json\n?? 00_nucleo/diagnosticos/p1319-workspace-tests-r2.json\n?? 00_nucleo/diagnosticos/p1319-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1320-audit-r0.py\n?? 00_nucleo/diagnosticos/p1320-audit.py\n?? 00_nucleo/diagnosticos/p1320-close.py\n?? 00_nucleo/diagnosticos/p1320-fixtures/\n?? 00_nucleo/diagnosticos/p1320-focal-r1.json\n?? 00_nucleo/diagnosticos/p1320-harness-tests-r1.json\n?? 00_nucleo/diagnosticos/p1320-harness-tests.json\n?? 00_nucleo/diagnosticos/p1320-measurement.json\n?? 00_nucleo/diagnosticos/p1320-o-que-falta-para-paridade.md\n?? 00_nucleo/diagnosticos/p1320-reconciliation.json\n?? 00_nucleo/diagnosticos/p1320-supplement.json\n?? 00_nucleo/diagnosticos/p1320-supplement.py\n?? 00_nucleo/diagnosticos/p1321-ab-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab-runner.cjs\n?? 00_nucleo/diagnosticos/p1321-ab2-baseline.json\n?? 00_nucleo/diagnosticos/p1321-ab2-candidate.json\n?? 00_nucleo/diagnosticos/p1321-ab2-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab2-expectations.json\n?? 00_nucleo/diagnosticos/p1321-ab2-freeze.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-runner.py\n?? 00_nucleo/diagnosticos/p1321-ab2-receipt.md\n?? 00_nucleo/diagnosticos/p1321-ab2-runner.py\n?? 00_nucleo/diagnosticos/p1321-baseline.json\n?? 00_nucleo/diagnosticos/p1321-build.json\n?? 00_nucleo/diagnosticos/p1321-final-report.md\n?? 00_nucleo/diagnosticos/p1321-fmt.json\n?? 00_nucleo/diagnosticos/p1321-lineage-final.json\n?? 00_nucleo/diagnosticos/p1321-lineage.py\n?? 00_nucleo/diagnosticos/p1321-lint.json\n?? 00_nucleo/diagnosticos/p1321-measure.py\n?? 00_nucleo/diagnosticos/p1321-measurement.json\n?? 00_nucleo/diagnosticos/p1321-r2-baseline.json\n?? 00_nucleo/diagnosticos/p1321-r2-lineage.py\n?? 00_nucleo/diagnosticos/p1321-r2-record.py\n?? 00_nucleo/diagnosticos/p1321-record.py\n?? 00_nucleo/diagnosticos/p1321-reseal.json\n?? 00_nucleo/diagnosticos/p1321-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1321-review-candidate-audit.json\n?? 00_nucleo/diagnosticos/p1321-review-candidate.md\n?? 00_nucleo/diagnosticos/p1321-review-l0.md\n?? 00_nucleo/diagnosticos/p1321-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1321-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1321-review-reopen-r2.md\n?? 00_nucleo/diagnosticos/p1321-unit-green.json\n?? 00_nucleo/diagnosticos/p1321-unit-red.json\n?? 00_nucleo/diagnosticos/p1321-workspace-tests.json\n?? 00_nucleo/materialization/typst-passo-1319.md\n?? 00_nucleo/materialization/typst-passo-1320.md\n?? 00_nucleo/materialization/typst-passo-1321.md\n"
+  },
+  "binaries": {
+    "/tmp/p1321-r1-preserved.Tdbgy8/typst": "deb6aed85d133665b00d416fabee92aeda04196ff76b6a734ef0451bbdeaea3c",
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "runs": {
+    "baseline": [
+      {
+        "id": "r2_user_csv_missing",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "{ let csv(x) = x; csv() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:21\n  │\n1 │ { let csv(x) = x; csv() }\n  │                      ^^\n\n",
+        "seconds": 0.1176506600168068
+      },
+      {
+        "id": "r2_user_csv_missing",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let csv(x) = x; csv() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:21\n  │\n1 │ { let csv(x) = x; csv() }\n  │                      ^^\n\n",
+        "seconds": 0.11726080000516959
+      },
+      {
+        "id": "r2_user_csv_missing",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let csv(x) = x; csv() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:21\n  │\n1 │ { let csv(x) = x; csv() }\n  │                      ^^\n\n",
+        "seconds": 0.11722787900362164
+      },
+      {
+        "id": "r2_user_csv_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let csv(x) = x; csv() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:21\n  │\n1 │ { let csv(x) = x; csv() }\n  │                      ^^\n\n",
+        "seconds": 0.12760592400445603
+      },
+      {
+        "id": "r2_user_csv_alias",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "{ let csv(x) = x; let alias = csv; alias() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:40\n  │\n1 │ { let csv(x) = x; let alias = csv; alias() }\n  │                                         ^^\n\n",
+        "seconds": 0.1266557670023758
+      },
+      {
+        "id": "r2_user_csv_alias",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let csv(x) = x; let alias = csv; alias() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:40\n  │\n1 │ { let csv(x) = x; let alias = csv; alias() }\n  │                                         ^^\n\n",
+        "seconds": 0.12682768900413066
+      },
+      {
+        "id": "r2_user_csv_alias",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let csv(x) = x; let alias = csv; alias() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:40\n  │\n1 │ { let csv(x) = x; let alias = csv; alias() }\n  │                                         ^^\n\n",
+        "seconds": 0.10698675899766386
+      },
+      {
+        "id": "r2_user_csv_alias",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let csv(x) = x; let alias = csv; alias() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:40\n  │\n1 │ { let csv(x) = x; let alias = csv; alias() }\n  │                                         ^^\n\n",
+        "seconds": 0.10599066500435583
+      },
+      {
+        "id": "r2_user_csv_with",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "{ let csv(x) = x; csv.with()() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let csv(x) = x; csv.with()() }\n  │                             ^^\n\n",
+        "seconds": 0.10569751699222252
+      },
+      {
+        "id": "r2_user_csv_with",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let csv(x) = x; csv.with()() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let csv(x) = x; csv.with()() }\n  │                             ^^\n\n",
+        "seconds": 0.11497248901287094
+      },
+      {
+        "id": "r2_user_csv_with",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let csv(x) = x; csv.with()() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let csv(x) = x; csv.with()() }\n  │                             ^^\n\n",
+        "seconds": 0.10934849697514437
+      },
+      {
+        "id": "r2_user_csv_with",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let csv(x) = x; csv.with()() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:28\n  │\n1 │ { let csv(x) = x; csv.with()() }\n  │                             ^^\n\n",
+        "seconds": 0.11413533301674761
+      },
+      {
+        "id": "r2_user_csv_value",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "{ let csv(..a) = a.len(); csv(1, zeta: 2) }"
+        ],
+        "exit": 0,
+        "stdout": "2\n",
+        "stderr": "",
+        "seconds": 0.10687446699012071
+      },
+      {
+        "id": "r2_user_csv_value",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let csv(..a) = a.len(); csv(1, zeta: 2) }"
+        ],
+        "exit": 0,
+        "stdout": "2\n",
+        "stderr": "",
+        "seconds": 0.10705357301048934
+      },
+      {
+        "id": "r2_user_csv_value",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let csv(..a) = a.len(); csv(1, zeta: 2) }"
+        ],
+        "exit": 0,
+        "stdout": "2\n",
+        "stderr": "",
+        "seconds": 0.10657598901889287
+      },
+      {
+        "id": "r2_user_csv_value",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let csv(..a) = a.len(); csv(1, zeta: 2) }"
+        ],
+        "exit": 0,
+        "stdout": "2\n",
+        "stderr": "",
+        "seconds": 0.1109461449959781
+      },
+      {
+        "id": "r2_read_missing",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "read()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read()\n\n",
+        "seconds": 0.10560337899369188
+      },
+      {
+        "id": "r2_read_missing",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "read()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read()\n\n",
+        "seconds": 0.10518249199958518
+      },
+      {
+        "id": "r2_read_missing",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "read()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read()\n\n",
+        "seconds": 0.11199854398728348
+      },
+      {
+        "id": "r2_read_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "read()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: read() requer 1 argumento posicional (caminho)\n\n  while calling `read` at <input-expression>:1:0\n    read()\n\n",
+        "seconds": 0.10378058897913434
+      },
+      {
+        "id": "r2_json_missing",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "json()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: json() requer 1 argumento posicional (caminho ou bytes)\n\n  while calling `json` at <input-expression>:1:0\n    json()\n\n",
+        "seconds": 0.10362237298977561
+      },
+      {
+        "id": "r2_json_missing",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "json()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: json() requer 1 argumento posicional (caminho ou bytes)\n\n  while calling `json` at <input-expression>:1:0\n    json()\n\n",
+        "seconds": 0.10794650198658928
+      },
+      {
+        "id": "r2_json_missing",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "json()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: json() requer 1 argumento posicional (caminho ou bytes)\n\n  while calling `json` at <input-expression>:1:0\n    json()\n\n",
+        "seconds": 0.11954631499247625
+      },
+      {
+        "id": "r2_json_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "json()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: json() requer 1 argumento posicional (caminho ou bytes)\n\n  while calling `json` at <input-expression>:1:0\n    json()\n\n",
+        "seconds": 0.11932251500547864
+      },
+      {
+        "id": "r2_cbor_missing",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "cbor()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cbor() requer 1 argumento posicional (caminho ou bytes)\n\n  while calling `cbor` at <input-expression>:1:0\n    cbor()\n\n",
+        "seconds": 0.1016141249856446
+      },
+      {
+        "id": "r2_cbor_missing",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "cbor()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cbor() requer 1 argumento posicional (caminho ou bytes)\n\n  while calling `cbor` at <input-expression>:1:0\n    cbor()\n\n",
+        "seconds": 0.10129964799853042
+      },
+      {
+        "id": "r2_cbor_missing",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "cbor()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cbor() requer 1 argumento posicional (caminho ou bytes)\n\n  while calling `cbor` at <input-expression>:1:0\n    cbor()\n\n",
+        "seconds": 0.10901113401632756
+      },
+      {
+        "id": "r2_cbor_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "cbor()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: cbor() requer 1 argumento posicional (caminho ou bytes)\n\n  while calling `cbor` at <input-expression>:1:0\n    cbor()\n\n",
+        "seconds": 0.10511239100014791
+      },
+      {
+        "id": "r2_default_float",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "float.is-nan()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: self\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.is-nan()\n  │ ^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10403802100336179
+      },
+      {
+        "id": "r2_default_float",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "float.is-nan()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: self\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.is-nan()\n  │ ^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10388541501015425
+      },
+      {
+        "id": "r2_default_float",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "float.is-nan()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: self\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.is-nan()\n  │ ^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10506984099629335
+      },
+      {
+        "id": "r2_default_float",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "float.is-nan()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: self\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.is-nan()\n  │ ^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10457890300313011
+      },
+      {
+        "id": "r2_encode_json_missing",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "json.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10736584701226093
+      },
+      {
+        "id": "r2_encode_json_missing",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "json.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10914255099487491
+      },
+      {
+        "id": "r2_encode_json_missing",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "json.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10608940900419839
+      },
+      {
+        "id": "r2_encode_json_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "json.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10732453898526728
+      },
+      {
+        "id": "r2_encode_toml_missing",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "toml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10570722399279475
+      },
+      {
+        "id": "r2_encode_toml_missing",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "toml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10290786699624732
+      },
+      {
+        "id": "r2_encode_toml_missing",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "toml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.11124828999163583
+      },
+      {
+        "id": "r2_encode_toml_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "toml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10981165198609233
+      },
+      {
+        "id": "r2_encode_yaml_missing",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "yaml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.1025466909923125
+      },
+      {
+        "id": "r2_encode_yaml_missing",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "yaml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10148572499747388
+      },
+      {
+        "id": "r2_encode_yaml_missing",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "yaml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.1099221890035551
+      },
+      {
+        "id": "r2_encode_yaml_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "yaml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.11883355100871995
+      },
+      {
+        "id": "r2_encode_with",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "json.encode.with().with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode.with().with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.11173244600649923
+      },
+      {
+        "id": "r2_encode_with",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "json.encode.with().with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode.with().with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10760189799475484
+      },
+      {
+        "id": "r2_encode_with",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "json.encode.with().with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode.with().with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10625169199192896
+      },
+      {
+        "id": "r2_encode_with",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "json.encode.with().with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode.with().with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.1061276100226678
+      },
+      {
+        "id": "r2_panic_direct",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "panic(\"control-r2\")"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic(\"control-r2\")\n  │ ^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.12049111200030893
+      },
+      {
+        "id": "r2_panic_direct",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "panic(\"control-r2\")"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic(\"control-r2\")\n  │ ^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.12823074200423434
+      },
+      {
+        "id": "r2_panic_direct",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "panic(\"control-r2\")"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic(\"control-r2\")\n  │ ^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.11202108598081395
+      },
+      {
+        "id": "r2_panic_direct",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "panic(\"control-r2\")"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic(\"control-r2\")\n  │ ^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10732571201515384
+      },
+      {
+        "id": "r2_panic_with",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "panic.with(\"control-r2\").with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic.with(\"control-r2\").with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.1177999869978521
+      },
+      {
+        "id": "r2_panic_with",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "panic.with(\"control-r2\").with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic.with(\"control-r2\").with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10816717499983497
+      },
+      {
+        "id": "r2_panic_with",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "panic.with(\"control-r2\").with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic.with(\"control-r2\").with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.11270449400763027
+      },
+      {
+        "id": "r2_panic_with",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "panic.with(\"control-r2\").with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic.with(\"control-r2\").with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.10259834700264037
+      },
+      {
+        "id": "r2_user_panic",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "{ let panic(x) = x; panic() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let panic(x) = x; panic() }\n  │                          ^^\n\n",
+        "seconds": 0.10213162400759757
+      },
+      {
+        "id": "r2_user_panic",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let panic(x) = x; panic() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let panic(x) = x; panic() }\n  │                          ^^\n\n",
+        "seconds": 0.10490211797878146
+      },
+      {
+        "id": "r2_user_panic",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let panic(x) = x; panic() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let panic(x) = x; panic() }\n  │                          ^^\n\n",
+        "seconds": 0.11007557599805295
+      },
+      {
+        "id": "r2_user_panic",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let panic(x) = x; panic() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:25\n  │\n1 │ { let panic(x) = x; panic() }\n  │                          ^^\n\n",
+        "seconds": 0.10873433700180613
+      },
+      {
+        "id": "r2_csv_with_chain",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "csv.with(delimiter: \";\").with(row-type: dictionary)()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:51\n  │\n1 │ csv.with(delimiter: \";\").with(row-type: dictionary)()\n  │                                                    ^^\n\n",
+        "seconds": 0.10746433099848218
+      },
+      {
+        "id": "r2_csv_with_chain",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "csv.with(delimiter: \";\").with(row-type: dictionary)()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:51\n  │\n1 │ csv.with(delimiter: \";\").with(row-type: dictionary)()\n  │                                                    ^^\n\n",
+        "seconds": 0.11466876999475062
+      },
+      {
+        "id": "r2_csv_with_chain",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "csv.with(delimiter: \";\").with(row-type: dictionary)()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:51\n  │\n1 │ csv.with(delimiter: \";\").with(row-type: dictionary)()\n  │                                                    ^^\n\n",
+        "seconds": 0.10736118801287375
+      },
+      {
+        "id": "r2_csv_with_chain",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "csv.with(delimiter: \";\").with(row-type: dictionary)()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:51\n  │\n1 │ csv.with(delimiter: \";\").with(row-type: dictionary)()\n  │                                                    ^^\n\n",
+        "seconds": 0.11427265798556618
+      },
+      {
+        "id": "r2_csv_with_source_origin",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "csv.with(source: 42).with(delimiter: \";\")()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:9\n  │\n1 │ csv.with(source: 42).with(delimiter: \";\")()\n  │          ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+        "seconds": 0.10424183198483661
+      },
+      {
+        "id": "r2_csv_with_source_origin",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "csv.with(source: 42).with(delimiter: \";\")()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:9\n  │\n1 │ csv.with(source: 42).with(delimiter: \";\")()\n  │          ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+        "seconds": 0.10846393098472618
+      },
+      {
+        "id": "r2_csv_with_source_origin",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "csv.with(source: 42).with(delimiter: \";\")()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:9\n  │\n1 │ csv.with(source: 42).with(delimiter: \";\")()\n  │          ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+        "seconds": 0.10751004601479508
+      },
+      {
+        "id": "r2_csv_with_source_origin",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "csv.with(source: 42).with(delimiter: \";\")()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:9\n  │\n1 │ csv.with(source: 42).with(delimiter: \";\")()\n  │          ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+        "seconds": 0.11003247500048019
+      },
+      {
+        "id": "r2_math_csv_direct",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "$csv()$"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:4\n  │\n1 │ $csv()$\n  │     ^^\n\n",
+        "seconds": 0.10648591999779455
+      },
+      {
+        "id": "r2_math_csv_direct",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "$csv()$"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:4\n  │\n1 │ $csv()$\n  │     ^^\n\n",
+        "seconds": 0.10609758400823921
+      },
+      {
+        "id": "r2_math_csv_direct",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "$csv()$"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:4\n  │\n1 │ $csv()$\n  │     ^^\n\n",
+        "seconds": 0.10319413099205121
+      },
+      {
+        "id": "r2_math_csv_direct",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "$csv()$"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:4\n  │\n1 │ $csv()$\n  │     ^^\n\n",
+        "seconds": 0.11207144899526611
+      },
+      {
+        "id": "r2_math_csv_alias",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "{ let reader = csv; $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let reader = csv; $reader()$ }\n  │                            ^^\n\n",
+        "seconds": 0.11034837501938455
+      },
+      {
+        "id": "r2_math_csv_alias",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let reader = csv; $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let reader = csv; $reader()$ }\n  │                            ^^\n\n",
+        "seconds": 0.1045257919759024
+      },
+      {
+        "id": "r2_math_csv_alias",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let reader = csv; $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let reader = csv; $reader()$ }\n  │                            ^^\n\n",
+        "seconds": 0.1010486269951798
+      },
+      {
+        "id": "r2_math_csv_alias",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let reader = csv; $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let reader = csv; $reader()$ }\n  │                            ^^\n\n",
+        "seconds": 0.10101252899039537
+      },
+      {
+        "id": "r2_math_csv_with",
+        "profile": "default",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "{ let reader = csv.with(delimiter: \";\").with(); $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:55\n  │\n1 │ { let reader = csv.with(delimiter: \";\").with(); $reader()$ }\n  │                                                        ^^\n\n",
+        "seconds": 0.10047037500771694
+      },
+      {
+        "id": "r2_math_csv_with",
+        "profile": "html",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let reader = csv.with(delimiter: \";\").with(); $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:55\n  │\n1 │ { let reader = csv.with(delimiter: \";\").with(); $reader()$ }\n  │                                                        ^^\n\n",
+        "seconds": 0.11067795101553202
+      },
+      {
+        "id": "r2_math_csv_with",
+        "profile": "a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let reader = csv.with(delimiter: \";\").with(); $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:55\n  │\n1 │ { let reader = csv.with(delimiter: \";\").with(); $reader()$ }\n  │                                                        ^^\n\n",
+        "seconds": 0.10278574700350873
+      },
+      {
+        "id": "r2_math_csv_with",
+        "profile": "html-a11y",
+        "argv": [
+          "/tmp/p1321-r1-preserved.Tdbgy8/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let reader = csv.with(delimiter: \";\").with(); $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:55\n  │\n1 │ { let reader = csv.with(delimiter: \";\").with(); $reader()$ }\n  │                                                        ^^\n\n",
+        "seconds": 0.10167473799083382
+      }
+    ],
+    "vanilla": [
+      {
+        "id": "r2_user_csv_missing",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "{ let csv(x) = x; csv() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv() }\n  │                   ^^^^^\n\n",
+        "seconds": 0.010468154010595754
+      },
+      {
+        "id": "r2_user_csv_missing",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let csv(x) = x; csv() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv() }\n  │                   ^^^^^\n\n",
+        "seconds": 0.012174425995908678
+      },
+      {
+        "id": "r2_user_csv_missing",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let csv(x) = x; csv() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv() }\n  │                   ^^^^^\n\n",
+        "seconds": 0.011065151018556207
+      },
+      {
+        "id": "r2_user_csv_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let csv(x) = x; csv() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv() }\n  │                   ^^^^^\n\n",
+        "seconds": 0.01180755000677891
+      },
+      {
+        "id": "r2_user_csv_alias",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "{ let csv(x) = x; let alias = csv; alias() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:35\n  │\n1 │ { let csv(x) = x; let alias = csv; alias() }\n  │                                    ^^^^^^^\n\n",
+        "seconds": 0.009479044005274773
+      },
+      {
+        "id": "r2_user_csv_alias",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let csv(x) = x; let alias = csv; alias() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:35\n  │\n1 │ { let csv(x) = x; let alias = csv; alias() }\n  │                                    ^^^^^^^\n\n",
+        "seconds": 0.009539696999127045
+      },
+      {
+        "id": "r2_user_csv_alias",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let csv(x) = x; let alias = csv; alias() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:35\n  │\n1 │ { let csv(x) = x; let alias = csv; alias() }\n  │                                    ^^^^^^^\n\n",
+        "seconds": 0.008976053009973839
+      },
+      {
+        "id": "r2_user_csv_alias",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let csv(x) = x; let alias = csv; alias() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:35\n  │\n1 │ { let csv(x) = x; let alias = csv; alias() }\n  │                                    ^^^^^^^\n\n",
+        "seconds": 0.009312503010733053
+      },
+      {
+        "id": "r2_user_csv_with",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "{ let csv(x) = x; csv.with()() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv.with()() }\n  │                   ^^^^^^^^^^^^\n\n",
+        "seconds": 0.008631639007944614
+      },
+      {
+        "id": "r2_user_csv_with",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let csv(x) = x; csv.with()() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv.with()() }\n  │                   ^^^^^^^^^^^^\n\n",
+        "seconds": 0.008863711991580203
+      },
+      {
+        "id": "r2_user_csv_with",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let csv(x) = x; csv.with()() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv.with()() }\n  │                   ^^^^^^^^^^^^\n\n",
+        "seconds": 0.009277487028157339
+      },
+      {
+        "id": "r2_user_csv_with",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let csv(x) = x; csv.with()() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:18\n  │\n1 │ { let csv(x) = x; csv.with()() }\n  │                   ^^^^^^^^^^^^\n\n",
+        "seconds": 0.009082721982849762
+      },
+      {
+        "id": "r2_user_csv_value",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "{ let csv(..a) = a.len(); csv(1, zeta: 2) }"
+        ],
+        "exit": 0,
+        "stdout": "2\n",
+        "stderr": "",
+        "seconds": 0.009058486990397796
+      },
+      {
+        "id": "r2_user_csv_value",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let csv(..a) = a.len(); csv(1, zeta: 2) }"
+        ],
+        "exit": 0,
+        "stdout": "2\n",
+        "stderr": "",
+        "seconds": 0.009373446024255827
+      },
+      {
+        "id": "r2_user_csv_value",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let csv(..a) = a.len(); csv(1, zeta: 2) }"
+        ],
+        "exit": 0,
+        "stdout": "2\n",
+        "stderr": "",
+        "seconds": 0.010023803013609722
+      },
+      {
+        "id": "r2_user_csv_value",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let csv(..a) = a.len(); csv(1, zeta: 2) }"
+        ],
+        "exit": 0,
+        "stdout": "2\n",
+        "stderr": "",
+        "seconds": 0.009222123015206307
+      },
+      {
+        "id": "r2_read_missing",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "read()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: path\n  ┌─ <input-expression>:1:0\n  │\n1 │ read()\n  │ ^^^^^^\n\n",
+        "seconds": 0.007935186004033312
+      },
+      {
+        "id": "r2_read_missing",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "read()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: path\n  ┌─ <input-expression>:1:0\n  │\n1 │ read()\n  │ ^^^^^^\n\n",
+        "seconds": 0.008526432007784024
+      },
+      {
+        "id": "r2_read_missing",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "read()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: path\n  ┌─ <input-expression>:1:0\n  │\n1 │ read()\n  │ ^^^^^^\n\n",
+        "seconds": 0.011658541014185175
+      },
+      {
+        "id": "r2_read_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "read()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: path\n  ┌─ <input-expression>:1:0\n  │\n1 │ read()\n  │ ^^^^^^\n\n",
+        "seconds": 0.012362357985693961
+      },
+      {
+        "id": "r2_json_missing",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "json()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ json()\n  │ ^^^^^^\n\n",
+        "seconds": 0.010366903996327892
+      },
+      {
+        "id": "r2_json_missing",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "json()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ json()\n  │ ^^^^^^\n\n",
+        "seconds": 0.012106920999940485
+      },
+      {
+        "id": "r2_json_missing",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "json()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ json()\n  │ ^^^^^^\n\n",
+        "seconds": 0.009743989998241886
+      },
+      {
+        "id": "r2_json_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "json()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ json()\n  │ ^^^^^^\n\n",
+        "seconds": 0.009517325990600511
+      },
+      {
+        "id": "r2_cbor_missing",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "cbor()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ cbor()\n  │ ^^^^^^\n\n",
+        "seconds": 0.008314945996971801
+      },
+      {
+        "id": "r2_cbor_missing",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "cbor()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ cbor()\n  │ ^^^^^^\n\n",
+        "seconds": 0.007847742002923042
+      },
+      {
+        "id": "r2_cbor_missing",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "cbor()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ cbor()\n  │ ^^^^^^\n\n",
+        "seconds": 0.010371072014095262
+      },
+      {
+        "id": "r2_cbor_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "cbor()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ cbor()\n  │ ^^^^^^\n\n",
+        "seconds": 0.009858584002358839
+      },
+      {
+        "id": "r2_default_float",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "float.is-nan()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: self\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.is-nan()\n  │ ^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.013208912016125396
+      },
+      {
+        "id": "r2_default_float",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "float.is-nan()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: self\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.is-nan()\n  │ ^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009436754015041515
+      },
+      {
+        "id": "r2_default_float",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "float.is-nan()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: self\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.is-nan()\n  │ ^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.008924385998398066
+      },
+      {
+        "id": "r2_default_float",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "float.is-nan()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: self\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.is-nan()\n  │ ^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.008354941004654393
+      },
+      {
+        "id": "r2_encode_json_missing",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "json.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.010680953011615202
+      },
+      {
+        "id": "r2_encode_json_missing",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "json.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.010051735007436946
+      },
+      {
+        "id": "r2_encode_json_missing",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "json.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009471519995713606
+      },
+      {
+        "id": "r2_encode_json_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "json.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.011719806003384292
+      },
+      {
+        "id": "r2_encode_toml_missing",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "toml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.010063686990179121
+      },
+      {
+        "id": "r2_encode_toml_missing",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "toml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009658259019488469
+      },
+      {
+        "id": "r2_encode_toml_missing",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "toml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009300951001932845
+      },
+      {
+        "id": "r2_encode_toml_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "toml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ toml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.010034262988483533
+      },
+      {
+        "id": "r2_encode_yaml_missing",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "yaml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.007694154977798462
+      },
+      {
+        "id": "r2_encode_yaml_missing",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "yaml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.008697321987710893
+      },
+      {
+        "id": "r2_encode_yaml_missing",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "yaml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.010778955998830497
+      },
+      {
+        "id": "r2_encode_yaml_missing",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "yaml.encode()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ yaml.encode()\n  │ ^^^^^^^^^^^^^\n\n",
+        "seconds": 0.010507517989026383
+      },
+      {
+        "id": "r2_encode_with",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "json.encode.with().with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode.with().with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009121886017965153
+      },
+      {
+        "id": "r2_encode_with",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "json.encode.with().with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode.with().with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.011275073979049921
+      },
+      {
+        "id": "r2_encode_with",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "json.encode.with().with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode.with().with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.010546170000452548
+      },
+      {
+        "id": "r2_encode_with",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "json.encode.with().with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: value\n  ┌─ <input-expression>:1:0\n  │\n1 │ json.encode.with().with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.010188390995608643
+      },
+      {
+        "id": "r2_panic_direct",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "panic(\"control-r2\")"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic(\"control-r2\")\n  │ ^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009468022995861247
+      },
+      {
+        "id": "r2_panic_direct",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "panic(\"control-r2\")"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic(\"control-r2\")\n  │ ^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.012905374984256923
+      },
+      {
+        "id": "r2_panic_direct",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "panic(\"control-r2\")"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic(\"control-r2\")\n  │ ^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009803911001654342
+      },
+      {
+        "id": "r2_panic_direct",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "panic(\"control-r2\")"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic(\"control-r2\")\n  │ ^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009560456004692242
+      },
+      {
+        "id": "r2_panic_with",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "panic.with(\"control-r2\").with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic.with(\"control-r2\").with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.012339595996309072
+      },
+      {
+        "id": "r2_panic_with",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "panic.with(\"control-r2\").with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic.with(\"control-r2\").with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009279561025323346
+      },
+      {
+        "id": "r2_panic_with",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "panic.with(\"control-r2\").with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic.with(\"control-r2\").with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.01051241799723357
+      },
+      {
+        "id": "r2_panic_with",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "panic.with(\"control-r2\").with()()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: panicked with: control-r2\n  ┌─ <input-expression>:1:0\n  │\n1 │ panic.with(\"control-r2\").with()()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.011828118993435055
+      },
+      {
+        "id": "r2_user_panic",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "{ let panic(x) = x; panic() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let panic(x) = x; panic() }\n  │                     ^^^^^^^\n\n",
+        "seconds": 0.01450941400253214
+      },
+      {
+        "id": "r2_user_panic",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let panic(x) = x; panic() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let panic(x) = x; panic() }\n  │                     ^^^^^^^\n\n",
+        "seconds": 0.011726989003363997
+      },
+      {
+        "id": "r2_user_panic",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let panic(x) = x; panic() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let panic(x) = x; panic() }\n  │                     ^^^^^^^\n\n",
+        "seconds": 0.009449748991755769
+      },
+      {
+        "id": "r2_user_panic",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let panic(x) = x; panic() }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: x\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let panic(x) = x; panic() }\n  │                     ^^^^^^^\n\n",
+        "seconds": 0.011033330985810608
+      },
+      {
+        "id": "r2_csv_with_chain",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "csv.with(delimiter: \";\").with(row-type: dictionary)()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv.with(delimiter: \";\").with(row-type: dictionary)()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.011345174978487194
+      },
+      {
+        "id": "r2_csv_with_chain",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "csv.with(delimiter: \";\").with(row-type: dictionary)()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv.with(delimiter: \";\").with(row-type: dictionary)()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.011642271012533456
+      },
+      {
+        "id": "r2_csv_with_chain",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "csv.with(delimiter: \";\").with(row-type: dictionary)()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv.with(delimiter: \";\").with(row-type: dictionary)()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.009112918982282281
+      },
+      {
+        "id": "r2_csv_with_chain",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "csv.with(delimiter: \";\").with(row-type: dictionary)()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:0\n  │\n1 │ csv.with(delimiter: \";\").with(row-type: dictionary)()\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+        "seconds": 0.010148036002647132
+      },
+      {
+        "id": "r2_csv_with_source_origin",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "csv.with(source: 42).with(delimiter: \";\")()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:9\n  │\n1 │ csv.with(source: 42).with(delimiter: \";\")()\n  │          ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+        "seconds": 0.011015218013199046
+      },
+      {
+        "id": "r2_csv_with_source_origin",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "csv.with(source: 42).with(delimiter: \";\")()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:9\n  │\n1 │ csv.with(source: 42).with(delimiter: \";\")()\n  │          ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+        "seconds": 0.011245668982155621
+      },
+      {
+        "id": "r2_csv_with_source_origin",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "csv.with(source: 42).with(delimiter: \";\")()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:9\n  │\n1 │ csv.with(source: 42).with(delimiter: \";\")()\n  │          ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+        "seconds": 0.008662797015858814
+      },
+      {
+        "id": "r2_csv_with_source_origin",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "csv.with(source: 42).with(delimiter: \";\")()"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: the argument `source` is positional\n  ┌─ <input-expression>:1:9\n  │\n1 │ csv.with(source: 42).with(delimiter: \";\")()\n  │          ^^^^^^^^^^\n  │\n  = hint: try removing `source:`\n\n",
+        "seconds": 0.009424761985428631
+      },
+      {
+        "id": "r2_math_csv_direct",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "$csv()$"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: unknown variable `csv`\n  ┌─ <input-expression>:1:1\n  │\n1 │ $csv()$\n  │  ^^^\n  │\n  = hint: `csv` is not available directly in math, but is in the standard library\n  = hint: to access `csv` in code mode you can add a hash: `#csv`\n  = hint: or access `csv` in math mode by using the `std` module: `std.csv`\n\n",
+        "seconds": 0.010290952981449664
+      },
+      {
+        "id": "r2_math_csv_direct",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "$csv()$"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: unknown variable `csv`\n  ┌─ <input-expression>:1:1\n  │\n1 │ $csv()$\n  │  ^^^\n  │\n  = hint: `csv` is not available directly in math, but is in the standard library\n  = hint: to access `csv` in code mode you can add a hash: `#csv`\n  = hint: or access `csv` in math mode by using the `std` module: `std.csv`\n\n",
+        "seconds": 0.008200251002563164
+      },
+      {
+        "id": "r2_math_csv_direct",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "$csv()$"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: unknown variable `csv`\n  ┌─ <input-expression>:1:1\n  │\n1 │ $csv()$\n  │  ^^^\n  │\n  = hint: `csv` is not available directly in math, but is in the standard library\n  = hint: to access `csv` in code mode you can add a hash: `#csv`\n  = hint: or access `csv` in math mode by using the `std` module: `std.csv`\n\n",
+        "seconds": 0.00881413000752218
+      },
+      {
+        "id": "r2_math_csv_direct",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "$csv()$"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: unknown variable `csv`\n  ┌─ <input-expression>:1:1\n  │\n1 │ $csv()$\n  │  ^^^\n  │\n  = hint: `csv` is not available directly in math, but is in the standard library\n  = hint: to access `csv` in code mode you can add a hash: `#csv`\n  = hint: or access `csv` in math mode by using the `std` module: `std.csv`\n\n",
+        "seconds": 0.010918927990132943
+      },
+      {
+        "id": "r2_math_csv_alias",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "{ let reader = csv; $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:21\n  │\n1 │ { let reader = csv; $reader()$ }\n  │                      ^^^^^^^^\n\n",
+        "seconds": 0.011448559002019465
+      },
+      {
+        "id": "r2_math_csv_alias",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let reader = csv; $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:21\n  │\n1 │ { let reader = csv; $reader()$ }\n  │                      ^^^^^^^^\n\n",
+        "seconds": 0.010704546992201358
+      },
+      {
+        "id": "r2_math_csv_alias",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let reader = csv; $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:21\n  │\n1 │ { let reader = csv; $reader()$ }\n  │                      ^^^^^^^^\n\n",
+        "seconds": 0.009394355001859367
+      },
+      {
+        "id": "r2_math_csv_alias",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let reader = csv; $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:21\n  │\n1 │ { let reader = csv; $reader()$ }\n  │                      ^^^^^^^^\n\n",
+        "seconds": 0.009585102001437917
+      },
+      {
+        "id": "r2_math_csv_with",
+        "profile": "default",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "{ let reader = csv.with(delimiter: \";\").with(); $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:49\n  │\n1 │ { let reader = csv.with(delimiter: \";\").with(); $reader()$ }\n  │                                                  ^^^^^^^^\n\n",
+        "seconds": 0.009772312012501061
+      },
+      {
+        "id": "r2_math_csv_with",
+        "profile": "html",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html",
+          "{ let reader = csv.with(delimiter: \";\").with(); $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:49\n  │\n1 │ { let reader = csv.with(delimiter: \";\").with(); $reader()$ }\n  │                                                  ^^^^^^^^\n\n",
+        "seconds": 0.010242291988106444
+      },
+      {
+        "id": "r2_math_csv_with",
+        "profile": "a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "a11y-extras",
+          "{ let reader = csv.with(delimiter: \";\").with(); $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:49\n  │\n1 │ { let reader = csv.with(delimiter: \";\").with(); $reader()$ }\n  │                                                  ^^^^^^^^\n\n",
+        "seconds": 0.008521252020727843
+      },
+      {
+        "id": "r2_math_csv_with",
+        "profile": "html-a11y",
+        "argv": [
+          "/usr/local/bin/typst",
+          "--color=never",
+          "eval",
+          "--features",
+          "html,a11y-extras",
+          "{ let reader = csv.with(delimiter: \";\").with(); $reader()$ }"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: missing argument: source\n  ┌─ <input-expression>:1:49\n  │\n1 │ { let reader = csv.with(delimiter: \";\").with(); $reader()$ }\n  │                                                  ^^^^^^^^\n\n",
+        "seconds": 0.008853132982039824
+      }
+    ]
+  }
+}

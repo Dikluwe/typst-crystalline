@@ -1,0 +1,46 @@
+{
+  "state": {
+    "utc": "2026-09-08T20:20:10.689550+00:00",
+    "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+    "diff_stat": " 00_nucleo/prompts/compiler/stdlib/loading.md | 171 ++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs       | 247 +++++++++++++++++++++++----\n 2 files changed, 385 insertions(+), 33 deletions(-)\n",
+    "status": " M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 01_core/src/compiler/stdlib/loading.rs\n?? 00_nucleo/diagnosticos/p1319-ab-baseline-runs-r1.json\n?? 00_nucleo/diagnosticos/p1319-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-calibration.py\n?? 00_nucleo/diagnosticos/p1319-ab-candidate-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-cases-r0.json\n?? 00_nucleo/diagnosticos/p1319-ab-cases.json\n?? 00_nucleo/diagnosticos/p1319-ab-comparison.json\n?? 00_nucleo/diagnosticos/p1319-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1319-ab-receipt.md\n?? 00_nucleo/diagnosticos/p1319-ab-runner-r0.py\n?? 00_nucleo/diagnosticos/p1319-ab-runner.py\n?? 00_nucleo/diagnosticos/p1319-build-r2.json\n?? 00_nucleo/diagnosticos/p1319-build.json\n?? 00_nucleo/diagnosticos/p1319-diff-check-r1.json\n?? 00_nucleo/diagnosticos/p1319-diff-check-r2.json\n?? 00_nucleo/diagnosticos/p1319-diff-check.json\n?? 00_nucleo/diagnosticos/p1319-final-report.md\n?? 00_nucleo/diagnosticos/p1319-fmt-r1.json\n?? 00_nucleo/diagnosticos/p1319-fmt-r2.json\n?? 00_nucleo/diagnosticos/p1319-fmt.json\n?? 00_nucleo/diagnosticos/p1319-lineage-before-repair.json\n?? 00_nucleo/diagnosticos/p1319-lineage-check.py\n?? 00_nucleo/diagnosticos/p1319-lineage-final-r1.json\n?? 00_nucleo/diagnosticos/p1319-lineage-final-r2.json\n?? 00_nucleo/diagnosticos/p1319-lineage-final.json\n?? 00_nucleo/diagnosticos/p1319-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1319-lineage-verified-r1.json\n?? 00_nucleo/diagnosticos/p1319-lineage-verified-r2.json\n?? 00_nucleo/diagnosticos/p1319-lint-r1.json\n?? 00_nucleo/diagnosticos/p1319-lint-r2.json\n?? 00_nucleo/diagnosticos/p1319-lint.json\n?? 00_nucleo/diagnosticos/p1319-measure.py\n?? 00_nucleo/diagnosticos/p1319-measurement.json\n?? 00_nucleo/diagnosticos/p1319-record.py\n?? 00_nucleo/diagnosticos/p1319-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1319-review-candidate-and-lineage.md\n?? 00_nucleo/diagnosticos/p1319-review-final-audit.json\n?? 00_nucleo/diagnosticos/p1319-review-final.md\n?? 00_nucleo/diagnosticos/p1319-review-l0.md\n?? 00_nucleo/diagnosticos/p1319-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1319-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1319-review-red.md\n?? 00_nucleo/diagnosticos/p1319-test-delta.json\n?? 00_nucleo/diagnosticos/p1319-test-delta.py\n?? 00_nucleo/diagnosticos/p1319-unit-green-r1.json\n?? 00_nucleo/diagnosticos/p1319-unit-green-r2.json\n?? 00_nucleo/diagnosticos/p1319-unit-green.json\n?? 00_nucleo/diagnosticos/p1319-unit-red.json\n?? 00_nucleo/diagnosticos/p1319-workspace-tests-r2.json\n?? 00_nucleo/diagnosticos/p1319-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1320-audit-r0.py\n?? 00_nucleo/diagnosticos/p1320-audit.py\n?? 00_nucleo/diagnosticos/p1320-close.py\n?? 00_nucleo/diagnosticos/p1320-fixtures/\n?? 00_nucleo/diagnosticos/p1320-focal-r1.json\n?? 00_nucleo/diagnosticos/p1320-harness-tests-r1.json\n?? 00_nucleo/diagnosticos/p1320-harness-tests.json\n?? 00_nucleo/diagnosticos/p1320-measurement.json\n?? 00_nucleo/diagnosticos/p1320-o-que-falta-para-paridade.md\n?? 00_nucleo/diagnosticos/p1320-reconciliation.json\n?? 00_nucleo/diagnosticos/p1320-supplement.json\n?? 00_nucleo/diagnosticos/p1320-supplement.py\n?? 00_nucleo/diagnosticos/p1321-ab-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab-runner.cjs\n?? 00_nucleo/diagnosticos/p1321-ab2-baseline.json\n?? 00_nucleo/diagnosticos/p1321-ab2-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab2-expectations.json\n?? 00_nucleo/diagnosticos/p1321-ab2-runner.py\n?? 00_nucleo/diagnosticos/p1321-baseline.json\n?? 00_nucleo/diagnosticos/p1321-measure.py\n?? 00_nucleo/diagnosticos/p1321-measurement.json\n?? 00_nucleo/diagnosticos/p1321-record.py\n?? 00_nucleo/diagnosticos/p1321-review-l0.md\n?? 00_nucleo/diagnosticos/p1321-review-preliminary.md\n?? 00_nucleo/materialization/typst-passo-1319.md\n?? 00_nucleo/materialization/typst-passo-1320.md\n?? 00_nucleo/materialization/typst-passo-1321.md\n"
+  },
+  "regime": "A/B executado sem atestacao de isolamento",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-cases.json": "74597d5240431f79c8dfde8ff53589458e7cbe94481a0dcacfcfbe79c5c14d26",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-baseline.json": "10ea61b936ad2c6703aa8984451516d8e5fd808fe4c21ef6f13cf540bac9bc35",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-expectations.json": "e33302de9ba05691d9e74388b76c06eb7b909db435e18b4d42e8ecc76616d296",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1321-ab2-runner.py": "4feb2a60445d6aa51c35a829d91d679a6617f3bc7fde31f5a7a26e0d07f8d3e8",
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/csv.rs": "4d4c9a3ca69314904802f94f55d3a413e8f6d045de522e7c80c543f37e333fff",
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/args.rs": "b681b149809326f2479b99966232680771f8d95a170c82180d30cbd22274849b",
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/func.rs": "3ea789c1edaf87b219b4903816d6ba5bb10a50c46290c5307af76ef92aee8573",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0127-gate-l0-paragem-vs-fluxo.md": "5e8581b5f9ebb0798d4213e59e39ee8dfcd4f41b34d4ca639b00b1f287699ad9",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0129-nucleos-tekt-l0-compartilhado.md": "64756b81ce58ca62e1a166b3776303759bc7af507a1c97a4e3ad91a8dc5b906e",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/good.csv": "492d5ea496056f1a6a6592241032fab764c321596317930b4fa0e1e8bc3b7470",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/unequal.csv": "551cf7e87e04261c5fc4f1a58b2598b1ddf3b221711faf2ce212b1692b233988",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/,": "492d5ea496056f1a6a6592241032fab764c321596317930b4fa0e1e8bc3b7470",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/captured.typ": "0a6cc174675698cc930c2c9c828ef03e8bded5d54914af7839ff45299ecfc5e9",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/captured-only.typ": "b0dc7b04b5652b11d67735bfa137d6fc7ebb3128814b27d56c1fea5e279b29f7",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/closure-only.typ": "520677c7df478c27fafeb4091999943c83a420c7774e47904de0ecbc48d6fc81",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/sub/data.csv": "c00c2da2331b6079bec1ff59a15f4fed239c429188093725ba5418fc5e1c9726",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1320-fixtures/sub/module.typ": "ac8455b8e96fe0d1194f6d9ca9eab661998e49af295f1f82253a89ce703b986e",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+  },
+  "norm": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/loading.md",
+    "raw": "03de416f06983fa6a5a29253e672a795f357fda18e9322e79b4f66b925940f96",
+    "without_code_hash": "2f6dcab26aefce4a7db207bd347b46998dd845e7205954846be4512b5c2f2cc3",
+    "exclusion": "Only the single canonical Hash do Código line"
+  },
+  "binaries": {
+    "/tmp/p1319-target.VqXtmj/release/typst": "37a8a23d6e2b5daf355d90d510bca7efb399547730e1d807e8ae871be75748bd",
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "budget": "one full baseline; at most two focal adjustments with gain; one candidate normal/repeat/reverse",
+  "unknown": "never success; timeout or unobservable required case blocks",
+  "capabilities": "Only L0, listed ADRs, skill refs, vanilla csv/args/macrosfunc, textual p1320 fixtures, binaries, own artifacts; no crystalline source, tests, real diff or previous diagnostics read."
+}

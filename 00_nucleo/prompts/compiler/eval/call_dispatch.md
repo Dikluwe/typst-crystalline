@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 9fe53cf5
+Hash do Código: 01a0d090
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -597,8 +597,8 @@ não classificar transporte de usuário como síntese para reduzir a migração.
 para json/toml/yaml; não escolhe erro por texto da mensagem, spelling de alias
 ou tabela duplicada de assinatura. O transporte agregado R4 abaixo é a única
 exceção à manutenção do span da lista. Loading faz casts, precedência e âncora
-arg-span/value-span downstream. P1308 acrescenta separadamente panic ao
-transporte de chamada inteira. Fontes originais são as dos Spans retidos,
+arg-span/value-span downstream. P1308 acrescenta separadamente panic e
+P1321-R2 acrescenta CSV ao transporte de chamada inteira. Fontes originais são as dos Spans retidos,
 inclusive cross-source; não recuperar origem por busca de Value igual,
 reexecução de factory ou world.source da última chamada.
 
@@ -617,7 +617,8 @@ transporte desse agregado, contradizia o diagnóstico aprovado de loading.
 
 Um helper interno a eval transporta `call.span()` para `Args.span` somente
 quando a função resolvida termina em uma das três identidades nativas
-`native_json_encode`, `native_toml_encode`, `native_yaml_encode`. Percorre
+`native_json_encode`, `native_toml_encode`, `native_yaml_encode` (conjunto
+estendido somente por P1308/panic e P1321-R2/CSV abaixo). Percorre
 With recursivamente só para identificar a nativa; compara function pointers,
 nunca nomes públicos, bindings ou spelling. Não examina argumentos, aridade,
 named, erro ou mensagem: o transporte ocorre antes da chamada, seja ela
@@ -696,3 +697,47 @@ de campo sem chamada. Demais tipos e métodos conservam seus caminhos.
 É correção interna de roteamento para obrigação já congelada; nenhum
 expected muda. Invalidar o pin anterior apenas deste L0 e registrar revisão
 sucessora antes da nova implementação, sem apagar o primeiro resultado.
+
+## P1321-R2 — agregado de CSV, sem validação no dispatch
+
+### Medição anterior à decisão
+
+O recibo A/B `00_nucleo/diagnosticos/p1321-ab2-candidate.json`, SHA-256
+`d1699b5ae42327c7ba7254f5f1f2830453d0cd225fce8f79807cf329aa2a1a25`,
+conserva a falha R1: missing source tem a mensagem esperada, mas a âncora
+abrange só a lista de argumentos, inclusive alias/With/Args/sink/map.
+O baseline R2 (`p1321-r2-baseline.json`, SHA-256
+`8ca670bb4ab656a29667abd67fc06bc4d227a3dcc0afa9330a5e9ad49537f065`)
+registra HEAD, árvore não commitada, diff/stat e UTC com os dois owners.
+No código anterior, call_dispatch.rs:398 usa args_node.span(); :455–487
+transporta a chamada apenas para os três encoders e panic; :1630 dispõe
+de call.span(). Vanilla ratificado a51e02804, typst-eval/src/call.rs:56–78
+atribui a chamada ao agregado; typst-library/src/foundations/args.rs:160–173
+usa-o no missing. O padrão já vigente P1307-R4 resolve a mesma perda de
+origem: não se infere um range por offsets nem pela mensagem de erro.
+
+### Obrigação e limites
+
+Adicionar somente `native_csv` ao conjunto de identidades aceitas por
+`transport_native_call_span`, preservando encoders e panic. Comparar ponteiro
+de função e percorrer With recursivamente, nunca nome público, alias,
+spelling ou nome de função do usuário. Antes da aplicação AST, transportar
+call.span() a args.span incondicionalmente para essa identidade: não examinar
+argumentos, aridade, valores, erro ou texto diagnóstico. Os caminhos math
+genéricos já usuários do helper recebem a mesma política, sem nova rota.
+
+Ocorrências, suas âncoras individuais e preargs ficam intactos; merge With
+mantém o agregado da chamada final. Loading continua dono da validação CSV.
+Synthetic apply_func sem AST conserva o span recebido, inclusive detached.
+Read, json decoder, CBOR, demais loaders e funções do usuário não recebem
+o agregado ampliado; traces seguem a regra existente. Esta cláusula estende
+apenas CSV nas exclusividades P1307-R4/P1308, não as demais identidades.
+Sem nova API, entidade, trait, dependência, flag, fase ou política de I/O.
+
+Aceitação: RED→GREEN local no owner por identidade, With encadeado, âncoras
+distintas, ocorrências/preargs intactos e função alheia chamada csv; controles
+read/json, encoders e panic. Reusar sem alteração os resultados esperados R1,
+refazer freeze normativo dos dois owners antes do patch; focal missing e
+fronteiras antes do A/B integral/repetido/reordenado. Unknown bloqueia.
+Diagnóstico é observável de linguagem; trata-se de correção interna/entrada
+em mapeamento em fluxo contínuo ADR-0127, não mudança de contrato público.
