@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: 0d0307f2
+Hash do Código: 136cabde
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -171,6 +171,60 @@ e `compile_to_pdf_bytes_full_error_and_document_id`; ver `infra/pipeline.md`
 
 `OutputFormat::Html` chama `compile_to_html_string`, escreve UTF-8 e emite o
 warning experimental medido no vanilla. Não traduz HTML para páginas/SVG/PDF.
+
+### P1323 — envelope completo do warning experimental HTML
+
+#### Medição anterior à decisão
+
+`04_wiring/src/main.rs:388–392` emite apenas a headline, enquanto
+`lab/typst-original/crates/typst/src/lib.rs:249–256` constrói headline e três
+hints. A medição fresca em `00_nucleo/diagnosticos/p1323-baseline.json`, SHA-256
+`8abba2b5f0e3280b4632e4d3bec1db6c2c7a8ee55ab3e9bc9d0d44f197eaa897`,
+registra os quatro perfis, saídas completas e fonte, HEAD
+`d31047d7b8af7837c84adae4ded3d2ff50c62093` com working tree não commitado
+e diff integral. O alvo é upstream `a51e02804`, binário SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+HTML habilitado produz o warning com os três hints no vanilla e somente a
+headline no cristalino. O formato HTML não ativa a feature quando ausente.
+
+#### Obrigação, fronteira e aceitação
+
+A promessa anterior abrange o warning completo, não apenas a headline.
+Na emissão fixa existente do braço OutputFormat::Html, quando Feature::Html
+está ativa, stderr deve receber uma única vez este envelope textual:
+
+```text
+warning: html export is under active development and incomplete
+ = hint: its behaviour may change at any time
+ = hint: do not rely on this feature for production use cases
+ = hint: see https://github.com/typst/typst/issues/5512 for more information
+
+```
+
+São duas quebras de linha após a última linha de hint. Preservar headline,
+ordem dos hints, canal e posição da emissão antes da compilação já existentes.
+Uma constante privada `HTML_EXPERIMENTAL_WARNING: &str` pode nomear o literal
+com a terminação completa; a emissão não acrescenta nem remove newline.
+Isso não cria formatter genérico, interpolação, tipo ou API pública.
+Testes no próprio módulo conferem conteúdo integral e testes de processo
+conferem a ligação efetiva entre o literal, a condição e stderr.
+
+Sem Feature::Html, não emitir este warning; preservar o erro vigente do gate.
+Não confundir o controle de ausência com sucesso HTML sem feature. Preservar
+artefatos, modos de serialização, STDOUT/exit, demais diagnósticos, formatos
+PDF/PNG/SVG, eval/query/help, cores/infraestrutura de formatação e pipeline.
+Paridade exata aqui é do envelope textual sem cores; não alegar paridade ANSI
+global nem alterar o mecanismo de cores para fechar este fragmento.
+
+Headline/hints/origem/canal são língua diagnóstica sob ADR-0107/0108; a forma
+Rust do literal é mecânica. A intenção é a promessa específica deste L0.
+É inferência que a emissão fixa basta em um owner: formatter/API adicional,
+dados irrecuperáveis, outro consumer causal ou mudança de fase refutam essa
+suficiência e obrigam a reabrir o escopo antes de código. Correção interna
+ADR-0127 em fluxo contínuo, L0-first + resselo + RED→GREEN + revalidação.
+Aceitação inclui testes positivos, ausência com feature desligada, repetição
+e inversão, preservação dos artefatos e controles de outros formatos. Unknown
+obrigatório não é sucesso. Não inferir paridade HTML global deste warning.
 
 ### P1165 — fio de features e default (RASCUNHO; ADR-0127)
 

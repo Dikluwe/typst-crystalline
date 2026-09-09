@@ -1,0 +1,12 @@
+{
+  "at": "2026-09-08T23:21:49.290273+00:00",
+  "manifest_sha256": "0ffe55374fa98a5b6ddc40284a52fef616069b38517f582cf79fa52e577cd260",
+  "prompt_path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/wiring.md",
+  "prompt_raw_sha256": "2280de766db102b547905316ca96987f7511ba30310710533f9ad2c1fd2481d6",
+  "normative_sha256": "33ca7a522ae37d8fc9e206c6f5cc592638adbf6d182b5eac189c138e197b4926",
+  "normalization": "UTF-8 exact bytes, omit only complete line starting Hash do C\u00f3digo:, retain all other bytes/newlines. This one reciprocal metadata line may change after reseal; any other prompt change requires new frozen obligation/tests.",
+  "target": "/tmp/p1323-target.9NrOxY",
+  "target_receipt_sha256": "22319179df338a0e11b1412527f6cc1b9e535e86e025af89f4f64f111bf019ea",
+  "roles": "As initial manifest; A/B no refinement seal",
+  "scope": "plain HTML warning literal+existing guard/emission only"
+}

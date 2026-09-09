@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 248c887e
+//! @prompt-hash dd1ca444
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -59,6 +59,30 @@ use typst_shell::cli::{
     InfoIntent, InitIntent, OutputFormat, QueryIntent, RunIntent, WatchIntent,
 };
 use typst_shell::diagnostic::{format_diagnostic, DiagnosticSource};
+
+const HTML_EXPERIMENTAL_WARNING: &str = concat!(
+    "warning: html export is under active development and incomplete\n",
+    " = hint: its behaviour may change at any time\n",
+    " = hint: do not rely on this feature for production use cases\n",
+    " = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+);
+
+#[cfg(test)]
+mod tests {
+    // Snippet A/B independente; integrar dentro do módulo #[cfg(test)] de main.rs.
+    // Derivado de wiring.md §P1323 e do vanilla ratificado, sem leitura de main.rs.
+    #[test]
+    fn p1323_html_experimental_warning_matches_ratified_envelope() {
+        let expected = concat!(
+            "warning: html export is under active development and incomplete\n",
+            " = hint: its behaviour may change at any time\n",
+            " = hint: do not rely on this feature for production use cases\n",
+            " = hint: see https://github.com/typst/typst/issues/5512 for more information\n",
+            "\n",
+        );
+        assert_eq!(super::HTML_EXPERIMENTAL_WARNING.as_bytes(), expected.as_bytes());
+    }
+}
 
 fn main() -> ExitCode {
     match cli::parse() {
@@ -387,9 +411,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
         }
         OutputFormat::Html => {
             if features.contains(typst_core::entities::compiler_features::Feature::Html) {
-                eprintln!(
-                    "warning: html export is under active development and incomplete"
-                );
+                eprint!("{HTML_EXPERIMENTAL_WARNING}");
             }
             let html_serialization = match html_serialization {
                 typst_shell::cli::HtmlSerialization::Crystalline => {

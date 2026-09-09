@@ -1,0 +1,35 @@
+{
+  "at": "2026-09-08T23:19:21.126609+00:00",
+  "regime": "A/B, executed without technical isolation attestation; no refinement seal",
+  "baseline_sha256": "8abba2b5f0e3280b4632e4d3bec1db6c2c7a8ee55ab3e9bc9d0d44f197eaa897",
+  "prompt": {
+    "path": "00_nucleo/prompts/wiring.md",
+    "sha256": "25d3f5df2c9f98747afa8497a78c913f7a0439ae008106daf189ffcc2126edd0"
+  },
+  "step": {
+    "path": "00_nucleo/materialization/typst-passo-1323.md",
+    "sha256": "47a1fb5f45992217c80f2114901b5350f140498cb04d6e17ed843106eb33174f"
+  },
+  "roles": {
+    "intention_implementation": "/root",
+    "tests": "/root/p1323_tests, fresh context, L0/vanilla/fixtures only; no candidate source",
+    "review": "/root/p1323_review, fresh context, read artifacts and source, write own reviews only"
+  },
+  "allowed_product": [
+    "00_nucleo/prompts/wiring.md",
+    "04_wiring/src/main.rs"
+  ],
+  "policy": {
+    "unknown": "mandatory blocks closure",
+    "orders": [
+      "normal",
+      "repeat",
+      "reverse"
+    ],
+    "calibration": "two consecutive focal revisions without gain trigger review",
+    "commit": false,
+    "prior_evidence": "immutable",
+    "test_seam": "test-only unit snippet then mechanical old-headline private constant, verify baseline identity before semantic correction"
+  },
+  "target": "/dev/shm/p1323-target.M0xPMi"
+}
