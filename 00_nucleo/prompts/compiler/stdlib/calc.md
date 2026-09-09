@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: 483d55d0
+Hash do Código: 30ef9f29
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/calc.rs`
@@ -53,10 +53,10 @@ detached, manter detached no erro nativo. Não fabricar posição usando
 `args.span` ou `occurrence.span`. Traces de chamadas externas continuam
 responsabilidade do dispatcher vigente e são observados integralmente.
 
-Preservar Int/Float/Decimal, inclusive a política saturating_abs existente,
+Preservar Int/Float/Decimal, salvo o overflow inteiro substituído em P1330,
 o guard de named antes da aridade e erros de zero/múltiplos argumentos.
 P1329, abaixo, substitui explicitamente a antiga rejeição de
-Length/Angle/Ratio/Fr; os demais tipos, overflow inteiro, outras funções
+Length/Angle/Ratio/Fr; os demais tipos, outras funções
 calc e helpers compartilhados continuam fora desta correção de conteúdo.
 As diferenças remanescentes são dívidas medidas, não paridade. A lista de
 tipos no diagnóstico não implica suporte irrestrito: comprimentos mistos
@@ -151,8 +151,9 @@ exige entradas equivalentes já construídas nos dois sistemas e exclui
 esses estados divergentes. Testes nativos NaN verificam somente a regra
 local, nunca uma correspondência inexistente. Não corrigir construção,
 casts ou operações anteriores à chamada; registrar sua dívida explicitamente.
-Preservar Content/LocatedContent P1328, Int/Float/Decimal, saturação de
-i64::MIN, guards named/aridade, demais rejeições e outras funções calc.
+Preservar Content/LocatedContent P1328, Int/Float/Decimal, salvo a rejeição
+de i64::MIN especificada em P1330, guards named/aridade, demais rejeições
+e outras funções calc.
 Este escopo substitui somente as quatro rejeições dimensionais de P1328;
 não declara paridade geral de abs nem altera a política das outras funções.
 
@@ -177,6 +178,81 @@ Rust público, default deliberado, compatibilidade ou fase. É inferência
 que este owner basta; necessidade de editar operadores/entidades/dispatcher
 ou ausência de origem real obrigatória refuta a suficiência e exige
 revisão de escopo antes de expandir a implementação.
+
+## P1330 — overflow inteiro em calc.abs
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1330-baseline.json`, SHA-256
+`a3f732bfb2fda2f177dbf3b33caddcd84b219af6fac22f96eae9644e784b6987`,
+registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
+não commitado, diff/stat, inventários e argv/horários/binários. A expressão
+`calc.abs(-9223372036854775807 - 1)` retorna 9223372036854775807 no
+baseline P1329, enquanto vanilla ratificado a51e02804 rejeita o resultado.
+O módulo do inteiro vizinho negativo e do máximo positivo cabe no tipo e
+coincide. Alias, With e spread reproduzem a lacuna de overflow.
+
+`01_core/src/compiler/stdlib/calc.rs:139-143` guarda named/quantidade e
+satura Int. A fonte vanilla `foundations/calc.rs:84-94,1363-1367` faz
+cast verificado para o módulo e define `the result is too large`.
+Esta checagem extra da fonte confirma rejeição explícita, não apenas um
+efeito acidental observado. A intenção geral de design de inteiros não
+é inferida desse comportamento. O que muda é semântica de resultado/erro
+da linguagem, não representação Rust nem bytes de render (ADR-0107/0108).
+
+`entities/args.rs:19-20,60-84` conserva ocorrências e value_span; os erros
+de conteúdo e Length misto deste owner já consomem essa origem.
+`compiler/eval/call_dispatch.rs:1031-1044` trata os traces externos.
+Vanilla localiza o overflow na expressão do argumento; With/arguments
+podem acrescentar trace da chamada posterior. O nome `calc.abs` no trace
+cristalino versus `abs` vanilla permanece dívida do dispatcher.
+
+A medição separa três fronteiras: o literal direto -9223372036854775808
+já diverge antes de abs (Float no cristalino, erro de parsing no vanilla);
+named e quantidade continuam validados antes do valor no cristalino,
+ordem distinta do vanilla. Não usar essas entradas como prova de que o
+novo braço de overflow falhou, nem esconder suas diferenças.
+
+### Decisão e aceitação
+
+Depois dos guards vigentes, exatamente um Int cujo módulo não cabe no
+inteiro da linguagem deve retornar um único Error com mensagem exata
+`the result is too large`, sem hints nem trace nativo. O erro usa somente
+o value_span da primeira ocorrência posicional; ocorrência ausente ou
+value_span detached permanece detached. Não usar args.span, span de
+ocorrência, nome, texto ou busca de origem como substituto. Preservar a
+origem em alias/With/spread; traces externos continuam no dispatcher.
+Nos demais inteiros retornar o módulo exato como Int, sem saturação,
+wrap, promoção para Float ou panic. A fórmula é interna, sem nova API.
+
+Esta seção substitui exclusivamente a antiga saturação de i64::MIN.
+Preservar integralmente Float/Decimal, dimensionais e suas condições
+P1329, conteúdo P1328, guards de named/aridade, demais rejeições, registro
+de nomes e todas as outras funções. Não alterar parsing, entidades,
+operadores, construção de NaN ou política guard_float.
+
+Autor A/B migra apenas as duas expectativas antigas de saturação do mesmo
+overflow (Int(MIN) nativo e expressão avaliada, em
+`p1329-ab-p1328-successor.rs:209,313`) para o diagnóstico acima, com as
+origens respectivas detached e do argumento, e a observação CLI de overflow nos
+quatro perfis; todos os demais testes históricos ficam intactos. As
+evidências em diagnosticos são imutáveis. Congelar testes novos antes de
+C: limites inteiros, zero/sinais, vizinhos de MIN, erros completos e
+origens distintas inclusive named antes do posicional, sem origem e
+detached; controles Float/Decimal/dimensionais/conteúdo/guards.
+CLI cobre alias/With/nested With/spread/arguments, UTF-8/linhas, warnings
+e rotas math sem coerção; o literal inválido e precedência de guards são
+dívidas explicitamente congeladas. Comparar todos os campos do diagnóstico
+e resultado semântico tipo/valor, não só substring ou retorno de processo.
+
+RED compilado antes de C e GREEN dos mesmos testes, corpus anterior mais
+novos casos nos perfis default/html/a11y/html+a11y, ordens normal/repetida/
+invertida; build/workspace/fmt/lint e V5/V15/V26 são gates. Unknown
+obrigatório impede fechamento. Regime A/B sem atestação de isolamento.
+ADR-0127: correção de paridade contínua, sem mudança deliberada de default,
+API, compatibilidade ou fase. É inferência que o owner basta: necessidade
+de editar outro consumer ou origem real obrigatória ausente refuta a
+suficiência e exige revisão antes de ampliar. Não declarar paridade geral.
 
 ## Subset `calc` — 21 entradas (trig + hiperbólicas + exp/log + constantes)
 
@@ -684,7 +760,7 @@ anteriores. Mantêm-se as tabelas do estado actual de `calc.md`.
 
 | Função | Tipos | Semântica |
 |--------|-------|-----------|
-| `calc_abs` | `Int`, `Float`, `Decimal`, `Length`, `Angle`, `Ratio`, `Fraction` (P1329) | Módulo na mesma espécie; Int saturado preservado; Length exige componente abs ou em zero; diagnóstico de conteúdo P1328 |
+| `calc_abs` | `Int`, `Float`, `Decimal`, `Length`, `Angle`, `Ratio`, `Fraction` (P1329) | Módulo na mesma espécie; overflow Int rejeitado (P1330); Length exige componente abs ou em zero; diagnóstico de conteúdo P1328 |
 | `calc_pow` | `(Int,Int)`, `(Num,Num)` ou `(Decimal,Int)` (P817-C/D) | `0^0` → Err; exp Int não-i32 → Err; exp Float não-normal → Err; `(Int,Int≥0)` → `Int` (`checked_pow`, overflow → Err); `(Int,Int<0)` → `Float` (`powi`); `(Decimal,Int)` → `Decimal` (`checked_powi`); `(Decimal,Float)` → erro dedicado + hint; resto → `powf` |
 | `calc_sqrt` | `Int` ou `Float` | argumento negativo → Err |
 | `calc_floor` | `Int`, `Float` ou `Decimal` (P817-D) | `Int`→`Int` (identidade); `Float`→`Int`; `Decimal`→`Int` (overflow → Err) |

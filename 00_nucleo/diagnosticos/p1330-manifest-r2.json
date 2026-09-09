@@ -1,0 +1,83 @@
+{
+  "protocol": "tekt A/B P1330 v2 before test freeze and C",
+  "regime": "A/B without technical isolation attestation; no refinement seal",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "working_tree": "uncommitted, full snapshot in baseline",
+  "baseline": "00_nucleo/diagnosticos/p1330-baseline.json",
+  "baseline_sha256": "a3f732bfb2fda2f177dbf3b33caddcd84b219af6fac22f96eae9644e784b6987",
+  "baseline_public_sha256": "c2f6500ed2f98fe2e37875b476fdb8570483ad516662cb804c4960c18a0781c2",
+  "previous_closure": "00_nucleo/diagnosticos/p1329-closure.json",
+  "previous_closure_sha256": "c1c7420364af83b2a629b638afeea72c423a795b15ba7dec2860449ba3f88852",
+  "prompt": "00_nucleo/prompts/compiler/stdlib/calc.md",
+  "prompt_norm_sha256": "9a5d734e086297d49d80d567bdb5527919049de19b7aea11f43b4467a972d2db",
+  "normalization": "SHA256 over prompt bytes excluding whole Hash do C\u00f3digo line; reciprocal code metadata excluded, not obligation",
+  "owner": "01_core/src/compiler/stdlib/calc.rs",
+  "contract": "L0 P1330 section plus frozen independent p1330-ab-* artifacts",
+  "scope": "Only Int overflow after existing calc.abs guards; first positional value_span diagnostic. Other Int exact abs; other types/guards/parser/dispatcher unchanged.",
+  "observables": [
+    "language value type and magnitude",
+    "complete diagnostics: count, severity, message, span, hints, trace, warnings",
+    "CLI exit/stdout/stderr as complementary sentinel, not rendered-byte parity"
+  ],
+  "binaries": {
+    "baseline": {
+      "path": "/tmp/p1329-target.bg3p5A/release/typst",
+      "sha256": "9f347f742a5cdb5c4c36a4af985b4ff122ac1bb118a1e018b960e7f5d105c2ec"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "upstream": "a51e02804"
+    }
+  },
+  "target": "/tmp/p1330-target.f0lmDu",
+  "roles": {
+    "root": {
+      "executor": "/root",
+      "context": "conversation",
+      "read": "L0, source, baseline, frozen artifacts and receipts",
+      "write": "L0, candidate, blind integration of frozen tests, own step, root p1330 diagnostics; not AB or review artifacts"
+    },
+    "tests": {
+      "executor": "/root/p1330_tests",
+      "context": "fresh task only",
+      "read": "L0, public baseline, historical AB snippets and CLI, public entity/eval APIs, pinned binaries, public CLI receipts",
+      "forbidden": "runtime/patch calc.rs, full root baseline and private RED outputs",
+      "write": "new p1330-ab-* only"
+    },
+    "review": {
+      "executor": "/root/p1330_review",
+      "context": "fresh task only",
+      "read": "L0, source, frozen inputs, evidence, candidate and outputs",
+      "write": "new p1330-review-* only; no correction of judged inputs"
+    }
+  },
+  "policy": {
+    "unknown": "Mandatory Unknown blocks closure; never implicitly successful",
+    "historical": "All evidence immutable; only two old saturation assertions (native MIN and evaluated minimum) and four CLI overflow cells have successors; all other assertions/outputs preserved",
+    "trace": "Freeze literal external trace-name debt before C; no normalization of observations",
+    "calibration": "Two revisions without gain in same cause require review before another attempt",
+    "gates": [
+      "compiled RED before C",
+      "same frozen tests GREEN",
+      "CLI normal/repeat/reverse four profiles",
+      "build release locked",
+      "workspace release locked",
+      "fmt and diff",
+      "lint errors zero; warnings reported",
+      "V5/V15/V26 strict zero",
+      "bidirectional lineage and frozen integrity"
+    ],
+    "commit": false,
+    "push": false
+  },
+  "supersedes": {
+    "path": "00_nucleo/diagnosticos/p1330-manifest.json",
+    "sha256": "5e5da814a2352297a9ee34b254d57c613f7e26e6d44a7c5ff6c672c2682d19c6",
+    "reason": "Two old assertions cover the same overflow (native and evaluated). Scope clarified before tests freeze and C; values unchanged."
+  },
+  "step": {
+    "path": "00_nucleo/materialization/typst-passo-1330.md",
+    "sha256": "eba566c41d09bcda7604fbf04fefbf60468e0fd221cb2c12fab0aa56c7528a21"
+  }
+}
