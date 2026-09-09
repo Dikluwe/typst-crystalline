@@ -1,0 +1,30 @@
+{
+  "at": "2026-09-09T01:12:39+00:00",
+  "protocol": "Test-only succession after candidate; not new runtime RED; original A/B freeze unchanged",
+  "manifest_sha256": "6c9e00228545f6101ccff3af7057d7983fc4f376a6ddedf8184055949e3ab685",
+  "prompt": "00_nucleo/prompts/compiler/eval/tests.md",
+  "prompt_normalized_sha256": "71573020241802fb93317588d19c10d0d9f49b9da09d9a85014defbc089ce08b",
+  "source": "01_core/src/compiler/eval/tests.rs",
+  "source_original_sha256": "14b027f8ea73d2ec9c6b7f6b486a1e82405cf3e311107afe12a67155b9451bfb",
+  "source_original_without_prompt_hash_sha256": "5e664627e9dc0ac073746d397aef24579ffc1e09ddc46eb5c08db10683fae4b0",
+  "source_normalization": "Remove only complete //! @prompt-hash [0-9a-f]{8}\\n line; remaining bytes unchanged",
+  "expected_updated_without_prompt_hash_sha256": "0b22e2167e25bb24b9d63fcfb45edc3d826e3c58fac3fd87355b137cc7cd9e53",
+  "expected_updated_raw_sha256_before_reseal": "4d64677e7a0963e5c45b8ed4e284ef985549650b71dbd2f48e365fa1dafb7aeb",
+  "protected": {
+    "00_nucleo/diagnosticos/p1325-ab-legacy-delta.patch": "b76e23a2535a83b3d6271d5f32f8eb637f1e8f7cfd999dba0f1cf301f8a9c542",
+    "00_nucleo/diagnosticos/p1325-ab-legacy-measure.json": "d42384304b8529f53361a93038aa799f477473d3a87a1ed51fc17fd24581e3f7",
+    "00_nucleo/diagnosticos/p1325-ab-legacy-measure.py": "013fed542fad7e5e93ab87302f9f3cb353fe4cc9aaa08d64a7421ee486c2aa35"
+  },
+  "derivation": {
+    "missing": [
+      14,
+      21
+    ],
+    "nope": [
+      14,
+      18
+    ],
+    "basis": "Identifier byte range after dot in unchanged expressions, confirmed by pinned vanilla in four profiles; no candidate observations used"
+  },
+  "scope": "Exactly three Dict range substitutions and one descriptive P1301 test name; no helpers/messages/hints/profiles/control removals."
+}

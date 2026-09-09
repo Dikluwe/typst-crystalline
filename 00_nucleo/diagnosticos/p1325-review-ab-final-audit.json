@@ -1,0 +1,62 @@
+{
+  "at": "2026-09-09T01:09:45.193Z",
+  "head": {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "at": "2026-09-09T01:06:58.709165+00:00",
+    "exit": 0,
+    "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+    "stderr": ""
+  },
+  "diffstat": {
+    "argv": [
+      "git",
+      "diff",
+      "HEAD",
+      "--stat"
+    ],
+    "at": "2026-09-09T01:06:58.711086+00:00",
+    "exit": 0,
+    "stdout": " .../prompts/compiler/eval/bindings/field_access.md | 126 ++++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 ++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 198 +++++++-\n 00_nucleo/prompts/wiring.md                        |  56 ++-\n 01_core/src/compiler/eval/bindings/field_access.rs | 530 ++++++++++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  92 +++-\n 01_core/src/compiler/stdlib/loading.rs             | 466 ++++++++++++++++--\n 04_wiring/src/main.rs                              |  30 +-\n 8 files changed, 1474 insertions(+), 77 deletions(-)\n",
+    "stderr": ""
+  },
+  "freezeSha256": "5efd24f3a37df5a42f6746e954922b04dacbec958b2877a025e812790bc5af01",
+  "receiptSha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793",
+  "expectationsSha256": "84d19c0cf924eca410f28f23341899290ce792faf31218f8cda373c22b9b4b78",
+  "rows": 1008,
+  "expectedRows": 1008,
+  "classes": {
+    "EXPECTED_RED_FIELD_ANCHOR": 44,
+    "LOOKUP_RESIDUAL_ANCHOR_ONLY": 4,
+    "BASELINE_PARITY_CONTROL": 52,
+    "BASELINE_RESIDUAL_PRESERVE": 12
+  },
+  "mismatches": [],
+  "protectedChanged": [],
+  "normativeMatches": true,
+  "binaries": [
+    {
+      "role": "baseline",
+      "path": "/tmp/p1324-target.x5jDkw/release/typst",
+      "sha256": "c5c9aa39c8b7053a19f53bf9f37c8d3731a4081683a51cf8ca5e9e9c0197d2f7",
+      "current": "c5c9aa39c8b7053a19f53bf9f37c8d3731a4081683a51cf8ca5e9e9c0197d2f7"
+    },
+    {
+      "role": "vanilla",
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "current": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    },
+    {
+      "role": "candidate",
+      "path": "/tmp/p1325-target.KQl8cD/release/typst",
+      "sha256": "3511b08aa89d088e908dd239d8942f1eeea1978d31140ef9510e81de06023dab",
+      "current": "3511b08aa89d088e908dd239d8942f1eeea1978d31140ef9510e81de06023dab"
+    }
+  ],
+  "pinsGood": true,
+  "status": "PASS"
+}

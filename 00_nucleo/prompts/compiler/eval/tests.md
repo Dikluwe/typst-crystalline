@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 5e664627
+Hash do Código: 0b22e216
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -16,6 +16,43 @@ morfologia e mensagens, não mecânica Rust incidental.
 ## Aceitação
 
 Regressões têm controles e proveniência do vanilla quando decidem paridade.
+
+## P1325 — sucessão test-only das sentinelas de dicionário
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1325-workspace-tests.json`, SHA-256
+`d276d5a90995ece30bebbb2805141f80ce029254570ecaa595d9401f0c131ead`,
+registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
+não commitado, diff/stat integral, comando e saídas entre
+`2026-09-09T01:06:19.832323+00:00` e `01:08:01.106174+00:00`.
+A suíte executou 5573 testes core: 5570 passaram e três falharam, todos por
+exigir span total de Dict nas sentinelas P1301/P1303/P1306 deste owner.
+`01_core/src/compiler/eval/tests.rs:17824,18027,19621` mantém ranges
+iniciados no receiver. A medição vanilla e a obrigação pré-candidata em
+`compiler/eval/bindings/field_access.md` P1325 exigem somente o field.
+Não são novas mensagens, lookup ou falhas de controles PDF/Module/Float.
+
+### Decisão e aceitação
+
+Correção contínua ADR-0127 exclusivamente test-only: substituir somente
+as três expectativas de âncora de Dict em
+`p1301_controle_nao_module_dicionario_preserva_span_total`,
+`p1303_sentinelas_de_span_module_e_nao_module` e
+`p1306_oracles::p1306_pdf_dict_float_and_import_controls` por ranges do
+identificador à direita do ponto, derivados da expressão e da obrigação
+P1325, nunca da saída candidata. Permite renomear o primeiro teste para
+explicitar field-only P1325; não remover testes ou relaxar comparadores.
+
+Esta seção sucede expressamente as exigências de Dict total de P1301,
+P1303 e P1306 neste prompt, somente nessas três expectativas. Preservar
+expressões, mensagens, hints, perfis, cardinalidade, helpers e todos os
+demais controles. O owner permanece test-only 1:1; não modifica produto,
+API/default/fase nem os artefatos A/B congelados. Autor independente escreve
+o delta e o revisor confere sua suficiência. A falha histórica permanece
+registrada; reexecutar os três grupos e a suíte completa, sem contar a
+atualização dos testes como novo RED pré-candidato de produto. Necessidade
+de qualquer mudança funcional refutaria esta classificação e reabriria L0.
 
 ## P1300 — regressão dos constructors globais de cor
 

@@ -1,0 +1,27 @@
+{
+  "at": "2026-09-09T01:11:01.778070+00:00",
+  "prior_manifest_sha256": "b4057fe02a65105654a2379be04b826179ce4ee2573e69a4d1f347c089347dce",
+  "baseline_sha256": "0271fef1319916b703bc0df54061bc9028685fa83e618e0d7b57c539207d943a",
+  "workspace_failure_sha256": "d276d5a90995ece30bebbb2805141f80ce029254570ecaa595d9401f0c131ead",
+  "test_only_allowlist": [
+    "01_core/src/compiler/eval/tests.rs",
+    "00_nucleo/prompts/compiler/eval/tests.md"
+  ],
+  "prompt_norm_sha256": "71573020241802fb93317588d19c10d0d9f49b9da09d9a85014defbc089ce08b",
+  "frozen_runtime_pair": {
+    "01_core/src/compiler/eval/bindings/field_access.rs": "2d32b6e5ab691b19dde2213fd8df32cc9e6cfc1adae4477fe96d7cec976cda6a",
+    "00_nucleo/prompts/compiler/eval/bindings/field_access.md": "71b7492efffd851fbd404daabecef38dd2a3eaac8e23195b129368af2816354d"
+  },
+  "ab_freeze_sha256": "5efd24f3a37df5a42f6746e954922b04dacbec958b2877a025e812790bc5af01",
+  "scope": "Three obsolete Dict expected spans only plus descriptive test rename; continuous test-only succession. No runtime edits or A/B oracle changes.",
+  "recorder_sha256": "4ec1f9d935e32ba8e924c21c40a2615f58e9add379298977b25ca07f01852d13",
+  "roles": {
+    "root": "test-only L0, orchestration, blind integration",
+    "p1325_tests": "derive legacy test delta from updated tests L0, original test source and pinned vanilla; no runtime source",
+    "p1325_review": "review delta and gates; no judged artifact edits"
+  },
+  "limits": [
+    "additional test-only owner discovered after full workspace test; original one-pair completeness did not include legacy test obligations",
+    "not a new product RED or pre-candidate full-suite freeze; runtime A/B protected inputs remain identical"
+  ]
+}

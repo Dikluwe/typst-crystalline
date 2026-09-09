@@ -1,0 +1,22 @@
+{
+  "at": "2026-09-09T01:01:40+00:00",
+  "protocol": "A/B without technical isolation attestation; no refinement seal",
+  "predecessor": "Full baseline classified before any P1325 candidate; R1 test bytes integrated by root only; await real RED.",
+  "prompt": {
+    "path": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+    "normalization": "Remove only canonical full line Hash do Código: [0-9a-f]{8}\\n; leave all other bytes unchanged.",
+    "normalized_sha256": "2648ff575db76ac3a98832a211bb24d65c1bdfac6d4510a96bc85e6bf36b1b35"
+  },
+  "protected": {
+    "00_nucleo/diagnosticos/p1325-ab-tests-r1.rs": "0b97482bad70e0a14f97f425559110668c5dabeb96b7244109ac72bb7efffa1e",
+    "00_nucleo/diagnosticos/p1325-ab-runner.py": "6f092418595e0a079d9c2e575770808e019328e14862c1ca33cae1148f88e773",
+    "00_nucleo/diagnosticos/p1325-ab-expectations.json": "84d19c0cf924eca410f28f23341899290ce792faf31218f8cda373c22b9b4b78",
+    "00_nucleo/diagnosticos/p1325-ab-verify.py": "9c2e542f35455b66e15eed5c4c475f01bdbbc9eef679bd1e430d26b2ed1748aa",
+    "00_nucleo/diagnosticos/p1325-manifest.json": "b4057fe02a65105654a2379be04b826179ce4ee2573e69a4d1f347c089347dce",
+    "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml": "419d56209cda385cedb09205b1dde60be6719897dc467f583b637ce389df6084",
+    "00_nucleo/diagnosticos/p1325-ab-baseline-cli.json": "e5251512b942c1df1e02e9fb66695e03aa1c92291c8ccb789341d338781d2b10"
+  },
+  "baseline_binary_sha256": "c5c9aa39c8b7053a19f53bf9f37c8d3731a4081683a51cf8ca5e9e9c0197d2f7",
+  "vanilla_binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+  "budget": "At most two no-gain revisions per cause; focal before complete corpus; Unknown mandatory blocks"
+}

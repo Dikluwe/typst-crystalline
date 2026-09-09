@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash f3151429
+//! @prompt-hash c15d1c0e
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -17815,13 +17815,13 @@ mod tests {
     }
 
     #[test]
-    fn p1301_controle_nao_module_dicionario_preserva_span_total() {
+    fn p1301_controle_nao_module_dicionario_field_only_p1325() {
         let expression = "repr(type((:).missing))";
         let mismatch = p1301_missing_module_field_mismatch(
             expression,
             Features::empty(),
             "dictionary does not contain key \"missing\"",
-            10..21,
+            14..21,
         );
         if let Some(mismatch) = mismatch {
             panic!("{mismatch}");
@@ -18025,7 +18025,7 @@ mod tests {
                 "dictionary.nope",
                 "repr(type((:).nope))",
                 "dictionary does not contain key \"nope\"",
-                10..18,
+                14..18,
             ),
             (
                 "float.is-nan",
@@ -19618,7 +19618,7 @@ mod tests {
                         "repr(type((:).nope))",
                         "dictionary does not contain key \"nope\"",
                         &[][..],
-                        10..18,
+                        14..18,
                     ),
                     (
                         "repr(type(float(\"NaN\").is-nan))",

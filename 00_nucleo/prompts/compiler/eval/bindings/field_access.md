@@ -1,8 +1,68 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: c4567498
+Hash do Código: 48f648ca
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1325 — âncora do acesso direto em Dict, Content raw e Float
+
+### Medição anterior à decisão
+
+Em `2026-09-09T00:49:40.661695+00:00`, o recibo
+`00_nucleo/diagnosticos/p1325-baseline.json`, SHA-256
+`e2ed7ae9f8290ee9557b38d151ffffebae760b79fa1abb64979d6c1eb9d7998b`,
+preserva HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não
+commitado, lista exata/diff/stat dos oito arquivos tracked alterados, comandos,
+horários, saídas e hashes dos executáveis. Baseline P1324 SHA-256
+`c5c9aa39c8b7053a19f53bf9f37c8d3731a4081683a51cf8ca5e9e9c0197d2f7`;
+vanilla ratificado upstream `a51e02804`, SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+
+`01_core/src/compiler/eval/bindings/field_access.rs:502–510` seleciona span
+total para Dict, Content raw e Float salvo is-nan; `:518–547` consome o span
+recebido nos erros de lookup de Dict/Content. Os acessos `(x: 1).nope`,
+`[x].nope`, `strong[x].absent`, `(1.0).nope`, alias e alias multilinha
+produzem a mesma mensagem que o vanilla, mas sublinham o acesso inteiro,
+não apenas o identificador. `(1.0).is-nan` já coincide. Lookup de chave
+presente e `strong[x].body` coincide; `[x].text` mede uma ausência de campo
+preexistente exclusiva do cristalino, que NÃO será corrigida por este nó.
+A chamada `(x: 1).nope(2)` segue diagnóstico de método separado e coincide.
+
+### Classificação, sucessão e obrigação
+
+Classificação `ADR-0127_CONTINUOUS_DIAGNOSTIC_PARITY`: âncora diagnóstica é
+observável da linguagem, não igualdade mecânica do Rust (ADR-0107/0108).
+Correção interna, sem API, entidade, default, feature, compatibilidade ou fase
+nova. L0-first, resselo, RED→GREEN e revalidação em fluxo contínuo.
+
+Quando a avaliação direta de campo chega à delegação para
+`eval_value_field_access` com `Value::Dict`, `Value::Content` raw ou
+`Value::Float`, fornecer o span de todos e somente os bytes de
+`access.field()`. Não incluir receiver, ponto, parênteses ou whitespace,
+nem truncar campos longos/Unicode; aliases e deslocamentos de linha não
+mudam a regra. Preservar mensagem, severidade, cardinalidade, hints, traces,
+ordem de avaliação, lookup, valor, kind e morfologia. Para campos que ainda
+divergem em disponibilidade, a única mudança autorizada é a mesma âncora:
+isso não transforma erro em sucesso nem comprova paridade de lookup.
+
+Esta obrigação substitui EXPRESSAMENTE a proteção histórica de span total
+de Dict e a preservação indiscriminada de targets não Module em P1301,
+P1303, P1306, P1311 e P1324, somente para os três variants raw nomeados,
+na delegação de acesso direto. Float/is-nan continua field-only.
+Não abrange `Value::LocatedContent`, os erros de `field_callee_error`,
+pre-dispatch de métodos/chamadas, outros tipos ou gates antecipados.
+As proteções anteriores de Module, nativas, PDF, warnings e features ficam.
+Nenhum helper público novo, mudança de owner, carrier, entidade, wiring,
+CLI, lab, render ou pipeline é autorizada.
+
+É inferência que a seleção local de span basta; outro owner causal, mudança
+de lookup/mensagem ou necessidade de provenance adicional a refutaria e
+reabriria a classificação antes de ampliar código. Não atribuir intenção
+ao vanilla. Aceitação limitada à âncora nas três categorias: testes A/B
+independentes congelados antes de C, RED real, positivos e fronteiras,
+comparação completa das saídas aplicáveis, repetição e ordem inversa.
+`Unknown` obrigatório bloqueia; divergências residuais devem ser nomeadas
+antes de C e não contadas como paridade. Não implica paridade geral.
 
 ## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
 

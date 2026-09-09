@@ -1,0 +1,79 @@
+{
+  "at": "2026-09-09T01:18:03.775Z",
+  "head": {
+    "args": [
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit": 0,
+    "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+    "stderr": ""
+  },
+  "diffstat": {
+    "args": [
+      "diff",
+      "HEAD",
+      "--stat"
+    ],
+    "exit": 0,
+    "stdout": " .../prompts/compiler/eval/bindings/field_access.md | 126 ++++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 ++-\n 00_nucleo/prompts/compiler/eval/tests.md           |  39 +-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 198 +++++++-\n 00_nucleo/prompts/wiring.md                        |  56 ++-\n 01_core/src/compiler/eval/bindings/field_access.rs | 530 ++++++++++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  92 +++-\n 01_core/src/compiler/eval/tests.rs                 |  10 +-\n 01_core/src/compiler/stdlib/loading.rs             | 466 ++++++++++++++++--\n 04_wiring/src/main.rs                              |  30 +-\n 10 files changed, 1517 insertions(+), 83 deletions(-)\n",
+    "stderr": ""
+  },
+  "staged": {
+    "args": [
+      "diff",
+      "--cached"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "lineage": [
+    {
+      "sourcePath": "01_core/src/compiler/eval/bindings/field_access.rs",
+      "promptPath": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "rawSource": "2d32b6e5ab691b19dde2213fd8df32cc9e6cfc1adae4477fe96d7cec976cda6a",
+      "rawPrompt": "71b7492efffd851fbd404daabecef38dd2a3eaac8e23195b129368af2816354d",
+      "normative": "2648ff575db76ac3a98832a211bb24d65c1bdfac6d4510a96bc85e6bf36b1b35",
+      "hashA": "6f7aad92d6d15fe52de57b6a05f480539c7c589c75b719323afc2f8ab12d6560",
+      "hashB": "48f648ca2ed2c4ea08fc930a45be25ad600f60cb2028dbc8fef666962d7db749",
+      "header": "6f7aad92",
+      "reciprocal": "48f648ca",
+      "deps": [
+        {
+          "path": "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml",
+          "pin": "5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24",
+          "effective": "5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24"
+        }
+      ]
+    },
+    {
+      "sourcePath": "01_core/src/compiler/eval/tests.rs",
+      "promptPath": "00_nucleo/prompts/compiler/eval/tests.md",
+      "rawSource": "4d64677e7a0963e5c45b8ed4e284ef985549650b71dbd2f48e365fa1dafb7aeb",
+      "rawPrompt": "8205c6fc1f5ae0a5546b8ea0754913343134cf02fbe31565c6122324b1cb58e8",
+      "normative": "71573020241802fb93317588d19c10d0d9f49b9da09d9a85014defbc089ce08b",
+      "hashA": "c15d1c0eada2d1bc56b2bb34af5562f66d9cb4b90fac9f1bc98ddafd85396b8c",
+      "hashB": "0b22e2167e25bb24b9d63fcfb45edc3d826e3c58fac3fd87355b137cc7cd9e53",
+      "header": "c15d1c0e",
+      "reciprocal": "0b22e216",
+      "deps": [
+        {
+          "path": "00_nucleo/prompts/_nuclei/eval/core.toml",
+          "pin": "e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58",
+          "effective": "e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58"
+        }
+      ]
+    }
+  ],
+  "changes": [],
+  "protectedChanged": [],
+  "testDeltaMatchesFrozen": true,
+  "legacyNormativeMatches": true,
+  "runtimeNormativeMatches": true,
+  "baselineSha256": "e2ed7ae9f8290ee9557b38d151ffffebae760b79fa1abb64979d6c1eb9d7998b",
+  "successionManifestSha256": "6c9e00228545f6101ccff3af7057d7983fc4f376a6ddedf8184055949e3ab685",
+  "legacyFreezeSha256": "4906f9f39edabef0aac0ecd70e4da4d6cd32755c5b23491304196cb4f4d82af7",
+  "abFreezeSha256": "5efd24f3a37df5a42f6746e954922b04dacbec958b2877a025e812790bc5af01",
+  "status": "PASS"
+}

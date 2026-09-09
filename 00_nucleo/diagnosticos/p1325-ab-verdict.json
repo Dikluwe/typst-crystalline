@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "receipt": "00_nucleo/diagnosticos/p1325-ab-candidate-cli.json",
+  "receipt_sha256": "bd3f0070d2832de246bf00ed7f71d0d93f1f864f9e7fb87390862adae03ea793",
+  "freeze_sha256": "5efd24f3a37df5a42f6746e954922b04dacbec958b2877a025e812790bc5af01",
+  "changed_protected": [],
+  "compared_rows": 1008,
+  "classifications": {
+    "EXPECTED_RED_FIELD_ANCHOR": 44,
+    "LOOKUP_RESIDUAL_ANCHOR_ONLY": 4,
+    "BASELINE_PARITY_CONTROL": 52,
+    "BASELINE_RESIDUAL_PRESERVE": 12
+  },
+  "failures": []
+}

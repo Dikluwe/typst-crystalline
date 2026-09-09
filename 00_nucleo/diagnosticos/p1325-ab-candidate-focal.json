@@ -1,0 +1,807 @@
+{
+  "protocol": "A/B without technical isolation attestation; no refinement seal",
+  "at": "2026-09-09T01:06:39.425832+00:00",
+  "head": {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "at": "2026-09-09T01:06:39.425847+00:00",
+    "exit": 0,
+    "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+    "stderr": ""
+  },
+  "diffstat": {
+    "argv": [
+      "git",
+      "diff",
+      "HEAD",
+      "--stat"
+    ],
+    "at": "2026-09-09T01:06:39.427953+00:00",
+    "exit": 0,
+    "stdout": " .../prompts/compiler/eval/bindings/field_access.md | 126 ++++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 ++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 198 +++++++-\n 00_nucleo/prompts/wiring.md                        |  56 ++-\n 01_core/src/compiler/eval/bindings/field_access.rs | 530 ++++++++++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  92 +++-\n 01_core/src/compiler/stdlib/loading.rs             | 466 ++++++++++++++++--\n 04_wiring/src/main.rs                              |  30 +-\n 8 files changed, 1474 insertions(+), 77 deletions(-)\n",
+    "stderr": ""
+  },
+  "untracked": {
+    "argv": [
+      "git",
+      "ls-files",
+      "--others",
+      "--exclude-standard",
+      "00_nucleo/diagnosticos/p1325-ab-*"
+    ],
+    "at": "2026-09-09T01:06:39.445282+00:00",
+    "exit": 0,
+    "stdout": "00_nucleo/diagnosticos/p1325-ab-baseline-classification.md\n00_nucleo/diagnosticos/p1325-ab-baseline-cli.json\n00_nucleo/diagnosticos/p1325-ab-expectations.json\n00_nucleo/diagnosticos/p1325-ab-focal.json\n00_nucleo/diagnosticos/p1325-ab-freeze-metadata-note.md\n00_nucleo/diagnosticos/p1325-ab-freeze.json\n00_nucleo/diagnosticos/p1325-ab-located-tests.rs\n00_nucleo/diagnosticos/p1325-ab-located.typ\n00_nucleo/diagnosticos/p1325-ab-runner.py\n00_nucleo/diagnosticos/p1325-ab-tests-r1.rs\n00_nucleo/diagnosticos/p1325-ab-tests.rs\n00_nucleo/diagnosticos/p1325-ab-verify.py\n",
+    "stderr": ""
+  },
+  "binaries": {
+    "baseline": {
+      "path": "/tmp/p1324-target.x5jDkw/release/typst",
+      "sha256": "c5c9aa39c8b7053a19f53bf9f37c8d3731a4081683a51cf8ca5e9e9c0197d2f7"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    },
+    "candidate": {
+      "path": "/tmp/p1325-target.KQl8cD/release/typst",
+      "sha256": "3511b08aa89d088e908dd239d8942f1eeea1978d31140ef9510e81de06023dab"
+    }
+  },
+  "inputs": {
+    "00_nucleo/diagnosticos/p1325-ab-runner.py": "6f092418595e0a079d9c2e575770808e019328e14862c1ca33cae1148f88e773",
+    "00_nucleo/diagnosticos/p1325-ab-tests.rs": "8f281a54ca706bf2f8a98c50c8e3758f290d999794e4b19dd929498f4f53fcfb",
+    "00_nucleo/diagnosticos/p1325-manifest.json": "b4057fe02a65105654a2379be04b826179ce4ee2573e69a4d1f347c089347dce"
+  },
+  "cases": [
+    [
+      "dict-direct",
+      "scope",
+      "(x: 1).nope"
+    ],
+    [
+      "content-direct",
+      "scope",
+      "[x].nope"
+    ],
+    [
+      "float-direct",
+      "scope",
+      "(1.0).nope"
+    ],
+    [
+      "dict-value",
+      "preserve",
+      "(x: 1).x"
+    ]
+  ],
+  "rows": [
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "dict-direct",
+      "category": "scope",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).nope"
+      ],
+      "at": "2026-09-09T01:06:39.614926+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x: 1).nope\n  │ ^^^^^^^^^^^\n\n"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "dict-direct",
+      "category": "scope",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).nope"
+      ],
+      "at": "2026-09-09T01:06:39.708815+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "dict-direct",
+      "category": "scope",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).nope"
+      ],
+      "at": "2026-09-09T01:06:39.715816+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "content-direct",
+      "category": "scope",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "[x].nope"
+      ],
+      "at": "2026-09-09T01:06:39.809405+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: text does not have field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ [x].nope\n  │ ^^^^^^^^\n\n"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "content-direct",
+      "category": "scope",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "[x].nope"
+      ],
+      "at": "2026-09-09T01:06:39.901613+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: text does not have field \"nope\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].nope\n  │     ^^^^\n\n"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "content-direct",
+      "category": "scope",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "[x].nope"
+      ],
+      "at": "2026-09-09T01:06:39.908423+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: text does not have field \"nope\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].nope\n  │     ^^^^\n\n"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "float-direct",
+      "category": "scope",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(1.0).nope"
+      ],
+      "at": "2026-09-09T01:06:40.000510+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:0\n  │\n1 │ (1.0).nope\n  │ ^^^^^^^^^^\n\n"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "float-direct",
+      "category": "scope",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(1.0).nope"
+      ],
+      "at": "2026-09-09T01:06:40.094081+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "float-direct",
+      "category": "scope",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(1.0).nope"
+      ],
+      "at": "2026-09-09T01:06:40.100628+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "dict-value",
+      "category": "preserve",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).x"
+      ],
+      "at": "2026-09-09T01:06:40.190164+00:00",
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "dict-value",
+      "category": "preserve",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).x"
+      ],
+      "at": "2026-09-09T01:06:40.281596+00:00",
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "order": "normal",
+      "profile": "default",
+      "case": "dict-value",
+      "category": "preserve",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).x"
+      ],
+      "at": "2026-09-09T01:06:40.287978+00:00",
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "dict-direct",
+      "category": "scope",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).nope"
+      ],
+      "at": "2026-09-09T01:06:40.379478+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x: 1).nope\n  │ ^^^^^^^^^^^\n\n"
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "dict-direct",
+      "category": "scope",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).nope"
+      ],
+      "at": "2026-09-09T01:06:40.473544+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "dict-direct",
+      "category": "scope",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).nope"
+      ],
+      "at": "2026-09-09T01:06:40.480224+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "content-direct",
+      "category": "scope",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "[x].nope"
+      ],
+      "at": "2026-09-09T01:06:40.571753+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: text does not have field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ [x].nope\n  │ ^^^^^^^^\n\n"
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "content-direct",
+      "category": "scope",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "[x].nope"
+      ],
+      "at": "2026-09-09T01:06:40.665977+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: text does not have field \"nope\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].nope\n  │     ^^^^\n\n"
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "content-direct",
+      "category": "scope",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "[x].nope"
+      ],
+      "at": "2026-09-09T01:06:40.672823+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: text does not have field \"nope\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].nope\n  │     ^^^^\n\n"
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "float-direct",
+      "category": "scope",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(1.0).nope"
+      ],
+      "at": "2026-09-09T01:06:40.768158+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:0\n  │\n1 │ (1.0).nope\n  │ ^^^^^^^^^^\n\n"
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "float-direct",
+      "category": "scope",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(1.0).nope"
+      ],
+      "at": "2026-09-09T01:06:40.861835+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "float-direct",
+      "category": "scope",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(1.0).nope"
+      ],
+      "at": "2026-09-09T01:06:40.868698+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "dict-value",
+      "category": "preserve",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).x"
+      ],
+      "at": "2026-09-09T01:06:40.962596+00:00",
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "dict-value",
+      "category": "preserve",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).x"
+      ],
+      "at": "2026-09-09T01:06:41.057580+00:00",
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "order": "repeat",
+      "profile": "default",
+      "case": "dict-value",
+      "category": "preserve",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).x"
+      ],
+      "at": "2026-09-09T01:06:41.063715+00:00",
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "dict-value",
+      "category": "preserve",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).x"
+      ],
+      "at": "2026-09-09T01:06:41.156059+00:00",
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "dict-value",
+      "category": "preserve",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).x"
+      ],
+      "at": "2026-09-09T01:06:41.254731+00:00",
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "dict-value",
+      "category": "preserve",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).x"
+      ],
+      "at": "2026-09-09T01:06:41.261208+00:00",
+      "exit": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "float-direct",
+      "category": "scope",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(1.0).nope"
+      ],
+      "at": "2026-09-09T01:06:41.348825+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:0\n  │\n1 │ (1.0).nope\n  │ ^^^^^^^^^^\n\n"
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "float-direct",
+      "category": "scope",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(1.0).nope"
+      ],
+      "at": "2026-09-09T01:06:41.437998+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "float-direct",
+      "category": "scope",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(1.0).nope"
+      ],
+      "at": "2026-09-09T01:06:41.444741+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot access fields on type float\n  ┌─ <input-expression>:1:6\n  │\n1 │ (1.0).nope\n  │       ^^^^\n\n"
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "content-direct",
+      "category": "scope",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "[x].nope"
+      ],
+      "at": "2026-09-09T01:06:41.532907+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: text does not have field \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ [x].nope\n  │ ^^^^^^^^\n\n"
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "content-direct",
+      "category": "scope",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "[x].nope"
+      ],
+      "at": "2026-09-09T01:06:41.622309+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: text does not have field \"nope\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].nope\n  │     ^^^^\n\n"
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "content-direct",
+      "category": "scope",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "[x].nope"
+      ],
+      "at": "2026-09-09T01:06:41.628694+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: text does not have field \"nope\"\n  ┌─ <input-expression>:1:4\n  │\n1 │ [x].nope\n  │     ^^^^\n\n"
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "dict-direct",
+      "category": "scope",
+      "product": "baseline",
+      "argv": [
+        "/tmp/p1324-target.x5jDkw/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).nope"
+      ],
+      "at": "2026-09-09T01:06:41.719655+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:0\n  │\n1 │ (x: 1).nope\n  │ ^^^^^^^^^^^\n\n"
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "dict-direct",
+      "category": "scope",
+      "product": "vanilla",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).nope"
+      ],
+      "at": "2026-09-09T01:06:41.809739+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+    },
+    {
+      "order": "reverse",
+      "profile": "default",
+      "case": "dict-direct",
+      "category": "scope",
+      "product": "candidate",
+      "argv": [
+        "/tmp/p1325-target.KQl8cD/release/typst",
+        "--color",
+        "never",
+        "eval",
+        "--format",
+        "json",
+        "(x: 1).nope"
+      ],
+      "at": "2026-09-09T01:06:41.816056+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: dictionary does not contain key \"nope\"\n  ┌─ <input-expression>:1:7\n  │\n1 │ (x: 1).nope\n  │        ^^^^\n\n"
+    }
+  ],
+  "final_test_snippet": {
+    "path": "00_nucleo/diagnosticos/p1325-ab-tests-r1.rs",
+    "sha256": "0b97482bad70e0a14f97f425559110668c5dabeb96b7244109ac72bb7efffa1e"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "at": "2026-09-09T00:51:24.472093+00:00",
+  "protocol": "skill A/B without technical isolation attestation; no refinement seal",
+  "baseline_sha256": "e2ed7ae9f8290ee9557b38d151ffffebae760b79fa1abb64979d6c1eb9d7998b",
+  "prompt": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+  "prompt_norm_sha256": "2648ff575db76ac3a98832a211bb24d65c1bdfac6d4510a96bc85e6bf36b1b35",
+  "owner": "01_core/src/compiler/eval/bindings/field_access.rs",
+  "step_sha256": "5c5f95ce767ae2534f9154a4ed84a8f13c6e2963950f10796af0eac299b59a14",
+  "observables": [
+    "field-only span for direct Dict/raw Content/Float",
+    "all other diagnostics and lookup unchanged; prior lookup residual not counted as parity",
+    "baseline controls for LocatedContent, other variants, method/callee predispatch"
+  ],
+  "unknown": "mandatory Unknown blocks; residuals classify before candidate",
+  "roles": {
+    "root": "intent and implementation, may integrate frozen tests mechanically, no test-oracle edits",
+    "p1325_tests": "fresh-context test author, L0/public contracts/binaries allowed, owner and baseline receipt carrying owner forbidden; writes p1325-ab-* only",
+    "p1325_review": "independent reviewer, may read product/receipts; writes p1325-review-* only"
+  },
+  "limits": [
+    "shared environment without enforced access isolation",
+    "no universal parity claim"
+  ],
+  "budget": "at most two no-gain revisions per cause; focal before full corpus"
+}
