@@ -1,0 +1,198 @@
+{
+  "at": "2026-09-09T11:15:16.434Z",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "diff_stat": " .../prompts/compiler/eval/bindings/field_access.md | 187 +++++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |  47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |  78 ++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 198 +++++-\n 00_nucleo/prompts/wiring.md                        | 104 ++-\n 01_core/src/compiler/eval/bindings/field_access.rs | 731 ++++++++++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  92 ++-\n 01_core/src/compiler/eval/modules.rs               |   5 +-\n 01_core/src/compiler/eval/tests.rs                 | 236 ++++++-\n 01_core/src/compiler/stdlib/loading.rs             | 466 +++++++++++--\n 04_wiring/src/main.rs                              |  50 +-\n 12 files changed, 2145 insertions(+), 102 deletions(-)\n",
+  "provenance_receipt_sha256": "3867b5c75fd0d28eb2065974d094e1640a70860e56d7d4b56b61f531a9e63e6f",
+  "manifest_sha256": "9ebf13c2cf9a1c1daf186671194c7c4e15db16d8d4e47a12ad5ff4fb597f8ad0",
+  "lineage": [
+    {
+      "owner": "01_core/src/compiler/eval/modules.rs",
+      "prompt": "00_nucleo/prompts/compiler/eval/modules.md",
+      "hash_a": "11d38a08a06caaebe268195a2bc8c758c823682a2129df0a53c8b3ad2e654991",
+      "hash_b": "d714fe3fa99d6164069d84d5b2dc66a3718c0e09b206e42492a4c0ecc1fff10e"
+    },
+    {
+      "owner": "01_core/src/compiler/eval/tests.rs",
+      "prompt": "00_nucleo/prompts/compiler/eval/tests.md",
+      "hash_a": "4470777cf51248370851c1078bc67f4ecf3cc1983777debbfd0785e93c3689d7",
+      "hash_b": "cdbdb24f84a1bbdcb211b7c4dc7541d7b7037d525a8b7c09d4bc732208433051"
+    },
+    {
+      "owner": "04_wiring/src/main.rs",
+      "prompt": "00_nucleo/prompts/wiring.md",
+      "hash_a": "8a2604da4cab4e45a0fa62a8416aa72e2faa5cec58f2f1060da313bf20fdf084",
+      "hash_b": "e13e2ed6b1871d03c730ae896cd58cf810175a5c19fec00d96e3ae5607667337"
+    }
+  ],
+  "artifacts": {
+    "p1327-manifest.json": "cca33a6a95d40efa74d6dc8f7f910a711968a4c7bb771393ffc975bc9e515ea8",
+    "p1327-baseline.json": "f8cee37f7f3556db93f935deb977790a0a13ddd232639334e3d3931cf8b504f8",
+    "p1327-ab-freeze.json": "f45fa705a4f0b1edb93c6f48d3c58adea159a983a296c161a3606000acf6c076",
+    "p1327-ab-r1-format.json": "a69490c148f7e490fbb5e9dad131b5aecd11af221eaf8c5fba0b0ccfd79c115c",
+    "p1327-ab-r2-oracle.json": "19d38cbf430e65a3ca67d2414ee8623f9fc7111e5e4077d4499e1d67e0d88984",
+    "p1327-ab-r2-runner.py": "97529a351d83c19416538d91c5173ec5cead8efa39aeee82477a24fdffa019ed",
+    "p1327-ab-r2-measure.json": "46abf67a60c7ebb04703cf70d6392b5927ac3e21bbab47753850aa6b1e34edf2",
+    "p1327-ab-cli-candidate.json": "6ffa5fc5ce6925eb0c85e40749adff5d1688ce006fe2400cdad3a4edeb47fafe"
+  },
+  "gates": {
+    "final-build": {
+      "sha256": "f3e22ad27c6864315572722862ffc490a055eb8f6770fc7c55a4eeb28d71f1e3",
+      "at": "2026-09-09T11:11:16.213834+00:00",
+      "end": "2026-09-09T11:11:17.643010+00:00",
+      "argv": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked"
+      ],
+      "exit": 0,
+      "summaries": []
+    },
+    "unit-green": {
+      "sha256": "69f0a308e3e0e679e744b09be7d59ac406650954debafacf08b653dcb19effb4",
+      "at": "2026-09-09T11:12:01.623712+00:00",
+      "end": "2026-09-09T11:12:02.172071+00:00",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "-p",
+        "typst-core",
+        "p1327",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 5576 filtered out; finished in 0.12s"
+      ]
+    },
+    "final-fmt": {
+      "sha256": "b0897885aa9f7f6361b0a2dc99326c33410add71087889b20aac148cc335ee69",
+      "at": "2026-09-09T11:11:17.528412+00:00",
+      "end": "2026-09-09T11:11:19.896008+00:00",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "summaries": []
+    },
+    "final-lineage": {
+      "sha256": "8270ddd8a84f5b8db91f3bcc53eec8212352616c716266c3e0425447ff830efa",
+      "at": "2026-09-09T11:12:24.287671+00:00",
+      "end": "2026-09-09T11:12:25.180044+00:00",
+      "argv": [
+        "python3",
+        "00_nucleo/diagnosticos/p1327-r2-lineage.py"
+      ],
+      "exit": 0,
+      "summaries": []
+    },
+    "final-lineage-lint": {
+      "sha256": "bb279280193fd7721c571fe9b00514031a27e4ec1bc36dc9b3fd4834a3c551f1",
+      "at": "2026-09-09T11:12:27.525425+00:00",
+      "end": "2026-09-09T11:12:31.283826+00:00",
+      "argv": [
+        "crystalline-lint",
+        "--checks",
+        "v5,v15,v26",
+        "--fail-on",
+        "warning",
+        "."
+      ],
+      "exit": 0,
+      "summaries": [
+        "✓ No violations found"
+      ]
+    },
+    "final-lint": {
+      "sha256": "f159d8d976f5009ac3b401bd32028d646f4e5f0ff57965a5dcf9ee828a84f186",
+      "at": "2026-09-09T11:12:25.563084+00:00",
+      "end": "2026-09-09T11:12:30.268912+00:00",
+      "argv": [
+        "crystalline-lint",
+        "."
+      ],
+      "exit": 0,
+      "summaries": []
+    },
+    "final-diff-check": {
+      "sha256": "68e712e9d23a0eeb7340de62770db0175fd4af035a3c785b781793ba7f85af79",
+      "at": "2026-09-09T11:12:28.772800+00:00",
+      "end": "2026-09-09T11:12:29.535051+00:00",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "summaries": []
+    },
+    "workspace-tests": {
+      "sha256": "3867b5c75fd0d28eb2065974d094e1640a70860e56d7d4b56b61f531a9e63e6f",
+      "at": "2026-09-09T11:12:42.770057+00:00",
+      "end": "2026-09-09T11:13:18.597704+00:00",
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--workspace"
+      ],
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 5582 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.19s",
+        "test result: ok. 918 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.81s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.62s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.54s",
+        "test result: ok. 62 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 71 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.25s",
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.09s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.96s",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s",
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.20s",
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.71s",
+        "test result: ok. 0 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ]
+    }
+  },
+  "cli": [
+    {
+      "candidate": "p1327-ab-cli-candidate-c2.json",
+      "sha256": "1212cf7fc16fb01465011c1e57fefe88cde7da9a1031238615d9dc1113cda624",
+      "runs": 336,
+      "binary_sha256": "75e8b97b3788c0feaf457cb4c06b1c2c6735cff5ef3b9804a75ec57f8b148e31"
+    },
+    {
+      "candidate": "p1327-ab-r2-candidate.json",
+      "sha256": "c9e7df9ce3993c6cd9d40b5abd22834c2519c5b114394ebd53ddfee1134b24c0",
+      "runs": 96,
+      "binary_sha256": "75e8b97b3788c0feaf457cb4c06b1c2c6735cff5ef3b9804a75ec57f8b148e31"
+    }
+  ],
+  "lint_warning_preservation": {
+    "baseline_sha256": "1afd5e398959859b7d2a107dc83b7614a21467cd915abc345a220520e8bc3fa4",
+    "before": 240,
+    "after": 240,
+    "ordered_messages_identical": true
+  },
+  "changed_product_paths": [
+    "00_nucleo/prompts/compiler/eval/modules.md",
+    "00_nucleo/prompts/compiler/eval/tests.md",
+    "00_nucleo/prompts/wiring.md",
+    "01_core/src/compiler/eval/modules.rs",
+    "01_core/src/compiler/eval/tests.rs",
+    "04_wiring/src/main.rs"
+  ],
+  "pass": true
+}

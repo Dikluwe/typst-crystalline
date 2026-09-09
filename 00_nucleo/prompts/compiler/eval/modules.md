@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/modules`
-Hash do Código: 589ad79e
+Hash do Código: d714fe3f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -17,6 +17,51 @@ linguagem; path enraizado não é re-resolvido.
 ## Aceitação
 
 Ficheiro, pacote, módulo, aliases, include, ausência e ciclos têm testes focais.
+
+## P1327 — warning do bare import de identificador
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1327-baseline.json`, SHA-256
+`f8cee37f7f3556db93f935deb977790a0a13ddd232639334e3d3931cf8b504f8`,
+fixa HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não
+commitado com diff/stat integral, UTC inicial `2026-09-09T10:40:09.228317+00:00`,
+binários e argv. O vanilla ratificado `a51e02804` emite
+`this import has no effect` no identificador fonte em imports bare de std,
+alias e calc; o baseline P1326 preserva os valores, mas omite o warning.
+O aviso permanece quando um erro posterior aborta a expressão. Fontes
+field, as, items e wildcard não recebem esse aviso. Rename redundante e
+erro de tipo já divergem e permanecem fora desta correção.
+
+`01_core/src/compiler/eval/modules.rs:207-219` liga o Module sem avisar.
+`lab/typst-original/crates/typst-eval/src/import.rs:82-103` exige fonte
+Ident e ausência de rename/lista, após resolução e validação do bare name.
+Isso não distingue módulos nativos de ordinários: a condição é sintática.
+
+### Decisão e aceitação
+
+Depois de resolver com sucesso uma fonte Module já suportada e validar seu
+bare name, se não houver `as` nem lista e a fonte for Ident, emitir no sink
+um warning `this import has no effect`, sem hints ou trace, com span exato
+do identificador fonte. Continuar ligando o mesmo módulo sob o nome lexical;
+não abortar, omitir binding, alterar lookup ou exigir origem nativa.
+Aliases, sombras, closures e módulos importados obedecem à mesma regra.
+Cada import distinto conserva sua âncora; o sink mantém sua deduplicação
+vigente. Erro posterior não apaga warning já emitido.
+
+Não emitir esse warning para field access, literal de arquivo, rename
+(mesmo redundante), items, wildcard, bare dinâmico rejeitado ou falha na
+resolução/tipo da fonte. Não ampliar tipos importáveis, paths dinâmicos,
+rename com items, includes, resolução, Route, ciclos, avaliação isolada,
+ordem de erros ou APIs. Warning de rename redundante permanece dívida.
+
+Esta seção sucede somente a dívida de warning bare identifier de P1305-r2
+abaixo. Correção interna de paridade ADR-0127 em fluxo contínuo: L0 primeiro,
+RED→GREEN e revalidação. Testes exigem mensagem, severidade, cardinalidade,
+hints/trace e ranges integrais, valores e erros posteriores preservados,
+perfis default/html/a11y/html+a11y e controles sem aviso. É inferência que
+este owner basta; qualquer necessidade de carrier/proveniência, alteração
+de API ou outro consumer produtivo refuta o escopo. Unknown não fecha nada.
 
 ## P1305-r2 — global em imports e nome lexical de ligação
 

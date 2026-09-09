@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: 136cabde
+Hash do Código: e13e2ed6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -303,6 +303,54 @@ expressão recebida, byte-idêntica à usada pelo entrypoint L1, e fornece-a ao
 formatter apenas durante a drenagem de diagnósticos. L4 não decide regiões nem
 reescreve spans/mensagens; somente torna resolvível a fonte transitória que não
 existe no filesystem. Os demais comandos mantêm a resolução pelo `World`.
+
+## P1327-R2 — erros de avaliação antes dos warnings no comando eval
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1327-cli-candidate.json`, SHA-256
+`3940e04d86b519b248f57e3711f815726a9648b005df532146b9496c8df3a317`,
+registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
+não commitado com diff/stat, UTC, comando e binário C1
+`5f00502b5055fedf8ca1dc2c879112ac1300e12621e11fdb2c731364450a62f9`.
+O corpus integral `p1327-ab-cli-candidate.json` em diagnosticos, SHA-256
+`6ffa5fc5ce6925eb0c85e40749adff5d1688ce006fe2400cdad3a4edeb47fafe`,
+tem 24 diferenças: somente dois casos com warning de import e erro posterior,
+nos quatro perfis e três ordens. Exit, stdout e cada bloco diagnóstico são
+iguais; C1 imprime warning antes do erro, enquanto o vanilla ratificado
+`a51e02804` imprime erro antes do warning. Os oráculos não foram alterados.
+
+`04_wiring/src/main.rs:500-507` drena warnings antes de consultar result;
+`:510-520` só depois imprime os errors. No vanilla,
+`lab/typst-original/crates/typst-cli/src/eval.rs:64-81` coleta errors, e
+`typst-cli/src/compile.rs:727` os apresenta antes dos warnings. A revisão
+`00_nucleo/diagnosticos/p1327-review-cli-failure.md` refuta a suficiência
+do owner modules para o transcript completo. O estado anterior a esta
+sucessão está em `p1327-r2-baseline.json` em diagnosticos, SHA-256
+`84056881f6481305cd530532849bf470837bbc966c4f7fd138b0094c46954b3e`.
+
+### Decisão e aceitação
+
+Somente em `run_eval`, quando a avaliação devolve Err, drenar todos os
+diagnósticos errors na ordem recebida e depois todos os warnings na ordem
+recebida, uma vez cada, mantendo exit 1 e stdout vazio. Não selecionar por
+mensagem, tipo de import ou testemunha. Preservar severidade, hints, trace,
+spans, Source transitória, formatter, cor e resolução de fontes.
+
+Quando a avaliação devolve Ok, preservar warnings antes da serialização e
+do stdout. Erros posteriores de serialização/I/O mantêm a ordem e códigos
+vigentes. Não tocar compile, query, watch, exporter, avaliação L1, parser,
+sink/deduplicação ou drain genérico; não transformar warnings em erros.
+
+Esta sucessão é composição privada de paridade diagnóstica ADR-0127 em
+fluxo contínuo, sem API, flag, default, fase ou compatibilidade novos.
+O RED CLI C1 integral é obrigatório e permanece registrado; exigir GREEN
+dos mesmos transcripts, controle sem warning, warning sem erro, erro sem
+warning, valores/serializadores existentes, perfis e repetição/inversão.
+Warnings preexistentes combinados com erro seguem a mesma ordem de emissão;
+probes independentes adicionais verificam essa generalidade, sem ajustar
+expected ao candidato. Unknown obrigatório e alteração fora de run_eval
+refutam o escopo. Nenhuma aceitação implica paridade geral de diagnósticos.
 
 ## P1285 — transporte de formato e fonte transitória de `query`
 

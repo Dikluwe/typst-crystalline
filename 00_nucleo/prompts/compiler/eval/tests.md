@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 0b22e216
+Hash do Código: cdbdb24f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -16,6 +16,45 @@ morfologia e mensagens, não mecânica Rust incidental.
 ## Aceitação
 
 Regressões têm controles e proveniência do vanilla quando decidem paridade.
+
+## P1327 — sucessão do warning de import sem efeito
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1327-baseline.json`, SHA-256
+`f8cee37f7f3556db93f935deb977790a0a13ddd232639334e3d3931cf8b504f8`,
+registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
+não commitado com diff/stat e UTC inicial `2026-09-09T10:40:09.228317+00:00`.
+O vanilla ratificado `a51e02804` emite warning no Ident de bare imports,
+inclusive antes de erro posterior, e o baseline P1326 é silencioso.
+`01_core/src/compiler/eval/tests.rs:18237,19402,19582` exige laterais vazios
+também nos casos bare de P1305/P1306. Isso preservava a dívida agora tratada
+pelo owner `compiler/eval/modules.md`, não uma intenção de silêncio.
+
+### Decisão e aceitação
+
+Autor independente deve acrescentar testes da obrigação P1327 do owner
+modules, antes da implementação: mensagem/severidade/count/hints/trace/range
+exatos, bindings/valores preservados, aliases e módulos ordinários, perfis,
+erros posteriores, fonte deslocada/UTF-8, ordens normal/repetida/invertida,
+controles field/as/items/wildcard/literal/dinâmico/resolução/tipo. Não inferir
+expected pelo candidato. MockWorld permanece puro; arquivos CLI são fixtures
+temporárias externas a L1. Comparadores não podem remover avisos genericamente.
+
+Sucessão estreita dos testes históricos: `p1305_global_bare`,
+`p1305_global_alias_bare`, os dois primeiros casos de
+`p1305_import_binding_negatives_and_dynamic_spans` e os casos
+`global-bare-positive`/`global-bare-alias-positive` de
+`p1306_existing_lookup_and_repr_all_profiles` passam a exigir exatamente o
+warning no identificador fonte. Todos os demais casos continuam exigindo
+laterais vazios. Preservar asserções de valores, erros, hints, ranges e
+perfis existentes; não apagar testes nem editar oráculos históricos congelados.
+
+Esta seção sucede somente a exceção bare-import sem warning de P1305/P1306;
+rename redundante e import de tipo não suportado são controles de dívida
+baseline, não paridade. O consumer permanece test-only 1:1, fluxo contínuo
+ADR-0127. RED por build/fixture não vale; falha fora do recorte exige nova
+medição. Nenhuma aceitação aqui prova paridade geral.
 
 ## P1325 — sucessão test-only das sentinelas de dicionário
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/modules.md
-//! @prompt-hash d5d3ad4f
+//! @prompt-hash 11d38a08
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -214,6 +214,9 @@ pub(super) fn eval_module_import(
     // 7. Aplicar bindings ao scope do chamador conforme a forma do import.
     match import.imports() {
         None => {
+            if import.new_name().is_none() && matches!(source_expr, Expr::Ident(_)) {
+                engine.sink.warn_note(source_span, "this import has no effect", "");
+            }
             // Bare import: liga o módulo sob `new_name` (`as`) ou o nome por
             // omissão (`bare_name` lexical, independente do nome do objeto).
             let bind = import

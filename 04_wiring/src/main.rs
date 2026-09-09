@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash dd1ca444
+//! @prompt-hash 8a2604da
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -497,6 +497,15 @@ fn run_eval(intent: EvalIntent) -> ExitCode {
         &intent.expression,
         intent.features,
     );
+    if let Err(errors) = &result {
+        drain_to_stderr_with_primary(
+            &world,
+            errors,
+            Path::new("<input-expression>"),
+            intent.colored,
+            Some(&eval_source),
+        );
+    }
     drain_to_stderr_with_primary(
         &world,
         &warnings,
@@ -506,16 +515,7 @@ fn run_eval(intent: EvalIntent) -> ExitCode {
     );
     let value = match result {
         Ok(value) => value,
-        Err(errors) => {
-            drain_to_stderr_with_primary(
-                &world,
-                &errors,
-                Path::new("<input-expression>"),
-                intent.colored,
-                Some(&eval_source),
-            );
-            return ExitCode::from(1);
-        }
+        Err(_) => return ExitCode::from(1),
     };
     let bytes = match cli::serialize_eval(&value, intent.format, intent.pretty) {
         Ok(bytes) => bytes,

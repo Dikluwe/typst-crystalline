@@ -1,0 +1,979 @@
+{
+  "frozen_at": "2026-09-09T11:09:08.849079+00:00",
+  "pre_C2": true,
+  "regime": "A/B without technical isolation attestation",
+  "runner_sha256": "97529a351d83c19416538d91c5173ec5cead8efa39aeee82477a24fdffa019ed",
+  "original_runner_sha256": "e5e2fbc3df8ed5161246f7e651c45f7297d773bc42f28639ca98b0e2d565e99a",
+  "measurement_sha256": "46abf67a60c7ebb04703cf70d6392b5927ac3e21bbab47753850aa6b1e34edf2",
+  "r2_manifest_sha256": "9ebf13c2cf9a1c1daf186671194c7c4e15db16d8d4e47a12ad5ff4fb597f8ad0",
+  "wiring_raw_sha256": "91772af529036962d4f2b181affacdd0b9992e5a2ded1bf59eda80e109777b8c",
+  "wiring_normative_sha256": "7c19de0b005fadc58987e544d55c09a3cdcc806ef5c7a65ae89d5643cd7aa0b5",
+  "binaries": {
+    "/tmp/p1327-target.k9Mq0s/release/typst": "5f00502b5055fedf8ca1dc2c879112ac1300e12621e11fdb2c731364450a62f9",
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "cases": [
+    [
+      "deprecated-error",
+      "{ let x = sym.join; global }",
+      "json",
+      "order-correction"
+    ],
+    [
+      "deprecated-warning-only",
+      "{ let x = sym.join; 7 }",
+      "json",
+      "parity"
+    ],
+    [
+      "mixed-warnings-error",
+      "{ let x = sym.join; import std; global }",
+      "json",
+      "order-correction"
+    ],
+    [
+      "two-deprecated-error",
+      "{ let x = sym.join; let y = sym.join; global }",
+      "json",
+      "order-correction"
+    ],
+    [
+      "error-only",
+      "global",
+      "json",
+      "parity"
+    ],
+    [
+      "no-warning",
+      "{ let x = 2; x + 5 }",
+      "json",
+      "parity"
+    ],
+    [
+      "serialization-warning",
+      "{ let x = sym.join; 7 }",
+      "raw",
+      "preserve-success-path"
+    ],
+    [
+      "serialization-no-warning",
+      "7",
+      "raw",
+      "preserve-success-path"
+    ]
+  ],
+  "profiles": {
+    "default": [],
+    "html": [
+      "--features",
+      "html"
+    ],
+    "a11y": [
+      "--features",
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "--features",
+      "html,a11y-extras"
+    ]
+  },
+  "expected": [
+    {
+      "id": "deprecated-error",
+      "expression": "{ let x = sym.join; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "{ let x = sym.join; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.574215+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let x = sym.join; global }\n  │                     ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; global }\n  │               ^^^^\n\n"
+    },
+    {
+      "id": "deprecated-warning-only",
+      "expression": "{ let x = sym.join; 7 }",
+      "format": "json",
+      "class": "parity",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "{ let x = sym.join; 7 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.580932+00:00",
+      "exit": 0,
+      "stdout": "7\n",
+      "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; 7 }\n  │               ^^^^\n\n"
+    },
+    {
+      "id": "mixed-warnings-error",
+      "expression": "{ let x = sym.join; import std; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "{ let x = sym.join; import std; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.587119+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:32\n  │\n1 │ { let x = sym.join; import std; global }\n  │                                 ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; import std; global }\n  │               ^^^^\n\nwarning: this import has no effect\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let x = sym.join; import std; global }\n  │                            ^^^\n\n"
+    },
+    {
+      "id": "two-deprecated-error",
+      "expression": "{ let x = sym.join; let y = sym.join; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "{ let x = sym.join; let y = sym.join; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.593282+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │                                       ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │               ^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:32\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │                                 ^^^^\n\n"
+    },
+    {
+      "id": "error-only",
+      "expression": "global",
+      "format": "json",
+      "class": "parity",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "global"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.599132+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:0\n  │\n1 │ global\n  │ ^^^^^^\n\n"
+    },
+    {
+      "id": "no-warning",
+      "expression": "{ let x = 2; x + 5 }",
+      "format": "json",
+      "class": "parity",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "{ let x = 2; x + 5 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.604794+00:00",
+      "exit": 0,
+      "stdout": "7\n",
+      "stderr": ""
+    },
+    {
+      "id": "serialization-warning",
+      "expression": "{ let x = sym.join; 7 }",
+      "format": "raw",
+      "class": "preserve-success-path",
+      "profile": "default",
+      "argv": [
+        "/tmp/p1327-target.k9Mq0s/release/typst",
+        "eval",
+        "--format",
+        "raw",
+        "{ let x = sym.join; 7 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:03.241922+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; 7 }\n  │               ^^^^\n\nerror: cannot print int in raw format\nhint: `--format=raw` only supports strings and bytes\n"
+    },
+    {
+      "id": "serialization-no-warning",
+      "expression": "7",
+      "format": "raw",
+      "class": "preserve-success-path",
+      "profile": "default",
+      "argv": [
+        "/tmp/p1327-target.k9Mq0s/release/typst",
+        "eval",
+        "--format",
+        "raw",
+        "7"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:03.327713+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot print int in raw format\nhint: `--format=raw` only supports strings and bytes\n"
+    },
+    {
+      "id": "deprecated-error",
+      "expression": "{ let x = sym.join; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "{ let x = sym.join; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.621991+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let x = sym.join; global }\n  │                     ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; global }\n  │               ^^^^\n\n"
+    },
+    {
+      "id": "deprecated-warning-only",
+      "expression": "{ let x = sym.join; 7 }",
+      "format": "json",
+      "class": "parity",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "{ let x = sym.join; 7 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.627501+00:00",
+      "exit": 0,
+      "stdout": "7\n",
+      "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; 7 }\n  │               ^^^^\n\n"
+    },
+    {
+      "id": "mixed-warnings-error",
+      "expression": "{ let x = sym.join; import std; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "{ let x = sym.join; import std; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.633027+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:32\n  │\n1 │ { let x = sym.join; import std; global }\n  │                                 ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; import std; global }\n  │               ^^^^\n\nwarning: this import has no effect\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let x = sym.join; import std; global }\n  │                            ^^^\n\n"
+    },
+    {
+      "id": "two-deprecated-error",
+      "expression": "{ let x = sym.join; let y = sym.join; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "{ let x = sym.join; let y = sym.join; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.638535+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │                                       ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │               ^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:32\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │                                 ^^^^\n\n"
+    },
+    {
+      "id": "error-only",
+      "expression": "global",
+      "format": "json",
+      "class": "parity",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "global"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.643861+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:0\n  │\n1 │ global\n  │ ^^^^^^\n\n"
+    },
+    {
+      "id": "no-warning",
+      "expression": "{ let x = 2; x + 5 }",
+      "format": "json",
+      "class": "parity",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "{ let x = 2; x + 5 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.650556+00:00",
+      "exit": 0,
+      "stdout": "7\n",
+      "stderr": ""
+    },
+    {
+      "id": "serialization-warning",
+      "expression": "{ let x = sym.join; 7 }",
+      "format": "raw",
+      "class": "preserve-success-path",
+      "profile": "html",
+      "argv": [
+        "/tmp/p1327-target.k9Mq0s/release/typst",
+        "eval",
+        "--format",
+        "raw",
+        "--features",
+        "html",
+        "{ let x = sym.join; 7 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:03.955141+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; 7 }\n  │               ^^^^\n\nerror: cannot print int in raw format\nhint: `--format=raw` only supports strings and bytes\n"
+    },
+    {
+      "id": "serialization-no-warning",
+      "expression": "7",
+      "format": "raw",
+      "class": "preserve-success-path",
+      "profile": "html",
+      "argv": [
+        "/tmp/p1327-target.k9Mq0s/release/typst",
+        "eval",
+        "--format",
+        "raw",
+        "--features",
+        "html",
+        "7"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:04.045754+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot print int in raw format\nhint: `--format=raw` only supports strings and bytes\n"
+    },
+    {
+      "id": "deprecated-error",
+      "expression": "{ let x = sym.join; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "{ let x = sym.join; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.667446+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let x = sym.join; global }\n  │                     ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; global }\n  │               ^^^^\n\n"
+    },
+    {
+      "id": "deprecated-warning-only",
+      "expression": "{ let x = sym.join; 7 }",
+      "format": "json",
+      "class": "parity",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "{ let x = sym.join; 7 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.672824+00:00",
+      "exit": 0,
+      "stdout": "7\n",
+      "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; 7 }\n  │               ^^^^\n\n"
+    },
+    {
+      "id": "mixed-warnings-error",
+      "expression": "{ let x = sym.join; import std; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "{ let x = sym.join; import std; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.677925+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:32\n  │\n1 │ { let x = sym.join; import std; global }\n  │                                 ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; import std; global }\n  │               ^^^^\n\nwarning: this import has no effect\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let x = sym.join; import std; global }\n  │                            ^^^\n\n"
+    },
+    {
+      "id": "two-deprecated-error",
+      "expression": "{ let x = sym.join; let y = sym.join; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "{ let x = sym.join; let y = sym.join; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.683327+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │                                       ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │               ^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:32\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │                                 ^^^^\n\n"
+    },
+    {
+      "id": "error-only",
+      "expression": "global",
+      "format": "json",
+      "class": "parity",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "global"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.688638+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:0\n  │\n1 │ global\n  │ ^^^^^^\n\n"
+    },
+    {
+      "id": "no-warning",
+      "expression": "{ let x = 2; x + 5 }",
+      "format": "json",
+      "class": "parity",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "{ let x = 2; x + 5 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.693597+00:00",
+      "exit": 0,
+      "stdout": "7\n",
+      "stderr": ""
+    },
+    {
+      "id": "serialization-warning",
+      "expression": "{ let x = sym.join; 7 }",
+      "format": "raw",
+      "class": "preserve-success-path",
+      "profile": "a11y",
+      "argv": [
+        "/tmp/p1327-target.k9Mq0s/release/typst",
+        "eval",
+        "--format",
+        "raw",
+        "--features",
+        "a11y-extras",
+        "{ let x = sym.join; 7 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:04.671165+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; 7 }\n  │               ^^^^\n\nerror: cannot print int in raw format\nhint: `--format=raw` only supports strings and bytes\n"
+    },
+    {
+      "id": "serialization-no-warning",
+      "expression": "7",
+      "format": "raw",
+      "class": "preserve-success-path",
+      "profile": "a11y",
+      "argv": [
+        "/tmp/p1327-target.k9Mq0s/release/typst",
+        "eval",
+        "--format",
+        "raw",
+        "--features",
+        "a11y-extras",
+        "7"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:04.758242+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot print int in raw format\nhint: `--format=raw` only supports strings and bytes\n"
+    },
+    {
+      "id": "deprecated-error",
+      "expression": "{ let x = sym.join; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "{ let x = sym.join; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.709882+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:20\n  │\n1 │ { let x = sym.join; global }\n  │                     ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; global }\n  │               ^^^^\n\n"
+    },
+    {
+      "id": "deprecated-warning-only",
+      "expression": "{ let x = sym.join; 7 }",
+      "format": "json",
+      "class": "parity",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "{ let x = sym.join; 7 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.715529+00:00",
+      "exit": 0,
+      "stdout": "7\n",
+      "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; 7 }\n  │               ^^^^\n\n"
+    },
+    {
+      "id": "mixed-warnings-error",
+      "expression": "{ let x = sym.join; import std; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "{ let x = sym.join; import std; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.721075+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:32\n  │\n1 │ { let x = sym.join; import std; global }\n  │                                 ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; import std; global }\n  │               ^^^^\n\nwarning: this import has no effect\n  ┌─ <input-expression>:1:27\n  │\n1 │ { let x = sym.join; import std; global }\n  │                            ^^^\n\n"
+    },
+    {
+      "id": "two-deprecated-error",
+      "expression": "{ let x = sym.join; let y = sym.join; global }",
+      "format": "json",
+      "class": "order-correction",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "{ let x = sym.join; let y = sym.join; global }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.727370+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:38\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │                                       ^^^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │               ^^^^\n\nwarning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:32\n  │\n1 │ { let x = sym.join; let y = sym.join; global }\n  │                                 ^^^^\n\n"
+    },
+    {
+      "id": "error-only",
+      "expression": "global",
+      "format": "json",
+      "class": "parity",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "global"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.734121+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `global`\n  ┌─ <input-expression>:1:0\n  │\n1 │ global\n  │ ^^^^^^\n\n"
+    },
+    {
+      "id": "no-warning",
+      "expression": "{ let x = 2; x + 5 }",
+      "format": "json",
+      "class": "parity",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "{ let x = 2; x + 5 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.739677+00:00",
+      "exit": 0,
+      "stdout": "7\n",
+      "stderr": ""
+    },
+    {
+      "id": "serialization-warning",
+      "expression": "{ let x = sym.join; 7 }",
+      "format": "raw",
+      "class": "preserve-success-path",
+      "profile": "html+a11y",
+      "argv": [
+        "/tmp/p1327-target.k9Mq0s/release/typst",
+        "eval",
+        "--format",
+        "raw",
+        "--features",
+        "html,a11y-extras",
+        "{ let x = sym.join; 7 }"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.392552+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "warning: `join` is deprecated, use `bowtie.big` instead\n  ┌─ <input-expression>:1:14\n  │\n1 │ { let x = sym.join; 7 }\n  │               ^^^^\n\nerror: cannot print int in raw format\nhint: `--format=raw` only supports strings and bytes\n"
+    },
+    {
+      "id": "serialization-no-warning",
+      "expression": "7",
+      "format": "raw",
+      "class": "preserve-success-path",
+      "profile": "html+a11y",
+      "argv": [
+        "/tmp/p1327-target.k9Mq0s/release/typst",
+        "eval",
+        "--format",
+        "raw",
+        "--features",
+        "html,a11y-extras",
+        "7"
+      ],
+      "cwd": "/tmp/p1327-ab-fixtures",
+      "started": "2026-09-09T11:08:05.484082+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot print int in raw format\nhint: `--format=raw` only supports strings and bytes\n"
+    }
+  ],
+  "classifications": [
+    {
+      "id": "deprecated-error",
+      "profile": "default",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "deprecated-warning-only",
+      "profile": "default",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "mixed-warnings-error",
+      "profile": "default",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "two-deprecated-error",
+      "profile": "default",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "error-only",
+      "profile": "default",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "no-warning",
+      "profile": "default",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "serialization-warning",
+      "profile": "default",
+      "class": "preserve-success-path",
+      "baseline_equals_vanilla": false,
+      "reason": "Evaluation succeeds; raw serialization then rejects integer. Preserve full C1 transcript per wiring L0 Ok-path clause. Baseline int vs vanilla integer and baseline retained warning vs vanilla omitted warning are explicit preexisting debt."
+    },
+    {
+      "id": "serialization-no-warning",
+      "profile": "default",
+      "class": "preserve-success-path",
+      "baseline_equals_vanilla": false,
+      "reason": "Evaluation succeeds; raw serialization then rejects integer. Preserve full C1 transcript per wiring L0 Ok-path clause. Baseline int vs vanilla integer and baseline retained warning vs vanilla omitted warning are explicit preexisting debt."
+    },
+    {
+      "id": "deprecated-error",
+      "profile": "html",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "deprecated-warning-only",
+      "profile": "html",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "mixed-warnings-error",
+      "profile": "html",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "two-deprecated-error",
+      "profile": "html",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "error-only",
+      "profile": "html",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "no-warning",
+      "profile": "html",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "serialization-warning",
+      "profile": "html",
+      "class": "preserve-success-path",
+      "baseline_equals_vanilla": false,
+      "reason": "Evaluation succeeds; raw serialization then rejects integer. Preserve full C1 transcript per wiring L0 Ok-path clause. Baseline int vs vanilla integer and baseline retained warning vs vanilla omitted warning are explicit preexisting debt."
+    },
+    {
+      "id": "serialization-no-warning",
+      "profile": "html",
+      "class": "preserve-success-path",
+      "baseline_equals_vanilla": false,
+      "reason": "Evaluation succeeds; raw serialization then rejects integer. Preserve full C1 transcript per wiring L0 Ok-path clause. Baseline int vs vanilla integer and baseline retained warning vs vanilla omitted warning are explicit preexisting debt."
+    },
+    {
+      "id": "deprecated-error",
+      "profile": "a11y",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "deprecated-warning-only",
+      "profile": "a11y",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "mixed-warnings-error",
+      "profile": "a11y",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "two-deprecated-error",
+      "profile": "a11y",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "error-only",
+      "profile": "a11y",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "no-warning",
+      "profile": "a11y",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "serialization-warning",
+      "profile": "a11y",
+      "class": "preserve-success-path",
+      "baseline_equals_vanilla": false,
+      "reason": "Evaluation succeeds; raw serialization then rejects integer. Preserve full C1 transcript per wiring L0 Ok-path clause. Baseline int vs vanilla integer and baseline retained warning vs vanilla omitted warning are explicit preexisting debt."
+    },
+    {
+      "id": "serialization-no-warning",
+      "profile": "a11y",
+      "class": "preserve-success-path",
+      "baseline_equals_vanilla": false,
+      "reason": "Evaluation succeeds; raw serialization then rejects integer. Preserve full C1 transcript per wiring L0 Ok-path clause. Baseline int vs vanilla integer and baseline retained warning vs vanilla omitted warning are explicit preexisting debt."
+    },
+    {
+      "id": "deprecated-error",
+      "profile": "html+a11y",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "deprecated-warning-only",
+      "profile": "html+a11y",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "mixed-warnings-error",
+      "profile": "html+a11y",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "two-deprecated-error",
+      "profile": "html+a11y",
+      "class": "order-correction",
+      "baseline_equals_vanilla": false,
+      "reason": "Only entire error block moves ahead of unchanged ordered warning blocks; expected is full literal vanilla transcript"
+    },
+    {
+      "id": "error-only",
+      "profile": "html+a11y",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "no-warning",
+      "profile": "html+a11y",
+      "class": "parity",
+      "baseline_equals_vanilla": true,
+      "reason": "C1 and pinned vanilla full observations identical"
+    },
+    {
+      "id": "serialization-warning",
+      "profile": "html+a11y",
+      "class": "preserve-success-path",
+      "baseline_equals_vanilla": false,
+      "reason": "Evaluation succeeds; raw serialization then rejects integer. Preserve full C1 transcript per wiring L0 Ok-path clause. Baseline int vs vanilla integer and baseline retained warning vs vanilla omitted warning are explicit preexisting debt."
+    },
+    {
+      "id": "serialization-no-warning",
+      "profile": "html+a11y",
+      "class": "preserve-success-path",
+      "baseline_equals_vanilla": false,
+      "reason": "Evaluation succeeds; raw serialization then rejects integer. Preserve full C1 transcript per wiring L0 Ok-path clause. Baseline int vs vanilla integer and baseline retained warning vs vanilla omitted warning are explicit preexisting debt."
+    }
+  ],
+  "counts_per_profile": {
+    "order-correction": 3,
+    "parity": 3,
+    "preserve-success-path": 2
+  },
+  "observations_measured": 64,
+  "measurement_interval": [
+    "2026-09-09T11:08:02.733075+00:00",
+    "2026-09-09T11:08:05.750725+00:00"
+  ],
+  "unknown_policy": "Any invalid/missing fixture or observation blocks acceptance; no Unknown found",
+  "comparison": "Full exit/stdout/stderr exact equality; no normalization, generic stripping or candidate-derived expectations",
+  "fixture_note": "All eight cases are self-contained expressions; original cwd and fixture directory reused without edits",
+  "budget": "One measurement pass; no semantic revisions; eight bounded cases, four profiles, two binaries",
+  "original_artifacts_policy": "All previous P1327 R0/R1/original candidate failure artifacts remain immutable"
+}
