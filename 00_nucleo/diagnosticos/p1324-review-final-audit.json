@@ -1,0 +1,902 @@
+{
+  "phase": "final",
+  "at": "2026-09-09T00:29:28.317Z",
+  "head": {
+    "cmd": "git",
+    "args": [
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit": 0,
+    "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+    "stderr": ""
+  },
+  "diffStat": {
+    "cmd": "git",
+    "args": [
+      "diff",
+      "HEAD",
+      "--stat"
+    ],
+    "exit": 0,
+    "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  66 ++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 ++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 198 ++++++++-\n 00_nucleo/prompts/wiring.md                        |  56 ++-\n 01_core/src/compiler/eval/bindings/field_access.rs | 258 +++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  92 +++-\n 01_core/src/compiler/stdlib/loading.rs             | 466 +++++++++++++++++++--\n 04_wiring/src/main.rs                              |  30 +-\n 8 files changed, 1144 insertions(+), 75 deletions(-)\n",
+    "stderr": ""
+  },
+  "diffOwner": {
+    "cmd": "git",
+    "args": [
+      "diff",
+      "HEAD",
+      "--",
+      "01_core/src/compiler/eval/bindings/field_access.rs",
+      "00_nucleo/prompts/compiler/eval/bindings/field_access.md"
+    ],
+    "exit": 0,
+    "stdout": "diff --git a/00_nucleo/prompts/compiler/eval/bindings/field_access.md b/00_nucleo/prompts/compiler/eval/bindings/field_access.md\nindex 21a190082..0006bae21 100644\n--- a/00_nucleo/prompts/compiler/eval/bindings/field_access.md\n+++ b/00_nucleo/prompts/compiler/eval/bindings/field_access.md\n@@ -1,5 +1,5 @@\n # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`\n-Hash do Código: 5a601982\n+Hash do Código: c4567498\n \n Núcleos Tekt:\n - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24\n@@ -199,6 +199,70 @@ ausentes e demais dívidas.\n #(1).foo                                    → Err (nomeia \"integer\")\n ```\n \n+## P1324 — field ausente em nativa com namespace\n+\n+### Medição anterior à decisão\n+\n+`00_nucleo/diagnosticos/p1324-baseline.json`, SHA-256\n+`8684dabd1370997232a61bc58a48a99528718e49ec0e81962eb14c70b3769b4d`,\n+registra a medição fresca sobre HEAD\n+`d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitada,\n+diff/stat, UTC, fontes e binários. Vanilla ratificado upstream `a51e02804`,\n+SHA-256 `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`:\n+`json.nope` publica ``function `json` does not contain field `nope` `` e\n+marca somente `nope`; cristalino publica `function does not contain field\n+\"nope\"` e marca o acesso inteiro. yaml/toml/cbor/assert/table, alias, With\n+aninhado e callee confirmam a mesma classe. csv sem namespace e closure\n+nomeada foram medidos separadamente, sem fundir suas categorias.\n+\n+`01_core/src/compiler/eval/bindings/field_access.rs:181–195,271–277,420–435`\n+restringe a projeção nominal/field-only às nativas None e usa mensagem\n+legada no lookup Some ausente. `entities/func.rs:291–302,355–365` já conserva\n+nome e namespace através de With. Vanilla\n+`lab/typst-original/crates/typst-library/src/foundations/func.rs:291–308`\n+constrói erro a partir do nome da função, enquanto\n+`lab/typst-original/crates/typst-eval/src/code.rs:347–366` passa field.span().\n+\n+### Obrigação e sucessão delimitada\n+\n+Para Native ou NativeWithEngine com namespace Some, vazio ou populado, campo\n+ausente produz exatamente ``function `<nome-público>` does not contain field\n+`<field>` ``. With, inclusive aninhado, conserva a categoria e o nome da\n+função subjacente; o nome público é o último segmento do nome qualificado,\n+nunca o alias lexical, um nome de fixture ou uma lista fechada de funções.\n+O acesso AST usa somente access.field().span(), também com parênteses,\n+multilinha e como callee. O lookup puro conserva integralmente o span recebido.\n+Erro único, sem novos hints/laterais; manter traces causais e ordem de avaliação.\n+\n+Esta obrigação substitui expressamente a proteção P1311 de mensagem e span\n+vigentes para namespace Some AUSENTE, inclusive a expectativa correspondente\n+do teste anterior. Seus controles de lookup presente permanecem; Some vazio\n+continua diferente de None como dado, sem fabricar um namespace. A promessa\n+P1311 para Native/NativeWithEngine None permanece idêntica. Um helper privado\n+pode projetar o nome nativo para ambos os casos atravessando With, sem mudar\n+Func, Scope, argumentos ou assinatura/visibilidade pública.\n+\n+Preservar binding/valor/kind/chamada de fields presentes. Closure, Plugin e\n+Element de usuário não se tornam nativas por terem nome; mensagens e spans\n+dessas categorias permanecem. Module/PDF features e hints, Dict, Type,\n+Content/LocatedContent snapshot, float/is-nan, text contextual e warnings\n+mantêm as obrigações vigentes. Não generalizar field-only a outras categorias,\n+não criar membro, encoder, fallback ou formatter, não mudar fases nem defaults.\n+\n+Texto e origem diagnóstica são língua sob ADR-0107/0108; enum/algoritmo Rust\n+são mecanismo. A intenção é completar o contrato nominal de lookup nativo\n+deste owner, não atribuir intenção histórica ao comportamento observado.\n+É inferência que nome/categoria/AST existentes bastam; nome incompatível,\n+origem irrecuperável, novo owner/API/default/fase refutam-na e reabrem o escopo.\n+Correção interna ADR-0127: L0 primeiro, resselo, RED→GREEN e revalidação.\n+\n+Aceitação exige testes independentes e processos bilaterais: namespaces\n+vazios/populados, ambas as categorias nativas, nomes qualificados, alias e\n+With, leitura/chamada ausente, identificadores e deslocamentos distintos,\n+sucessos pareados e negativos das categorias excluídas. Perfis default/html/\n+a11y/html+a11y, repetição e inversão conservam o vetor. Unknown obrigatório\n+nunca é sucesso; não declarar paridade geral de funções ou fields.\n+\n ## P1291.cancel-angle-runtime — `text.size` contextual\n \n ### Medição anterior à decisão\ndiff --git a/01_core/src/compiler/eval/bindings/field_access.rs b/01_core/src/compiler/eval/bindings/field_access.rs\nindex 5f37d3ba1..8974b34b4 100644\n--- a/01_core/src/compiler/eval/bindings/field_access.rs\n+++ b/01_core/src/compiler/eval/bindings/field_access.rs\n@@ -1,6 +1,6 @@\n //! Crystalline Lineage\n //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n-//! @prompt-hash 15b5f7af\n+//! @prompt-hash 740a39f5\n //! @layer L1\n //! @updated 2026-09-01\n //!\n@@ -29,6 +29,234 @@ use crate::compiler::eval::operators::error_formatting::vanilla_type_name;\n \n use super::method_dispatch::{expect_positional, finish_args};\n \n+#[cfg(test)]\n+mod p1324_tests {\n+    use super::*;\n+    use crate::entities::args::Args;\n+    use crate::entities::func::{ClosureRepr, Func};\n+    use crate::entities::scope::{Capturer, Scope};\n+    use crate::entities::source_result::Severity;\n+    use crate::entities::span::Span;\n+    use crate::entities::syntax_kind::SyntaxKind;\n+    use crate::entities::syntax_node::SyntaxNode;\n+    use std::sync::Arc;\n+\n+    fn subject(engine: bool, name: &'static str, scope: Option<Arc<Scope>>) -> Func {\n+        match (engine, scope) {\n+            (false, None) => {\n+                Func::native(name, |_, _, _, _| panic!(\"lookup invoked native\"))\n+            }\n+            (false, Some(scope)) => Func::native_with_namespace(\n+                name,\n+                |_, _, _, _| panic!(\"lookup invoked native\"),\n+                scope,\n+            ),\n+            (true, None) => Func::native_with_engine(name, |_, _, _, _, _, _| {\n+                panic!(\"lookup invoked engine native\")\n+            }),\n+            (true, Some(scope)) => Func::native_with_engine_and_namespace(\n+                name,\n+                |_, _, _, _, _, _| panic!(\"lookup invoked engine native\"),\n+                scope,\n+            ),\n+        }\n+    }\n+\n+    fn wrapped(mut func: Func, depth: usize) -> Func {\n+        for ordinal in 0..depth {\n+            func = func.with(Args::positional(vec![Value::Int(ordinal as i64 + 91)]));\n+        }\n+        func\n+    }\n+\n+    fn anchors() -> [Span; 2] {\n+        let id = crate::entities::file_id::FileId::from_raw(\n+            std::num::NonZeroU16::new(271).unwrap(),\n+        );\n+        [Span::detached(), Span::from_range(id, 37..53)]\n+    }\n+\n+    fn expect_error(func: Func, field: &str, span: Span, message: &str) {\n+        let errors = eval_value_field_access(Value::Func(func), field, span).unwrap_err();\n+        assert_eq!(errors.len(), 1);\n+        assert_eq!(errors[0].severity, Severity::Error);\n+        assert_eq!(errors[0].message, message);\n+        assert_eq!(errors[0].span, span, \"pure lookup must preserve the supplied anchor\");\n+        assert!(errors[0].hints.is_empty());\n+        assert!(errors[0].trace.is_empty());\n+    }\n+\n+    #[test]\n+    fn p1324_some_empty_and_populated_all_native_shapes() {\n+        for engine in [false, true] {\n+            for populated in [false, true] {\n+                let mut scope = Scope::new();\n+                if populated {\n+                    scope.define(\"present\", Value::Int(42));\n+                }\n+                let scope = Arc::new(scope);\n+                for (internal, public) in [\n+                    (\"meteor\", \"meteor\"),\n+                    (\"space.meteor\", \"meteor\"),\n+                    (\"alpha.beta.gamma\", \"gamma\"),\n+                ] {\n+                    for depth in [0, 1, 3] {\n+                        for field in [\"missing\", \"absent_1324\"] {\n+                            for span in anchors() {\n+                                let f = wrapped(\n+                                    subject(engine, internal, Some(scope.clone())),\n+                                    depth,\n+                                );\n+                                expect_error(f, field, span, &format!(\"function `{public}` does not contain field `{field}`\"));\n+                            }\n+                        }\n+                    }\n+                }\n+            }\n+        }\n+    }\n+\n+    #[test]\n+    fn p1324_present_values_and_function_kind_survive_wrapping_and_missing_lookup() {\n+        let member = subject(false, \"namespace.member\", None);\n+        let mut scope = Scope::new();\n+        scope.define(\"present\", Value::Int(713));\n+        scope.define(\"nothing\", Value::None);\n+        scope.define(\"enabled\", Value::Bool(false));\n+        scope.define(\"callable\", Value::Func(member.clone()));\n+        let scope = Arc::new(scope);\n+        for engine in [false, true] {\n+            for depth in [0, 1, 3] {\n+                let f = wrapped(\n+                    subject(engine, \"anything.owner\", Some(scope.clone())),\n+                    depth,\n+                );\n+                for span in anchors() {\n+                    expect_error(\n+                        f.clone(),\n+                        \"missing\",\n+                        span,\n+                        \"function `owner` does not contain field `missing`\",\n+                    );\n+                    for (field, expected) in [\n+                        (\"present\", Value::Int(713)),\n+                        (\"nothing\", Value::None),\n+                        (\"enabled\", Value::Bool(false)),\n+                        (\"callable\", Value::Func(member.clone())),\n+                    ] {\n+                        let actual =\n+                            eval_value_field_access(Value::Func(f.clone()), field, span)\n+                                .unwrap();\n+                        assert_eq!(actual, expected);\n+                        if field == \"callable\" {\n+                            let Value::Func(actual) = actual else {\n+                                panic!(\"member lost function kind\")\n+                            };\n+                            assert_eq!(actual.name(), Some(\"namespace.member\"));\n+                        }\n+                    }\n+                }\n+                assert_eq!(scope.len(), 4);\n+            }\n+        }\n+    }\n+\n+    #[test]\n+    fn p1324_none_remains_the_p1311_diagnostic_without_namespace_fabrication() {\n+        for engine in [false, true] {\n+            for depth in [0, 1, 3] {\n+                let f = wrapped(subject(engine, \"outer.original\", None), depth);\n+                for span in anchors() {\n+                    expect_error(\n+                        f.clone(),\n+                        \"different\",\n+                        span,\n+                        \"function `original` does not contain field `different`\",\n+                    );\n+                }\n+                assert!(f.namespace().is_none());\n+            }\n+        }\n+    }\n+\n+    #[test]\n+    fn p1324_named_closure_and_user_element_are_not_native() {\n+        let closure = Func::closure(ClosureRepr {\n+            name: Some(\"alpha.beta.gamma\".into()),\n+            params: vec![],\n+            sink_name: None,\n+            body: SyntaxNode::placeholder(SyntaxKind::Markup),\n+            captured: Arc::new(Scope::new()),\n+            capturer: Capturer::Function,\n+        });\n+        let element = Func::element(\n+            \"alpha.beta.gamma\",\n+            Arc::new(|_| panic!(\"lookup invoked element\")),\n+        );\n+        for f in [closure, element] {\n+            for depth in [0, 1, 3] {\n+                for span in anchors() {\n+                    expect_error(\n+                        wrapped(f.clone(), depth),\n+                        \"missing\",\n+                        span,\n+                        \"cannot access fields on type function\",\n+                    );\n+                }\n+            }\n+        }\n+    }\n+\n+    #[test]\n+    fn p1324_named_plugin_is_not_native() {\n+        use crate::contracts::plugin_host::{PluginError, PluginHost, PluginModuleId};\n+        use crate::entities::bytes::Bytes;\n+        struct UncalledHost;\n+        impl PluginHost for UncalledHost {\n+            fn load(&self, _: &[u8]) -> Result<PluginModuleId, PluginError> {\n+                panic!(\"load\")\n+            }\n+            fn exports(\n+                &self,\n+                _: PluginModuleId,\n+            ) -> Result<Vec<ecow::EcoString>, PluginError> {\n+                panic!(\"exports\")\n+            }\n+            fn call(\n+                &self,\n+                _: PluginModuleId,\n+                _: &str,\n+                _: &[Bytes],\n+            ) -> Result<Bytes, PluginError> {\n+                panic!(\"call\")\n+            }\n+            fn transition(\n+                &self,\n+                _: PluginModuleId,\n+                _: &str,\n+                _: &[Bytes],\n+            ) -> Result<PluginModuleId, PluginError> {\n+                panic!(\"transition\")\n+            }\n+        }\n+        let f = Func::plugin(crate::entities::plugin_func::PluginFunc {\n+            host: Arc::new(UncalledHost),\n+            module: PluginModuleId(19),\n+            name: \"alpha.beta.gamma\".into(),\n+        });\n+        for depth in [0, 1, 3] {\n+            for span in anchors() {\n+                expect_error(\n+                    wrapped(f.clone(), depth),\n+                    \"missing\",\n+                    span,\n+                    \"cannot access fields on type function\",\n+                );\n+            }\n+        }\n+    }\n+}\n+\n #[cfg(test)]\n mod tests {\n     use super::*;\n@@ -115,10 +343,13 @@ mod tests {\n                         Value::Int(42)\n                     );\n                 }\n-                assert_error(f.clone(), \"function does not contain field \\\"missing\\\"\");\n+                assert_error(\n+                    f.clone(),\n+                    \"function `same-name` does not contain field `missing`\",\n+                );\n                 assert_error(\n                     f.with(Args::positional(vec![])),\n-                    \"function does not contain field \\\"missing\\\"\",\n+                    \"function `same-name` does not contain field `missing`\",\n                 );\n             }\n         }\n@@ -177,15 +408,15 @@ mod tests {\n     }\n }\n \n-/// Public name of a native without a namespace, including partial applications.\n-fn plain_native_name(mut func: &Func) -> Option<&str> {\n+/// Public name of a native, including namespaces and partial applications.\n+fn native_public_name(mut func: &Func) -> Option<&str> {\n     use crate::entities::func::FuncRepr;\n     loop {\n         match func.repr() {\n-            FuncRepr::Native(native) if native.namespace.is_none() => {\n+            FuncRepr::Native(native) => {\n                 return native.name.rsplit('.').next();\n             }\n-            FuncRepr::NativeWithEngine(native) if native.namespace.is_none() => {\n+            FuncRepr::NativeWithEngine(native) => {\n                 return native.name.rsplit('.').next();\n             }\n             FuncRepr::With(with) => func = &with.0,\n@@ -270,7 +501,7 @@ pub(in crate::compiler::eval) fn eval_field_access(\n \n     let span = if matches!(&target, Value::Module(_))\n         || field == \"is-nan\" && matches!(&target, Value::Float(_))\n-        || matches!(&target, Value::Func(f) if plain_native_name(f).is_some())\n+        || matches!(&target, Value::Func(f) if native_public_name(f).is_some())\n     {\n         access.field().span()\n     } else {\n@@ -417,16 +648,11 @@ pub(in crate::compiler::eval) fn eval_value_field_access(\n             )]),\n         },\n         // P493b — Field access em Value::Func com namespace\n-        Value::Func(f) => match f.namespace() {\n-            Some(ns) => ns.get(field).cloned().ok_or_else(|| {\n-                vec![SourceDiagnostic::error(\n-                    span,\n-                    format!(\"function does not contain field \\\"{field}\\\"\"),\n-                )]\n-            }),\n+        Value::Func(f) => match f.namespace().and_then(|ns| ns.get(field)) {\n+            Some(value) => Ok(value.clone()),\n             None => Err(vec![SourceDiagnostic::error(\n                 span,\n-                match plain_native_name(&f) {\n+                match native_public_name(&f) {\n                     Some(name) => {\n                         format!(\"function `{name}` does not contain field `{field}`\")\n                     }\n",
+    "stderr": ""
+  },
+  "sourceSha256": "88f3e17807b1fba83eec1dd70f9cfd0238f3c5d431682f286a8a485ba4ad2de1",
+  "promptSha256": "7573dd209b35e33b3c6627dd14eaea8ef63c819ad7fe7079438baa263c0760e4",
+  "manifestSha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d",
+  "normativeSha256": "4b85d3606fc3dc9e1390449bb856b0fcde5959b644294ba6f728c04b33f807c3",
+  "normativeFrozen": true,
+  "lineage": {
+    "expectedHeader": "740a39f5",
+    "actualHeader": "740a39f5",
+    "headerMatches": true,
+    "expectedCode": "c4567498",
+    "actualCode": "c4567498",
+    "reciprocalMatches": true,
+    "deps": [
+      {
+        "path": "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml",
+        "pin": "5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24",
+        "digest": "5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24",
+        "raw": "419d56209cda385cedb09205b1dde60be6719897dc467f583b637ce389df6084",
+        "match": true
+      }
+    ]
+  },
+  "preserved": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "before": "d11ca271808ccdda640fea58a3bfa0354816299a42c3736c72373c76859f5ebf",
+      "after": "d11ca271808ccdda640fea58a3bfa0354816299a42c3736c72373c76859f5ebf",
+      "same": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/loading.md",
+      "before": "bf6e830de31aab2b0cd113872e258949e46e6d54e3f041bcc21ed62cc43f57d4",
+      "after": "bf6e830de31aab2b0cd113872e258949e46e6d54e3f041bcc21ed62cc43f57d4",
+      "same": true
+    },
+    {
+      "path": "00_nucleo/prompts/wiring.md",
+      "before": "83d7a1364b136a7d198d3fd84c601336ef2fff687b34987c904f637e8173870d",
+      "after": "83d7a1364b136a7d198d3fd84c601336ef2fff687b34987c904f637e8173870d",
+      "same": true
+    },
+    {
+      "path": "01_core/src/compiler/eval/call_dispatch.rs",
+      "before": "9b11c388cf50666beecad9a6c92fbebfb323cdf5edbb550f4be04a96e0c3e9d4",
+      "after": "9b11c388cf50666beecad9a6c92fbebfb323cdf5edbb550f4be04a96e0c3e9d4",
+      "same": true
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/loading.rs",
+      "before": "f4ebb73fac0d64d412adbda475eaef65fb45e01ac2cf44a13c5b9d9aa408bf8f",
+      "after": "f4ebb73fac0d64d412adbda475eaef65fb45e01ac2cf44a13c5b9d9aa408bf8f",
+      "same": true
+    },
+    {
+      "path": "04_wiring/src/main.rs",
+      "before": "0ee273c4411d9752f14900982f02f481c2bc50f125944296111fbe760d5fae9a",
+      "after": "0ee273c4411d9752f14900982f02f481c2bc50f125944296111fbe760d5fae9a",
+      "same": true
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml",
+      "before": "419d56209cda385cedb09205b1dde60be6719897dc467f583b637ce389df6084",
+      "after": "419d56209cda385cedb09205b1dde60be6719897dc467f583b637ce389df6084",
+      "same": true
+    }
+  ],
+  "receipts": {
+    "p1324-ab-baseline-focal-v2.json": {
+      "sha256": "cf6f6f78af762d01189d35ad74b16c368b93f776b9a5b44325199181dbd26419",
+      "keys": [
+        "started",
+        "label",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "runner_sha256",
+        "cwd",
+        "command",
+        "environment_policy",
+        "head",
+        "diff_stat",
+        "status",
+        "runs",
+        "ended",
+        "seconds",
+        "processes",
+        "counts",
+        "unexpected_shape"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-baseline-focal-v3.json": {
+      "sha256": "454c1dd8247587b0651015b4da9c6e78819e3a1af2f51d36f02f1aca6cf3d04d",
+      "keys": [
+        "started",
+        "label",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "runner_sha256",
+        "cwd",
+        "command",
+        "environment_policy",
+        "head",
+        "diff_stat",
+        "status",
+        "runs",
+        "ended",
+        "seconds",
+        "processes",
+        "counts",
+        "unexpected_shape"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-baseline-instrumentation-failure.json": {
+      "sha256": "0ae1966905146f9d2f4a01c3ba4b21fe2a38ffa4683a48ba8aa7dd29b7b55ccd",
+      "keys": [
+        "started",
+        "label",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "runner_sha256",
+        "cwd",
+        "command",
+        "environment_policy",
+        "head",
+        "diff_stat",
+        "status",
+        "runs",
+        "ended",
+        "seconds",
+        "processes",
+        "counts",
+        "unexpected_shape"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-baseline-v2.json": {
+      "sha256": "f5005f734d917fb68e808ea527a750d2bcc70d50d955ad3092c775d9554b6e03",
+      "keys": [
+        "started",
+        "label",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "runner_sha256",
+        "cwd",
+        "command",
+        "environment_policy",
+        "head",
+        "diff_stat",
+        "status",
+        "runs",
+        "ended",
+        "seconds",
+        "processes",
+        "counts",
+        "unexpected_shape"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-baseline-v3.json": {
+      "sha256": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7",
+      "keys": [
+        "kind",
+        "label",
+        "processes",
+        "component_processes",
+        "reference_vectors",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "provenance",
+        "components",
+        "runs"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-candidate-focal-v3.json": {
+      "sha256": "cb9eb0891471718845895ca0de17538870160fb8ce9cc681d472be3eae519a27",
+      "keys": [
+        "started",
+        "label",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "runner_sha256",
+        "cwd",
+        "command",
+        "environment_policy",
+        "head",
+        "diff_stat",
+        "status",
+        "runs",
+        "ended",
+        "seconds",
+        "processes",
+        "counts",
+        "unexpected_shape"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-candidate-v3.json": {
+      "sha256": "0a9ef0dc59229a575690b003b786a8642c1c2d4339e5eed5519c0fa7485fbb72",
+      "keys": [
+        "started",
+        "label",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "runner_sha256",
+        "cwd",
+        "command",
+        "environment_policy",
+        "head",
+        "diff_stat",
+        "status",
+        "runs",
+        "ended",
+        "seconds",
+        "processes",
+        "counts",
+        "unexpected_shape"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-cases-v3.json": {
+      "sha256": "d5d41138b5cb008bc842a0e4116e111f2c47aa74c3082d1188425080c1dc4843",
+      "keys": [
+        "version",
+        "profiles",
+        "cases"
+      ]
+    },
+    "p1324-ab-cases.json": {
+      "sha256": "de049b325d6ea74faa29c7fbdb82300fba668be99bd8d6852ea3e62c1156889d",
+      "keys": [
+        "version",
+        "profiles",
+        "cases"
+      ]
+    },
+    "p1324-ab-final-audit-v3.json": {
+      "sha256": "3768d6251c8e11af762bbcb754dc17520eaed63a09ddf8833ff4570cd49782ac",
+      "keys": [
+        "manifest_sha256",
+        "freeze_sha256",
+        "candidate_receipt_sha256",
+        "candidate_binary_sha256",
+        "checks",
+        "byrule",
+        "observations",
+        "unexpected_shapes",
+        "note"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-freeze-v2.json": {
+      "sha256": "9a7f379522cb1a3ac6086e02aa77445deea94bfa7569be8c10720805abf40e7b",
+      "keys": [
+        "at",
+        "author",
+        "manifest_sha256",
+        "predecessor_freeze_sha256",
+        "reason",
+        "prompt_normative_sha256",
+        "nucleus_sha256",
+        "candidate_causality",
+        "regime",
+        "vanilla_sha256",
+        "baseline_binary_sha256",
+        "protected"
+      ],
+      "at": "2026-09-09T00:15:53Z",
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-freeze-v3.json": {
+      "sha256": "be00d384f31ecbd25f2db69727432ee6f9af26ea0befc7cdc1705df0861914bd",
+      "keys": [
+        "at",
+        "author",
+        "manifest_sha256",
+        "predecessor_freeze_sha256",
+        "approval_sha256",
+        "prompt_normative_sha256",
+        "nucleus_sha256",
+        "reason",
+        "candidate_causality",
+        "regime",
+        "vanilla_sha256",
+        "baseline_binary_sha256",
+        "candidate_binary_sha256",
+        "protected"
+      ],
+      "at": "2026-09-09T00:23:56Z",
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-freeze.json": {
+      "sha256": "b75fbfc61a0ffbf2baf7c83a9847cb471ef435afcc9e44a60190912761641c03",
+      "keys": [
+        "at",
+        "author",
+        "manifest_sha256",
+        "prompt_normative_sha256",
+        "nucleus_sha256",
+        "regime",
+        "causal_order",
+        "vanilla_sha256",
+        "baseline_binary_sha256",
+        "calibration",
+        "preparatory_vanilla_cost",
+        "protected"
+      ],
+      "at": "2026-09-09T00:13:45Z",
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-oracle-focal-v3.json": {
+      "sha256": "84639615a1afcfb6321fb41890147222e5b4fc63f0abf101febe3a46632a11e4",
+      "keys": [
+        "started",
+        "label",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "runner_sha256",
+        "cwd",
+        "command",
+        "environment_policy",
+        "head",
+        "diff_stat",
+        "status",
+        "runs",
+        "ended",
+        "seconds",
+        "processes",
+        "counts",
+        "unexpected_shape"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-oracle-v2.json": {
+      "sha256": "fe12138b25d77a9f20b9c2275498b53c81689c735ff01be6ab1cdc5f194e23de",
+      "keys": [
+        "started",
+        "label",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "runner_sha256",
+        "cwd",
+        "command",
+        "environment_policy",
+        "head",
+        "diff_stat",
+        "status",
+        "runs",
+        "ended",
+        "seconds",
+        "processes",
+        "calibration",
+        "counts",
+        "unexpected_shape"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-oracle-v3.json": {
+      "sha256": "726638ec6145ae09ea1d7214aa1e7dd0066a6d41256326f4b63a5bc9206fd70b",
+      "keys": [
+        "kind",
+        "label",
+        "processes",
+        "component_processes",
+        "reference_vectors",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "provenance",
+        "components",
+        "runs"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-oracle.json": {
+      "sha256": "436f01fb3657a5cc21915b970ca8dfe38bef141b6b661ba747ae4d2737f9d262",
+      "keys": [
+        "started",
+        "label",
+        "binary",
+        "binary_sha256",
+        "manifest_sha256",
+        "case_sha256",
+        "runner_sha256",
+        "cwd",
+        "command",
+        "environment_policy",
+        "head",
+        "diff_stat",
+        "status",
+        "runs",
+        "ended",
+        "seconds",
+        "processes",
+        "calibration",
+        "counts",
+        "unexpected_shape"
+      ],
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-ab-unit-freeze.json": {
+      "sha256": "0275459c5b4f4397a1dc6c94afd5542ad281693c534df5d2fcca5f68da9165cb",
+      "keys": [
+        "at",
+        "author",
+        "manifest_sha256",
+        "prompt_normative_sha256",
+        "snippet",
+        "snippet_sha256",
+        "regime",
+        "private_inputs",
+        "handoff",
+        "p1311_successor",
+        "candidate_state"
+      ],
+      "at": "2026-09-09T00:09:41Z",
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-baseline.json": {
+      "sha256": "8684dabd1370997232a61bc58a48a99528718e49ec0e81962eb14c70b3769b4d",
+      "keys": [
+        "at",
+        "state",
+        "rows",
+        "binaries",
+        "original_owner",
+        "original_prompt",
+        "target",
+        "target_reason",
+        "previous_closure_sha256"
+      ],
+      "at": "2026-09-09T00:04:40.172521+00:00"
+    },
+    "p1324-candidate-build.json": {
+      "sha256": "230b66e49fcfb07d6d05b0afcfae9fe556bfc3e02344c9f821844b2439251aee",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:20:19.771531+00:00",
+      "end": "2026-09-09T00:21:58.388744+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-final-build.json": {
+      "sha256": "2221a7212344ee2d3a74de464ad99bc7d5843d726cb16cf5d62a6dddce7926b7",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:23:08.181755+00:00",
+      "end": "2026-09-09T00:23:38.928925+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-final-diff-check.json": {
+      "sha256": "cca0b77e68d78d315fd26b80e090a390549265019d6efe63ffddb6cd03d067ea",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:27:09.646169+00:00",
+      "end": "2026-09-09T00:27:10.165060+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-final-fmt.json": {
+      "sha256": "051fe2964d5ef04ef9572e99496ba9aaf2a6304d58ef441c68045ac9b0b15056",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:23:14.983919+00:00",
+      "end": "2026-09-09T00:23:17.376966+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-final-lineage.json": {
+      "sha256": "fd0655d4f1bbec51fca0c7d823aea576ab4a59d35b05f9e0cfd0da9af114c977",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:27:07.840943+00:00",
+      "end": "2026-09-09T00:27:11.016092+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-final-lint.json": {
+      "sha256": "b2a0f2a1453752dbf25b0e863db0bb4d559f4f16484e2d01408198178198878b",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:23:47.726079+00:00",
+      "end": "2026-09-09T00:23:52.190071+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-final-reseal-dry-run.json": {
+      "sha256": "96780f250cbf786562b480dec2be93a1bfa032235b1e344fd7d0e56d2d1518c3",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:22:39.160421+00:00",
+      "end": "2026-09-09T00:22:42.235877+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-fmt.json": {
+      "sha256": "2cce544860d8f86a8cc9f7df710fa6c3f8a7b3873b1eb36fbdb680de1b0812b2",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:20:21.064554+00:00",
+      "end": "2026-09-09T00:20:23.590944+00:00",
+      "exit": 1,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-format-owner.json": {
+      "sha256": "1bd49d2862e30952cee18e6e932f195e17693a5ca1b4426d5b3b133ee27efe90",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:22:24.690752+00:00",
+      "end": "2026-09-09T00:22:24.959881+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-manifest.json": {
+      "sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d",
+      "keys": [
+        "at",
+        "baseline_sha256",
+        "step",
+        "prompt",
+        "owner",
+        "target",
+        "regime",
+        "roles",
+        "limits"
+      ],
+      "at": "2026-09-09T00:06:20.450670+00:00"
+    },
+    "p1324-preflight.json": {
+      "sha256": "65b0418b699e8ff4b3000f3a3c40fef5904c6510ed2f072070135c4bafb4ded7",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:04:49.761114+00:00",
+      "end": "2026-09-09T00:04:53.172992+00:00",
+      "exit": 0,
+      "manifest_sha256": null
+    },
+    "p1324-reciprocal-correction.json": {
+      "sha256": "4952cb7c88a8b8a9526fb2a49c576edabb7311041e7321291d048d6d14410487",
+      "keys": [
+        "at",
+        "before",
+        "after",
+        "manifest_sha256",
+        "code_sha256",
+        "patch",
+        "reason",
+        "normative_sha256"
+      ],
+      "at": "2026-09-09T00:27:07.371477+00:00",
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-reseal-dry-run.json": {
+      "sha256": "29965b31070f75f77dfce462e050c34d6407d82f597de7685cfe36f515949033",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:07:00.211624+00:00",
+      "end": "2026-09-09T00:07:03.405680+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-reseal-l0.json": {
+      "sha256": "d3f1eea2361e18a9ad646f7bedfe53de5709a40c8abf9141aef14283509ea49b",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:07:31.502571+00:00",
+      "end": "2026-09-09T00:07:37.660817+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-test-integration.json": {
+      "sha256": "2f236818875db92aad5a7a24b725656a790474b593affadfeccc4c546d462731",
+      "keys": [
+        "at",
+        "before",
+        "after",
+        "manifest_sha256",
+        "snippet",
+        "note"
+      ],
+      "at": "2026-09-09T00:11:00.958517+00:00",
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-test-succession.json": {
+      "sha256": "10c4fe12686146a8dfafcf92ded29e86e16c198d69096ce54894f8470054063e",
+      "keys": [
+        "at",
+        "state",
+        "manifest_sha256",
+        "independent_freeze_sha256",
+        "rule",
+        "original_source_receipt",
+        "production_changed",
+        "excluded_run"
+      ],
+      "at": "2026-09-09T00:12:03.682971+00:00",
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-unit-green.json": {
+      "sha256": "d2f321e3496cdab8875ca8f1e0789900ba8519ae59d152c303909cde17abd51f",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:19:10.009931+00:00",
+      "end": "2026-09-09T00:21:22.674431+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-unit-red-r2.json": {
+      "sha256": "0901f2121f663ba59e25ddd370050650dd3b1087686988836275c43c9567325b",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:12:42.811078+00:00",
+      "end": "2026-09-09T00:14:39.203993+00:00",
+      "exit": 101,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-unit-red.json": {
+      "sha256": "a48e4d41cacf9e1e54dfeb06193119f92492b3bdc934ecb4c5e6af76a304b558",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:10:36.056143+00:00",
+      "end": "2026-09-09T00:12:31.935859+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    },
+    "p1324-workspace-tests.json": {
+      "sha256": "bdf8de8bf91c6b35ca69f81ecbfc58c1d2cda4fa0ad9454acab4ddbd996890d1",
+      "keys": [
+        "at",
+        "end",
+        "seconds",
+        "argv",
+        "cwd",
+        "target",
+        "before",
+        "after",
+        "exit",
+        "stdout",
+        "stderr",
+        "manifest_sha256",
+        "binary"
+      ],
+      "at": "2026-09-09T00:23:13.619472+00:00",
+      "end": "2026-09-09T00:26:01.242214+00:00",
+      "exit": 0,
+      "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d"
+    }
+  }
+}

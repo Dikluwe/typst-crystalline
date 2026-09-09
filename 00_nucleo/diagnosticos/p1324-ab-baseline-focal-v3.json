@@ -1,0 +1,496 @@
+{
+  "started": "2026-09-09T00:23:14.691993+00:00",
+  "label": "baseline",
+  "binary": "/tmp/p1323-target.9NrOxY/release/typst",
+  "binary_sha256": "f0b251746274d537c63929ab357b0e84e0e0955c7986d58621d83a0ce3a4e5ee",
+  "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d",
+  "case_sha256": "d5d41138b5cb008bc842a0e4116e111f2c47aa74c3082d1188425080c1dc4843",
+  "runner_sha256": "82592b4b38ac0c8e3a3b0c38b7547a3caf848fc565064041990810ed36763b50",
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "command": [
+    "00_nucleo/diagnosticos/p1324-ab-runner-v3.py",
+    "--binary",
+    "/tmp/p1323-target.9NrOxY/release/typst",
+    "--label",
+    "baseline",
+    "--oracle",
+    "00_nucleo/diagnosticos/p1324-ab-oracle-v2.json",
+    "--ids",
+    "table-present-call,with-present-call,table-direct-kind-call,table-with-kind-call"
+  ],
+  "environment_policy": "Inherited environment minus all TYPST_*; LANG/LC_ALL=C.UTF-8 NO_COLOR=1 TERM=dumb",
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "diff_stat": " .../prompts/compiler/eval/bindings/field_access.md |  64 +++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 ++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       | 198 ++++++++-\n 00_nucleo/prompts/wiring.md                        |  56 ++-\n 01_core/src/compiler/eval/bindings/field_access.rs | 258 +++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  92 +++-\n 01_core/src/compiler/stdlib/loading.rs             | 466 +++++++++++++++++++--\n 04_wiring/src/main.rs                              |  30 +-\n 8 files changed, 1143 insertions(+), 74 deletions(-)\n",
+  "status": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/stdlib/loading.md\n M 00_nucleo/prompts/wiring.md\n M 01_core/src/compiler/eval/bindings/field_access.rs\n M 01_core/src/compiler/eval/call_dispatch.rs\n M 01_core/src/compiler/stdlib/loading.rs\n M 04_wiring/src/main.rs\n?? 00_nucleo/diagnosticos/p1319-ab-baseline-runs-r1.json\n?? 00_nucleo/diagnosticos/p1319-ab-baseline-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-calibration.py\n?? 00_nucleo/diagnosticos/p1319-ab-candidate-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-cases-r0.json\n?? 00_nucleo/diagnosticos/p1319-ab-cases.json\n?? 00_nucleo/diagnosticos/p1319-ab-comparison.json\n?? 00_nucleo/diagnosticos/p1319-ab-focal-runs.json\n?? 00_nucleo/diagnosticos/p1319-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1319-ab-receipt.md\n?? 00_nucleo/diagnosticos/p1319-ab-runner-r0.py\n?? 00_nucleo/diagnosticos/p1319-ab-runner.py\n?? 00_nucleo/diagnosticos/p1319-build-r2.json\n?? 00_nucleo/diagnosticos/p1319-build.json\n?? 00_nucleo/diagnosticos/p1319-diff-check-r1.json\n?? 00_nucleo/diagnosticos/p1319-diff-check-r2.json\n?? 00_nucleo/diagnosticos/p1319-diff-check.json\n?? 00_nucleo/diagnosticos/p1319-final-report.md\n?? 00_nucleo/diagnosticos/p1319-fmt-r1.json\n?? 00_nucleo/diagnosticos/p1319-fmt-r2.json\n?? 00_nucleo/diagnosticos/p1319-fmt.json\n?? 00_nucleo/diagnosticos/p1319-lineage-before-repair.json\n?? 00_nucleo/diagnosticos/p1319-lineage-check.py\n?? 00_nucleo/diagnosticos/p1319-lineage-final-r1.json\n?? 00_nucleo/diagnosticos/p1319-lineage-final-r2.json\n?? 00_nucleo/diagnosticos/p1319-lineage-final.json\n?? 00_nucleo/diagnosticos/p1319-lineage-preflight.json\n?? 00_nucleo/diagnosticos/p1319-lineage-verified-r1.json\n?? 00_nucleo/diagnosticos/p1319-lineage-verified-r2.json\n?? 00_nucleo/diagnosticos/p1319-lint-r1.json\n?? 00_nucleo/diagnosticos/p1319-lint-r2.json\n?? 00_nucleo/diagnosticos/p1319-lint.json\n?? 00_nucleo/diagnosticos/p1319-measure.py\n?? 00_nucleo/diagnosticos/p1319-measurement.json\n?? 00_nucleo/diagnosticos/p1319-record.py\n?? 00_nucleo/diagnosticos/p1319-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1319-review-candidate-and-lineage.md\n?? 00_nucleo/diagnosticos/p1319-review-final-audit.json\n?? 00_nucleo/diagnosticos/p1319-review-final.md\n?? 00_nucleo/diagnosticos/p1319-review-l0.md\n?? 00_nucleo/diagnosticos/p1319-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1319-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1319-review-red.md\n?? 00_nucleo/diagnosticos/p1319-test-delta.json\n?? 00_nucleo/diagnosticos/p1319-test-delta.py\n?? 00_nucleo/diagnosticos/p1319-unit-green-r1.json\n?? 00_nucleo/diagnosticos/p1319-unit-green-r2.json\n?? 00_nucleo/diagnosticos/p1319-unit-green.json\n?? 00_nucleo/diagnosticos/p1319-unit-red.json\n?? 00_nucleo/diagnosticos/p1319-workspace-tests-r2.json\n?? 00_nucleo/diagnosticos/p1319-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1320-audit-r0.py\n?? 00_nucleo/diagnosticos/p1320-audit.py\n?? 00_nucleo/diagnosticos/p1320-close.py\n?? 00_nucleo/diagnosticos/p1320-fixtures/\n?? 00_nucleo/diagnosticos/p1320-focal-r1.json\n?? 00_nucleo/diagnosticos/p1320-harness-tests-r1.json\n?? 00_nucleo/diagnosticos/p1320-harness-tests.json\n?? 00_nucleo/diagnosticos/p1320-measurement.json\n?? 00_nucleo/diagnosticos/p1320-o-que-falta-para-paridade.md\n?? 00_nucleo/diagnosticos/p1320-reconciliation.json\n?? 00_nucleo/diagnosticos/p1320-supplement.json\n?? 00_nucleo/diagnosticos/p1320-supplement.py\n?? 00_nucleo/diagnosticos/p1321-ab-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab-runner.cjs\n?? 00_nucleo/diagnosticos/p1321-ab2-baseline.json\n?? 00_nucleo/diagnosticos/p1321-ab2-candidate.json\n?? 00_nucleo/diagnosticos/p1321-ab2-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab2-expectations.json\n?? 00_nucleo/diagnosticos/p1321-ab2-freeze.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-cases.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-expectations.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-focal.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-freeze.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-full.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-measurement.json\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-receipt.md\n?? 00_nucleo/diagnosticos/p1321-ab2-r2-runner.py\n?? 00_nucleo/diagnosticos/p1321-ab2-receipt.md\n?? 00_nucleo/diagnosticos/p1321-ab2-runner.py\n?? 00_nucleo/diagnosticos/p1321-baseline.json\n?? 00_nucleo/diagnosticos/p1321-build.json\n?? 00_nucleo/diagnosticos/p1321-final-report.md\n?? 00_nucleo/diagnosticos/p1321-fmt.json\n?? 00_nucleo/diagnosticos/p1321-lineage-final.json\n?? 00_nucleo/diagnosticos/p1321-lineage.py\n?? 00_nucleo/diagnosticos/p1321-lint.json\n?? 00_nucleo/diagnosticos/p1321-measure.py\n?? 00_nucleo/diagnosticos/p1321-measurement.json\n?? 00_nucleo/diagnosticos/p1321-r2-baseline.json\n?? 00_nucleo/diagnosticos/p1321-r2-build.json\n?? 00_nucleo/diagnosticos/p1321-r2-diff-check.json\n?? 00_nucleo/diagnosticos/p1321-r2-fmt.json\n?? 00_nucleo/diagnosticos/p1321-r2-lineage-final.json\n?? 00_nucleo/diagnosticos/p1321-r2-lineage.py\n?? 00_nucleo/diagnosticos/p1321-r2-lint.json\n?? 00_nucleo/diagnosticos/p1321-r2-record.py\n?? 00_nucleo/diagnosticos/p1321-r2-reseal.json\n?? 00_nucleo/diagnosticos/p1321-r2-unit-green.json\n?? 00_nucleo/diagnosticos/p1321-r2-unit-red.json\n?? 00_nucleo/diagnosticos/p1321-r2-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1321-record.py\n?? 00_nucleo/diagnosticos/p1321-reseal.json\n?? 00_nucleo/diagnosticos/p1321-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1321-review-candidate-audit.json\n?? 00_nucleo/diagnosticos/p1321-review-candidate.md\n?? 00_nucleo/diagnosticos/p1321-review-final-r2.md\n?? 00_nucleo/diagnosticos/p1321-review-l0.md\n?? 00_nucleo/diagnosticos/p1321-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1321-review-prepatch-r2.md\n?? 00_nucleo/diagnosticos/p1321-review-prepatch.md\n?? 00_nucleo/diagnosticos/p1321-review-r2-ab-audit.json\n?? 00_nucleo/diagnosticos/p1321-review-r2-audit.cjs\n?? 00_nucleo/diagnosticos/p1321-review-r2-final-audit.json\n?? 00_nucleo/diagnosticos/p1321-review-reopen-r2.md\n?? 00_nucleo/diagnosticos/p1321-unit-green.json\n?? 00_nucleo/diagnosticos/p1321-unit-red.json\n?? 00_nucleo/diagnosticos/p1321-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1322-aggregate.json\n?? 00_nucleo/diagnosticos/p1322-aggregate.py\n?? 00_nucleo/diagnosticos/p1322-baseline.json\n?? 00_nucleo/diagnosticos/p1322-boundary-hypothesis-retraction.json\n?? 00_nucleo/diagnosticos/p1322-boundary-r2-freeze.json\n?? 00_nucleo/diagnosticos/p1322-boundary-r2.json\n?? 00_nucleo/diagnosticos/p1322-boundary-r2.py\n?? 00_nucleo/diagnosticos/p1322-build.json\n?? 00_nucleo/diagnosticos/p1322-classification-certification-debt.json\n?? 00_nucleo/diagnosticos/p1322-classification-cohorts.md\n?? 00_nucleo/diagnosticos/p1322-classification-correction.md\n?? 00_nucleo/diagnosticos/p1322-classification-final.cjs\n?? 00_nucleo/diagnosticos/p1322-classification-freeze.md\n?? 00_nucleo/diagnosticos/p1322-classification-functional-reconciliation.json\n?? 00_nucleo/diagnosticos/p1322-classification-owner-ledger.tsv\n?? 00_nucleo/diagnosticos/p1322-classification-plan.md\n?? 00_nucleo/diagnosticos/p1322-classification-prepare.cjs\n?? 00_nucleo/diagnosticos/p1322-classification-provisional.md\n?? 00_nucleo/diagnosticos/p1322-classification-query-hint-addendum-r2.md\n?? 00_nucleo/diagnosticos/p1322-classification-query-hint-addendum.md\n?? 00_nucleo/diagnosticos/p1322-classification-report.md\n?? 00_nucleo/diagnosticos/p1322-classification-selection-r2.cjs\n?? 00_nucleo/diagnosticos/p1322-classification-selection-r2.json\n?? 00_nucleo/diagnosticos/p1322-classification-selection.json\n?? 00_nucleo/diagnosticos/p1322-classification-source-lineage.json\n?? 00_nucleo/diagnosticos/p1322-classification-sources.json\n?? 00_nucleo/diagnosticos/p1322-classification-summary.json\n?? 00_nucleo/diagnosticos/p1322-classification-supplemental-ledger.tsv\n?? 00_nucleo/diagnosticos/p1322-classification-transitions.tsv\n?? 00_nucleo/diagnosticos/p1322-classification-transversal-ledger.tsv\n?? 00_nucleo/diagnosticos/p1322-close.py\n?? 00_nucleo/diagnosticos/p1322-closure.json\n?? 00_nucleo/diagnosticos/p1322-diff-check.json\n?? 00_nucleo/diagnosticos/p1322-fixtures/\n?? 00_nucleo/diagnosticos/p1322-fmt.json\n?? 00_nucleo/diagnosticos/p1322-inventory-author-receipt.json\n?? 00_nucleo/diagnosticos/p1322-inventory-crystalline-build.json\n?? 00_nucleo/diagnosticos/p1322-inventory-crystalline-default-r2.json\n?? 00_nucleo/diagnosticos/p1322-inventory-crystalline-default.json\n?? 00_nucleo/diagnosticos/p1322-inventory-crystalline-html-r2.json\n?? 00_nucleo/diagnosticos/p1322-inventory-crystalline-html.json\n?? 00_nucleo/diagnosticos/p1322-inventory-focal-validation.json\n?? 00_nucleo/diagnosticos/p1322-inventory-incident.json\n?? 00_nucleo/diagnosticos/p1322-inventory-observables-crystalline-default-r2.json\n?? 00_nucleo/diagnosticos/p1322-inventory-observables-crystalline-html-r2.json\n?? 00_nucleo/diagnosticos/p1322-inventory-observables-vanilla-default.json\n?? 00_nucleo/diagnosticos/p1322-inventory-observables-vanilla-html.json\n?? 00_nucleo/diagnosticos/p1322-inventory-reconciliation.json\n?? 00_nucleo/diagnosticos/p1322-inventory-runner-r1.py\n?? 00_nucleo/diagnosticos/p1322-inventory-runner-r2.py\n?? 00_nucleo/diagnosticos/p1322-inventory-runner.py\n?? 00_nucleo/diagnosticos/p1322-inventory-vanilla-build.json\n?? 00_nucleo/diagnosticos/p1322-inventory-vanilla-default.json\n?? 00_nucleo/diagnosticos/p1322-inventory-vanilla-html.json\n?? 00_nucleo/diagnosticos/p1322-inventory-vanilla-structural-input-default.json\n?? 00_nucleo/diagnosticos/p1322-inventory-vanilla-structural-input-html.json\n?? 00_nucleo/diagnosticos/p1322-lineage.json\n?? 00_nucleo/diagnosticos/p1322-lint.json\n?? 00_nucleo/diagnosticos/p1322-location-focal-freeze.json\n?? 00_nucleo/diagnosticos/p1322-location-focal.json\n?? 00_nucleo/diagnosticos/p1322-location-focal.py\n?? 00_nucleo/diagnosticos/p1322-manifest.json\n?? 00_nucleo/diagnosticos/p1322-matrix-normal.json\n?? 00_nucleo/diagnosticos/p1322-matrix-repeat.json\n?? 00_nucleo/diagnosticos/p1322-matrix-reverse.json\n?? 00_nucleo/diagnosticos/p1322-matrix.py\n?? 00_nucleo/diagnosticos/p1322-o-que-falta-para-paridade.md\n?? 00_nucleo/diagnosticos/p1322-probe-catalog.json\n?? 00_nucleo/diagnosticos/p1322-record.py\n?? 00_nucleo/diagnosticos/p1322-review-attacks-catalog-snapshot.py\n?? 00_nucleo/diagnosticos/p1322-review-attacks-catalog.json\n?? 00_nucleo/diagnosticos/p1322-review-attacks-runtime-snapshot.py\n?? 00_nucleo/diagnosticos/p1322-review-attacks-runtime.json\n?? 00_nucleo/diagnosticos/p1322-review-attacks-semantic-r0.py\n?? 00_nucleo/diagnosticos/p1322-review-attacks-semantic-r1.json\n?? 00_nucleo/diagnosticos/p1322-review-attacks-semantic.json\n?? 00_nucleo/diagnosticos/p1322-review-attacks.py\n?? 00_nucleo/diagnosticos/p1322-review-calibration-r1.md\n?? 00_nucleo/diagnosticos/p1322-review-channels-objection.md\n?? 00_nucleo/diagnosticos/p1322-review-channels.json\n?? 00_nucleo/diagnosticos/p1322-review-channels.py\n?? 00_nucleo/diagnosticos/p1322-review-check-catalog-snapshot.py\n?? 00_nucleo/diagnosticos/p1322-review-check-r2-snapshot.py\n?? 00_nucleo/diagnosticos/p1322-review-check-runtime-snapshot.py\n?? 00_nucleo/diagnosticos/p1322-review-check-transversal-r0.py\n?? 00_nucleo/diagnosticos/p1322-review-check.py\n?? 00_nucleo/diagnosticos/p1322-review-close.py\n?? 00_nucleo/diagnosticos/p1322-review-final.json\n?? 00_nucleo/diagnosticos/p1322-review-final.md\n?? 00_nucleo/diagnosticos/p1322-review-gates.json\n?? 00_nucleo/diagnosticos/p1322-review-plan.md\n?? 00_nucleo/diagnosticos/p1322-review-preflight.json\n?? 00_nucleo/diagnosticos/p1322-review-preservation-final.json\n?? 00_nucleo/diagnosticos/p1322-review-preservation.json\n?? 00_nucleo/diagnosticos/p1322-review-query-exit2-controls.json\n?? 00_nucleo/diagnosticos/p1322-review-query-exit2-policy.md\n?? 00_nucleo/diagnosticos/p1322-review-runtime-final.json\n?? 00_nucleo/diagnosticos/p1322-review-runtime-partial.json\n?? 00_nucleo/diagnosticos/p1322-review-selection-r2.json\n?? 00_nucleo/diagnosticos/p1322-review-selection-r2.py\n?? 00_nucleo/diagnosticos/p1322-review-semantic-calibration.md\n?? 00_nucleo/diagnosticos/p1322-review-semantic-final.json\n?? 00_nucleo/diagnosticos/p1322-review-semantic-r0.json\n?? 00_nucleo/diagnosticos/p1322-review-semantic-r0.py\n?? 00_nucleo/diagnosticos/p1322-review-semantic-r1.json\n?? 00_nucleo/diagnosticos/p1322-review-semantic-r1.py\n?? 00_nucleo/diagnosticos/p1322-review-semantic.py\n?? 00_nucleo/diagnosticos/p1322-review-supplement.json\n?? 00_nucleo/diagnosticos/p1322-review-transversal-r0.json\n?? 00_nucleo/diagnosticos/p1322-review-transversal-r2.json\n?? 00_nucleo/diagnosticos/p1322-runtime-freeze.json\n?? 00_nucleo/diagnosticos/p1322-sentinels-cases.json\n?? 00_nucleo/diagnosticos/p1322-sentinels-freeze.json\n?? 00_nucleo/diagnosticos/p1322-sentinels-normal.json\n?? 00_nucleo/diagnosticos/p1322-sentinels-repeat.json\n?? 00_nucleo/diagnosticos/p1322-sentinels-reverse.json\n?? 00_nucleo/diagnosticos/p1322-sentinels.py\n?? 00_nucleo/diagnosticos/p1322-transversal-cases.json\n?? 00_nucleo/diagnosticos/p1322-transversal-channels.json\n?? 00_nucleo/diagnosticos/p1322-transversal-channels.py\n?? 00_nucleo/diagnosticos/p1322-transversal-freeze.json\n?? 00_nucleo/diagnosticos/p1322-transversal-r2-freeze.json\n?? 00_nucleo/diagnosticos/p1322-transversal-r2.json\n?? 00_nucleo/diagnosticos/p1322-transversal-r2.py\n?? 00_nucleo/diagnosticos/p1322-transversal.json\n?? 00_nucleo/diagnosticos/p1322-transversal.py\n?? 00_nucleo/diagnosticos/p1322-visual-qa.json\n?? 00_nucleo/diagnosticos/p1322-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1323-ab-cli-r2.py\n?? 00_nucleo/diagnosticos/p1323-ab-cli.py\n?? 00_nucleo/diagnosticos/p1323-ab-frozen-suite-r2.json\n?? 00_nucleo/diagnosticos/p1323-ab-frozen-suite.json\n?? 00_nucleo/diagnosticos/p1323-ab-handoff-r2.md\n?? 00_nucleo/diagnosticos/p1323-ab-handoff.md\n?? 00_nucleo/diagnosticos/p1323-ab-pdf-focal-receipt.json\n?? 00_nucleo/diagnosticos/p1323-ab-pdf-focal.py\n?? 00_nucleo/diagnosticos/p1323-ab-process-receipt-r2.json\n?? 00_nucleo/diagnosticos/p1323-ab-process-receipt.json\n?? 00_nucleo/diagnosticos/p1323-ab-unit.rs\n?? 00_nucleo/diagnosticos/p1323-baseline-build.json\n?? 00_nucleo/diagnosticos/p1323-baseline.json\n?? 00_nucleo/diagnosticos/p1323-candidate-build.json\n?? 00_nucleo/diagnosticos/p1323-close.py\n?? 00_nucleo/diagnosticos/p1323-closure.json\n?? 00_nucleo/diagnosticos/p1323-final-diff-check-r2.json\n?? 00_nucleo/diagnosticos/p1323-final-diff-check.json\n?? 00_nucleo/diagnosticos/p1323-final-lineage-r2.json\n?? 00_nucleo/diagnosticos/p1323-final-lineage.json\n?? 00_nucleo/diagnosticos/p1323-final-lint.json\n?? 00_nucleo/diagnosticos/p1323-final-report.md\n?? 00_nucleo/diagnosticos/p1323-final-reseal-dry-run.json\n?? 00_nucleo/diagnosticos/p1323-fixtures/\n?? 00_nucleo/diagnosticos/p1323-fmt.json\n?? 00_nucleo/diagnosticos/p1323-manifest.json\n?? 00_nucleo/diagnosticos/p1323-obligation-freeze.json\n?? 00_nucleo/diagnosticos/p1323-reciprocal-correction.json\n?? 00_nucleo/diagnosticos/p1323-record.py\n?? 00_nucleo/diagnosticos/p1323-reseal-dry-run.json\n?? 00_nucleo/diagnosticos/p1323-reseal-l0.json\n?? 00_nucleo/diagnosticos/p1323-review-audit-r1.cjs\n?? 00_nucleo/diagnosticos/p1323-review-audit-r2.cjs\n?? 00_nucleo/diagnosticos/p1323-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1323-review-candidate-audit.json\n?? 00_nucleo/diagnosticos/p1323-review-final-audit.json\n?? 00_nucleo/diagnosticos/p1323-review-final.md\n?? 00_nucleo/diagnosticos/p1323-review-l0.md\n?? 00_nucleo/diagnosticos/p1323-review-process-r0.md\n?? 00_nucleo/diagnosticos/p1323-review-red.md\n?? 00_nucleo/diagnosticos/p1323-seam-build.json\n?? 00_nucleo/diagnosticos/p1323-seam-check.py\n?? 00_nucleo/diagnosticos/p1323-seam-preservation.json\n?? 00_nucleo/diagnosticos/p1323-target-fallback.json\n?? 00_nucleo/diagnosticos/p1323-unit-green.json\n?? 00_nucleo/diagnosticos/p1323-unit-red.json\n?? 00_nucleo/diagnosticos/p1323-workspace-tests.json\n?? 00_nucleo/diagnosticos/p1324-ab-baseline-findings.md\n?? 00_nucleo/diagnosticos/p1324-ab-baseline-focal-v2.json\n?? 00_nucleo/diagnosticos/p1324-ab-baseline-instrumentation-failure.json\n?? 00_nucleo/diagnosticos/p1324-ab-baseline-v2.json\n?? 00_nucleo/diagnosticos/p1324-ab-cases-v3.json\n?? 00_nucleo/diagnosticos/p1324-ab-cases.json\n?? 00_nucleo/diagnosticos/p1324-ab-freeze-v2.json\n?? 00_nucleo/diagnosticos/p1324-ab-freeze.json\n?? 00_nucleo/diagnosticos/p1324-ab-instrumentation-v2.md\n?? 00_nucleo/diagnosticos/p1324-ab-obligation.md\n?? 00_nucleo/diagnosticos/p1324-ab-oracle-v2.json\n?? 00_nucleo/diagnosticos/p1324-ab-oracle.json\n?? 00_nucleo/diagnosticos/p1324-ab-runner-v2.py\n?? 00_nucleo/diagnosticos/p1324-ab-runner-v3.py\n?? 00_nucleo/diagnosticos/p1324-ab-runner.py\n?? 00_nucleo/diagnosticos/p1324-ab-unit-freeze.json\n?? 00_nucleo/diagnosticos/p1324-ab-unit-snippet.rs\n?? 00_nucleo/diagnosticos/p1324-baseline.json\n?? 00_nucleo/diagnosticos/p1324-candidate-build.json\n?? 00_nucleo/diagnosticos/p1324-final-report.md\n?? 00_nucleo/diagnosticos/p1324-final-reseal-dry-run.json\n?? 00_nucleo/diagnosticos/p1324-fmt.json\n?? 00_nucleo/diagnosticos/p1324-format-owner.json\n?? 00_nucleo/diagnosticos/p1324-manifest.json\n?? 00_nucleo/diagnosticos/p1324-preflight.json\n?? 00_nucleo/diagnosticos/p1324-record.py\n?? 00_nucleo/diagnosticos/p1324-reseal-dry-run.json\n?? 00_nucleo/diagnosticos/p1324-reseal-l0.json\n?? 00_nucleo/diagnosticos/p1324-review-ab-reopen.md\n?? 00_nucleo/diagnosticos/p1324-review-audit.cjs\n?? 00_nucleo/diagnosticos/p1324-review-candidate-audit.json\n?? 00_nucleo/diagnosticos/p1324-review-l0.md\n?? 00_nucleo/diagnosticos/p1324-review-preflight.cjs\n?? 00_nucleo/diagnosticos/p1324-review-preflight.json\n?? 00_nucleo/diagnosticos/p1324-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1324-review-prepatch-audit.json\n?? 00_nucleo/diagnosticos/p1324-review-red.md\n?? 00_nucleo/diagnosticos/p1324-test-integration.json\n?? 00_nucleo/diagnosticos/p1324-test-succession.json\n?? 00_nucleo/diagnosticos/p1324-unit-green.json\n?? 00_nucleo/diagnosticos/p1324-unit-red-r2.json\n?? 00_nucleo/diagnosticos/p1324-unit-red.json\n?? 00_nucleo/materialization/typst-passo-1319.md\n?? 00_nucleo/materialization/typst-passo-1320.md\n?? 00_nucleo/materialization/typst-passo-1321.md\n?? 00_nucleo/materialization/typst-passo-1322.md\n?? 00_nucleo/materialization/typst-passo-1323.md\n?? 00_nucleo/materialization/typst-passo-1324.md\n",
+  "runs": [
+    {
+      "case": "table-present-call",
+      "profile": "default",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "(type(table.cell), repr(table.cell), table.cell[ok].body)"
+      ],
+      "started": "2026-09-09T00:23:14.788234+00:00",
+      "execution": "complete",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: table.cell does not have field \"body\"\n  ┌─ <input-expression>:1:37\n  │\n1 │ (type(table.cell), repr(table.cell), table.cell[ok].body)\n  │                                      ^^^^^^^^^^^^^^^^^^^\n\n",
+      "seconds": 0.09248806201503612,
+      "ended": "2026-09-09T00:23:14.880738+00:00",
+      "shape_expected": "error",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Violated",
+        "differences": [
+          "exit",
+          "stdout",
+          "stderr"
+        ]
+      }
+    },
+    {
+      "case": "with-present-call",
+      "profile": "default",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }"
+      ],
+      "started": "2026-09-09T00:23:14.880772+00:00",
+      "execution": "complete",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: table.cell does not have field \"body\"\n  ┌─ <input-expression>:1:70\n  │\n1 │ { let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }\n  │                                                                       ^^^^^^^^^^^^^^^\n\n",
+      "seconds": 0.09004511899547651,
+      "ended": "2026-09-09T00:23:14.970824+00:00",
+      "shape_expected": "error",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Violated",
+        "differences": [
+          "exit",
+          "stdout",
+          "stderr"
+        ]
+      }
+    },
+    {
+      "case": "table-direct-kind-call",
+      "profile": "default",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "(type(table.cell), repr(table.cell), type(table.cell[ok]))"
+      ],
+      "started": "2026-09-09T00:23:14.970857+00:00",
+      "execution": "complete",
+      "exit": 0,
+      "stdout": "[\"function\",\"cell\",\"content\"]\n",
+      "stderr": "",
+      "seconds": 0.0921885050192941,
+      "ended": "2026-09-09T00:23:15.063052+00:00",
+      "shape_expected": "success",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Unknown",
+        "reason": "missing_or_incomplete_observable"
+      }
+    },
+    {
+      "case": "table-with-kind-call",
+      "profile": "default",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), type(x.cell[ok])) }"
+      ],
+      "started": "2026-09-09T00:23:15.063084+00:00",
+      "execution": "complete",
+      "exit": 0,
+      "stdout": "[\"function\",\"cell\",\"content\"]\n",
+      "stderr": "",
+      "seconds": 0.09222017400315963,
+      "ended": "2026-09-09T00:23:15.155310+00:00",
+      "shape_expected": "success",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Unknown",
+        "reason": "missing_or_incomplete_observable"
+      }
+    },
+    {
+      "case": "table-present-call",
+      "profile": "html",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "(type(table.cell), repr(table.cell), table.cell[ok].body)"
+      ],
+      "started": "2026-09-09T00:23:15.155343+00:00",
+      "execution": "complete",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: table.cell does not have field \"body\"\n  ┌─ <input-expression>:1:37\n  │\n1 │ (type(table.cell), repr(table.cell), table.cell[ok].body)\n  │                                      ^^^^^^^^^^^^^^^^^^^\n\n",
+      "seconds": 0.09221417299704626,
+      "ended": "2026-09-09T00:23:15.247565+00:00",
+      "shape_expected": "error",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Violated",
+        "differences": [
+          "exit",
+          "stdout",
+          "stderr"
+        ]
+      }
+    },
+    {
+      "case": "with-present-call",
+      "profile": "html",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }"
+      ],
+      "started": "2026-09-09T00:23:15.247616+00:00",
+      "execution": "complete",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: table.cell does not have field \"body\"\n  ┌─ <input-expression>:1:70\n  │\n1 │ { let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }\n  │                                                                       ^^^^^^^^^^^^^^^\n\n",
+      "seconds": 0.092519080004422,
+      "ended": "2026-09-09T00:23:15.340144+00:00",
+      "shape_expected": "error",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Violated",
+        "differences": [
+          "exit",
+          "stdout",
+          "stderr"
+        ]
+      }
+    },
+    {
+      "case": "table-direct-kind-call",
+      "profile": "html",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "(type(table.cell), repr(table.cell), type(table.cell[ok]))"
+      ],
+      "started": "2026-09-09T00:23:15.340179+00:00",
+      "execution": "complete",
+      "exit": 0,
+      "stdout": "[\"function\",\"cell\",\"content\"]\n",
+      "stderr": "",
+      "seconds": 0.09389670999371447,
+      "ended": "2026-09-09T00:23:15.434083+00:00",
+      "shape_expected": "success",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Unknown",
+        "reason": "missing_or_incomplete_observable"
+      }
+    },
+    {
+      "case": "table-with-kind-call",
+      "profile": "html",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html",
+        "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), type(x.cell[ok])) }"
+      ],
+      "started": "2026-09-09T00:23:15.434113+00:00",
+      "execution": "complete",
+      "exit": 0,
+      "stdout": "[\"function\",\"cell\",\"content\"]\n",
+      "stderr": "",
+      "seconds": 0.09479808702599257,
+      "ended": "2026-09-09T00:23:15.528918+00:00",
+      "shape_expected": "success",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Unknown",
+        "reason": "missing_or_incomplete_observable"
+      }
+    },
+    {
+      "case": "table-present-call",
+      "profile": "a11y",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "(type(table.cell), repr(table.cell), table.cell[ok].body)"
+      ],
+      "started": "2026-09-09T00:23:15.528957+00:00",
+      "execution": "complete",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: table.cell does not have field \"body\"\n  ┌─ <input-expression>:1:37\n  │\n1 │ (type(table.cell), repr(table.cell), table.cell[ok].body)\n  │                                      ^^^^^^^^^^^^^^^^^^^\n\n",
+      "seconds": 0.09196366701507941,
+      "ended": "2026-09-09T00:23:15.620929+00:00",
+      "shape_expected": "error",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Violated",
+        "differences": [
+          "exit",
+          "stdout",
+          "stderr"
+        ]
+      }
+    },
+    {
+      "case": "with-present-call",
+      "profile": "a11y",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }"
+      ],
+      "started": "2026-09-09T00:23:15.620971+00:00",
+      "execution": "complete",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: table.cell does not have field \"body\"\n  ┌─ <input-expression>:1:70\n  │\n1 │ { let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }\n  │                                                                       ^^^^^^^^^^^^^^^\n\n",
+      "seconds": 0.09124360801069997,
+      "ended": "2026-09-09T00:23:15.712223+00:00",
+      "shape_expected": "error",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Violated",
+        "differences": [
+          "exit",
+          "stdout",
+          "stderr"
+        ]
+      }
+    },
+    {
+      "case": "table-direct-kind-call",
+      "profile": "a11y",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "(type(table.cell), repr(table.cell), type(table.cell[ok]))"
+      ],
+      "started": "2026-09-09T00:23:15.712269+00:00",
+      "execution": "complete",
+      "exit": 0,
+      "stdout": "[\"function\",\"cell\",\"content\"]\n",
+      "stderr": "",
+      "seconds": 0.0954395690059755,
+      "ended": "2026-09-09T00:23:15.807717+00:00",
+      "shape_expected": "success",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Unknown",
+        "reason": "missing_or_incomplete_observable"
+      }
+    },
+    {
+      "case": "table-with-kind-call",
+      "profile": "a11y",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "a11y-extras",
+        "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), type(x.cell[ok])) }"
+      ],
+      "started": "2026-09-09T00:23:15.807750+00:00",
+      "execution": "complete",
+      "exit": 0,
+      "stdout": "[\"function\",\"cell\",\"content\"]\n",
+      "stderr": "",
+      "seconds": 0.09345117199700326,
+      "ended": "2026-09-09T00:23:15.901208+00:00",
+      "shape_expected": "success",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Unknown",
+        "reason": "missing_or_incomplete_observable"
+      }
+    },
+    {
+      "case": "table-present-call",
+      "profile": "html+a11y",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "(type(table.cell), repr(table.cell), table.cell[ok].body)"
+      ],
+      "started": "2026-09-09T00:23:15.901242+00:00",
+      "execution": "complete",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: table.cell does not have field \"body\"\n  ┌─ <input-expression>:1:37\n  │\n1 │ (type(table.cell), repr(table.cell), table.cell[ok].body)\n  │                                      ^^^^^^^^^^^^^^^^^^^\n\n",
+      "seconds": 0.0926910589914769,
+      "ended": "2026-09-09T00:23:15.993939+00:00",
+      "shape_expected": "error",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Violated",
+        "differences": [
+          "exit",
+          "stdout",
+          "stderr"
+        ]
+      }
+    },
+    {
+      "case": "with-present-call",
+      "profile": "html+a11y",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }"
+      ],
+      "started": "2026-09-09T00:23:15.993975+00:00",
+      "execution": "complete",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: table.cell does not have field \"body\"\n  ┌─ <input-expression>:1:70\n  │\n1 │ { let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }\n  │                                                                       ^^^^^^^^^^^^^^^\n\n",
+      "seconds": 0.09250590499141254,
+      "ended": "2026-09-09T00:23:16.086487+00:00",
+      "shape_expected": "error",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Violated",
+        "differences": [
+          "exit",
+          "stdout",
+          "stderr"
+        ]
+      }
+    },
+    {
+      "case": "table-direct-kind-call",
+      "profile": "html+a11y",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "(type(table.cell), repr(table.cell), type(table.cell[ok]))"
+      ],
+      "started": "2026-09-09T00:23:16.086522+00:00",
+      "execution": "complete",
+      "exit": 0,
+      "stdout": "[\"function\",\"cell\",\"content\"]\n",
+      "stderr": "",
+      "seconds": 0.09349554500658996,
+      "ended": "2026-09-09T00:23:16.180025+00:00",
+      "shape_expected": "success",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Unknown",
+        "reason": "missing_or_incomplete_observable"
+      }
+    },
+    {
+      "case": "table-with-kind-call",
+      "profile": "html+a11y",
+      "order": "normal",
+      "argv": [
+        "/tmp/p1323-target.9NrOxY/release/typst",
+        "eval",
+        "--format",
+        "json",
+        "--features",
+        "html,a11y-extras",
+        "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), type(x.cell[ok])) }"
+      ],
+      "started": "2026-09-09T00:23:16.180056+00:00",
+      "execution": "complete",
+      "exit": 0,
+      "stdout": "[\"function\",\"cell\",\"content\"]\n",
+      "stderr": "",
+      "seconds": 0.0924009699956514,
+      "ended": "2026-09-09T00:23:16.272463+00:00",
+      "shape_expected": "success",
+      "shape_ok": true,
+      "vs_vanilla": {
+        "status": "Unknown",
+        "reason": "missing_or_incomplete_observable"
+      }
+    }
+  ],
+  "ended": "2026-09-09T00:23:16.272493+00:00",
+  "seconds": 1.5805115120019764,
+  "processes": 16,
+  "counts": {
+    "obligation": {},
+    "vs_vanilla": {
+      "Violated": 8,
+      "Unknown": 8
+    },
+    "vs_baseline": {},
+    "stability": {}
+  },
+  "unexpected_shape": []
+}

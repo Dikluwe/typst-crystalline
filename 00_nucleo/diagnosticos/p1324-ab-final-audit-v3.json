@@ -1,0 +1,102 @@
+{
+  "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d",
+  "freeze_sha256": "be00d384f31ecbd25f2db69727432ee6f9af26ea0befc7cdc1705df0861914bd",
+  "candidate_receipt_sha256": "0a9ef0dc59229a575690b003b786a8642c1c2d4339e5eed5519c0fa7485fbb72",
+  "candidate_binary_sha256": "c5c9aa39c8b7053a19f53bf9f37c8d3731a4081683a51cf8ca5e9e9c0197d2f7",
+  "checks": [
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-cases-v3.json",
+      "expected": "d5d41138b5cb008bc842a0e4116e111f2c47aa74c3082d1188425080c1dc4843",
+      "actual": "d5d41138b5cb008bc842a0e4116e111f2c47aa74c3082d1188425080c1dc4843",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-runner-v3.py",
+      "expected": "82592b4b38ac0c8e3a3b0c38b7547a3caf848fc565064041990810ed36763b50",
+      "actual": "82592b4b38ac0c8e3a3b0c38b7547a3caf848fc565064041990810ed36763b50",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-obligation.md",
+      "expected": "d230bafe5b6759381ac3c531ff9d9cbc6e4f9941da27f11e39662edad0eeaea4",
+      "actual": "d230bafe5b6759381ac3c531ff9d9cbc6e4f9941da27f11e39662edad0eeaea4",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-obligation-v3.md",
+      "expected": "344712ee5790d1ef269a05260732058a3796b68fcbf47127b4bb3bf4d0bd835e",
+      "actual": "344712ee5790d1ef269a05260732058a3796b68fcbf47127b4bb3bf4d0bd835e",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-unit-snippet.rs",
+      "expected": "b1b612f6169ae2efbb659a7018838a85493fe6e9d0f284f8388c08bdb2ae8cd8",
+      "actual": "b1b612f6169ae2efbb659a7018838a85493fe6e9d0f284f8388c08bdb2ae8cd8",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-unit-freeze.json",
+      "expected": "0275459c5b4f4397a1dc6c94afd5542ad281693c534df5d2fcca5f68da9165cb",
+      "actual": "0275459c5b4f4397a1dc6c94afd5542ad281693c534df5d2fcca5f68da9165cb",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-oracle-v3.json",
+      "expected": "726638ec6145ae09ea1d7214aa1e7dd0066a6d41256326f4b63a5bc9206fd70b",
+      "actual": "726638ec6145ae09ea1d7214aa1e7dd0066a6d41256326f4b63a5bc9206fd70b",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-baseline-v3.json",
+      "expected": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7",
+      "actual": "c801a63f8df6718a67a2066eaaf6bfebf56f53f4caf4e0114f80604954b998b7",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-oracle-focal-v3.json",
+      "expected": "84639615a1afcfb6321fb41890147222e5b4fc63f0abf101febe3a46632a11e4",
+      "actual": "84639615a1afcfb6321fb41890147222e5b4fc63f0abf101febe3a46632a11e4",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-ab-baseline-focal-v3.json",
+      "expected": "454c1dd8247587b0651015b4da9c6e78819e3a1af2f51d36f02f1aca6cf3d04d",
+      "actual": "454c1dd8247587b0651015b4da9c6e78819e3a1af2f51d36f02f1aca6cf3d04d",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1324-review-ab-reopen.md",
+      "expected": "81ec01d622f94064c0c2d91e52fc4439f152df3b66e3f9d61c994b1f04c29469",
+      "actual": "81ec01d622f94064c0c2d91e52fc4439f152df3b66e3f9d61c994b1f04c29469",
+      "unchanged": true
+    }
+  ],
+  "byrule": {
+    "vanilla": {
+      "Preserved": 348,
+      "Violated": 12
+    },
+    "baseline": {
+      "Preserved": 240
+    }
+  },
+  "observations": {
+    "obligation": {
+      "Preserved": 588,
+      "Violated": 12
+    },
+    "vs_vanilla": {
+      "Preserved": 480,
+      "Violated": 120
+    },
+    "vs_baseline": {
+      "Violated": 204,
+      "Preserved": 396
+    },
+    "stability": {
+      "Preserved": 400
+    }
+  },
+  "unexpected_shapes": [],
+  "note": "Evidence for separate reviewer; not final verdict. Order-of-evaluation case is unresolved contract/scope issue and remains Violated in frozen V3."
+}

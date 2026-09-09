@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 5a601982
+Hash do Código: c4567498
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -198,6 +198,70 @@ ausentes e demais dívidas.
 #[= T].fields()                             → dicionário com level e body
 #(1).foo                                    → Err (nomeia "integer")
 ```
+
+## P1324 — field ausente em nativa com namespace
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1324-baseline.json`, SHA-256
+`8684dabd1370997232a61bc58a48a99528718e49ec0e81962eb14c70b3769b4d`,
+registra a medição fresca sobre HEAD
+`d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitada,
+diff/stat, UTC, fontes e binários. Vanilla ratificado upstream `a51e02804`,
+SHA-256 `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`:
+`json.nope` publica ``function `json` does not contain field `nope` `` e
+marca somente `nope`; cristalino publica `function does not contain field
+"nope"` e marca o acesso inteiro. yaml/toml/cbor/assert/table, alias, With
+aninhado e callee confirmam a mesma classe. csv sem namespace e closure
+nomeada foram medidos separadamente, sem fundir suas categorias.
+
+`01_core/src/compiler/eval/bindings/field_access.rs:181–195,271–277,420–435`
+restringe a projeção nominal/field-only às nativas None e usa mensagem
+legada no lookup Some ausente. `entities/func.rs:291–302,355–365` já conserva
+nome e namespace através de With. Vanilla
+`lab/typst-original/crates/typst-library/src/foundations/func.rs:291–308`
+constrói erro a partir do nome da função, enquanto
+`lab/typst-original/crates/typst-eval/src/code.rs:347–366` passa field.span().
+
+### Obrigação e sucessão delimitada
+
+Para Native ou NativeWithEngine com namespace Some, vazio ou populado, campo
+ausente produz exatamente ``function `<nome-público>` does not contain field
+`<field>` ``. With, inclusive aninhado, conserva a categoria e o nome da
+função subjacente; o nome público é o último segmento do nome qualificado,
+nunca o alias lexical, um nome de fixture ou uma lista fechada de funções.
+O acesso AST usa somente access.field().span(), também com parênteses,
+multilinha e como callee. O lookup puro conserva integralmente o span recebido.
+Erro único, sem novos hints/laterais; manter traces causais e ordem de avaliação.
+
+Esta obrigação substitui expressamente a proteção P1311 de mensagem e span
+vigentes para namespace Some AUSENTE, inclusive a expectativa correspondente
+do teste anterior. Seus controles de lookup presente permanecem; Some vazio
+continua diferente de None como dado, sem fabricar um namespace. A promessa
+P1311 para Native/NativeWithEngine None permanece idêntica. Um helper privado
+pode projetar o nome nativo para ambos os casos atravessando With, sem mudar
+Func, Scope, argumentos ou assinatura/visibilidade pública.
+
+Preservar binding/valor/kind/chamada de fields presentes. Closure, Plugin e
+Element de usuário não se tornam nativas por terem nome; mensagens e spans
+dessas categorias permanecem. Module/PDF features e hints, Dict, Type,
+Content/LocatedContent snapshot, float/is-nan, text contextual e warnings
+mantêm as obrigações vigentes. Não generalizar field-only a outras categorias,
+não criar membro, encoder, fallback ou formatter, não mudar fases nem defaults.
+
+Texto e origem diagnóstica são língua sob ADR-0107/0108; enum/algoritmo Rust
+são mecanismo. A intenção é completar o contrato nominal de lookup nativo
+deste owner, não atribuir intenção histórica ao comportamento observado.
+É inferência que nome/categoria/AST existentes bastam; nome incompatível,
+origem irrecuperável, novo owner/API/default/fase refutam-na e reabrem o escopo.
+Correção interna ADR-0127: L0 primeiro, resselo, RED→GREEN e revalidação.
+
+Aceitação exige testes independentes e processos bilaterais: namespaces
+vazios/populados, ambas as categorias nativas, nomes qualificados, alias e
+With, leitura/chamada ausente, identificadores e deslocamentos distintos,
+sucessos pareados e negativos das categorias excluídas. Perfis default/html/
+a11y/html+a11y, repetição e inversão conservam o vetor. Unknown obrigatório
+nunca é sucesso; não declarar paridade geral de funções ou fields.
 
 ## P1291.cancel-angle-runtime — `text.size` contextual
 

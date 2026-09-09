@@ -1,0 +1,21 @@
+{
+  "at": "2026-09-09T00:13:45Z",
+  "author": "/root/p1324_tests",
+  "manifest_sha256": "414bdf11ea6cc34565e8db0dbc4fb7966685d62abbd41195f40a3ae1ea985a2d",
+  "prompt_normative_sha256": "4b85d3606fc3dc9e1390449bb856b0fcde5959b644294ba6f728c04b33f807c3",
+  "nucleus_sha256": "5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24",
+  "regime": "A/B without technical isolation attestation; no refinement seal",
+  "causal_order": "Complete L0 -> public contracts -> frozen unit snippet -> vanilla CLI oracle plus observable-copy calibration -> this freeze. No owner source/diff or baseline/candidate output read by author. Candidate source not authored at time root last reported; root may start implementation only after this freeze.",
+  "vanilla_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+  "baseline_binary_sha256": "f0b251746274d537c63929ab357b0e84e0e0955c7986d58621d83a0ce3a4e5ee",
+  "calibration": {"processes":192, "seconds":1.2793792189913802, "positive_copies":2, "valid_observable_mutations":15, "rejected":15, "opaque_unknown":1, "revisions":0, "delta":"Initial discrimination established; no candidate-directed adjustment"},
+  "preparatory_vanilla_cost": {"help_processes":1, "exploratory_eval_processes":5, "invalid_proposal":"json.decode does not exist in ratified vanilla; not retained as positive case"},
+  "protected": [
+    {"path":"00_nucleo/diagnosticos/p1324-ab-cases.json", "sha256":"de049b325d6ea74faa29c7fbdb82300fba668be99bd8d6852ea3e62c1156889d"},
+    {"path":"00_nucleo/diagnosticos/p1324-ab-runner.py", "sha256":"bcf0b99d3e3a5500b5bcada18dcb70ff574d15667bb86a9cafde43a2279e2427"},
+    {"path":"00_nucleo/diagnosticos/p1324-ab-obligation.md", "sha256":"d230bafe5b6759381ac3c531ff9d9cbc6e4f9941da27f11e39662edad0eeaea4"},
+    {"path":"00_nucleo/diagnosticos/p1324-ab-unit-snippet.rs", "sha256":"b1b612f6169ae2efbb659a7018838a85493fe6e9d0f284f8388c08bdb2ae8cd8"},
+    {"path":"00_nucleo/diagnosticos/p1324-ab-unit-freeze.json", "sha256":"0275459c5b4f4397a1dc6c94afd5542ad281693c534df5d2fcca5f68da9165cb"},
+    {"path":"00_nucleo/diagnosticos/p1324-ab-oracle.json", "sha256":"436f01fb3657a5cc21915b970ca8dfe38bef141b6b661ba747ae4d2737f9d262"}
+  ]
+}

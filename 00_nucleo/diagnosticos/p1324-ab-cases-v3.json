@@ -1,0 +1,331 @@
+{
+  "version": 3,
+  "profiles": {
+    "default": [],
+    "html": [
+      "html"
+    ],
+    "a11y": [
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "html",
+      "a11y-extras"
+    ]
+  },
+  "cases": [
+    {
+      "id": "json-read",
+      "expr": "json.nope",
+      "rule": "vanilla",
+      "expect": "error",
+      "focal": true
+    },
+    {
+      "id": "yaml-read",
+      "expr": "yaml.absent_1324",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "toml-read",
+      "expr": "toml.unlisted",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "cbor-read",
+      "expr": "cbor.zeta",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "assert-read",
+      "expr": "assert.unknown_name",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "table-read",
+      "expr": "table.no_such_member",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "grid-read",
+      "expr": "grid.unregistered",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "json-callee",
+      "expr": "json.nope(41)",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "json-callee-before-argument",
+      "expr": "json.nope(panic(\"argument-must-not-run\"))",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "json-alias",
+      "expr": "{ let pretender = json; pretender.other_field }",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "yaml-shadow-name",
+      "expr": "{ let json = yaml; json.nope }",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "table-with",
+      "expr": "table.with(columns: 2).unexpected",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "json-with-nested",
+      "expr": "{ let renamed = json.with().with().with(); renamed.absent_1324(1) }",
+      "rule": "vanilla",
+      "expect": "error",
+      "focal": true
+    },
+    {
+      "id": "toml-parentheses",
+      "expr": "(((toml))).absent",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "json-multiline",
+      "expr": "{\n  let encoded = json;\n  (encoded)\n    .a_long_absent_field\n}",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "json-multiline-callee",
+      "expr": "(\n  json\n).missing_member(\n  9\n)",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "yaml-call-trace",
+      "expr": "{ let relay() = yaml.missing_xyz; relay() }",
+      "rule": "vanilla",
+      "expect": "error",
+      "focal": true
+    },
+    {
+      "id": "cbor-two-traces",
+      "expr": "{ let inner() = cbor.gone; let outer() = inner(); outer() }",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "none-csv",
+      "expr": "csv.encode",
+      "rule": "vanilla",
+      "expect": "error",
+      "focal": true
+    },
+    {
+      "id": "none-qualified-abs",
+      "expr": "calc.abs.unavailable",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "none-alias-with",
+      "expr": "{ let x = csv.with().with(); x.another }",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "none-qualified-callee",
+      "expr": "(calc.abs).unavailable(1)",
+      "rule": "vanilla",
+      "expect": "error"
+    },
+    {
+      "id": "json-present-call",
+      "expr": "(type(json.encode), repr(json.encode), json.encode(42))",
+      "rule": "vanilla",
+      "expect": "success",
+      "focal": true
+    },
+    {
+      "id": "yaml-present-call",
+      "expr": "(type(yaml.encode), repr(yaml.encode), yaml.encode((x: 7)))",
+      "rule": "vanilla",
+      "expect": "success"
+    },
+    {
+      "id": "toml-present-call",
+      "expr": "(type(toml.encode), repr(toml.encode), toml.encode((x: 7)))",
+      "rule": "vanilla",
+      "expect": "success"
+    },
+    {
+      "id": "cbor-present-call",
+      "expr": "(type(cbor.encode), repr(cbor.encode), cbor.encode(42) == bytes((24, 42)))",
+      "rule": "vanilla",
+      "expect": "success"
+    },
+    {
+      "id": "assert-present-call",
+      "expr": "(type(assert.eq), repr(assert.eq), assert.eq(7, 7))",
+      "rule": "vanilla",
+      "expect": "success"
+    },
+    {
+      "id": "table-present-call",
+      "expr": "(type(table.cell), repr(table.cell), table.cell[ok].body)",
+      "rule": "baseline",
+      "expect": "error",
+      "oracle_expect": "success",
+      "reclassified": "Content .body outside P1324; baseline failure preserved"
+    },
+    {
+      "id": "with-present-call",
+      "expr": "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), x.cell[ok].body) }",
+      "rule": "baseline",
+      "expect": "error",
+      "oracle_expect": "success",
+      "reclassified": "Content .body outside P1324; baseline failure preserved"
+    },
+    {
+      "id": "json-alias-present-call",
+      "expr": "{ let renamed = json; renamed.encode(42) }",
+      "rule": "vanilla",
+      "expect": "success"
+    },
+    {
+      "id": "closure-named",
+      "expr": "{ let json(x) = x; json.nope }",
+      "rule": "baseline",
+      "expect": "error",
+      "focal": true
+    },
+    {
+      "id": "closure-anonymous",
+      "expr": "(x => x).missing",
+      "rule": "baseline",
+      "expect": "error"
+    },
+    {
+      "id": "closure-with",
+      "expr": "{ let table(x) = x; table.with(7).with().missing(3) }",
+      "rule": "baseline",
+      "expect": "error"
+    },
+    {
+      "id": "closure-positive",
+      "expr": "{ let json(x) = x; json.with(7)() }",
+      "rule": "baseline",
+      "expect": "success"
+    },
+    {
+      "id": "dictionary-negative",
+      "expr": "{ let d = (exists: 1); d.absent }",
+      "rule": "baseline",
+      "expect": "error",
+      "focal": true
+    },
+    {
+      "id": "dictionary-positive",
+      "expr": "{ let d = (exists: 1); d.exists }",
+      "rule": "baseline",
+      "expect": "success"
+    },
+    {
+      "id": "type-negative",
+      "expr": "int.missing",
+      "rule": "baseline",
+      "expect": "error"
+    },
+    {
+      "id": "type-positive",
+      "expr": "int.max",
+      "rule": "baseline",
+      "expect": "success"
+    },
+    {
+      "id": "content-negative",
+      "expr": "strong[ok].absent",
+      "rule": "baseline",
+      "expect": "error"
+    },
+    {
+      "id": "content-positive",
+      "expr": "strong[ok].body",
+      "rule": "baseline",
+      "expect": "success"
+    },
+    {
+      "id": "float-is-nan",
+      "expr": "float(\"NaN\").is-nan",
+      "rule": "baseline",
+      "expect": "error"
+    },
+    {
+      "id": "float-is-nan-call",
+      "expr": "float(\"NaN\").is-nan()",
+      "rule": "baseline",
+      "expect": "success"
+    },
+    {
+      "id": "module-negative",
+      "expr": "calc.missing",
+      "rule": "baseline",
+      "expect": "error"
+    },
+    {
+      "id": "module-positive",
+      "expr": "calc.abs(-3)",
+      "rule": "baseline",
+      "expect": "success"
+    },
+    {
+      "id": "pdf-feature-data-cell",
+      "expr": "(type(pdf.data-cell), repr(pdf.data-cell))",
+      "rule": "baseline",
+      "expect": "feature"
+    },
+    {
+      "id": "pdf-feature-header-cell",
+      "expr": "(type(pdf.header-cell), repr(pdf.header-cell))",
+      "rule": "baseline",
+      "expect": "feature"
+    },
+    {
+      "id": "pdf-feature-table-summary",
+      "expr": "(type(pdf.table-summary), repr(pdf.table-summary))",
+      "rule": "baseline",
+      "expect": "feature"
+    },
+    {
+      "id": "text-contextual-preservation",
+      "expr": "repr(context text.size)",
+      "rule": "baseline",
+      "expect": "success"
+    },
+    {
+      "id": "table-direct-kind-call",
+      "expr": "(type(table.cell), repr(table.cell), type(table.cell[ok]))",
+      "rule": "vanilla",
+      "expect": "success",
+      "focal": true
+    },
+    {
+      "id": "table-with-kind-call",
+      "expr": "{ let x = table.with(columns: 2).with(); (type(x.cell), repr(x.cell), type(x.cell[ok])) }",
+      "rule": "vanilla",
+      "expect": "success",
+      "focal": true
+    }
+  ]
+}
