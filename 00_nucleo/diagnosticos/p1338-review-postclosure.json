@@ -1,0 +1,35 @@
+{
+  "at": "2026-09-09T20:35:06.858Z",
+  "phase": "postclosure",
+  "verdict": "PASS_SCOPED",
+  "violations": [],
+  "unknowns": [],
+  "checks": 10263,
+  "counts": {
+    "final_inputs": 85,
+    "closure_artifacts": 73,
+    "historical": 5203,
+    "prior_temporaries": 499,
+    "mutant_retained": 25,
+    "prior_exports": 441,
+    "product_state": 3912
+  },
+  "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093",
+  "step": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/materialization/typst-passo-1338.md",
+    "sha256": "1e1f3e209a997ca02bb6563514879b3df011eb7e4d21b7d7729dfefb103be8aa",
+    "verification": "Root-reported metadata only; reviewer did not read or hash the step."
+  },
+  "limitations": "No product gates or retained test binaries rerun. Closure, final inputs, inventories and retained artifacts verified read-only; all scoped final limitations remain.",
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-closure.json": "38bbe304bc2762bc986e1492859dbfcd7bb92e7a1aa53058f5ef8466ffddfda9",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-review-final.json": "34b440ff8d68ef792ddb42d8e7cd243449b6705c5a8306e2e4bd6aa471f5a3c4",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-baseline.json": "6d85aece9e323950a8f722b11e87eb125b4a342a7404f969f60ea69595790b3c",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-manifest-r1.json": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+    "/tmp/p1338-target.vlNAmp/release/typst": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+    "/usr/local/bin/typst": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "/tmp/p1337-target.F7jPNj/release/typst": "55b5dc263bba15b050e9caab755c17deb22f617eec35b1e9259a20a57f9b350b",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1337-closure.json": "04d5c3cc470025fd10062861b4429873fa56f2c881a3c7c4bcea911fc5a6015e",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-review-postclosure.cjs": "0401e482f10dd43e3e3fa044ab719f491ef04fe8999718497a82b7922080a277"
+  }
+}

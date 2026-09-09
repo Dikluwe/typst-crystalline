@@ -1,0 +1,82 @@
+{
+  "at": "2026-09-09T20:27:00.447927+00:00",
+  "regime": "A/B without technical isolation attestation or refinement seal; P1337 author context retained",
+  "manifest_sha256": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+  "freeze_sha256": "bd9f6a580251ba5dce783770657165354ab427736ceb4d2a4b87506958be04e3",
+  "build_receipt_sha256": "f67a0645cad674df84a1823c4a9ac2fd4e681c05beaa0c0f9846407be2191874",
+  "runner_sha256": "f7951d62700e143ff59e41349f9fef99b9ab8012464bb7bb2e330866d06a2fc2",
+  "baseline_receipt_sha256": "4d76b6eb7401477751db01374c1a29cd6f9707cab02dd1ba6491a9fbae86b4ec",
+  "candidate_receipt_sha256": "9584362a093215723665c618f15827bbc5c7ffaaecff7beccb03fd400c2211fb",
+  "comparison_sha256": "b88c1365dd84b80fb7fd1804fa495ca8af3be7095f3042f89addf9fa34a79e4c",
+  "candidate_binary": {
+    "path": "/tmp/p1338-target.vlNAmp/release/typst",
+    "sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1"
+  },
+  "provenance": {
+    "start_utc": "2026-09-09T20:26:03.714938+00:00",
+    "end_utc": "2026-09-09T20:26:19.783401+00:00",
+    "head": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+    "working_tree": "uncommitted",
+    "before_diff_stat": " .../prompts/compiler/eval/bindings/field_access.md |  385 ++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1413 ++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6792 insertions(+), 120 deletions(-)\n",
+    "before_changed_files": "00_nucleo/prompts/compiler/eval/bindings/field_access.md\n00_nucleo/prompts/compiler/eval/call_dispatch.md\n00_nucleo/prompts/compiler/eval/modules.md\n00_nucleo/prompts/compiler/eval/tests.md\n00_nucleo/prompts/compiler/stdlib/_comum.md\n00_nucleo/prompts/compiler/stdlib/calc.md\n00_nucleo/prompts/compiler/stdlib/loading.md\n00_nucleo/prompts/wiring.md\n01_core/src/compiler/eval/bindings/field_access.rs\n01_core/src/compiler/eval/call_dispatch.rs\n01_core/src/compiler/eval/modules.rs\n01_core/src/compiler/eval/tests.rs\n01_core/src/compiler/stdlib/calc.rs\n01_core/src/compiler/stdlib/loading.rs\n01_core/src/compiler/stdlib/mod.rs\n04_wiring/src/main.rs\n",
+    "full_before_after_state": "p1338-tests-candidate.json before/after preserve all measured state; baseline analogously in p1338-tests-baseline.json"
+  },
+  "baseline_runs": 1080,
+  "candidate_runs": 540,
+  "unique_cases": 45,
+  "profiles": [
+    "a11y",
+    "default",
+    "html",
+    "html+a11y"
+  ],
+  "orders": [
+    "normal",
+    "repeat",
+    "reverse"
+  ],
+  "comparison_classes": {
+    "CONVERGENCE_REQUIRED": 120,
+    "PRESERVE_EXISTING_DEBT": 120,
+    "PRESERVE_PARITY": 300
+  },
+  "verdicts": {
+    "Satisfied": 540
+  },
+  "mandatory_unknowns": 0,
+  "repeat_reverse_stable": true,
+  "full_channels_compared": [
+    "exit",
+    "stdout_base64",
+    "stderr_base64"
+  ],
+  "utf8_and_base64_consistent": true,
+  "normalization": "none",
+  "harness_controls": {
+    "count": 6,
+    "all_expected": true,
+    "planned_unknowns": 5
+  },
+  "debt_cases": [
+    "array-first-value-debt",
+    "array-last-value-debt",
+    "array-len-value-debt",
+    "array-panic-order",
+    "content-debt",
+    "empty-first-predispatch-debt",
+    "empty-last-predispatch-debt",
+    "empty-len-value-debt",
+    "length-debt",
+    "type-array-debt"
+  ],
+  "frozen_inputs_unchanged": true,
+  "candidate_source_read": false,
+  "limits": [
+    "Only the absent Array field diagnostic reaching this owner lookup converges; no general Array or compiler parity claim.",
+    "len/first/last as values, empty-array predispatch, Type::Array, Length, panic argument order and Content.text remain baseline debts; their preservation is not convergence credit.",
+    "LocatedContent is not constructed by eval CLI; prior retained Rust tests belong to the operator Cargo gate, not new independent introspection coverage.",
+    "PDF trio measures feature availability, complete diagnostics/hints and function kind/repr; no exported PDF or global accessibility claim.",
+    "Text.size/sym.integral.cont is a boundary control, not proof of all contextual styles or warning generation.",
+    "Functional Rust RED/GREEN, full workspace and mutations are separate operator/adversary receipts; this summary covers frozen CLI A/B only."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "at": "2026-09-09T20:22:30.020788+00:00",
+  "before": {
+    "prompt": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+    "source": "01_core/src/compiler/eval/bindings/field_access.rs",
+    "norm_sha256": "c76d40542c2f94f9ff57c4ea67e79eac1920432c7e33637e97c22321ff2c9d20",
+    "effective_a": "7e89a8cef2687b94212b3c9549807a2993e43f9f76755cb1b49e61504c37114d",
+    "code_b": "a4267e575abdc7774fef97b7650e4371c19eca2c1f3926dc19a2ff03457f233e",
+    "recorded_a": "7e89a8ce",
+    "recorded_b": "ee628f5f"
+  },
+  "after": {
+    "prompt": "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+    "source": "01_core/src/compiler/eval/bindings/field_access.rs",
+    "norm_sha256": "c76d40542c2f94f9ff57c4ea67e79eac1920432c7e33637e97c22321ff2c9d20",
+    "effective_a": "7e89a8cef2687b94212b3c9549807a2993e43f9f76755cb1b49e61504c37114d",
+    "code_b": "a4267e575abdc7774fef97b7650e4371c19eca2c1f3926dc19a2ff03457f233e",
+    "recorded_a": "7e89a8ce",
+    "recorded_b": "a4267e57"
+  },
+  "manifest_sha256": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+  "library": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1334-lineage-lib.py",
+    "sha256": "c480344df0ff6a1d7d23da5bf7b3f180d41bf0f569b2028333cf98af894f2ea2"
+  }
+}

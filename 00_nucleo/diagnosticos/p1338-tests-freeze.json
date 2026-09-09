@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-09T20:16:24.487855+00:00",
+  "manifest_sha256": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+  "protected": {
+    "p1338-tests-cases.json": "38bc95c382f3b58e10b876fb98bd953c5150067008e31aa16225e4d69e581fb5",
+    "p1338-tests-runner.py": "f7951d62700e143ff59e41349f9fef99b9ab8012464bb7bb2e330866d06a2fc2",
+    "p1338-tests-module.rs.txt": "2f19227ce32aab7066bca98f5200559c0e17d6e631593e37f054bc618fbfd8c4",
+    "p1338-tests-local-patch.json": "82f63591f9e66b24fb3611bb895607bf59798e6f2cb0ec9b479ac9b0083f98c8",
+    "p1338-tests-scope.md": "1db2058d185b25494af25e4494f93523a0c052d134b3003df695e293ee28fdd5"
+  },
+  "baseline_runs_sha256": "4d76b6eb7401477751db01374c1a29cd6f9707cab02dd1ba6491a9fbae86b4ec",
+  "expectations_sha256": "b992128147adb844d68822efbf5b68072f9288e64090e78b163e9cc0d1b392d2",
+  "regime": "A/B executed without technical isolation attestation; prior P1337 test-author context retained; P1338 baseline source read only before freeze for local integration",
+  "rust_tests": "01_core/src/compiler/eval/bindings/field_access.rs::p1338_tests; frozen before implementation",
+  "planned_opaque": "harness-only Unknown controls, not product parity or success"
+}

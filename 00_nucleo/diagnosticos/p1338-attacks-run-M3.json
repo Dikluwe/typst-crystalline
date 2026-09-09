@@ -1,0 +1,76 @@
+{
+  "id": "M3",
+  "path": "/tmp/p1338-attacks-d1dqn71s/M3/field_access.rs",
+  "source_sha256": "3e548f50ea55e120ede95a5bee1b576242a3399433a8ba7cde34ea8ed5862a16",
+  "patch_path": "/tmp/p1338-attacks-d1dqn71s/M3/change.diff",
+  "patch_sha256": "d1af4001fd733b92e49719ba6c96269f57a93445dfdacdc347876bf29238c411",
+  "tests_sha256": "1a3761f1a05c835e8921cb6fced4cd77bd1b01da1d041f72b5c36f8ac380cbd6",
+  "at_start": "2026-09-09T20:25:25.649358+00:00",
+  "at_end": "2026-09-09T20:26:14.297954+00:00",
+  "seconds": 48.6486004019971,
+  "argv": [
+    "cargo",
+    "test",
+    "--release",
+    "--config",
+    "profile.release.package.typst-core.opt-level=0",
+    "--locked",
+    "--offline",
+    "-p",
+    "typst-core",
+    "--lib",
+    "p1338_tests",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/tmp/p1338-attacks-d1dqn71s/workspace",
+  "env": {
+    "CARGO_TARGET_DIR": "/tmp/p1338-attacks-d1dqn71s/target",
+    "CARGO_BUILD_JOBS": "2"
+  },
+  "profile_config": "profile.release.package.typst-core.opt-level=0",
+  "mtime_before_ns": 1788985525639787401,
+  "mtime_fresh_ns": 1788985525647787296,
+  "exit": 101,
+  "execution_error": null,
+  "compiled_typst_core": true,
+  "valid_execution": true,
+  "executed_tests": 6,
+  "original_executable": "/tmp/p1338-attacks-d1dqn71s/target/release/deps/typst_core-e927dba2270ac06e",
+  "preserved_executable": "/tmp/p1338-attacks-d1dqn71s/M3/test-executable",
+  "executable_sha256": "e69defcc2035a3d53153462d0ba57a57d259b75befaa7eabe02bdb91cbe0d500",
+  "stdout_path": "/tmp/p1338-attacks-d1dqn71s/M3/test.stdout",
+  "stderr_path": "/tmp/p1338-attacks-d1dqn71s/M3/test.stderr",
+  "stdout_sha256": "f6cc710a340e81f452296484e81a6c7fc3f7510be9c6c0964c7c9c99d45371ed",
+  "stderr_sha256": "1a5bd50d2b7d8072ab5938d81696226da0bcb91cf8540c9a07b4afddfcad5909",
+  "status": "failed_test_pending_witness_review",
+  "manifest_sha256": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+  "plan_sha256": "e7feb072cafabbb4397b49a1a725cc9826b25766d031f54823898edec795177c",
+  "candidate_sha256": "67eee58a73878438d54be8044c97d570e276889d6637ad43b305dd30c6a51937",
+  "baseline_sha256": "6d85aece9e323950a8f722b11e87eb125b4a342a7404f969f60ea69595790b3c",
+  "runner_sha256": "98d2e80fb5299d2076978678ed4ba04d8cf7fffe1a1f3c2b1f15882ea2b29a76",
+  "prepared_sha256": "acadfdcc776e3d37a3182698c8bff273f6d1c0767d1a6c3a1d1eb18d4cd211a9",
+  "provenance": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "HEAD",
+        "--stat"
+      ],
+      "exit": 0,
+      "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  385 ++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1413 ++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6792 insertions(+), 120 deletions(-)\n",
+      "stderr": ""
+    }
+  ]
+}

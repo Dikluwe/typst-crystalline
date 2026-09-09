@@ -1,0 +1,15 @@
+{
+  "at": "2026-09-09T20:14:41.655709+00:00",
+  "manifest_sha256": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+  "inputs": {
+    "p1338-attacks-plan.md": "e7feb072cafabbb4397b49a1a725cc9826b25766d031f54823898edec795177c",
+    "p1338-attacks-runner.py": "98d2e80fb5299d2076978678ed4ba04d8cf7fffe1a1f3c2b1f15882ea2b29a76",
+    "p1338-attacks-oracles.json": "c1160832d8f73d98a6b297af60cc05d30e3020c41584532fc4ddec48a49b1af1",
+    "p1338-manifest-r1.json": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843"
+  },
+  "state": "pre-C plan/profile frozen; no tests read, no candidate patches prepared, no Cargo run",
+  "families": 4,
+  "profile": "release with typst-core opt-level=0 only",
+  "regime": "A/B without isolation attestation/refinement seal; prior adversary context retained",
+  "test_filter": "p1338_tests; actual discriminators must be checked after independent tests freeze"
+}

@@ -1,0 +1,29 @@
+{
+  "at": "2026-09-09T20:14:37.025Z",
+  "phase": "documentary-successor-pre-freeze",
+  "verdict": "SUCCESSION_VERIFIED_NOT_GO",
+  "checks": {
+    "manifest_pin": true,
+    "successor_pin": true,
+    "canonical_only": true,
+    "norm_hash": true,
+    "source_hash": true,
+    "source_body_unchanged": true,
+    "policy_unchanged": true,
+    "roles_unchanged": true,
+    "wrapper_success": true
+  },
+  "violations": [],
+  "unknowns": [],
+  "inputs": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-manifest.json": "8c51d637e9b248628d4bfe32b684a00f201b3139b84868b1f6cb351bb6290e4b",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-manifest-r1.json": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-canonical-r1.json": "e8c2dd80b6974300b3fecd906eb5cfa429b6819d15c9eae8f3e806b23921938b"
+  },
+  "notes": [
+    "Only canonical L0 cross-reference and causal forward header changed; original manifest preserved.",
+    "Prior Array-sentinel comment retained as historical P1337 wording; no authorization to edit it or any other antecedent test.",
+    "Transient pre-R1 test integration/removal reported by operator must remain documented by test author; R1 snapshot itself has exact baseline tests.",
+    "No C GO before independent freezes and RED assertions."
+  ]
+}

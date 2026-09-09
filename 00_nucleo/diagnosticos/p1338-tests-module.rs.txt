@@ -1,0 +1,253 @@
+#[cfg(test)]
+mod p1338_tests {
+    use super::{eval_value_field_access, Span, Value};
+    use crate::compiler::eval::{
+        eval_expression_with_features, eval_with_full_error_target_and_features,
+        EvalTarget,
+    };
+    use crate::contracts::world::World;
+    use crate::entities::compiler_features::{Feature, Features};
+    use crate::entities::element_registry::ElementRegistry;
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::sink::Sink;
+    use crate::entities::source::Source;
+    use crate::entities::source_result::Severity;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library, Route, Routines, Traced,
+    };
+    use comemo::Track;
+    use std::num::NonZeroU16;
+
+    struct TestWorld {
+        source: Source,
+        library: Library,
+        book: FontBook,
+    }
+
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn profiles() -> Vec<Features> {
+        (0..4)
+            .map(|mask| {
+                let mut features = Features::empty();
+                if mask & 1 != 0 {
+                    features.enable(Feature::Html);
+                }
+                if mask & 2 != 0 {
+                    features.enable(Feature::A11yExtras);
+                }
+                features
+            })
+            .collect()
+    }
+
+    fn check_ast(text: &str, anchor: Option<&str>, message: &str) {
+        for features in profiles() {
+            let world = TestWorld {
+                source: Source::detached(text),
+                library: Library::new(),
+                book: FontBook::new(),
+            };
+            let mut sink = Sink::new();
+            let errors = eval_with_full_error_target_and_features(
+                &Routines::new(),
+                &world,
+                Traced::default().track(),
+                sink.track_mut(),
+                Route::root().track(),
+                &world.source,
+                &ElementRegistry::new(),
+                false,
+                EvalTarget::Paged,
+                features,
+            )
+            .unwrap_err();
+            assert!(sink.into_diagnostics().is_empty(), "{text}");
+            assert_eq!(errors.len(), 1, "{text}");
+            let d = &errors[0];
+            assert_eq!(d.message, message, "{text}");
+            assert_eq!(d.severity, Severity::Error);
+            assert!(d.hints.is_empty(), "{text}");
+            assert!(d.trace.is_empty(), "{text}");
+            let expected = anchor.map(|anchor| {
+                let start = text.rfind(anchor).unwrap();
+                start..start + anchor.len()
+            });
+            assert_eq!(world.source.span_byte_range(d.span), expected, "{text}");
+            if anchor.is_none() {
+                assert_eq!(d.span, Span::detached());
+            }
+        }
+    }
+
+    #[test]
+    fn p1338_pure_missing_array_fields_message_and_received_span() {
+        let file = FileId::from_raw(NonZeroU16::new(41).unwrap());
+        for span in [
+            Span::detached(),
+            Span::from_range(file, 0..0),
+            Span::from_range(file, 5..19),
+            Span::from_range(file, 111..148),
+        ] {
+            for values in [
+                vec![],
+                vec![Value::None],
+                vec![
+                    Value::Bool(false),
+                    Value::Int(73),
+                    Value::Str("ação 🦊".into()),
+                    Value::Auto,
+                ],
+                vec![Value::Array(vec![Value::Int(-1)]), Value::None],
+            ] {
+                for field in [
+                    "missing",
+                    "ausência",
+                    "unknown-long-field",
+                    "lenx",
+                    "First",
+                    "last-",
+                    "",
+                ] {
+                    let errors = eval_value_field_access(
+                        Value::Array(values.clone()),
+                        field,
+                        span,
+                    )
+                    .unwrap_err();
+                    assert_eq!(errors.len(), 1);
+                    let d = &errors[0];
+                    assert_eq!(d.message, "cannot access fields on type array");
+                    assert_eq!(d.span, span);
+                    assert_eq!(d.severity, Severity::Error);
+                    assert!(d.hints.is_empty());
+                    assert!(d.trace.is_empty());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn p1338_pure_preserve_len_first_last_and_empty_none() {
+        for values in [
+            vec![],
+            vec![Value::Auto],
+            vec![Value::Str("primeiro".into()), Value::Bool(false), Value::Int(83)],
+            vec![Value::None, Value::Array(vec![Value::Int(9)])],
+        ] {
+            for span in [
+                Span::detached(),
+                Span::from_range(FileId::from_raw(NonZeroU16::new(47).unwrap()), 9..31),
+            ] {
+                for (field, expected) in [
+                    ("len", Value::Int(values.len() as i64)),
+                    ("first", values.first().cloned().unwrap_or(Value::None)),
+                    ("last", values.last().cloned().unwrap_or(Value::None)),
+                ] {
+                    let array = Value::Array(values.clone());
+                    assert_eq!(
+                        eval_value_field_access(array, field, span).unwrap(),
+                        expected,
+                        "{field}"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn p1338_ast_empty_heterogeneous_alias_unicode_multiline() {
+        for (text, field) in [
+            ("#(().absent)", "absent"),
+            ("#((1,).missing)", "missing"),
+            ("#((false, none, auto, \"ação 🦊\").ausência)", "ausência"),
+            ("#((((1, 2))).long-missing-field)", "long-missing-field"),
+            (
+                "#let array-value = (1, 2)\n#let alias = array-value\n#alias.unknown",
+                "unknown",
+            ),
+            ("#let início = ()\n#(\n (início)\n .desconhecido\n)", "desconhecido"),
+            ("#let repeated = (none,)\n#repeated.repeated", "repeated"),
+        ] {
+            check_ast(text, Some(field), "cannot access fields on type array");
+        }
+    }
+
+    #[test]
+    fn p1338_preserve_predispatch_empty_first_last() {
+        for text in ["#(().first)", "#(().last)"] {
+            check_ast(text, None, "array is empty and no default value was specified");
+        }
+    }
+
+    #[test]
+    fn p1338_preserve_other_categories_diagnostics() {
+        for (text, anchor, message) in [
+            ("#((1pt).nope)", "(1pt).nope", "length does not contain field \"nope\""),
+            ("#array.nope", "array.nope", "type array does not contain field \"nope\""),
+            ("#(true.nope)", "nope", "cannot access fields on type boolean"),
+            ("#(none.nope)", "nope", "cannot access fields on type none"),
+            ("#(auto.nope)", "nope", "cannot access fields on type auto"),
+            ("#((12).nope)", "nope", "cannot access fields on type integer"),
+            ("#(\"abc\".nope)", "nope", "cannot access fields on type string"),
+        ] {
+            check_ast(text, Some(anchor), message);
+        }
+    }
+
+    #[test]
+    fn p1338_preserve_ast_members_and_real_method_calls() {
+        for features in profiles() {
+            let world = TestWorld {
+                source: Source::detached(""),
+                library: Library::new(),
+                book: FontBook::new(),
+            };
+            for (expr, expected) in [
+                ("().len", Value::Int(0)),
+                ("(7, 19).len", Value::Int(2)),
+                ("(7, 19).first", Value::Int(7)),
+                ("(7, 19).last", Value::Int(19)),
+                ("(7, 19).len()", Value::Int(2)),
+                ("array.len((7, 19))", Value::Int(2)),
+                ("(7, 19).first()", Value::Int(7)),
+                ("(7, 19).last()", Value::Int(19)),
+                ("(7, 19).at(1)", Value::Int(19)),
+                ("{let alias = array.len; alias((none, auto, false))}", Value::Int(3)),
+                ("type((none, auto)) == array", Value::Bool(true)),
+                ("repr((none, auto))", Value::Str("(none, auto)".into())),
+            ] {
+                let (result, warnings) =
+                    eval_expression_with_features(&world, expr, features);
+                assert!(warnings.is_empty(), "{expr}");
+                assert_eq!(result.unwrap(), expected, "{expr}");
+            }
+        }
+    }
+}

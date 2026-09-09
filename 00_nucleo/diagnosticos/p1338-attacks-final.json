@@ -1,0 +1,230 @@
+{
+  "at": "2026-09-09T20:27:03.808757+00:00",
+  "manifest_sha256": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+  "status": "four compiled semantic mutant failures; pending independent reviewer verdict",
+  "regime": "A/B without technical isolation attestation/refinement seal; previous adversary context retained",
+  "scope": "Array absent lookup diagnostics and specified preservation boundaries only; no global parity",
+  "profile": "release --config profile.release.package.typst-core.opt-level=0, dependencies release, jobs2, paired C; normal release gates separate",
+  "inputs": {
+    "p1338-manifest-r1.json": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+    "p1338-candidate.json": "5e6a134b93d9b856333ba7399617a6fb4d44b650be7775833814dc249bc94cbd",
+    "p1338-attacks-plan.md": "e7feb072cafabbb4397b49a1a725cc9826b25766d031f54823898edec795177c",
+    "p1338-attacks-freeze.json": "0f487a9d3825bd675b86f39002e99e6dfca1e918f4752db4c25859e3e034dcc0",
+    "p1338-attacks-freeze-tests.json": "b1f3db154085558185a33e50b2662ee9873549e53d3a1197983098561b7f641e",
+    "p1338-attacks-tests-link.md": "3b52d5ee8495038f8cbd89e925d9c5fed92c56df20473d24b29bb61079cc32a0",
+    "p1338-tests-freeze.json": "bd9f6a580251ba5dce783770657165354ab427736ceb4d2a4b87506958be04e3",
+    "p1338-tests-module.rs.txt": "2f19227ce32aab7066bca98f5200559c0e17d6e631593e37f054bc618fbfd8c4",
+    "p1338-attacks-oracles.json": "c1160832d8f73d98a6b297af60cc05d30e3020c41584532fc4ddec48a49b1af1",
+    "p1338-attacks-prepared.json": "acadfdcc776e3d37a3182698c8bff273f6d1c0767d1a6c3a1d1eb18d4cd211a9",
+    "p1338-attacks-results.json": "1b61bd905df30891aceac1bb896f265af626ecc51feb48091e20d8bd4e53f2df",
+    "p1338-attacks-runner.py": "98d2e80fb5299d2076978678ed4ba04d8cf7fffe1a1f3c2b1f15882ea2b29a76"
+  },
+  "input_integrity": {
+    "p1338-attacks-freeze.json": true,
+    "p1338-attacks-freeze-tests.json": true
+  },
+  "main_candidate_unchanged": true,
+  "control_passed": true,
+  "valid_mutant_families": 4,
+  "semantic_rejections_observed": 4,
+  "mutation_score_observed": 1.0,
+  "unknowns": 0,
+  "rounds": [
+    {
+      "id": "C",
+      "family": "paired C control",
+      "receipt_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-attacks-run-C.json",
+      "receipt_sha256": "d3296d16d59c8ed5c6f3cacc345d2bfa88b952f5bb3550916cff6e41b477999e",
+      "checks": {
+        "source_hash": true,
+        "stdout_hash": true,
+        "stderr_hash": true,
+        "binary_hash": true,
+        "compiled_workspace": true,
+        "executed_six_tests": true,
+        "fresh_timestamp": true,
+        "tests_match_prepared": true,
+        "binary_copy_distinct_inode": true,
+        "control_passed": true
+      },
+      "failed_tests": [],
+      "assertion_excerpts": [],
+      "source_sha256": "67eee58a73878438d54be8044c97d570e276889d6637ad43b305dd30c6a51937",
+      "binary_path": "/tmp/p1338-attacks-d1dqn71s/C/test-executable",
+      "binary_sha256": "1d956ad9cb0ec8654ac45b2913505790f24083dc16b57fad68f7c838a009af3a",
+      "seconds": 56.58921749400906
+    },
+    {
+      "id": "M1",
+      "family": "wrong Array absent message",
+      "receipt_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-attacks-run-M1.json",
+      "receipt_sha256": "7fdfb6849121bbc8cbd828164e25726489500eae0aed1aec30e65dcd72522112",
+      "checks": {
+        "source_hash": true,
+        "stdout_hash": true,
+        "stderr_hash": true,
+        "binary_hash": true,
+        "compiled_workspace": true,
+        "executed_six_tests": true,
+        "fresh_timestamp": true,
+        "tests_match_prepared": true,
+        "binary_copy_distinct_inode": true,
+        "semantic_test_failure": true,
+        "family_witness_failed": true,
+        "different_from_control_binary": true
+      },
+      "failed_tests": [
+        "test compiler::eval::bindings::field_access::p1338_tests::p1338_pure_missing_array_fields_message_and_received_span ... FAILED",
+        "test compiler::eval::bindings::field_access::p1338_tests::p1338_ast_empty_heterogeneous_alias_unicode_multiline ... FAILED"
+      ],
+      "assertion_excerpts": [
+        "thread 'compiler::eval::bindings::field_access::p1338_tests::p1338_pure_missing_array_fields_message_and_received_span' (153) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1782:21:\nassertion `left == right` failed\n  left: \"array field access forbidden\"\n right: \"cannot access fields on type array\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+        "thread 'compiler::eval::bindings::field_access::p1338_tests::p1338_ast_empty_heterogeneous_alias_unicode_multiline' (149) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1730:13:\nassertion `left == right` failed: #(().absent)\n  left: \"array field access forbidden\"\n right: \"cannot access fields on type array\"\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+      ],
+      "source_sha256": "4234d69870edfe2158d47740ffb154fd41e2a7cb1447fb7ca7fb7af5af33d76f",
+      "binary_path": "/tmp/p1338-attacks-d1dqn71s/M1/test-executable",
+      "binary_sha256": "93fab39c7d0db7a98110c35b38e59bd5130d144e864b19bf8178413f3032a76a",
+      "seconds": 34.03044683299959
+    },
+    {
+      "id": "M2",
+      "family": "wrong Array AST span",
+      "receipt_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-attacks-run-M2.json",
+      "receipt_sha256": "65d73190e9c2db9dfa757a9bc52a78fd92d3902fc2eaddc92eedf77abfe955f0",
+      "checks": {
+        "source_hash": true,
+        "stdout_hash": true,
+        "stderr_hash": true,
+        "binary_hash": true,
+        "compiled_workspace": true,
+        "executed_six_tests": true,
+        "fresh_timestamp": true,
+        "tests_match_prepared": true,
+        "binary_copy_distinct_inode": true,
+        "semantic_test_failure": true,
+        "family_witness_failed": true,
+        "different_from_control_binary": true
+      },
+      "failed_tests": [
+        "test compiler::eval::bindings::field_access::p1338_tests::p1338_ast_empty_heterogeneous_alias_unicode_multiline ... FAILED"
+      ],
+      "assertion_excerpts": [
+        "thread 'compiler::eval::bindings::field_access::p1338_tests::p1338_ast_empty_heterogeneous_alias_unicode_multiline' (215) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1733:13:\nassertion `left == right` failed: #(().absent)\n  left: Some(2..11)\n right: Some(5..11)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+      ],
+      "source_sha256": "20258c4cd94355b0abd8e121deca63b37c3a5f1d43c8d5cf2665af5dfc035e2c",
+      "binary_path": "/tmp/p1338-attacks-d1dqn71s/M2/test-executable",
+      "binary_sha256": "b0fef12f14105ed92ad2728d8ffef08aa15fc1054199b686abb3febbc75cea6b",
+      "seconds": 53.20201442099642
+    },
+    {
+      "id": "M3",
+      "family": "pure Array first replaced by last",
+      "receipt_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-attacks-run-M3.json",
+      "receipt_sha256": "39206e06a9805c783656013f49aadeb7d26757943ec2724fc2356988452b4fc0",
+      "checks": {
+        "source_hash": true,
+        "stdout_hash": true,
+        "stderr_hash": true,
+        "binary_hash": true,
+        "compiled_workspace": true,
+        "executed_six_tests": true,
+        "fresh_timestamp": true,
+        "tests_match_prepared": true,
+        "binary_copy_distinct_inode": true,
+        "semantic_test_failure": true,
+        "family_witness_failed": true,
+        "different_from_control_binary": true
+      },
+      "failed_tests": [
+        "test compiler::eval::bindings::field_access::p1338_tests::p1338_pure_preserve_len_first_last_and_empty_none ... FAILED"
+      ],
+      "assertion_excerpts": [
+        "thread 'compiler::eval::bindings::field_access::p1338_tests::p1338_pure_preserve_len_first_last_and_empty_none' (286) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1806:21:\nassertion `left == right` failed: first\n  left: Int(83)\n right: Str(\"primeiro\")\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+      ],
+      "source_sha256": "3e548f50ea55e120ede95a5bee1b576242a3399433a8ba7cde34ea8ed5862a16",
+      "binary_path": "/tmp/p1338-attacks-d1dqn71s/M3/test-executable",
+      "binary_sha256": "e69defcc2035a3d53153462d0ba57a57d259b75befaa7eabe02bdb91cbe0d500",
+      "seconds": 48.6486004019971
+    },
+    {
+      "id": "M4",
+      "family": "Length scope extrapolation",
+      "receipt_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1338-attacks-run-M4.json",
+      "receipt_sha256": "a35b23049abdc6185a93cafbdc4feaa0e835d41583f9d1500693e9a04f8f272d",
+      "checks": {
+        "source_hash": true,
+        "stdout_hash": true,
+        "stderr_hash": true,
+        "binary_hash": true,
+        "compiled_workspace": true,
+        "executed_six_tests": true,
+        "fresh_timestamp": true,
+        "tests_match_prepared": true,
+        "binary_copy_distinct_inode": true,
+        "semantic_test_failure": true,
+        "family_witness_failed": true,
+        "different_from_control_binary": true
+      },
+      "failed_tests": [
+        "test compiler::eval::bindings::field_access::p1338_tests::p1338_preserve_other_categories_diagnostics ... FAILED"
+      ],
+      "assertion_excerpts": [
+        "thread 'compiler::eval::bindings::field_access::p1338_tests::p1338_preserve_other_categories_diagnostics' (349) panicked at 01_core/src/compiler/eval/bindings/field_access.rs:1735:13:\nassertion `left == right` failed: #((1pt).nope)\n  left: Some(8..12)\n right: Some(2..12)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+      ],
+      "source_sha256": "751e20cc7c446f2a3dea2de115848d7bfcc33d6fb93b9d6e5d927146e712aa76",
+      "binary_path": "/tmp/p1338-attacks-d1dqn71s/M4/test-executable",
+      "binary_sha256": "b60c6e09993bcc4665175ca87caf3840f9bfd0803edd45ba10009476bdf0d279",
+      "seconds": 37.47660644998541
+    }
+  ],
+  "cargo_processes": 5,
+  "cargo_seconds": 229.94688559998758,
+  "versions": [
+    {
+      "argv": [
+        "cargo",
+        "--version"
+      ],
+      "exit": 0,
+      "stdout": "cargo 1.92.0 (344c4567c 2025-10-21)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "rustc",
+        "-Vv"
+      ],
+      "exit": 0,
+      "stdout": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: x86_64-unknown-linux-gnu\nrelease: 1.92.0\nLLVM version: 21.1.3\n",
+      "stderr": ""
+    }
+  ],
+  "provenance": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "d31047d7b8af7837c84adae4ded3d2ff50c62093\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "HEAD",
+        "--stat"
+      ],
+      "exit": 0,
+      "stdout": " .../prompts/compiler/eval/bindings/field_access.md |  385 ++-\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |   88 +-\n 00_nucleo/prompts/compiler/eval/modules.md         |   47 +-\n 00_nucleo/prompts/compiler/eval/tests.md           |   78 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   25 +-\n 00_nucleo/prompts/compiler/stdlib/calc.md          |  542 +++-\n 00_nucleo/prompts/compiler/stdlib/loading.md       |  198 +-\n 00_nucleo/prompts/wiring.md                        |  104 +-\n 01_core/src/compiler/eval/bindings/field_access.rs | 1413 ++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/modules.rs               |    5 +-\n 01_core/src/compiler/eval/tests.rs                 |  236 +-\n 01_core/src/compiler/stdlib/calc.rs                | 3067 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading.rs             |  466 ++-\n 01_core/src/compiler/stdlib/mod.rs                 |    3 +-\n 04_wiring/src/main.rs                              |   50 +-\n 16 files changed, 6792 insertions(+), 120 deletions(-)\n",
+      "stderr": ""
+    }
+  ],
+  "notes": [
+    "Plan, runner, oracles and tests frozen before C; no post-C family or oracle revision.",
+    "Each actual executable copied before next link; per-round preserved executable, not mutable target/deps path, is canonical.",
+    "Pure first witness is direct helper preservation, independent of AST pre-dispatch; Length preservation remains debt, not parity credit."
+  ]
+}

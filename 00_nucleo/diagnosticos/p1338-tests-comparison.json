@@ -1,0 +1,3788 @@
+{
+  "at": "2026-09-09T20:26:20.021182+00:00",
+  "manifest_sha256": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+  "candidate_runs_sha256": "9584362a093215723665c618f15827bbc5c7ffaaecff7beccb03fd400c2211fb",
+  "freeze_sha256": "bd9f6a580251ba5dce783770657165354ab427736ceb4d2a4b87506958be04e3",
+  "rows": [
+    {
+      "id": "array-empty",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "default",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "default",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "html",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "html",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "html+a11y",
+      "order": "normal",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "default",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "default",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "html",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "html",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "html+a11y",
+      "order": "repeat",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "default",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "default",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "html",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "html",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "context-warning-boundary",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-summary",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-header",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "pdf-data",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-positive",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "with-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "closure-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-none",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "native-some",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-is-nan",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "float-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-debt",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-positive",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "content-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "dict-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "module-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "str-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "int-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "auto-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "none-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "bool-preserve",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-panic-order",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-callee",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "length-debt",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "type-array-debt",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-type-repr-positive",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias-positive",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-static-positive",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-methods-positive",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_PARITY",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-last-predispatch-debt",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-first-predispatch-debt",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "empty-len-value-debt",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-last-value-debt",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-first-value-debt",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-len-value-debt",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "PRESERVE_EXISTING_DEBT",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-near-field",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty-alias",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-unicode-multiline",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-alias",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-parentheses",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-nested",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-heterogeneous",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-populated",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-singleton",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    },
+    {
+      "id": "array-empty",
+      "profile": "html+a11y",
+      "order": "reverse",
+      "class": "CONVERGENCE_REQUIRED",
+      "verdict": "Satisfied"
+    }
+  ]
+}

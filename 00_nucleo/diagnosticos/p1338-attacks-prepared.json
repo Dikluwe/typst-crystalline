@@ -1,0 +1,65 @@
+{
+  "at": "2026-09-09T20:22:59.562920+00:00",
+  "manifest_path": "00_nucleo/diagnosticos/p1338-manifest-r1.json",
+  "manifest_sha256": "14a36a87a116dee46464c32d358f3019702c201ea74809c90cc8bf81cdeeb843",
+  "plan_sha256": "e7feb072cafabbb4397b49a1a725cc9826b25766d031f54823898edec795177c",
+  "baseline_sha256": "6d85aece9e323950a8f722b11e87eb125b4a342a7404f969f60ea69595790b3c",
+  "candidate_sha256": "67eee58a73878438d54be8044c97d570e276889d6637ad43b305dd30c6a51937",
+  "tests_sha256": "1a3761f1a05c835e8921cb6fced4cd77bd1b01da1d041f72b5c36f8ac380cbd6",
+  "base": "/tmp/p1338-attacks-d1dqn71s",
+  "workspace": "/tmp/p1338-attacks-d1dqn71s/workspace",
+  "copy_policy": "copy2/copytree distinct inodes; no mutable hardlinks",
+  "copied_roots": [
+    "Cargo.toml",
+    "Cargo.lock",
+    ".cargo",
+    "01_core",
+    "02_shell",
+    "03_infra",
+    "04_wiring",
+    "benches"
+  ],
+  "profile_config": "profile.release.package.typst-core.opt-level=0",
+  "mutants": [
+    {
+      "id": "C",
+      "path": "/tmp/p1338-attacks-d1dqn71s/C/field_access.rs",
+      "source_sha256": "67eee58a73878438d54be8044c97d570e276889d6637ad43b305dd30c6a51937",
+      "patch_path": "/tmp/p1338-attacks-d1dqn71s/C/change.diff",
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tests_sha256": "1a3761f1a05c835e8921cb6fced4cd77bd1b01da1d041f72b5c36f8ac380cbd6"
+    },
+    {
+      "id": "M1",
+      "path": "/tmp/p1338-attacks-d1dqn71s/M1/field_access.rs",
+      "source_sha256": "4234d69870edfe2158d47740ffb154fd41e2a7cb1447fb7ca7fb7af5af33d76f",
+      "patch_path": "/tmp/p1338-attacks-d1dqn71s/M1/change.diff",
+      "patch_sha256": "f3605344b84b18e3b0dc7b2ad21ea51f51a8bc3ce7e406da3f770f0844f2228d",
+      "tests_sha256": "1a3761f1a05c835e8921cb6fced4cd77bd1b01da1d041f72b5c36f8ac380cbd6"
+    },
+    {
+      "id": "M2",
+      "path": "/tmp/p1338-attacks-d1dqn71s/M2/field_access.rs",
+      "source_sha256": "20258c4cd94355b0abd8e121deca63b37c3a5f1d43c8d5cf2665af5dfc035e2c",
+      "patch_path": "/tmp/p1338-attacks-d1dqn71s/M2/change.diff",
+      "patch_sha256": "7a10b4d52147122ebe6a000eb86cb12fce0edf0bc5356c91c23b1ed7fdfd9a62",
+      "tests_sha256": "1a3761f1a05c835e8921cb6fced4cd77bd1b01da1d041f72b5c36f8ac380cbd6"
+    },
+    {
+      "id": "M3",
+      "path": "/tmp/p1338-attacks-d1dqn71s/M3/field_access.rs",
+      "source_sha256": "3e548f50ea55e120ede95a5bee1b576242a3399433a8ba7cde34ea8ed5862a16",
+      "patch_path": "/tmp/p1338-attacks-d1dqn71s/M3/change.diff",
+      "patch_sha256": "d1af4001fd733b92e49719ba6c96269f57a93445dfdacdc347876bf29238c411",
+      "tests_sha256": "1a3761f1a05c835e8921cb6fced4cd77bd1b01da1d041f72b5c36f8ac380cbd6"
+    },
+    {
+      "id": "M4",
+      "path": "/tmp/p1338-attacks-d1dqn71s/M4/field_access.rs",
+      "source_sha256": "751e20cc7c446f2a3dea2de115848d7bfcc33d6fb93b9d6e5d927146e712aa76",
+      "patch_path": "/tmp/p1338-attacks-d1dqn71s/M4/change.diff",
+      "patch_sha256": "4d04b257f711a3805f04d8199f9bfad715904efd42a49667850bc7576bdc614d",
+      "tests_sha256": "1a3761f1a05c835e8921cb6fced4cd77bd1b01da1d041f72b5c36f8ac380cbd6"
+    }
+  ]
+}

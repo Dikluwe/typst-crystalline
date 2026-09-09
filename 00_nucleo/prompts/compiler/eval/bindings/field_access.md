@@ -1,8 +1,78 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: ee628f5f
+Hash do Código: a4267e57
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1338 — field ausente em instância Array
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/p1338-measurement.json`, SHA-256
+`6bd65bffd487cf7103bbaa54e3655ff95467df557c852f6e5c7b44c96ea165e1`,
+concluído em `2026-09-09T20:06:19.061817+00:00`, mede `(1,2).nope`,
+`().absent` e alias Unicode multilinha: o cristalino publica
+`array does not contain field "<field>"` sobre o acesso inteiro; vanilla
+publica `cannot access fields on type array` somente sobre o identificador.
+Baseline SHA-256 `6d85aece9e323950a8f722b11e87eb125b4a342a7404f969f60ea69595790b3c`,
+working tree não commitada sobre HEAD
+`d31047d7b8af7837c84adae4ded3d2ff50c62093`, diff/stat e inventário exatos.
+Vanilla ratificado upstream a51e02804 SHA-256
+`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
+antecedente P1337 SHA-256
+`55b5dc263bba15b050e9caab755c17deb22f617eec35b1e9259a20a57f9b350b`.
+
+`01_core/src/compiler/eval/bindings/field_access.rs:532–551` omite Array da
+seleção field-only; `:670–679` possui ramo próprio com len/first/last e erro
+genérico local. O pré-despacho `:468–481` pode retornar antes do lookup:
+`().first` já erra por array vazio ali, enquanto o lookup puro retorna None.
+`(1,2).len`/last divergem em disponibilidade, mas len()/first()/at(1) e
+array.len((1,2)) coincidem. array.nope é Type, não instância; chamada com
+panic expõe ordem anterior ao lookup. Comprimento mantém dívida própria.
+Vanilla `lab/typst-original/crates/typst-eval/src/code.rs:347–366` fornece
+field.span(); `lab/typst-original/crates/typst-library/src/foundations/value.rs:157–169`
+delega Array a fields e `foundations/fields.rs:14–67` não lhe dá fields.
+A checagem extra refuta tratar a correção diagnóstica como paridade total Array.
+
+### Obrigação e sucessão restrita
+
+Quando Value::Array chega ao lookup deste owner com field distinto de len,
+first e last, emitir exatamente `cannot access fields on type array`,
+independentemente de conteúdo/tamanho do array ou spelling do field. Não
+interpolar nome arbitrário, consultar fixtures ou fabricar valor/método.
+O acesso AST que chega a esse lookup fornece todos e somente os bytes de
+access.field().span(), também com alias, parênteses, Unicode e multilinha.
+O lookup puro conserva exatamente o span recebido, inclusive detached/vazio.
+Manter erro único, severidade error, hints/laterais e traces causais existentes.
+
+Esta obrigação sucede expressamente a preservação de erro/âncora Array em
+P1337/P1336 e nas cláusulas gerais de preservação dos reparos anteriores,
+somente nesse caminho. Migrar apenas a expectativa e o nome de
+`p1337_preserve_array_ast_message_and_total_span_debt`, conservando seu caso
+e comparadores. Todo outro teste anterior continua byte a byte.
+
+Preservar lookup puro len (comprimento), first/last (valor clonado ou None
+quando vazio). A AST mantém o pré-despacho existente, mesmo quando devolve
+erro por array vazio ou difere do lookup puro: não removê-lo nem expandi-lo.
+Disponibilidade de métodos como valor, chamadas ligadas/estáticas, consumo
+Args, ordem/panic, Type::Array, Length e outras categorias permanecem intactos.
+Bool/None/Auto e Int/Str mantêm a paridade já contratada. Dict, Content e
+LocatedContent, Module, funções nativas/closures/With, Float, PDF/features,
+text contextual e warnings conservam as obrigações vigentes.
+
+Língua: mensagem e origem do diagnóstico, sob ADR-0107/0108. Enum, match e
+forma de selecionar o span são mecânica, não igualdade de linguagem.
+Não atribuir intenção histórica ao vanilla. É inferência que este owner basta:
+outro owner causal, origem irrecuperável ou necessidade de mudar API/default/
+fase refutam-na e exigem nova medição e classificação antes de ampliar código.
+Correção interna ADR-0127 contínua, L0 primeiro + resselo + RED→GREEN.
+
+Aceitação: testes independentes puro/AST, arrays vazios/populados/heterogêneos,
+aliases/Unicode/multilinha, diagnóstico completo e positivos/exclusões;
+matriz bilateral pré-classificada em quatro perfis e três ordens, mutantes
+realmente compilados e rejeitados por testemunhas. Unknown obrigatório bloqueia.
+Este contrato é deliberadamente limitado ao erro ausente; não declara concluída
+a paridade de fields Array nem a dívida de len/first/last e pré-despacho.
 
 ## P1337 — field ausente em Bool, None e Auto
 
@@ -305,7 +375,7 @@ Esta seção substitui a delegação incondicional ao raw de P1151.
 Este nó resolve `a.b` como **leitura**: campo de dicionário, campo sintético de
 um tipo primitivo (`.days` de uma duração, `.major` de uma versão, `.em` de um
 comprimento), campo de `Content`, e os métodos de `Content`. É o caminho de
-r-value, simétrico ao l-value de `bindings/access.md`.
+r-value, simétrico ao l-value de `compiler/eval/bindings/access.md`.
 
 No vanilla isto está distribuído por `foundations::value::field()` e
 `Content::field()`; não há um ficheiro correspondente em `typst-eval`.
