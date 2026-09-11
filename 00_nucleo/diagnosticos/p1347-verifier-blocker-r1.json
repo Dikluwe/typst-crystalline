@@ -1,0 +1,139 @@
+{
+  "schema": "p1347-verifier-blocker-r1",
+  "step": 1347,
+  "revision": 1,
+  "role": "independent_verifier",
+  "executor": "/root/p1347_verifier",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "BLOCKED_NOT_SEALED",
+  "claim_scope": "P1347 discriminatory transport focal only",
+  "protected_inputs": {
+    "step_p1347": ["00_nucleo/materialization/typst-passo-1347.md", "c848a04d9bc3aaa9ed935ea8fef6e615cdb77a0533c13d0fcd62ef1a87ab9a1c"],
+    "step_p1346_transitive_pin": ["00_nucleo/materialization/typst-passo-1346.md", "33dc3b0f1f4772e9021a7fbe58803f52fa6c789337d662e2c85ce408031aee41"],
+    "contract_spec_r1": ["00_nucleo/diagnosticos/p1347-contract-spec-r1.json", "fac6e30c7bbee3b50eec6cad8c8a9a8b30f3c09027f63293e73b4bf2341db0ea"],
+    "contract_binding_r1": ["00_nucleo/diagnosticos/p1347-contract-binding-r1.json", "de1dcc87e77ab5fd6c8395fa4faacfd74fd90769dcafb5d2ef5c0bd30fda5fd1"],
+    "contract_receipt_r1": ["00_nucleo/diagnosticos/p1347-contract-receipt-r1.json", "85c6ad312cf9ac83ff653e2a19ac96fdd9e29ad72d2eb4af90fe8fff14fafb1d"],
+    "adversary_suite_r1": ["00_nucleo/diagnosticos/p1347-adversary-suite-r1.py", "d51fa54da1c68dcc5c812847b90097dfe94f1b4eb83f1009294230eb5f37dd4c"],
+    "adversary_authorship_r1": ["00_nucleo/diagnosticos/p1347-adversary-authorship-r1.md", "dd2d67799a989eb8910e3102aa8d066b1d376ed5895d061455f54e61101b99da"],
+    "adversary_authorship_receipt_r1": ["00_nucleo/diagnosticos/p1347-adversary-authorship-receipt-r1.json", "fd5aad168f4c22e5cc781456f7b000df0c542da6637a4a55459d5ccbccad3aa0"],
+    "oracle_corpus_r1": ["00_nucleo/diagnosticos/p1347-oracle-corpus-r1.json", "24f2aa18c2f39f1647d29d9fe74c2d5a2cfc9079f812bced92a7d60456e12c2b"],
+    "oracle_worker_r1": ["00_nucleo/diagnosticos/p1347-oracle-worker-r1.py", "3f31593b545b7bec2160167c4395bf4bebe78a4111b194c74f4c775a4372afc5"],
+    "oracle_checker_r2": ["00_nucleo/diagnosticos/p1347-oracle-checker-r2.py", "9aa0e93591195eac7ddb67069abecbcf0722abeddd9e955fc062804a89d16ce5"],
+    "oracle_caller_r2": ["00_nucleo/diagnosticos/p1347-oracle-caller-r2.py", "b377d09b912f4996d0712d67e9cd4b0b0eb0f7acc646f48f07d55fcf58f6071e"],
+    "oracle_authorship_r2": ["00_nucleo/diagnosticos/p1347-oracle-authorship-r2.md", "db1cda1e1a52192a4e74ecc624f6dce17d0c8126029daa44872f9e98c499b1fb"],
+    "oracle_authorship_receipt_r1_transitive": ["00_nucleo/diagnosticos/p1347-oracle-authorship-receipt-r1.json", "42eb856443d0a4d969a7d372ca1b99dd2ab109026139e0f9ed0f59090a7a7eb5"],
+    "oracle_authorship_receipt_r2": ["00_nucleo/diagnosticos/p1347-oracle-authorship-receipt-r2.json", "fb66120dd74f102139e2db839516c716793c5d852dfce1f6fb414d15b67a681c"],
+    "oracle_delivery_receipt_r2_external_anchor": ["00_nucleo/diagnosticos/p1347-oracle-delivery-receipt-r2.json", "a3e7cb3e6f29bba6293187ae967bd303f3f2ebebb79dd128679787d3b433432d"],
+    "verifier_adapter_r1": ["00_nucleo/diagnosticos/p1347-verifier-adapter-r1.py", "cc71d74b85b14e6624aae53630f25a3c5fe34724cab7d62222f84377d6845a7a"],
+    "verifier_adapter_authorship_r1": ["00_nucleo/diagnosticos/p1347-verifier-adapter-authorship-r1.md", "156708b40d76eb947b3999c6e7d4a9ad8be5b25cca153ab85e7b25dd3769e3b7"],
+    "verifier_adapter_authorship_receipt_r1": ["00_nucleo/diagnosticos/p1347-verifier-adapter-authorship-receipt-r1.json", "d29849a2fd17ba2fa45dc95c8bf4ac15705e7605becd7f3333332c67a597ba99"]
+  },
+  "hash_validation": {
+    "whole_file_pins": "PASS",
+    "suite_validate_authorship": "PASS",
+    "checker_validate_protected_inputs": "PASS",
+    "checker_load_corpus": "PASS",
+    "checker_validate_authorship_receipt": "PASS",
+    "computed_authoring_root_sha256": "b78fca0360ce823d1fbc9c996609e1278f131c6ce318c89067d56e5c346e0787",
+    "authoring_root_match": true,
+    "computed_delivery_root_sha256": "11bfc673d61f18b0e12545d424aeea0b0cbb5df7fbea53f84c9b80e539259320",
+    "delivery_root_match": true,
+    "external_delivery_anchor_match": true,
+    "canonical_case_count": 122,
+    "canonical_case_sequence_sha256": "e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907"
+  },
+  "execution": {
+    "entrypoint": "p1347-adversary-suite-r1.run_with_adapter",
+    "frozen_targets": {
+      "checker_sha256": "9aa0e93591195eac7ddb67069abecbcf0722abeddd9e955fc062804a89d16ce5",
+      "caller_sha256": "b377d09b912f4996d0712d67e9cd4b0b0eb0f7acc646f48f07d55fcf58f6071e",
+      "delivery_receipt_sha256": "a3e7cb3e6f29bba6293187ae967bd303f3f2ebebb79dd128679787d3b433432d"
+    },
+    "adapter_sha256": "cc71d74b85b14e6624aae53630f25a3c5fe34724cab7d62222f84377d6845a7a",
+    "temporary_root": "/dev/shm",
+    "decisive_environment": "outside sandbox with ptrace available",
+    "sandbox_preflight": "NON_DECISIVE_PTRACE_ERRNO_1",
+    "orders": ["normal", "repeat", "reverse"],
+    "projection_sha256": {
+      "normal": "327a3c1889bf6170cfc8f995412c2f2f2c0012c1ae1a936b20007c03da799015",
+      "repeat": "327a3c1889bf6170cfc8f995412c2f2f2c0012c1ae1a936b20007c03da799015",
+      "reverse": "327a3c1889bf6170cfc8f995412c2f2f2c0012c1ae1a936b20007c03da799015"
+    },
+    "deterministic_projection": true,
+    "focal_valid_negatives": 49,
+    "correct_expected_classification_and_reason": 39,
+    "survivor_count": 10,
+    "mutation_score": 0.7959183673469388,
+    "transport_unknown_count": 1,
+    "p1346_previously_killed_replays_executed": 0,
+    "controls_executed": 0,
+    "full_corpus_runs": 0,
+    "release_rule": "The 181 replays and 11 controls are executable only after zero focal survivors; the focal gate failed."
+  },
+  "survivors": [
+    {"case_id": "P1347-I04-forged-dag-worker", "expected_classification": "Violated", "expected_reason_code": "DAG_VALIDATOR", "actual_classification": "Violated", "actual_reason_code": "SCHEMA", "cause": "The answer-bearing DAG receipt is rejected at schema validation before the required DAG_VALIDATOR cause."},
+    {"case_id": "P1347-W11-pid-sibling", "expected_classification": "Violated", "expected_reason_code": "WORKER_AUTHORITY", "actual_classification": "Preserved", "actual_reason_code": "PRESERVED", "cause": "Replacing parent evidence child_pid with the adapter process PID is accepted; the checker validates PID type and wait bits but does not bind the claimed PID to the pidfd/pipe observations."},
+    {"case_id": "P1347-W16-partial-stdout", "expected_classification": "Violated", "expected_reason_code": "WORKER_AUTHORITY", "actual_classification": "Violated", "actual_reason_code": "SCHEMA", "cause": "Truncated worker stdout is classified as worker-response JSON schema failure instead of WORKER_AUTHORITY."},
+    {"case_id": "P1347-W17-extra-stdout-line", "expected_classification": "Violated", "expected_reason_code": "WORKER_AUTHORITY", "actual_classification": "Violated", "actual_reason_code": "SCHEMA", "cause": "Extra worker stdout is classified as noncanonical schema failure instead of WORKER_AUTHORITY."},
+    {"case_id": "P1347-W21-challenge-replay", "expected_classification": "Violated", "expected_reason_code": "WORKER_AUTHORITY", "actual_classification": "Preserved", "actual_reason_code": "PRESERVED", "cause": "The same challenge, nonce and invocation evidence is accepted twice; validate_worker has no consumed-challenge registry or equivalent freshness observation."},
+    {"case_id": "P1347-D01-labels-without-validator", "expected_classification": "Violated", "expected_reason_code": "DAG_VALIDATOR", "actual_classification": "Violated", "actual_reason_code": "SCHEMA", "cause": "The answer-bearing DAG receipt is rejected at schema validation before the required DAG_VALIDATOR cause."},
+    {"case_id": "P1347-D03-mutant-provided-anchor", "expected_classification": "Violated", "expected_reason_code": "AUTHORITY_ROOT", "actual_classification": "Violated", "actual_reason_code": "DAG_VALIDATOR", "cause": "run_dag collapses an authenticated validator rejection caused by the mutated anchor into DAG_VALIDATOR instead of preserving AUTHORITY_ROOT precedence."},
+    {"case_id": "P1347-D06-coordinated-anchor-substitution", "expected_classification": "Violated", "expected_reason_code": "AUTHORITY_ROOT", "actual_classification": "Violated", "actual_reason_code": "DAG_VALIDATOR", "cause": "run_dag collapses the coordinated anchor substitution rejection into DAG_VALIDATOR instead of preserving AUTHORITY_ROOT precedence."},
+    {"case_id": "P1347-P04-swap-after-exec-stop", "expected_classification": "Violated", "expected_reason_code": "PROBE_AUTHORITY", "actual_classification": "Violated", "actual_reason_code": "AUTHORITY_ROOT", "cause": "The adapter raises NameError while injecting the post-exec-stop swap because original_open is undefined in that operation scope."},
+    {"case_id": "P1347-P17-tracer-detached", "expected_classification": "Violated", "expected_reason_code": "PROBE_AUTHORITY", "actual_classification": "Unknown", "actual_reason_code": "OPAQUE_PAYLOAD", "cause": "Detaching the tracer on the second continue still reaches terminal wait and the checker accepts the probe as authenticated Unknown; continuous tracing through terminal wait is not enforced."}
+  ],
+  "controls": {
+    "status": "NOT_RUN_FOCAL_GATE_FAILED",
+    "authored_count": 11,
+    "expected_vector": {"Preserved": 6, "Violated_DAG_VALIDATOR": 4, "Unknown_OPAQUE_PAYLOAD": 1},
+    "reason": "Running controls after nonzero focal survivors would violate the frozen execution order."
+  },
+  "static_gates": {
+    "strict_json_files": {"result": "PASS", "count": 8},
+    "python_syntax_files": {"result": "PASS", "count": 5, "method": "compile(source, filename, exec) with python3 -B"},
+    "crystalline_lint_v5_v15_v26": "PASS_ZERO_VIOLATIONS",
+    "git_diff_check": "PASS"
+  },
+  "provenance": {
+    "measured_at": "2026-09-11T12:46:27,200569419-03:00",
+    "head": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted shared tree",
+    "git_diff_head_stat_sha256_before_output": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git_status_porcelain_sha256_before_output": "0b7639502c9051fbaebc6b38650657c2055ecc7ae5e67e3dc9a0e4e04ba452f1",
+    "git_status_porcelain_entries_before_output": 21,
+    "git_status_porcelain_paths_before_output": [
+      "00_nucleo/diagnosticos/p1347-adversary-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1347-adversary-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1347-adversary-suite-r1.py",
+      "00_nucleo/diagnosticos/p1347-contract-binding-r1.json",
+      "00_nucleo/diagnosticos/p1347-contract-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1347-contract-spec-r1.json",
+      "00_nucleo/diagnosticos/p1347-oracle-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1347-oracle-authorship-r2.md",
+      "00_nucleo/diagnosticos/p1347-oracle-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1347-oracle-authorship-receipt-r2.json",
+      "00_nucleo/diagnosticos/p1347-oracle-blocker-r1.json",
+      "00_nucleo/diagnosticos/p1347-oracle-caller-r2.py",
+      "00_nucleo/diagnosticos/p1347-oracle-checker-r1.py",
+      "00_nucleo/diagnosticos/p1347-oracle-checker-r2.py",
+      "00_nucleo/diagnosticos/p1347-oracle-corpus-r1.json",
+      "00_nucleo/diagnosticos/p1347-oracle-delivery-receipt-r2.json",
+      "00_nucleo/diagnosticos/p1347-oracle-worker-r1.py",
+      "00_nucleo/diagnosticos/p1347-verifier-adapter-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1347-verifier-adapter-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1347-verifier-adapter-r1.py",
+      "00_nucleo/materialization/typst-passo-1347.md"
+    ],
+    "write_allowlist_observed": ["00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json"]
+  },
+  "not_emitted": [
+    "00_nucleo/diagnosticos/p1347-verifier-report-r1.json",
+    "00_nucleo/diagnosticos/p1347-verifier-report-r1.md",
+    "00_nucleo/diagnosticos/p1347-verifier-receipt-r1.json",
+    "00_nucleo/diagnosticos/p1347-preseal-r1.json"
+  ],
+  "scope_exclusions": ["general functional equivalence", "candidate", "RED", "38-capsule implementation", "full corpus", "final certificate", "closure of P1339/P1340"],
+  "closed_world": {
+    "rule": "This blocker records only the frozen P1347 transport focal and its reproducible gates. It is not a report, receipt, preseal, candidate assessment, RED result or general-equivalence claim."
+  }
+}
