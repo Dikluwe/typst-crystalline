@@ -1,0 +1,126 @@
+{
+  "schema": "p1342-oracle-authorship-receipt-v4",
+  "step": 1342,
+  "revision": 4,
+  "role": "independent_oracle_author",
+  "executor": "/root/p1342_oracle",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at_utc": "2026-09-10T22:51:48Z",
+  "verdict": "ORACLE_REISSUED_NOT_VERIFIED_NOT_SEALED",
+  "verdict_scope": "Candidate-free authorship calibration against the exact R3 contract/binding and closed synthetic source/evidence fixtures. It does not attest a live candidate, real preseal or real candidate-source evidence and issues no seal.",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256_before_authorship_outputs": "45f2f5b61dd24fb2196836c3192bc81118fd6b9b9e0d011b0b965e8c7a0b7123",
+    "tracked_diff_binary_sha256": "f73da54bdbeb1bd086caeff259b9517bdbf0f1648efcb8119d36699f5bcf0be5",
+    "tracked_diff_stat": "72 files changed, 10889 insertions(+), 830 deletions(-)"
+  },
+  "protected_inputs": {
+    "00_nucleo/materialization/typst-passo-1342.md": "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48",
+    "00_nucleo/diagnosticos/p1342-l0-freeze-r1.json": "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e",
+    "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ": "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714",
+    "00_nucleo/diagnosticos/p1342-contract-spec-r2.json": "62d656241ecd96cd3d984025e59990d607a0efd75c3c326503c7ec07a3486c4d",
+    "00_nucleo/diagnosticos/p1342-contract-binding-r2.json": "3b522cf1b0f288fe1e472f21f775089541835ede754250a14a3c2d17c17e9d48",
+    "00_nucleo/diagnosticos/p1342-contract-spec-r3.json": "07689c204f8741cdcfcc23bef9fa4af969dba6d991caaa93afaf117eb7ac73e7",
+    "00_nucleo/diagnosticos/p1342-contract-spec-r3.md": "1e798f3afcab77d236d82a4de30b3999e894aaf40838f154b17b80f35748c409",
+    "00_nucleo/diagnosticos/p1342-contract-binding-r3.json": "8630a376350d374f854345c37282ac8fbb657f2f9a8506b7de47bda7b8276bf5",
+    "00_nucleo/diagnosticos/p1342-contract-receipt-r3.json": "a14707ff9be26dab7cf8a2f0696c9746baa7cda15bc3a7a264fa3331d1327800",
+    "00_nucleo/diagnosticos/p1342-implementation-blocker-r1.json": "9a46cf931ea8f90f884b0b22cc93df574e17537bae807051cc26870f2b28a4f2",
+    "00_nucleo/diagnosticos/p1342-oracle-checker-r1.py": "99735c9ba6bab67a86bba897f7765796dcaf92c43f9198dd62d0cb06d354ce61",
+    "00_nucleo/diagnosticos/p1342-oracle-corpus-r1.json": "880978de128ca3582bfc6e59da0ed8753734a5af34687a8f03b8ba28ed0eb3da",
+    "00_nucleo/diagnosticos/p1342-oracle-checker-r2.py": "06889314af3b889c75e3b3b73f22d425ecc3ae813910c3ccd1e61f6deb3b169e",
+    "00_nucleo/diagnosticos/p1342-oracle-corpus-r2.json": "1dd1a7905942571ccc69297530e520014b1c9d920ac1f5ceeeca8962b4e00dcc",
+    "00_nucleo/diagnosticos/p1342-oracle-checker-r3.py": "047dd04c811fd7672143bdc253b759450d2f61d548cc3b49dd3fbcbce71791b7",
+    "00_nucleo/diagnosticos/p1342-oracle-corpus-r3.json": "872b906a0665b933d1ca30337a44849e579257f3eb331f33e034a8a2c5ed6160",
+    "00_nucleo/diagnosticos/p1342-oracle-authorship-r3.md": "44979c785460cc680cdc20fd55ddf6966bae26869e6c8eef2fa9cc65436452b5",
+    "00_nucleo/diagnosticos/p1342-oracle-authorship-receipt-r3.json": "c469c395450b43df4ccc995b5368e619ab37f5e1cec59915cc5f752eeccf58ec"
+  },
+  "composition": {
+    "r2_r3_obligations_preserved": true,
+    "r3_checker_loaded_by_exact_pin": true,
+    "static_binding_rows": 19,
+    "applicable_hooks_per_origin_cell": 18,
+    "live_hash_compared_only_to_external_candidate_file_sha256": true,
+    "live_hash_compared_to_baseline_file_sha256": false,
+    "baseline_validated_through_pinned_preseal_attestation_fixture": true,
+    "dto_facade_source_evidence_trusted": false,
+    "source_fixture_kind": "closed candidate-free synthetic calibration fixtures; no productive file used as candidate",
+    "unknown_after_source_and_runtime_checks": true
+  },
+  "calibration": {
+    "budget": {
+      "maximum_revisions_for_same_survivor_class": 2,
+      "focal_executions": 2,
+      "focal_revisions_used": 1,
+      "full_final_executions": 1,
+      "same_vector_survived_twice": false,
+      "stop_condition_triggered": false
+    },
+    "first_focal": {
+      "cases": 6,
+      "classifications_correct": 6,
+      "issue": "Y02 was intercepted by the shortened synthetic byte range before the intended missing-coverage witness",
+      "full_corpus_executed": false
+    },
+    "focal_revision_1": {
+      "change": "resize only the synthetic allowed byte range when Y02 replaces candidate bytes with baseline fixture bytes",
+      "cases_corrected_by_reason": ["Y02-live-baseline-equal-hook-absent"],
+      "classification_delta": 0,
+      "regressions": 0
+    },
+    "second_focal": {
+      "cases": 6,
+      "Y01": "Preserved",
+      "Y02_Y06": "Violated by their intended public boundaries",
+      "survivors": []
+    },
+    "full_final": {
+      "cases": 51,
+      "valid_negatives": 48,
+      "negative_violated": 48,
+      "preserved_controls": 2,
+      "opaque_unknown": 1,
+      "mutation_score": 1.0,
+      "normal_repeat_reverse_agreement": true,
+      "survivors": []
+    },
+    "delta_from_r3": {
+      "new_valid_negatives_rejected": 5,
+      "new_positive_controls_preserved": 1,
+      "previous_cases_regressed": 0
+    }
+  },
+  "validation": {
+    "corpus_json": "PASS",
+    "checker_python_compile_without_cache": "PASS",
+    "focal_Y01_Y06": "PASS after one reason-targeted focal revision",
+    "single_full_final_execution": "PASS",
+    "protected_input_hashes": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1342-oracle-checker-r4.py": "2fb44d8398d85fe174231b6dbbaf59c7c350f1de6cd6ab3f974092c1d85535d8",
+    "00_nucleo/diagnosticos/p1342-oracle-corpus-r4.json": "a5d163b4d036dd24257af4aab3306c2f01a340437c6474066ca0990844548619",
+    "00_nucleo/diagnosticos/p1342-oracle-authorship-r4.md": "aecbb9da5dfe9328e89eb4f5ac10e4e1c46a605e1ace93e57558cdb697d7361d"
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "candidate_read": false,
+    "candidate_written": false,
+    "productive_p1342_candidate_existed_during_authorship": false,
+    "r1_r2_r3_artifacts_preserved": true,
+    "contract_l0_tests_code_adversary_or_preseal_written": false,
+    "previous_artifact_modified": false,
+    "seal_or_final_certificate_issued": false,
+    "write_allowlist_observed": "Only new 00_nucleo/diagnosticos/p1342-oracle-*-r4.* files were created."
+  },
+  "scope_exclusions": [
+    "P1340 lifecycle/profile",
+    "NT01-NT06",
+    "retention, discard and invalidation",
+    "terminal policy",
+    "candidate acceptance",
+    "general equivalence"
+  ],
+  "next_authority": "Independent adversary/preseal verifier must reissue the R3 preseal with real historical baseline attestation before implementation."
+}

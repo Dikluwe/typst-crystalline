@@ -1,0 +1,13 @@
+{
+  "schema":"p1341-oracle-authorability-r4",
+  "utc":"2026-09-10T18:15:06Z",
+  "status":"AUTHORABLE_NOT_SEALED",
+  "role":"independent oracle author",
+  "regime":"executado sem atestacao de isolamento",
+  "pins":{"contract_r5_sha256":"511d96d96c6c6911bbaee610111339311eb6174cfc568598bb25b075b790b4d0","focal_r5_sha256":"495fb367c912391272c4ff3209337af6db9d23bab5df9510d39299b925db68c3","manifest_content_sha256":"180d34a571365b225e515c873b794f8956c29065e559d72c4f5a2ca530b26b81"},
+  "coverage":{"bindings":9,"closed_key_sets":17,"strict_integer_fields":13,"external_cases":2,"frozen_negative_cases":84},
+  "expectation_properties":{"schema_closed":true,"extension_policy_none":true,"strict_bool_vs_int":true,"feature_temporal_order_complete":true,"opacity_last":true,"frozen_corpus_exact":true,"concrete_runtime_identity_values":0},
+  "authorability_check":{"exit":0,"errors":[],"status":"AUTHORABLE_NOT_SEALED"},
+  "r5_focal_observation":{"exit":0,"status":"FOCAL_MATERIALIZED_PASS_NOT_SEALED","controls":{"positive":"Preserved","opaque":"Unknown"},"inherited_killed":67,"r3_boundary_killed":17,"combined_killed":84,"combined_score":1.0,"deterministic":true,"orders":["normal","repeat","reverse"],"errors":[]},
+  "non_claims":["No seal is issued.","No candidate or product implementation/output was read or evaluated.","No reachability, refinement, general equivalence or product behavior is claimed.","The 84-case focal result is synthetic contract calibration, not product credit or a product verdict."]
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "p1341-oracle-authorability-r1",
+  "utc": "2026-09-10T17:41:52Z",
+  "status": "AUTHORABLE_NOT_SEALED",
+  "role": "independent oracle author",
+  "regime": "executado sem atestacao de isolamento",
+  "binding_manifest": {
+    "path": "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r1.json",
+    "roles": 9,
+    "content_sha256": "9fe1f7fa473150572cd1130a5161e1225fd87f76611d4c0615a5ae6c83a1dfa4",
+    "matches_contract": true
+  },
+  "expectations": {
+    "path": "00_nucleo/diagnosticos/p1341-oracle-expectations-r1.json",
+    "external_cases": 2,
+    "positive_classification": "Preserved",
+    "opaque_classification": "Unknown",
+    "negative_cases": 41,
+    "negative_classification": "Violated",
+    "forbidden_key_leaks": 0,
+    "runtime_value_leaks": 0
+  },
+  "contract_focal": {
+    "status": "FOCAL_PASS_NOT_SEALED",
+    "contract_status": "NOT_SEALED",
+    "positive": "Preserved",
+    "opaque": "Unknown",
+    "unique_negatives": 41,
+    "synthetic_negatives_classified_violated": 41,
+    "score": 1.0,
+    "deterministic": true,
+    "orders": ["normal", "repeat", "reverse"],
+    "errors": []
+  },
+  "authorability_check": {
+    "status": "AUTHORABLE_NOT_SEALED",
+    "errors": []
+  },
+  "scope_statement": "The static bindings and stable expectations are authorable ex ante against the protected R2 contract and focal. This is an authorial readiness result only.",
+  "non_claims": [
+    "No contract seal is issued.",
+    "No adversarial mutant is claimed to have been materially applied.",
+    "No candidate, product implementation, reachability, refinement or product behavior is evaluated.",
+    "The focal score is synthetic contract calibration and is not product credit or a verifier verdict."
+  ]
+}

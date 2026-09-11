@@ -1,0 +1,50 @@
+{
+  "schema": "p1341-contract-r4-v1",
+  "status": "NOT_SEALED",
+  "scope": "generic fail-closed refinement of the R3 synthetic lifecycle-observability contract; no candidate/product credit",
+  "regime": "executado sem atestacao de isolamento",
+  "base_contract": ["00_nucleo/diagnosticos/p1341-contract-r3.json", "066efbedb39b8c30892c4645000f533b15b6e1212e6cb1a62661349a9a3b3d04"],
+  "causal_inputs": {
+    "adversary_materializer_r2": ["00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r2.py", "a64d27ed681c2594b9a37bae71e052362fa14a04ec2346e081296c240c25ef06"],
+    "adversary_result_r2": ["00_nucleo/diagnosticos/p1341-adversary-result-r2.json", "f51ee0e4da4cf9db0cbf8264b3c9903d97a941e36a93d74bccfac6dc4437f7b2"]
+  },
+  "total_validation": {
+    "rule": "For every JSON-shaped input, classify returns Preserved, Unknown or Violated and never raises; malformed or unsupported structure is Violated.",
+    "accepted_scalar_identity_type": "non-empty JSON string",
+    "strict_integer": "JSON integer excluding boolean",
+    "unknown_order": ["strict_schema", "cell_identity", "runtime_identity_domains", "lifecycle_subject", "temporal_precedence", "span_source_coordinate", "base_r3_predicates", "opacity"]
+  },
+  "runtime_identity_domains": {
+    "runtime_id": {"prefix":"r-", "roles":"all objects", "unique":true},
+    "func_id": {"prefix":"func:", "roles":["func.callback","func.body"], "unique":true},
+    "carrier_id": {"prefix":"carrier:", "roles":["callback.with","func.callback","func.body"], "unique":true},
+    "value_id": {"prefix":"value:", "roles":["dict.result"], "unique":true},
+    "location": {"prefix":"location:", "events":["counter-occurrence"], "unique":true},
+    "snapshot_id": {"prefix":"snapshot:", "events":["counter-occurrence"], "unique":true},
+    "raw_span.source": {"prefix":"source:", "events":["counter-occurrence"], "unique":false},
+    "global_non_alias": "No identity scalar may occur in more than one (domain, owner) slot; equality across domains is Violated."
+  },
+  "lifecycle": {
+    "start": {"kind":"execution-start", "subject_role":"execution", "cardinality":1},
+    "end": {"kind":"execution-end", "subject_role":"execution", "cardinality":1},
+    "strict_precedence": ["execution-start", "callback-dispatch", "function-invoked", "body-started", "counter-occurrence", "dict-value", "execution-end"]
+  },
+  "counter_span": {
+    "strict_keys": ["source", "start", "end", "lexical_role"],
+    "source_coordinate": {"source_anchor":"source.main", "source_byte_offset":12, "byte_length":5, "lexical_role":"counter-consumer"},
+    "binding": "raw_span.source must equal source:<source_anchor>; start, end-start and lexical_role must equal the stable coordinate; all types are checked before arithmetic."
+  },
+  "materialized_gate": {
+    "protected_41": {"valid":41,"required_killed":41},
+    "r1_additional_10": {"valid":10,"required_killed":10},
+    "r2_new_16": {"valid":16,"required_killed":16},
+    "combined": {"valid":67,"required_killed":67,"required_score":1.0},
+    "orders": ["normal","repeat","reverse"],
+    "survivor_policy": "Unknown, CheckerError, exception, Preserved or missing result for any negative forces BLOCK_SEAL."
+  },
+  "limitations": [
+    "R4 remains NOT_SEALED until an independent verifier seals the pinned inputs.",
+    "The gate covers 67 materialized synthetic attacks, not product behavior, hook reachability or general equivalence.",
+    "No candidate/product source or output is an input."
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "schema": "p1342-contract-authorship-receipt-v1",
+  "step": 1342,
+  "role": "independent_contract_author",
+  "executor": "/root/p1342_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at_utc": "2026-09-10T20:51:13Z",
+  "verdict": "CONTRACT_AUTHORED_NOT_SEALED",
+  "verdict_scope": "The closed real-binding contract, LF fixture, static hook manifest and parser-derived coordinates are authored for the focal P1342 fragment only. No oracle, mutation score, seal, implementation acceptance, P1340 lifecycle/profile closure, NT01-NT06 closure, terminal-policy closure or general-equivalence claim is issued.",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256_after_outputs_before_receipt": "c62c03f942165b1d07706b6dac94afc34f6b5ca9275bd7a75b3ca5a6613a9326",
+    "tracked_diff_binary_sha256": "ff4dfff0c1401e48855b4116c5e11ce895e4c21fafc9977d8af5c218f6338a86",
+    "tracked_diff_stat": "72 files changed, 10881 insertions(+), 830 deletions(-)"
+  },
+  "authorized_input_pins": {
+    "00_nucleo/materialization/typst-passo-1342.md": "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48",
+    "00_nucleo/diagnosticos/p1342-authority-manifest.json": "d247e6714faf3249109beb3cfb2ef718a4d2049bb56c95aaabd270eb6eed87a4",
+    "00_nucleo/diagnosticos/p1342-candidate-free-inventory-r1.md": "06fe7dce0bf1130dca222f3148af7680f16b754ec0ac09a7956d11713042cb73",
+    "00_nucleo/diagnosticos/p1342-topology-audit-r1.md": "1c4f72cbd45075479618d5b567f15c6a3f034ec34e5a7b364f7fd1cbcf4b2154",
+    "00_nucleo/diagnosticos/p1342-topology-receipt-r1.json": "a9934dc64972a4154e1408b0b664c54612db11f2076ef34a159b0839001d8c4d",
+    "00_nucleo/diagnosticos/p1342-l0-freeze-r1.json": "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e",
+    "00_nucleo/diagnosticos/p1341-verifier-candidate-r1.json": "cf63928e5bc2360b58f6f828a3e5bb5ff8c82034e7ec513e3f098186588121f2"
+  },
+  "frozen_l0_check": {
+    "owners_checked": 10,
+    "mismatches": 0,
+    "result": "PASS"
+  },
+  "candidate_free_consumer_check": {
+    "consumers_checked": 10,
+    "mismatches": 0,
+    "result": "PASS"
+  },
+  "parser_measurement": {
+    "fixture_bytes": 178,
+    "line_endings": "LF",
+    "trailing_lf": true,
+    "method": "Built current typst-core, parsed the exact fixture through Source::detached, traversed the resulting CST with LinkedNode::range, and counted SyntaxKind::Error nodes.",
+    "root": "Markup 0..178",
+    "syntax_errors": 0,
+    "decisive_ranges": {
+      "syntax-body-CodeBlock": "64..121",
+      "dict-witness": "82..97",
+      "counter-update-FuncCall": "136..164",
+      "counter-update-args-span": "144..164",
+      "dict-prebound": "155..162"
+    },
+    "full_pipeline_probe": {
+      "command": "target/release/typst compile 00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ /tmp/p1342-contract-fixture-r1.pdf",
+      "exit": 0,
+      "interpretation": "The exact fixture parses and compiles through the candidate-free production pipeline; this is reachability evidence, not candidate acceptance."
+    }
+  },
+  "static_binding_validation": {
+    "hooks": 15,
+    "anchors_with_expected_unique_resolution": 15,
+    "anchor_failures": 0,
+    "special_scope": "H06's text occurs elsewhere in its file but exactly once inside the pinned eval_counter_method_value symbol, as declared by anchor_scope=symbol.",
+    "func_body_correction": "PASS: the stable role is syntax-body, species SyntaxNode/CodeBlock; func.body and Func species are forbidden.",
+    "runtime_address_frozen": false,
+    "post_hoc_projection_authorized": false
+  },
+  "validation": {
+    "json": {
+      "command": "python3 -m json.tool <each JSON artifact>",
+      "files": 3,
+      "result": "PASS"
+    },
+    "git_diff_check": {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ": "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714",
+    "00_nucleo/diagnosticos/p1342-contract-r1.json": "de5a23a6053ce9fae7d8a377044bf5a43381bd8fbc5a362dd159bdd33567e783",
+    "00_nucleo/diagnosticos/p1342-contract-r1.md": "a63943e98663fd5554014e081c73c3491fd3febb921d822543a89cacfe09c18c",
+    "00_nucleo/diagnosticos/p1342-contract-binding-manifest-r1.json": "57abe32b9dd0e09d12235fe26d4f02c75a67c4e837736ac4c08b19174d8598bb"
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "future_p1342_candidate_read": false,
+    "future_p1342_candidate_written": false,
+    "p1341_candidate_artifacts_read_beyond_pinned_predecessor": false,
+    "l0_written": false,
+    "productive_code_written": false,
+    "tests_or_oracles_written": false,
+    "attacks_written": false,
+    "seal_or_final_certificate_issued": false,
+    "write_allowlist_observed": "Only new 00_nucleo/diagnosticos/p1342-contract-* files were created."
+  },
+  "blockers": [],
+  "next_authority": "Independent oracle author and adversary may consume these artifacts; an independent preseal verifier must run the discriminatory gate before implementation is authorized."
+}

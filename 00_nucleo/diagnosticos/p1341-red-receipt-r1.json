@@ -1,0 +1,81 @@
+{
+  "schema": "p1341-red-receipt-r1",
+  "utc": "2026-09-10T18:29:31Z",
+  "role": "independent Testador A/B",
+  "executor": "/root/p1341_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "RED_AUTHORED_PENDING_SINGLE_INCLUDE",
+  "scope": "one real P1341 focal ledger, asserted in normal/repeat/reverse invocations; no candidate or product credit",
+  "preseal": {
+    "path": "00_nucleo/diagnosticos/p1341-verifier-preseal-r1.json",
+    "sha256": "c78b8f76ed64c99a8e4926e305af1eaf6d22c3a1384db4a6451f5f715909f7e7",
+    "verdict": "SEALED_FOR_IMPLEMENTATION"
+  },
+  "sealed_inputs_checked": {
+    "00_nucleo/diagnosticos/p1341-contract-r5.json": "511d96d96c6c6911bbaee610111339311eb6174cfc568598bb25b075b790b4d0",
+    "00_nucleo/diagnosticos/p1341-contract-r5-checker.py": "f9611cee52952b85ddefe110073645040fb9498fae42849cbe097fc590d6251a",
+    "00_nucleo/diagnosticos/p1341-contract-r5-focal.json": "495fb367c912391272c4ff3209337af6db9d23bab5df9510d39299b925db68c3",
+    "00_nucleo/diagnosticos/p1341-contract-r5-receipt.json": "fc954e0151acbefde20c6e06efbeb1e4ab8501631a534b0b7f21b7a2dbb0cce8",
+    "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r4.json": "ee24676d4e5a275ba560872ec0f08a1a716764760de5ad296d66eb675a6c6391",
+    "00_nucleo/diagnosticos/p1341-oracle-expectations-r4.json": "e28db40b5ddd55466c87e483a25b1dbee38381da2c731f770d6fd589ac84f884",
+    "00_nucleo/diagnosticos/p1341-oracle-authorability-checker-r4.py": "819d8e9b3c12657a7e617945c9008a75c6661dc1c6005e8c0908b11cf6aa8b0b",
+    "00_nucleo/diagnosticos/p1341-oracle-authorability-r4.json": "8d98ba11b2149fd6b633ac92b3636fbf3094a1d0f5c81f4715f622381527f739",
+    "00_nucleo/diagnosticos/p1341-oracle-receipt-r4.json": "fca507eca04232595e62d6a6a78882e109820d08b0b54077f13d715df4b11a60"
+  },
+  "output": {
+    "path": "00_nucleo/diagnosticos/p1341-implementation-tests.rs",
+    "sha256": "a542da1c05a75a9c3ebcc6fda8053833107805d031628a9edf0db7505f6a900a",
+    "lines": 308,
+    "writes_outside_allowlist": 0
+  },
+  "coverage": [
+    "closed ledger/object/event/payload/raw-span/typed-value schemas",
+    "external binding-manifest content pin",
+    "nine stable roles with exact object cardinality one",
+    "typed and globally non-aliased runtime/func/carrier/value/location/snapshot identities",
+    "execution, feature, callback dispatch, Func invocation, body, counter, Dict and end lifecycle order",
+    "producer/origin/carrier continuity and exact directed causal graph",
+    "effective counter key/action/ordinal/walked-content/span lexical witness",
+    "ordered recursively typed Dict pairs preserving int/string/bool",
+    "three independent real-focal invocations labelled normal/repeat/reverse"
+  ],
+  "required_test_only_api": {
+    "path": "03_infra/src/pipeline/context_stabilization.rs",
+    "signature_intent": "super::p1341_real_ledger_focal() -> serde_json::Value",
+    "constraint": "must execute the real pipeline and return its append-only runtime ledger; must not synthesize events from the test assertions or external oracle"
+  },
+  "single_include_required": "inside context_stabilization::observation, after the existing P1340 observer include: include!(concat!(env!(\"CARGO_MANIFEST_DIR\"), \"/../00_nucleo/diagnosticos/p1341-implementation-tests.rs\"));",
+  "red": {
+    "command": "RUSTFLAGS='--cfg p1339_observation' cargo test -p typst-infra pipeline::context_stabilization::observation::p1341_real_closed_ledger_normal_repeat_reverse -- --exact --nocapture",
+    "executed": false,
+    "reason": "The task forbids this author from writing the one productive include line. Until the integrator adds it, Cargo cannot discover the test; after inclusion the intended RED is compile-time absence of super::p1341_real_ledger_focal (E0425).",
+    "expected_failure": "cannot find function p1341_real_ledger_focal in module super",
+    "green_condition": "The same command exits 0 only after the real focal pipeline produces a closed R5-compatible ledger for all three invocations."
+  },
+  "syntax_check": {
+    "command": "rustfmt --check 00_nucleo/diagnosticos/p1341-implementation-tests.rs",
+    "exit": 0
+  },
+  "measurement_provenance": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "working_tree": "nao commitado",
+    "status_porcelain_z_sha256_before_receipt": "7f208432944e62b561115267b95b31b9aa4a17fc27c32939844fecec2c750a9e",
+    "tracked_diff_binary_sha256_before_receipt": "b3e18806e0b47f75c056bd28e8cf91ae7baeab1606d5d802dfd3c6fcbd539706",
+    "tracked_diff_stat_sha256_before_receipt": "761058a5e06864cdd34f159e2352ceab19947d49e6cc67d163ea24661f03426a"
+  },
+  "capabilities": {
+    "read": "sealed R5/R4/preseal inputs, five P1341 L0 owners and named current baseline/P1340 observer",
+    "write": [
+      "00_nucleo/diagnosticos/p1341-implementation-tests.rs",
+      "00_nucleo/diagnosticos/p1341-red-receipt-r1.json"
+    ],
+    "candidate_implementation_read": 0,
+    "candidate_output_read": 0,
+    "productive_or_l0_edits": 0
+  },
+  "limitations": [
+    "This receipt records an authored initial RED and its exact expected command; it does not falsely claim an execution before the required include exists.",
+    "The test covers one inspectable real focal, not the full 84-case synthetic mutation corpus.",
+    "Technical process isolation is not attested in the shared dirty working tree."
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "schema": "p1341-oracle-expectations-r1",
+  "status": "AUTHORED_NOT_SEALED",
+  "scope": "Stable ex ante semantic expectations for the synthetic lifecycle-observability fragment only; no product credit.",
+  "authority": {
+    "path": "00_nucleo/diagnosticos/p1341-authority-manifest.json",
+    "sha256": "b2da37d09be8aa7f568543e3562f04ab4cd5e919be2931b64c70af980f4eed5b"
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1341-contract-r2.json",
+    "sha256": "32edfcb45839ee30728be73bb9a972c64ce321a7e4ba707dd35b06f6ecbc7dab"
+  },
+  "binding_manifest": {
+    "path": "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r1.json",
+    "content_sha256": "9fe1f7fa473150572cd1130a5161e1225fd87f76611d4c0615a5ae6c83a1dfa4"
+  },
+  "external_cases": [
+    {
+      "expected_classification": "Preserved",
+      "expectation": {
+        "case_key": "synthetic-context-counter-dict.inspectable",
+        "cell_selector": {
+          "profile": "default",
+          "payload": "inspectable"
+        },
+        "source_coordinates": [
+          {
+            "context_ordinal": 0,
+            "source_byte_offset": 12,
+            "lexical_role": "context-expression"
+          }
+        ],
+        "required_roles": [
+          "execution",
+          "context.default",
+          "context.selected",
+          "callback.with",
+          "func.callback",
+          "func.body",
+          "counter.step.current",
+          "content.walked",
+          "dict.result"
+        ],
+        "callbacks": [
+          {
+            "callback_role": "callback.with",
+            "func_role": "func.callback",
+            "body_func_role": "func.body",
+            "phase": "eval",
+            "multiplicity_per_attempt": 1
+          }
+        ],
+        "counter_occurrences": [
+          {
+            "stable_role": "counter.step.current",
+            "key": "chapter",
+            "action": "step",
+            "occurrence_ordinal": 0,
+            "span_role": "counter-consumer",
+            "walked_content_role": "content.walked",
+            "multiplicity_per_attempt": 1
+          }
+        ],
+        "dict_expectations": [
+          {
+            "stable_role": "dict.result",
+            "typed_path": [],
+            "ordered_typed_value": {
+              "tag": "dict",
+              "pairs": [
+                [
+                  "outer",
+                  {
+                    "tag": "dict",
+                    "pairs": [
+                      ["a", {"tag": "int", "value": 1}],
+                      ["b", {"tag": "str", "value": "x"}]
+                    ]
+                  }
+                ],
+                ["done", {"tag": "bool", "value": true}]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "expected_classification": "Unknown",
+      "allowed_reason_code": "payload-deliberately-opaque",
+      "precondition": "All structural, completeness, binding, bijection, semantic-witness and causality checks pass before opacity is considered.",
+      "expectation": {
+        "case_key": "synthetic-context-counter-dict.opaque",
+        "cell_selector": {
+          "profile": "default",
+          "payload": "opaque"
+        },
+        "source_coordinates": [
+          {
+            "context_ordinal": 0,
+            "source_byte_offset": 12,
+            "lexical_role": "context-expression"
+          }
+        ],
+        "required_roles": [
+          "execution",
+          "context.default",
+          "context.selected",
+          "callback.with",
+          "func.callback",
+          "func.body",
+          "counter.step.current",
+          "content.walked",
+          "dict.result"
+        ],
+        "callbacks": [
+          {
+            "callback_role": "callback.with",
+            "func_role": "func.callback",
+            "body_func_role": "func.body",
+            "phase": "eval",
+            "multiplicity_per_attempt": 1
+          }
+        ],
+        "counter_occurrences": [
+          {
+            "stable_role": "counter.step.current",
+            "key": "chapter",
+            "action": "step",
+            "occurrence_ordinal": 0,
+            "span_role": "counter-consumer",
+            "walked_content_role": "content.walked",
+            "multiplicity_per_attempt": 1
+          }
+        ],
+        "dict_expectations": [
+          {
+            "stable_role": "dict.result",
+            "typed_path": [],
+            "ordered_typed_value": {
+              "tag": "dict",
+              "pairs": [
+                [
+                  "outer",
+                  {
+                    "tag": "dict",
+                    "pairs": [
+                      ["a", {"tag": "int", "value": 1}],
+                      ["b", {"tag": "str", "value": "x"}]
+                    ]
+                  }
+                ],
+                ["done", {"tag": "bool", "value": true}]
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "negative_cases": [
+    {"case_key":"inherited.missing-execution-start","fault":"missing-execution-start","expected_classification":"Violated"},
+    {"case_key":"inherited.missing-execution-end","fault":"missing-execution-end","expected_classification":"Violated"},
+    {"case_key":"inherited.event-outside-lifecycle","fault":"event-outside-lifecycle","expected_classification":"Violated"},
+    {"case_key":"inherited.cross-cell-reference","fault":"cross-cell-reference","expected_classification":"Violated"},
+    {"case_key":"omission.callback-role","fault":"omit-callback-role","expected_classification":"Violated"},
+    {"case_key":"omission.counter-role","fault":"omit-counter-role","expected_classification":"Violated"},
+    {"case_key":"omission.dict-role","fault":"omit-dict-role","expected_classification":"Violated"},
+    {"case_key":"opaque.missing-objects","fault":"missing-objects-then-opaque","expected_classification":"Violated"},
+    {"case_key":"opaque.missing-events","fault":"missing-events-then-opaque","expected_classification":"Violated"},
+    {"case_key":"opaque.missing-edges","fault":"missing-edges-then-opaque","expected_classification":"Violated"},
+    {"case_key":"opaque.missing-binding-pin","fault":"missing-binding-pin-then-opaque","expected_classification":"Violated"},
+    {"case_key":"opaque.unrecognized-reason","fault":"unknown-opacity-reason","expected_classification":"Violated"},
+    {"case_key":"boundary.callback-role","fault":"callback-wrong-stable-role","expected_classification":"Violated"},
+    {"case_key":"boundary.callback-phase","fault":"callback-wrong-phase","expected_classification":"Violated"},
+    {"case_key":"boundary.callback-extra","fault":"callback-extra","expected_classification":"Violated"},
+    {"case_key":"boundary.counter-witness-absent","fault":"counter-location-missing","expected_classification":"Violated"},
+    {"case_key":"boundary.counter-span-role","fault":"counter-wrong-span-role","expected_classification":"Violated"},
+    {"case_key":"boundary.causal-reference","fault":"causal-reference-missing","expected_classification":"Violated"},
+    {"case_key":"boundary.dict-top-order","fault":"dict-top-order","expected_classification":"Violated"},
+    {"case_key":"feature.coordinated-replacement","fault":"feature-coordinated-replacement","expected_classification":"Violated"},
+    {"case_key":"feature.origin-relabel","fault":"feature-origin-relabel","expected_classification":"Violated"},
+    {"case_key":"feature.fictitious-inherit","fault":"feature-fictitious-inherit","expected_classification":"Violated"},
+    {"case_key":"feature.witness-alias","fault":"feature-witness-alias","expected_classification":"Violated"},
+    {"case_key":"func.body-callback-alias","fault":"body-callback-func-alias","expected_classification":"Violated"},
+    {"case_key":"func.joint-replacement","fault":"callback-joint-func-replacement","expected_classification":"Violated"},
+    {"case_key":"func.carrier-alias","fault":"func-carrier-alias","expected_classification":"Violated"},
+    {"case_key":"func.wrong-producer","fault":"func-wrong-producer","expected_classification":"Violated"},
+    {"case_key":"counter.wrong-key","fault":"counter-wrong-key","expected_classification":"Violated"},
+    {"case_key":"counter.wrong-action","fault":"counter-wrong-action","expected_classification":"Violated"},
+    {"case_key":"counter.wrong-producer","fault":"counter-wrong-producer","expected_classification":"Violated"},
+    {"case_key":"counter.wrong-content","fault":"counter-wrong-content","expected_classification":"Violated"},
+    {"case_key":"counter.root-span-role","fault":"counter-root-span-role","expected_classification":"Violated"},
+    {"case_key":"lineage.content-cycle","fault":"lineage-content-cycle","expected_classification":"Violated"},
+    {"case_key":"dict.nested-retype","fault":"dict-nested-retype","expected_classification":"Violated"},
+    {"case_key":"dict.nested-reorder","fault":"dict-nested-reorder","expected_classification":"Violated"},
+    {"case_key":"dict.payload-change","fault":"dict-payload-change","expected_classification":"Violated"},
+    {"case_key":"dict.duplicate-nested-key","fault":"dict-duplicate-key","expected_classification":"Violated"},
+    {"case_key":"opaque.hides-callback-omission","fault":"opaque-hides-callback-omission","expected_classification":"Violated"},
+    {"case_key":"opaque.hides-invalid-span","fault":"opaque-hides-invalid-span","expected_classification":"Violated"},
+    {"case_key":"opaque.hides-feature-mismatch","fault":"opaque-hides-feature-mismatch","expected_classification":"Violated"},
+    {"case_key":"opaque.hides-dict-order","fault":"opaque-hides-dict-order","expected_classification":"Violated"}
+  ],
+  "authorial_limits": [
+    "These are stable semantic expectations authored before candidate inspection.",
+    "The negative vector states required classifications; adversarial materialization and a verifier verdict belong to other authorities.",
+    "No implementation existence, reachability, refinement, seal or product behavior is claimed."
+  ]
+}

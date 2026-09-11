@@ -1,0 +1,105 @@
+{
+  "schema": "p1341-adversary-result-r1",
+  "utc": "2026-09-10T17:47:08Z",
+  "role": "independent adversary",
+  "executor": "/root/p1341_adversary",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "COMPLETE_BLOCK_SEAL",
+  "scope": "synthetic lifecycle-observability discrimination only; no product credit",
+  "baseline": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_z_sha256_after_adversary_script": "6c47691124456291e9ebeaa9ecb50cfc0b92a199a8205e04a3edc33e39752861",
+    "tracked_diff_binary_sha256": "b5cfe4bff5207acbf6cf1feb7b85cb71efbcfe9ad928df5655d4bc444037382d"
+  },
+  "protected_inputs": {
+    "AGENTS.md": "bc50c0c6d54c0e301a5fe3c5c5869dbeef8fdf624096b0fa20185122c64d7da0",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d",
+    "00_nucleo/diagnosticos/p1341-authority-manifest.json": "b2da37d09be8aa7f568543e3562f04ab4cd5e919be2931b64c70af980f4eed5b",
+    "00_nucleo/diagnosticos/p1341-contract-r2.json": "32edfcb45839ee30728be73bb9a972c64ce321a7e4ba707dd35b06f6ecbc7dab",
+    "00_nucleo/diagnosticos/p1341-contract-r2-checker.py": "0bdfd901b9b3bf7fcc330f30ce2381c72f2830dbf0a4b611519b809a24faf001",
+    "00_nucleo/diagnosticos/p1341-contract-r2-focal.json": "6edf8c365ea71f86083c4da478c32f04849827e86759e971138c1ab5bb6ee6d6",
+    "00_nucleo/diagnosticos/p1341-contract-r2-receipt.json": "dfd5d1fea3ef1848678e7cb3fa17938fa286281c5f4f33c7da93320f754b88e7",
+    "00_nucleo/diagnosticos/p1341-oracle-authorability-r1.json": "19420f68fa01ca85bc55d6435d3c1f2e9b8b62e0127e880e8870f1f36dfaebb2",
+    "00_nucleo/diagnosticos/p1341-oracle-authorability-checker-r1.py": "550051366a97156f7670665446240d7ab94ce4f859edc915749abdfc2e13cc16",
+    "00_nucleo/diagnosticos/p1341-oracle-expectations-r1.json": "9b661deee8afffa602f8a013f2786345d7434f39bbd73728cfeaf4d8a10aacb1",
+    "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r1.json": "c1976995c6330af7b006633f9772dc9ca687f5b8288e1f8c65139926a3eef820"
+  },
+  "output": {
+    "materializer": "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r1.py",
+    "materializer_sha256": "ec0788fa2e77c6a3a76f4c123a70fe48f8211018d3e820131c143d5d47b4b891"
+  },
+  "controls": {
+    "positive": ["Preserved", "all-checks-passed"],
+    "opaque": ["Unknown", "payload-deliberately-opaque"]
+  },
+  "official_named_dispatch_control": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-contract-r2-checker.py 00_nucleo/diagnosticos/p1341-contract-r2.json 00_nucleo/diagnosticos/p1341-contract-r2-focal.json",
+    "exit": 0,
+    "reported": {"unique": 41, "killed": 41, "score": 1.0, "deterministic": true},
+    "adversarial_finding": "INVALID_AS_MUTATION_EVIDENCE: classify_mutation does not materialize or classify any transformed expectation/ledger; it returns Violated from the registered fault name."
+  },
+  "authorability_control": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-oracle-authorability-checker-r1.py 00_nucleo/diagnosticos/p1341-contract-r2.json 00_nucleo/diagnosticos/p1341-contract-r2-focal.json 00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r1.json 00_nucleo/diagnosticos/p1341-oracle-expectations-r1.json",
+    "exit": 0,
+    "status": "AUTHORABLE_NOT_SEALED"
+  },
+  "materialized_gate": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r1.py",
+    "exit": 1,
+    "orders": ["normal", "repeat", "reverse"],
+    "deterministic": true,
+    "protected_41": {
+      "valid": 41,
+      "killed": 38,
+      "survived": 3,
+      "score": 0.926829268292683,
+      "survivors": {
+        "R6-OMISSION-02": ["Preserved", "all-checks-passed", "coherent removal of counter requirement, object, event and edges"],
+        "R6-OMISSION-03": ["Preserved", "all-checks-passed", "coherent removal of Dict requirement, object, event and edge"],
+        "N-FUNC-WRONG-PRODUCER": ["Preserved", "all-checks-passed", "function-invoked subject aliased from func.callback to func.body"]
+      }
+    },
+    "additional_attacks": {
+      "valid": 10,
+      "killed": 2,
+      "survived": 8,
+      "score": 0.2,
+      "killed_ids": ["X-COUNTER-ACTION-CASE-SUBSTITUTION", "X-COUNTER-OCCURRENCE-ORDINAL"],
+      "survivors": {
+        "X-FEATURE-DUPLICATE-WITNESS": ["Preserved", "all-checks-passed"],
+        "X-FUNC-BODY-PRODUCER-ALIAS": ["Preserved", "all-checks-passed"],
+        "X-COUNTER-SPAN-COORDINATE-SUBSTITUTION": ["Preserved", "all-checks-passed"],
+        "X-LINEAGE-DISCONNECTED-DAG": ["Preserved", "all-checks-passed"],
+        "X-LINEAGE-REVERSED-ACYCLIC-EDGE": ["Preserved", "all-checks-passed"],
+        "X-DICT-CONTRADICTORY-TYPED-PATH": ["Preserved", "all-checks-passed"],
+        "X-OPAQUE-HIDES-FUNC-PRODUCER": ["Unknown", "payload-deliberately-opaque"],
+        "X-OPAQUE-HIDES-DISCONNECTED-LINEAGE": ["Unknown", "payload-deliberately-opaque"]
+      }
+    },
+    "combined": {"valid": 51, "killed": 40, "survived": 11, "score": 0.7843137254901961}
+  },
+  "protected_41_killed_ids": [
+    "R6-INHERIT-01", "R6-INHERIT-02", "R6-INHERIT-03", "R6-INHERIT-04",
+    "R6-OMISSION-01",
+    "R6-MISSING-OPAQUE-01", "R6-MISSING-OPAQUE-02", "R6-MISSING-OPAQUE-03", "R6-MISSING-OPAQUE-04", "R6-MISSING-OPAQUE-05",
+    "B-WITH-CALLSITE", "B-CALLBACK-PHASE", "B-EXTRA-CALLBACK", "B-COUNTER-WRONG-LOCATION", "B-COUNTER-READ-SPAN", "B-LINEAGE-BREAK", "B-DICT-TOP-ORDER",
+    "N-FEATURE-COORDINATED", "N-FEATURE-ORIGIN-RELABEL", "N-FEATURE-FICTITIOUS-INHERIT", "N-FEATURE-WITNESS-ALIAS",
+    "N-BODY-CALLBACK-FUNC", "N-CALLBACK-JOINT-FUNC", "N-FUNC-CARRIER-ALIAS",
+    "N-COUNTER-WRONG-KEY", "N-COUNTER-WRONG-ACTION", "N-COUNTER-WRONG-PRODUCER", "N-COUNTER-WRONG-CONTENT", "N-COUNTER-ROOT-ROLE",
+    "N-LINEAGE-CYCLE",
+    "N-DICT-NESTED-RETYPE", "N-DICT-NESTED-REORDER", "N-DICT-PAYLOAD", "N-DICT-DUPLICATE-NESTED-KEY",
+    "N-OPAQUE-HIDES-COVERAGE", "N-OPAQUE-HIDES-SPAN-RANGE", "N-OPAQUE-HIDES-FEATURE", "N-OPAQUE-HIDES-DICT-ORDER"
+  ],
+  "verdict": "BLOCK_SEAL",
+  "recommendation": "DO_NOT_SEAL: required materialized mutation score is 1.0 and the protected corpus has three survivors. The additional coherent attacks expose eight more survivors.",
+  "limitations": [
+    "This audit covers only the protected synthetic expectation/ledger fragment and does not claim general functional equivalence.",
+    "No candidate or product source, candidate output, P1340 implementation or P1340 output was read or executed.",
+    "Technical isolation is not attested; the result is therefore reported as executado sem atestacao de isolamento.",
+    "The baseline is a large uncommitted working tree shared with other authorities; hashes identify the measured state but do not prove exclusive capability isolation.",
+    "The detailed executable transformation for every protected and additional mutant is the pinned materializer source."
+  ]
+}

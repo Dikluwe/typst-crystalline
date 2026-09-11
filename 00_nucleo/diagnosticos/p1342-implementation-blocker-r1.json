@@ -1,0 +1,66 @@
+{
+  "schema": "p1342-implementation-blocker-v1",
+  "step": 1342,
+  "role": "implementer",
+  "regime": "executado sem atestacao de isolamento",
+  "recorded_at": "2026-09-10T19:33:12-03:00",
+  "repository_head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "working_tree": {
+    "snapshot_phase": "immediately before writing this receipt",
+    "state": "inherited-dirty-working-tree; no productive file edited by the P1342 implementer",
+    "tracked_diff_binary_sha256": "f73da54bdbeb1bd086caeff259b9517bdbf0f1648efcb8119d36699f5bcf0be5",
+    "status_porcelain_v1_z_sha256": "5f1198c734dcfc7cbdd7d6a67004c4414e34e3bea034b802a2fd2aef42a8817c",
+    "tracked_name_list_sha256": "cc792f7b067ce33603b9d7e4bf1ba45a6c84216e330daa91108a8c0b0d9c11ef",
+    "untracked_name_list_z_sha256": "06a222be4706c2795daaa80cbf4f22133df346e8a6389169a245d094c7219519"
+  },
+  "status": "blocked-before-candidate-edit",
+  "blocker": {
+    "class": "sealed-contract-topology-incompatibility",
+    "all_distinct_bound_consumers_matched_candidate_free_hashes_before_implementation": true,
+    "summary": "The sealed R3 judge imports R2, whose validate_manifest requires every bound consumer in the live candidate checkout to retain its candidate-free baseline SHA-256. The required facade and real H00D/H00S/H01-H16 hooks necessarily change those same consumer bytes, so a candidate that implements the contract cannot be accepted by that judge in the same checkout.",
+    "r3_import": {
+      "path": "00_nucleo/diagnosticos/p1342-oracle-checker-r3.py",
+      "lines": "23-40",
+      "fact": "R3 resolves and executes p1342-oracle-checker-r2.py as R2"
+    },
+    "conflicting_gate": {
+      "path": "00_nucleo/diagnosticos/p1342-oracle-checker-r2.py",
+      "lines": "230-271",
+      "condition_lines": "265-266",
+      "condition": "file_sha(ROOT / row['path']) must equal row['baseline_file_sha256'] for every manifest hook row",
+      "failure": "candidate-free consumer pin mismatch"
+    },
+    "required_mutation_example": {
+      "path": "03_infra/src/pipeline/context_stabilization.rs",
+      "candidate_free_sha256": "2f03c9e58856aa646245b5b1f7f6d41bdef21afd04f09c7c75eb88aa02aafa30",
+      "manifest_baseline_sha256": "2f03c9e58856aa646245b5b1f7f6d41bdef21afd04f09c7c75eb88aa02aafa30",
+      "requirements": [
+        "define context_stabilization::p1342_run_fixture_for_test",
+        "bind H00D/H00S and H01 in Session::execute",
+        "bind H16 in Session::stabilize"
+      ],
+      "consequence": "Any source implementation of these absent bindings changes the file SHA-256 and triggers the sealed candidate-free pin failure."
+    },
+    "sealed_test_reach": {
+      "path": "00_nucleo/diagnosticos/p1342-implementation-tests.rs",
+      "judge_driver_lines": "40-93",
+      "facade_call_lines": "105-123",
+      "sealed_checker_call_line": 152
+    },
+    "classification": "not an ADR-0127 gate; the frozen L0 permits the cfg-only implementation, but the independent acceptance predicate rejects the necessary candidate mutation"
+  },
+  "actions_not_taken": [
+    "no protected input was edited",
+    "no productive candidate file was edited",
+    "no P1341 artifact was used as implementation source",
+    "no sealed corpus was executed",
+    "no workaround via global side table, post-hoc evidence, or alternate consumer was attempted",
+    "no final verdict was issued"
+  ],
+  "existing_red": {
+    "status": "retained",
+    "first_error": "E0425: context_stabilization::p1342_run_fixture_for_test is absent",
+    "reason_not_advanced": "The task explicitly requires stopping when a real contract/topology incompatibility is discovered."
+  },
+  "required_resolution": "A segregated contract/oracle owner must revise or clarify the sealed acceptance design so candidate-free provenance is verified without requiring mutated live consumers to retain candidate-free byte hashes."
+}

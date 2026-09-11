@@ -1,0 +1,27 @@
+{
+  "schema":"p1341-oracle-receipt-r4",
+  "utc":"2026-09-10T18:15:06Z",
+  "status":"AUTHORSHIP_COMPLETE_NOT_SEALED",
+  "role":"independent oracle author",
+  "regime":"executado sem atestacao de isolamento",
+  "environment":{"repository":"/repos/Antigravity/typst-crystalline","head":"2f42d64253547734564513a1159ee6b584c1c4b4","working_tree":"nao commitado","status_porcelain_z_sha256_at_measurement":"87235e5170e6e5e2ae23f7696d521496c9b765a5b36701b9a28264ad30f6ad5c","tracked_diff_binary_sha256_at_measurement":"b5cfe4bff5207acbf6cf1feb7b85cb71efbcfe9ad928df5655d4bc444037382d"},
+  "capabilities":{"read_scope":["p1341-contract-r5.json","p1341-contract-r5-checker.py","p1341-contract-r5-focal.json","p1341-contract-r5-receipt.json"],"write_scope":["00_nucleo/diagnosticos/p1341-oracle-*-r4"],"forbidden_and_not_read":["candidate code or output","product implementation or output"],"prior_versions":"preserved without modification"},
+  "inputs":[
+    {"path":"00_nucleo/diagnosticos/p1341-contract-r5.json","sha256":"511d96d96c6c6911bbaee610111339311eb6174cfc568598bb25b075b790b4d0"},
+    {"path":"00_nucleo/diagnosticos/p1341-contract-r5-checker.py","sha256":"f9611cee52952b85ddefe110073645040fb9498fae42849cbe097fc590d6251a"},
+    {"path":"00_nucleo/diagnosticos/p1341-contract-r5-focal.json","sha256":"495fb367c912391272c4ff3209337af6db9d23bab5df9510d39299b925db68c3"},
+    {"path":"00_nucleo/diagnosticos/p1341-contract-r5-receipt.json","sha256":"fc954e0151acbefde20c6e06efbeb1e4ab8501631a534b0b7f21b7a2dbb0cce8"}
+  ],
+  "outputs":[
+    {"path":"00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r4.json","sha256":"ee24676d4e5a275ba560872ec0f08a1a716764760de5ad296d66eb675a6c6391","content_sha256":"180d34a571365b225e515c873b794f8956c29065e559d72c4f5a2ca530b26b81"},
+    {"path":"00_nucleo/diagnosticos/p1341-oracle-expectations-r4.json","sha256":"e28db40b5ddd55466c87e483a25b1dbee38381da2c731f770d6fd589ac84f884"},
+    {"path":"00_nucleo/diagnosticos/p1341-oracle-authorability-checker-r4.py","sha256":"819d8e9b3c12657a7e617945c9008a75c6661dc1c6005e8c0908b11cf6aa8b0b"},
+    {"path":"00_nucleo/diagnosticos/p1341-oracle-authorability-r4.json","sha256":"8d98ba11b2149fd6b633ac92b3636fbf3094a1d0f5c81f4715f622381527f739"}
+  ],
+  "commands":[
+    {"command":"python3 00_nucleo/diagnosticos/p1341-oracle-authorability-checker-r4.py 00_nucleo/diagnosticos/p1341-contract-r5.json 00_nucleo/diagnosticos/p1341-contract-r5-focal.json 00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r4.json 00_nucleo/diagnosticos/p1341-oracle-expectations-r4.json","exit":0,"stdout_sha256":"a149556a421a98fb31a18214182a0880795bab0ac294ec5d1af1fa052066d805","result":"AUTHORABLE_NOT_SEALED; schema closed; 17 key sets; 13 strict integer fields; 84 declared negatives; 0 concrete runtime identity values"},
+    {"command":"PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-contract-r5-checker.py 00_nucleo/diagnosticos/p1341-contract-r5.json 00_nucleo/diagnosticos/p1341-contract-r5-focal.json","exit":0,"stdout_sha256":"a3df3ff233a7cd1a43417103b15b3bc26bfa5234c58d0f1a85b1a71b78ed2a2a","result":"FOCAL_MATERIALIZED_PASS_NOT_SEALED; Preserved/Unknown controls; 84 of 84 synthetic negatives Violated; deterministic normal/repeat/reverse"}
+  ],
+  "authorial_conclusion":"The closed R5 schema, pinned binding manifest and complete ex ante expectations for the frozen 84-case corpus are authorable without concrete runtime identities.",
+  "limitations":["This receipt is not a seal or verifier certificate.","It grants no candidate or product credit and makes no reachability or general-equivalence claim."]
+}

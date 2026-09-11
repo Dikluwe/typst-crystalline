@@ -1,0 +1,104 @@
+{
+  "schema": "p1343-adversary-receipt-r2",
+  "step": 1343,
+  "revision": 2,
+  "role": "independent_adversary_revalidation",
+  "executor": "/root/p1343_adversary_r2",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-10T22:27:56-03:00",
+  "status": "ADVERSARIAL_SURVIVORS_BLOCK_PRESEAL",
+  "causal_predecessor": {
+    "oracle_authorship_receipt_r2": [
+      "00_nucleo/diagnosticos/p1343-oracle-authorship-receipt-r2.json",
+      "d1b240846ab14f3501e05f7c675eb44bdea30cd183e167f73fdc288c94a18dc2"
+    ]
+  },
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1343.md", "6db7b3bb119f4038f88b8916209a4fcd7d1485b820143308ae788192a921a87b"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1343-authority-manifest.json", "d41aff08708b9fa72ac1d130ee71543f5048ebf2dc6944c25aba9a42b866dc3b"],
+    "capsule_baseline": ["00_nucleo/diagnosticos/p1343-capsule-baseline-r1.json", "db143d9fec795ec81ce7a69be5e08b09e451a9d6eb07a1a39cd1dcd41ee82977"],
+    "contract": ["00_nucleo/diagnosticos/p1343-contract-spec-r1.json", "67107164ddb631e2c1539ca88c90658041811dc389bbae47cb2738312a5f3467"],
+    "binding": ["00_nucleo/diagnosticos/p1343-contract-binding-r1.json", "fbd5ff5f9f32594f95b6b76ea11b562fd1772172dde3a80d4083c9e401ccea85"],
+    "contract_receipt": ["00_nucleo/diagnosticos/p1343-contract-receipt-r1.json", "dfccfd81e7254c5c22d3de9530a3fd55b267e906e503de62c27da91539026e15"],
+    "source_verifier_r1": ["00_nucleo/diagnosticos/p1343-source-verifier-r1.py", "07c5827a578ad298ba5f777d56395d9bc66eab156a9500a6730a5cdc335bf146"],
+    "checker_r1": ["00_nucleo/diagnosticos/p1343-oracle-checker-r1.py", "ee8f8b5fa212753d1e90294ee6f6d1559ec9d717a667169f596e33c8b2b576e8"],
+    "corpus_r1": ["00_nucleo/diagnosticos/p1343-oracle-corpus-r1.json", "294e83c280086f64466651e9f5971e55968710dae639fdbaa6eb984cd2442ea1"],
+    "source_verifier_r2": ["00_nucleo/diagnosticos/p1343-source-verifier-r2.py", "fa7c15eea4b45e83c5f078a7a3820bd0499d55087aaa96f7863ea5229495512d"],
+    "checker_r2": ["00_nucleo/diagnosticos/p1343-oracle-checker-r2.py", "ff6d83c9dbfe356b2068204e15d05025f10d83eacb902d9b9c1511a20b098ab9"],
+    "corpus_r2": ["00_nucleo/diagnosticos/p1343-oracle-corpus-r2.json", "72eb41172966de03a42dfc26eea39f7c426f38123f6ba512bb8bc663a30cfcce"],
+    "authorship_r2": ["00_nucleo/diagnosticos/p1343-oracle-authorship-r2.md", "eaf46ddbb047a5725c8f65832691a4b193f80c2c3028cd19d3131455f807171c"],
+    "authorship_receipt_r2": ["00_nucleo/diagnosticos/p1343-oracle-authorship-receipt-r2.json", "d1b240846ab14f3501e05f7c675eb44bdea30cd183e167f73fdc288c94a18dc2"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1342-l0-freeze-r1.json", "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"],
+    "fixture": ["00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"],
+    "p1342_contract_r3": ["00_nucleo/diagnosticos/p1342-contract-spec-r3.json", "07689c204f8741cdcfcc23bef9fa4af969dba6d991caaa93afaf117eb7ac73e7"],
+    "p1342_binding_r3": ["00_nucleo/diagnosticos/p1342-contract-binding-r3.json", "8630a376350d374f854345c37282ac8fbb657f2f9a8506b7de47bda7b8276bf5"],
+    "adversary_runner_r1": ["00_nucleo/diagnosticos/p1343-adversary-runner-r1.py", "6064ab8d20199cd5fc0d938c97bbda4e0be1d3882a1d784b537565714595a899"],
+    "adversary_report_r1": ["00_nucleo/diagnosticos/p1343-adversary-report-r1.json", "2ceaf77378591bb16458d3e594d1c9f4ff459f6bcdfffc2f3665df8894e9ff8d"],
+    "adversary_receipt_r1": ["00_nucleo/diagnosticos/p1343-adversary-receipt-r1.json", "00dd7a228654f02ab01a10e29ed97195d8ff66570da75bfbf76e0b0064961802"]
+  },
+  "outputs": {
+    "runner": ["00_nucleo/diagnosticos/p1343-adversary-runner-r2.py", "8f93520298b8751fd8fbea3430e014ce6e9b938a05431d929538538773402aaf"],
+    "report_json": ["00_nucleo/diagnosticos/p1343-adversary-report-r2.json", "9900f35702456c59d1183a9d43ab3c3c32afe6a10c3c82c64f8903a1f4488586"],
+    "report_md": ["00_nucleo/diagnosticos/p1343-adversary-report-r2.md", "3c58379fe69ebd38bb4393dff123730188f163fc8d5ac6c67e36e54a8e4374e9"]
+  },
+  "execution": {
+    "command": "python3 -B 00_nucleo/diagnosticos/p1343-adversary-runner-r2.py",
+    "temporary_root": "/dev/shm",
+    "full_corpus_runs": 0,
+    "attacks": 31,
+    "valid_negatives": 30,
+    "negative_violated": 14,
+    "mutation_score": 0.4666666666666667,
+    "new_survivors": 16,
+    "invalid_negative_cases": [],
+    "legacy_replay": "ADV01-ADV10 correctly Violated; ADV11 correctly Preserved and rustfmt parsed 10/10 files"
+  },
+  "survivors": [
+    "R2A01-qualified-writer-alias",
+    "R2A02-unlisted-retain-mutator",
+    "R2A03-indirect-index-assignment",
+    "R2A04-dead-closure-hook",
+    "R2A05-hook-literal-in-comment",
+    "R2A08-cfg-macro-comment-split",
+    "R2A09-facade-calls-under-if-false",
+    "R2A10-facade-reuses-world-source-challenge",
+    "R2A11-formatted-but-fabricated-runtime",
+    "R2A12-posthoc-event-struct-literal",
+    "R2A13-posthoc-event-macro",
+    "R2A14-projection-mutates-through-helper",
+    "R2A15-shadowed-wrong-raw-snapshot",
+    "R2A16-exact-clone-only-in-dead-closure",
+    "R2A17-attacker-consistent-corpus-pin",
+    "R2A18-duplicate-json-key-corpus"
+  ],
+  "validation": {
+    "protected_input_hashes": "PASS before execution",
+    "runner_python_syntax": "PASS via ast.parse",
+    "report_json": "PASS via json.load",
+    "preserved_source_mutant_rustfmt_parse": "PASS for every survivor; 0 invalid negatives",
+    "git_diff_check": "PASS for the runner before reports; final output-only check recorded by parent integration",
+    "full_discriminatory_corpus": "NOT_RUN_BY_ROLE_AND_STOP_CONDITION",
+    "preseal": "FORBIDDEN",
+    "seal": "NOT_ISSUED"
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "future_candidate_read": false,
+    "contract_or_oracle_modified": false,
+    "productive_code_or_rust_test_written": false,
+    "verdict_material_corrected_by_adversary": false,
+    "write_allowlist_observed": [
+      "00_nucleo/diagnosticos/p1343-adversary-runner-r2.py",
+      "00_nucleo/diagnosticos/p1343-adversary-report-r2.json",
+      "00_nucleo/diagnosticos/p1343-adversary-report-r2.md",
+      "00_nucleo/diagnosticos/p1343-adversary-receipt-r2.json"
+    ]
+  },
+  "limitations": [
+    "Shared workspace prevents technical attestation of isolation.",
+    "The source scanner is focal; rustfmt parse does not establish successful name resolution or compilation of every synthetic mutant.",
+    "No full corpus, preseal, RED, implementation, productive build or final certificate follows from this receipt.",
+    "The verdict is restricted to P1343/P1342 and does not close P1340, NT01-NT06, retention or terminal policy."
+  ],
+  "next_authority": "Oracle/protocol author must redesign the failing semantic and root-pin boundaries, then a separate adversary must revalidate focal survivors before any full preseal run."
+}

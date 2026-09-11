@@ -1,0 +1,168 @@
+{
+  "schema": "p1342-static-binding-manifest-v3",
+  "step": 1342,
+  "revision": 3,
+  "regime": "executado sem atestacao de isolamento",
+  "predecessor": [
+    "00_nucleo/diagnosticos/p1342-contract-binding-r2.json",
+    "3b522cf1b0f288fe1e472f21f775089541835ede754250a14a3c2d17c17e9d48"
+  ],
+  "fixture": [
+    "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ",
+    "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"
+  ],
+  "l0_freeze": [
+    "00_nucleo/diagnosticos/p1342-l0-freeze-r1.json",
+    "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"
+  ],
+  "composition": {
+    "method": "exact-predecessor-row-overlay",
+    "rule": "Load the predecessor by exact SHA-256, require its closed schema and its 19 hook rows byte-for-byte, then join each R3 row_overlay to the predecessor row with the same zero-based row_index and hook. Missing, extra, reordered, duplicated or mismatched rows are invalid. Every predecessor field remains normative except the live-file interpretation of baseline_file_sha256, which is replaced by historical_baseline_policy below.",
+    "manifest_rows": 19,
+    "applicable_rows_per_origin_cell": 18,
+    "exclusive_attempt_rows": [
+      "H00D-attempt-kind-discovery",
+      "H00S-attempt-kind-selected"
+    ]
+  },
+  "historical_baseline_policy": {
+    "meaning_of_baseline_file_sha256": "Historical candidate-free file digest measured before any P1342 candidate and attested by the applicable sealed preseal together with the exact manifest, Rust-aware symbol/branch anchors and baseline snippets.",
+    "live_candidate_comparison": "FORBIDDEN. A candidate checker must never require the live post-patch file SHA-256 to equal baseline_file_sha256. A mismatch caused by an authorized P1342 observation patch is expected and is neither Preserved nor Violated by itself.",
+    "baseline_anchor_snippet_definition": "SHA-256 of the exact UTF-8 anchor_needle bytes in the candidate-free view; the sealed baseline attestation must additionally retain the exact snippet bytes, enclosing Rust symbol/branch identity and enough Rust-aware structural context to reproduce uniqueness.",
+    "preseal_requirement": "A reissued preseal for R3 must pin this manifest, its predecessor, all 19 composed rows, all baseline file hashes, all baseline anchor snippet hashes and a byte-readable candidate-free source/AST snapshot sufficient for later allowed-diff comparison.",
+    "forbidden_inference": "Historical equality does not prove a candidate binding, and historical inequality does not reject a candidate binding. Candidate acceptance uses independent post-patch source evidence and runtime coverage."
+  },
+  "candidate_source_evidence_contract": {
+    "schema": "p1342-candidate-source-evidence-v1",
+    "provenance": "Created after the candidate patch by an independent candidate-source verifier from the sealed baseline view plus the live candidate checkout. It is external to the DTO and test facade and is pinned by SHA-256 outside candidate control.",
+    "closed_top_level_keys": [
+      "schema",
+      "step",
+      "contract_sha256",
+      "binding_sha256",
+      "preseal",
+      "baseline_attestation",
+      "candidate_tree",
+      "files",
+      "rows",
+      "allowed_diff_boundaries",
+      "writer_projection_audit",
+      "runtime_coverage",
+      "verifier_receipt"
+    ],
+    "file_keys": [
+      "path",
+      "baseline_file_sha256",
+      "candidate_file_sha256",
+      "candidate_bytes",
+      "rust_parse_ok",
+      "outside_allowed_boundaries_equal"
+    ],
+    "row_keys": [
+      "row_index",
+      "hook",
+      "path",
+      "candidate_file_sha256",
+      "symbol",
+      "branch",
+      "anchor_needle",
+      "baseline_anchor_snippet_sha256",
+      "candidate_anchor_snippet_sha256",
+      "candidate_symbol_sha256",
+      "cfg_predicate",
+      "anchor_matches_in_symbol_branch",
+      "observation_adjacency",
+      "allowed_diff_boundary_ids",
+      "runtime_coverage_refs"
+    ],
+    "allowed_diff_boundary_keys": [
+      "id",
+      "path",
+      "rust_owner_symbol",
+      "cfg_predicate",
+      "baseline_ast_region_sha256",
+      "candidate_ast_region_sha256",
+      "candidate_byte_range",
+      "change_kind",
+      "semantic_surface",
+      "outside_region_unchanged"
+    ],
+    "writer_projection_audit_keys": [
+      "append_writer_symbol",
+      "append_writer_candidate_symbol_sha256",
+      "all_writer_callsites",
+      "alternate_writers",
+      "projection_symbols",
+      "projection_writes",
+      "raw_snapshot_created_before_projection",
+      "result"
+    ],
+    "runtime_coverage_keys": [
+      "fixture_sha256",
+      "modes",
+      "row_coverage",
+      "raw_snapshot_refs",
+      "result"
+    ],
+    "cardinality": "Exactly one file record per distinct predecessor path and exactly one row record per composed manifest row. row_coverage has exactly one entry per row for normal, repeat and reverse, subject only to the H00D/H00S per-cell exclusivity and the predecessor cardinality formulae.",
+    "rust_aware_rule": "A Rust parser resolves the declared symbol and branch, the inherited anchor exactly once there, and the cfg(p1339_observation) observation append/transport immediately at the inherited relative_position. Text search, line-number coincidence, cfg(test) decoys and evidence from another branch are invalid.",
+    "allowed_diff_rule": "The independent verifier compares the sealed candidate-free source/AST snapshot to the live candidate AST. Every changed Rust node or byte hunk must be wholly covered by an enumerated boundary owned by a composed row or the authorized cfg-only facade, guarded by cfg(p1339_observation) or all(test,p1339_observation), and must not change normal product semantics, public API, default behavior or pipeline phase. All bytes/nodes outside the union must be equal to the sealed baseline view.",
+    "whole_file_rule": "candidate_file_sha256 is computed independently from every complete live candidate file and repeated in every row that names that path. It is compared with the live bytes and with sibling row records, never with baseline_file_sha256 as an acceptance equality.",
+    "writer_projection_rule": "Rust-aware call-graph/source inspection must establish exactly one encapsulated append writer, enumerate every callsite, find no alternate raw writer or post-hoc constructor, and prove every projection path read-only. Runtime coverage must map actual receipts to each composed row before DTO projection.",
+    "pin_rule": "The candidate checker receives the evidence path and SHA-256 from the independent verifier invocation. A path/hash carried only inside the DTO or facade is untrusted and cannot satisfy this requirement."
+  },
+  "closed_metadata": {
+    "top_level_keys": [
+      "schema",
+      "step",
+      "revision",
+      "regime",
+      "predecessor",
+      "fixture",
+      "l0_freeze",
+      "composition",
+      "historical_baseline_policy",
+      "candidate_source_evidence_contract",
+      "closed_metadata",
+      "row_overlay",
+      "forbidden_bindings"
+    ],
+    "row_overlay_keys": [
+      "row_index",
+      "hook",
+      "baseline_anchor_snippet_sha256"
+    ]
+  },
+  "row_overlay": [
+    {"row_index":0,"hook":"H00D-attempt-kind-discovery","baseline_anchor_snippet_sha256":"d5077f401bc4b712fb1d5cf2bda1c296b7eae7389fb150246d75915cc990e7eb"},
+    {"row_index":1,"hook":"H00S-attempt-kind-selected","baseline_anchor_snippet_sha256":"7cc989187dbfe94d46cc2114c7bb2948a3944ad264f8fee65e2e2f4e86c3a8f2"},
+    {"row_index":2,"hook":"H01-attempt-open","baseline_anchor_snippet_sha256":"0c18020b674bdba97ad7c0bd84f9d84d0d5390b7fea66b248de7f2460ff54161"},
+    {"row_index":3,"hook":"H02-context-dispatch","baseline_anchor_snippet_sha256":"cd838f768a6cd859f191ca059a6ade4d552ca9316d10bb63ed8cd233800d8446"},
+    {"row_index":4,"hook":"H03-attempt-result","baseline_anchor_snippet_sha256":"c575bd5f5bb2544f2a5a0aadf50616d288ed5762292cc786fb954da452022abf"},
+    {"row_index":5,"hook":"H04-eval-carrier-transport","baseline_anchor_snippet_sha256":"9cbbf040b03d9e64b690e94c052d93945fb77809321a5e63d0e915b80e251c61"},
+    {"row_index":6,"hook":"H05-dict-production","baseline_anchor_snippet_sha256":"0af8b10f87d914aeb38e48e90f4c09f61f2214b0a67acac17ceedfa94a05c899"},
+    {"row_index":7,"hook":"H06-counter-update-span","baseline_anchor_snippet_sha256":"f12bf5a8a0418504af594da81e47ebf743b9db030af47588eafa8da26b940eea"},
+    {"row_index":8,"hook":"H07-occurrence-created","baseline_anchor_snippet_sha256":"878f375b73debcc34bce0f9b2e9b2fbd3f05d79f60a5c3bc6112db475881bfd9"},
+    {"row_index":9,"hook":"H08-func-carrier-slot","baseline_anchor_snippet_sha256":"45cddcb7357a5f356e627c7c61997ee91313726a481363d2eff31f55f878e34f"},
+    {"row_index":10,"hook":"H09-with-object","baseline_anchor_snippet_sha256":"b40c6b17f53872fa01aaad90e4b15bd387e73b4adf605227c4693089dd7489b0"},
+    {"row_index":11,"hook":"H10-action-carrier-clone","baseline_anchor_snippet_sha256":"db5d5f426ca477d9495b80a1a151dd49a8ccef586acd57a682d584cc3a406609"},
+    {"row_index":12,"hook":"H11-occurrence-walked","baseline_anchor_snippet_sha256":"1978b19c3379eb4a5689536b855287eb197946356a2f8e14bb58f502df287dbf"},
+    {"row_index":13,"hook":"H12A-replay-enter","baseline_anchor_snippet_sha256":"4a938ad6b97005b60529aa195be4b7be9cb4a79f4bfaf06931df9124905ff23b"},
+    {"row_index":14,"hook":"H12B-replay-exit","baseline_anchor_snippet_sha256":"5b6d3cd8df9064a722ffc76578dabbccc44e7424dc8a3e5111727eeba6012671"},
+    {"row_index":15,"hook":"H13-func-dispatch","baseline_anchor_snippet_sha256":"20f63d968bca11ae7e0dbb7805cc1c6cbdce8ee074bafa49aa8a04e6e8518421"},
+    {"row_index":16,"hook":"H14-with-edge","baseline_anchor_snippet_sha256":"f3feba947e65bd148054475c899f92f1e90dc2336b33328562c798c5d0d5b112"},
+    {"row_index":17,"hook":"H15-syntax-body","baseline_anchor_snippet_sha256":"707d6c76101179cc06546b0ae13ad5bd8c4884bc8a030d8bf719e7cd0531c086"},
+    {"row_index":18,"hook":"H16-raw-freeze-before-projection","baseline_anchor_snippet_sha256":"9d8988ebc76f4717ab90c9ce89cf266e64dc44c16b4283b434be2f5278bbb3bc"}
+  ],
+  "forbidden_bindings": [
+    "compare a live post-patch candidate file hash to baseline_file_sha256 as an acceptance equality",
+    "accept candidate static evidence from DTO or facade fields",
+    "accept unpinned or candidate-authored source evidence",
+    "accept textual matching without Rust symbol/branch/cfg resolution",
+    "accept a changed byte or Rust node outside an allowed diff boundary",
+    "accept cfg(test) decoy or fixture-unreached binding",
+    "accept more than one raw-ledger writer or any projection write",
+    "accept runtime coverage without a matching external row record",
+    "drop or weaken any R2 B01-B05 closure, carrier rule, Location/snapshot rule, append proof, attempt-kind/R rule or Unknown precedence"
+  ]
+}

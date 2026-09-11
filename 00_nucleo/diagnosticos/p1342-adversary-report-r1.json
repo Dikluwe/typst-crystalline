@@ -1,0 +1,161 @@
+{
+  "schema": "p1342-adversary-report-v1",
+  "step": 1342,
+  "revision": 1,
+  "role": "independent_adversary",
+  "executor": "/root/p1342_adversary",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at_utc": "2026-09-10T21:12:25Z",
+  "verdict": "BLOCKER_NOT_SEALED",
+  "verdict_scope": "The frozen P1342 R1 checker is not sufficiently discriminatory for the focal real-binding fragment. This is not an implementation verdict, final certificate, lifecycle/profile conclusion, NT01-NT06 conclusion or terminal-policy conclusion.",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256": "c2f6c9f94a9b72644df73854104152b27f250803436f5e3d4a66d24c616d3344",
+    "tracked_diff_binary_sha256": "ff4dfff0c1401e48855b4116c5e11ce895e4c21fafc9977d8af5c218f6338a86",
+    "tracked_diff_stat": "72 files changed, 10881 insertions(+), 830 deletions(-)"
+  },
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1342.md", "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1342-authority-manifest.json", "d247e6714faf3249109beb3cfb2ef718a4d2049bb56c95aaabd270eb6eed87a4"],
+    "candidate_free_inventory": ["00_nucleo/diagnosticos/p1342-candidate-free-inventory-r1.md", "06fe7dce0bf1130dca222f3148af7680f16b754ec0ac09a7956d11713042cb73"],
+    "topology_audit": ["00_nucleo/diagnosticos/p1342-topology-audit-r1.md", "1c4f72cbd45075479618d5b567f15c6a3f034ec34e5a7b364f7fd1cbcf4b2154"],
+    "topology_receipt": ["00_nucleo/diagnosticos/p1342-topology-receipt-r1.json", "a9934dc64972a4154e1408b0b664c54612db11f2076ef34a159b0839001d8c4d"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1342-l0-freeze-r1.json", "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"],
+    "contract": ["00_nucleo/diagnosticos/p1342-contract-r1.json", "de5a23a6053ce9fae7d8a377044bf5a43381bd8fbc5a362dd159bdd33567e783"],
+    "contract_markdown": ["00_nucleo/diagnosticos/p1342-contract-r1.md", "a63943e98663fd5554014e081c73c3491fd3febb921d822543a89cacfe09c18c"],
+    "binding_manifest": ["00_nucleo/diagnosticos/p1342-contract-binding-manifest-r1.json", "57abe32b9dd0e09d12235fe26d4f02c75a67c4e837736ac4c08b19174d8598bb"],
+    "fixture": ["00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"],
+    "contract_receipt": ["00_nucleo/diagnosticos/p1342-contract-authorship-receipt-r1.json", "d04031c54b1d8e6ee18de643ef311292f02a6bab36c01f0d4037b6e57d41bc4f"],
+    "oracle_authorship": ["00_nucleo/diagnosticos/p1342-oracle-authorship-r1.md", "24921171e23e932e9aa2d18ee35e547dd3d2c1c4d313d300cc84f69976348291"],
+    "oracle_receipt": ["00_nucleo/diagnosticos/p1342-oracle-authorship-receipt-r1.json", "e1de2bcb5ac98121dbca913204689b6d23f15b52d186cb6983729c4e2e352bd2"],
+    "oracle_checker": ["00_nucleo/diagnosticos/p1342-oracle-checker-r1.py", "99735c9ba6bab67a86bba897f7765796dcaf92c43f9198dd62d0cb06d354ce61"],
+    "oracle_corpus": ["00_nucleo/diagnosticos/p1342-oracle-corpus-r1.json", "880978de128ca3582bfc6e59da0ed8753734a5af34687a8f03b8ba28ed0eb3da"]
+  },
+  "harness": {
+    "path": "00_nucleo/diagnosticos/p1342-adversary-runner-r1.py",
+    "sha256": "1d5a2ef7cb12b8fe37298edcf5794c68b3ed73b3741fa0d098e3fbe42ce8d236",
+    "command": "python3 -B 00_nucleo/diagnosticos/p1342-adversary-runner-r1.py --checker 00_nucleo/diagnosticos/p1342-oracle-checker-r1.py --contract 00_nucleo/diagnosticos/p1342-contract-r1.json --manifest 00_nucleo/diagnosticos/p1342-contract-binding-manifest-r1.json --corpus 00_nucleo/diagnosticos/p1342-oracle-corpus-r1.json",
+    "method": "Import the exact frozen checker, deep-copy the frozen selected-r1 DTO and manifest, apply one valid semantic negative mutation in memory, then invoke validate_static_manifest and validate_dto unchanged. No judged artifact is modified."
+  },
+  "baseline_oracle_run": {
+    "cases": 23,
+    "positive_preserved": 2,
+    "negative_violated": 20,
+    "opaque_unknown": 1,
+    "agreement": true
+  },
+  "discriminatory_gate": {
+    "valid_negative_mutations": 36,
+    "rejected_as_violated": 16,
+    "survived_as_preserved": 19,
+    "survived_as_unknown": 1,
+    "mutation_score": 0.4444444444444444,
+    "required_score": 1.0,
+    "stable_normal_repeat_reverse": true,
+    "normal_cases": 36,
+    "repeat_cases": 36,
+    "reverse_cases": 36,
+    "classification_relation": "Every case had the same actual classification in normal, repeat and reverse. Stability does not rescue the 20 surviving negatives."
+  },
+  "matrix": [
+    {"id":"A01-dead-h06-branch-anchor","vector":"dead H06 anchor on fixture-unreached display branch","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A02-dead-h15-else-anchor","vector":"dead H15 anchor on CodeBlock conversion else branch","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A03-fabricated-h08-test-anchor","vector":"H08 rebound to cfg(test) function with fabricated role/species/reach/cardinality","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A04-binding-metadata-adulterated","vector":"bool revision, forged baseline, empty forbidden list and adulterated hook metadata","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A05-invalid-anchor-scope-enum","vector":"unknown anchor_scope value","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A06-fixed-runtime-ids-across-runs","vector":"identical concrete runtime IDs reused across all runs","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A07-posthoc-event-ids-and-ordinals","vector":"all event IDs, predecessors and ordinals regenerated post hoc","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A08-carrier-lost-outer-dispatch","vector":"carrier changed at outer Func dispatch","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A09-carrier-lost-with-edge","vector":"carrier changed at With edge","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A10-carrier-lost-inner-dispatch","vector":"carrier changed at inner Func dispatch","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A11-carrier-lost-closure-dispatch","vector":"carrier changed at closure dispatch","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A12-carrier-lost-body-enter","vector":"carrier changed at syntax-body enter","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A13-carrier-lost-body-exit","vector":"carrier changed at syntax-body exit","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A14-location-lost-replay-exit","vector":"replay exit points to unrelated Location","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A15-snapshot-post-fabricated","vector":"post snapshot identity fabricated without productive provenance","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A16-extra-event-inserted","vector":"extra Dict event inserted under unknown role","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A17-extra-event-duplicated","vector":"duplicate witness Dict event","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"A18-bool-as-int-in-unvalidated-event","vector":"bool substituted for nominal int in ignored extra Dict event","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A19-swapped-span-in-unvalidated-event","vector":"syntax-body span used on ignored prebound-like Dict event","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A20-r-self-declared-by-fabricated-events","vector":"complete R=1 event claim accepted after relabelling attempt as discovery","normal":"Preserved","repeat":"Preserved","reverse":"Preserved","result":"SURVIVED"},
+    {"id":"A21-unknown-before-carrier-proof","vector":"witness opaque plus carrier loss at body enter","normal":"Unknown","repeat":"Unknown","reverse":"Unknown","result":"SURVIVED"},
+    {"id":"C01-source-span-swapped","vector":"occurrence span changed from 144..164 to 64..121","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C02-body-span-swapped","vector":"syntax-body span changed from 64..121 to 144..164","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C03-dicts-swapped","vector":"prebound and witness Dict payloads exchanged","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C04-dict-reordered","vector":"witness Dict order/content changed","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C05-fictitious-func-body","vector":"syntax-body kind changed to Func","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C06-cross-domain-alias","vector":"Location replaced by snapshot-domain ID","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C07-required-event-removed","vector":"syntax-body-exit removed and stream rechained","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C08-required-event-duplicated","vector":"inner Func dispatch duplicated and stream rechained","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C09-required-event-reordered","vector":"body-enter and witness Dict swapped and stream rechained","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C10-with-edge-inverted","vector":"With outer and inner endpoints swapped","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C11-with-edge-disconnected","vector":"With inner endpoint orphaned","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C12-carrier-lost-at-walk","vector":"carrier changed at checked walk boundary","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C13-r-field-self-declared","vector":"explicit R member inserted in DTO","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C14-main-bool-is-not-int","vector":"bool substituted in protected prebound Int","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"},
+    {"id":"C15-prebound-opacity-too-early","vector":"prebound Dict hidden as opaque","normal":"Violated","repeat":"Violated","reverse":"Violated","result":"REJECTED"}
+  ],
+  "blockers": [
+    {
+      "id": "B01-static-binding-is-textual-not-reachability",
+      "cases": ["A01", "A02", "A03", "A04", "A05"],
+      "finding": "The checker proves only that an anchor needle occurs once in a hashed file/symbol. It does not validate the anchor_scope enum, the declared stable role/species/reach/cardinality, the baseline or forbidden-bindings contents, or fixture reachability. A dead display branch, a dead closure else branch and a cfg(test) function all pass as productive hooks.",
+      "reproduction": "Run the harness command and inspect A01-A05; each returns Preserved."
+    },
+    {
+      "id": "B02-carrier-and-endpoint-continuity-is-partial",
+      "cases": ["A08", "A09", "A10", "A11", "A12", "A13", "A14", "A15"],
+      "finding": "Carrier equality is checked at create/walk/replay-enter/replay-exit and witness only. It is not checked on outer/inner Func dispatch, With edge, closure dispatch or syntax-body enter/exit. Replay-exit Location is not tied back to walk, and snapshot-post needs only differ from snapshot-pre.",
+      "reproduction": "Run the harness command and inspect A08-A15; each returns Preserved. C12 is a boundary control and returns Violated."
+    },
+    {
+      "id": "B03-final-dto-cannot-prove-append-only-or-productive-origin",
+      "cases": ["A07", "A16", "A18", "A19", "A20"],
+      "finding": "A consistent final sequence proves neither append history nor productive hook hits. The checker accepts a fully regenerated predecessor/ordinal chain, accepts extra dict-produced events with unknown roles, and derives R from the DTO's own replay-enter claims. Data under an unknown Dict role is never type/span validated, allowing bool-as-int and swapped spans.",
+      "reproduction": "Run the harness command and inspect A07, A16, A18-A20; each returns Preserved."
+    },
+    {
+      "id": "B04-runtime-identity-provenance-is-not-observable",
+      "cases": ["A06", "A15", "A20"],
+      "finding": "Domain prefixes are checked, but fixed IDs reused across fresh runs and fabricated in-domain snapshot identities are accepted. The checker cannot distinguish runtime-derived IDs from constants or post-hoc claims.",
+      "reproduction": "A06 deliberately disables remapping and still returns Preserved in normal/repeat/reverse."
+    },
+    {
+      "id": "B05-unknown-issued-before-all-non-payload-predicates",
+      "cases": ["A21"],
+      "finding": "With the witness payload deliberately opaque, carrier loss at syntax-body enter is not checked; the checker returns Unknown instead of Violated. This contradicts the frozen Unknown policy.",
+      "reproduction": "Run the harness command and inspect A21; actual is Unknown in all three modes."
+    }
+  ],
+  "controls_that_discriminate": [
+    "Protected source and body span swaps are Violated.",
+    "Protected Dict swap/order mutations are Violated.",
+    "func.body represented as Func is Violated.",
+    "Cross-domain Location/snapshot alias is Violated.",
+    "Required event removal, duplication and causal reorder are Violated.",
+    "With inversion/disconnection and carrier loss at the checked walk boundary are Violated.",
+    "Explicit R member, bool in a protected Int and premature prebound opacity are Violated."
+  ],
+  "stop_decision": "A valid negative survived, so the mutation score is below 1.0 and the preseal gate must not issue SEALED_FOR_IMPLEMENTATION. Do not repair the judged checker in this adversary role; return the reproducible blockers to contract/oracle authority.",
+  "segregation": {
+    "technical_isolation_attested": false,
+    "future_candidate_read": false,
+    "future_candidate_written": false,
+    "judged_artifact_modified": false,
+    "contract_oracle_checker_corpus_l0_product_tests_written": false,
+    "only_new_outputs": [
+      "00_nucleo/diagnosticos/p1342-adversary-runner-r1.py",
+      "00_nucleo/diagnosticos/p1342-adversary-report-r1.json",
+      "00_nucleo/diagnosticos/p1342-adversary-report-r1.md",
+      "00_nucleo/diagnosticos/p1342-adversary-receipt-r1.json"
+    ]
+  },
+  "scope_exclusions": [
+    "P1340 lifecycle/profile closure",
+    "NT01-NT06 productive branch policy",
+    "retention, discard, invalidation or terminal-policy closure",
+    "general equivalence",
+    "implementation acceptance or final certificate"
+  ]
+}

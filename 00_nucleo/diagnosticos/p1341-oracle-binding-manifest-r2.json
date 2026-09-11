@@ -1,0 +1,39 @@
+{
+  "schema": "p1341-static-binding-manifest-r3-v1",
+  "status": "AUTHORED_NOT_SEALED",
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1341-contract-r3.json",
+    "sha256": "066efbedb39b8c30892c4645000f533b15b6e1212e6cb1a62661349a9a3b3d04"
+  },
+  "focal": {
+    "path": "00_nucleo/diagnosticos/p1341-contract-r3-focal.json",
+    "sha256": "5456ffbde7b622b0ec2a1a5234404c6824e7849ccd608fa63e67319c5eb8d0fa"
+  },
+  "content_addressing": {
+    "algorithm": "sha256",
+    "canonicalization": "json-sort-keys-compact-utf8 over bindings array only",
+    "content_sha256": "c171ce689d25557ac9299eb8dc02df2ee621496c883382dae446b401a38bd939"
+  },
+  "bindings": [
+    {"stable_role":"execution","owner":"infra.pipeline","callsite":"compile-attempt","hook":"execution-lifecycle","object_cardinality":1},
+    {"stable_role":"context.default","owner":"infra.pipeline.context-stabilization","callsite":"context-default","hook":"feature-origin","object_cardinality":1},
+    {"stable_role":"context.selected","owner":"infra.pipeline.context-stabilization","callsite":"context-select","hook":"feature-origin","object_cardinality":1},
+    {"stable_role":"callback.with","owner":"compiler.eval","callsite":"context-with-callback","hook":"callback-dispatch","object_cardinality":1},
+    {"stable_role":"func.callback","owner":"compiler.eval.call-dispatch","callsite":"invoke-context-callback","hook":"func-invocation","object_cardinality":1},
+    {"stable_role":"func.body","owner":"compiler.eval.call-dispatch","callsite":"enter-context-body","hook":"body-start","object_cardinality":1},
+    {"stable_role":"counter.step.current","owner":"compiler.stdlib.counter","callsite":"counter-current","hook":"counter-occurrence","object_cardinality":1},
+    {"stable_role":"content.walked","owner":"compiler.introspect","callsite":"walk-content","hook":"content-lineage","object_cardinality":1},
+    {"stable_role":"dict.result","owner":"compiler.eval","callsite":"dict-result","hook":"typed-dict","object_cardinality":1}
+  ],
+  "event_cardinalities": {
+    "execution-start": 1,
+    "feature-origin": 2,
+    "callback-dispatch": 1,
+    "function-invoked": 1,
+    "body-started": 1,
+    "counter-occurrence": 1,
+    "dict-value": 1,
+    "execution-end": 1
+  },
+  "authorial_claim": "Static semantic bindings authored from the protected R3 contract before candidate or product inspection. Product existence and reachability are outside this claim."
+}

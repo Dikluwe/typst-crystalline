@@ -1,0 +1,66 @@
+{
+  "schema": "p1341-contract-r2-receipt-v1",
+  "utc": "2026-09-10T17:34:48Z",
+  "role": "independent contract author",
+  "executor": "/root/p1341_contract_r2",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "MATERIALIZED_FOCAL_PASS_NOT_SEALED",
+  "causal_predecessor": {
+    "path": "00_nucleo/diagnosticos/p1341-authority-manifest.json",
+    "sha256": "b2da37d09be8aa7f568543e3562f04ab4cd5e919be2931b64c70af980f4eed5b"
+  },
+  "baseline": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "source": "p1341-authority-manifest.json; no fresh repository scan by this role"
+  },
+  "inputs": {
+    "AGENTS.md": "bc50c0c6d54c0e301a5fe3c5c5869dbeef8fdf624096b0fa20185122c64d7da0",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417",
+    "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d",
+    "00_nucleo/materialization/typst-passo-1341.md": "50d539b9ac245e22217f178ba08ce6cfa70d55ebd6db0f6746fb589fed54e862",
+    "00_nucleo/diagnosticos/p1341-authority-manifest.json": "b2da37d09be8aa7f568543e3562f04ab4cd5e919be2931b64c70af980f4eed5b",
+    "00_nucleo/diagnosticos/p1340-verifier-final-r6.json": "519d4791626c7a3bfe325d5b4d2bba302b57b75b5a13627dee8838df2f0975a0",
+    "00_nucleo/diagnosticos/p1340-adversary-result-r6b.json": "b62b3be96d8148d5d739152ac94d143f39e1bce514cd2f55bc3a6a39bdef81a0",
+    "00_nucleo/diagnosticos/p1340-oracle-expectations-authorability-r6b.json": "86fd8a6c6d1e3ac41155b01cabd795a198fc122c3f6186e1e69ff5fa9071dd30"
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1341-contract-r2.json": "32edfcb45839ee30728be73bb9a972c64ce321a7e4ba707dd35b06f6ecbc7dab",
+    "00_nucleo/diagnosticos/p1341-contract-r2-checker.py": "0bdfd901b9b3bf7fcc330f30ce2381c72f2830dbf0a4b611519b809a24faf001",
+    "00_nucleo/diagnosticos/p1341-contract-r2-focal.json": "6edf8c365ea71f86083c4da478c32f04849827e86759e971138c1ab5bb6ee6d6"
+  },
+  "execution": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-contract-r2-checker.py 00_nucleo/diagnosticos/p1341-contract-r2.json 00_nucleo/diagnosticos/p1341-contract-r2-focal.json",
+    "exit": 0,
+    "result": {
+      "contract_status": "NOT_SEALED",
+      "positive": "Preserved",
+      "opaque": "Unknown",
+      "mutations": {"unique": 41, "killed": 41, "score": 1.0},
+      "orders": ["normal", "repeat", "reverse"],
+      "deterministic": true,
+      "survivor_classes_covered": ["counter-key-action", "counter-occurrence-anchor", "counter-span-role", "dict-payload-anchor", "feature-actual-anchor", "func-carrier-origin", "lineage-global-acyclicity", "unknown-semantic-short-circuit"],
+      "errors": [],
+      "verdict": "FOCAL_PASS_NOT_SEALED"
+    },
+    "product_runs": 0,
+    "candidate_runs": 0
+  },
+  "capabilities": {
+    "reads": "only AGENTS.md, the skill and its two mandatory references, and the five task artifacts explicitly allowed",
+    "writes": "00_nucleo/diagnosticos/p1341-contract-r2* only",
+    "candidate_source_reads": 0,
+    "candidate_output_reads": 0,
+    "p1340_implementation_reads": 0,
+    "product_code_writes": 0,
+    "technical_isolation_attested": false
+  },
+  "limitations": [
+    "FOCAL_PASS is synthetic discrimination only and is not a seal, product verdict, reachability proof or general functional equivalence claim.",
+    "The 12 inherited R6 mutations are bijectively mapped by category because their historical individual IDs were absent from the allowed artifacts.",
+    "The static binding manifest records independently authored stable roles; later verification must prove each pinned owner/callsite/hook is real and reachable.",
+    "No additional read was made to resolve gaps."
+  ],
+  "seal": null
+}

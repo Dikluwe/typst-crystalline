@@ -1,0 +1,177 @@
+{
+  "schema": "p1342-verifier-preseal-v1",
+  "step": 1342,
+  "role": "independent_preseal_verifier",
+  "executor": "/root/p1342_preseal",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at_utc": "2026-09-10T22:08:46Z",
+  "verdict": "REJECTED_NOT_SEALED",
+  "verdict_scope": "Preseal of the focal P1342 real-binding contract only. The substantive static, parser, architecture and 45-case discriminatory gates pass, but the verifier executed the complete preseal corpus twice against a frozen budget of one complete preseal run. No implementation is authorized.",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256_before_verifier_outputs": "c51953ca4887da406c4929af7dc49e70b201b23066eca5291f605dd1cc471be6",
+    "tracked_diff_binary_sha256": "ff4dfff0c1401e48855b4116c5e11ce895e4c21fafc9977d8af5c218f6338a86",
+    "tracked_diff_stat": "72 files changed, 10881 insertions(+), 830 deletions(-)"
+  },
+  "protected_core_pins": {
+    "step": ["00_nucleo/materialization/typst-passo-1342.md", "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1342-authority-manifest.json", "d247e6714faf3249109beb3cfb2ef718a4d2049bb56c95aaabd270eb6eed87a4"],
+    "candidate_free_inventory": ["00_nucleo/diagnosticos/p1342-candidate-free-inventory-r1.md", "06fe7dce0bf1130dca222f3148af7680f16b754ec0ac09a7956d11713042cb73"],
+    "topology_audit": ["00_nucleo/diagnosticos/p1342-topology-audit-r1.md", "1c4f72cbd45075479618d5b567f15c6a3f034ec34e5a7b364f7fd1cbcf4b2154"],
+    "topology_receipt": ["00_nucleo/diagnosticos/p1342-topology-receipt-r1.json", "a9934dc64972a4154e1408b0b664c54612db11f2076ef34a159b0839001d8c4d"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1342-l0-freeze-r1.json", "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"],
+    "fixture": ["00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"],
+    "contract_r2": ["00_nucleo/diagnosticos/p1342-contract-spec-r2.json", "62d656241ecd96cd3d984025e59990d607a0efd75c3c326503c7ec07a3486c4d"],
+    "binding_r2": ["00_nucleo/diagnosticos/p1342-contract-binding-r2.json", "3b522cf1b0f288fe1e472f21f775089541835ede754250a14a3c2d17c17e9d48"],
+    "checker_r3": ["00_nucleo/diagnosticos/p1342-oracle-checker-r3.py", "047dd04c811fd7672143bdc253b759450d2f61d548cc3b49dd3fbcbce71791b7"],
+    "corpus_r3": ["00_nucleo/diagnosticos/p1342-oracle-corpus-r3.json", "872b906a0665b933d1ca30337a44849e579257f3eb331f33e034a8a2c5ed6160"]
+  },
+  "hash_audit": {
+    "declared_pin_occurrences_checked": 217,
+    "unique_paths_checked": 46,
+    "current_matches": 215,
+    "historical_pre_phase_b_pins": [
+      {
+        "path": "03_infra/src/pipeline/context_stabilization.rs",
+        "authority_baseline_sha256": "1e42852fefeabb5381174bc605d638b0459126c8a64cb76f75a8dd49f2951a7c",
+        "post_l0_freeze_sha256": "2f03c9e58856aa646245b5b1f7f6d41bdef21afd04f09c7c75eb88aa02aafa30"
+      },
+      {
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "authority_baseline_sha256": "6f885d48163c78c0d4644f8e940aa2583ead2072b0d4adac3f2500ae16e32ad5",
+        "post_l0_freeze_sha256": "8706947c64635f50703d921a02b17f321d77eeedb1250c33777fc44fa49fd0dd"
+      }
+    ],
+    "historical_pin_interpretation": "These two authority-manifest hashes identify the candidate-free photograph before the authorized Phase B L0 reseal. They were superseded before the L0 freeze and contract; every post-freeze L0/consumer and protected artifact pin matches now.",
+    "l0_freeze_owner_pairs": 10,
+    "l0_hash_matches": 10,
+    "consumer_hash_matches": 10,
+    "p1342_markers_in_frozen_consumers": 0,
+    "result": "PASS_POST_FREEZE_PROTECTED_CHAIN_INTACT"
+  },
+  "static_binding": {
+    "manifest_schema": "p1342-static-binding-manifest-v2",
+    "closed_manifest_hash_matches_contract": true,
+    "rows": 19,
+    "applicable_rows_per_origin_cell": 18,
+    "h00d_h00s_mutually_exclusive": true,
+    "baseline_file_hash_matches": 19,
+    "l0_hash_matches": 19,
+    "anchor_at_pinned_line": 19,
+    "symbol_and_branch_inspected": 19,
+    "anchors_in_cfg_test_modules": 0,
+    "cfg_test_decoys_accepted": 0,
+    "special_resolution": "H01 and H06 have repeated file-wide text but resolve once inside their declared symbols; H16 has two file-wide matches but resolves once inside Session::stabilize.",
+    "result": "PASS"
+  },
+  "fixture_and_parser": {
+    "bytes": 178,
+    "lf_only": true,
+    "trailing_lf": true,
+    "sha256": "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714",
+    "parser": "candidate-free typst_core::entities::source::Source plus LinkedNode",
+    "root": "Markup 0..178",
+    "syntax_error_nodes": 0,
+    "ranges": {
+      "callback_closure": "Closure 47..121",
+      "syntax_body": "CodeBlock 64..121",
+      "dict_witness": "Dict 82..97",
+      "contextual": "Contextual 123..177",
+      "context_body": "ContentBlock 131..177",
+      "counter_update_call": "FuncCall 136..164",
+      "counter_update_args": "Args 144..164",
+      "callback_with_call": "FuncCall 145..163",
+      "dict_prebound": "Dict 155..162"
+    },
+    "typed_dicts": {
+      "prebound": "[(a, Int(1))]",
+      "witness": "[(outer, Dict([(a, Int(1))]))]",
+      "order_and_type_preserved": true
+    },
+    "full_pipeline_compile_exit": 0,
+    "result": "PASS"
+  },
+  "architecture": {
+    "command": "crystalline-lint . --checks v5,v15,v26",
+    "exit": 0,
+    "output": "No violations found",
+    "v5": "PASS",
+    "v15": "PASS",
+    "v26": "PASS",
+    "git_diff_check": "PASS",
+    "adr0127_public_api_change": false,
+    "adr0127_default_change": false,
+    "adr0127_pipeline_phase_change": false,
+    "adr0127_compatibility_break": false,
+    "basis": "No future P1342 candidate exists or was read. The ten frozen consumers contain zero P1342 markers; the frozen L0 clauses authorize only cfg-gated private observation and explicitly preserve normal API, defaults, results and pipeline phase.",
+    "result": "PASS"
+  },
+  "discriminatory_gate": {
+    "command": "python3 -B 00_nucleo/diagnosticos/p1342-oracle-checker-r3.py --contract 00_nucleo/diagnosticos/p1342-contract-spec-r2.json --manifest 00_nucleo/diagnosticos/p1342-contract-binding-r2.json --corpus 00_nucleo/diagnosticos/p1342-oracle-corpus-r3.json",
+    "complete_executions": [
+      {
+        "ordinal": 1,
+        "transport": "stdout redirected to /dev/shm/p1342-preseal-r3-report.json",
+        "exit": 0,
+        "retained_report": false,
+        "note": "The /dev/shm output was not visible in the following tool invocation; the successful complete execution still counts against the budget."
+      },
+      {
+        "ordinal": 2,
+        "transport": "stdout piped to a read-only summary extractor",
+        "exit": 0,
+        "retained_summary": true,
+        "normal_cases": 45,
+        "repeat_cases": 45,
+        "reverse_cases": 45,
+        "valid_negatives": 43,
+        "negative_violated": 43,
+        "positive_p01": "Preserved",
+        "opaque_p02": "Unknown",
+        "mutation_score": 1.0,
+        "agreement": true,
+        "survivors": []
+      }
+    ],
+    "r1_blockers_closed": "PASS: A01-A21 are Violated in normal, repeat and reverse",
+    "r2_blockers_closed": "PASS: X01-X22 are Violated in normal, repeat and reverse",
+    "substantive_result": "PASS_45_OF_45"
+  },
+  "budget": {
+    "frozen_source": "p1342-authority-manifest.json and typst-passo-1342.md",
+    "allowed_complete_preseal_runs": 1,
+    "actual_complete_preseal_runs": 2,
+    "overrun": 1,
+    "stop_condition_triggered": true,
+    "result": "FAIL"
+  },
+  "blockers": [
+    {
+      "id": "BUDGET_PRESEAL_FULL_RUNS_EXCEEDED",
+      "finding": "Two complete executions were performed against a frozen allowance of one complete preseal corpus execution.",
+      "impact": "The substantive result cannot be promoted to SEALED_FOR_IMPLEMENTATION under the frozen protocol.",
+      "required_resolution": "Explicit human authorization must accept the recorded overrun and reopen or replace the preseal gate before a seal can be issued. Do not execute a third corpus run under the current budget."
+    }
+  ],
+  "segregation": {
+    "technical_isolation_attested": false,
+    "future_p1342_candidate_read": false,
+    "future_p1342_candidate_written": false,
+    "judged_inputs_modified": false,
+    "code_tests_l0_contract_oracle_adversary_written": false,
+    "only_new_outputs": [
+      "00_nucleo/diagnosticos/p1342-verifier-preseal-r1.md",
+      "00_nucleo/diagnosticos/p1342-verifier-preseal-r1.json"
+    ]
+  },
+  "scope_exclusions": [
+    "P1340 lifecycle/profile matrix",
+    "NT01-NT06",
+    "retention, discard and invalidation closure",
+    "terminal product policy",
+    "implementation acceptance",
+    "general functional equivalence"
+  ],
+  "decision": "REJECTED_NOT_SEALED"
+}

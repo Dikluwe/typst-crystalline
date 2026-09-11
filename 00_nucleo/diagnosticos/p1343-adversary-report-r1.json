@@ -1,0 +1,229 @@
+{
+  "attacks": [
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "independent-source-negative",
+      "id": "ADV01-wrong-hook-payload",
+      "purpose": "A row-bound capsule calls the sole writer with the wrong hook/event identity.",
+      "survived": true,
+      "witness": "source verifier emitted PASS evidence"
+    },
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "independent-source-negative",
+      "id": "ADV02-dead-owner-symbol-decoy",
+      "purpose": "Replace a real H01 observation with an uncalled nested function carrying the matching writer text.",
+      "survived": true,
+      "witness": "source verifier emitted PASS evidence"
+    },
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "independent-source-negative",
+      "id": "ADV03-writer-pushes-wrong-object",
+      "purpose": "Keep one syntactic .push in the writer but redirect it from the raw ledger to an unrelated object.",
+      "survived": true,
+      "witness": "source verifier emitted PASS evidence"
+    },
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "independent-source-negative",
+      "id": "ADV04-alternate-writer-via-extend",
+      "purpose": "Add a second direct raw-ledger mutator using extend, which the .push-only scan does not enumerate.",
+      "survived": true,
+      "witness": "source verifier emitted PASS evidence"
+    },
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "independent-source-negative",
+      "id": "ADV05-projection-mutates-ledger-via-extend",
+      "purpose": "Make the raw-to-DTO projection mutate the ledger through extend rather than .push or the named writer.",
+      "survived": true,
+      "witness": "source verifier emitted PASS evidence"
+    },
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "independent-source-negative",
+      "id": "ADV06-posthoc-constructor-unscanned",
+      "purpose": "Add an explicit post-hoc Event constructor; the verifier emits an empty constructor list without scanning it.",
+      "survived": true,
+      "witness": "source verifier emitted PASS evidence"
+    },
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "independent-source-negative",
+      "id": "ADV07-fake-raw-freeze-token",
+      "purpose": "Retain only the identifier raw_freeze while removing the snapshot clone required before projection.",
+      "survived": true,
+      "witness": "source verifier emitted PASS evidence"
+    },
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "independent-source-negative",
+      "id": "ADV08-empty-facade-with-forged-runtime",
+      "purpose": "The exact facade exists but executes no worlds, sources or challenges; detached runtime strings claim all coverage.",
+      "survived": true,
+      "witness": "source verifier emitted PASS evidence"
+    },
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "independent-source-negative",
+      "id": "ADV09-combined-dead-hook-fake-freeze-runtime",
+      "purpose": "Combine wrong/dead H01, fake H16 freeze and one duplicated self-attested runtime receipt.",
+      "survived": true,
+      "witness": "source verifier emitted PASS evidence"
+    },
+    {
+      "actual": "Preserved",
+      "expected": "Violated",
+      "family": "checker-protected-input-negative",
+      "id": "ADV10-unpinned-forged-corpus",
+      "purpose": "Replace the authored 85-case corpus with one attacker-selected positive while retaining valid embedded pins.",
+      "survived": true,
+      "witness": {
+        "agreement": true,
+        "checker_has_corpus_sha256_option": false,
+        "exit_code": 0,
+        "summary": {
+          "cases": 1,
+          "mutation_score": null,
+          "negative_violated": 0,
+          "opaque_unknown": 0,
+          "preserved_controls": 1,
+          "survivors": [],
+          "valid_negatives": 0
+        }
+      }
+    },
+    {
+      "actual": "InvalidPositive",
+      "blocks_seal": true,
+      "expected": "Preserved",
+      "family": "positive-validity-control",
+      "id": "ADV11-authored-positive-not-rust-parseable",
+      "purpose": "The contract requires a syntactically valid positive; parse the exact synthetic positive accepted by the focal oracle.",
+      "survived": false,
+      "witness": {
+        "failed_files": 7,
+        "rustfmt_parse_failures": [
+          {
+            "first_diagnostic": "error: expected identifier, found `{`",
+            "path": "03_infra/src/pipeline/context_stabilization.rs"
+          },
+          {
+            "first_diagnostic": "error: expected identifier, found `{`",
+            "path": "01_core/src/compiler/eval/mod.rs"
+          },
+          {
+            "first_diagnostic": "error: expected `;`, found `#`",
+            "path": "01_core/src/compiler/eval/bindings/value_methods.rs"
+          },
+          {
+            "first_diagnostic": "error: expected item after attributes",
+            "path": "01_core/src/compiler/stdlib/counter.rs"
+          },
+          {
+            "first_diagnostic": "error: expected item after attributes",
+            "path": "01_core/src/entities/func.rs"
+          },
+          {
+            "first_diagnostic": "error: expected item after attributes",
+            "path": "01_core/src/entities/elements/counter_update.rs"
+          },
+          {
+            "first_diagnostic": "error: expected `;`, found `#`",
+            "path": "01_core/src/compiler/eval/closures.rs"
+          }
+        ]
+      }
+    }
+  ],
+  "executor": "/root/p1343_adversary",
+  "full_corpus_runs": 0,
+  "protected_inputs": {
+    "authority_manifest": [
+      "00_nucleo/diagnosticos/p1343-authority-manifest.json",
+      "d41aff08708b9fa72ac1d130ee71543f5048ebf2dc6944c25aba9a42b866dc3b"
+    ],
+    "binding": [
+      "00_nucleo/diagnosticos/p1343-contract-binding-r1.json",
+      "fbd5ff5f9f32594f95b6b76ea11b562fd1772172dde3a80d4083c9e401ccea85"
+    ],
+    "capsule_baseline": [
+      "00_nucleo/diagnosticos/p1343-capsule-baseline-r1.json",
+      "db143d9fec795ec81ce7a69be5e08b09e451a9d6eb07a1a39cd1dcd41ee82977"
+    ],
+    "checker": [
+      "00_nucleo/diagnosticos/p1343-oracle-checker-r1.py",
+      "ee8f8b5fa212753d1e90294ee6f6d1559ec9d717a667169f596e33c8b2b576e8"
+    ],
+    "contract": [
+      "00_nucleo/diagnosticos/p1343-contract-spec-r1.json",
+      "67107164ddb631e2c1539ca88c90658041811dc389bbae47cb2738312a5f3467"
+    ],
+    "contract_receipt": [
+      "00_nucleo/diagnosticos/p1343-contract-receipt-r1.json",
+      "dfccfd81e7254c5c22d3de9530a3fd55b267e906e503de62c27da91539026e15"
+    ],
+    "corpus": [
+      "00_nucleo/diagnosticos/p1343-oracle-corpus-r1.json",
+      "294e83c280086f64466651e9f5971e55968710dae639fdbaa6eb984cd2442ea1"
+    ],
+    "fixture": [
+      "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ",
+      "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"
+    ],
+    "l0_freeze": [
+      "00_nucleo/diagnosticos/p1342-l0-freeze-r1.json",
+      "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"
+    ],
+    "p1342_binding": [
+      "00_nucleo/diagnosticos/p1342-contract-binding-r3.json",
+      "8630a376350d374f854345c37282ac8fbb657f2f9a8506b7de47bda7b8276bf5"
+    ],
+    "p1342_contract": [
+      "00_nucleo/diagnosticos/p1342-contract-spec-r3.json",
+      "07689c204f8741cdcfcc23bef9fa4af969dba6d991caaa93afaf117eb7ac73e7"
+    ],
+    "source_verifier": [
+      "00_nucleo/diagnosticos/p1343-source-verifier-r1.py",
+      "07c5827a578ad298ba5f777d56395d9bc66eab156a9500a6730a5cdc335bf146"
+    ]
+  },
+  "regime": "executado sem atestacao de isolamento",
+  "revision": 1,
+  "role": "independent_adversary",
+  "schema": "p1343-adversary-run-report-r1",
+  "step": 1343,
+  "summary": {
+    "attacks": 11,
+    "mutation_score": 0.0,
+    "negative_violated": 0,
+    "positive_validity_blockers": [
+      "ADV11-authored-positive-not-rust-parseable"
+    ],
+    "survivors": [
+      "ADV01-wrong-hook-payload",
+      "ADV02-dead-owner-symbol-decoy",
+      "ADV03-writer-pushes-wrong-object",
+      "ADV04-alternate-writer-via-extend",
+      "ADV05-projection-mutates-ledger-via-extend",
+      "ADV06-posthoc-constructor-unscanned",
+      "ADV07-fake-raw-freeze-token",
+      "ADV08-empty-facade-with-forged-runtime",
+      "ADV09-combined-dead-hook-fake-freeze-runtime",
+      "ADV10-unpinned-forged-corpus"
+    ],
+    "valid_negatives": 10,
+    "verdict": "ADVERSARIAL_SURVIVORS_BLOCK_SEAL"
+  },
+  "temporary_root": "/dev/shm"
+}

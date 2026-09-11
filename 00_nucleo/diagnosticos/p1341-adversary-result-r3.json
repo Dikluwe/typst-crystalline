@@ -1,0 +1,104 @@
+{
+  "schema": "p1341-adversary-result-r3",
+  "utc": "2026-09-10T18:06:57Z",
+  "role": "independent adversary",
+  "executor": "/root/p1341_adversary",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "COMPLETE_BLOCK_SEAL",
+  "scope": "P1341 R4 synthetic lifecycle-observability discrimination only; no candidate/product credit",
+  "baseline": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_z_sha256_after_r3_materializer": "6d273111e110bc1d8f7f5173ede66fc26a2d748412edf7caa7f9b0b70c31e264",
+    "tracked_diff_binary_sha256": "b5cfe4bff5207acbf6cf1feb7b85cb71efbcfe9ad928df5655d4bc444037382d"
+  },
+  "inputs": {
+    "00_nucleo/diagnosticos/p1341-contract-r4.json": "fbc08c118e10f957ca02cd714dbfb4c0f0784bd7ca7791f85407d3e8b64e4195",
+    "00_nucleo/diagnosticos/p1341-contract-r4-checker.py": "5998f90cab2cf85f5039eb389ecc9a48c08204894d548d8ea94b36d9899ec97e",
+    "00_nucleo/diagnosticos/p1341-contract-r4-focal.json": "6bfe5c8e0a1a9e64682672fad0e527ce76eb2ecbb97022c8b6577bc6c1ae3a4f",
+    "00_nucleo/diagnosticos/p1341-contract-r4-receipt.json": "9f4f970a1f15418c67f794e37941f2c4c0a9ca27e74c451b8a1cf3d6d8f7f77a",
+    "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r1.py": "ec0788fa2e77c6a3a76f4c123a70fe48f8211018d3e820131c143d5d47b4b891",
+    "00_nucleo/diagnosticos/p1341-adversary-result-r1.json": "fcf85675d7798b21a2ff61b6b3f2f6e74542814efbf94bc7d03dcd247ae10ed6",
+    "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r2.py": "a64d27ed681c2594b9a37bae71e052362fa14a04ec2346e081296c240c25ef06",
+    "00_nucleo/diagnosticos/p1341-adversary-result-r2.json": "f51ee0e4da4cf9db0cbf8264b3c9903d97a941e36a93d74bccfac6dc4437f7b2"
+  },
+  "output": {
+    "path": "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r3.py",
+    "sha256": "13a8aaf74234e5c1fe422bf0a93036a176c98b70fa6a4c5bd0f43e60332cab9b"
+  },
+  "capabilities": {
+    "reads": "p1341-contract-r4*, own p1341-adversary R1/R2, and mandatory skill instructions",
+    "writes": "new p1341-adversary-*-r3 only",
+    "candidate_source_reads": 0,
+    "candidate_output_reads": 0,
+    "product_source_reads": 0,
+    "product_runs": 0,
+    "technical_isolation_attested": false
+  },
+  "official_r4_control": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-contract-r4-checker.py 00_nucleo/diagnosticos/p1341-contract-r4.json 00_nucleo/diagnosticos/p1341-contract-r4-focal.json",
+    "exit": 0,
+    "stdout_sha256": "0c63c60b0b292fa165deeb079d2a1ace9446c6a4592b34cc17eeaed0e84ff879",
+    "controls": {"positive": "Preserved", "opaque": "Unknown"},
+    "inherited_67": {"valid": 67, "killed": 67, "survived": 0, "score": 1.0},
+    "note": "Control only; the independent R3 harness reapplied the 67 materializers to fresh R4 fixtures in normal, repeat and reverse order."
+  },
+  "independent_materialized_gate": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r3.py",
+    "exit": 1,
+    "stdout_sha256": "9153545bd7703732a4765b509aadb96c0c99f8d112c8eff2e58871e764a01f98",
+    "orders": ["normal", "repeat", "reverse"],
+    "deterministic": true,
+    "fixture_errors": [],
+    "controls": {
+      "positive": ["Preserved", "all-r3-predicates-passed"],
+      "opaque": ["Unknown", "payload-deliberately-opaque"]
+    },
+    "protected_41": {"valid": 41, "killed": 41, "survived": 0, "score": 1.0},
+    "r1_additional_10": {"valid": 10, "killed": 10, "survived": 0, "score": 1.0},
+    "r2_new_16": {"valid": 16, "killed": 16, "survived": 0, "score": 1.0},
+    "inherited_67": {"valid": 67, "killed": 67, "survived": 0, "score": 1.0},
+    "r3_boundary_17": {"valid": 17, "killed": 8, "survived": 9, "score": 0.47058823529411764},
+    "combined": {"valid": 84, "killed": 75, "survived": 9, "score": 0.8928571428571429}
+  },
+  "boundary_kills": [
+    ["R3-SCHEMA-MISSING-OBJECT-KIND", "Violated", "strict-object-schema"],
+    ["R3-SCHEMA-MISSING-CAUSAL-EDGES", "Violated", "ledger-schema"],
+    ["R3-BOOL-AS-EVENT-SEQ", "Violated", "strict-event-schema"],
+    ["R3-IDENTITY-CROSS-DOMAIN-VALUE-FUNC", "Violated", "identity-domain-type:value_id"],
+    ["R3-IDENTITY-CROSS-OWNER-FUNC", "Violated", "cross-domain-or-owner-identity-alias"],
+    ["R3-TEMPORAL-SWAP-COUNTER-DICT", "Violated", "strict-temporal-precedence"],
+    ["R3-CAUSAL-DUPLICATE-EDGE", "Violated", "directed-connected-causal-topology"],
+    ["R3-CAUSAL-EXTRA-TRANSITIVE-EDGE", "Violated", "directed-connected-causal-topology"]
+  ],
+  "survivors": [
+    {"id":"R3-SCHEMA-EXTRA-EXPECTATION","class":"strict-schema","classification":"Preserved","reason_code":"all-r3-predicates-passed","mutation":"add unrecognized top-level expectation section"},
+    {"id":"R3-SCHEMA-EXTRA-LEDGER","class":"strict-schema","classification":"Preserved","reason_code":"all-r3-predicates-passed","mutation":"add unrecognized top-level ledger field"},
+    {"id":"R3-SCHEMA-EXTRA-OBJECT","class":"strict-schema","classification":"Preserved","reason_code":"all-r3-predicates-passed","mutation":"add unrecognized runtime-object field"},
+    {"id":"R3-SCHEMA-EXTRA-EVENT","class":"strict-schema","classification":"Preserved","reason_code":"all-r3-predicates-passed","mutation":"add unrecognized callback event field"},
+    {"id":"R3-BOOL-AS-COUNTER-ORDINAL","class":"bool-vs-int","classification":"Preserved","reason_code":"all-r3-predicates-passed","mutation":"replace integer occurrence_ordinal 0 with JSON false"},
+    {"id":"R3-BOOL-AS-ROLE-CARDINALITY","class":"bool-vs-int","classification":"Preserved","reason_code":"all-r3-predicates-passed","mutation":"replace integer role cardinality 1 with JSON true in external expectation"},
+    {"id":"R3-TEMPORAL-FEATURES-AFTER-DICT","class":"temporal-adjacent","classification":"Preserved","reason_code":"all-r3-predicates-passed","mutation":"move both feature-origin events after dict-value while keeping them before execution-end"},
+    {"id":"R3-OPAQUE-HIDES-EXTRA-SCHEMA","class":"unknown-short-circuit","classification":"Unknown","reason_code":"payload-deliberately-opaque","mutation":"wrap unrecognized ledger field in valid opacity"},
+    {"id":"R3-OPAQUE-HIDES-BOOL-ORDINAL","class":"unknown-short-circuit","classification":"Unknown","reason_code":"payload-deliberately-opaque","mutation":"wrap false-for-zero occurrence ordinal in valid opacity"}
+  ],
+  "delta": {
+    "fixed_since_r2": "All 67 inherited attacks are now classified Violated; inherited score improved from 0.7611940298507462 to 1.0.",
+    "new_findings": "Nine of seventeen generic boundary attacks survive: seven Preserved and two Unknown.",
+    "dominant_causes": [
+      "strict_schema validates mandatory presence/types but does not reject extra fields outside raw_span",
+      "Python structural equality permits JSON false to equal integer zero and true to equal integer one in unchecked semantic fields",
+      "feature-origin events are absent from strict lifecycle temporal precedence",
+      "opacity follows predicates that do not reject the extra-schema and boolean substitutions"
+    ]
+  },
+  "verdict": "BLOCK_SEAL",
+  "recommendation": "DO_NOT_SEAL: the required mutation score is 1.0 and the combined materialized score is 0.8928571428571429; Unknown is not a kill.",
+  "limitations": [
+    "This result covers only the pinned R4 synthetic observable fragment and does not claim general product equivalence.",
+    "The extra-field attacks interpret R4 strict_schema and fail-closed wording as rejecting unrecognized fields. If extension fields are intended, an explicit extension policy and allowlist are required to remove ambiguity.",
+    "The temporal feature-origin attack assumes feature selection must precede callback dispatch; R4's own feature-origin lifecycle vocabulary supports that interpretation, but the exact precedence must be stated if a different order is intended.",
+    "The shared working tree is uncommitted; hashes identify the measured state but do not attest exclusive process isolation.",
+    "No candidate/product source or output was read or executed, and no protected input was edited."
+  ]
+}

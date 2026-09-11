@@ -1,0 +1,80 @@
+{
+  "schema": "p1342-adversary-receipt-v2",
+  "step": 1342,
+  "revision": 2,
+  "role": "independent_adversary",
+  "executor": "/root/p1342_adversary",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at_utc": "2026-09-10T21:49:14Z",
+  "verdict": "BLOCKER_NOT_SEALED",
+  "input_pins": {
+    "00_nucleo/diagnosticos/p1342-contract-binding-r2.json": "3b522cf1b0f288fe1e472f21f775089541835ede754250a14a3c2d17c17e9d48",
+    "00_nucleo/diagnosticos/p1342-contract-receipt-r2.json": "2a2f14c5bf3e3e945398ad296c676e43aeb7ca57080ec953de990ecf016bfce5",
+    "00_nucleo/diagnosticos/p1342-contract-spec-r2.json": "62d656241ecd96cd3d984025e59990d607a0efd75c3c326503c7ec07a3486c4d",
+    "00_nucleo/diagnosticos/p1342-contract-spec-r2.md": "e4ac26af930defe05ab9a04f60781777dfca42c25736285b1dfcc5fece0aa090",
+    "00_nucleo/diagnosticos/p1342-oracle-authorship-r2.md": "7287a98c7ed2e2ab5d480ebaa6f5137a46011ccbc0ffc7f53e7f611a5fa7ded2",
+    "00_nucleo/diagnosticos/p1342-oracle-authorship-receipt-r2.json": "3d8666e95df6e4301c4e9614b9901afdee096150801ace8d43d4575f14166a8a",
+    "00_nucleo/diagnosticos/p1342-oracle-checker-r2.py": "06889314af3b889c75e3b3b73f22d425ecc3ae813910c3ccd1e61f6deb3b169e",
+    "00_nucleo/diagnosticos/p1342-oracle-corpus-r2.json": "1dd1a7905942571ccc69297530e520014b1c9d920ac1f5ceeeca8962b4e00dcc"
+  },
+  "execution": {
+    "command": "python3 -B 00_nucleo/diagnosticos/p1342-adversary-runner-r2.py --checker 00_nucleo/diagnosticos/p1342-oracle-checker-r2.py --contract 00_nucleo/diagnosticos/p1342-contract-spec-r2.json --manifest 00_nucleo/diagnosticos/p1342-contract-binding-r2.json --corpus 00_nucleo/diagnosticos/p1342-oracle-corpus-r2.json",
+    "baseline_r2": "PASS: 21/21 authored negatives Violated, positive Preserved, opaque Unknown, score 1.0",
+    "r1_negatives_replayed": 21,
+    "r1_negatives_violated": 21,
+    "new_boundary_negatives": 22,
+    "valid_negative_mutations": 43,
+    "rejected_as_violated": 34,
+    "survived_as_preserved": 8,
+    "survived_as_unknown": 1,
+    "mutation_score": 0.7906976744186046,
+    "required_score": 1.0,
+    "stable_normal_repeat_reverse": true,
+    "result": "FAIL_DISCRIMINATORY_GATE"
+  },
+  "survivors": [
+    "X05-runtime-receipt-tail-fabricated",
+    "X06-h00d-receipt-tail-fabricated",
+    "X09-challenge-issuer-receipt-fabricated",
+    "X11-base-causal-order-resealed",
+    "X15-created-callback-with-disconnected",
+    "X16-created-func-callback-disconnected",
+    "X17-run-endpoint-disconnected",
+    "X18-ledger-endpoint-disconnected",
+    "X22-unknown-before-created-endpoint-proof"
+  ],
+  "blocker_ids": [
+    "R2-B01-runtime-receipt-tails-not-bound-to-raw-chain",
+    "R2-B02-challenge-issuer-receipt-is-unresolved",
+    "R2-B03-causal-order-before-replay-is-incomplete",
+    "R2-B04-object-endpoint-continuity-remains-partial",
+    "R2-B05-unknown-precedence-still-bypassable"
+  ],
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256_after_report_before_receipt": "e9dc347d15959e4ae38c175d7d25f0f1b6837c123a9c363486d8472f24c0e463",
+    "tracked_diff_binary_sha256": "ff4dfff0c1401e48855b4116c5e11ce895e4c21fafc9977d8af5c218f6338a86",
+    "tracked_diff_stat": "72 files changed, 10881 insertions(+), 830 deletions(-)"
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1342-adversary-runner-r2.py": "0949026d345aa5ff3695b0f13a48b555b463dc96e317f54fef8d82a97c69407a",
+    "00_nucleo/diagnosticos/p1342-adversary-report-r2.json": "2dcfbcad448ecdbe737965a84f97bc9ed2a83e6664d79495d131d482415e28f0",
+    "00_nucleo/diagnosticos/p1342-adversary-report-r2.md": "326c79e24cec81db3ca698e33b51ba0606537c42cfe1a2c934a5f5ef6ea04220"
+  },
+  "validation": {
+    "runner_ast_parse": "PASS",
+    "report_json_parse": "PASS",
+    "repeat_execution": "PASS: identical 34/8/1 vector and score 34/43",
+    "git_diff_check": "PASS"
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "future_candidate_read": false,
+    "future_candidate_written": false,
+    "r1_and_r2_judged_artifacts_preserved": true,
+    "contract_oracle_checker_corpus_l0_product_tests_written": false,
+    "write_allowlist_observed": "Only new 00_nucleo/diagnosticos/p1342-adversary-*-r2.* artifacts were created via apply_patch."
+  },
+  "decision": "NOT_SEALED. Any one survivor blocks the required score 1.0; nine survived. The adversary did not repair judged artifacts."
+}

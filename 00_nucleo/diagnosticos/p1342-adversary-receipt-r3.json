@@ -1,0 +1,35 @@
+{
+  "schema": "p1342-adversary-receipt-r3",
+  "step": 1342,
+  "role": "independent-adversary",
+  "regime": "executado sem atestacao de isolamento",
+  "candidate_access": false,
+  "full_corpus_executed": false,
+  "commit": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "measured_at": "2026-09-10T19:58:20-03:00",
+  "runs": {
+    "official_focus": {
+      "exit_code": 0,
+      "negative_violated": 5,
+      "valid_negatives": 5,
+      "mutation_score": 1.0,
+      "stable": true
+    },
+    "adversary_focus": {
+      "exit_code": 1,
+      "exit_semantics": "expected nonzero because survivors imply blocker",
+      "negative_violated": 12,
+      "valid_negatives": 17,
+      "mutation_score": 0.7058823529411765,
+      "survivors": 5,
+      "stable": true
+    }
+  },
+  "artifacts_sha256": {
+    "p1342-adversary-runner-r3.py": "2251ec6f3d338329473a46d49910731ec851735b8b0da398a818e80895c3747a",
+    "p1342-adversary-report-r3.json": "47cc08fec5964c7b9d046c6dff9bfd8ff749e3eb2b65f7dad06ea01e029813a2",
+    "p1342-adversary-report-r3.md": "0556d3213d26a50f473b3a079337b67ab810c01eee4ae9894564c980db56f241"
+  },
+  "verdict": "BLOCKER_NOT_SEALED",
+  "seal_allowed": false
+}

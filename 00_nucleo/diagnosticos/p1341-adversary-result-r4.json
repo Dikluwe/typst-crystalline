@@ -1,0 +1,92 @@
+{
+  "schema": "p1341-adversary-result-r4",
+  "utc": "2026-09-10T18:13:45Z",
+  "role": "independent adversary",
+  "executor": "/root/p1341_adversary",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "COMPLETE_RECOMMEND_SEAL",
+  "scope": "P1341 R5 frozen 84-case synthetic corpus only; no candidate/product credit",
+  "baseline": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_z_sha256_after_r4_runner": "1fcf6c2c5355d0970c5bc2702d96e508d00f20656151e145f1907095168e0192",
+    "tracked_diff_binary_sha256": "b5cfe4bff5207acbf6cf1feb7b85cb71efbcfe9ad928df5655d4bc444037382d"
+  },
+  "inputs": {
+    "00_nucleo/diagnosticos/p1341-contract-r5.json": "511d96d96c6c6911bbaee610111339311eb6174cfc568598bb25b075b790b4d0",
+    "00_nucleo/diagnosticos/p1341-contract-r5-checker.py": "f9611cee52952b85ddefe110073645040fb9498fae42849cbe097fc590d6251a",
+    "00_nucleo/diagnosticos/p1341-contract-r5-focal.json": "495fb367c912391272c4ff3209337af6db9d23bab5df9510d39299b925db68c3",
+    "00_nucleo/diagnosticos/p1341-contract-r5-receipt.json": "fc954e0151acbefde20c6e06efbeb1e4ab8501631a534b0b7f21b7a2dbb0cce8",
+    "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r1.py": "ec0788fa2e77c6a3a76f4c123a70fe48f8211018d3e820131c143d5d47b4b891",
+    "00_nucleo/diagnosticos/p1341-adversary-result-r1.json": "fcf85675d7798b21a2ff61b6b3f2f6e74542814efbf94bc7d03dcd247ae10ed6",
+    "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r2.py": "a64d27ed681c2594b9a37bae71e052362fa14a04ec2346e081296c240c25ef06",
+    "00_nucleo/diagnosticos/p1341-adversary-result-r2.json": "f51ee0e4da4cf9db0cbf8264b3c9903d97a941e36a93d74bccfac6dc4437f7b2",
+    "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r3.py": "13a8aaf74234e5c1fe422bf0a93036a176c98b70fa6a4c5bd0f43e60332cab9b",
+    "00_nucleo/diagnosticos/p1341-adversary-result-r3.json": "661982ebf210dbcbd1b83c99e971af082b0e6794e8f69fafb1808fe0cfc91168"
+  },
+  "output": {
+    "path": "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r4.py",
+    "sha256": "16a6a78c528275682e7e3ad67d18faa9f95cd92d440748fe4d5f894bdd0436f4"
+  },
+  "capabilities": {
+    "reads": "p1341-contract-r5* and own p1341-adversary mutators/results R1-R3, plus mandatory skill instructions",
+    "writes": "new p1341-adversary-*-r4 only",
+    "new_mutants_authored": 0,
+    "candidate_source_reads": 0,
+    "candidate_output_reads": 0,
+    "product_source_reads": 0,
+    "product_runs": 0,
+    "technical_isolation_attested": false
+  },
+  "frozen_corpus": {
+    "protected": 41,
+    "r1_additional": 10,
+    "r2_new": 16,
+    "r3_boundary": 17,
+    "total": 84,
+    "unique": 84,
+    "materializers": 84,
+    "policy": "No attack added, removed, renamed or reclassified in this round."
+  },
+  "official_r5_control": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-contract-r5-checker.py 00_nucleo/diagnosticos/p1341-contract-r5.json 00_nucleo/diagnosticos/p1341-contract-r5-focal.json",
+    "exit": 0,
+    "stdout_sha256": "a3df3ff233a7cd1a43417103b15b3bc26bfa5234c58d0f1a85b1a71b78ed2a2a",
+    "result": "84/84 materialized kills; deterministic; positive Preserved; opaque Unknown"
+  },
+  "independent_materialized_gate": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r4.py",
+    "exit": 0,
+    "stdout_sha256": "7df1204ff3bb6dca8d45f4838493a4d5cb84c96b2a03fd73a1104de84b0809ea",
+    "orders": ["normal", "repeat", "reverse"],
+    "deterministic": true,
+    "fixture_errors": [],
+    "controls": {
+      "positive": ["Preserved", "all-r3-predicates-passed"],
+      "opaque": ["Unknown", "payload-deliberately-opaque"]
+    },
+    "protected_41": {"valid": 41, "killed": 41, "survived": 0, "score": 1.0},
+    "r1_additional_10": {"valid": 10, "killed": 10, "survived": 0, "score": 1.0},
+    "r2_new_16": {"valid": 16, "killed": 16, "survived": 0, "score": 1.0},
+    "r3_boundary_17": {"valid": 17, "killed": 17, "survived": 0, "score": 1.0},
+    "inherited_67": {"valid": 67, "killed": 67, "survived": 0, "score": 1.0},
+    "combined": {"valid": 84, "killed": 84, "survived": 0, "score": 1.0},
+    "survivors": [],
+    "unknown_negatives": [],
+    "checker_errors": [],
+    "materializer_errors": []
+  },
+  "delta": {
+    "previous_r4_contract": {"valid": 84, "killed": 75, "survived": 9, "score": 0.8928571428571429},
+    "current_r5_contract": {"valid": 84, "killed": 84, "survived": 0, "score": 1.0},
+    "fixed_classes": ["strict-schema-extra", "bool-vs-int", "feature-temporal-order", "unknown-short-circuit"]
+  },
+  "verdict": "RECOMMEND_SEAL",
+  "recommendation": "The independent adversarial gate recommends sealing the pinned R5 contract for the frozen 84-case synthetic fragment only.",
+  "limitations": [
+    "This recommendation is limited to the exact hashed R5 contract, focal, checker and frozen 84 materializers.",
+    "It is not evidence of product behavior, hook reachability, candidate correctness or general functional equivalence.",
+    "The shared working tree is uncommitted; hashes identify measured inputs/state but do not attest exclusive process isolation.",
+    "No candidate/product source or output was read or executed, and no protected input was edited."
+  ]
+}

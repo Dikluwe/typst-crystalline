@@ -1,0 +1,57 @@
+{
+  "schema": "p1341-oracle-authorability-r2",
+  "utc": "2026-09-10T17:58:46Z",
+  "status": "AUTHORABLE_NOT_SEALED",
+  "role": "independent oracle author",
+  "regime": "executado sem atestacao de isolamento",
+  "pins": {
+    "contract_r3_sha256": "066efbedb39b8c30892c4645000f533b15b6e1212e6cb1a62661349a9a3b3d04",
+    "focal_r3_sha256": "5456ffbde7b622b0ec2a1a5234404c6824e7849ccd608fa63e67319c5eb8d0fa",
+    "binding_content_sha256": "c171ce689d25557ac9299eb8dc02df2ee621496c883382dae446b401a38bd939"
+  },
+  "binding_manifest": {
+    "path": "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r2.json",
+    "roles": 9,
+    "exact_object_cardinalities": true,
+    "exact_event_cardinalities": true,
+    "matches_contract": true
+  },
+  "expectations": {
+    "path": "00_nucleo/diagnosticos/p1341-oracle-expectations-r2.json",
+    "external_cases": 2,
+    "exact_r3_sections_per_case": 10,
+    "contains_role_cardinalities": true,
+    "contains_feature_witnesses": true,
+    "contains_function_producers_and_origins": true,
+    "contains_counter_source_coordinate": true,
+    "contains_dict_typed_path": true,
+    "contains_required_causal_role_edges": true,
+    "forbidden_key_leaks": 0,
+    "runtime_value_leaks": 0
+  },
+  "negative_gate_expectation": {
+    "protected": 41,
+    "additional": 10,
+    "combined": 51,
+    "required_classification": "Violated",
+    "orders": ["normal", "repeat", "reverse"],
+    "required_score": 1.0
+  },
+  "r3_focal_observation": {
+    "status": "FOCAL_MATERIALIZED_PASS_NOT_SEALED",
+    "controls": {"positive":"Preserved","opaque":"Unknown"},
+    "protected": {"valid":41,"classified_violated":41,"score":1.0},
+    "additional": {"valid":10,"classified_violated":10,"score":1.0},
+    "combined": {"valid":51,"classified_violated":51,"score":1.0},
+    "deterministic": true,
+    "survivors": [],
+    "errors": []
+  },
+  "scope_statement": "The R3 static bindings and stable expectations are authorable ex ante and their pins are coherent with the protected R3 contract and focal.",
+  "non_claims": [
+    "No seal or verifier verdict is issued.",
+    "No candidate or product content was inspected.",
+    "No implementation existence, hook reachability, refinement or product behavior is evaluated.",
+    "The focal observation remains contract-fragment calibration and grants no product credit."
+  ]
+}

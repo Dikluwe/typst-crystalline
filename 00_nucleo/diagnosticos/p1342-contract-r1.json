@@ -1,0 +1,178 @@
+{
+  "schema": "p1342-real-binding-contract-v1",
+  "step": 1342,
+  "revision": 1,
+  "role": "independent_contract_author",
+  "executor": "/root/p1342_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "AUTHOR_CONTRACT_COMPLETE_NOT_SEALED",
+  "succession": {
+    "kind": "successor_without_mutation",
+    "predecessor": "00_nucleo/diagnosticos/p1341-verifier-candidate-r1.json",
+    "predecessor_sha256": "cf63928e5bc2360b58f6f828a3e5bb5ff8c82034e7ec513e3f098186588121f2",
+    "predecessor_verdict": "REJECTED",
+    "corrections": [
+      "bind every observation to a pinned candidate-free productive hook",
+      "emit an append-only ledger at the points that know the real objects and causal endpoints",
+      "derive fixture coordinates from the real parser instead of inheriting synthetic coordinates",
+      "type the former func.body role as syntax-body backed by ClosureRepr.body: SyntaxNode",
+      "make absence, cardinality, reachability, span and causal failures Violated rather than Unknown"
+    ]
+  },
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1342.md", "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1342-authority-manifest.json", "d247e6714faf3249109beb3cfb2ef718a4d2049bb56c95aaabd270eb6eed87a4"],
+    "candidate_free_inventory": ["00_nucleo/diagnosticos/p1342-candidate-free-inventory-r1.md", "06fe7dce0bf1130dca222f3148af7680f16b754ec0ac09a7956d11713042cb73"],
+    "topology_audit": ["00_nucleo/diagnosticos/p1342-topology-audit-r1.md", "1c4f72cbd45075479618d5b567f15c6a3f034ec34e5a7b364f7fd1cbcf4b2154"],
+    "topology_receipt": ["00_nucleo/diagnosticos/p1342-topology-receipt-r1.json", "a9934dc64972a4154e1408b0b664c54612db11f2076ef34a159b0839001d8c4d"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1342-l0-freeze-r1.json", "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"]
+  },
+  "observable_scope": [
+    "the source-backed counter.update occurrence created by the focal ContextBlock evaluation",
+    "the real outer FuncRepr::With and its real inner closure Func",
+    "the real callback ClosureRepr.body SyntaxNode under the stable role syntax-body",
+    "the actual walked Content, Location, counter key/action and pre/post snapshots",
+    "the two ordered typed Dict values produced by the fixture, distinguished by parser span and causal context",
+    "append-only events and edges emitted at the statically pinned hooks",
+    "normal, repeat and reverse evaluation of later oracle cases without freezing runtime identities"
+  ],
+  "out_of_scope": [
+    "P1340 lifecycle/profile closure",
+    "NT01-NT06 productive branch mutations",
+    "general retention, discard or invalidation policy",
+    "terminal product policy",
+    "general Typst parity or functional equivalence",
+    "normal public API, entity, default, compatibility or pipeline-phase changes",
+    "Set and Step counter updates",
+    "callbacks outside the focal fixture"
+  ],
+  "fixture": {
+    "path": "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ",
+    "sha256": "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714",
+    "bytes": 178,
+    "line_endings": "LF",
+    "trailing_lf": true,
+    "parser": "current candidate-free typst_core::entities::source::Source with LinkedNode ranges",
+    "parser_root": {"kind": "Markup", "offset": 0, "end_exclusive": 178, "errors": 0},
+    "ranges": {
+      "callback_closure": {"kind": "Closure", "offset": 47, "end_exclusive": 121, "length": 74},
+      "syntax_body": {"kind": "CodeBlock", "offset": 64, "end_exclusive": 121, "length": 57},
+      "dict_witness": {"kind": "Dict", "offset": 82, "end_exclusive": 97, "length": 15},
+      "contextual": {"kind": "Contextual", "offset": 123, "end_exclusive": 177, "length": 54},
+      "context_body": {"kind": "ContentBlock", "offset": 131, "end_exclusive": 177, "length": 46},
+      "counter_update_call": {"kind": "FuncCall", "offset": 136, "end_exclusive": 164, "length": 28},
+      "counter_update_args": {"kind": "Args", "offset": 144, "end_exclusive": 164, "length": 20},
+      "callback_with_call": {"kind": "FuncCall", "offset": 145, "end_exclusive": 163, "length": 18},
+      "dict_prebound": {"kind": "Dict", "offset": 155, "end_exclusive": 162, "length": 7}
+    },
+    "semantic_expectations": {
+      "counter_key": {"type": "selector", "shape": "heading.where", "ordered_fields": [["level", {"type": "int", "value": 1}]]},
+      "counter_action": "Func",
+      "prebound_dict": {"type": "dict", "entries": [["a", {"type": "int", "value": 1}]]},
+      "witness_dict": {"type": "dict", "entries": [["outer", {"type": "dict", "entries": [["a", {"type": "int", "value": 1}]]}]]},
+      "callback_body_result_for_initial_state": {"type": "int", "value": 1}
+    }
+  },
+  "closed_model": {
+    "attempt_kinds": ["discovery", "selected"],
+    "object_roles": {
+      "attempt": "one ledger cell for one real Session execution attempt",
+      "context-closure": "the actual Func::closure stored in the reached ContextBlockElem",
+      "callback-with": "the actual outer Func whose repr is FuncRepr::With",
+      "func-callback": "the actual inner Func stored in With.0 and received by recursive dispatch",
+      "syntax-body": "the actual ClosureRepr.body SyntaxNode; it is never a Func",
+      "counter-occurrence": "the test-only occurrence carrier born only after CounterUpdate::Func classification",
+      "counter-content": "the actual Content::CounterUpdate transported to walk",
+      "location": "the actual Location allocated by Locator for the walked occurrence",
+      "snapshot-pre": "the counter state immediately before the real callback action",
+      "snapshot-post": "the counter state immediately after the real callback action",
+      "dict-prebound": "the actual Value::Dict at fixture range 155..162",
+      "dict-witness": "the actual Value::Dict at fixture range 82..97 produced while syntax-body is active"
+    },
+    "event_kinds": [
+      "attempt-open",
+      "context-dispatch",
+      "dict-produced",
+      "counter-occurrence-created",
+      "counter-occurrence-walked",
+      "callback-replay-enter",
+      "func-dispatch",
+      "with-unwrapped",
+      "closure-dispatch",
+      "syntax-body-enter",
+      "syntax-body-exit",
+      "callback-replay-exit",
+      "attempt-close"
+    ],
+    "typed_value_variants_for_fixture": ["int", "dict", "selector"],
+    "unknown_json_members": "reject at every closed object level",
+    "invalid_primitive_types": "reject; bool is not an integer",
+    "runtime_identity_policy": "runtime IDs are nonempty, domain-tagged and local to one ledger run; no concrete ID, pointer, address, Location or snapshot value is frozen by this contract"
+  },
+  "ledger": {
+    "storage": "one shared append-only ledger with one cell per real Session execution attempt",
+    "mutation_rule": "an append may add exactly one immutable event at the tail; deletion, overwrite, insertion into an earlier position and reordering are forbidden",
+    "projection_rule": "the final DTO may serialize only objects, references, order and edges already present in appended events; it may not synthesize objects, IDs, ordinals, causes, spans, Locations, snapshots, Dicts or edges",
+    "edge_rule": "every edge is appended at the productive hook that simultaneously knows both real endpoints",
+    "transport_rule": "the same carrier handle/cell/occurrence is preserved through real Func, CounterUpdateElem, payload and child EvalContext clones; no global side table or reconstructed lookup is allowed",
+    "failure_rule": "missing or duplicated required events, dead hooks, carrier loss, cross-domain alias, bad span, wrong Dict, disconnected edges and causal inversion are Violated"
+  },
+  "cardinality_per_attempt": {
+    "attempt-open": "exactly 1",
+    "context-dispatch": "exactly 1",
+    "dict-produced:dict-prebound": "exactly 1 at range 155..162",
+    "counter-occurrence-created": "exactly 1",
+    "counter-occurrence-walked": "exactly 1 if that attempt's produced content is incorporated into a candidate snapshot; otherwise exactly 0 and the attempt must carry an explicit non-incorporated result",
+    "R": "the number of real resolve_filtered_counter visits in the attempt that select the focal occurrence; for this fixture R is 0 or 1 and must be derived from hook hits, never declared by the DTO",
+    "callback-replay-enter": "exactly R",
+    "func-dispatch": "exactly 2*R: first callback-with, then func-callback",
+    "with-unwrapped": "exactly R",
+    "closure-dispatch": "exactly R",
+    "syntax-body-enter": "exactly R",
+    "dict-produced:dict-witness": "exactly R at range 82..97 and only while syntax-body is active",
+    "syntax-body-exit": "exactly R",
+    "callback-replay-exit": "exactly R",
+    "attempt-close": "exactly 1 after every event attributable to that cell"
+  },
+  "causal_order": [
+    "attempt-open < context-dispatch < dict-produced:dict-prebound < counter-occurrence-created",
+    "counter-occurrence-created < counter-occurrence-walked whenever the occurrence is incorporated",
+    "counter-occurrence-walked < callback-replay-enter for every replay of that occurrence",
+    "callback-replay-enter < func-dispatch:callback-with < with-unwrapped < func-dispatch:func-callback < closure-dispatch",
+    "closure-dispatch < syntax-body-enter < dict-produced:dict-witness < syntax-body-exit < callback-replay-exit",
+    "all events attributable to a cell < attempt-close"
+  ],
+  "identity_and_payload_predicates": [
+    "callback-with has FuncRepr::With and its logged inner endpoint is the exact Func cloned into recursive apply_func",
+    "func-callback is a closure Func and is distinct in role and identity domain from callback-with",
+    "syntax-body is a SyntaxNode with kind CodeBlock and range 64..121; role func.body and species Func are forbidden",
+    "counter-occurrence source span is args.span() range 144..164, not the callback definition span, the word step or a reconstructed output range",
+    "counter-content, key and action at walk are the real values transported from the created occurrence",
+    "Location is distinct from source span and snapshot identities",
+    "dict-prebound and dict-witness match their ordered typed expectations and are distinguished by source range and causal occurrence, never by a hard-coded event ordinal",
+    "callback execution occurs once per real replay and is never repeated only for observation"
+  ],
+  "classification": {
+    "Preserved": "all schema, static binding, fixture, reachability, type, cardinality, identity, append-only, temporal and causal predicates pass and the required payload is inspectable",
+    "Violated": "any predicate other than deliberate payload opacity fails; absence of information required to prove a predicate is Violated",
+    "Unknown": "allowed only for a payload explicitly authored as opaque after every schema, static binding, fixture, reachability, type, cardinality, identity, append-only, temporal and causal predicate has passed; Unknown is not success and cannot seal a positive case"
+  },
+  "ordering_runs": {
+    "normal": "consume the frozen later oracle case list in authored order",
+    "repeat": "consume the same list again with a fresh World and fresh ledger",
+    "reverse": "consume the same list in reverse order with a fresh World and fresh ledger",
+    "required_relation": "each case has the same classification across the three runs; runtime identities are compared only inside their own run"
+  },
+  "seal_gate": {
+    "current_verdict": "NOT_SEALED",
+    "requirements": [
+      "all static anchors resolve exactly once against their pinned symbol/file and are reached by the fixture according to their declared cardinality",
+      "later independent positive cases classify Preserved",
+      "later independent valid negative mutations classify Violated with witnesses",
+      "later independently authored deliberate opaque cases classify Unknown only after all non-payload predicates pass",
+      "mutation score is 1.0",
+      "normal, repeat and reverse classifications agree",
+      "all protected hashes remain unchanged"
+    ]
+  }
+}

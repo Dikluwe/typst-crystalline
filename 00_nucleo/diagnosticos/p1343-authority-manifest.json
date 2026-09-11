@@ -1,0 +1,158 @@
+{
+  "schema": "p1343-authority-manifest-v1",
+  "protocol": "tekt-materializacao-segregada-v1",
+  "utc": "2026-09-10T23:50:00Z",
+  "regime": "executado sem atestacao de isolamento",
+  "human_authorization": {
+    "actor": "user",
+    "verbatim": "Atorizado",
+    "scope": "Escrever e executar o Passo 1343 para substituir o diff ambiguo por capsulas deterministicas, selar novamente o binding focal P1342 e somente entao retomar RED e implementacao."
+  },
+  "step": {
+    "path": "00_nucleo/materialization/typst-passo-1343.md",
+    "sha256": "6db7b3bb119f4038f88b8916209a4fcd7d1485b820143308ae788192a921a87b"
+  },
+  "candidate_free_baseline": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado; nenhum candidato produtivo P1342/P1343 presente nos dez consumers",
+    "tracked_diff_binary_sha256": "f73da54bdbeb1bd086caeff259b9517bdbf0f1648efcb8119d36699f5bcf0be5",
+    "inventory": [
+      "00_nucleo/diagnosticos/p1343-candidate-free-inventory-r1.md",
+      "76e34a8c0a97362019ea0917c9909ba1d55882abbb3bf1f23ac08e0b018c0860"
+    ],
+    "capsule_baseline": [
+      "00_nucleo/diagnosticos/p1343-capsule-baseline-r1.json",
+      "db143d9fec795ec81ce7a69be5e08b09e451a9d6eb07a1a39cd1dcd41ee82977"
+    ],
+    "topology_receipt": [
+      "00_nucleo/diagnosticos/p1343-topology-receipt-r1.json",
+      "76836ea3300a66f4756985276bcfc3eb9f28ce405a1ec22a6ee8547c66f75c6d"
+    ],
+    "topology": {
+      "files": 10,
+      "capsules": 36,
+      "insert_capsules": 22,
+      "replace_capsules": 14,
+      "hook_rows": 19,
+      "test_facade_capsules": 1
+    }
+  },
+  "protected_predecessors": {
+    "l0_freeze": [
+      "00_nucleo/diagnosticos/p1342-l0-freeze-r1.json",
+      "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"
+    ],
+    "fixture": [
+      "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ",
+      "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"
+    ],
+    "binding_r3": [
+      "00_nucleo/diagnosticos/p1342-contract-binding-r3.json",
+      "8630a376350d374f854345c37282ac8fbb657f2f9a8506b7de47bda7b8276bf5"
+    ],
+    "contract_spec_r3": [
+      "00_nucleo/diagnosticos/p1342-contract-spec-r3.json",
+      "07689c204f8741cdcfcc23bef9fa4af969dba6d991caaa93afaf117eb7ac73e7"
+    ],
+    "implementation_blocker": [
+      "00_nucleo/diagnosticos/p1342-implementation-blocker-r1.json",
+      "9a46cf931ea8f90f884b0b22cc93df574e17537bae807051cc26870f2b28a4f2"
+    ],
+    "r5_stop": [
+      "00_nucleo/diagnosticos/p1342-oracle-authorship-receipt-r5.json",
+      "43eb0716901da8d49835bfef72508900dffb2461e3f5d7cb0796e6eaed8de713"
+    ]
+  },
+  "contract_outputs": {
+    "spec": "00_nucleo/diagnosticos/p1343-contract-spec-r1.json",
+    "binding": "00_nucleo/diagnosticos/p1343-contract-binding-r1.json",
+    "receipt": "00_nucleo/diagnosticos/p1343-contract-receipt-r1.json"
+  },
+  "observable_scope": [
+    "deterministic inverse normalization of every live candidate consumer to its pinned whole-file candidate-free SHA-256",
+    "lexically real, unique, non-overlapping and allowlisted P1343 capsule markers",
+    "exact replacement bytes, cfg predicate, Rust owner symbol or branch, before and after anchors for every capsule",
+    "source-derived binding of H00D, H00S and H01-H16 at the real productive callsites",
+    "exactly one append-only raw-ledger writer and read-only projections",
+    "runtime coverage from the 178-byte fixture in fresh normal, repeat and reverse executions",
+    "inspectable Preserved and deliberately opaque Unknown only after all non-payload predicates pass"
+  ],
+  "out_of_scope": [
+    "P1340 lifecycle/profile matrix",
+    "NT01-NT06 productive branch mutations",
+    "general retention, discard, invalidation or terminal-policy closure",
+    "functional equivalence beyond the focal binding",
+    "public API, default behavior, compatibility or pipeline phase changes"
+  ],
+  "capsule_policy": {
+    "normalization": "The verifier independently scans full-line Rust comment markers, replaces each complete capsule at descending live offsets with the manifest-pinned candidate-free bytes, and requires the normalized complete-file digest. It does not trust DTO ranges, hashes, booleans or aliases.",
+    "insert": "The pinned replacement is empty and the candidate body is entirely guarded by cfg(p1339_observation) or cfg(all(test, p1339_observation)).",
+    "replace": "The candidate body contains an exact normal branch under not(p1339_observation) and a separate observed branch; normal build and syntax gates remain mandatory.",
+    "closed_world": "Unknown IDs, missing or duplicate IDs, nesting, overlap, edits outside capsules, false replacement bytes, wrong cfg, wrong symbol or altered normal branch are Violated.",
+    "protected_after_seal": "The step, this manifest, capsule baseline, L0 freeze, fixture, contract, source verifier, oracle corpus and preseal receipt become read-only once SEALED_FOR_IMPLEMENTATION is issued."
+  },
+  "unknown_policy": "Missing marker, capsule, hook, identity, cfg, anchor, reachability, cardinality, topology, source binding or external evidence is Violated. Unknown is allowed only for an explicitly authored opaque payload after every structural, causal and non-payload predicate passes.",
+  "roles": {
+    "root": {
+      "role": "human-intent capture, authority manifest and orchestration",
+      "writes": "p1343-authority-manifest.json only before contract; no oracle, attack, seal or final certificate",
+      "forbidden": "approve its own baseline, contract, implementation or final verdict"
+    },
+    "baseline_authority": {
+      "executor": "/root/p1343_baseline",
+      "reads": "step, frozen predecessors, ten L0 owners and ten consumers; no future candidate",
+      "writes": "p1343-candidate-free-inventory-r1.md, p1343-capsule-baseline-r1.json and p1343-topology-receipt-r1.json only"
+    },
+    "contract_author": {
+      "reads": "step, this manifest, frozen baseline, L0 freeze, fixture and P1342 contract; no future candidate",
+      "writes": "new p1343-contract-*-r1 artifacts only",
+      "forbidden": "candidate code, tests, oracle, attack, seal or final certificate"
+    },
+    "oracle_author": {
+      "reads": "frozen step, manifest, baseline and contract; no future candidate",
+      "writes": "new p1343-source-verifier-*, p1343-oracle-* and focal authorship receipt only",
+      "forbidden": "full corpus, candidate code, tests, attack, seal or final certificate"
+    },
+    "adversary": {
+      "reads": "frozen step, manifest, baseline, contract and oracle; no future candidate",
+      "writes": "new p1343-adversary-* only",
+      "forbidden": "correct the verifier or choose the solution"
+    },
+    "preseal_verifier": {
+      "reads": "all protected inputs and independent outputs; no future candidate",
+      "writes": "new p1343-verifier-preseal-* only",
+      "forbidden": "edit any judged artifact; more than one full preseal execution"
+    },
+    "ab_tester": {
+      "reads": "frozen L0, fixture, contract, source verifier and seal; no candidate patch",
+      "writes": "new p1343 implementation test and RED receipt only",
+      "forbidden": "adapt the test after reading implementation"
+    },
+    "implementer": {
+      "reads": "frozen L0, contract, baseline, source verifier, seal and RED; no private tester reasoning",
+      "writes": "only the 36 allowlisted capsules, test include switch if assigned, and implementation receipt",
+      "forbidden": "edit protected inputs, add capsules, write outside capsules or issue a verdict"
+    },
+    "final_verifier": {
+      "reads": "all sealed inputs, candidate sources and candidate outputs",
+      "writes": "new p1343-verifier-candidate-* and final certificate only",
+      "forbidden": "modify any judged artifact; more than one full final execution"
+    }
+  },
+  "budget": {
+    "contract_revisions_after_r1": 1,
+    "normalizer_focal_revisions_per_new_failure_class": 1,
+    "author_full_corpus_runs": 0,
+    "full_preseal_runs": 1,
+    "candidate_correction_cycles": 2,
+    "full_final_runs": 1
+  },
+  "stop_conditions": [
+    "Two focal attempts repeat the same classification vector and public cause.",
+    "A required candidate edit cannot be represented by one of the 36 frozen capsules and normalize to the ten pinned baseline hashes.",
+    "Any protected input changes after seal or an authority writes outside its allowlist.",
+    "Any relevant negative survives or mutation score is below 1.0.",
+    "Implementation requires an ADR-0127 public, default, phase or compatibility change.",
+    "The only available progress would weaken a negative, trust candidate-authored evidence or broaden scope."
+  ]
+}

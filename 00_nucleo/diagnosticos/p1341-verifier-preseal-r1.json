@@ -1,0 +1,163 @@
+{
+  "schema": "p1341-verifier-preseal-r1",
+  "utc": "2026-09-10T18:17:59Z",
+  "role": "independent pre-seal verifier",
+  "executor": "/root/p1341_verifier",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "SEALED_FOR_IMPLEMENTATION",
+  "verdict_scope": "Authorizes L0-first, RED, implementation and later candidate verification only for the exact pinned P1341 R5 synthetic lifecycle/binding fragment. It grants no product credit, no reachability claim, no implementation acceptance and no general-equivalence claim.",
+  "authority": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1341-authority-manifest.json",
+      "sha256": "b2da37d09be8aa7f568543e3562f04ab4cd5e919be2931b64c70af980f4eed5b"
+    },
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1341.md",
+      "sha256": "50d539b9ac245e22217f178ba08ce6cfa70d55ebd6db0f6746fb589fed54e862",
+      "pin_matches": true
+    },
+    "human_scope_present": true,
+    "manifest_schema_valid": true,
+    "manifest_protocol": "tekt-materializacao-segregada-v1"
+  },
+  "sealed_current_inputs": {
+    "00_nucleo/diagnosticos/p1341-contract-r5.json": "511d96d96c6c6911bbaee610111339311eb6174cfc568598bb25b075b790b4d0",
+    "00_nucleo/diagnosticos/p1341-contract-r5-focal.json": "495fb367c912391272c4ff3209337af6db9d23bab5df9510d39299b925db68c3",
+    "00_nucleo/diagnosticos/p1341-contract-r5-checker.py": "f9611cee52952b85ddefe110073645040fb9498fae42849cbe097fc590d6251a",
+    "00_nucleo/diagnosticos/p1341-contract-r5-receipt.json": "fc954e0151acbefde20c6e06efbeb1e4ab8501631a534b0b7f21b7a2dbb0cce8",
+    "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r4.json": "ee24676d4e5a275ba560872ec0f08a1a716764760de5ad296d66eb675a6c6391",
+    "00_nucleo/diagnosticos/p1341-oracle-expectations-r4.json": "e28db40b5ddd55466c87e483a25b1dbee38381da2c731f770d6fd589ac84f884",
+    "00_nucleo/diagnosticos/p1341-oracle-authorability-checker-r4.py": "819d8e9b3c12657a7e617945c9008a75c6661dc1c6005e8c0908b11cf6aa8b0b",
+    "00_nucleo/diagnosticos/p1341-oracle-authorability-r4.json": "8d98ba11b2149fd6b633ac92b3636fbf3094a1d0f5c81f4715f622381527f739",
+    "00_nucleo/diagnosticos/p1341-oracle-receipt-r4.json": "fca507eca04232595e62d6a6a78882e109820d08b0b54077f13d715df4b11a60",
+    "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r4.py": "16a6a78c528275682e7e3ad67d18faa9f95cd92d440748fe4d5f894bdd0436f4",
+    "00_nucleo/diagnosticos/p1341-adversary-result-r4.json": "b621c7c5f41d7973c2e08aaee0459fbfe85b69afad63933709ceb21916eb8a74"
+  },
+  "verified_causal_pins": {
+    "p1341_contract_r4": "fbc08c118e10f957ca02cd714dbfb4c0f0784bd7ca7791f85407d3e8b64e4195",
+    "p1341_contract_r4_focal": "6bfe5c8e0a1a9e64682672fad0e527ce76eb2ecbb97022c8b6577bc6c1ae3a4f",
+    "p1341_contract_r4_checker": "5998f90cab2cf85f5039eb389ecc9a48c08204894d548d8ea94b36d9899ec97e",
+    "p1341_contract_r4_receipt": "9f4f970a1f15418c67f794e37941f2c4c0a9ca27e74c451b8a1cf3d6d8f7f77a",
+    "p1341_adversary_materializer_r1": "ec0788fa2e77c6a3a76f4c123a70fe48f8211018d3e820131c143d5d47b4b891",
+    "p1341_adversary_materializer_r2": "a64d27ed681c2594b9a37bae71e052362fa14a04ec2346e081296c240c25ef06",
+    "p1341_adversary_materializer_r3": "13a8aaf74234e5c1fe422bf0a93036a176c98b70fa6a4c5bd0f43e60332cab9b",
+    "p1341_adversary_result_r3": "661982ebf210dbcbd1b83c99e971af082b0e6794e8f69fafb1808fe0cfc91168",
+    "p1340_verifier_predecessor": "519d4791626c7a3bfe325d5b4d2bba302b57b75b5a13627dee8838df2f0975a0",
+    "p1340_adversary_predecessor": "b62b3be96d8148d5d739152ac94d143f39e1bce514cd2f55bc3a6a39bdef81a0",
+    "p1340_authorability_predecessor": "86fd8a6c6d1e3ac41155b01cabd795a198fc122c3f6186e1e69ff5fa9071dd30",
+    "all_declared_pins_match": true
+  },
+  "l0_pin_audit": {
+    "checked": 11,
+    "matched": 11,
+    "mismatched": [],
+    "note": "Hashes were checked without reading or judging candidate/product implementation."
+  },
+  "schema_and_authorability": {
+    "json_parse_checks": 6,
+    "json_parse_failures": [],
+    "extension_policy": "NONE",
+    "closed_key_sets": 17,
+    "strict_integer_fields": 13,
+    "binding_roles": 9,
+    "binding_object_cardinality_each": 1,
+    "binding_manifest_content_sha256": "180d34a571365b225e515c873b794f8956c29065e559d72c4f5a2ca530b26b81",
+    "binding_manifest_content_pin_matches": true,
+    "external_cases": 2,
+    "external_class_vector": ["Preserved", "Unknown"],
+    "concrete_runtime_identity_values_in_expectations": 0,
+    "unknown_precedence_last": true,
+    "malformed_or_unknown_keys_fail_closed": true,
+    "errors": []
+  },
+  "frozen_negative_corpus": {
+    "protected": 41,
+    "r1_additional": 10,
+    "r2_new": 16,
+    "r3_boundary": 17,
+    "total": 84,
+    "unique": 84,
+    "materializers": 84,
+    "policy": "FROZEN; no case added, removed, renamed or reclassified by R5/R4 verification",
+    "normal": {"valid": 84, "violated": 84, "survivors": 0, "score": 1.0},
+    "repeat": {"valid": 84, "violated": 84, "survivors": 0, "score": 1.0},
+    "reverse": {"valid": 84, "violated": 84, "survivors": 0, "score": 1.0},
+    "deterministic_across_orders": true,
+    "unknown_negatives": [],
+    "checker_error_negatives": [],
+    "materializer_error_negatives": []
+  },
+  "controls": {
+    "positive": {"classification": "Preserved", "reason_code": "all-r3-predicates-passed"},
+    "opaque": {"classification": "Unknown", "reason_code": "payload-deliberately-opaque"},
+    "negative_unknown_is_failure": true,
+    "negative_checker_error_is_failure": true,
+    "negative_materializer_error_is_failure": true
+  },
+  "executions": [
+    {
+      "name": "contract-r5",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-contract-r5-checker.py 00_nucleo/diagnosticos/p1341-contract-r5.json 00_nucleo/diagnosticos/p1341-contract-r5-focal.json",
+      "exit": 0,
+      "stdout_sha256": "a3df3ff233a7cd1a43417103b15b3bc26bfa5234c58d0f1a85b1a71b78ed2a2a",
+      "verdict": "FOCAL_MATERIALIZED_PASS_NOT_SEALED",
+      "errors": []
+    },
+    {
+      "name": "oracle-authorability-r4",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-oracle-authorability-checker-r4.py 00_nucleo/diagnosticos/p1341-contract-r5.json 00_nucleo/diagnosticos/p1341-contract-r5-focal.json 00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r4.json 00_nucleo/diagnosticos/p1341-oracle-expectations-r4.json",
+      "exit": 0,
+      "stdout_sha256": "a149556a421a98fb31a18214182a0880795bab0ac294ec5d1af1fa052066d805",
+      "verdict": "AUTHORABLE_NOT_SEALED",
+      "errors": []
+    },
+    {
+      "name": "adversary-materialized-r4",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r4.py",
+      "exit": 0,
+      "stdout_sha256": "7df1204ff3bb6dca8d45f4838493a4d5cb84c96b2a03fd73a1104de84b0809ea",
+      "verdict": "RECOMMEND_SEAL",
+      "fixture_errors": []
+    }
+  ],
+  "segregation_audit": {
+    "contract_author": "/root/p1341_contract_r2",
+    "oracle_author": "independent oracle author",
+    "adversary": "/root/p1341_adversary",
+    "verifier": "/root/p1341_verifier",
+    "declared_candidate_source_reads_by_protected_authors": 0,
+    "declared_candidate_output_reads_by_protected_authors": 0,
+    "declared_product_runs_by_protected_authors": 0,
+    "verifier_judged_artifact_edits": 0,
+    "technical_process_isolation_attested": false,
+    "conclusion": "Role authority and write scopes are segregated by declared capability and artifacts, but exclusive technical isolation is not attested."
+  },
+  "measurement_provenance": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "working_tree": "nao commitado",
+    "measured_before_this_receipt": true,
+    "status_porcelain_z_sha256": "cb0da9150b4b3c1deb34959e60a07ad2a51cae0dc93025dd1d07a08e7fc49464",
+    "tracked_diff_binary_sha256": "b5cfe4bff5207acbf6cf1feb7b85cb71efbcfe9ad928df5655d4bc444037382d",
+    "tracked_diff_stat": "66 files changed, 10579 insertions(+), 823 deletions(-)",
+    "authority_manifest_tracked_diff_matches": true,
+    "authority_manifest_status_hash_matches": false,
+    "status_hash_difference_assessment": "Expected growth of the untracked protocol artifact chain is visible in the shared dirty tree; protected artifacts and the tracked productive diff are instead pinned individually. This does not attest isolation."
+  },
+  "invalidation_conditions": [
+    "Any sealed current input hash changes.",
+    "Any verified causal pin, step pin or L0 pin changes.",
+    "The frozen corpus ceases to be exactly 84 unique identifiers with 84 materializers.",
+    "Any negative classifies other than Violated, including Unknown, CheckerError or MaterializerError.",
+    "Positive or opaque controls cease to classify Preserved and Unknown respectively.",
+    "Normal, repeat and reverse results diverge.",
+    "Implementation requires a public API/entity/default/phase/compatibility change outside the authorized fragment."
+  ],
+  "limitations": [
+    "This is a pre-seal for implementation, not a final certificate.",
+    "The seal covers only the exact hashed synthetic lifecycle/binding fragment and frozen 84-case mutation corpus.",
+    "No candidate or productive code, P1340 implementation output, product behavior, hook reachability or general functional equivalence was inspected or credited.",
+    "The shared dirty working tree prevents technical attestation of exclusive process isolation; the warranted phrase remains executado sem atestacao de isolamento.",
+    "Later implementation must still follow L0-first and RED-to-GREEN, preserve all sealed inputs, and pass independent candidate, architecture and final gates."
+  ],
+  "findings": []
+}

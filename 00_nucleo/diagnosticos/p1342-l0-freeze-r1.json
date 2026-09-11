@@ -1,0 +1,38 @@
+{
+  "schema": "p1342-l0-freeze-r1",
+  "step": 1342,
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at_utc": "2026-09-10T20:40:08Z",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256": "5a75ad131ea12d652b25e893eb4cdb5945ad9c87fe36f2e20e4037d0202a604a",
+    "tracked_diff_binary_sha256": "ff4dfff0c1401e48855b4116c5e11ce895e4c21fafc9977d8af5c218f6338a86",
+    "tracked_diff_stat": "72 files changed, 10881 insertions(+), 830 deletions(-)"
+  },
+  "inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1342.md", "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1342-authority-manifest.json", "d247e6714faf3249109beb3cfb2ef718a4d2049bb56c95aaabd270eb6eed87a4"],
+    "candidate_free_inventory": ["00_nucleo/diagnosticos/p1342-candidate-free-inventory-r1.md", "06fe7dce0bf1130dca222f3148af7680f16b754ec0ac09a7956d11713042cb73"],
+    "topology_audit": ["00_nucleo/diagnosticos/p1342-topology-audit-r1.md", "1c4f72cbd45075479618d5b567f15c6a3f034ec34e5a7b364f7fd1cbcf4b2154"],
+    "topology_receipt": ["00_nucleo/diagnosticos/p1342-topology-receipt-r1.json", "a9934dc64972a4154e1408b0b664c54612db11f2076ef34a159b0839001d8c4d"]
+  },
+  "owners": [
+    ["00_nucleo/prompts/infra/pipeline/context_stabilization.md", "ee9b2fda742fd7744566d331b5b769c768ad1cba952c16be7d390de63fc3cc55", "03_infra/src/pipeline/context_stabilization.rs", "2f03c9e58856aa646245b5b1f7f6d41bdef21afd04f09c7c75eb88aa02aafa30"],
+    ["00_nucleo/prompts/compiler/eval.md", "580849e8e2ea07f7608b4a9a4b53f4dbf4de7f8ef8b71b75118c5738af0f7324", "01_core/src/compiler/eval/mod.rs", "8706947c64635f50703d921a02b17f321d77eeedb1250c33777fc44fa49fd0dd"],
+    ["00_nucleo/prompts/compiler/eval/bindings/value_methods.md", "2a0febd236d47b7ffdd4b4ea8b2fc9ee6ebedabd03af62115f3f0d8f05859b07", "01_core/src/compiler/eval/bindings/value_methods.rs", "26865ce023519748af1c12388720be044b7ee55b322a4d8c7eebe2b21f89e36c"],
+    ["00_nucleo/prompts/compiler/stdlib/counter.md", "a7739f41ecb4feb0bc6ef34fd967afa527c1d09523537bb8d77ba01eb6c38a89", "01_core/src/compiler/stdlib/counter.rs", "239561a4333f41752013d710545c4b7372eece4548f732c30db5bc394eca8220"],
+    ["00_nucleo/prompts/entities/elements/counter_update.md", "3a8cb1f636396b7390ef714927c140ac53b1e5c9dad906011557590b197435ea", "01_core/src/entities/elements/counter_update.rs", "d417085e919f175b7c92326130acfa7f7a531dd9c0392ab10448427a67b1ec7b"],
+    ["00_nucleo/prompts/compiler/introspect.md", "13b5b3679e2a8c888a3057b08f40036438a68876da2666d028e363a62f0c90d2", "01_core/src/compiler/introspect.rs", "6d2de23b45f0fdedbb5b46645b97007adaff434bdca3b7f273bbe72e3a8c747c"],
+    ["00_nucleo/prompts/compiler/introspect/from_tags.md", "04596c56980e9b6a8e377beb35ec39df89497a9acdb4771636b7878c8b7a9a87", "01_core/src/compiler/introspect/from_tags.rs", "92d87a5621401b0357082332b7994b601e358165dcce468d12202c8c891f6ec5"],
+    ["00_nucleo/prompts/compiler/eval/call_dispatch.md", "9d00297e839c5a399577bef6cf58956f1ea5b4479bc308c7a3e2ac771e9fa775", "01_core/src/compiler/eval/call_dispatch.rs", "16fa614bb79b6c659010328c46672adbf696efc11289a8d08691ac949189588a"],
+    ["00_nucleo/prompts/compiler/eval/closures.md", "4909fe1377d5a573a36f3b5607a45a09c775a83f1538e7a2ef8507156c5f5e3e", "01_core/src/compiler/eval/closures.rs", "58b0a334d7096b730af3facc4297728eee4ae380b05a11f1b37ed1f1eeb437df"],
+    ["00_nucleo/prompts/entities/func.md", "92b6938842f8484dbddfedabf23bf444fd555cba7fb10f587a85b6a45b8be20b", "01_core/src/entities/func.rs", "4c1c0ca99774a5069b296ccbc91501b00c9d2e02b64aae47b87320e72075a25a"]
+  ],
+  "validation": {
+    "pre_fix_v15_v26": "PASS",
+    "fix_hashes": "PASS; 10 owners resealed",
+    "post_fix_v5_v15_v26": "PASS"
+  },
+  "scope": "Only the real-binding P1342 focal fragment. No lifecycle/profile matrix, NT01-NT06, general retention/discard, terminal-policy or parity closure."
+}

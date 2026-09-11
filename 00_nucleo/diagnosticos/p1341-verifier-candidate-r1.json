@@ -1,0 +1,168 @@
+{
+  "schema": "p1341-verifier-candidate-r1",
+  "utc": "2026-09-10T18:56:48Z",
+  "role": "independent final candidate verifier",
+  "executor": "/root/p1341_candidate_verifier",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "REJECTED",
+  "verdict_scope": "Rejects the current candidate for the exact P1341 R5 sealed synthetic fragment and records that the wider P1341 lifecycle/profile closure remains unexecuted. It makes no general-equivalence claim.",
+  "authority": {
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1341.md",
+      "sha256": "50d539b9ac245e22217f178ba08ce6cfa70d55ebd6db0f6746fb589fed54e862"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1341-authority-manifest.json",
+      "sha256": "b2da37d09be8aa7f568543e3562f04ab4cd5e919be2931b64c70af980f4eed5b"
+    },
+    "preseal": {
+      "path": "00_nucleo/diagnosticos/p1341-verifier-preseal-r1.json",
+      "sha256": "c78b8f76ed64c99a8e4926e305af1eaf6d22c3a1384db4a6451f5f715909f7e7",
+      "declared_scope": "exact pinned P1341 R5 synthetic lifecycle/binding fragment only"
+    }
+  },
+  "protected_input_pins": {
+    "00_nucleo/diagnosticos/p1341-contract-r5.json": "511d96d96c6c6911bbaee610111339311eb6174cfc568598bb25b075b790b4d0",
+    "00_nucleo/diagnosticos/p1341-contract-r5-focal.json": "495fb367c912391272c4ff3209337af6db9d23bab5df9510d39299b925db68c3",
+    "00_nucleo/diagnosticos/p1341-contract-r5-checker.py": "f9611cee52952b85ddefe110073645040fb9498fae42849cbe097fc590d6251a",
+    "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r4.json": "ee24676d4e5a275ba560872ec0f08a1a716764760de5ad296d66eb675a6c6391",
+    "00_nucleo/diagnosticos/p1341-oracle-expectations-r4.json": "e28db40b5ddd55466c87e483a25b1dbee38381da2c731f770d6fd589ac84f884"
+  },
+  "candidate_pins": {
+    "00_nucleo/diagnosticos/p1341-implementation-tests.rs": "a9a37bcc1d3b68138500100a051f3565f1cd71ea0ba5a7659f6a8a66923af5d0",
+    "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs": "fe78ff3ae2bfff7494fe014848248b7f5cbb320cdab2e7ed407986ed12b253af",
+    "03_infra/src/pipeline/context_stabilization.rs": "17043434105dabb55a14beaa8901d3127f8f36aa2f24969f9484b4afccfc4602",
+    "01_core/src/compiler/eval/mod.rs": "2382dc1229d0c5dd62c86a68f9e4eb21a726563a35cbe3f56946f5d415c1fe0c",
+    "01_core/src/compiler/eval/call_dispatch.rs": "cde7b67acb279def698ff6731ea21794d685220f3eea9523d8884d0a0affc6c5",
+    "01_core/src/compiler/stdlib/counter.rs": "cb2a831bd960c478e5a360446a8d382f5f22b2bb892468ee58bd2b389772a0ad",
+    "01_core/src/compiler/introspect.rs": "5e019be3f02c3e51deb11a5ebe9694e71f863fd59726438cbb5e7f2350422a02"
+  },
+  "l0_pin_audit": {
+    "preseal_pins_checked": 11,
+    "mismatched_after_preseal": [
+      {
+        "path": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+        "preseal": "09b8da4367f1e37e65a6ae596cebecc8815dcbdb50b28a414d79dae99f8977be",
+        "candidate": "dfdc29af662029baaca70191f5ae11008e7795c1931f19cd0cf992c4be034521"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval.md",
+        "preseal": "b2b9c074d499e6bfeb9466962bbdfba618b0dfff710a5fa826ca6b1c87f36712",
+        "candidate": "bc2f7de6b467998b49d78809046c86c7c545e41aa759f5346099684f32db19be"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "preseal": "4c9ec02e1790b0b93702f10e9b3db48f96c86d9de6cec5cf6256289c69a71477",
+        "candidate": "0843ec7297bb37366968bc34633c2497ca7dd89ed9e978f29a01c148a92ff441"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/stdlib/counter.md",
+        "preseal": "e5c0bf6e74fdd9f147696d53809697ba6472f0159877ae3bd84948dbe7afaa38",
+        "candidate": "2ba12786135f8304d5050ca5520a6e4663fb6e582b12ddb99648aa8699646342"
+      },
+      {
+        "path": "00_nucleo/prompts/compiler/introspect.md",
+        "preseal": "701e2442c7741637aa6f826f3a42e6ebd90173657a59dc2f76b811ef031ec20b",
+        "candidate": "e28849681d89ea300e7c4cf11f6a4672180831935be5cb584c6f61f01a3eb0e8"
+      }
+    ],
+    "formal_result": "INVALIDATED_BY_PRESEAL_CONDITION"
+  },
+  "executions": [
+    {
+      "name": "candidate-focal-green",
+      "command": "CARGO_TARGET_DIR=/dev/shm/typst-p1341-verifier RUSTFLAGS='--cfg p1339_observation' cargo test -p typst-infra p1341_real_closed_ledger_normal_repeat_reverse -- --nocapture",
+      "exit": 0,
+      "result": "1 passed; 0 failed; 924 filtered out; 0.05s",
+      "interpretation": "Shape-only GREEN; rejected as refinement evidence because the facade constructs the expected ledger post-hoc."
+    },
+    {
+      "name": "normal-build",
+      "command": "CARGO_TARGET_DIR=/dev/shm/typst-p1341-verifier cargo check -p typst-infra --lib",
+      "exit": 0,
+      "result": "completed with warnings"
+    },
+    {
+      "name": "architectural-pins",
+      "command": "crystalline-lint --checks v5,v15,v26 --fail-on warning .",
+      "exit": 0,
+      "result": "No violations found"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "B1-preseal-invalidated",
+      "scope": "sealed-fragment",
+      "evidence": [
+        "00_nucleo/diagnosticos/p1341-verifier-preseal-r1.json:146-153",
+        "00_nucleo/diagnosticos/p1341-authority-manifest.json:26-37"
+      ],
+      "finding": "The preseal invalidates itself when any L0 pin changes. Five of eleven pinned L0 files changed after the preseal, and no successor seal pins the current L0 state."
+    },
+    {
+      "id": "B2-ledger-fabricated-post-hoc",
+      "scope": "sealed-fragment",
+      "evidence": [
+        "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs:133-145",
+        "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs:188-230",
+        "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs:251-262",
+        "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs:542-583",
+        "00_nucleo/prompts/infra/pipeline/context_stabilization.md:265-276"
+      ],
+      "finding": "The real run captures only feature booleans/count, a scanned counter Location/snapshot and a projected Dict. The complete objects, typed identities, events, total order and causal edges are then synthesized as one fixed JSON value after execution; no append-only runtime ledger exists."
+    },
+    {
+      "id": "B3-static-bindings-not-real",
+      "scope": "sealed-fragment",
+      "evidence": [
+        "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r4.json:7-16",
+        "01_core/src/compiler/eval/call_dispatch.rs:1760-1765",
+        "00_nucleo/prompts/compiler/eval/call_dispatch.md:974-983",
+        "00_nucleo/prompts/compiler/stdlib/counter.md:421-431",
+        "00_nucleo/prompts/compiler/introspect.md:1658-1669"
+      ],
+      "finding": "The manifest records symbolic owner/callsite labels but no source path, symbol hash or reachable hook anchor. Candidate search finds no P1341 hook in the L1 call-dispatch, counter or introspect owners; their objects and relations are invented in the L3 test harness."
+    },
+    {
+      "id": "B4-candidate-diverges-from-protected-expectation",
+      "scope": "sealed-fragment",
+      "evidence": [
+        "00_nucleo/diagnosticos/p1341-oracle-expectations-r4.json:9",
+        "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r4.json:30",
+        "00_nucleo/diagnosticos/p1341-implementation-tests.rs:246-255",
+        "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs:555-565"
+      ],
+      "finding": "The protected expectation requires outer.a = 1 and counter source offset 12 with byte length 5. The candidate test accepts outer.a = 0, while the facade finds the fixture word 'step' and uses its actual length 4. The protected checker is never run over this product ledger."
+    },
+    {
+      "id": "B5-order-profile-and-unknown-not-exercised",
+      "scope": "sealed-fragment-and-wider-step",
+      "evidence": [
+        "00_nucleo/diagnosticos/p1341-implementation-tests.rs:296-309",
+        "00_nucleo/diagnosticos/p1341-oracle-expectations-r4.json:9-13",
+        "00_nucleo/materialization/typst-passo-1341.md:52-64"
+      ],
+      "finding": "The normal/repeat/reverse loop ignores its order variable and performs the same focal call three times. There is no opaque candidate, Unknown-precedence verification, real profile matrix, NT01-NT06, lifecycle invalidation/discard/decision coverage or final certificate."
+    }
+  ],
+  "minimum_correction": [
+    "Reopen at the seal boundary and obtain an independent successor seal that pins the current five L0 revisions before further candidate credit.",
+    "Make the static binding manifest verifiable by concrete source path, reachable symbol/callsite and immutable source hash.",
+    "Emit objects and events append-only at the real five-owner callsites, preserving actual Func/carrier/content/Location/snapshot/span identities instead of constructing roles and edges after the run.",
+    "Run the protected R5 checker over real inspectable and opaque candidate ledgers; align the fixture to protected outer.a = 1 and offset/length 12/5, or reopen the protected oracle rather than changing only the test.",
+    "Make normal, repeat and reverse materially reorder executions and complete the lifecycle/profile matrix, NT01-NT06 and independent final certificate. If those wider gates move to a successor, record an explicit authorized scope-out and keep P1341 open."
+  ],
+  "measurement_provenance": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "working_tree": "nao commitado",
+    "measured_at_utc": "2026-09-10T18:56:48Z",
+    "status_porcelain_z_sha256_before_receipt": "cdb2e26bdb9c9e8d60d0363ced44e36eb08396e27e4d0f13a1e9c94d26c240fe",
+    "tracked_diff_binary_sha256_before_receipt": "02f7ee9a373030a62b79fb6816a964ff282c982b6d7ee49bf1f8a6b7ae8204d9",
+    "tracked_diff_stat": "66 files changed, 10669 insertions(+), 825 deletions(-)"
+  },
+  "segregation_audit": {
+    "verifier_edits_to_judged_artifacts": 0,
+    "verifier_output_created": "00_nucleo/diagnosticos/p1341-verifier-candidate-r1.json",
+    "technical_process_isolation_attested": false
+  }
+}

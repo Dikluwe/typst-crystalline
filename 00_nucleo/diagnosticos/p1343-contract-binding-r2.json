@@ -1,0 +1,202 @@
+{
+  "schema": "p1343-capsule-binding-manifest-v2",
+  "step": 1343,
+  "revision": 2,
+  "role": "independent_contract_author",
+  "executor": "/root/p1343_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "FINAL_CONTRACT_REVISION_NOT_SEALED",
+  "revision_budget": "Uses the only contract_revisions_after_r1 allowance from the protected authority manifest. No R3 contract revision is authorized.",
+  "predecessor": [
+    "00_nucleo/diagnosticos/p1343-contract-binding-r1.json",
+    "fbd5ff5f9f32594f95b6b76ea11b562fd1772172dde3a80d4083c9e401ccea85"
+  ],
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1343.md", "6db7b3bb119f4038f88b8916209a4fcd7d1485b820143308ae788192a921a87b"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1343-authority-manifest.json", "d41aff08708b9fa72ac1d130ee71543f5048ebf2dc6944c25aba9a42b866dc3b"],
+    "capsule_baseline": ["00_nucleo/diagnosticos/p1343-capsule-baseline-r1.json", "db143d9fec795ec81ce7a69be5e08b09e451a9d6eb07a1a39cd1dcd41ee82977"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1342-l0-freeze-r1.json", "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"],
+    "fixture": ["00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"],
+    "p1342_contract_r3": ["00_nucleo/diagnosticos/p1342-contract-spec-r3.json", "07689c204f8741cdcfcc23bef9fa4af969dba6d991caaa93afaf117eb7ac73e7"],
+    "p1342_binding_r3": ["00_nucleo/diagnosticos/p1342-contract-binding-r3.json", "8630a376350d374f854345c37282ac8fbb657f2f9a8506b7de47bda7b8276bf5"],
+    "contract_spec_r1": ["00_nucleo/diagnosticos/p1343-contract-spec-r1.json", "67107164ddb631e2c1539ca88c90658041811dc389bbae47cb2738312a5f3467"],
+    "contract_receipt_r1": ["00_nucleo/diagnosticos/p1343-contract-receipt-r1.json", "dfccfd81e7254c5c22d3de9530a3fd55b267e906e503de62c27da91539026e15"],
+    "oracle_source_r2": ["00_nucleo/diagnosticos/p1343-source-verifier-r2.py", "fa7c15eea4b45e83c5f078a7a3820bd0499d55087aaa96f7863ea5229495512d"],
+    "oracle_checker_r2": ["00_nucleo/diagnosticos/p1343-oracle-checker-r2.py", "ff6d83c9dbfe356b2068204e15d05025f10d83eacb902d9b9c1511a20b098ab9"],
+    "oracle_corpus_r2": ["00_nucleo/diagnosticos/p1343-oracle-corpus-r2.json", "72eb41172966de03a42dfc26eea39f7c426f38123f6ba512bb8bc663a30cfcce"],
+    "oracle_receipt_r2": ["00_nucleo/diagnosticos/p1343-oracle-authorship-receipt-r2.json", "d1b240846ab14f3501e05f7c675eb44bdea30cd183e167f73fdc288c94a18dc2"],
+    "adversary_runner_r2": ["00_nucleo/diagnosticos/p1343-adversary-runner-r2.py", "8f93520298b8751fd8fbea3430e014ce6e9b938a05431d929538538773402aaf"],
+    "adversary_report_r2": ["00_nucleo/diagnosticos/p1343-adversary-report-r2.json", "9900f35702456c59d1183a9d43ab3c3c32afe6a10c3c82c64f8903a1f4488586"],
+    "adversary_receipt_r2": ["00_nucleo/diagnosticos/p1343-adversary-receipt-r2.json", "6caf6272e08ce63f846fabb613f6a26fa820f521f7d31d311e231430160a9752"]
+  },
+  "composition": {
+    "method": "exact-r1-preservation-plus-closed-syntax-overlay",
+    "rule": "Load predecessor by exact SHA-256 and preserve its exact P1342 composition, 19 hooks rows, 19 row_capsule_bindings, 36 capsule identities, ten paths and hashes, facade identity, normal replacement bytes, anchors, cfg values and forbidden bindings. Join each R2 capsule_syntax_table record by exact capsule_id to the corresponding protected capsule-baseline record. Missing, extra, duplicated, reordered or mismatched rows/capsules/categories are Violated. R2 changes no P1342 semantic obligation and replaces only R1's open-ended internal-body/source-reachability interpretation with the closed grammars and evidence boundaries below.",
+    "preserved_counts": {
+      "files": 10,
+      "capsules": 36,
+      "insert": 22,
+      "replace": 14,
+      "p1342_rows": 19,
+      "applicable_rows_per_origin_cell": 18,
+      "test_facades": 1
+    },
+    "expression_tail_wrapper_ids": [
+      "P1343-H06-BOUND-UPDATE",
+      "P1343-FUNC-CTOR-CLOSURE",
+      "P1343-FUNC-CTOR-NATIVE",
+      "P1343-FUNC-CTOR-NATIVE-NS",
+      "P1343-FUNC-CTOR-NATIVE-ENGINE",
+      "P1343-FUNC-CTOR-NATIVE-ENGINE-NS",
+      "P1343-FUNC-CTOR-ELEMENT",
+      "P1343-FUNC-CTOR-PLUGIN",
+      "P1343-H15-SYNTAX-BODY"
+    ],
+    "direct_hook_insert_ids": [
+      "P1343-H01-ATTEMPT-OPEN",
+      "P1343-H02-CONTEXT-DISPATCH",
+      "P1343-H03-ATTEMPT-RESULT",
+      "P1343-H00D-DISCOVERY",
+      "P1343-H00S-SELECTED",
+      "P1343-H16-RAW-FREEZE",
+      "P1343-H05-DICT-PRODUCTION",
+      "P1343-H11-OCCURRENCE-WALKED",
+      "P1343-H12A-REPLAY-ENTER",
+      "P1343-H12B-REPLAY-EXIT",
+      "P1343-H13-FUNC-DISPATCH",
+      "P1343-H14-WITH-EDGE"
+    ]
+  },
+  "closed_metadata": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "revision_budget", "predecessor", "protected_inputs", "composition", "closed_metadata", "grammar_categories", "capsule_syntax_table", "hook_call_contract", "carrier_ledger_skeleton", "facade_ab_contract", "authority_root_contract", "forbidden_bindings"],
+    "capsule_syntax_keys": ["capsule_id", "kind", "syntax_form", "grammar_category", "exact_cfg", "canonical_callee", "source_claim"],
+    "hook_call_keys": ["capsule_id", "hook", "callee_kind", "receiver", "method", "argument_rule"],
+    "allowed_grammar_categories": ["support_items", "private_field", "field_initializer", "helper_impl", "direct_hook_call", "facade_item", "expression_tail_replace", "owner_helper_item", "item_replace", "carrier_ledger_items", "statement_replace"],
+    "grammar_category_keys": ["direct_hook_call", "expression_tail_replace", "item_replace", "statement_replace", "private_field", "field_initializer", "support_items", "helper_impl", "owner_helper_item", "carrier_ledger_items", "facade_item", "support_shape_note"],
+    "allowed_source_claims": ["shape-owner-adjacency-only", "shape-owner-normal-bytes-only", "closed-support-shape-only", "closed-carrier-shape-only", "facade-shape-only"]
+  },
+  "grammar_categories": {
+    "direct_hook_call": "The entire capsule body is exactly one outer #[cfg(EXACT_CFG)] followed by exactly one semicolon-terminated direct Expr::MethodCall named by hook_call_contract. Its receiver is the exact single local identifier in the table and the method identifier is exact. No path-qualified function, associated call, alias, trait dispatch, turbofish, closure, fn/item, block wrapper, if/match/loop/while/for, async/await, macro, cfg_attr, cfg!, let, assignment, return/break/continue, second expression, extra attribute or effective token is permitted. Arguments are only the closed read-only grammar in hook_call_contract. This proves syntax, owner and adjacency, not semantic reachability.",
+    "expression_tail_replace": "The entire capsule body is one outer block containing, in order, exactly #[cfg(not(p1339_observation))] plus one inner block whose tail payload is the exact decoded baseline replacement bytes, then #[cfg(EXACT_CFG)] plus one observed inner block. This single outer/inner wrapper is authorized only for the nine exact composition.expression_tail_wrapper_ids. The observed block evaluates the original operation exactly once, surrounds it only with the capsule-specific closed observation calls and returns the same SourceResult/value/flow. No other wrapper, item, macro, closure, loop, branch or normal token is allowed.",
+    "item_replace": "Exactly two sibling Rust items of the same item kind/name/signature: first #[cfg(not(p1339_observation))] plus the byte-exact decoded baseline item, then #[cfg(EXACT_CFG)] plus the canonical observed item. The observed item preserves signature, ordinary statements, call count, result and control flow byte-for-byte modulo the finite observation edits named for that capsule; no extra item, helper, macro, impl, field, branch or callback is allowed.",
+    "statement_replace": "Exactly two cfg-selected sibling statement forms at the baseline statement position: the not-observation branch contains the exact decoded baseline statement once; the observation branch invokes the same underlying call exactly once, binds its real Result once, emits the closed success/error observation without reconstruction, and propagates the same result. No closure, macro, retry, duplicate callback, fabricated value or extra control path is allowed.",
+    "private_field": "Exactly one cfg-attributed private field or tuple-field addition fixed by capsule_syntax_table and the closed skeleton. No pub visibility, attribute other than exact cfg, default, computed initializer, alias or second field.",
+    "field_initializer": "Exactly one cfg-attributed field initializer for its paired private field, with the exact constructor expression fixed by the closed skeleton. No call other than that constructor, alias, clone from another run or second initializer.",
+    "support_items": "Exactly the finite cfg-only imports/types/impl Session methods enumerated by carrier_ledger_skeleton.owner_helper_sets.pipeline; no macro, trait impl, blanket impl, callback execution, raw Vec access, public item or additional helper.",
+    "helper_impl": "Exactly the finite inherent impl blocks and methods enumerated by carrier_ledger_skeleton.owner_helper_sets for that capsule. No trait/blanket impl, macro, alias, generic catch-all helper, raw Vec exposure or method outside the enumerated names/signatures/effects.",
+    "owner_helper_item": "Exactly one cfg-only function item counter_update_observed with the protected signature contract: consume the actual ctx/key/value/span once, classify Value::Func once, obtain/attach the actual carrier once, append H07 only through the closed carrier API, and delegate exactly once to the unchanged counter_update. No callback invocation, post-hoc event construction, lookup by name/output/address, macro, nested item or alternate return path.",
+    "carrier_ledger_items": "Exactly the private types, fields, inherent impls, constructors and method bodies enumerated by carrier_ledger_skeleton. Any other type/item/impl/method/field/mutator/constructor/helper/macro/type alias/Deref/DerefMut/AsMut/IndexMut/IntoIterator-mut exposure is forbidden.",
+    "facade_item": "Exactly one cfg(all(test,p1339_observation)) function item with the name/signature and straight-line single-run delegation fixed by facade_ab_contract. No internal creation of World/Source/challenge, clone/reuse, loop, closure, branch, macro, source-verifier/checker call, protected pin, fixture literal, formatted receipt or fabricated evidence.",
+    "support_shape_note": "support_items, helper_impl, owner_helper_item, private_field, field_initializer and facade_item are closed AST categories, not substring allowlists. Tokens in comments/strings do not satisfy any production."
+  },
+  "capsule_syntax_table": [
+    {"capsule_id":"P1343-PIPE-SUPPORT","kind":"insert","syntax_form":"cfg-only finite support item sequence","grammar_category":"support_items","exact_cfg":"all(test,p1339_observation)","canonical_callee":null,"source_claim":"closed-support-shape-only"},
+    {"capsule_id":"P1343-PIPE-SESSION-FIELD","kind":"insert","syntax_form":"one named private Option<P1343Carrier> field","grammar_category":"private_field","exact_cfg":"all(test,p1339_observation)","canonical_callee":null,"source_claim":"closed-support-shape-only"},
+    {"capsule_id":"P1343-PIPE-SESSION-INIT","kind":"insert","syntax_form":"one p1343_carrier: None initializer","grammar_category":"field_initializer","exact_cfg":"all(test,p1339_observation)","canonical_callee":null,"source_claim":"closed-support-shape-only"},
+    {"capsule_id":"P1343-H01-ATTEMPT-OPEN","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"all(test,p1339_observation)","canonical_callee":"self.p1343_observe_h01","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H02-CONTEXT-DISPATCH","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"all(test,p1339_observation)","canonical_callee":"ctx.p1343_observe_h02","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H03-ATTEMPT-RESULT","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"all(test,p1339_observation)","canonical_callee":"ctx.p1343_observe_h03","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H00D-DISCOVERY","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"all(test,p1339_observation)","canonical_callee":"self.p1343_observe_h00d","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H00S-SELECTED","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"all(test,p1339_observation)","canonical_callee":"self.p1343_observe_h00s","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H16-RAW-FREEZE","kind":"insert","syntax_form":"one direct freeze method-call statement","grammar_category":"direct_hook_call","exact_cfg":"all(test,p1339_observation)","canonical_callee":"self.p1343_observe_h16","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-TEST-FACADE","kind":"insert","syntax_form":"one straight-line single-run facade function item","grammar_category":"facade_item","exact_cfg":"all(test,p1339_observation)","canonical_callee":"run_context_stabilization_once","source_claim":"facade-shape-only"},
+    {"capsule_id":"P1343-EVAL-CARRIER-FIELD","kind":"insert","syntax_form":"one named private Option<P1343Carrier> field","grammar_category":"private_field","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"closed-carrier-shape-only"},
+    {"capsule_id":"P1343-EVAL-CARRIER-INIT","kind":"insert","syntax_form":"one p1343_carrier: None initializer","grammar_category":"field_initializer","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"closed-carrier-shape-only"},
+    {"capsule_id":"P1343-EVAL-CARRIER-HELPERS","kind":"insert","syntax_form":"one finite inherent impl EvalContext","grammar_category":"helper_impl","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"closed-carrier-shape-only"},
+    {"capsule_id":"P1343-H05-DICT-PRODUCTION","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"p1339_observation","canonical_callee":"ctx.p1343_observe_h05","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H06-BOUND-UPDATE","kind":"replace","syntax_form":"one authorized expression-tail cfg wrapper","grammar_category":"expression_tail_replace","exact_cfg":"p1339_observation","canonical_callee":"ctx.p1343_counter_update_observed","source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-H07-OCCURRENCE-CREATED","kind":"insert","syntax_form":"one cfg-only owner helper function item","grammar_category":"owner_helper_item","exact_cfg":"p1339_observation","canonical_callee":"counter_update_observed","source_claim":"closed-support-shape-only"},
+    {"capsule_id":"P1343-H06-STATIC-UPDATE","kind":"replace","syntax_form":"two cfg-selected same-signature function items","grammar_category":"item_replace","exact_cfg":"p1339_observation","canonical_callee":"counter_update_observed","source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-FUNC-CARRIER-TYPES","kind":"insert","syntax_form":"one closed private carrier-ledger item skeleton","grammar_category":"carrier_ledger_items","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"closed-carrier-shape-only"},
+    {"capsule_id":"P1343-H08-FUNC-FIELD","kind":"replace","syntax_form":"two cfg-selected tuple-struct items","grammar_category":"item_replace","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-FUNC-CTOR-CLOSURE","kind":"replace","syntax_form":"one authorized expression-tail cfg wrapper; observed constructor is exact original tuple plus trailing None carrier","grammar_category":"expression_tail_replace","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-FUNC-CTOR-NATIVE","kind":"replace","syntax_form":"one authorized expression-tail cfg wrapper; observed constructor is exact original tuple plus trailing None carrier","grammar_category":"expression_tail_replace","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-FUNC-CTOR-NATIVE-NS","kind":"replace","syntax_form":"one authorized expression-tail cfg wrapper; observed constructor is exact original tuple plus trailing None carrier","grammar_category":"expression_tail_replace","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-FUNC-CTOR-NATIVE-ENGINE","kind":"replace","syntax_form":"one authorized expression-tail cfg wrapper; observed constructor is exact original tuple plus trailing None carrier","grammar_category":"expression_tail_replace","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-FUNC-CTOR-NATIVE-ENGINE-NS","kind":"replace","syntax_form":"one authorized expression-tail cfg wrapper; observed constructor is exact original tuple plus trailing None carrier","grammar_category":"expression_tail_replace","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-FUNC-CTOR-ELEMENT","kind":"replace","syntax_form":"one authorized expression-tail cfg wrapper; observed constructor is exact original tuple plus trailing None carrier","grammar_category":"expression_tail_replace","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-FUNC-CTOR-PLUGIN","kind":"replace","syntax_form":"one authorized expression-tail cfg wrapper; observed constructor is exact original tuple plus trailing None carrier","grammar_category":"expression_tail_replace","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-H09-FUNC-WITH","kind":"replace","syntax_form":"two cfg-selected same-signature method items","grammar_category":"item_replace","exact_cfg":"p1339_observation","canonical_callee":"self.p1343_observe_h09","source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-FUNC-CARRIER-HELPERS","kind":"insert","syntax_form":"finite inherent impl Func plus inherent impl Content plus inherent impl CounterUpdate","grammar_category":"helper_impl","exact_cfg":"p1339_observation","canonical_callee":null,"source_claim":"closed-carrier-shape-only"},
+    {"capsule_id":"P1343-H10-ACTION-CARRIER-CLONE","kind":"replace","syntax_form":"two cfg-selected same-signature method items","grammar_category":"item_replace","exact_cfg":"p1339_observation","canonical_callee":"self.action.p1343_observe_h10","source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-H11-OCCURRENCE-WALKED","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"p1339_observation","canonical_callee":"content.p1343_observe_h11","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H12A-REPLAY-ENTER","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"p1339_observation","canonical_callee":"function.p1343_observe_h12a","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H12B-REPLAY-CALL","kind":"replace","syntax_form":"two cfg-selected single-call statements","grammar_category":"statement_replace","exact_cfg":"p1339_observation","canonical_callee":"function.p1343_observe_h12b_result","source_claim":"shape-owner-normal-bytes-only"},
+    {"capsule_id":"P1343-H12B-REPLAY-EXIT","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"p1339_observation","canonical_callee":"function.p1343_observe_h12b_exit","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H13-FUNC-DISPATCH","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"p1339_observation","canonical_callee":"func.p1343_observe_h13","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H14-WITH-EDGE","kind":"insert","syntax_form":"one direct method-call statement","grammar_category":"direct_hook_call","exact_cfg":"p1339_observation","canonical_callee":"inner.p1343_observe_h14","source_claim":"shape-owner-adjacency-only"},
+    {"capsule_id":"P1343-H15-SYNTAX-BODY","kind":"replace","syntax_form":"one authorized expression-tail cfg wrapper","grammar_category":"expression_tail_replace","exact_cfg":"p1339_observation","canonical_callee":"func.p1343_observe_h15","source_claim":"shape-owner-normal-bytes-only"}
+  ],
+  "hook_call_contract": [
+    {"capsule_id":"P1343-H00D-DISCOVERY","hook":"H00D","callee_kind":"direct-method","receiver":"self","method":"p1343_observe_h00d","argument_rule":"Only exact live index, original introspector and Location bindings; no call/macro/literal construction except Copy/borrow."},
+    {"capsule_id":"P1343-H00S-SELECTED","hook":"H00S","callee_kind":"direct-method","receiver":"self","method":"p1343_observe_h00s","argument_rule":"Only exact live index, input introspector and resolved Location bindings; no call/macro/literal construction except Copy/borrow."},
+    {"capsule_id":"P1343-H01-ATTEMPT-OPEN","hook":"H01","callee_kind":"direct-method","receiver":"self","method":"p1343_observe_h01","argument_rule":"Only exact current index/input/location and attempt-kind state; no call/macro/literal construction except Copy/borrow."},
+    {"capsule_id":"P1343-H02-CONTEXT-DISPATCH","hook":"H02","callee_kind":"direct-method","receiver":"ctx","method":"p1343_observe_h02","argument_rule":"Only exact node closure/body span and active cell carrier by borrow; no clone/reconstruction/search."},
+    {"capsule_id":"P1343-H03-ATTEMPT-RESULT","hook":"H03","callee_kind":"direct-method","receiver":"ctx","method":"p1343_observe_h03","argument_rule":"Only borrow of the actual result and selected/incorporation state already computed; no formatting or reconstruction."},
+    {"capsule_id":"P1343-H05-DICT-PRODUCTION","hook":"H05","callee_kind":"direct-method","receiver":"ctx","method":"p1343_observe_h05","argument_rule":"Only the exact evaluated map by borrow plus real dict span; no reevaluation, JSON construction or clone-first witness."},
+    {"capsule_id":"P1343-H11-OCCURRENCE-WALKED","hook":"H11","callee_kind":"direct-method","receiver":"content","method":"p1343_observe_h11","argument_rule":"Only exact stored content, loc, action/fields by borrow; no equality/name/output lookup or reconstructed Location."},
+    {"capsule_id":"P1343-H12A-REPLAY-ENTER","hook":"H12A","callee_kind":"direct-method","receiver":"function","method":"p1343_observe_h12a","argument_rule":"Only exact child context mutable borrow, event Location and pre-state borrow; installs same carrier and snapshots before the one callback."},
+    {"capsule_id":"P1343-H12B-REPLAY-EXIT","hook":"H12B","callee_kind":"direct-method","receiver":"function","method":"p1343_observe_h12b_exit","argument_rule":"Only exact event Location, pre-state identity and converted post-state by borrow immediately before history append."},
+    {"capsule_id":"P1343-H13-FUNC-DISPATCH","hook":"H13","callee_kind":"direct-method","receiver":"func","method":"p1343_observe_h13","argument_rule":"Only exact active EvalContext and current Func; repr is read from this Func, never supplied as formatted text."},
+    {"capsule_id":"P1343-H14-WITH-EDGE","hook":"H14","callee_kind":"direct-method","receiver":"inner","method":"p1343_observe_h14","argument_rule":"Only exact outer Func, destructured inner Func, prebound Args and active context by borrow before the existing recursion."},
+    {"capsule_id":"P1343-H16-RAW-FREEZE","hook":"H16","callee_kind":"direct-method","receiver":"self","method":"p1343_observe_h16","argument_rule":"No fabricated raw argument: freezes the exact owned carrier cell once and stores/returns its immutable snapshot through the closed API before projection."}
+  ],
+  "carrier_ledger_skeleton": {
+    "location": "P1343-FUNC-CARRIER-TYPES contains all raw carrier/ledger/event storage types; no other capsule declares or implements those storage types.",
+    "visibility": "Types crossing crate modules may be pub(crate) only; every field is private and no product-public item is permitted. The Vec event/receipt fields are reachable only inside P1343LedgerState's declared inherent impl.",
+    "types": [
+      "enum P1343Hook with exactly H00D,H00S,H01,H02,H03,H04,H05,H06,H07,H08,H09,H10,H11,H12A,H12B,H13,H14,H15,H16",
+      "struct P1343RawEvent with only the closed P1342 event kind, refs and typed data representation",
+      "struct P1343AppendReceipt with only seq, hook, hook_hit, origin_cell, event_digest, prev_receipt and receipt",
+      "struct P1343LedgerState with private challenge, frozen, events: Vec<P1343RawEvent> and receipts: Vec<P1343AppendReceipt>",
+      "cloneable opaque struct P1343Carrier around one Arc of one interior-mutable P1343LedgerState; no global/static storage",
+      "immutable struct P1343RawSnapshot with challenge commitment and immutable event/receipt storage",
+      "struct P1343Projection containing only the closed test DTO projection"
+    ],
+    "storage_api": [
+      "P1343Carrier::new(challenge) constructs exactly one empty state for one real run",
+      "P1343Carrier::append(hook,event) is the sole raw writer; it checks !frozen, computes the exact P1342 receipt and performs the sole Vec::push operations",
+      "P1343Carrier::snapshot() freezes exactly once and returns the immutable raw snapshot; it cannot append, filter, reorder or rewrite",
+      "P1343RawSnapshot::project() borrows self and creates the DTO read-only; it cannot reach mutable state"
+    ],
+    "owner_helper_sets": {
+      "pipeline": ["Session::p1343_observe_h00d", "Session::p1343_observe_h00s", "Session::p1343_observe_h01", "Session::p1343_observe_h16"],
+      "eval_context": ["EvalContext::p1343_install_carrier", "EvalContext::p1343_carrier", "EvalContext::p1343_counter_update_observed", "EvalContext::p1343_observe_h02", "EvalContext::p1343_observe_h03", "EvalContext::p1343_observe_h04", "EvalContext::p1343_observe_h05"],
+      "func": ["Func::p1343_carrier", "Func::p1343_attach_carrier", "Func::p1343_observe_h09", "Func::p1343_observe_h12a", "Func::p1343_observe_h12b_result", "Func::p1343_observe_h12b_exit", "Func::p1343_observe_h13", "Func::p1343_observe_h14", "Func::p1343_observe_h15"],
+      "content": ["Content::p1343_observe_h11"],
+      "counter_update": ["CounterUpdate::p1343_observe_h10"]
+    },
+    "mutation_closure": "Parse the closed AST skeleton, not a blacklist. Outside the exact new constructor and append methods, no mutable borrow/path to P1343LedgerState, events or receipts exists. There is no public field, alias, return of &mut, iterator_mut, get_mut, indexing mutation, retain/drain/splice/extend/append/clear/truncate/insert, assignment, swap, replace, take, mem operation, unsafe/raw pointer, trait escape, helper call or macro that can mutate them. Snapshot and projection have no mutable receiver or transitive mutable call.",
+    "construction_closure": "P1343RawEvent and P1343AppendReceipt constructors are private and called only lexically inside append or the exact per-hook event constructors enumerated by owner_helper_sets. No struct literal, macro expansion, deserializer, From/Into, Default, builder, clone-then-edit, post-run constructor or formatted-string parsing can create raw events/receipts elsewhere.",
+    "other_capsules": "Every other capsule may call only the exact owner helpers or storage API named by its grammar record. It may not name raw Vec fields, P1343LedgerState, receipt constructors or mutation primitives."
+  },
+  "facade_ab_contract": {
+    "facade": "p1342_run_fixture_for_test is one test-only, non-product-public, straight-line single-run function. Its arguments include one verifier-created World handle, one verifier-created Source, one verifier-created 32-byte challenge and one closed mode enum. It delegates exactly once to the existing context-stabilization entry, obtains the exact H16 raw snapshot, projects read-only and returns both; it never constructs/clones/selects these inputs or runs another mode.",
+    "ab_test": "The independent Rust A/B test, outside the facade capsule and frozen before candidate code, constructs three distinct World instances with distinct verifier nonces, three separately parsed Source instances with distinct FileIds but the exact 178 fixture bytes, and three unpredictable pairwise-distinct 32-byte challenges. It calls the facade exactly once for normal, repeat and reverse, records object identity/freshness witnesses before moving them, and verifies the returned challenge commitments, raw receipts, run identities and pairwise-disjoint serialized identity sets.",
+    "freshness_not_tokens": "Names, literals, formatted refs, Clone-derived aliases or three syntactic calls are insufficient. Freshness comes from the Rust test's actual constructed inputs plus challenged runtime receipts and the intact P1342 algebra. Reusing one World, Source allocation, FileId, challenge, ledger, snapshot or run identity is Violated.",
+    "synthetic_boundary": "Synthetic trees/runtime may be used only to discriminate the candidate-free oracle corpus. They can never serve as candidate source/runtime evidence, A/B GREEN evidence or final acceptance."
+  },
+  "authority_root_contract": {
+    "strict_json": "Every corpus, authority-root, evidence and report parser rejects duplicate keys at every object depth before value access, rejects non-finite numbers and then validates exact closed keys/types. Last-key-wins JSON parsing is forbidden.",
+    "authoring_order": [
+      "1. The independent oracle author emits the canonical closed corpus first and computes its SHA-256.",
+      "2. The checker is emitted second with immutable literal EXPECTED_CORPUS_SHA256 equal to that exact digest and immutable literals for the exact R2 contract, binding, authority manifest, capsule baseline, L0, fixture and source-verifier hashes.",
+      "3. The oracle authorship receipt records corpus/checker/source-verifier hashes; the orchestration handoff supplies those exact hashes out of band to the independent adversary/preseal authority.",
+      "4. The preseal runner treats the handed-off checker hash as its immutable trust root, rehashes checker before load, and the unchanged checker rejects every corpus whose bytes differ from its compiled EXPECTED_CORPUS_SHA256. A CLI --corpus-sha256 may be logged but can never replace the compiled constant."
+    ],
+    "authority_root_formula": "authority_root_sha256 = SHA-256(RFC8785([step_sha256, authority_manifest_sha256, contract_r2_sha256, binding_r2_sha256, capsule_baseline_sha256, l0_freeze_sha256, fixture_sha256, source_verifier_sha256, expected_corpus_sha256, checker_sha256])). The preseal assignment supplies the expected checker hash and recomputed root outside checker/corpus control; receipt records both.",
+    "fail_closed": "A self-consistent alternate corpus/hash, alternate checker, root/path sibling pair, duplicate-key object, changed closed order/budget/case set or root mismatch is Violated before case execution."
+  },
+  "forbidden_bindings": [
+    "Incremental regex/keyword blacklists as proof of AST grammar, owner, mutator closure, constructor closure, def-use or reachability.",
+    "Qualified/aliased/suffix-matched hook call, hook literal from comment/string, macro-expanded call, cfg_attr/cfg! or any direct-hook capsule with more than its one exact call statement.",
+    "Closure, nested function, branch, loop, macro, dead code or extra token inside direct-hook capsules.",
+    "Any replacement normal branch not byte-exact, any expression-tail wrapper outside the nine exact IDs, or any observed branch that duplicates/retries/changes the original operation.",
+    "Raw Vec visibility, alternate mutation path, mutable projection/helper, shadowed snapshot, dead snapshot, post-hoc event/receipt constructor, macro/alias/trait escape or formatted/fabricated evidence.",
+    "Source scanner claiming semantic reachability, freshness, identity or runtime cardinality from tokens. Those claims require the real challenged Rust A/B/runtime evidence.",
+    "Synthetic runtime or synthetic source used for candidate/final acceptance.",
+    "Attacker-supplied self-consistent corpus/digest/root, permissive duplicate-key JSON or CLI digest overriding checker EXPECTED_CORPUS_SHA256.",
+    "Semantic reuse of World, Source, FileId, challenge, ledger, snapshot or run identity across normal/repeat/reverse.",
+    "Any weakening of the exact R1 capsule boundaries or intact P1342 semantics, any L0/baseline change, or any ADR-0127 surface."
+  ]
+}

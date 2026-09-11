@@ -1,0 +1,63 @@
+{
+  "schema": "p1342-tests-red-receipt-v1",
+  "step": 1342,
+  "role": "independent_ab_tester",
+  "executor": "/root/p1342_ab_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "TESTS_FROZEN_RED",
+  "measured_at_utc": "2026-09-10T22:24:43Z",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256_before_receipt": "cabd70b24eee140690671983f709189a6331a863254001e9a54f8946d994204b",
+    "tracked_diff_binary_sha256_before_receipt": "f73da54bdbeb1bd086caeff259b9517bdbf0f1648efcb8119d36699f5bcf0be5",
+    "tracked_diff_stat_sha256_before_receipt": "e791677accbf5a47e83924ba404d78173e085fb8182a10b8c885ee116052c930",
+    "tracked_diff_stat_summary_before_receipt": "72 files changed, 10889 insertions(+), 830 deletions(-)"
+  },
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1342.md", "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1342-l0-freeze-r1.json", "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"],
+    "contract_r2": ["00_nucleo/diagnosticos/p1342-contract-spec-r2.json", "62d656241ecd96cd3d984025e59990d607a0efd75c3c326503c7ec07a3486c4d"],
+    "binding_r2": ["00_nucleo/diagnosticos/p1342-contract-binding-r2.json", "3b522cf1b0f288fe1e472f21f775089541835ede754250a14a3c2d17c17e9d48"],
+    "fixture_r1": ["00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"],
+    "checker_r3": ["00_nucleo/diagnosticos/p1342-oracle-checker-r3.py", "047dd04c811fd7672143bdc253b759450d2f61d548cc3b49dd3fbcbce71791b7"],
+    "corpus_r3": ["00_nucleo/diagnosticos/p1342-oracle-corpus-r3.json", "872b906a0665b933d1ca30337a44849e579257f3eb331f33e034a8a2c5ed6160"],
+    "preseal_r2_json": ["00_nucleo/diagnosticos/p1342-verifier-preseal-r2.json", "c47290f298ae4b6d84c4b1e6c5871ef08b4045d38213e8ff3ccd3149eb261d80"],
+    "preseal_r2_markdown": ["00_nucleo/diagnosticos/p1342-verifier-preseal-r2.md", "7e96acd93337cd94f63ef3582aaa0d16d171270fd84bcc40a73306fc31c33ae3"]
+  },
+  "l0_owner_hashes_match_freeze": 10,
+  "outputs": {
+    "test": ["00_nucleo/diagnosticos/p1342-implementation-tests.rs", "d1934a56e73ab048041c1633c7ba7e7c38ae75565c82728fb16de5f479277fc2"],
+    "cfg_only_include_consumer": ["03_infra/src/pipeline.rs", "6b5e0120b8d4cac9a1cb20f7760955a01626e82ee7275da935ccf0776f2dccfc"]
+  },
+  "test_contract": {
+    "cfg": "all(test,p1339_observation)",
+    "fixture_via_real_pipeline": true,
+    "facade_required": "context_stabilization::p1342_run_fixture_for_test",
+    "facade_arguments": "three fresh (&dyn World,&Source) pairs and three externally generated [u8;32] challenges",
+    "facade_result": "Result<String,String> containing a closed p1342-ab-facade-v1 JSON envelope",
+    "facade_closed_keys": ["schema", "raw_before_projection", "dto", "evidence"],
+    "runs": ["normal", "repeat", "reverse"],
+    "freshness": "three separately constructed World/Source values and pairwise-distinct OS-random challenges",
+    "raw_projection_boundary": "raw_before_projection is required to equal each DTO raw_snapshot; projection before/after digests must equal the raw digest",
+    "oracle": "imports and calls sealed p1342-oracle-checker-r3.py::judge directly on the candidate DTO/evidence; no adaptive checker rule is reimplemented in Rust",
+    "expected_checker_classification_after_implementation": "Preserved"
+  },
+  "red_execution": {
+    "command": "RUSTFLAGS='--cfg p1339_observation -Aunexpected_cfgs -Aunused -Adeprecated' cargo test -p typst-infra --lib p1342_fixture_reaches_real_pipeline_with_fresh_raw_evidence --no-run",
+    "exit_code": 101,
+    "stderr": "Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)\nerror[E0425]: cannot find function `p1342_run_fixture_for_test` in module `context_stabilization`\n  --> /repos/Antigravity/typst-crystalline/03_infra/../00_nucleo/diagnosticos/p1342-implementation-tests.rs:115:42\n   |\n115 |     let encoded = context_stabilization::p1342_run_fixture_for_test(\n   |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in `context_stabilization`\n\nFor more information about this error, try `rustc --explain E0425`.\nerror: could not compile `typst-infra` (lib test) due to 1 previous error",
+    "red_cause": "the sealed cfg-only productive facade is absent",
+    "specific": true,
+    "full_sealed_corpus_executed": false
+  },
+  "authority": {
+    "candidate_patch_read": false,
+    "p1341_artifacts_used_as_source": false,
+    "production_hook_or_ledger_written": false,
+    "productive_facade_written": false,
+    "writable_scope": ["new P1342 test artifacts", "one cfg-only include in the existing test module"],
+    "technical_isolation_attested": false
+  },
+  "decision": "TESTS_FROZEN_RED"
+}

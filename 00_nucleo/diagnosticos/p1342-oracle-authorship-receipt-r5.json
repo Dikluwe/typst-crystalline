@@ -1,0 +1,93 @@
+{
+  "schema": "p1342-oracle-authorship-receipt-v5",
+  "step": 1342,
+  "revision": 5,
+  "role": "independent_oracle_author",
+  "executor": "/root/p1342_oracle",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at_utc": "2026-09-10T23:09:53Z",
+  "verdict": "ORACLE_REISSUED_NOT_VERIFIED_NOT_SEALED",
+  "status": "FOCAL_STOP_NO_FULL_EXECUTION",
+  "verdict_scope": "R5 diagnostic artifacts were authored candidate-free, but two consecutive focal executions produced the same Y01 positive-control regression and reason. The stop rule fired before any full R5 execution; no discriminatory closure or seal is claimed.",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256_before_authorship_outputs": "1a5a29924de2a45aac46ee7d0a3e769e4b94944a2f43a1fe2b7e947e969a0bc6",
+    "tracked_diff_binary_sha256": "f73da54bdbeb1bd086caeff259b9517bdbf0f1648efcb8119d36699f5bcf0be5",
+    "tracked_diff_stat": "72 files changed, 10889 insertions(+), 830 deletions(-)"
+  },
+  "protected_inputs": {
+    "00_nucleo/diagnosticos/p1342-contract-spec-r3.json": "07689c204f8741cdcfcc23bef9fa4af969dba6d991caaa93afaf117eb7ac73e7",
+    "00_nucleo/diagnosticos/p1342-contract-binding-r3.json": "8630a376350d374f854345c37282ac8fbb657f2f9a8506b7de47bda7b8276bf5",
+    "00_nucleo/diagnosticos/p1342-contract-receipt-r3.json": "a14707ff9be26dab7cf8a2f0696c9746baa7cda15bc3a7a264fa3331d1327800",
+    "00_nucleo/diagnosticos/p1342-oracle-checker-r4.py": "2fb44d8398d85fe174231b6dbbaf59c7c350f1de6cd6ab3f974092c1d85535d8",
+    "00_nucleo/diagnosticos/p1342-oracle-corpus-r4.json": "a5d163b4d036dd24257af4aab3306c2f01a340437c6474066ca0990844548619",
+    "00_nucleo/diagnosticos/p1342-oracle-authorship-r4.md": "aecbb9da5dfe9328e89eb4f5ac10e4e1c46a605e1ace93e57558cdb697d7361d",
+    "00_nucleo/diagnosticos/p1342-oracle-authorship-receipt-r4.json": "377b74631971575c173f184a22ac94633cd46bc50fe51f1334202c791dd6614d",
+    "00_nucleo/diagnosticos/p1342-adversary-runner-r3.py": "2251ec6f3d338329473a46d49910731ec851735b8b0da398a818e80895c3747a",
+    "00_nucleo/diagnosticos/p1342-adversary-report-r3.json": "47cc08fec5964c7b9d046c6dff9bfd8ff749e3eb2b65f7dad06ea01e029813a2",
+    "00_nucleo/diagnosticos/p1342-adversary-report-r3.md": "0556d3213d26a50f473b3a079337b67ab810c01eee4ae9894564c980db56f241",
+    "00_nucleo/diagnosticos/p1342-adversary-receipt-r3.json": "3896992a9f6c083918927523cd62d389c255587dbd1ae3cc02fde9198d947e0f"
+  },
+  "focal": {
+    "case_ids": [
+      "Y01-live-changed-authorized",
+      "Y02-live-baseline-equal-hook-absent",
+      "Z01-live-baseline-via-alias-and-decoy",
+      "Z02-baseline-equal-with-fabricated-hooks",
+      "Z06-outside-cfg-invalid-rust-self-attested",
+      "Z07-empty-boundary-over-changed-source",
+      "Z12-forged-candidate-anchor-hashes"
+    ],
+    "executions": 2,
+    "focal_revisions": 1,
+    "negative_results_each_execution": {
+      "Y02": "Violated",
+      "Z01": "Violated",
+      "Z02": "Violated",
+      "Z06": "Violated",
+      "Z07": "Violated",
+      "Z12": "Violated"
+    },
+    "positive_regression_each_execution": {
+      "case": "Y01-live-changed-authorized",
+      "expected": "Preserved",
+      "actual": "Violated",
+      "reason": "real baseline-to-candidate diff is not exactly the union of declared cfg-only boundaries"
+    },
+    "revision_hypothesis": "make every synthetic cfg-hook block ending unique so the generic diff does not alias it with the enclosing function suffix",
+    "revision_delta": "none: identical classification vector and public reason",
+    "same_failure_twice": true,
+    "stop_condition_triggered": true
+  },
+  "full_final": {
+    "planned_cases": 63,
+    "executed": false,
+    "reason": "focal gate did not preserve Y01 after two consecutive attempts",
+    "mutation_score": null,
+    "claim_of_agreement": false
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1342-oracle-checker-r5.py": "78ac4f374b52f3eeaaed6f65de004730693b4abea2150544607894194d00531a",
+    "00_nucleo/diagnosticos/p1342-oracle-corpus-r5.json": "3666955e792f61ff7cdeafe33b2b1b7c485102114089d6a6b34204ea8017e01f",
+    "00_nucleo/diagnosticos/p1342-oracle-authorship-r5.md": "ca40925c678c7cfe7dfa19d93c6fb41b59c798c089f30b9457b7b8d741f3dad2"
+  },
+  "validation": {
+    "corpus_json": "PASS",
+    "checker_python_compile_without_cache": "PASS",
+    "focal_execution_1": "FAIL: Y01 positive-control regression",
+    "focal_execution_2": "FAIL: same Y01 regression and reason",
+    "full_execution": "NOT_RUN_BY_STOP_RULE",
+    "git_diff_check": "PASS"
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "candidate_read": false,
+    "candidate_written": false,
+    "r1_r2_r3_r4_artifacts_preserved": true,
+    "contract_l0_tests_code_adversary_or_preseal_written": false,
+    "seal_or_final_certificate_issued": false,
+    "write_allowlist_observed": "Only new 00_nucleo/diagnosticos/p1342-oracle-*-r5.* files were created."
+  },
+  "next_authority": "A newly authorized cycle must revise the focal diff/fixture model before another full execution."
+}

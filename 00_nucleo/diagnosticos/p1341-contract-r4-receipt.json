@@ -1,0 +1,79 @@
+{
+  "schema": "p1341-contract-r4-receipt-v1",
+  "utc": "2026-09-10T18:03:30Z",
+  "role": "independent contract author",
+  "executor": "/root/p1341_contract_r2",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "MATERIALIZED_GATE_PASS_NOT_SEALED",
+  "scope": "R4 synthetic discrimination only; no candidate/product credit",
+  "causal_inputs": {
+    "00_nucleo/diagnosticos/p1341-contract-r3.json": "066efbedb39b8c30892c4645000f533b15b6e1212e6cb1a62661349a9a3b3d04",
+    "00_nucleo/diagnosticos/p1341-contract-r3-focal.json": "5456ffbde7b622b0ec2a1a5234404c6824e7849ccd608fa63e67319c5eb8d0fa",
+    "00_nucleo/diagnosticos/p1341-contract-r3-checker.py": "ac1a6471f2eacc1e53645f072f37357ccd97114c25c3972c9fc3da67f18be50d",
+    "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r1.py": "ec0788fa2e77c6a3a76f4c123a70fe48f8211018d3e820131c143d5d47b4b891",
+    "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r2.py": "a64d27ed681c2594b9a37bae71e052362fa14a04ec2346e081296c240c25ef06",
+    "00_nucleo/diagnosticos/p1341-adversary-result-r2.json": "f51ee0e4da4cf9db0cbf8264b3c9903d97a941e36a93d74bccfac6dc4437f7b2"
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1341-contract-r4.json": "fbc08c118e10f957ca02cd714dbfb4c0f0784bd7ca7791f85407d3e8b64e4195",
+    "00_nucleo/diagnosticos/p1341-contract-r4-focal.json": "6bfe5c8e0a1a9e64682672fad0e527ce76eb2ecbb97022c8b6577bc6c1ae3a4f",
+    "00_nucleo/diagnosticos/p1341-contract-r4-checker.py": "5998f90cab2cf85f5039eb389ecc9a48c08204894d548d8ea94b36d9899ec97e"
+  },
+  "delta": {
+    "previous": {"valid":67,"killed":51,"survived":16,"score":0.7611940298507462},
+    "current": {"valid":67,"killed":67,"survived":0,"score":1.0},
+    "strengthenings": [
+      "total fail-closed classification for every JSON-shaped input",
+      "strict non-empty scalar types before hashing, set construction or arithmetic",
+      "disjoint typed dynamic identity domains with global non-alias",
+      "execution-start and execution-end subject role fixed to execution",
+      "strict dispatch < invoke < body < counter < dict < end precedence",
+      "counter source anchor, offset, length and lexical role binding",
+      "all strengthened predicates precede R3 opacity"
+    ]
+  },
+  "calibration": [
+    {
+      "attempt":1,
+      "exit":1,
+      "vector":"64/67 killed; all 16 new attacks killed; 3 inherited lineage materializers became no-ops/errors after focal runtime-id renaming",
+      "cause":"The gate changed the identifiers expected by the pinned independent R1 transformations.",
+      "fix":"Retain the original r-* runtime identifiers as valid members of the runtime_id domain; domain typing remains explicit and the protected materializers remain behaviorally applicable."
+    },
+    {
+      "attempt":2,
+      "command":"PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-contract-r4-checker.py 00_nucleo/diagnosticos/p1341-contract-r4.json 00_nucleo/diagnosticos/p1341-contract-r4-focal.json",
+      "exit":0,
+      "result": {
+        "verdict":"FOCAL_MATERIALIZED_PASS_NOT_SEALED",
+        "controls":{"positive":"Preserved","opaque":"Unknown"},
+        "protected_41":{"valid":41,"killed":41,"survived":0,"score":1.0},
+        "r1_additional_10":{"valid":10,"killed":10,"survived":0,"score":1.0},
+        "r2_new_16":{"valid":16,"killed":16,"survived":0,"score":1.0},
+        "combined":{"valid":67,"killed":67,"survived":0,"score":1.0},
+        "orders":["normal","repeat","reverse"],
+        "deterministic":true,
+        "errors":[]
+      }
+    }
+  ],
+  "validation": [
+    {"command":"python3 -m json.tool 00_nucleo/diagnosticos/p1341-contract-r4.json","exit":0},
+    {"command":"python3 -m json.tool 00_nucleo/diagnosticos/p1341-contract-r4-focal.json","exit":0}
+  ],
+  "capabilities": {
+    "reads":"R3 contract artifacts, the two explicitly authorized R2 adversary artifacts, and mandatory segregated-materialization skill instructions",
+    "writes":"00_nucleo/diagnosticos/p1341-contract-r4* only",
+    "candidate_reads":0,
+    "product_reads":0,
+    "candidate_runs":0,
+    "product_runs":0,
+    "technical_isolation_attested":false
+  },
+  "limitations": [
+    "This author recommends R4 for independent verification but does not issue its own seal.",
+    "The result covers 67 materialized synthetic attacks only; it is not product, reachability or general equivalence evidence.",
+    "R3 remains unchanged."
+  ],
+  "seal": null
+}

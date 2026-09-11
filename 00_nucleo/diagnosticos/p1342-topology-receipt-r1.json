@@ -1,0 +1,166 @@
+{
+  "schema": "p1342-topology-receipt-r1",
+  "step": 1342,
+  "role": "independent_candidate_free_topology_auditor",
+  "executor": "/root/p1342_topology",
+  "regime": "executado sem atestacao de isolamento",
+  "result": "TOPOLOGY_MAPPED_NOT_SEALABLE",
+  "generated_at_utc": "2026-09-10T20:26:32Z",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256_after_audit_before_receipt": "97a971b440ee4f7fcba407a5781a591ff910989d294393a169541ab12400b271",
+    "tracked_diff_binary_sha256": "6f9e75018a66a19fa55cc001f46fb29acfa886d6c87c8db4e935d1df3900cab3",
+    "tracked_diff_stat": "66 files changed, 10669 insertions(+), 825 deletions(-)"
+  },
+  "authorized_inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1342.md",
+      "sha256": "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1342-authority-manifest.json",
+      "sha256": "d247e6714faf3249109beb3cfb2ef718a4d2049bb56c95aaabd270eb6eed87a4"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1342-candidate-free-inventory-r1.md",
+      "sha256": "06fe7dce0bf1130dca222f3148af7680f16b754ec0ac09a7956d11713042cb73"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1341-verifier-candidate-r1.json",
+      "sha256": "cf63928e5bc2360b58f6f828a3e5bb5ff8c82034e7ec513e3f098186588121f2"
+    }
+  ],
+  "candidate_free_productive_pins": [
+    {
+      "path": "03_infra/src/pipeline/context_stabilization.rs",
+      "sha256": "1e42852fefeabb5381174bc605d638b0459126c8a64cb76f75a8dd49f2951a7c"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs",
+      "sha256": "669af6940bb21c47540913039779c51d8f492480fad8df12f6aff1fe4004fa7c"
+    },
+    {
+      "path": "01_core/src/compiler/eval/mod.rs",
+      "sha256": "6f885d48163c78c0d4644f8e940aa2583ead2072b0d4adac3f2500ae16e32ad5"
+    },
+    {
+      "path": "01_core/src/compiler/eval/call_dispatch.rs",
+      "sha256": "cde7b67acb279def698ff6731ea21794d685220f3eea9523d8884d0a0affc6c5"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/counter.rs",
+      "sha256": "cb2a831bd960c478e5a360446a8d382f5f22b2bb892468ee58bd2b389772a0ad"
+    },
+    {
+      "path": "01_core/src/compiler/introspect.rs",
+      "sha256": "5e019be3f02c3e51deb11a5ebe9694e71f863fd59726438cbb5e7f2350422a02"
+    },
+    {
+      "path": "01_core/src/compiler/eval/bindings/value_methods.rs",
+      "sha256": "ff44a898dbfdd9931f6bc28f353f099b95241d86d80786693f891c997e460b12"
+    },
+    {
+      "path": "01_core/src/compiler/eval/closures.rs",
+      "sha256": "8bec8fa5a99a8604241ec7cae3613485cc6b9f262e42b8f661be282e07975e42"
+    },
+    {
+      "path": "01_core/src/entities/func.rs",
+      "sha256": "9bcd2e2b0c79cae5c2478b55d9d902f78983f9119d634a04a846d93210307bde"
+    },
+    {
+      "path": "01_core/src/entities/elements/context_block.rs",
+      "sha256": "f3346dd7f2f6ece97ecef5c1ae90fed824eb1db03b50bc8a19200697ca7c3f3c"
+    },
+    {
+      "path": "01_core/src/entities/elements/counter_update.rs",
+      "sha256": "1c73dd0a10e078fb17d531304bb43b3fef2c4c280789c19c06f20c92506daed0"
+    },
+    {
+      "path": "01_core/src/compiler/introspect/from_tags.rs",
+      "sha256": "94428b74754f1e3de3b43a3e20da456b37632a6e1f67665874331497389d7600"
+    },
+    {
+      "path": "01_core/src/entities/counter_registry.rs",
+      "sha256": "4f2d6292229a32f0a4c74d48fde3e95162e61920e4960af86f172a478e5ef81d"
+    }
+  ],
+  "minimum_l0_owners": [
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+    "00_nucleo/prompts/compiler/eval.md",
+    "00_nucleo/prompts/compiler/eval/bindings/value_methods.md",
+    "00_nucleo/prompts/compiler/stdlib/counter.md",
+    "00_nucleo/prompts/entities/elements/counter_update.md",
+    "00_nucleo/prompts/compiler/introspect.md",
+    "00_nucleo/prompts/compiler/introspect/from_tags.md",
+    "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+    "00_nucleo/prompts/compiler/eval/closures.md"
+  ],
+  "decisive_findings": [
+    {
+      "finding": "counter_update_occurrence_span_is_lost_before_CounterUpdateElem",
+      "evidence": [
+        "01_core/src/compiler/eval/bindings/value_methods.rs:343-362",
+        "01_core/src/compiler/stdlib/counter.rs:120-149",
+        "01_core/src/entities/elements/counter_update.rs:20-26"
+      ]
+    },
+    {
+      "finding": "func.body_has_no_one_to_one_Func_counterpart_body_is_SyntaxNode",
+      "evidence": [
+        "01_core/src/entities/func.rs:52-83",
+        "01_core/src/compiler/eval/closures.rs:160-174"
+      ]
+    },
+    {
+      "finding": "filtered_counter_replay_creates_child_EvalContext_and_requires_explicit_test_only_carrier_propagation",
+      "evidence": [
+        "01_core/src/compiler/introspect/from_tags.rs:35-96"
+      ]
+    },
+    {
+      "finding": "Dict_is_produced_as_ordered_IndexMap_at_Expr_Dict_not_by_final_JSON_projection",
+      "evidence": [
+        "01_core/src/compiler/eval/mod.rs:7478-7523",
+        "01_core/src/entities/value.rs:72-77",
+        "01_core/src/entities/value.rs:617-620"
+      ]
+    }
+  ],
+  "fixture": {
+    "kind": "real_minimum_fragment",
+    "contains": [
+      "ContextBlock",
+      "CounterUpdate::Func",
+      "FuncRepr::With",
+      "inner closure callback",
+      "filtered counter get",
+      "body Dict production"
+    ],
+    "probe_command": "target/release/typst eval '{ let c = counter(heading.where(level: 1)); let step(outer, n) = { let witness = (outer: outer,); n + witness.outer.a }; context [#c.update(step.with((a: 1,))) #c.get()] }' --pretty",
+    "probe_exit": 0,
+    "probe_stdout": "{\n  \"func\": \"context\"\n}\n",
+    "probe_scope": "syntax_and_eval_reachability_only; full walk/replay remains for later test attack"
+  },
+  "artifact": {
+    "path": "00_nucleo/diagnosticos/p1342-topology-audit-r1.md",
+    "sha256": "1c4f72cbd45075479618d5b567f15c6a3f034ec34e5a7b364f7fd1cbcf4b2154"
+  },
+  "segregation": {
+    "future_p1342_candidate_read": false,
+    "p1341_candidate_reintroduced": false,
+    "l0_written": false,
+    "contract_written": false,
+    "test_written": false,
+    "productive_code_written": false,
+    "only_outputs": [
+      "00_nucleo/diagnosticos/p1342-topology-audit-r1.md",
+      "00_nucleo/diagnosticos/p1342-topology-receipt-r1.json"
+    ]
+  },
+  "limitations": [
+    "No isolation attestation was available.",
+    "The P1341 R4 role manifest was outside the authorized input allowlist and was not read; unseen role names are not certified.",
+    "Parser offsets for the frozen fixture must be measured before contract sealing and must not reuse synthetic P1341 coordinates."
+  ]
+}

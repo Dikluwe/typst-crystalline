@@ -1,0 +1,78 @@
+{
+  "schema": "p1341-red-receipt-r3",
+  "utc": "2026-09-10T18:41:06Z",
+  "role": "independent Testador A/B",
+  "executor": "/root/p1341_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "RED_REPRODUCED",
+  "supersedes": {
+    "path": "00_nucleo/diagnosticos/p1341-red-receipt-r2.json",
+    "sha256": "ca73bcb253663c312d2b4792d74779faf21bc731333e7f705f3222e25ee549bd",
+    "reason": "R2 contained an authorial off-by-one in the aggregate event count and execution-end index; R3 aligns those two assertions with the sealed R5 cardinalities."
+  },
+  "preseal": {
+    "path": "00_nucleo/diagnosticos/p1341-verifier-preseal-r1.json",
+    "sha256": "c78b8f76ed64c99a8e4926e305af1eaf6d22c3a1384db4a6451f5f715909f7e7",
+    "verdict": "SEALED_FOR_IMPLEMENTATION"
+  },
+  "r5_cardinality_confirmation": {
+    "source": "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r4.json:event_cardinalities",
+    "source_sha256": "ee24676d4e5a275ba560872ec0f08a1a716764760de5ad296d66eb675a6c6391",
+    "cardinalities": {
+      "execution-start": 1,
+      "feature-origin": 2,
+      "callback-dispatch": 1,
+      "function-invoked": 1,
+      "body-started": 1,
+      "counter-occurrence": 1,
+      "dict-value": 1,
+      "execution-end": 1
+    },
+    "sum": 9
+  },
+  "test": {
+    "path": "00_nucleo/diagnosticos/p1341-implementation-tests.rs",
+    "sha256": "a9a37bcc1d3b68138500100a051f3565f1cd71ea0ba5a7659f6a8a66923af5d0",
+    "lines": 310,
+    "correction": {
+      "events_len": {"before": 10, "after": 9},
+      "execution_end_index": {"before": 9, "after": 8}
+    },
+    "all_other_expectations_changed": false
+  },
+  "execution": {
+    "command": "RUSTFLAGS='--cfg p1339_observation' cargo test -p typst-infra pipeline::context_stabilization::observation::p1341_real_closed_ledger_normal_repeat_reverse -- --exact --nocapture",
+    "exit": 101,
+    "output_sha256": "94934ceab6743a6c7dfce2326edf0e6f10af4a9cc44c3648e3020280f274d93e",
+    "output_bytes": 92666,
+    "output_lines": 2007,
+    "rust_error": "E0425",
+    "witness": "00_nucleo/diagnosticos/p1341-implementation-tests.rs:307:29: cannot find function p1341_real_ledger_focal in module super",
+    "verdict": "RED"
+  },
+  "red_interpretation": "After correcting only the proven authorial cardinality error, the integrated test again reaches exactly the intentionally absent minimal test-only facade. The RED therefore remains attributable to missing P1341 implementation rather than malformed test syntax or the removed off-by-one.",
+  "green_condition": "The exact same command must exit 0 with super::p1341_real_ledger_focal executing the real pipeline and satisfying the unchanged R5-compatible semantic assertions plus the corrected nine-event cardinality.",
+  "checks": [
+    {"command": "rustfmt --check 00_nucleo/diagnosticos/p1341-implementation-tests.rs", "exit": 0},
+    {"command": "python3 -m json.tool 00_nucleo/diagnosticos/p1341-red-receipt-r3.json", "expected_exit": 0}
+  ],
+  "measurement_provenance": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "working_tree": "nao commitado",
+    "status_porcelain_z_sha256_before_r3_receipt": "2828bd9a9ae07c96b14555ed2b7faded0dce4fd98e5157c19e463eae1e50e2fa",
+    "tracked_diff_binary_sha256_before_r3_receipt": "02f7ee9a373030a62b79fb6816a964ff282c982b6d7ee49bf1f8a6b7ae8204d9",
+    "tracked_diff_stat_sha256_before_r3_receipt": "fbd0205a22f0433a07de42fb627b49f17790180e0994445a36036a46174bdb1b"
+  },
+  "write_audit": {
+    "changed_by_this_role": [
+      "00_nucleo/diagnosticos/p1341-implementation-tests.rs",
+      "00_nucleo/diagnosticos/p1341-red-receipt-r3.json"
+    ],
+    "productive_or_l0_edits": 0,
+    "sealed_input_edits": 0
+  },
+  "limitations": [
+    "This is a corrected RED receipt, not product acceptance or a final certificate.",
+    "The shared dirty tree prevents technical attestation of exclusive process isolation."
+  ]
+}

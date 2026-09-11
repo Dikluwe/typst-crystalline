@@ -1,0 +1,121 @@
+{
+  "schema": "p1342-oracle-corpus-v1",
+  "step": 1342,
+  "revision": 1,
+  "role": "independent_oracle_author",
+  "executor": "/root/p1342_oracle",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "ORACLE_AUTHORED_NOT_VERIFIED_NOT_SEALED",
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1342.md", "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1342-authority-manifest.json", "d247e6714faf3249109beb3cfb2ef718a4d2049bb56c95aaabd270eb6eed87a4"],
+    "candidate_free_inventory": ["00_nucleo/diagnosticos/p1342-candidate-free-inventory-r1.md", "06fe7dce0bf1130dca222f3148af7680f16b754ec0ac09a7956d11713042cb73"],
+    "topology_audit": ["00_nucleo/diagnosticos/p1342-topology-audit-r1.md", "1c4f72cbd45075479618d5b567f15c6a3f034ec34e5a7b364f7fd1cbcf4b2154"],
+    "topology_receipt": ["00_nucleo/diagnosticos/p1342-topology-receipt-r1.json", "a9934dc64972a4154e1408b0b664c54612db11f2076ef34a159b0839001d8c4d"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1342-l0-freeze-r1.json", "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"],
+    "contract": ["00_nucleo/diagnosticos/p1342-contract-r1.json", "de5a23a6053ce9fae7d8a377044bf5a43381bd8fbc5a362dd159bdd33567e783"],
+    "contract_markdown": ["00_nucleo/diagnosticos/p1342-contract-r1.md", "a63943e98663fd5554014e081c73c3491fd3febb921d822543a89cacfe09c18c"],
+    "binding_manifest": ["00_nucleo/diagnosticos/p1342-contract-binding-manifest-r1.json", "57abe32b9dd0e09d12235fe26d4f02c75a67c4e837736ac4c08b19174d8598bb"],
+    "fixture": ["00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"],
+    "contract_receipt": ["00_nucleo/diagnosticos/p1342-contract-authorship-receipt-r1.json", "d04031c54b1d8e6ee18de643ef311292f02a6bab36c01f0d4037b6e57d41bc4f"]
+  },
+  "closed_case_order": [
+    "P01-selected-r1", "P02-nonincorporated-r0", "O01-deliberate-witness-opacity",
+    "N01-self-declared-coverage", "N02-bool-is-not-int", "N03-static-hook-missing",
+    "N04-static-hook-duplicated", "N05-source-span-swapped", "N06-dicts-swapped",
+    "N07-fictitious-func-body", "N08-with-edge-inverted", "N09-with-edge-disconnected",
+    "N10-carrier-lost-at-walk", "N11-cross-domain-location-snapshot-alias",
+    "N12-ledger-order-altered", "N13-append-prefix-deletion", "N14-relational-dispatch-duplicate",
+    "N15-relational-dispatch-role-order", "N16-ordered-dict-collapsed-to-object",
+    "N17-attempt-close-before-replay-exit", "N18-event-schema-open-member",
+    "N19-productive-hook-substitution", "N20-result-bool-is-not-int"
+  ],
+  "run_semantics": {
+    "normal": "consume closed_case_order exactly as authored with a fresh local identity namespace per case",
+    "repeat": "consume the same closed_case_order again with fresh DTO copies and fresh local identity namespaces",
+    "reverse": "consume reversed(closed_case_order) with fresh DTO copies and fresh local identity namespaces",
+    "expected_relation": "each case has its authored classification in all three runs; no runtime identity value is compared across runs"
+  },
+  "templates": {
+    "selected-r1": {
+      "schema": "p1342-ledger-dto-v1",
+      "fixture": {"path": "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "sha256": "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714", "bytes": 178},
+      "binding_manifest": {"path": "00_nucleo/diagnosticos/p1342-contract-binding-manifest-r1.json", "sha256": "57abe32b9dd0e09d12235fe26d4f02c75a67c4e837736ac4c08b19174d8598bb"},
+      "payload_visibility": "inspectable",
+      "attempts": [{
+        "attempt_id": "attempt:selected-local",
+        "kind": "selected",
+        "incorporated": true,
+        "events": [
+          {"seq": 0, "event_id": "event:selected-00", "prev_event_id": null, "kind": "attempt-open", "hook": "H01-attempt-cell-open", "refs": {"attempt": "attempt:selected-local"}, "data": {}},
+          {"seq": 1, "event_id": "event:selected-01", "prev_event_id": "event:selected-00", "kind": "context-dispatch", "hook": "H02-context-dispatch", "refs": {"attempt": "attempt:selected-local", "context_closure": "context-closure:selected", "context_block": "context-block:selected"}, "data": {}},
+          {"seq": 2, "event_id": "event:selected-02", "prev_event_id": "event:selected-01", "kind": "dict-produced", "hook": "H05-dict-produced", "refs": {"attempt": "attempt:selected-local", "carrier": null, "syntax_body": null}, "data": {"role": "dict-prebound", "span": {"offset": 155, "end_exclusive": 162}, "value": {"type": "dict", "visibility": "inspectable", "entries": [["a", {"type": "int", "value": 1}]]}}},
+          {"seq": 3, "event_id": "event:selected-03", "prev_event_id": "event:selected-02", "kind": "counter-occurrence-created", "hook": "H07-counter-occurrence-created", "refs": {"attempt": "attempt:selected-local", "occurrence": "counter-occurrence:selected", "carrier": "carrier:selected", "callback_with": "callback-with:selected"}, "data": {"source_span": {"offset": 144, "end_exclusive": 164}, "key": {"type": "selector", "shape": "heading.where", "ordered_fields": [["level", {"type": "int", "value": 1}]]}, "action": "Func"}},
+          {"seq": 4, "event_id": "event:selected-04", "prev_event_id": "event:selected-03", "kind": "counter-occurrence-walked", "hook": "H11-counter-occurrence-walked", "refs": {"attempt": "attempt:selected-local", "occurrence": "counter-occurrence:selected", "carrier": "carrier:selected", "content": "counter-content:selected", "location": "location:selected", "snapshot_pre": "snapshot:selected-pre", "callback_with": "callback-with:selected"}, "data": {"key": {"type": "selector", "shape": "heading.where", "ordered_fields": [["level", {"type": "int", "value": 1}]]}, "action": "Func"}},
+          {"seq": 5, "event_id": "event:selected-05", "prev_event_id": "event:selected-04", "kind": "callback-replay-enter", "hook": "H12-callback-replay", "refs": {"attempt": "attempt:selected-local", "occurrence": "counter-occurrence:selected", "carrier": "carrier:selected", "content": "counter-content:selected", "location": "location:selected", "snapshot_pre": "snapshot:selected-pre", "callback_with": "callback-with:selected"}, "data": {}},
+          {"seq": 6, "event_id": "event:selected-06", "prev_event_id": "event:selected-05", "kind": "func-dispatch", "hook": "H13-func-dispatch-received", "refs": {"attempt": "attempt:selected-local", "carrier": "carrier:selected", "func": "callback-with:selected"}, "data": {"role": "callback-with"}},
+          {"seq": 7, "event_id": "event:selected-07", "prev_event_id": "event:selected-06", "kind": "with-unwrapped", "hook": "H14-with-edge", "refs": {"attempt": "attempt:selected-local", "carrier": "carrier:selected", "outer": "callback-with:selected", "inner": "func-callback:selected"}, "data": {}},
+          {"seq": 8, "event_id": "event:selected-08", "prev_event_id": "event:selected-07", "kind": "func-dispatch", "hook": "H13-func-dispatch-received", "refs": {"attempt": "attempt:selected-local", "carrier": "carrier:selected", "func": "func-callback:selected"}, "data": {"role": "func-callback"}},
+          {"seq": 9, "event_id": "event:selected-09", "prev_event_id": "event:selected-08", "kind": "closure-dispatch", "hook": "H13-func-dispatch-received", "refs": {"attempt": "attempt:selected-local", "carrier": "carrier:selected", "func_callback": "func-callback:selected", "syntax_body": "syntax-node:selected"}, "data": {}},
+          {"seq": 10, "event_id": "event:selected-10", "prev_event_id": "event:selected-09", "kind": "syntax-body-enter", "hook": "H15-syntax-body-execution", "refs": {"attempt": "attempt:selected-local", "carrier": "carrier:selected", "func_callback": "func-callback:selected", "syntax_body": "syntax-node:selected"}, "data": {"syntax_kind": "CodeBlock", "span": {"offset": 64, "end_exclusive": 121}}},
+          {"seq": 11, "event_id": "event:selected-11", "prev_event_id": "event:selected-10", "kind": "dict-produced", "hook": "H05-dict-produced", "refs": {"attempt": "attempt:selected-local", "carrier": "carrier:selected", "syntax_body": "syntax-node:selected"}, "data": {"role": "dict-witness", "span": {"offset": 82, "end_exclusive": 97}, "value": {"type": "dict", "visibility": "inspectable", "entries": [["outer", {"type": "dict", "visibility": "inspectable", "entries": [["a", {"type": "int", "value": 1}]]}]]}}},
+          {"seq": 12, "event_id": "event:selected-12", "prev_event_id": "event:selected-11", "kind": "syntax-body-exit", "hook": "H15-syntax-body-execution", "refs": {"attempt": "attempt:selected-local", "carrier": "carrier:selected", "func_callback": "func-callback:selected", "syntax_body": "syntax-node:selected"}, "data": {"syntax_kind": "CodeBlock", "span": {"offset": 64, "end_exclusive": 121}, "result": {"type": "int", "value": 1}}},
+          {"seq": 13, "event_id": "event:selected-13", "prev_event_id": "event:selected-12", "kind": "callback-replay-exit", "hook": "H12-callback-replay", "refs": {"attempt": "attempt:selected-local", "occurrence": "counter-occurrence:selected", "carrier": "carrier:selected", "location": "location:selected", "snapshot_pre": "snapshot:selected-pre", "snapshot_post": "snapshot:selected-post", "callback_with": "callback-with:selected"}, "data": {"result": {"type": "int", "value": 1}}},
+          {"seq": 14, "event_id": "event:selected-14", "prev_event_id": "event:selected-13", "kind": "attempt-close", "hook": "H03-attempt-result-boundary", "refs": {"attempt": "attempt:selected-local"}, "data": {"result": "incorporated"}}
+        ]
+      }]
+    },
+    "nonincorporated-r0": {
+      "schema": "p1342-ledger-dto-v1",
+      "fixture": {"path": "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "sha256": "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714", "bytes": 178},
+      "binding_manifest": {"path": "00_nucleo/diagnosticos/p1342-contract-binding-manifest-r1.json", "sha256": "57abe32b9dd0e09d12235fe26d4f02c75a67c4e837736ac4c08b19174d8598bb"},
+      "payload_visibility": "inspectable",
+      "attempts": [{
+        "attempt_id": "attempt:discovery-local",
+        "kind": "discovery",
+        "incorporated": false,
+        "events": [
+          {"seq": 0, "event_id": "event:discovery-00", "prev_event_id": null, "kind": "attempt-open", "hook": "H01-attempt-cell-open", "refs": {"attempt": "attempt:discovery-local"}, "data": {}},
+          {"seq": 1, "event_id": "event:discovery-01", "prev_event_id": "event:discovery-00", "kind": "context-dispatch", "hook": "H02-context-dispatch", "refs": {"attempt": "attempt:discovery-local", "context_closure": "context-closure:discovery", "context_block": "context-block:discovery"}, "data": {}},
+          {"seq": 2, "event_id": "event:discovery-02", "prev_event_id": "event:discovery-01", "kind": "dict-produced", "hook": "H05-dict-produced", "refs": {"attempt": "attempt:discovery-local", "carrier": null, "syntax_body": null}, "data": {"role": "dict-prebound", "span": {"offset": 155, "end_exclusive": 162}, "value": {"type": "dict", "visibility": "inspectable", "entries": [["a", {"type": "int", "value": 1}]]}}},
+          {"seq": 3, "event_id": "event:discovery-03", "prev_event_id": "event:discovery-02", "kind": "counter-occurrence-created", "hook": "H07-counter-occurrence-created", "refs": {"attempt": "attempt:discovery-local", "occurrence": "counter-occurrence:discovery", "carrier": "carrier:discovery", "callback_with": "callback-with:discovery"}, "data": {"source_span": {"offset": 144, "end_exclusive": 164}, "key": {"type": "selector", "shape": "heading.where", "ordered_fields": [["level", {"type": "int", "value": 1}]]}, "action": "Func"}},
+          {"seq": 4, "event_id": "event:discovery-04", "prev_event_id": "event:discovery-03", "kind": "attempt-close", "hook": "H03-attempt-result-boundary", "refs": {"attempt": "attempt:discovery-local"}, "data": {"result": "not-incorporated"}}
+        ]
+      }]
+    }
+  },
+  "cases": [
+    {"id": "P01-selected-r1", "class": "positive", "template": "selected-r1", "expected": "Preserved", "purpose": "complete inspectable path with R=1", "mutations": []},
+    {"id": "P02-nonincorporated-r0", "class": "positive", "template": "nonincorporated-r0", "expected": "Preserved", "purpose": "explicit non-incorporation with derived R=0", "mutations": []},
+    {"id": "O01-deliberate-witness-opacity", "class": "opaque", "template": "selected-r1", "expected": "Unknown", "purpose": "only the witness Dict payload is opaque after all non-payload predicates", "mutations": [
+      {"target": "dto", "op": "replace", "path": "/payload_visibility", "value": "opaque"},
+      {"target": "dto", "op": "replace", "path": "/attempts/0/events/11/data/value", "value": {"type": "dict", "visibility": "opaque", "commitment": "3f5b8f852dd5bba8fa19de766caf42ef54f0e060ca9faf9e0a82911926d86eb6"}}
+    ]},
+    {"id": "N01-self-declared-coverage", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "DTO cannot claim its own hook coverage", "mutations": [{"target": "dto", "op": "add", "path": "/coverage_claim", "value": "15/15"}]},
+    {"id": "N02-bool-is-not-int", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "JSON bool must not satisfy int", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/2/data/value/entries/0/1/value", "value": true}]},
+    {"id": "N03-static-hook-missing", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "closed static binding requires every one of 15 hooks", "mutations": [{"target": "manifest", "op": "remove-hook", "hook": "H15"}]},
+    {"id": "N04-static-hook-duplicated", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "closed static binding rejects duplicate hook identity", "mutations": [{"target": "manifest", "op": "duplicate-hook", "hook": "H14"}]},
+    {"id": "N05-source-span-swapped", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "counter occurrence must retain real args span 144..164", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/3/data/source_span", "value": {"offset": 64, "end_exclusive": 121}}]},
+    {"id": "N06-dicts-swapped", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "prebound 155..162 and witness 82..97 are not interchangeable", "mutations": [{"target": "dto", "op": "swap", "path": "/attempts/0/events/2/data/value", "other_path": "/attempts/0/events/11/data/value"}]},
+    {"id": "N07-fictitious-func-body", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "syntax-body species is SyntaxNode CodeBlock, never Func", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/10/data/syntax_kind", "value": "Func"}]},
+    {"id": "N08-with-edge-inverted", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "With outer to inner direction is causal", "mutations": [{"target": "dto", "op": "swap", "path": "/attempts/0/events/7/refs/outer", "other_path": "/attempts/0/events/7/refs/inner"}]},
+    {"id": "N09-with-edge-disconnected", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "recursive dispatch must receive the exact With.0 endpoint", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/7/refs/inner", "value": "func-callback:orphan"}]},
+    {"id": "N10-carrier-lost-at-walk", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "carrier must survive the real CounterUpdate clone/walk route", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/4/refs/carrier", "value": "carrier:lost-at-walk"}]},
+    {"id": "N11-cross-domain-location-snapshot-alias", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "Location and snapshot identities occupy distinct domains", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/4/refs/location", "value": "snapshot:selected-pre"}]},
+    {"id": "N12-ledger-order-altered", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "witness Dict cannot precede syntax-body-enter even after an attacker rechains ordinals", "mutations": [{"target": "dto", "op": "swap-rechain", "path": "/attempts/0/events/10", "other_path": "/attempts/0/events/11"}]},
+    {"id": "N13-append-prefix-deletion", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "deleting an immutable prior event breaks append-only history and cardinality", "mutations": [{"target": "dto", "op": "remove", "path": "/attempts/0/events/12"}]},
+    {"id": "N14-relational-dispatch-duplicate", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "func-dispatch must be exactly 2*R even after an attacker rechains ordinals", "mutations": [{"target": "dto", "op": "insert-copy-rechain", "path": "/attempts/0/events/9", "source_path": "/attempts/0/events/8"}]},
+    {"id": "N15-relational-dispatch-role-order", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "2*R dispatches must be wrapper then inner", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/6/data/role", "value": "func-callback"}]},
+    {"id": "N16-ordered-dict-collapsed-to-object", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "Dict is an ordered pair sequence, not an unordered JSON object", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/2/data/value/entries", "value": {"a": {"type": "int", "value": 1}}}]},
+    {"id": "N17-attempt-close-before-replay-exit", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "attempt close is temporally after all attributable events even after ordinals are rechained", "mutations": [{"target": "dto", "op": "swap-rechain", "path": "/attempts/0/events/13", "other_path": "/attempts/0/events/14"}]},
+    {"id": "N18-event-schema-open-member", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "unknown members are rejected at nested closed objects", "mutations": [{"target": "dto", "op": "add", "path": "/attempts/0/events/3/post_hoc", "value": true}]},
+    {"id": "N19-productive-hook-substitution", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "event cannot claim an unrelated pinned hook", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/3/hook", "value": "H06-counter-update-source-span"}]},
+    {"id": "N20-result-bool-is-not-int", "class": "negative", "template": "selected-r1", "expected": "Violated", "purpose": "result Int(1) cannot be bool true", "mutations": [{"target": "dto", "op": "replace", "path": "/attempts/0/events/13/data/result/value", "value": true}]}
+  ],
+  "scope_exclusions": [
+    "P1340 lifecycle/profile closure",
+    "NT01-NT06 productive branch mutations",
+    "retention, discard, invalidation and terminal policy",
+    "general equivalence or implementation acceptance"
+  ]
+}

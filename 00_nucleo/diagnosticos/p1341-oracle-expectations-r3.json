@@ -1,0 +1,42 @@
+{
+  "schema":"p1341-oracle-expectations-r3",
+  "status":"AUTHORED_NOT_SEALED",
+  "scope":"Stable ex ante R4 expectations for the inherited synthetic lifecycle-observability fragment; no candidate or product credit.",
+  "contract":{"path":"00_nucleo/diagnosticos/p1341-contract-r4.json","sha256":"fbc08c118e10f957ca02cd714dbfb4c0f0784bd7ca7791f85407d3e8b64e4195"},
+  "focal":{"path":"00_nucleo/diagnosticos/p1341-contract-r4-focal.json","sha256":"6bfe5c8e0a1a9e64682672fad0e527ce76eb2ecbb97022c8b6577bc6c1ae3a4f"},
+  "binding_manifest":{"path":"00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r3.json","content_sha256":"0b17dbac02c24d80212cbd6984be20023d7d6abf84c416461f5d9f9c7b2bbb07"},
+  "stable_semantic_expectation": {
+    "source_coordinates":[{"context_ordinal":0,"source_byte_offset":12,"lexical_role":"context-expression"}],
+    "required_roles":["execution","context.default","context.selected","callback.with","func.callback","func.body","counter.step.current","content.walked","dict.result"],
+    "role_cardinalities":{"execution":1,"context.default":1,"context.selected":1,"callback.with":1,"func.callback":1,"func.body":1,"counter.step.current":1,"content.walked":1,"dict.result":1},
+    "feature_witnesses":[{"stable_role":"context.default","origin":"default","features":[],"multiplicity_per_attempt":1},{"stable_role":"context.selected","origin":"entrypoint-supplied","features":["html"],"multiplicity_per_attempt":1}],
+    "callbacks":[{"callback_role":"callback.with","func_role":"func.callback","func_producer_role":"callback.with","func_origin":"callback-dispatch","body_func_role":"func.body","body_producer_role":"callback.with","body_origin":"body-entry","phase":"eval","multiplicity_per_attempt":1}],
+    "counter_occurrences":[{"stable_role":"counter.step.current","key":"chapter","action":"step","occurrence_ordinal":0,"span_role":"counter-consumer","source_coordinate":{"source_byte_offset":12,"byte_length":5,"lexical_role":"counter-consumer"},"walked_content_role":"content.walked","multiplicity_per_attempt":1}],
+    "dict_expectations":[{"stable_role":"dict.result","typed_path":[],"ordered_typed_value":{"tag":"dict","pairs":[["outer",{"tag":"dict","pairs":[["a",{"tag":"int","value":1}],["b",{"tag":"str","value":"x"}]]}],["done",{"tag":"bool","value":true}]]}}],
+    "required_causal_role_edges":[["execution","context.default"],["execution","context.selected"],["context.selected","callback.with"],["callback.with","func.callback"],["func.callback","func.body"],["func.body","counter.step.current"],["counter.step.current","content.walked"],["content.walked","dict.result"]]
+  },
+  "r4_contract_expectation": {
+    "totality":{"input_domain":"every JSON-shaped input","output_domain":["Preserved","Unknown","Violated"],"exception_policy":"exceptions and malformed or unsupported structure classify as Violated"},
+    "types":{"identity_scalar":"non-empty JSON string","strict_integer":"JSON integer excluding boolean","cell_key":"non-empty JSON string","objects":"array of objects","events":"array of objects","event_seq":"strict integer","event_kind":"non-empty JSON string","event_subject":"runtime_id domain","raw_span":"object with exact keys source, start, end, lexical_role","raw_span_start_end":"strict integers","raw_span_lexical_role":"non-empty JSON string"},
+    "runtime_identity_domains": {
+      "runtime_id":{"prefix":"r-","owners":"all objects","unique":true},
+      "func_id":{"prefix":"func:","owners":["func.callback","func.body"],"unique":true},
+      "carrier_id":{"prefix":"carrier:","owners":["callback.with","func.callback","func.body"],"unique":true},
+      "value_id":{"prefix":"value:","owners":["dict.result"],"unique":true},
+      "location":{"prefix":"location:","owners":["counter-occurrence"],"unique":true},
+      "snapshot_id":{"prefix":"snapshot:","owners":["counter-occurrence"],"unique":true},
+      "raw_span.source":{"prefix":"source:","owners":["counter-occurrence"],"unique":false},
+      "global_non_alias":"No identity scalar may occur in more than one domain-and-owner slot."
+    },
+    "lifecycle":{"start":{"kind":"execution-start","subject_role":"execution","cardinality":1},"end":{"kind":"execution-end","subject_role":"execution","cardinality":1},"strict_precedence":["execution-start","callback-dispatch","function-invoked","body-started","counter-occurrence","dict-value","execution-end"]},
+    "counter_span":{"strict_keys":["source","start","end","lexical_role"],"source_coordinate":{"source_anchor":"source.main","source_byte_offset":12,"byte_length":5,"lexical_role":"counter-consumer"},"binding":"source equals source prefix plus anchor; start equals offset; end minus start equals byte length; lexical role equals coordinate"},
+    "validation_precedence":["strict_schema","cell_identity","runtime_identity_domains","lifecycle_subject","temporal_precedence","span_source_coordinate","base_r3_predicates","opacity"]
+  },
+  "external_cases":[
+    {"case_key":"synthetic-context-counter-dict.r4.inspectable","cell_selector":{"profile":"default","payload":"inspectable"},"expected_classification":"Preserved"},
+    {"case_key":"synthetic-context-counter-dict.r4.opaque","cell_selector":{"profile":"default","payload":"opaque"},"expected_classification":"Unknown","allowed_reason_code":"payload-deliberately-opaque","precondition":"Every validation stage preceding opacity passes."},
+    {"case_key":"synthetic-context-counter-dict.r4.malformed-or-unsupported","cell_selector":{"profile":"total-json-domain"},"expected_classification":"Violated"}
+  ],
+  "negative_gate_expectation":{"protected":41,"r1_additional":10,"r2_new":16,"combined":67,"required_classification":"Violated","orders":["normal","repeat","reverse"],"required_score":1.0,"survivor_policy":"Unknown, checker error, exception, Preserved or missing result for any negative blocks a future seal."},
+  "authorial_limits":["No concrete runtime identity value occurs in this expectation.","No candidate, product implementation, reachability, refinement, seal or product behavior is claimed."]
+}

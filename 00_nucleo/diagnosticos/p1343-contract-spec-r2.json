@@ -1,0 +1,166 @@
+{
+  "schema": "p1343-capsule-binding-contract-v2",
+  "step": 1343,
+  "revision": 2,
+  "role": "independent_contract_author",
+  "executor": "/root/p1343_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "FINAL_CONTRACT_REVISION_NOT_SEALED",
+  "revision_budget": "This is the single contract revision after R1 authorized by p1343-authority-manifest.json. Another contract revision is forbidden without a new human-authorized step.",
+  "predecessor": [
+    "00_nucleo/diagnosticos/p1343-contract-spec-r1.json",
+    "67107164ddb631e2c1539ca88c90658041811dc389bbae47cb2738312a5f3467"
+  ],
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1343.md", "6db7b3bb119f4038f88b8916209a4fcd7d1485b820143308ae788192a921a87b"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1343-authority-manifest.json", "d41aff08708b9fa72ac1d130ee71543f5048ebf2dc6944c25aba9a42b866dc3b"],
+    "capsule_baseline": ["00_nucleo/diagnosticos/p1343-capsule-baseline-r1.json", "db143d9fec795ec81ce7a69be5e08b09e451a9d6eb07a1a39cd1dcd41ee82977"],
+    "topology_receipt": ["00_nucleo/diagnosticos/p1343-topology-receipt-r1.json", "76836ea3300a66f4756985276bcfc3eb9f28ce405a1ec22a6ee8547c66f75c6d"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1342-l0-freeze-r1.json", "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"],
+    "fixture": ["00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"],
+    "p1342_contract_r3": ["00_nucleo/diagnosticos/p1342-contract-spec-r3.json", "07689c204f8741cdcfcc23bef9fa4af969dba6d991caaa93afaf117eb7ac73e7"],
+    "p1342_binding_r3": ["00_nucleo/diagnosticos/p1342-contract-binding-r3.json", "8630a376350d374f854345c37282ac8fbb657f2f9a8506b7de47bda7b8276bf5"],
+    "binding_r1": ["00_nucleo/diagnosticos/p1343-contract-binding-r1.json", "fbd5ff5f9f32594f95b6b76ea11b562fd1772172dde3a80d4083c9e401ccea85"],
+    "contract_receipt_r1": ["00_nucleo/diagnosticos/p1343-contract-receipt-r1.json", "dfccfd81e7254c5c22d3de9530a3fd55b267e906e503de62c27da91539026e15"],
+    "oracle_source_r2": ["00_nucleo/diagnosticos/p1343-source-verifier-r2.py", "fa7c15eea4b45e83c5f078a7a3820bd0499d55087aaa96f7863ea5229495512d"],
+    "oracle_checker_r2": ["00_nucleo/diagnosticos/p1343-oracle-checker-r2.py", "ff6d83c9dbfe356b2068204e15d05025f10d83eacb902d9b9c1511a20b098ab9"],
+    "oracle_corpus_r2": ["00_nucleo/diagnosticos/p1343-oracle-corpus-r2.json", "72eb41172966de03a42dfc26eea39f7c426f38123f6ba512bb8bc663a30cfcce"],
+    "oracle_receipt_r2": ["00_nucleo/diagnosticos/p1343-oracle-authorship-receipt-r2.json", "d1b240846ab14f3501e05f7c675eb44bdea30cd183e167f73fdc288c94a18dc2"],
+    "adversary_runner_r2": ["00_nucleo/diagnosticos/p1343-adversary-runner-r2.py", "8f93520298b8751fd8fbea3430e014ce6e9b938a05431d929538538773402aaf"],
+    "adversary_report_r2": ["00_nucleo/diagnosticos/p1343-adversary-report-r2.json", "9900f35702456c59d1183a9d43ab3c3c32afe6a10c3c82c64f8903a1f4488586"],
+    "adversary_receipt_r2": ["00_nucleo/diagnosticos/p1343-adversary-receipt-r2.json", "6caf6272e08ce63f846fabb613f6a26fa820f521f7d31d311e231430160a9752"],
+    "binding_r2": ["00_nucleo/diagnosticos/p1343-contract-binding-r2.json", "216100a3970bdc79b3d77cd34f4528d46cd04e06dbdc9d63d552f723a557af58"]
+  },
+  "normative_composition": {
+    "base_contract": ["00_nucleo/diagnosticos/p1343-contract-spec-r1.json", "67107164ddb631e2c1539ca88c90658041811dc389bbae47cb2738312a5f3467"],
+    "binding": ["00_nucleo/diagnosticos/p1343-contract-binding-r2.json", "216100a3970bdc79b3d77cd34f4528d46cd04e06dbdc9d63d552f723a557af58"],
+    "rule": "R1 and its complete P1342 R2/R3 composition remain normative unless a clause is named in replaced_r1_clauses. R2 has precedence only for those replacements. The exact 19 hooks rows, 36 capsule identities, ten baseline hashes, replacements, anchors, marker pairing, whole-file inverse normalization, P1342 runtime semantics and Unknown policy remain unchanged. Unknown or conflicting composition is Violated.",
+    "replaced_r1_clauses": [
+      "inverse_normalization insert_rule and replace_rule become the binding R2 grammar categories and capsule_syntax_table",
+      "source_structure owner_resolution, row_binding, cfg_rule and syntax claims become source_proof with a closed token-AST grammar",
+      "runtime_and_writer_evidence writer/projection/facade token inference becomes the closed carrier skeleton plus independently challenged Rust runtime proof",
+      "externally_pinned_invocation and checker_algorithm corpus trust become checker_authority with immutable checker constants and strict duplicate-key JSON",
+      "source_evidence_schema is superseded by the closed R2 evidence separation between source facts and real runtime receipt"
+    ],
+    "preserved_obligations": "All P1342 event schemas, roles, typed values, spans, challenge/identity algebra, append receipts, carrier continuity, exact Location, snapshot-pre/post, attempt-kind/R/cardinalities, late appends, ordering, H00D/H00S exclusivity, B01-B05 and payload-only Unknown precedence are preserved without reinterpretation."
+  },
+  "measured_cause": {
+    "input": "p1343-adversary-report-r2.json",
+    "result": "Sixteen valid survivors out of twenty new negatives; total focal mutation score 14/30 = 0.4666666666666667. No full corpus was run.",
+    "failure_classes": [
+      "qualified writer suffix and hook literals borrowed from comments",
+      "retain/get_mut/helper mutation outside a method-name blacklist",
+      "dead closure, if false and shadowed/dead snapshot accepted as reachability/def-use",
+      "post-hoc struct literal and macro construction",
+      "syntactic facade names with reused World/Source/challenge",
+      "formatted but fabricated runtime references",
+      "attacker-consistent corpus plus sibling digest",
+      "duplicate-key JSON accepted last-key-wins"
+    ],
+    "redesign_hypothesis": "Replace open body regexes with a finite capsule-id-to-AST grammar and closed carrier storage skeleton; restrict source proof to shape/normalization/owner/adjacency; move reachability/freshness/cardinality to independently challenged compiled Rust evidence; compile the expected corpus hash into the externally pinned checker and reject duplicate JSON keys before parsing values."
+  },
+  "l0_assessment": {
+    "change_required": false,
+    "adr_0127_stop_required": false,
+    "reason": "This revision changes only the acceptance protocol for cfg-only evidence already authorized by the ten frozen owners. It changes no public contract, product default, compatibility surface or pipeline phase and retains all 36 candidate boundaries."
+  },
+  "source_proof": {
+    "responsibility": "Prove protected hashes and closed schemas; real lexical marker identity/pairing; exact anchors; exact cfg AST; exact capsule grammar category; inverse replacement; ten normalized whole-file hashes; resolved owner symbol/branch; and inherited relative adjacency. It must not claim general semantic reachability, def-use, object freshness, identity, callback count or runtime cardinality.",
+    "parser": "Tokenize Rust literals/comments/delimiters with the R1 lexical rules, then parse each capsule body with a deterministic recursive-descent parser whose complete productions are exactly binding R2 grammar_categories plus the capsule_syntax_table. Regex or keyword blacklists may locate an initial byte candidate only; they cannot satisfy or reject a grammar production. Every token, attribute, item, statement, expression and delimiter in the body must be consumed exactly once by the selected production.",
+    "direct_hooks": "For each of the twelve direct-hook inserts, the AST must be exactly Attr(cfg) + one semicolon-terminated direct method call from hook_call_contract. The callee is resolved by exact receiver binding and exact method identity, never suffix/path/alias matching; string/comment text and macro output are not calls. No closure, fn, if, block, macro, cfg_attr, qualification, alias or extra token is grammatical.",
+    "replacements": "The fourteen replace capsules use only their table category. All normal branches preserve the decoded baseline bytes exactly. Exactly the nine measured expression-tail IDs may use the one canonical block wrapper. The four item replacements and one statement replacement use their closed sibling forms. The observed operation/callback is syntactically singular and its observation edits are finite; no generic arbitrary observed body is allowed.",
+    "carrier": "Parse P1343-FUNC-CARRIER-TYPES against the complete carrier_ledger_skeleton. Because the AST contains only the declared private fields and API, mutation/constructor/projection closure is proved positively from the skeleton, not by enumerating suspicious method names. Other capsules may call only the exact closed helper/storage API.",
+    "owner_adjacency": "Resolve the exact R1/P1342 owner and branch, require anchors/capsule wholly inside it, and require the capsule at the inherited relative position. This is a structural binding only. Runtime evidence must independently demonstrate that the compiled real path executed.",
+    "limits": "The focal parser is not a Rust compiler, resolver, borrow checker, call graph, reachability solver or macro expander. Unsupported/ambiguous tokens are Violated. cargo/rustfmt gates are separately mandatory; source PASS alone is never candidate acceptance."
+  },
+  "runtime_proof": {
+    "real_candidate_only": "Candidate/final acceptance requires a compiled independent Rust A/B test and a canonical externally hashed runtime receipt created from the real facade outputs. Source text, synthetic runtime, formatted references or candidate booleans cannot satisfy this proof.",
+    "fresh_inputs": "The test authority constructs three distinct World instances with verifier nonces, three separately parsed Source instances with distinct FileIds and the exact 178 fixture bytes, and three unpredictable pairwise-distinct 32-byte challenges. It records pre-call freshness witnesses, calls the single-run facade once for each normal/repeat/reverse mode and verifies challenge commitments plus pairwise-disjoint run/ledger/cell/carrier/content/location/snapshot/dict identities.",
+    "causal_receipts": "The test obtains each immutable raw snapshot directly at H16 before projection, independently computes its canonical digest, projects read-only, rehashes the same snapshot and requires equality. It validates the intact P1342 append formula over actual events, maps actual receipts to all 19 rows, enforces exact hook_hit and H00D/H00S/R cardinalities and verifies carrier, Location, snapshot and typed-value continuity.",
+    "semantic_execution": "A direct hook/source fact counts as reached only when the corresponding actual challenged raw receipt occurs in the run whose real input identity is recorded by the A/B test. Dead closures, false branches, shadowed values, reused inputs and source-only call counts are Violated by absent/mismatched runtime evidence.",
+    "synthetic_boundary": "Synthetic source trees and synthetic runtime are permitted only inside the sealed discriminatory oracle corpus to test classification. The candidate checker and final verifier reject a candidate-root invocation accompanied by synthetic evidence, fixed formatted refs or any receipt not emitted by the independently compiled Rust test.",
+    "runtime_receipt_schema": {
+      "top_level_keys": ["schema", "contract_sha256", "binding_sha256", "fixture_sha256", "test_binary_sha256", "test_source_sha256", "candidate_file_hashes", "modes", "fresh_inputs", "runs", "post_projection_raw_hashes", "cargo_receipt", "authority"],
+      "fresh_input_keys": ["mode", "world_nonce", "world_identity_commitment", "source_file_id", "source_bytes_sha256", "source_identity_commitment", "challenge_commitment"],
+      "run_keys": ["mode", "run_identity", "challenge_commitment", "raw_snapshot", "raw_digest_before_projection", "projection", "row_coverage"],
+      "authority_keys": ["executor", "invocation_sha256", "receipt_sha256_without_self", "result"],
+      "cardinality": "Exactly three fresh_inputs and three runs in normal, repeat, reverse order; exactly one row_coverage record per composed row and mode; raw objects use the exact closed P1342 schemas. Unknown/missing/duplicate keys or duplicate identities are Violated."
+    }
+  },
+  "strict_artifact_io": {
+    "json": "All JSON inputs are UTF-8, duplicate-key-free at every object depth, finite-number-only and closed-schema before any field is used. A strict parser records each object member while parsing and rejects a repeated decoded key; json.loads last-key-wins behavior without object_pairs_hook-equivalent rejection is forbidden. Canonical output is RFC 8785 plus one trailing LF.",
+    "source_evidence": "Source evidence R2 contains only protected pins, ten file records, 36 capsule grammar records, 19 structural row records, carrier-skeleton result and source verifier provenance. It contains no semantic reached flag, fresh object claim or cardinality verdict. Checker independently rederives all source fields from candidate bytes.",
+    "runtime_evidence": "Runtime receipt path/hash is supplied by the independent Rust test/final verifier, rehashed before strict parse and joined to source only by exact contract/binding/candidate file hashes plus hook/capsule/row identities. DTO/facade cannot select or authenticate it.",
+    "no_self_attestation": "Fields named result, parse_ok, reached, fresh, writer_unique, projection_read_only or similar are never evidence without the corresponding recomputation or real challenged receipt."
+  },
+  "checker_authority": {
+    "order": "The new oracle author emits canonical corpus first, computes its SHA-256, then emits checker with immutable literal EXPECTED_CORPUS_SHA256 and immutable literals for the exact contract R2, binding R2, authority manifest, capsule baseline, L0 freeze, fixture and source-verifier hashes. The checker has no default/override path that changes those literals.",
+    "invocation": "Preseal/final authority receives expected checker/source-verifier/corpus hashes through the orchestration handoff, rehashes them before load and records the authority_root formula from binding R2. CLI paths locate bytes only. A CLI sibling hash must equal compiled constants but never establishes trust.",
+    "corpus": "Checker rehashes corpus bytes and requires its compiled EXPECTED_CORPUS_SHA256 before strict JSON parse. The corpus itself also records the exact contract/binding/root pins and closed order/budget/cases. Passing an alternate corpus and its matching attacker-computed digest is Violated.",
+    "checker": "An alternate checker with alternate constants is Violated because its whole-file hash differs from the immutable checker hash delivered to the verifier. The preseal runner cannot discover or accept a checker/corpus pair from candidate output.",
+    "root": "Recompute binding R2 authority_root_formula from exact hashes and compare with the value handed off by orchestration. Path/hash pairs controlled by checker, corpus, DTO, facade or candidate are untrusted.",
+    "strict_failure": "Duplicate JSON key, changed case/order/budget, self-consistent alternate corpus, root mismatch, missing compiled pin or checker hash drift is Violated before any case executes."
+  },
+  "classification": {
+    "precedence": [
+      "1. Verify immutable checker/root and every protected file hash.",
+      "2. Strict-parse duplicate-key-free closed JSON schemas and exact R1/R2/P1342 composition.",
+      "3. Validate marker pairing, anchors, inverse normalization and ten whole-file hashes.",
+      "4. Parse all 36 bodies against their exact grammar and carrier skeleton; resolve owner and adjacency.",
+      "5. For a real candidate, require rustfmt, observation cargo test --no-run, normal cargo build and independent Rust A/B runtime receipt. For synthetic corpus cases, enforce the explicit synthetic-only case contract and never export its result as candidate evidence.",
+      "6. Validate one raw append path, immutable snapshot/read-only projection and every intact P1342 causal/runtime predicate from actual challenged receipts when judging a candidate.",
+      "7. Only after 1-6 pass may explicitly authored dict-witness payload opacity be Unknown; otherwise an inspectable valid case is Preserved."
+    ],
+    "violated": "Any prior failure, missing proof, unsupported grammar, ambiguity, dead/unreached hook, forged/formatted runtime, reuse, duplicate key, authority drift or synthetic evidence used as candidate evidence is Violated with the first deterministic reason code.",
+    "unknown": "Unknown remains restricted to the deliberate opaque dict-witness after every applicable non-payload predicate passes. Scanner limits, parser failure, missing runtime, budget exhaustion and ambiguous identity are Violated, not Unknown.",
+    "reason_order": ["AUTHORITY_ROOT", "PROTECTED_INPUT", "DUPLICATE_KEY", "SCHEMA", "PATH", "MARKER", "ANCHOR", "CFG_GRAMMAR", "NORMALIZATION", "OWNER_ADJACENCY", "CARRIER_SKELETON", "SYNTAX_GATE", "RUNTIME_AUTHORITY", "FRESH_INPUT", "RAW_CAUSAL", "OPAQUE_PAYLOAD"]
+  },
+  "gates": {
+    "oracle_focal": "The reissued oracle runs only new grammar/root/strict-JSON focal cases and boundary controls. No full corpus during authorship. A separate adversary must revalidate all sixteen R2 survivors plus prior valid negatives against the new design.",
+    "preseal": "Only after focal positives/opaque/negatives agree and adversary reports zero survivors may an independent preseal authority execute one complete corpus in normal, repeat and reverse orders with repetition/reordering/race controls. Required mutation score is 1.0.",
+    "candidate_syntax": [
+      "cargo fmt --all -- --check",
+      "RUSTFLAGS='--cfg p1339_observation' cargo test --workspace --no-run",
+      "cargo build --workspace without p1339_observation"
+    ],
+    "candidate_runtime": "Run the frozen independent P1343 Rust A/B test twice against the same candidate with fresh test-created inputs each execution; classifications agree while challenges/identities remain fresh and disjoint.",
+    "final_architecture": ["git diff --check", "V5/V15/V26 checks", "crystalline-lint . with zero new violations"],
+    "gate_separation": "rustfmt proves formatting/parser acceptance; cargo proves Rust parsing/name/type/borrow resolution; source grammar proves finite capsule shape; runtime proves actual reachability/freshness/cardinality. No gate substitutes for another."
+  },
+  "causal_invalidation": {
+    "historical_only": [
+      ["00_nucleo/diagnosticos/p1343-source-verifier-r2.py", "fa7c15eea4b45e83c5f078a7a3820bd0499d55087aaa96f7863ea5229495512d"],
+      ["00_nucleo/diagnosticos/p1343-oracle-checker-r2.py", "ff6d83c9dbfe356b2068204e15d05025f10d83eacb902d9b9c1511a20b098ab9"],
+      ["00_nucleo/diagnosticos/p1343-oracle-corpus-r2.json", "72eb41172966de03a42dfc26eea39f7c426f38123f6ba512bb8bc663a30cfcce"],
+      ["00_nucleo/diagnosticos/p1343-oracle-authorship-receipt-r2.json", "d1b240846ab14f3501e05f7c675eb44bdea30cd183e167f73fdc288c94a18dc2"],
+      ["00_nucleo/diagnosticos/p1343-adversary-report-r2.json", "9900f35702456c59d1183a9d43ab3c3c32afe6a10c3c82c64f8903a1f4488586"],
+      ["00_nucleo/diagnosticos/p1343-adversary-receipt-r2.json", "6caf6272e08ce63f846fabb613f6a26fa820f521f7d31d311e231430160a9752"]
+    ],
+    "rule": "These artifacts remain immutable evidence of the measured failure but cannot judge or seal contract R2. Reissue source verifier, corpus, checker and authorship receipt from R2, revalidate with an independent adversary, then run at most one full preseal. No existing RED or implementation artifact is authorized by R2."
+  },
+  "budget_and_stop": {
+    "contract_revisions_remaining": 0,
+    "oracle_author_full_corpus_runs": 0,
+    "full_preseal_runs": 1,
+    "candidate_correction_cycles": 2,
+    "full_final_runs": 1,
+    "stop": "Stop on any surviving relevant negative, positive regression, duplicate classification vector/cause twice, need for another contract revision, edit outside the 36 capsules, baseline/L0 drift, ADR-0127 surface, synthetic-to-candidate evidence substitution or need to weaken a negative. No waiver or Unknown conversion is permitted."
+  },
+  "scope": {
+    "claim": "Only the focal P1342 binding through the exact P1343 capsules and runtime evidence.",
+    "excluded": ["P1340 lifecycle/profile matrix", "NT01-NT06", "general retention/discard/invalidation", "terminal policy", "general equivalence/parity", "public/default/phase/compatibility changes"]
+  },
+  "forbidden_acceptance": [
+    "Regex/keyword/suffix/substring matching as the deciding proof for capsule grammar, writer closure, constructors, def-use or reachability.",
+    "Qualified/aliased hook call, comment/string hook literal, dead closure/function/branch, cfg macro split, macro expansion or extra direct-hook token.",
+    "Mutable raw field exposure, retain/get_mut/index mutation, hidden helper mutation, mutable projection, shadowed/dead snapshot, post-hoc literal/macro/formatter or alternate raw constructor.",
+    "World/Source/challenge/ledger/snapshot identity inferred from names, Clone aliases, formatted refs or candidate declarations.",
+    "Synthetic runtime accepted for candidate/final, or source structure treated as proof of semantic execution.",
+    "Self-consistent alternate corpus/hash/checker/root or duplicate-key JSON accepted by last-key-wins.",
+    "Change to 36-capsule/ten-hash/19-row topology, P1342 semantics, L0 or ADR-0127 surface."
+  ],
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "revision_budget", "predecessor", "protected_inputs", "normative_composition", "measured_cause", "l0_assessment", "source_proof", "runtime_proof", "strict_artifact_io", "checker_authority", "classification", "gates", "causal_invalidation", "budget_and_stop", "scope", "forbidden_acceptance", "closed_world"],
+    "rule": "Every R2 contract/binding, source evidence, runtime receipt, corpus, authority root, checker report and case object has exactly its declared keys/types/cardinalities. Duplicate or unknown keys and unknown enums are Violated. All lists whose order is declared are order-sensitive."
+  }
+}

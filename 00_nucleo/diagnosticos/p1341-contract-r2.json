@@ -1,0 +1,81 @@
+{
+  "schema": "p1341-contract-r2-v1",
+  "status": "NOT_SEALED",
+  "scope": "synthetic lifecycle-observability discrimination only; no product credit",
+  "regime": "executado sem atestacao de isolamento",
+  "authority_manifest": {
+    "path": "00_nucleo/diagnosticos/p1341-authority-manifest.json",
+    "sha256": "b2da37d09be8aa7f568543e3562f04ab4cd5e919be2931b64c70af980f4eed5b"
+  },
+  "planes": {
+    "external_expectation": {
+      "schema": "p1341-stable-expectation-v1",
+      "required": ["case_key", "cell_selector", "source_coordinates", "required_roles", "callbacks", "counter_occurrences", "dict_expectations"],
+      "forbidden_runtime_keys": ["callsite_witness_id", "value_id", "snapshot_id", "location", "span", "raw_span", "source_id", "byte_start", "byte_end", "runtime_id", "func_id", "carrier_id", "generation_id", "content_id"],
+      "coordinates": {
+        "context": ["context_ordinal", "source_byte_offset", "lexical_role"],
+        "callback": ["callback_role", "phase", "multiplicity_per_attempt"],
+        "counter": ["key", "action", "occurrence_ordinal", "span_role", "multiplicity_per_attempt"],
+        "dict": ["stable_role", "typed_path", "ordered_typed_value"]
+      },
+      "rule": "Expectations are authorable ex ante and contain no runtime identity, Location, snapshot, raw Span or candidate-declared coverage."
+    },
+    "runtime_ledger": {
+      "schema": "p1341-runtime-ledger-v1",
+      "required": ["cell_key", "binding_manifest_sha256", "objects", "events", "causal_edges", "payload_state"],
+      "dynamic_only": ["runtime_id", "func_id", "carrier_id", "generation_id", "content_id", "location", "snapshot_id", "raw_span"],
+      "rules": [
+        "runtime identity is unique within one cell",
+        "each runtime object binds to exactly one stable role from the pinned manifest",
+        "each required stable role has exactly its externally required multiplicity",
+        "all event references resolve within the same cell",
+        "execution start precedes observations and execution end follows them",
+        "causal graph over runtime objects is acyclic",
+        "callback Func and carrier roles, feature origin, counter key/action/occurrence/span role, and recursive ordered Dict payload are checked before opacity"
+      ]
+    },
+    "binding_manifest": {
+      "schema": "p1341-static-binding-manifest-v1",
+      "content_sha256": "9fe1f7fa473150572cd1130a5161e1225fd87f76611d4c0615a5ae6c83a1dfa4",
+      "authority_sha256": "b2da37d09be8aa7f568543e3562f04ab4cd5e919be2931b64c70af980f4eed5b",
+      "bindings": [
+        {"stable_role": "execution", "owner": "infra.pipeline", "callsite": "compile-attempt", "hook": "execution-lifecycle"},
+        {"stable_role": "context.default", "owner": "infra.pipeline.context-stabilization", "callsite": "context-default", "hook": "feature-origin"},
+        {"stable_role": "context.selected", "owner": "infra.pipeline.context-stabilization", "callsite": "context-select", "hook": "feature-origin"},
+        {"stable_role": "callback.with", "owner": "compiler.eval", "callsite": "context-with-callback", "hook": "callback-dispatch"},
+        {"stable_role": "func.callback", "owner": "compiler.eval.call-dispatch", "callsite": "invoke-context-callback", "hook": "func-invocation"},
+        {"stable_role": "func.body", "owner": "compiler.eval.call-dispatch", "callsite": "enter-context-body", "hook": "body-start"},
+        {"stable_role": "counter.step.current", "owner": "compiler.stdlib.counter", "callsite": "counter-current", "hook": "counter-occurrence"},
+        {"stable_role": "content.walked", "owner": "compiler.introspect", "callsite": "walk-content", "hook": "content-lineage"},
+        {"stable_role": "dict.result", "owner": "compiler.eval", "callsite": "dict-result", "hook": "typed-dict"}
+      ]
+    }
+  },
+  "classification": {
+    "Preserved": "all schema, external completeness, static binding, within-cell bijection, semantic and causal checks pass and payload is inspectable",
+    "Unknown": "all preceding checks pass and payload_state is explicitly opaque with an allowlisted reason",
+    "Violated": "any missing/malformed/self-declared binding, semantic mismatch, bijection failure, causal failure, or opacity hiding such a failure"
+  },
+  "unknown_policy": {
+    "allowed_reason_codes": ["payload-deliberately-opaque"],
+    "mandatory_order": ["schema", "external_completeness", "binding_pin_and_roles", "bijection", "semantic_witnesses", "causality", "opacity"],
+    "default": "Violated"
+  },
+  "mutation_gate": {
+    "required_unique_negatives": 41,
+    "required_score": 1.0,
+    "orders": ["normal", "repeat", "reverse"],
+    "inherited_partition": {
+      "r6_known": 12,
+      "r6b_boundary": 7,
+      "r6b_survivors": 22
+    },
+    "survivor_classes_required": ["feature-actual-anchor", "func-carrier-origin", "counter-key-action", "counter-occurrence-anchor", "counter-span-role", "lineage-global-acyclicity", "dict-payload-anchor", "unknown-semantic-short-circuit"]
+  },
+  "limitations": [
+    "This initial contract is not a seal and grants no implementation or product verdict.",
+    "The exact historical names of the 12 R6 known mutants were not present in the allowed inputs; the focal maps them bijectively as R6-INHERIT-01..04, R6-OMISSION-01..03 and R6-MISSING-OPAQUE-01..05.",
+    "Static binding owner/callsite labels are independent semantic roles, not proof that product hooks exist; reachability remains a later verifier gate against pinned owners.",
+    "No candidate, P1340 implementation, candidate output or candidate receipt was read."
+  ]
+}

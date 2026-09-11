@@ -1,0 +1,88 @@
+{
+  "schema": "p1341-contract-r3-receipt-v1",
+  "utc": "2026-09-10T17:54:17Z",
+  "role": "independent contract author",
+  "executor": "/root/p1341_contract_r2",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "MATERIALIZED_GATE_PASS_NOT_SEALED",
+  "scope": "R3 synthetic contract discrimination only; no candidate/product credit",
+  "inputs": {
+    "00_nucleo/diagnosticos/p1341-contract-r2.json": "32edfcb45839ee30728be73bb9a972c64ce321a7e4ba707dd35b06f6ecbc7dab",
+    "00_nucleo/diagnosticos/p1341-contract-r2-checker.py": "0bdfd901b9b3bf7fcc330f30ce2381c72f2830dbf0a4b611519b809a24faf001",
+    "00_nucleo/diagnosticos/p1341-contract-r2-focal.json": "6edf8c365ea71f86083c4da478c32f04849827e86759e971138c1ab5bb6ee6d6",
+    "00_nucleo/diagnosticos/p1341-contract-r2-receipt.json": "dfd5d1fea3ef1848678e7cb3fa17938fa286281c5f4f33c7da93320f754b88e7",
+    "00_nucleo/diagnosticos/p1341-oracle-authorability-checker-r1.py": "550051366a97156f7670665446240d7ab94ce4f859edc915749abdfc2e13cc16",
+    "00_nucleo/diagnosticos/p1341-oracle-authorability-r1.json": "19420f68fa01ca85bc55d6435d3c1f2e9b8b62e0127e880e8870f1f36dfaebb2",
+    "00_nucleo/diagnosticos/p1341-oracle-binding-manifest-r1.json": "c1976995c6330af7b006633f9772dc9ca687f5b8288e1f8c65139926a3eef820",
+    "00_nucleo/diagnosticos/p1341-oracle-expectations-r1.json": "9b661deee8afffa602f8a013f2786345d7434f39bbd73728cfeaf4d8a10aacb1",
+    "00_nucleo/diagnosticos/p1341-oracle-receipt-r1.json": "40cc6d3c62906089bc24b9f99f7e84f084b0146f4e51c352fc7985be2f89a7f5",
+    "00_nucleo/diagnosticos/p1341-adversary-result-r1.json": "fcf85675d7798b21a2ff61b6b3f2f6e74542814efbf94bc7d03dcd247ae10ed6",
+    "00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r1.py": "ec0788fa2e77c6a3a76f4c123a70fe48f8211018d3e820131c143d5d47b4b891"
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1341-contract-r3.json": "066efbedb39b8c30892c4645000f533b15b6e1212e6cb1a62661349a9a3b3d04",
+    "00_nucleo/diagnosticos/p1341-contract-r3-focal.json": "5456ffbde7b622b0ec2a1a5234404c6824e7849ccd608fa63e67319c5eb8d0fa",
+    "00_nucleo/diagnosticos/p1341-contract-r3-checker.py": "ac1a6471f2eacc1e53645f072f37357ccd97114c25c3972c9fc3da67f18be50d"
+  },
+  "authorial_delta": {
+    "cause": "R2 accepted 11 materialized survivors because external obligations were reducible and several semantic relations were not contract-owned.",
+    "changes": [
+      "contract-owned external completeness and exact per-role/per-event cardinalities",
+      "unique feature witnesses with fixed origins",
+      "Func/body subject, carrier, producer_role and origin bindings",
+      "counter raw-span coordinate/length/lexical-role binding",
+      "exact directed connected role topology in addition to acyclicity",
+      "typed_path equality, resolution and payload compatibility",
+      "opacity evaluated only after every preceding predicate",
+      "real deep-copy transformations imported from the independent materialized suite"
+    ],
+    "previous_materialized": {"valid":51,"killed":40,"survived":11,"score":0.7843137254901961},
+    "r3_materialized": {"valid":51,"killed":51,"survived":0,"score":1.0}
+  },
+  "calibration": [
+    {
+      "attempt": 1,
+      "exit": 1,
+      "negative_vector": "41/41 + 10/10 Violated",
+      "control_vector": "positive Violated; opaque Violated",
+      "reason_code": "directed-connected-causal-topology",
+      "hypothesis_and_fix": "The new connectivity rule correctly required all roles but the focal omitted context-role edges; add execution->context.default, execution->context.selected and context.selected->callback.with to both normative and ledger topology."
+    },
+    {
+      "attempt": 2,
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1341-contract-r3-checker.py 00_nucleo/diagnosticos/p1341-contract-r3.json 00_nucleo/diagnosticos/p1341-contract-r3-focal.json",
+      "exit": 0,
+      "result": {
+        "verdict": "FOCAL_MATERIALIZED_PASS_NOT_SEALED",
+        "controls": {"positive":"Preserved","opaque":"Unknown"},
+        "protected_41": {"valid":41,"killed":41,"score":1.0},
+        "additional_10": {"valid":10,"killed":10,"score":1.0},
+        "combined": {"valid":51,"killed":51,"score":1.0},
+        "survivors": [],
+        "orders": ["normal","repeat","reverse"],
+        "deterministic": true,
+        "errors": []
+      }
+    }
+  ],
+  "validation": [
+    {"command":"python3 -m json.tool 00_nucleo/diagnosticos/p1341-contract-r3.json","exit":0},
+    {"command":"python3 -m json.tool 00_nucleo/diagnosticos/p1341-contract-r3-focal.json","exit":0},
+    {"command":"PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile 00_nucleo/diagnosticos/p1341-contract-r3-checker.py","exit":0,"cleanup":"generated p1341-contract-r3 checker pyc removed immediately"}
+  ],
+  "capabilities": {
+    "read_allowlist": "p1341-contract-r2*, p1341-oracle-*, p1341-adversary-result-r1.json, p1341-adversary-materialized-mutations-r1.py, plus the mandatory segregated-materialization skill instructions",
+    "write_allowlist": "00_nucleo/diagnosticos/p1341-contract-r3*",
+    "candidate_reads": 0,
+    "product_reads": 0,
+    "candidate_runs": 0,
+    "product_runs": 0,
+    "technical_isolation_attested": false
+  },
+  "limitations": [
+    "This author may recommend the R3 contract for independent sealing but does not issue its own seal.",
+    "The result covers the 51 materialized synthetic transformations only, not product behavior, reachability or general equivalence.",
+    "R2 remains unchanged."
+  ],
+  "seal": null
+}

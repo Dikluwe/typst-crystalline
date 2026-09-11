@@ -1,0 +1,139 @@
+{
+  "schema": "p1342-real-binding-contract-v2",
+  "step": 1342,
+  "revision": 2,
+  "role": "independent_contract_author",
+  "executor": "/root/p1342_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "CONTRACT_REVISED_NOT_SEALED",
+  "supersedes_without_mutation": {
+    "contract_r1": ["00_nucleo/diagnosticos/p1342-contract-r1.json", "de5a23a6053ce9fae7d8a377044bf5a43381bd8fbc5a362dd159bdd33567e783"],
+    "manifest_r1": ["00_nucleo/diagnosticos/p1342-contract-binding-manifest-r1.json", "57abe32b9dd0e09d12235fe26d4f02c75a67c4e837736ac4c08b19174d8598bb"],
+    "adversary_report_r1": ["00_nucleo/diagnosticos/p1342-adversary-report-r1.json", "100a953c17a868b4a1c531b92fb1a83696dc673c5d8c2774ac4875b1b4bbd1d9"],
+    "adversary_receipt_r1": ["00_nucleo/diagnosticos/p1342-adversary-receipt-r1.json", "d1e6ddb988f47cab4329782fea5c54a142b31ef9bad889206505dd7d29dbc742"]
+  },
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1342.md", "5b7322e7223b2320d961c164e0b603c10d5f390030cd671d962592af2ff92d48"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1342-authority-manifest.json", "d247e6714faf3249109beb3cfb2ef718a4d2049bb56c95aaabd270eb6eed87a4"],
+    "topology_audit": ["00_nucleo/diagnosticos/p1342-topology-audit-r1.md", "1c4f72cbd45075479618d5b567f15c6a3f034ec34e5a7b364f7fd1cbcf4b2154"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1342-l0-freeze-r1.json", "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"],
+    "fixture": ["00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"],
+    "binding_manifest_r2": ["00_nucleo/diagnosticos/p1342-contract-binding-r2.json", "3b522cf1b0f288fe1e472f21f775089541835ede754250a14a3c2d17c17e9d48"]
+  },
+  "l0_assessment": "No L0 change is required. The frozen owners already require a per-execution/per-attempt append-only ledger, a shared cfg-only handle, local runtime identities, emission at real hooks and projection without fabrication. The challenge, append receipts and preprojection raw snapshot are test-only evidence for those existing obligations and do not change normal API, behavior, defaults or pipeline phase.",
+  "scope": ["focal real ContextBlock to CounterUpdate::Func to walk/replay to syntax-body and ordered Dict binding", "runtime-origin evidence for that ledger", "normal/repeat/reverse independence for later sealed cases"],
+  "out_of_scope": ["P1340 lifecycle/profile matrix", "NT01-NT06", "general retention/discard/invalidation", "terminal policy", "general parity or equivalence", "public/default/phase/compatibility changes", "Set or Step updates", "non-focal callbacks"],
+  "fixture_contract": {
+    "bytes": 178,
+    "line_endings": "LF",
+    "trailing_lf": true,
+    "parser_errors": 0,
+    "ranges": {"syntax-body":[64,121],"dict-witness":[82,97],"context-body":[131,177],"counter-update-call":[136,164],"counter-update-args":[144,164],"dict-prebound":[155,162]},
+    "typed_values": {"dict-prebound":{"type":"dict","entries":[["a",{"type":"int","value":1}]]},"dict-witness":{"type":"dict","entries":[["outer",{"type":"dict","entries":[["a",{"type":"int","value":1}]]}]]},"initial-callback-result":{"type":"int","value":1}}
+  },
+  "closed_world": {
+    "unknown_members": "Violated at every object depth, including manifest, raw snapshot, append receipt, event, refs, data, typed value and projection",
+    "primitive_types": "exact JSON primitive type; bool never satisfies integer",
+    "attempt_kind_enum": ["discovery","selected"],
+    "classification_enum": ["Preserved","Violated","Unknown"],
+    "role_enum": ["attempt","context-closure","dict-prebound","counter-occurrence","callback-with","func-callback","counter-content","location","snapshot-pre","snapshot-post","syntax-body","dict-witness"],
+    "event_kind_enum": ["attempt-open","context-dispatch","dict-prebound-produced","counter-occurrence-created","attempt-result","counter-occurrence-walked","callback-replay-enter","func-dispatch-with","with-edge","func-dispatch-inner","syntax-body-enter","dict-witness-produced","syntax-body-exit","callback-replay-exit","attempt-close"],
+    "top_level_dto_keys": ["schema","contract_sha256","binding_manifest_sha256","fixture_sha256","runs"],
+    "run_keys": ["mode","challenge","challenge_commitment","raw_snapshot","projection","classification"],
+    "raw_snapshot_keys": ["schema","challenge_commitment","frozen_before_projection","append_receipts","cells","raw_digest"],
+    "append_receipt_keys": ["seq","hook","hook_hit","origin_cell","event_digest","prev_receipt","receipt"],
+    "event_keys": ["seq","kind","hook","refs","data"]
+  },
+  "runtime_origin_proof": {
+    "challenge": "Before each execution, the independent test driver supplies 32 fresh unpredictable bytes to the cfg-only ledger constructor. The candidate must not choose, replace or read the next run's challenge. normal, repeat and reverse challenges are pairwise distinct.",
+    "challenge_commitment": "lowercase hex SHA-256 of the 32 challenge bytes",
+    "identity_namespace": "Every serialized run, ledger, cell, session-carrier, occurrence-carrier, Func, SyntaxNode, Content, Location, snapshot and Dict identity is a domain-tagged token bound to challenge_commitment and its first real allocation/hook receipt. Fixed literals or identical concrete IDs across fresh challenges are Violated. Runtime addresses are neither serialized nor frozen.",
+    "canonicalization": "RFC 8785 JSON Canonicalization Scheme for event bytes and raw snapshots; exact integers and UTF-8 strings only",
+    "event_digest": "SHA-256(canonical event without any receipt field)",
+    "receipt_formula": "receipt[0]=SHA-256('P1342-APPEND-V2\\0'||challenge||u64be(seq)||32_zero_bytes||utf8(hook)||event_digest); receipt[n]=SHA-256('P1342-APPEND-V2\\0'||challenge||u64be(seq)||receipt[n-1]||utf8(hook)||event_digest)",
+    "append_time_rule": "The sole raw-ledger writer computes and appends event plus receipt atomically at the declared hook. seq is the actual tail length and hook_hit is the actual per-hook counter. The raw prefix is immutable.",
+    "preprojection_rule": "At H16, after all cells reject further appends, the test driver obtains an immutable RawLedgerSnapshot and independently records raw_digest. Projection consumes that frozen snapshot read-only. The driver hashes the raw snapshot again after projection and requires equality.",
+    "proof_limit": "The chain alone does not prove productive origin because a candidate can know its challenge during the run. Therefore Preserved additionally requires candidate-verifier source inspection, runtime hook coverage and direct preprojection snapshot inspection defined below. A projected DTO alone can never establish append-only origin."
+  },
+  "event_schemas": [
+    {"kind":"attempt-open","hook":"H01-attempt-open","refs":["run","ledger","origin_cell","session_carrier"],"data":["attempt_kind","attempt_index"],"carrier_rule":"session_carrier required"},
+    {"kind":"context-dispatch","hook":"H02-context-dispatch","refs":["run","ledger","origin_cell","session_carrier","context_closure"],"data":["context_body_span"],"carrier_rule":"same session_carrier"},
+    {"kind":"dict-prebound-produced","hook":"H05-dict-production","refs":["run","ledger","origin_cell","session_carrier","dict_prebound"],"data":["span","typed_value"],"carrier_rule":"same session_carrier; occurrence carrier not yet available"},
+    {"kind":"counter-occurrence-created","hook":"H07-occurrence-created","refs":["run","ledger","origin_cell","session_carrier","occurrence_carrier","callback_with","func_callback"],"data":["source_span","counter_key","action"],"carrier_rule":"first occurrence_carrier binding; all downstream occurrence events must equal it"},
+    {"kind":"attempt-result","hook":"H03-attempt-result","refs":["run","ledger","origin_cell","session_carrier"],"data":["result_kind","incorporation_state"],"carrier_rule":"same session_carrier"},
+    {"kind":"counter-occurrence-walked","hook":"H11-occurrence-walked","refs":["run","ledger","origin_cell","session_carrier","occurrence_carrier","counter_content","location"],"data":["counter_key","action"],"carrier_rule":"same session and occurrence carriers as creation"},
+    {"kind":"callback-replay-enter","hook":"H12A-replay-enter","refs":["run","ledger","origin_cell","consumer_cell","session_carrier","occurrence_carrier","callback_with","location","snapshot_pre"],"data":["snapshot_pre_value"],"carrier_rule":"same carriers and Location as walked occurrence"},
+    {"kind":"func-dispatch-with","hook":"H13-func-dispatch","refs":["run","ledger","origin_cell","consumer_cell","session_carrier","occurrence_carrier","callback_with"],"data":["repr_kind"],"carrier_rule":"same carriers; repr_kind exactly With"},
+    {"kind":"with-edge","hook":"H14-with-edge","refs":["run","ledger","origin_cell","consumer_cell","session_carrier","occurrence_carrier","callback_with","func_callback"],"data":["prebound_args_span"],"carrier_rule":"same carriers; endpoints equal adjacent dispatches"},
+    {"kind":"func-dispatch-inner","hook":"H13-func-dispatch","refs":["run","ledger","origin_cell","consumer_cell","session_carrier","occurrence_carrier","func_callback"],"data":["repr_kind"],"carrier_rule":"same carriers; repr_kind exactly Closure"},
+    {"kind":"syntax-body-enter","hook":"H15-syntax-body","refs":["run","ledger","origin_cell","consumer_cell","session_carrier","occurrence_carrier","func_callback","syntax_body"],"data":["syntax_kind","span"],"carrier_rule":"same carriers; syntax_kind CodeBlock and role syntax-body, never Func"},
+    {"kind":"dict-witness-produced","hook":"H05-dict-production","refs":["run","ledger","origin_cell","consumer_cell","session_carrier","occurrence_carrier","syntax_body","dict_witness"],"data":["span","typed_value"],"carrier_rule":"same carriers and active syntax_body"},
+    {"kind":"syntax-body-exit","hook":"H15-syntax-body","refs":["run","ledger","origin_cell","consumer_cell","session_carrier","occurrence_carrier","func_callback","syntax_body"],"data":["outcome"],"carrier_rule":"same carriers and body identity as enter; real result/error/FlowEvent"},
+    {"kind":"callback-replay-exit","hook":"H12B-replay-exit","refs":["run","ledger","origin_cell","consumer_cell","session_carrier","occurrence_carrier","location","snapshot_pre","snapshot_post"],"data":["snapshot_pre_value","snapshot_post_value","outcome"],"carrier_rule":"same carriers, Location and snapshot_pre as replay-enter; snapshot_post is the actual converted post-state or a closed error outcome"},
+    {"kind":"attempt-close","hook":"H16-raw-freeze-before-projection","refs":["run","ledger","origin_cell","session_carrier"],"data":["attempt_kind","final_event_count"],"carrier_rule":"same session_carrier; exactly once after all events attributable to the origin cell"}
+  ],
+  "continuity": {
+    "session_carrier": "identical at every event in an origin cell",
+    "occurrence_carrier": "identical from counter-occurrence-created through walked, replay, both Func dispatches, With edge, syntax-body enter/witness/exit and replay exit",
+    "location": "the exact Location value and challenge-bound identity from H11 must be reused at H12A and H12B; no equivalent/reconstructed Location is accepted",
+    "snapshot_pre": "H12A captures the local state before apply_func; H12B repeats the exact identity and typed value",
+    "snapshot_post": "H12B captures the state after the real callback result is validated and immediately before the same history append; its identity is challenge-bound to H12B and its typed value must equal the value appended to history",
+    "with_endpoints": "H14 outer equals the immediately preceding H13 callback-with; H14 inner equals the immediately following H13 func-callback and the Func received by H15",
+    "syntax_body": "H15 enter/exit and H05 witness use the exact ClosureRepr.body SyntaxNode, parser kind CodeBlock, span 64..121"
+  },
+  "attempt_kind_and_R": {
+    "attempt_kind_source": "Derived exclusively from the live H00D or H00S receipt immediately preceding H01. No attempt.kind field can override it.",
+    "discovery": "H00D=1, H00S=0, H11=0 and R=0 for the focal occurrence; the discovery result is retired before the selected history starts.",
+    "selected": "H00D=0 and H00S=1. H11 is 1 exactly when the result is incorporated, otherwise 0 with a closed non-incorporated result.",
+    "R_definition": "For an origin cell, R is the number of verified H12A receipts whose occurrence_carrier is that cell's created carrier. R is absent from the DTO schema and may be zero or greater; it is never inferred from declared semantic events alone.",
+    "R_relations": "H12B=R; H13=2R ordered With then Closure; H14=R; H15 enter=R and exit=R; dict-witness=R. Each replay names the selected consumer_cell in which it actually ran while retaining the original occurrence origin_cell.",
+    "late_append": "Replay events may append to an earlier selected origin cell during a later selected consumer cell. H03 is only result capture; H16 closes cells after stabilization, so no false early close is allowed."
+  },
+  "classification_precedence": [
+    "1. Validate exact sealed hashes, closed manifest metadata and Rust symbol/branch binding.",
+    "2. Validate fresh challenges, raw preprojection evidence, receipt chain, identity namespace and immutable projection boundary.",
+    "3. Validate closed schemas, types, roles and event kinds for every event, including extras.",
+    "4. Validate attempt-kind/R cardinalities, all carrier/endpoints, Location, snapshots, spans, ordered typed values and causal order.",
+    "5. Only if steps 1-4 all pass may deliberate opacity of dict-witness yield Unknown. Any earlier failure is Violated."
+  ],
+  "unknown_policy": "Unknown is permitted only when dict-witness is explicitly authored opaque with a valid SHA-256 commitment after every non-payload predicate passes. Prebound opacity, missing payload without deliberate marker, carrier loss, bad metadata, bad receipt, stale challenge, identity reuse, wrong span/type/cardinality/Location/snapshot or post-hoc evidence is Violated. Unknown is never Preserved and never seals a positive case.",
+  "ordering_runs": {
+    "normal":"frozen case list in authored order with fresh World, ledger and verifier challenge",
+    "repeat":"same list/order with a second fresh World, ledger and pairwise-distinct challenge",
+    "reverse":"same cases in reverse order with a third fresh World, ledger and pairwise-distinct challenge",
+    "fixed_id_rejection":"Every challenge-bound identity set must be disjoint across the three runs. A06 fixed IDs is a valid negative and must be Violated, not relabelled invalid.",
+    "posthoc_rechain_rejection":"A07 is a valid negative. Changing DTO seq/IDs/predecessors without the matching frozen raw snapshot and append receipts is Violated; rebuilding both before freeze remains subject to mandatory source/runtime inspection and cannot be accepted from JSON alone.",
+    "classification_relation":"same case classification across normal/repeat/reverse; stability never rescues a surviving negative"
+  },
+  "checker_must_validate": [
+    "contract, manifest, fixture, L0 freeze and corpus hashes supplied by the seal, not values trusted from the DTO",
+    "exact byte hash of the R2 manifest and every closed metadata key/type/enum/value",
+    "Rust-aware unique symbol/branch anchors, exclusion of cfg(test) decoys and candidate hook-call adjacency under cfg(p1339_observation)",
+    "all raw/event/projection closed schemas and every event, including unexpected extras",
+    "challenge format and pairwise freshness commitments across normal/repeat/reverse",
+    "receipt formula, seq, hook_hit, predecessor chain, event digests, preprojection raw_digest and read-only projection equality",
+    "challenge-bound domain identities, cross-run disjointness and all carrier/endpoint/Location/snapshot continuity rules",
+    "attempt-kind from H00 receipts, R from H12A receipts and every relational cardinality",
+    "parser spans, exact typed Dict order/value, no bool-as-int and full causal order",
+    "classification precedence so non-payload failures are Violated before opacity is considered"
+  ],
+  "candidate_verifier_must_inspect": [
+    "issue each 32-byte challenge outside candidate control after the run process/test is ready and before ledger construction",
+    "observe the raw ledger directly in memory at H16 before any DTO projection, store its independent digest, and confirm the same raw object/digest after projection",
+    "inspect source to prove there is one encapsulated raw-ledger append writer, projection is read-only, and no alternate constructor/rechain path can populate raw events or receipts",
+    "inspect every manifest hook in its declared productive Rust branch, confirm runtime coverage receipts from the exact fixture, and reject cfg(test) decoys or dead branches",
+    "trace the same carrier through Func, CounterUpdateElem/payload, walk, child EvalContext, both dispatches and syntax-body without name/address/output lookup or global side table",
+    "inspect that H11 reads the real Content/Location/action, H12A reads the real pre-state and H12B reads the actual validated post-state immediately before history append",
+    "confirm callback count equals real apply_func invocations and observation adds no callback execution",
+    "confirm normal/repeat/reverse perform distinct fresh executions and no challenge or serialized identity is hard-coded",
+    "treat raw receipt algebra as necessary but not sufficient; never infer productive origin solely from a final JSON sequence"
+  ],
+  "blocker_closure": {
+    "B01":"exact manifest hash, closed metadata, Rust symbol/branch resolution, cfg(test) exclusion and live receipt coverage",
+    "B02":"same session/occurrence carrier at every edge plus exact With endpoints, Location and real pre/post snapshot continuity",
+    "B03":"closed event kinds/roles/types, immutable raw snapshot before projection and per-hook append chain; DTO-only coherence is insufficient",
+    "B04":"verifier-issued fresh challenge, challenge-bound identities, cross-run disjointness and direct raw/source inspection",
+    "B05":"ordered fail-closed precedence evaluates all non-payload predicates before deliberate opacity"
+  },
+  "seal_gate": {"current":"NOT_SEALED","required_mutation_score":1.0,"valid_negatives_that_must_be_rejected":["A01","A02","A03","A04","A05","A06","A07","A08","A09","A10","A11","A12","A13","A14","A15","A16","A17","A18","A19","A20","A21"],"requirements":["independent R2 oracle/checker/corpus","all valid negatives Violated","positive inspectable Preserved","deliberate opaque Unknown only after non-payload pass","normal/repeat/reverse agreement","candidate-free pins unchanged"]}
+}
