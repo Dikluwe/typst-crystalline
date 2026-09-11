@@ -1,0 +1,92 @@
+{
+  "schema": "p1348-verifier-adapter-authorship-receipt-r1",
+  "step": 1348,
+  "revision": 1,
+  "role": "p1348_verifier_adapter_author",
+  "executor": "codex_subagent_p1347_adapter_reassigned_p1348",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "AUTHORED_NOT_EXECUTED",
+  "protected_inputs": {
+    "step_p1348": ["00_nucleo/materialization/typst-passo-1348.md", "4254d294e71427c7dd54ab28db674d7b20174e560bd4882bf3413dae217224c7"],
+    "step_p1347": ["00_nucleo/materialization/typst-passo-1347.md", "c848a04d9bc3aaa9ed935ea8fef6e615cdb77a0533c13d0fcd62ef1a87ab9a1c"],
+    "authority_manifest_p1348": ["00_nucleo/diagnosticos/p1348-authority-manifest-r1.json", "70754da5c833a43f1943ec7abdb453f67e8889b146b27b883e04097531bad6bb"],
+    "contract_spec_p1348": ["00_nucleo/diagnosticos/p1348-contract-spec-r1.json", "e9e3e10b069604f7bc45143da4625e728c34d6d3b7223c7fa9491173fa7131af"],
+    "contract_binding_p1348": ["00_nucleo/diagnosticos/p1348-contract-binding-r1.json", "de05f7c3a33bae7e131bca1aec0774a1fc370cdb3a6f43d50b1e2d050db5785f"],
+    "contract_receipt_p1348": ["00_nucleo/diagnosticos/p1348-contract-receipt-r1.json", "1f49bdd80627edb61f115da108eca0b4216050bd81aaba093839e051f31b0daf"],
+    "adversary_suite_p1348": ["00_nucleo/diagnosticos/p1348-adversary-suite-r1.py", "14f3f41b28cfaa927197f5b5767612833e38944a9db74fb9f5ace7ee9b32e30c"],
+    "adversary_authorship_p1348": ["00_nucleo/diagnosticos/p1348-adversary-authorship-r1.md", "75f347b9c88dd8c0099814ddbc506e2a962ee916ad7526051871f669fcb7f424"],
+    "adversary_authorship_receipt_p1348": ["00_nucleo/diagnosticos/p1348-adversary-authorship-receipt-r1.json", "32ebf58fe116982e6c51190caf198e8346e5e1014bd10eb9d276ce96ac6e7bb6"],
+    "oracle_corpus_p1348": ["00_nucleo/diagnosticos/p1348-oracle-corpus-r1.json", "3e33630290cdfe681e855dee4c3becfde0aac53560d6d1c72c4e0fe83bb25458"],
+    "oracle_checker_p1348": ["00_nucleo/diagnosticos/p1348-oracle-checker-r1.py", "fd1c4a0e1601ea817ffb92ad6723367083ac9f5c7a0f9bcecb155e9148764249"],
+    "oracle_caller_p1348": ["00_nucleo/diagnosticos/p1348-oracle-caller-r1.py", "2ebb7f9497b3c1ef9088b06b5e32704df464296f45c831b18c695c08f72e1e43"],
+    "oracle_authorship_p1348": ["00_nucleo/diagnosticos/p1348-oracle-authorship-r1.md", "3742abff455a71865a1196712a641ef622f6a35ed39b996e9ee9398d13af9a46"],
+    "oracle_authorship_receipt_p1348": ["00_nucleo/diagnosticos/p1348-oracle-authorship-receipt-r1.json", "54f03388e58e5adb1acd55f27a19e8a0f0e28072c4e8ee3f9d23949c860bf24f"],
+    "oracle_delivery_receipt_p1348": ["00_nucleo/diagnosticos/p1348-oracle-delivery-receipt-r1.json", "c06a0c78369f33e677830782a6fcd20ada7dc6ae037b90b6160b5517390f7040"],
+    "verifier_blocker_p1347": ["00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json", "3b649ced677059a459262710ce3466cb2efbd69edbfb6e60c98df07cffa64522"],
+    "verifier_adapter_p1347": ["00_nucleo/diagnosticos/p1347-verifier-adapter-r1.py", "cc71d74b85b14e6624aae53630f25a3c5fe34724cab7d62222f84377d6845a7a"]
+  },
+  "outputs": {
+    "adapter": ["00_nucleo/diagnosticos/p1348-verifier-adapter-r1.py", "bcec1c05eed907ec3ea8f45c55940ee5244fe9498c731e66458b9817d946edfa"],
+    "authorship": ["00_nucleo/diagnosticos/p1348-verifier-adapter-authorship-r1.md", "da35f9cf12b42c37885a5545c96e93bb6e9143f1c30a79fd853e9e4c31759c8d"]
+  },
+  "coverage": {
+    "first_focal_attacks": 25,
+    "p1347_survivors": 10,
+    "p1348_new_variants": 15,
+    "p1347_regressions": 39,
+    "p1346_replays": 181,
+    "p1347_controls": 11,
+    "suite_unique_operation_names": 51,
+    "adapter_unique_operation_names": 51,
+    "missing_operation_names": [],
+    "extra_operation_names": [],
+    "route_counts": {
+      "adapter_meta": 1,
+      "control": 5,
+      "dag": 8,
+      "freshness": 6,
+      "parameterized_process": 1,
+      "probe": 17,
+      "replay": 1,
+      "worker": 12
+    }
+  },
+  "adapter_boundary": {
+    "blocker_schema": "p1348-adapter-exception-blocker-r1",
+    "blocker_verdict": "ADAPTER_EXCEPTION_BLOCKS_INTEGRATION",
+    "classification_on_adapter_exception": null,
+    "reason_code_on_adapter_exception": null,
+    "p04_same_scope_original_open_capture": true,
+    "p04_single_canonical_checker_invocation": true,
+    "restoration_in_finally_with_identity_check": true,
+    "expected_fields_read": []
+  },
+  "validation": {
+    "syntax_compile_only": "PASS",
+    "operation_name_coverage": "PASS",
+    "protected_input_hashes": "PASS",
+    "expected_key_absence_scan": "PASS",
+    "forbidden_runner_reference_scan": "PASS",
+    "diff_check": "PASS",
+    "run_with_adapter_calls": 0,
+    "focal_calls": 0,
+    "full_calls": 0,
+    "candidate_calls": 0,
+    "ptrace_runs": 0,
+    "case_executions": 0
+  },
+  "provenance": {
+    "commit": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted",
+    "measured_at": "2026-09-11T13:54:55-03:00",
+    "authored_paths": [
+      "00_nucleo/diagnosticos/p1348-verifier-adapter-r1.py",
+      "00_nucleo/diagnosticos/p1348-verifier-adapter-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1348-verifier-adapter-authorship-receipt-r1.json"
+    ]
+  },
+  "closed_metadata": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "protected_inputs", "outputs", "coverage", "adapter_boundary", "validation", "provenance", "closed_metadata"],
+    "rule": "Exactly these top-level keys in this order. This receipt records adapter authorship and static validation only; it is not a verifier result or verdict. The receipt does not self-pin."
+  }
+}

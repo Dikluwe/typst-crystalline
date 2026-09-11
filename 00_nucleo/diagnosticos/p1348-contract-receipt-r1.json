@@ -1,0 +1,96 @@
+{
+  "schema": "p1348-process-freshness-trace-contract-receipt-r1",
+  "step": 1348,
+  "revision": 1,
+  "role": "independent_contract_author",
+  "executor": "/root/p1346_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-11T13:24:39,035073669-03:00",
+  "verdict": "P1348_CONTRACT_AUTHORED_NOT_VERIFIED_NOT_SEALED",
+  "verdict_scope": "Contract authorship only. PID/pidfd/wait/pipe binding, consumable freshness, exact reason precedence, complete EXEC-to-EXIT tracing and adapter exception blocking are specified but not executed.",
+  "causal_predecessor": {
+    "verdict": "BLOCKED_NOT_SEALED",
+    "blocker": ["00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json", "3b649ced677059a459262710ce3466cb2efbd69edbfb6e60c98df07cffa64522"],
+    "focal_vector": "39/49",
+    "mutation_score": 0.7959183673469388,
+    "survivor_count": 10,
+    "transport_unknown_count": 1,
+    "full_runs": 0
+  },
+  "repository": {
+    "head": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted shared tree",
+    "status_porcelain_v1_z_sha256_before_receipt": "122839ddeb0f18930db5b550467dc145f4154b4b4389896f4de94e3c913d3675",
+    "status_porcelain_entries_before_receipt": 25,
+    "tracked_diff_binary_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tracked_diff_stat_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tracked_diff_stat": "empty"
+  },
+  "protected_inputs": {
+    "step_p1348": ["00_nucleo/materialization/typst-passo-1348.md", "4254d294e71427c7dd54ab28db674d7b20174e560bd4882bf3413dae217224c7"],
+    "step_p1347": ["00_nucleo/materialization/typst-passo-1347.md", "c848a04d9bc3aaa9ed935ea8fef6e615cdb77a0533c13d0fcd62ef1a87ab9a1c"],
+    "p1347_verifier_blocker_r1": ["00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json", "3b649ced677059a459262710ce3466cb2efbd69edbfb6e60c98df07cffa64522"],
+    "p1347_contract_spec_r1": ["00_nucleo/diagnosticos/p1347-contract-spec-r1.json", "fac6e30c7bbee3b50eec6cad8c8a9a8b30f3c09027f63293e73b4bf2341db0ea"],
+    "p1347_contract_binding_r1": ["00_nucleo/diagnosticos/p1347-contract-binding-r1.json", "de1dcc87e77ab5fd6c8395fa4faacfd74fd90769dcafb5d2ef5c0bd30fda5fd1"],
+    "p1347_contract_receipt_r1": ["00_nucleo/diagnosticos/p1347-contract-receipt-r1.json", "85c6ad312cf9ac83ff653e2a19ac96fdd9e29ad72d2eb4af90fe8fff14fafb1d"],
+    "p1347_oracle_checker_r2": ["00_nucleo/diagnosticos/p1347-oracle-checker-r2.py", "9aa0e93591195eac7ddb67069abecbcf0722abeddd9e955fc062804a89d16ce5"],
+    "p1347_verifier_adapter_r1": ["00_nucleo/diagnosticos/p1347-verifier-adapter-r1.py", "cc71d74b85b14e6624aae53630f25a3c5fe34724cab7d62222f84377d6845a7a"],
+    "p1347_adversary_suite_r1": ["00_nucleo/diagnosticos/p1347-adversary-suite-r1.py", "d51fa54da1c68dcc5c812847b90097dfe94f1b4eb83f1009294230eb5f37dd4c"]
+  },
+  "outputs": {
+    "contract_spec": ["00_nucleo/diagnosticos/p1348-contract-spec-r1.json", "e9e3e10b069604f7bc45143da4625e728c34d6d3b7223c7fa9491173fa7131af"],
+    "contract_binding": ["00_nucleo/diagnosticos/p1348-contract-binding-r1.json", "de05f7c3a33bae7e131bca1aec0774a1fc370cdb3a6f43d50b1e2d050db5785f"]
+  },
+  "contract_decision": {
+    "process_identity": "One parent-internal transaction binds fork PID, retained pidfd/fstat, pre/post pipe identities, waitid(P_PIDFD,WNOWAIT), exact waitpid and stream bytes. Public evidence is output-only and cannot be reintroduced as authority.",
+    "freshness": "A locked session registry reserves ABSENT to PENDING, validates completely, then atomically commits to append-only CONSUMED in frozen slot order. Precommit failure rolls back without consumption; replay and reorder fail WORKER_AUTHORITY.",
+    "reasons": "Phase-local order preserves WORKER_AUTHORITY for framing/replay, SCHEMA for payload PID type, DAG_VALIDATOR for self-answer/missing validator and exact AUTHORITY_ROOT pass-through from the real validator.",
+    "trace": "Required ptrace mask is 1048656 = TRACEEXEC|TRACEEXIT|EXITKILL. Exactly one EXEC and one EXIT event precede waitid/waitpid terminal binding; detach, second exec or terminal without EXIT is PROBE_AUTHORITY.",
+    "adapter": "The new adapter captures original_open in the P04 operation scope and restores in finally. Any exception emits ADAPTER_EXCEPTION_BLOCKS_INTEGRATION, no classification and no mutation-score credit.",
+    "semantic_delta": "NONE"
+  },
+  "validation": {
+    "protected_hashes": "PASS",
+    "strict_duplicate_key_json": "PASS for spec, binding and receipt",
+    "closed_top_level_order": "PASS for spec, binding and receipt",
+    "binding_pins_spec": "PASS",
+    "receipt_pins_outputs": "PASS",
+    "canonical_schema_key_orders": "PASS",
+    "ptrace_constants_and_mask": "PASS: 16 | 64 | 1048576 = 1048656; EXEC=4; EXIT=6",
+    "ten_survivor_reason_bindings": "PASS",
+    "git_diff_check": "PASS",
+    "focal_runs": 0,
+    "full_runs": 0,
+    "ptrace_runs": 0,
+    "candidate_runs": 0,
+    "p1348_oracle_adversary_adapter_read_or_written": false,
+    "productive_code_modified": false,
+    "seal_created": false
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "shared_filesystem": true,
+    "inherited_context": true,
+    "read_allowlist": ["00_nucleo/materialization/typst-passo-1348.md", "00_nucleo/materialization/typst-passo-1347.md", "00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json", "00_nucleo/diagnosticos/p1347-contract-spec-r1.json", "00_nucleo/diagnosticos/p1347-contract-binding-r1.json", "00_nucleo/diagnosticos/p1347-contract-receipt-r1.json", "00_nucleo/diagnosticos/p1347-oracle-checker-r2.py", "00_nucleo/diagnosticos/p1347-verifier-adapter-r1.py", "00_nucleo/diagnosticos/p1347-adversary-suite-r1.py", "segregated-materialization skill and references previously loaded by this authority"],
+    "write_allowlist_observed": ["00_nucleo/diagnosticos/p1348-contract-spec-r1.json", "00_nucleo/diagnosticos/p1348-contract-binding-r1.json", "00_nucleo/diagnosticos/p1348-contract-receipt-r1.json"],
+    "forbidden_work_not_performed": "No P1348 oracle, adversary, adapter, implementation, focal, ptrace, test, seal, L0, consumer or candidate artifact was read, written or executed."
+  },
+  "budget": {
+    "contract_revision_consumed": 0,
+    "contract_revisions_remaining": 1,
+    "oracle_revisions_consumed": 0,
+    "adapter_revisions_consumed": 0,
+    "adversary_revisions_consumed": 0,
+    "full_runs_consumed": 0
+  },
+  "limitations": [
+    "Shared filesystem and inherited context prevent technical isolation attestation; segregation is authority/input/write-scope/order based.",
+    "No host capability or tracing behavior was exercised by the contract author. Independent decisive execution must occur outside the sandbox and fail closed if any required primitive is unavailable.",
+    "No discrimination, implementation, runtime, seal, productive-candidate or general-equivalence claim is made."
+  ],
+  "next_state": "P1348_ORACLE_AND_ADVERSARY_AUTHORSHIP_MAY_BEGIN_FROM_THIS_EXACT_CONTRACT; ADAPTER_WAITS_FOR_BOTH_FREEZES; FOCAL_PRESEAL_FULL_RED_CANDIDATE_AND_CERTIFICATE_REMAIN_BLOCKED",
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "generated_at", "verdict", "verdict_scope", "causal_predecessor", "repository", "protected_inputs", "outputs", "contract_decision", "validation", "segregation", "budget", "limitations", "next_state", "closed_world"],
+    "rule": "Exactly these top-level keys in this order. This receipt intentionally does not self-pin and authorizes only downstream independent authorship from the exact output hashes."
+  }
+}

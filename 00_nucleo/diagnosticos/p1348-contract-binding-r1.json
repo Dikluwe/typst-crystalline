@@ -1,0 +1,166 @@
+{
+  "schema": "p1348-process-freshness-trace-binding-r1",
+  "step": 1348,
+  "revision": 1,
+  "role": "independent_contract_author",
+  "executor": "/root/p1346_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "CONTRACT_CANDIDATE_NOT_VERIFIED_NOT_SEALED",
+  "protected_inputs": {
+    "contract_spec": ["00_nucleo/diagnosticos/p1348-contract-spec-r1.json", "e9e3e10b069604f7bc45143da4625e728c34d6d3b7223c7fa9491173fa7131af"],
+    "step_p1348": ["00_nucleo/materialization/typst-passo-1348.md", "4254d294e71427c7dd54ab28db674d7b20174e560bd4882bf3413dae217224c7"],
+    "step_p1347": ["00_nucleo/materialization/typst-passo-1347.md", "c848a04d9bc3aaa9ed935ea8fef6e615cdb77a0533c13d0fcd62ef1a87ab9a1c"],
+    "p1347_verifier_blocker_r1": ["00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json", "3b649ced677059a459262710ce3466cb2efbd69edbfb6e60c98df07cffa64522"],
+    "p1347_contract_spec_r1": ["00_nucleo/diagnosticos/p1347-contract-spec-r1.json", "fac6e30c7bbee3b50eec6cad8c8a9a8b30f3c09027f63293e73b4bf2341db0ea"],
+    "p1347_contract_binding_r1": ["00_nucleo/diagnosticos/p1347-contract-binding-r1.json", "de1dcc87e77ab5fd6c8395fa4faacfd74fd90769dcafb5d2ef5c0bd30fda5fd1"],
+    "p1347_contract_receipt_r1": ["00_nucleo/diagnosticos/p1347-contract-receipt-r1.json", "85c6ad312cf9ac83ff653e2a19ac96fdd9e29ad72d2eb4af90fe8fff14fafb1d"],
+    "p1347_oracle_checker_r2": ["00_nucleo/diagnosticos/p1347-oracle-checker-r2.py", "9aa0e93591195eac7ddb67069abecbcf0722abeddd9e955fc062804a89d16ce5"],
+    "p1347_verifier_adapter_r1": ["00_nucleo/diagnosticos/p1347-verifier-adapter-r1.py", "cc71d74b85b14e6624aae53630f25a3c5fe34724cab7d62222f84377d6845a7a"],
+    "p1347_adversary_suite_r1": ["00_nucleo/diagnosticos/p1347-adversary-suite-r1.py", "d51fa54da1c68dcc5c812847b90097dfe94f1b4eb83f1009294230eb5f37dd4c"]
+  },
+  "composition": {
+    "base_spec": ["00_nucleo/diagnosticos/p1347-contract-spec-r1.json", "fac6e30c7bbee3b50eec6cad8c8a9a8b30f3c09027f63293e73b4bf2341db0ea"],
+    "base_binding": ["00_nucleo/diagnosticos/p1347-contract-binding-r1.json", "de1dcc87e77ab5fd6c8395fa4faacfd74fd90769dcafb5d2ef5c0bd30fda5fd1"],
+    "failure_evidence": ["00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json", "3b649ced677059a459262710ce3466cb2efbd69edbfb6e60c98df07cffa64522"],
+    "rule": "Decode and preserve complete P1347/P1346/P1345 semantics. Replace only the parent observation transaction, freshness state machine, phase-local reason precedence, exec-to-exit trace lifecycle and P1348 adapter exception boundary.",
+    "unchanged_counts": {"canonical_case_ids": 122, "capsules": 38, "consumers": 12, "canonical_tokens": 2506, "runtime_rows": 19, "opaque_probe_cases": 1},
+    "semantic_scope_delta": "NONE"
+  },
+  "parent_transaction_binding": {
+    "internal_type": "ParentProcessTransaction",
+    "constructor_inputs": ["session_id", "session_secret", "schedule_slot", "expected_invocation_sha256", "expected_case_sequence_sha256", "parent-created stdin/stdout/stderr pipe endpoints"],
+    "syscall_fields_exact_order": ["child_pid_from_fork", "pidfd_fd", "pidfd_fstat", "pipe_fstats_before_fork", "pipe_fstats_parent_after_close", "waitid_si_pid", "waitid_si_code", "waitid_si_status", "waitpid_returned_pid", "raw_wait_status", "stdout_len", "stdout_sha256", "stderr_len", "stderr_sha256"],
+    "pidfd_open": "pidfd_fd = os.pidfd_open(child_pid_from_fork, 0) immediately in the parent. Keep the exact descriptor open through waitid and waitpid. fstat identity is captured once and compared before terminal wait; substitution/reopen is forbidden.",
+    "wait_order": ["close parent copies of child pipe endpoints", "drain dedicated parent stdout/stderr read endpoints to EOF under limit/deadline", "waitid(P_PIDFD, pidfd_fd, WEXITED|WNOWAIT)", "waitpid(child_pid_from_fork, 0)", "validate same identity/status", "mark exact transaction terminal exactly once"],
+    "wait_consistency": "waitid.si_pid and waitpid return equal child_pid_from_fork. For normal exit, waitid.si_code is CLD_EXITED, waitid.si_status equals WEXITSTATUS(raw_wait_status), WIFEXITED is true and child_signal is null. Signal cases use the exact corresponding CLD code, signal and raw-status derivation. Any disagreement is WORKER_AUTHORITY.",
+    "pipe_consistency": "For each logical pipe, pre-fork endpoints have the same st_dev/st_ino and FIFO mode; post-close parent endpoint equals its captured pre-fork identity. Only child endpoint is inheritable/mapped to 0/1/2. Parent accepts output only from retained captured endpoints and recomputes length/digest.",
+    "internal_record_keys": ["case_sequence_sha256", "child_pid", "pidfd_identity", "pipe_identities", "raw_wait_status", "schedule_slot", "session_id", "stderr_len", "stderr_sha256", "stdout_len", "stdout_sha256", "transaction_id", "waitid_code", "waitid_pid", "waitid_status", "waitpid_pid"],
+    "transaction_id": "Fresh parent-generated 32-byte opaque identifier, stored in the session transaction table and never accepted from worker/corpus/adapter.",
+    "internal_tag": "HMAC-SHA-256(session_secret, RFC8785([\"p1348-parent-transaction-r1\", transaction_id, exact internal record])). session_secret and authoritative record remain parent-memory-only. Constant-time tag and exact-record comparison occur before projection and again before freshness commit.",
+    "public_evidence_keys": ["case_sequence_sha256", "child_exit_code", "child_pid", "child_signal", "closed_world", "invocation_sha256", "pidfd_identity", "pipe_identities", "raw_wait_status", "registry_commit_ordinal", "registry_sha256", "schedule_slot", "schema", "stderr_len", "stderr_sha256", "stdout_len", "stdout_sha256", "transaction_id", "waitid_code", "waitid_pid", "waitid_status", "waitpid_pid", "worker_response_sha256"],
+    "public_schema": "p1348-parent-worker-evidence-r1",
+    "public_rule": "Projection is output evidence only and carries no internal tag or session secret. No validation API accepts projected evidence as authority. A test mutating one public/internal field must be rejected against the internal transaction before classification.",
+    "framing_before_parse": "Zero/partial/truncated stdout, missing sole trailing LF, extra LF/value/bytes, output overflow, nonempty stderr, timeout, signal, unexpected exit or captured length/digest mismatch is WORKER_AUTHORITY. Only one complete frame reaches duplicate-key and schema parsing."
+  },
+  "freshness_registry_binding": {
+    "session_type": "ParentFreshnessRegistry",
+    "identity_formula": "identity_bytes = RFC8785([\"p1348-execution-identity-r1\", challenge_hex, invocation_nonce_hex, invocation_sha256, case_sequence_sha256, schedule_slot]); identity_sha256 = SHA-256(identity_bytes)",
+    "schedule_slot": "Exact ASCII identifier from a parent-frozen ordered session plan. The registry owns next_expected_slot; worker/case/adapter cannot choose or reorder it.",
+    "state_enum": ["ABSENT", "PENDING", "CONSUMED"],
+    "pending_record_keys": ["identity_sha256", "parent_token_sha256", "schedule_slot", "transaction_id"],
+    "consumed_record_keys": ["commit_ordinal", "identity_sha256", "schedule_slot", "transaction_id"],
+    "begin_transaction": [
+      "Strictly validate 32-byte distinct parent challenge/nonce, invocation formula, sequence digest and schedule slot.",
+      "Acquire the single registry lock; require slot is next_expected_slot and identity absent from pending and consumed.",
+      "Generate unpredictable parent token, insert one PENDING record, release lock. Concurrent duplicate/reorder is WORKER_AUTHORITY."
+    ],
+    "precommit_validation": ["complete ParentProcessTransaction binding", "complete stream framing", "strict duplicate-free canonical worker envelope", "exact 122-ID order/occurrence", "invocation equality", "challenge-response equality", "internal transaction tag/equality"],
+    "commit_transaction": "Under the same lock require exact PENDING token, transaction_id and unchanged next_expected_slot; atomically delete PENDING, append one CONSUMED record at the next zero-based commit ordinal and advance next_expected_slot. Return success only after this commit.",
+    "rollback": "Any failure before commit removes only its matching PENDING record under lock and changes neither consumed list nor next_expected_slot. Failure during/after atomic commit is an integration blocker and never reopens the identity.",
+    "replay": "A second begin for a PENDING or CONSUMED identity is WORKER_AUTHORITY before spawn/response acceptance. A first canonical validation may pass; byte-identical replay in the same session must fail.",
+    "registry_sha256": "SHA-256(RFC8785(ordered array of [commit_ordinal, schedule_slot, identity_sha256, transaction_id] for every CONSUMED record)), with no LF in the preimage",
+    "fresh_orders": "Normal, repeat and reverse occupy distinct ordered slots and use pairwise-new challenge, nonce, invocation and identity in one non-reset session registry. Normalized result projections omit fresh secrets/digests but retain slot and commit ordinal."
+  },
+  "reason_precedence_binding": {
+    "meta_blocker": "ADAPTER_EXCEPTION is outside the classification reason enum and aborts integration before score. It cannot be counted as a killed mutation.",
+    "global_order": ["AUTHORITY_ROOT", "PROTECTED_INPUT", "WORKER_AUTHORITY", "DAG_VALIDATOR", "DUPLICATE_KEY", "SCHEMA", "PATH", "MARKER", "ANCHOR", "OWNER_ADJACENCY", "NORMALIZATION", "TOKEN_COUNT", "TOKEN_DIVERGENCE", "RUSTFMT_GATE", "CARGO_OBSERVATION_GATE", "CARGO_NORMAL_GATE", "RUNTIME_AUTHORITY", "FRESH_INPUT", "RAW_CAUSAL", "PROBE_AUTHORITY", "PROBE_CHALLENGE", "OPAQUE_PAYLOAD", "PRESERVED"],
+    "worker_phase_order": ["parent transaction and freshness begin", "status/pipe/framing authenticity -> WORKER_AUTHORITY", "duplicate decoded key -> DUPLICATE_KEY", "closed envelope/type/key/order including injected pid -> SCHEMA", "exact 122 sequence -> PROTECTED_INPUT", "challenge/invocation/registry precommit -> WORKER_AUTHORITY"],
+    "dag_phase_order": ["external/original anchor and real validator AUTHORITY_ROOT pass-through", "worker/validator process authenticity -> WORKER_AUTHORITY", "answer/self-judgment or skipped/accepting validator -> DAG_VALIDATOR", "duplicate decoded key -> DUPLICATE_KEY", "generic inner artifact schema -> SCHEMA"],
+    "probe_phase_order": ["external image/root authority", "complete trace/process/pipe/image/memfd lifecycle -> PROBE_AUTHORITY", "duplicate primitive key -> DUPLICATE_KEY", "primitive schema -> SCHEMA", "challenge/freshness -> PROBE_CHALLENGE", "semantic opacity -> OPAQUE_PAYLOAD"],
+    "transport_map": {"partial_stdout": "WORKER_AUTHORITY", "extra_stdout_line": "WORKER_AUTHORITY", "foreign_stream_or_status": "WORKER_AUTHORITY", "challenge_replay": "WORKER_AUTHORITY", "payload_pid_bad_type": "SCHEMA", "bound_pid_or_pidfd_mismatch": "WORKER_AUTHORITY", "dag_answer_channel": "DAG_VALIDATOR", "dag_missing_real_validator": "DAG_VALIDATOR", "validator_authority_root": "AUTHORITY_ROOT", "generic_mutated_schema_without_earlier_failure": "SCHEMA", "trace_or_exit_lifecycle": "PROBE_AUTHORITY"},
+    "adapter_transport": "Adapter returns the exact observed classification and first reason without mapping AUTHORITY_ROOT to DAG_VALIDATOR or any transport reason to SCHEMA. Unexpected adapter exception triggers meta_blocker."
+  },
+  "trace_lifecycle_binding": {
+    "linux_constants": {"PTRACE_TRACEME": 0, "PTRACE_CONT": 7, "PTRACE_GETEVENTMSG": 16897, "PTRACE_SETOPTIONS": 16896, "PTRACE_O_TRACEEXEC": 16, "PTRACE_O_TRACEEXIT": 64, "PTRACE_O_EXITKILL": 1048576, "PTRACE_EVENT_EXEC": 4, "PTRACE_EVENT_EXIT": 6},
+    "setoptions_mask": 1048656,
+    "setoptions_rule": "At exact initial SIGSTOP, invoke PTRACE_SETOPTIONS once for same pidfd-backed PID with data exactly setoptions_mask = TRACEEXEC|TRACEEXIT|EXITKILL. Missing/extra substituted mask or syscall failure is PROBE_AUTHORITY.",
+    "event_predicate": "For each trace event, waitpid returns child_pid; WIFSTOPPED is true; WSTOPSIG is SIGTRAP; event = (raw_status >> 16) & 0xffff.",
+    "exec_event": "Exactly first traced event after initial continuation is PTRACE_EVENT_EXEC. exec_event_count becomes one. While stopped, authenticate /proc/<pid>/exe exact fstat/mode/size/SHA-256 against retained sealed memfd and external executable pin before request delivery.",
+    "exit_event": "After request and continued execution, require exactly one PTRACE_EVENT_EXIT and no second exec or unexpected stop. At this stop call PTRACE_GETEVENTMSG for same PID into an unsigned-long parent buffer, record exit_event_message, set exit_event_count to one and PTRACE_CONT exactly once.",
+    "terminal_order": ["waitid(P_PIDFD, retained pidfd, WEXITED|WNOWAIT)", "waitpid(child_pid, 0)", "same PID and one reap", "decode terminal status", "compare exit event message semantics with waitid and raw waitpid status", "rehash streams and retained memfd/seals"],
+    "normal_exit_consistency": "For canonical exit 0: event message decodes as normal exit 0, waitid.si_pid equals child_pid, waitid.si_code equals CLD_EXITED, waitid.si_status equals 0, waitpid returns child_pid, WIFEXITED(raw) and WEXITSTATUS(raw)==0. Noncanonical terminal state is PROBE_AUTHORITY.",
+    "evidence_keys": ["child_pid", "closed_world", "event_sequence", "exec_event_count", "exit_event_count", "exit_event_message", "image_fstat", "image_sha256", "memfd_fstat_after", "memfd_fstat_before", "memfd_seals_after", "memfd_seals_before", "memfd_sha256_after", "memfd_sha256_before", "pidfd_identity", "raw_wait_status", "schema", "stderr_len", "stderr_sha256", "stdout_len", "stdout_sha256", "waitid_code", "waitid_pid", "waitid_status", "waitpid_pid"],
+    "evidence_schema": "p1348-parent-probe-trace-evidence-r1",
+    "event_sequence_exact": ["INITIAL_SIGSTOP", "PTRACE_EVENT_EXEC", "PTRACE_EVENT_EXIT", "TERMINAL_WAIT"],
+    "detach_rule": "Parent never calls PTRACE_DETACH and remains tracer through terminal wait. Detach at exec stop, before EXIT, at EXIT, tracer loss, terminal without prior EXIT, second EXEC or sibling status is PROBE_AUTHORITY.",
+    "unknown_gate": "Only after exec_event_count==1, exit_event_count==1, exact sequence/status/image/pipes/memfd postconditions and inherited primitive checks may canonical opaque payload be Unknown/OPAQUE_PAYLOAD."
+  },
+  "adapter_boundary_binding": {
+    "authorship_order": "P1348 oracle and adversarial suite hashes freeze before P1348 adapter authorship. Adapter consumes both and cannot modify their expected vectors.",
+    "p04_operation": ["capture original_open = checker.os.open and every other patched object in the same swap-after-exec-stop function scope", "define closures only after capture", "install patches inside try", "invoke the canonical checker API exactly once", "restore every captured object in finally", "identity-compare restoration before returning"],
+    "blocker_schema_keys": ["adapter_sha256", "case_id", "closed_world", "exception_message_sha256", "exception_phase", "exception_type", "inputs", "regime", "restoration", "revision", "role", "schema", "step", "verdict"],
+    "blocker_schema": "p1348-adapter-exception-blocker-r1",
+    "blocker_verdict": "ADAPTER_EXCEPTION_BLOCKS_INTEGRATION",
+    "exception_rule": "Any exception from import/setup/mutation/invocation/cleanup/restoration produces the canonical blocker and aborts the run. It yields no case classification/reason and cannot enter numerator/denominator as a killed negative.",
+    "restoration_keys": ["attempted", "failures", "identity_matches", "restored"],
+    "no_fabrication": "Adapter never constructs parent transaction, registry state/tag, wait observations, validator reason, ptrace event/message, classification or witness."
+  },
+  "authority_and_artifact_binding": {
+    "causal_order": ["protected P1348/P1347 inputs", "P1348 contract spec/binding/receipt", "independent oracle and adversary freeze", "P1348 adapter plus authorship receipt", "delivery receipt", "out-of-band delivery SHA-256", "independent verifier", "limited preseal or blocker"],
+    "root_formulas": {
+      "contract_root_sha256": "SHA-256(RFC8785([\"p1348-contract-root-r1\", step_p1348_sha256, step_p1347_sha256, p1347_blocker_sha256, p1347_contract_spec_sha256, p1347_contract_binding_sha256, p1347_contract_receipt_sha256, p1348_contract_spec_sha256, p1348_contract_binding_sha256]))",
+      "execution_authority_root_sha256": "SHA-256(RFC8785([\"p1348-execution-authority-root-r1\", contract_root_sha256, oracle_checker_sha256, oracle_caller_sha256, oracle_authorship_receipt_sha256, adversary_suite_sha256, adversary_authorship_receipt_sha256, adapter_sha256, adapter_authorship_receipt_sha256]))",
+      "delivery_root_sha256": "SHA-256(RFC8785([\"p1348-delivery-root-r1\", execution_authority_root_sha256, caller_sha256, checker_sha256, adversary_suite_sha256, adapter_sha256]))"
+    },
+    "external_anchor": "Verifier receives P1348 delivery-receipt whole-file SHA-256 out of band, validates its closed schema and walks every predecessor before import or execution. No artifact self-pins or consumes a successor.",
+    "classification_owner": "Only verifier derives case classification from authenticated raw checker/validator observations. Oracle, adversary, adapter, corpus and receipts do not supply accepted answers."
+  },
+  "focal_binding": {
+    "ten_replays": [
+      ["P1347-I04-forged-dag-worker", "Violated", "DAG_VALIDATOR"],
+      ["P1347-W11-pid-sibling", "Violated", "WORKER_AUTHORITY"],
+      ["P1347-W16-partial-stdout", "Violated", "WORKER_AUTHORITY"],
+      ["P1347-W17-extra-stdout-line", "Violated", "WORKER_AUTHORITY"],
+      ["P1347-W21-challenge-replay", "Violated", "WORKER_AUTHORITY"],
+      ["P1347-D01-labels-without-validator", "Violated", "DAG_VALIDATOR"],
+      ["P1347-D03-mutant-provided-anchor", "Violated", "AUTHORITY_ROOT"],
+      ["P1347-D06-coordinated-anchor-substitution", "Violated", "AUTHORITY_ROOT"],
+      ["P1347-P04-swap-after-exec-stop", "Violated", "PROBE_AUTHORITY"],
+      ["P1347-P17-tracer-detached", "Violated", "PROBE_AUTHORITY"]
+    ],
+    "new_negative_variants": [
+      ["P1348-X01-coordinated-pid-pidfd-substitution", "WORKER_AUTHORITY"],
+      ["P1348-X02-stale-terminated-or-reused-pid", "WORKER_AUTHORITY"],
+      ["P1348-X03-same-identity-double-validation", "WORKER_AUTHORITY"],
+      ["P1348-X04-validation-order-swap", "WORKER_AUTHORITY"],
+      ["P1348-X05-failure-before-registry-commit", "original failure; registry remains unconsumed"],
+      ["P1348-X06-failure-after-registry-commit", "integration blocker; identity remains consumed and cannot be reopened"],
+      ["P1348-X07-payload-or-adapter-registry", "WORKER_AUTHORITY"],
+      ["P1348-X08-superficially-valid-dag-self-answer", "DAG_VALIDATOR"],
+      ["P1348-X09-validator-authority-root-altered-stream", "WORKER_AUTHORITY if stream authenticity fails, otherwise AUTHORITY_ROOT pass-through"],
+      ["P1348-X10-traceexit-option-removed", "PROBE_AUTHORITY"],
+      ["P1348-X11-detach-at-exec-stop", "PROBE_AUTHORITY"],
+      ["P1348-X12-detach-before-exit-event", "PROBE_AUTHORITY"],
+      ["P1348-X13-terminal-without-exit-event", "PROBE_AUTHORITY"],
+      ["P1348-X14-second-exec-before-exit", "PROBE_AUTHORITY"]
+    ],
+    "adapter_meta_test": ["P1348-X15-historical-original-open-nameerror", "must emit ADAPTER_EXCEPTION_BLOCKS_INTEGRATION under historical adapter; repaired adapter control must complete without exception and allow P04 to produce PROBE_AUTHORITY"],
+    "release_order": ["ten replays plus new variants", "39 previously killed P1347 focals", "181 P1346 replays plus eleven controls"],
+    "acceptance": "Zero valid survivors at each slice, exact reasons, no adapter blocker in the candidate adapter run, score 1.0, zero regressions, normal/repeat/reverse deterministic with fresh identities, transport Unknown zero and only authenticated canonical probe Unknown."
+  },
+  "forbidden_bindings": [
+    "validate_worker accepting a public evidence dictionary instead of an internal transaction handle/record.",
+    "Any child_pid, pidfd, pipe, waitid or waitpid field independently replaceable without internal transaction failure.",
+    "Registry supplied/reset by worker, corpus, adapter or receipt; replay accepted; failure consuming a fresh identity; concurrent/reordered commit not rejected.",
+    "Partial/extra stdout classified SCHEMA, DAG answer channel classified SCHEMA, or validator AUTHORITY_ROOT collapsed into DAG_VALIDATOR.",
+    "PTRACE_SETOPTIONS without TRACEEXEC|TRACEEXIT|EXITKILL, terminal wait without exactly one EXIT event, detach before terminal, second exec or payload parse before lifecycle completion.",
+    "Adapter exception converted to expected case result, missing same-scope original_open capture, restoration outside finally or failed restoration ignored.",
+    "Oracle/adversary/adapter self-judgment, internal trust anchor, protected-input rewrite or weakening of any P1347/P1346/P1345 obligation.",
+    "Full corpus, RED, productive candidate, 38-capsule implementation, L0/consumer change, final certificate or general-equivalence claim."
+  ],
+  "budget_and_stop": {
+    "contract_revision_consumed": 0,
+    "contract_revisions_remaining": 1,
+    "oracle_revisions_max": 2,
+    "adapter_revisions_max": 1,
+    "adversary_revisions_max": 2,
+    "author_full_runs": 0,
+    "full_runs": 0,
+    "candidate_runs": 0,
+    "stop": "Two revisions without causal gain, any survivor, score below 1.0, reason relaxation, regression, protected drift, adapter exception/fabrication, missing complete tracing, freshness ambiguity, transport Unknown, static-gate failure or scope expansion blocks P1348."
+  },
+  "closed_metadata": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "protected_inputs", "composition", "parent_transaction_binding", "freshness_registry_binding", "reason_precedence_binding", "trace_lifecycle_binding", "adapter_boundary_binding", "authority_and_artifact_binding", "focal_binding", "forbidden_bindings", "budget_and_stop", "closed_metadata"],
+    "rule": "Exactly these top-level keys in this order. All process bindings, registry transitions/commit order, reason precedence, ptrace options/events/statuses, adapter blocker behavior, focal vectors and budgets are closed. Duplicate/unknown keys or alternate transport is invalid."
+  }
+}

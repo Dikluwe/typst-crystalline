@@ -1,0 +1,130 @@
+{
+  "schema": "p1348-process-freshness-trace-contract-r1",
+  "step": 1348,
+  "revision": 1,
+  "role": "independent_contract_author",
+  "executor": "/root/p1346_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "CONTRACT_CANDIDATE_NOT_VERIFIED_NOT_SEALED",
+  "revision_budget": "Initial P1348 contract. One revision remains only for a newly measured contract failure class. This authority runs focal=0, full=0, ptrace=0 and candidate=0.",
+  "protected_inputs": {
+    "step_p1348": ["00_nucleo/materialization/typst-passo-1348.md", "4254d294e71427c7dd54ab28db674d7b20174e560bd4882bf3413dae217224c7"],
+    "step_p1347": ["00_nucleo/materialization/typst-passo-1347.md", "c848a04d9bc3aaa9ed935ea8fef6e615cdb77a0533c13d0fcd62ef1a87ab9a1c"],
+    "p1347_verifier_blocker_r1": ["00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json", "3b649ced677059a459262710ce3466cb2efbd69edbfb6e60c98df07cffa64522"],
+    "p1347_contract_spec_r1": ["00_nucleo/diagnosticos/p1347-contract-spec-r1.json", "fac6e30c7bbee3b50eec6cad8c8a9a8b30f3c09027f63293e73b4bf2341db0ea"],
+    "p1347_contract_binding_r1": ["00_nucleo/diagnosticos/p1347-contract-binding-r1.json", "de1dcc87e77ab5fd6c8395fa4faacfd74fd90769dcafb5d2ef5c0bd30fda5fd1"],
+    "p1347_contract_receipt_r1": ["00_nucleo/diagnosticos/p1347-contract-receipt-r1.json", "85c6ad312cf9ac83ff653e2a19ac96fdd9e29ad72d2eb4af90fe8fff14fafb1d"],
+    "p1347_oracle_checker_r2": ["00_nucleo/diagnosticos/p1347-oracle-checker-r2.py", "9aa0e93591195eac7ddb67069abecbcf0722abeddd9e955fc062804a89d16ce5"],
+    "p1347_verifier_adapter_r1": ["00_nucleo/diagnosticos/p1347-verifier-adapter-r1.py", "cc71d74b85b14e6624aae53630f25a3c5fe34724cab7d62222f84377d6845a7a"],
+    "p1347_adversary_suite_r1": ["00_nucleo/diagnosticos/p1347-adversary-suite-r1.py", "d51fa54da1c68dcc5c812847b90097dfe94f1b4eb83f1009294230eb5f37dd4c"]
+  },
+  "measured_blocker": {
+    "focal": "Outside the sandbox with ptrace available, normal/repeat/reverse produced projection SHA-256 327a3c1889bf6170cfc8f995412c2f2f2c0012c1ae1a936b20007c03da799015. Of 49 valid negatives, 39 matched classification and reason, ten survived; score 39/49 = 0.7959183673469388. Replays, controls and full remained zero.",
+    "survivors": ["P1347-I04-forged-dag-worker", "P1347-W11-pid-sibling", "P1347-W16-partial-stdout", "P1347-W17-extra-stdout-line", "P1347-W21-challenge-replay", "P1347-D01-labels-without-validator", "P1347-D03-mutant-provided-anchor", "P1347-D06-coordinated-anchor-substitution", "P1347-P04-swap-after-exec-stop", "P1347-P17-tracer-detached"],
+    "failure_classes": [
+      "Parent evidence fields can be substituted independently because validation does not bind child_pid to the actual pidfd, waitid, waitpid and pipe observation transaction.",
+      "Challenge/nonce/invocation identity is not consumed once in a parent-owned verification-session registry.",
+      "Worker framing and DAG validator reason codes are collapsed into generic SCHEMA or DAG_VALIDATOR instead of preserving the frozen first cause.",
+      "Tracing validates one exec event but does not require TRACEEXIT, exactly one exit event and continued attachment through terminal wait.",
+      "The P04 adapter mutation raises NameError because original_open is absent in its lexical operation scope."
+    ],
+    "repair_hypothesis": "Make process observation an unforgeable in-session parent transaction, reserve then atomically consume execution identity only after complete validation, encode an exact phase-local reason precedence, require one EXEC plus one EXIT event with EXITKILL, and treat every adapter exception as an integration blocker rather than a case result."
+  },
+  "normative_composition": {
+    "failed_baseline": "P1347 is composed only as a failed immutable transport baseline. Its exact 122-case identity, answer-free mutation DAG, direct-FD loaded-image authentication and complete inherited P1346/P1345 semantic/source/runtime contract remain normative except for the four measured repairs below.",
+    "preserved": [
+      "exact 122 inherited IDs and e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907 sequence digest",
+      "38 capsules, twelve consumers, 2,506 canonical tokens, twelve-file inverse normalization and nineteen runtime rows/hooks",
+      "answer-free worker receipts, parent-launched real validator and original external trust anchor",
+      "direct sealed-FD exec and /proc/<pid>/exe hash/stat/size attestation at exactly one exec stop",
+      "strict canonical JSON, no self-judgment, single authenticated opaque Unknown and all P1347/P1346/P1345 scope exclusions"
+    ],
+    "replaced_only": ["parent process observation binding", "freshness registry state machine", "reason-code decision precedence", "trace lifetime through one exit event", "new adapter operational exception boundary"],
+    "semantic_scope_delta": "NONE"
+  },
+  "parent_process_binding": {
+    "unit": "The authoritative object is a parent-internal ParentProcessTransaction, not a caller-provided dictionary. It is created before fork, populated only from local syscall return values and dedicated descriptors, validated and sealed in the same checker activation, then projected to JSON as output-only evidence. validate_worker does not accept evidence JSON as an authority input.",
+    "pid": "child_pid is the strict positive integer returned in the parent branch by the exact fork/spawn call. It is never read from stdout, adapter, corpus, receipt or a mutable projected evidence object.",
+    "pidfd": "Parent immediately calls pidfd_open(child_pid, 0), records fd identity from fstat, and retains that exact open descriptor until terminal observation completes. A supplied/reopened/substituted pidfd is invalid.",
+    "pipes": "Before fork, parent records fstat identities for both endpoints of each dedicated stdin/stdout/stderr pipe. Child maps only the intended endpoints to 0/1/2; parent closes child endpoints; child closes parent endpoints and unrelated descriptors. Parent accepts bytes only from its retained read endpoints and records exact device/inode/mode, length and SHA-256.",
+    "terminal": "After streams close, parent executes waitid(P_PIDFD, retained_pidfd, WEXITED|WNOWAIT) and then waitpid(child_pid, 0). Require waitid.si_pid == child_pid, waitpid return == child_pid, waitid code/status consistent with raw wait status, and exactly one terminal reap. PID reuse, sibling PID, status mixing, absent wait or disagreement is WORKER_AUTHORITY.",
+    "internal_seal": "Before returning any public result, canonicalize the complete syscall-derived tuple and authenticate it under a fresh parent-session secret plus an opaque transaction identifier stored only in the parent registry. Any replacement of child_pid, pidfd identity, pipe identity, stream digest/length, waitid tuple or raw wait status after capture breaks the internal equality/tag and is WORKER_AUTHORITY.",
+    "payload_pid": "Canonical worker payload contains no pid. If an attack injects pid, bool/string/zero/negative or any extra field, the intact transport reaches closed-envelope validation and returns SCHEMA. A well-typed PID substituted in parent evidence is WORKER_AUTHORITY because it cannot match the internal transaction.",
+    "framing": "Zero, truncated or partial stdout; missing terminal LF; more than one LF/value; bytes after the single canonical JSON record; output-limit breach; nonempty stderr; unexpected exit/signal/timeout; and stream length/digest mismatch are WORKER_AUTHORITY before JSON semantic parsing. Exactly one framed record with internal JSON/schema corruption reaches DUPLICATE_KEY or SCHEMA."
+  },
+  "freshness_registry": {
+    "ownership": "One registry is created by the independent parent verifier per verification session. Worker, case, corpus, adapter, receipt, environment and caller cannot initialize, serialize into, replace, clear or seed it. Normal/repeat/reverse share the session registry and use distinct identities and scheduled slots.",
+    "identity": "execution_identity = RFC8785([\"p1348-execution-identity-r1\", challenge_hex, invocation_nonce_hex, invocation_sha256, case_sequence_sha256, schedule_slot]); challenge and nonce are distinct fresh 32-byte parent values; all digests are canonical lowercase SHA-256.",
+    "state": "Each identity is exactly ABSENT, PENDING(parent_token, schedule_slot) or CONSUMED(commit_ordinal, identity_sha256). PENDING and parent_token are parent-memory-only. Consumed entries are append-only for the session.",
+    "begin": [
+      "Validate identity field types, formula and scheduled slot without reading worker output.",
+      "Under one parent-owned lock, require schedule_slot equals next_expected_slot and identity is absent from both pending and consumed sets.",
+      "Insert PENDING with an unpredictable parent token and release the lock. A concurrent or byte-identical second begin is WORKER_AUTHORITY."
+    ],
+    "commit": [
+      "Complete parent process binding, stream framing, strict canonical envelope, exact 122-ID sequence, invocation equality and challenge response validation.",
+      "Construct complete immutable parent evidence and its internal seal.",
+      "Under the same lock, require the exact PENDING token and unchanged next_expected_slot; atomically remove PENDING, append CONSUMED at the next ordinal and advance the schedule.",
+      "Only after commit may this execution return Preserved or contribute semantic observations. Replay after commit is WORKER_AUTHORITY before spawn or payload acceptance."
+    ],
+    "rollback": "Any failure before atomic commit removes only the matching PENDING entry under lock and leaves consumed entries, commit ordinals and next_expected_slot unchanged. The failed identity is not consumed. Failure while or after atomic commit does not reopen or delete a consumed identity; it blocks the run to prevent ambiguity.",
+    "digest": "registry_sha256 = SHA-256(RFC8785(ordered CONSUMED array of [commit_ordinal, schedule_slot, identity_sha256])). It is derived only after commit and recorded in parent evidence. Reordering two validation slots changes or rejects the schedule before commit.",
+    "fresh_orders": "Repeat and reverse never reuse challenge, nonce, invocation or identity and never replace/reset the registry. Their separately scheduled identities commit after prior ones; normalized outcome comparison excludes fresh byte values but includes registry ordinals and slot identities."
+  },
+  "reason_code_precedence": {
+    "adapter_meta_gate": "ADAPTER_EXCEPTION is not a classification reason. Any adapter import, setup, mutation, call, cleanup or restoration exception aborts integration and emits a blocker; it cannot count as Violated, satisfy an expected vector or be collapsed into another reason.",
+    "global_first_failure_order": ["AUTHORITY_ROOT", "PROTECTED_INPUT", "WORKER_AUTHORITY", "DAG_VALIDATOR", "DUPLICATE_KEY", "SCHEMA", "PATH", "MARKER", "ANCHOR", "OWNER_ADJACENCY", "NORMALIZATION", "TOKEN_COUNT", "TOKEN_DIVERGENCE", "RUSTFMT_GATE", "CARGO_OBSERVATION_GATE", "CARGO_NORMAL_GATE", "RUNTIME_AUTHORITY", "FRESH_INPUT", "RAW_CAUSAL", "PROBE_AUTHORITY", "PROBE_CHALLENGE", "OPAQUE_PAYLOAD", "PRESERVED"],
+    "worker_boundary": [
+      "Process/pidfd/wait/pipes/framing/status/freshness failure is WORKER_AUTHORITY before envelope parse.",
+      "With authentic complete framing, duplicate JSON keys are DUPLICATE_KEY and closed-schema/type/key/order violations are SCHEMA.",
+      "Injected payload PID is SCHEMA; substituted parent child_pid/pidfd/stream/status is WORKER_AUTHORITY.",
+      "Exact 122-ID omission/extra/duplicate/reorder/alias after valid framing is PROTECTED_INPUT."
+    ],
+    "dag_boundary": [
+      "Real validator AUTHORITY_ROOT is transported unchanged by checker and adapter and outranks DAG_VALIDATOR and SCHEMA.",
+      "A mutation receipt or worker path containing classification/reason/verdict/witness or skipping the real validator is DAG_VALIDATOR, even when it would also violate the generic closed schema.",
+      "Generic internal mutated-artifact schema failure is SCHEMA only if no earlier authority, worker transport or DAG self-judgment predicate applies.",
+      "DAG_VALIDATOR is used for real-validator absence or invalid mutation acceptance, never to collapse the validator's earlier AUTHORITY_ROOT."
+    ],
+    "probe_boundary": "Trace option/event/lifetime, loaded image, pidfd/status/pipes, memfd or second-exec failure is PROBE_AUTHORITY before probe JSON. Only after complete trace transport do DUPLICATE_KEY/SCHEMA/PROBE_CHALLENGE/OPAQUE_PAYLOAD apply.",
+    "required_survivor_reasons": {"P1347-I04-forged-dag-worker": "DAG_VALIDATOR", "P1347-W11-pid-sibling": "WORKER_AUTHORITY", "P1347-W16-partial-stdout": "WORKER_AUTHORITY", "P1347-W17-extra-stdout-line": "WORKER_AUTHORITY", "P1347-W21-challenge-replay": "WORKER_AUTHORITY", "P1347-D01-labels-without-validator": "DAG_VALIDATOR", "P1347-D03-mutant-provided-anchor": "AUTHORITY_ROOT", "P1347-D06-coordinated-anchor-substitution": "AUTHORITY_ROOT", "P1347-P04-swap-after-exec-stop": "PROBE_AUTHORITY unless adapter exception, which blocks the run", "P1347-P17-tracer-detached": "PROBE_AUTHORITY"}
+  },
+  "complete_trace_lifecycle": {
+    "options": "At the initial PTRACE_TRACEME SIGSTOP for the exact pidfd-backed child, parent calls PTRACE_SETOPTIONS once with exactly PTRACE_O_TRACEEXEC | PTRACE_O_TRACEEXIT | PTRACE_O_EXITKILL. Failure or omitted bit is PROBE_AUTHORITY.",
+    "exec": "Parent continues without request, observes exactly one SIGTRAP/PTRACE_EVENT_EXEC for the same PID, and while stopped reopens /proc/<pid>/exe and revalidates exact fstat/size/SHA-256 equality with retained sealed memfd and external executable pin. Only then it writes the probe request and continues.",
+    "running": "Parent remains the tracer. Every wait transition is for the same PID/pidfd. A second EXEC event, detach, tracer replacement/loss, sibling status, unexpected signal stop or terminal status before EXIT event is PROBE_AUTHORITY.",
+    "exit_event": "Parent must observe exactly one SIGTRAP/PTRACE_EVENT_EXIT after the single exec and before terminal status. While stopped it calls PTRACE_GETEVENTMSG, records the kernel exit-event message, event ordinal and PID, and continues the same process exactly once.",
+    "terminal": "After continuing from EXIT, parent first obtains waitid(P_PIDFD, pidfd, WEXITED|WNOWAIT), then waitpid(child_pid, 0). Require same PID, one reap, normal expected exit, exact consistency among PTRACE_GETEVENTMSG exit status, waitid code/status and raw waitpid status, and no additional event.",
+    "postconditions": "Only after terminal binding does parent drain/close dedicated streams, require empty stderr and exact stdout framing, rehash retained memfd and verify all seals/stat/size, then parse the primitive payload. Exactly one exec_event_count and one exit_event_count are recorded.",
+    "fail_closed": "Unavailable TRACEEXIT, GETEVENTMSG, pidfd/waitid, exec/exit event, proc image or any mismatch has no fallback and is Violated/PROBE_AUTHORITY. The opaque result is Unknown only after the entire lifecycle passes."
+  },
+  "adapter_contract": {
+    "causal_position": "P1348 adapter is authored only after independent oracle and adversarial suite are frozen. It applies frozen mutations and transports observed classification/reason; it never authors expectations or verdicts.",
+    "p04_repair": "Within the swap-after-exec-stop operation scope, bind original_open = checker.os.open before defining any closure that references it; install the patched open/write hooks inside try; restore every patched symbol to the captured object in finally on success or failure. The captured binding is operation-local and cannot rely on another branch's lexical variable.",
+    "exception_policy": "Catch adapter boundary exceptions only to record type, message digest, phase and restoration outcome in an integration-blocker artifact, then abort the run. Never convert NameError, AttributeError, OSError, assertion, cleanup error or unexpected exception into the case's expected classification/reason.",
+    "restoration": "After each operation, identity-compare every restored callable/object with its pre-mutation capture before the next case. Restoration failure is ADAPTER_EXCEPTION blocker and prevents further execution.",
+    "no_fabrication": "Adapter may mutate declared syscall/API boundaries but may not construct parent evidence, registry entries, validator reasons, ptrace events, exit messages, classifications or witnesses."
+  },
+  "attacks_controls_and_gates": {
+    "first_focal": "Execute exactly the ten P1347 survivors and P1348 variants for coordinated PID/pidfd, stale/reused PID, double validation and reordering, failure before/after registry commit, external registry injection, superficially valid DAG self-answer, altered validator streams with AUTHORITY_ROOT, removed TRACEEXIT, detach at exec or before exit, fabricated terminal, second exec and historical adapter exception.",
+    "release_order": "Zero first-focal survivors releases the other 39 P1347 focals; zero survivors then releases 181 P1346 replays and eleven P1347 controls. No later slice executes early.",
+    "acceptance": "Every valid negative is Violated with exact reason, except adapter exceptions which block without classification. Eleven controls pass; normal/repeat/reverse normalized projections match using fresh committed identities; mutation score is 1.0; transport Unknown is zero; only authenticated canonical probe is Unknown/OPAQUE_PAYLOAD.",
+    "static_gates": ["strict/canonical JSON and hashes/DAG", "Python source compile without bytecode output", "crystalline-lint --checks v5,v15,v26 .", "git diff --check"],
+    "execution_environment": "Temporary roots are /dev/shm. Ptrace-dependent decisive runs occur outside sandbox and record environment difference."
+  },
+  "budget_and_stop": {
+    "budget": {"contract_revisions_after_r1": 1, "oracle_revisions_max": 2, "adapter_revisions_max": 1, "adversary_revisions_max": 2, "author_full_runs": 0, "full_runs": 0, "candidate_runs": 0},
+    "stop": "Two revisions without causal gain, any survivor, score below 1.0, reason relaxation, regression, protected drift, adapter exception/fabrication, unavailable complete tracing, freshness ambiguity, transport Unknown or scope expansion blocks P1348 without waiver.",
+    "forbidden_progress": "No full corpus, RED, productive candidate, 38-capsule implementation or final certificate is authorized by P1348."
+  },
+  "scope": {
+    "claim": "Only the P1348 discriminatory transport refinement for bound process identity, consumable freshness, exact reasons, complete exec-to-exit tracing and adapter integrity.",
+    "excluded": ["L0 or productive consumer change", "full corpus", "RED", "productive candidate", "38 capsules", "final certificate", "general functional equivalence", "closure of P1339/P1340"],
+    "l0_change_required": false,
+    "adr_0127_stop_required": false
+  },
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "revision_budget", "protected_inputs", "measured_blocker", "normative_composition", "parent_process_binding", "freshness_registry", "reason_code_precedence", "complete_trace_lifecycle", "adapter_contract", "attacks_controls_and_gates", "budget_and_stop", "scope", "closed_world"],
+    "rule": "Exactly these top-level keys in this order. P1348 composes P1347 only as a failed immutable baseline and changes only the measured transport/adapter boundaries. Alternate evidence bindings, non-transactional freshness, reason collapse, missing EXIT event, adapter exception-as-result, semantic weakening or scope expansion is invalid."
+  }
+}
