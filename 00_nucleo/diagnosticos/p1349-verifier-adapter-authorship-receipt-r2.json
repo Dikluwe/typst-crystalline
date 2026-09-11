@@ -1,0 +1,87 @@
+{
+  "schema": "p1349-verifier-adapter-authorship-receipt-r2",
+  "step": 1349,
+  "revision": 2,
+  "role": "p1349_verifier_adapter_author",
+  "executor": "/root/p1347_adapter",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "AUTHORED_NOT_EXECUTED",
+  "protected_inputs": {
+    "adapter_r1": ["00_nucleo/diagnosticos/p1349-verifier-adapter-r1.py", "db800da93aedf7c34ec3b0c4018661b35d61d2edbe709c3cfb48e8a108caa861"],
+    "adapter_authorship_r1": ["00_nucleo/diagnosticos/p1349-verifier-adapter-authorship-r1.md", "51360d9843da7165b02461d5498f310211316cf3dc65c5b3ed3ba6a8b431232e"],
+    "adapter_receipt_r1": ["00_nucleo/diagnosticos/p1349-verifier-adapter-authorship-receipt-r1.json", "43ec959d289e18382e6cd05d53e053f52be93b80c0371477a78b487e98e9d49d"],
+    "verifier_blocker_r1": ["00_nucleo/diagnosticos/p1349-verifier-blocker-r1.json", "ebbeedae4cc9c1fff6462abe065fca58aa402c8b67d04d90b3bb48cbaf37b3c1"],
+    "oracle_checker_r2": ["00_nucleo/diagnosticos/p1349-oracle-checker-r2.py", "999971b4e25c6a44ae76542d0115d8304c3a8f28afbaf26bc1c9347db6edc267"],
+    "oracle_caller_r2": ["00_nucleo/diagnosticos/p1349-oracle-caller-r2.py", "4445f1a23a66ad2a0c19a67769cfb043541106bb81ded6e1a1e263d0da974c07"],
+    "oracle_authorship_r2": ["00_nucleo/diagnosticos/p1349-oracle-authorship-r2.md", "66fbda44ee8b94085c389770f699fc100461f141a5dadbdd3ed0574a982230f9"],
+    "oracle_authorship_receipt_r2": ["00_nucleo/diagnosticos/p1349-oracle-authorship-receipt-r2.json", "d95113d55015300108e5571fe29d6b83b17a34bc37aa7dfa01be04e934fb6ab8"],
+    "oracle_delivery_receipt_r2": ["00_nucleo/diagnosticos/p1349-oracle-delivery-receipt-r2.json", "219f6c23c2ba95592536fb5ab174a0d8f5243c76fab35a4057042f63234a4524"]
+  },
+  "outputs": {
+    "adapter_r2": ["00_nucleo/diagnosticos/p1349-verifier-adapter-r2.py", "f7cc942f4875817ccd965c9974c1f030ed6e9ab638a46689e6754181d8f47775"],
+    "authorship_r2": ["00_nucleo/diagnosticos/p1349-verifier-adapter-authorship-r2.md", "8b65a9e1a032e64afa7ef3dc034cc774da74d29bffaf475224ef79870c6febec"]
+  },
+  "oracle_r2_binding": {
+    "checker_sha256": "999971b4e25c6a44ae76542d0115d8304c3a8f28afbaf26bc1c9347db6edc267",
+    "caller_sha256": "4445f1a23a66ad2a0c19a67769cfb043541106bb81ded6e1a1e263d0da974c07",
+    "delivery_receipt_sha256": "219f6c23c2ba95592536fb5ab174a0d8f5243c76fab35a4057042f63234a4524",
+    "delivery_root_sha256": "5c2b5e15959bfd23f9627d3391e66c0e46c607a962ad0bfc3315770c3c5f4b81",
+    "paths_and_hashes_required_exactly": true,
+    "caller_chain_and_delivery_root_revalidated_before_future_use": true
+  },
+  "preserved_surface": {
+    "api_meta": "exercise_meta(case, targets)",
+    "api_focal": "exercise_focal(case, targets, exact_ids)",
+    "meta_cases": 2,
+    "focal_operation_names": 60,
+    "focal_valid_negatives": 254,
+    "controls": 11,
+    "supervisor_operations": 12,
+    "inherited_operations": 48,
+    "mapping_tables_equal_r1": true,
+    "missing_operation_names": [],
+    "extra_operation_names": []
+  },
+  "r2_delta": {
+    "x14_route": "inject_second_exec -> second_exec_external",
+    "p1349_s01_s11_operations": 11,
+    "p1349_s01_s11_supported_by_checker_r2": 11,
+    "blocker_only_operations": 0,
+    "checker_operation_table_exact_match": true,
+    "supervisor_or_adapter_exception_policy": "TERMINAL_INTEGRATION_BLOCKER_WITHOUT_REASON"
+  },
+  "validation": {
+    "python_compile_without_import": "PASS",
+    "mapping_ast_equality_r1_r2": "PASS",
+    "oracle_r2_operation_coverage": "PASS_12_OF_12",
+    "protected_input_hashes": "PASS",
+    "delivery_edges_and_declared_root_static": "PASS",
+    "git_diff_check_including_untracked": "PASS",
+    "adversary_read_or_executed": false,
+    "meta_runs": 0,
+    "focal_runs": 0,
+    "supervisor_runs": 0,
+    "ptrace_runs": 0,
+    "full_runs": 0,
+    "candidate_runs": 0
+  },
+  "provenance": {
+    "head": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted shared tree",
+    "measured_at": "2026-09-11T15:18:41-03:00",
+    "authored_paths": [
+      "00_nucleo/diagnosticos/p1349-verifier-adapter-r2.py",
+      "00_nucleo/diagnosticos/p1349-verifier-adapter-authorship-r2.md",
+      "00_nucleo/diagnosticos/p1349-verifier-adapter-authorship-receipt-r2.json"
+    ]
+  },
+  "limitations": [
+    "Static adapter authorship only; no adversary, meta, focal, supervisor, ptrace, full or candidate execution occurred.",
+    "Shared filesystem and inherited context prevent technical isolation attestation.",
+    "No score, survivor count, meta PASS, preseal or verifier verdict is claimed."
+  ],
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "protected_inputs", "outputs", "oracle_r2_binding", "preserved_surface", "r2_delta", "validation", "provenance", "limitations", "closed_world"],
+    "rule": "Exactly these top-level keys in this order. This receipt intentionally does not self-pin and records adapter R2 authorship only."
+  }
+}

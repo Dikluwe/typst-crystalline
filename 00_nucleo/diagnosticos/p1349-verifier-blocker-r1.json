@@ -1,0 +1,486 @@
+{
+  "schema": "p1349-verifier-blocker-r1",
+  "step": 1349,
+  "revision": 1,
+  "role": "independent_verifier",
+  "executor": "/root/p1347_verifier",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "BLOCKED_NOT_SEALED",
+  "claim_scope": "P1349 meta and G05 supervisor focal only",
+  "protected_inputs": {
+    "step_p1349": [
+      "00_nucleo/materialization/typst-passo-1349.md",
+      "071ee50547bab6dc86b84d630b6c501867967121234cce79ab8de14075973a81"
+    ],
+    "step_p1348": [
+      "00_nucleo/materialization/typst-passo-1348.md",
+      "4254d294e71427c7dd54ab28db674d7b20174e560bd4882bf3413dae217224c7"
+    ],
+    "step_p1347": [
+      "00_nucleo/materialization/typst-passo-1347.md",
+      "c848a04d9bc3aaa9ed935ea8fef6e615cdb77a0533c13d0fcd62ef1a87ab9a1c"
+    ],
+    "step_p1346_transitive": [
+      "00_nucleo/materialization/typst-passo-1346.md",
+      "33dc3b0f1f4772e9021a7fbe58803f52fa6c789337d662e2c85ce408031aee41"
+    ],
+    "contract_spec_r1": [
+      "00_nucleo/diagnosticos/p1349-contract-spec-r1.json",
+      "9b3363fe2c60d634a7547357217299a2fc610e04f3c0116b667ce23caf555335"
+    ],
+    "contract_binding_r1": [
+      "00_nucleo/diagnosticos/p1349-contract-binding-r1.json",
+      "3db25f33a5af2716b432788cd06e8ec527567584b803def215bd45cad06e29bd"
+    ],
+    "contract_receipt_r1": [
+      "00_nucleo/diagnosticos/p1349-contract-receipt-r1.json",
+      "6baf1c42baaea917035e0d54729dba9430c5799c5cd61212f5f31dbce33b6ef6"
+    ],
+    "adversary_suite_r1": [
+      "00_nucleo/diagnosticos/p1349-adversary-suite-r1.py",
+      "9f7320db878b16f7be0436b364b34a2f3fdc7ea6a8b34cfb50da0a38930a1703"
+    ],
+    "adversary_authorship_r1": [
+      "00_nucleo/diagnosticos/p1349-adversary-authorship-r1.md",
+      "ea364c7194fa2c3f9b15da2b53cac261cb4576e925713a2329e3d7b7484818b9"
+    ],
+    "adversary_authorship_receipt_r1": [
+      "00_nucleo/diagnosticos/p1349-adversary-authorship-receipt-r1.json",
+      "ec08d9406e3fbd993d750236e454b6d3f7210c11a1eddc31b1770f558af7b6a2"
+    ],
+    "authority_manifest_r1": [
+      "00_nucleo/diagnosticos/p1349-authority-manifest-r1.json",
+      "1d2b30fd83d78d1fada381f82062309cbe5eaba2a4d32665fa59872dd9c3c907"
+    ],
+    "oracle_corpus_r1": [
+      "00_nucleo/diagnosticos/p1349-oracle-corpus-r1.json",
+      "045af76f9540107bb633c8d2c904e726f96624ecf8e9a91d706b99f530c56803"
+    ],
+    "oracle_checker_r1": [
+      "00_nucleo/diagnosticos/p1349-oracle-checker-r1.py",
+      "f8e0311992e0e4973825a9b0ddbfaaea27e959f34bbcc4406ba5434ac1974843"
+    ],
+    "oracle_caller_r1": [
+      "00_nucleo/diagnosticos/p1349-oracle-caller-r1.py",
+      "747da52dc06b9ccf81242f059fc7eb599133de7bd25ab7800eaac89e86dc2579"
+    ],
+    "oracle_authorship_r1": [
+      "00_nucleo/diagnosticos/p1349-oracle-authorship-r1.md",
+      "c2a6de2bb138b3fca422a859c6f9dd9d8cadf4ffd19be914e70f5640fa8f9ba0"
+    ],
+    "oracle_authorship_receipt_r1": [
+      "00_nucleo/diagnosticos/p1349-oracle-authorship-receipt-r1.json",
+      "d72fc7bf73c7432ef2b64ebf6dbca6b22f5f452dfdf98da7018d2c86ff776feb"
+    ],
+    "oracle_delivery_receipt_r1_external_anchor": [
+      "00_nucleo/diagnosticos/p1349-oracle-delivery-receipt-r1.json",
+      "81fa483c5a8c2ccdb0a05a720378765438a77ab0bd18f3d88b8227ce0cb71c0b"
+    ],
+    "verifier_adapter_r1": [
+      "00_nucleo/diagnosticos/p1349-verifier-adapter-r1.py",
+      "db800da93aedf7c34ec3b0c4018661b35d61d2edbe709c3cfb48e8a108caa861"
+    ],
+    "verifier_adapter_authorship_r1": [
+      "00_nucleo/diagnosticos/p1349-verifier-adapter-authorship-r1.md",
+      "51360d9843da7165b02461d5498f310211316cf3dc65c5b3ed3ba6a8b431232e"
+    ],
+    "verifier_adapter_authorship_receipt_r1": [
+      "00_nucleo/diagnosticos/p1349-verifier-adapter-authorship-receipt-r1.json",
+      "43ec959d289e18382e6cd05d53e053f52be93b80c0371477a78b487e98e9d49d"
+    ],
+    "p1348_verifier_blocker_r1": [
+      "00_nucleo/diagnosticos/p1348-verifier-blocker-r1.json",
+      "e5b9e9423e2e3ad20064cbc20f2594e25396f7e1bffe20123a4f8392cb8501de"
+    ],
+    "p1347_verifier_blocker_r1": [
+      "00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json",
+      "3b649ced677059a459262710ce3466cb2efbd69edbfb6e60c98df07cffa64522"
+    ]
+  },
+  "hash_and_dag_validation": {
+    "whole_file_pins": "PASS",
+    "declared_pin_occurrences_checked": 100,
+    "unique_pinned_paths_checked": 40,
+    "artifact_dag": "PASS_ACYCLIC",
+    "suite_validate_authorship": "PASS",
+    "p1349_caller_validate_chain": "PASS",
+    "p1348_transitive_caller_validate_chain": "PASS",
+    "p1347_transitive_caller_validate_chain": "PASS",
+    "p1346_transitive_step_pin": "PASS",
+    "computed_contract_root_sha256": "5a66f9dd44051f4a90bf55b068388bfd9b65ce2f98dc6a25df94d7eb5d250500",
+    "contract_root_match": true,
+    "computed_oracle_authoring_root_sha256": "c73d35dd5c6df077b5312b1edcf30cdabdacc45b8c04b148722fb27b8cd09130",
+    "oracle_authoring_root_match": true,
+    "computed_oracle_delivery_root_sha256": "ac92151811fe26d6261ac24631777ca8498f57df42ed298c99afc6c4994a9c4d",
+    "oracle_delivery_root_match": true,
+    "computed_execution_authority_root_sha256": "4fe946fceee2c9f8af06b61e1a30ddbe87fa3ea0542d4b7553e11c11afeb9420",
+    "computed_delivery_root_sha256": "d101de5f36fe819385a2bb0bc870716bb187988d6b8198c0ba77fd816ad32f1c",
+    "external_delivery_anchor_match": true,
+    "canonical_case_count": 122,
+    "canonical_case_sequence_sha256": "e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907"
+  },
+  "execution": {
+    "entrypoint": "p1349-adversary-suite-r1.run_with_adapter",
+    "order": "normal",
+    "frozen_targets": {
+      "checker_sha256": "f8e0311992e0e4973825a9b0ddbfaaea27e959f34bbcc4406ba5434ac1974843",
+      "caller_sha256": "747da52dc06b9ccf81242f059fc7eb599133de7bd25ab7800eaac89e86dc2579",
+      "delivery_receipt_sha256": "81fa483c5a8c2ccdb0a05a720378765438a77ab0bd18f3d88b8227ce0cb71c0b"
+    },
+    "adapter_sha256": "db800da93aedf7c34ec3b0c4018661b35d61d2edbe709c3cfb48e8a108caa861",
+    "temporary_root": "/dev/shm",
+    "environment": "outside sandbox with ptrace and supervision enabled",
+    "runtime_result_sha256": "d0deb2b97bb2a9b90fac06acdd86db777303ad4649312e61f7374f842b0b731c",
+    "elapsed_ns": 119469077,
+    "meta_records_returned": 2,
+    "meta_passed": 2,
+    "meta_failed": 0,
+    "g05_records_returned": 12,
+    "g05_valid_classifications": 0,
+    "g05_integration_blockers": 12,
+    "other_p1348_focals_executed": 0,
+    "p1347_regressions_executed": 0,
+    "p1346_replays_executed": 0,
+    "controls_executed": 0,
+    "full_corpus_runs": 0,
+    "candidate_runs": 0,
+    "repeat_executed": false,
+    "reverse_executed": false,
+    "determinism_projection": "NOT_ELIGIBLE_G05_INTEGRATION_BLOCKER",
+    "mutation_score": null,
+    "release_rule": "Any focal integration_blocker is terminal and receives no classification, reason, survivor credit or score. Therefore no later slice or fresh order is authorized."
+  },
+  "meta_gate": {
+    "status": "PASS_2_OF_2",
+    "score_eligible": false,
+    "records": [
+      {
+        "case_id": "P1348-X06-failure-after-registry-commit",
+        "meta_status": "PASS",
+        "planned_blocker": "ADAPTER_EXCEPTION",
+        "postconditions": {
+          "identity_state": "CONSUMED",
+          "process_tree_empty": true,
+          "registry_commit_ordinal_unchanged": true,
+          "registry_digest_unchanged": true,
+          "reopened": false,
+          "restoration_identity": true,
+          "second_acceptance": false
+        }
+      },
+      {
+        "case_id": "P1348-X15-historical-original-open-nameerror",
+        "meta_status": "PASS",
+        "planned_blocker": "ADAPTER_EXCEPTION",
+        "planned_exception_type": "NameError",
+        "postconditions": {
+          "classification_absent": true,
+          "open_captured_before_patching": true,
+          "open_identity_before_equals_after": true,
+          "process_tree_empty": true,
+          "reason_code_absent": true,
+          "restoration_completed": true
+        }
+      }
+    ]
+  },
+  "decisive_blocker": {
+    "gate": "G05_SUPERVISOR_FOCAL",
+    "verdict": "FOCAL_TERMINAL_STOP",
+    "unexpected_integration_blockers": 12,
+    "classification": null,
+    "reason_code": null,
+    "score": null,
+    "external_supervisor_timeouts": 0,
+    "cleanup_all_records": {
+      "descendants_terminal": true,
+      "group_esrch": true,
+      "pidfds_closed": true,
+      "process_root_removed": true,
+      "reaped_executor": true
+    },
+    "x14_root_cause_attribution": {
+      "origin": "checker executor",
+      "source_artifact": "00_nucleo/diagnosticos/p1349-oracle-checker-r1.py",
+      "source_artifact_sha256": "f8e0311992e0e4973825a9b0ddbfaaea27e959f34bbcc4406ba5434ac1974843",
+      "source_location": "_x14_second_exec, line 388",
+      "raised_exception": "OracleFailure(PROBE_AUTHORITY, checker-owned terminal)",
+      "executor_stderr_exact": "OracleFailure:PROBE_AUTHORITY: checker-owned terminal",
+      "executor_stderr_sha256_recomputed": "e6b6b7f4363278f4c179bff904e7a82896ea86c31abf88f6f51c91e12dbc3bd5",
+      "observed_exception_message_sha256": "e6b6b7f4363278f4c179bff904e7a82896ea86c31abf88f6f51c91e12dbc3bd5",
+      "hash_match": true,
+      "checker_condition": "After the second EXEC and PTRACE_EVENT_EXIT, at least one checker-owned terminal predicate failed: WIFSIGNALED, SIGKILL, exit-event message equality with terminal status, or retained pidfd identity equality.",
+      "supervisor_attribution": "The checker supervisor completed in 30780575 ns, sent no external signal, reaped the executor, found the process group absent and closed pidfds. It encoded the nonzero checker-executor exit and stderr as ADAPTER_EXCEPTION/phase executor; this was not SUPERVISOR_TIMEOUT, SUPERVISOR_PROTOCOL, ORPHAN_PROCESS or cleanup failure.",
+      "adapter_attribution": "The adapter's supervisor route directly returned checker.supervise at lines 325-329. Its catch-and-wrap branch at lines 335-336 was not used because the observed cleanup/supervisor shape is the checker's integration_blocker schema, not the adapter _blocker shape. Therefore the ADAPTER_EXCEPTION label does not identify an adapter-originated exception here.",
+      "classification_effect": "X14 did not produce Violated/PROBE_AUTHORITY; checker-owned terminal verification failed inside the checker executor, so G05 is terminal with no score."
+    },
+    "s01_s11_root_cause_attribution": {
+      "origin": "checker executor",
+      "source_artifact": "00_nucleo/diagnosticos/p1349-oracle-checker-r1.py",
+      "source_artifact_sha256": "f8e0311992e0e4973825a9b0ddbfaaea27e959f34bbcc4406ba5434ac1974843",
+      "source_location": "_execute, line 430",
+      "raised_exception": "OracleFailure(SCHEMA, classification operation)",
+      "executor_stderr_exact": "OracleFailure:SCHEMA: classification operation",
+      "executor_stderr_sha256_recomputed": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+      "observed_exception_message_sha256_all_11": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+      "hash_match_all_11": true,
+      "cause": "The frozen checker implements only canonical, missing_traceexit, second_exec_external and raise_exception classification operations. Each S01-S11 operation reached the checker and fell through to the classification-operation schema failure."
+    },
+    "records": [
+      {
+        "case_id": "P1348-X14-second-exec-before-exit",
+        "expected_classification": "Violated",
+        "expected_reason_code": "PROBE_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "e6b6b7f4363278f4c179bff904e7a82896ea86c31abf88f6f51c91e12dbc3bd5",
+        "elapsed_ns": 30780575,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S01-second-exec-after-exit-event",
+        "expected_classification": "Violated",
+        "expected_reason_code": "PROBE_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 3188188,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S02-second-exec-deadline-edge",
+        "expected_classification": "Violated",
+        "expected_reason_code": "PROBE_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 2659264,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S03-second-exec-ignores-graceful-stop",
+        "expected_classification": "Violated",
+        "expected_reason_code": "PROBE_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 2668792,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S04-pidfd-diverges-after-handshake",
+        "expected_classification": "Violated",
+        "expected_reason_code": "WORKER_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 2669583,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S05-reused-pid-starttime-mismatch",
+        "expected_classification": "Violated",
+        "expected_reason_code": "WORKER_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 2605654,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S06-sibling-pidfd-stream-status",
+        "expected_classification": "Violated",
+        "expected_reason_code": "WORKER_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 2556422,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S07-detach-after-first-exec",
+        "expected_classification": "Violated",
+        "expected_reason_code": "PROBE_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 2539771,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S08-detach-at-exit-before-terminal",
+        "expected_classification": "Violated",
+        "expected_reason_code": "PROBE_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 3138005,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S09-mutant-anchor-authentic-streams",
+        "expected_classification": "Violated",
+        "expected_reason_code": "AUTHORITY_ROOT",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 2533569,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S10-valid-schema-self-answer",
+        "expected_classification": "Violated",
+        "expected_reason_code": "DAG_VALIDATOR",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 2880296,
+        "external_signal_sent": false
+      },
+      {
+        "case_id": "P1349-S11-unexpected-blocker-cannot-mask-second-exec",
+        "expected_classification": "Violated",
+        "expected_reason_code": "PROBE_AUTHORITY",
+        "observed_schema": "p1349-integration-blocker-r1",
+        "blocker_code": "ADAPTER_EXCEPTION",
+        "phase": "executor",
+        "exception_type": "OracleFailure",
+        "exception_message_sha256": "9dfd20f2ba89c9803e94d83005fe123971001f52487e973a7a0db27de24fed19",
+        "elapsed_ns": 2487504,
+        "external_signal_sent": false
+      }
+    ],
+    "why_blocking": "The frozen verifier rule makes every focal integration_blocker terminal. None of the twelve records is a p1349-classification-result-r1 with its expected classification and reason_code, so no survivor count or score exists and no later gate is released."
+  },
+  "frozen_api_observation": {
+    "adapter_authorship_status": "AUTHORED_WITH_FROZEN_API_INCOMPATIBILITY_NOT_EXECUTED",
+    "declared_missing_supervisor_operations": 11,
+    "declared_effect": "BLOCKS_CLASSIFICATION_OF_P1349_S01_THROUGH_S11",
+    "runtime_confirmation": "All S01-S11 returned terminal ADAPTER_EXCEPTION/OracleFailure rather than classifications. X14 also returned ADAPTER_EXCEPTION/OracleFailure and independently blocks G05."
+  },
+  "static_gates": {
+    "strict_json": {
+      "result": "PASS",
+      "files": 9
+    },
+    "python_syntax": {
+      "result": "PASS",
+      "files": 4,
+      "method": "ast.parse with PYTHONDONTWRITEBYTECODE=1"
+    },
+    "crystalline_lint_v5_v15_v26": "PASS_ZERO_VIOLATIONS",
+    "crystalline_lint_full": "PASS_EXIT_0_WITH_WARNINGS",
+    "git_diff_check": "PASS"
+  },
+  "provenance": {
+    "measured_at": "2026-09-11T15:01:17.115957-03:00",
+    "head": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted shared tree",
+    "git_diff_head_stat_sha256_before_output": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git_diff_head_binary_sha256_before_output": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git_status_porcelain_v1_z_sha256_before_output": "76cfb4bf73f87c2c2f634cdb5dbe2abf37085a943d777bdf0fb6c355c90a79cb",
+    "git_status_porcelain_entries_before_output": 57,
+    "git_status_porcelain_paths_before_output": [
+      "00_nucleo/diagnosticos/p1347-adversary-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1347-adversary-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1347-adversary-suite-r1.py",
+      "00_nucleo/diagnosticos/p1347-contract-binding-r1.json",
+      "00_nucleo/diagnosticos/p1347-contract-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1347-contract-spec-r1.json",
+      "00_nucleo/diagnosticos/p1347-oracle-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1347-oracle-authorship-r2.md",
+      "00_nucleo/diagnosticos/p1347-oracle-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1347-oracle-authorship-receipt-r2.json",
+      "00_nucleo/diagnosticos/p1347-oracle-blocker-r1.json",
+      "00_nucleo/diagnosticos/p1347-oracle-caller-r2.py",
+      "00_nucleo/diagnosticos/p1347-oracle-checker-r1.py",
+      "00_nucleo/diagnosticos/p1347-oracle-checker-r2.py",
+      "00_nucleo/diagnosticos/p1347-oracle-corpus-r1.json",
+      "00_nucleo/diagnosticos/p1347-oracle-delivery-receipt-r2.json",
+      "00_nucleo/diagnosticos/p1347-oracle-worker-r1.py",
+      "00_nucleo/diagnosticos/p1347-verifier-adapter-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1347-verifier-adapter-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1347-verifier-adapter-r1.py",
+      "00_nucleo/diagnosticos/p1347-verifier-blocker-r1.json",
+      "00_nucleo/diagnosticos/p1348-adversary-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1348-adversary-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1348-adversary-suite-r1.py",
+      "00_nucleo/diagnosticos/p1348-authority-manifest-r1.json",
+      "00_nucleo/diagnosticos/p1348-contract-binding-r1.json",
+      "00_nucleo/diagnosticos/p1348-contract-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1348-contract-spec-r1.json",
+      "00_nucleo/diagnosticos/p1348-oracle-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1348-oracle-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1348-oracle-caller-r1.py",
+      "00_nucleo/diagnosticos/p1348-oracle-checker-r1.py",
+      "00_nucleo/diagnosticos/p1348-oracle-corpus-r1.json",
+      "00_nucleo/diagnosticos/p1348-oracle-delivery-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1348-verifier-adapter-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1348-verifier-adapter-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1348-verifier-adapter-r1.py",
+      "00_nucleo/diagnosticos/p1348-verifier-blocker-r1.json",
+      "00_nucleo/diagnosticos/p1349-adversary-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1349-adversary-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1349-adversary-suite-r1.py",
+      "00_nucleo/diagnosticos/p1349-authority-manifest-r1.json",
+      "00_nucleo/diagnosticos/p1349-contract-binding-r1.json",
+      "00_nucleo/diagnosticos/p1349-contract-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1349-contract-spec-r1.json",
+      "00_nucleo/diagnosticos/p1349-oracle-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1349-oracle-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1349-oracle-caller-r1.py",
+      "00_nucleo/diagnosticos/p1349-oracle-checker-r1.py",
+      "00_nucleo/diagnosticos/p1349-oracle-corpus-r1.json",
+      "00_nucleo/diagnosticos/p1349-oracle-delivery-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1349-verifier-adapter-authorship-r1.md",
+      "00_nucleo/diagnosticos/p1349-verifier-adapter-authorship-receipt-r1.json",
+      "00_nucleo/diagnosticos/p1349-verifier-adapter-r1.py",
+      "00_nucleo/materialization/typst-passo-1347.md",
+      "00_nucleo/materialization/typst-passo-1348.md",
+      "00_nucleo/materialization/typst-passo-1349.md"
+    ],
+    "write_allowlist_observed": [
+      "00_nucleo/diagnosticos/p1349-verifier-blocker-r1.json"
+    ]
+  },
+  "not_emitted": [
+    "00_nucleo/diagnosticos/p1349-verifier-report-r1.json",
+    "00_nucleo/diagnosticos/p1349-verifier-report-r1.md",
+    "00_nucleo/diagnosticos/p1349-verifier-receipt-r1.json",
+    "00_nucleo/diagnosticos/p1349-preseal-r1.json"
+  ],
+  "scope_exclusions": [
+    "general functional equivalence",
+    "candidate",
+    "RED",
+    "full corpus",
+    "later focal slices",
+    "normal/repeat/reverse projection",
+    "final certificate"
+  ],
+  "closed_world": {
+    "rule": "This blocker records the terminal P1349 G05 integration failure and static gates only. It is not a verifier report, receipt, preseal, candidate assessment, RED result, survivor count, mutation score or general-equivalence claim."
+  }
+}

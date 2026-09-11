@@ -1,0 +1,104 @@
+{
+  "schema": "p1349-meta-classification-supervision-contract-receipt-r1",
+  "step": 1349,
+  "revision": 1,
+  "role": "independent_contract_author",
+  "executor": "/root/p1346_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-11T14:26:26,907338125-03:00",
+  "verdict": "P1349_CONTRACT_AUTHORED_NOT_VERIFIED_NOT_SEALED",
+  "verdict_scope": "Contract authorship only. Disjoint meta/classification domains, two disposable-process meta gates, terminal unexpected blockers, per-process deadlines/pidfds/sessions/kill-and-reap, timely X14 credit, separate counts and exact gate order are specified but not executed.",
+  "causal_predecessor": {
+    "verdict": "BLOCKED_NOT_SEALED",
+    "blocker": ["00_nucleo/diagnosticos/p1348-verifier-blocker-r1.json", "e5b9e9423e2e3ad20064cbc20f2594e25396f7e1bffe20123a4f8392cb8501de"],
+    "first_focal_records_returned": 25,
+    "stopped_at": "P1348-X06-failure-after-registry-commit",
+    "x06_outcome": "planned integration blocker observed but incorrectly shared the classification release path",
+    "x14_outcome": "did not terminate until KeyboardInterrupt; excluded from score",
+    "x15_outcome": "historical NameError integration blocker with restoration evidence",
+    "regression_runs": 0,
+    "full_runs": 0,
+    "candidate_runs": 0
+  },
+  "repository": {
+    "head": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted shared tree",
+    "status_porcelain_v1_z_sha256_before_receipt": "ca6b8ee37d94a2315b0436aabb47d26031987145012fe75fe6d4cd0b0ae4f830",
+    "status_porcelain_entries_before_receipt": 43,
+    "tracked_diff_binary_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tracked_diff_stat_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tracked_diff_stat": "empty"
+  },
+  "protected_inputs": {
+    "step_p1349": ["00_nucleo/materialization/typst-passo-1349.md", "071ee50547bab6dc86b84d630b6c501867967121234cce79ab8de14075973a81"],
+    "step_p1348": ["00_nucleo/materialization/typst-passo-1348.md", "4254d294e71427c7dd54ab28db674d7b20174e560bd4882bf3413dae217224c7"],
+    "step_p1347_transitive": ["00_nucleo/materialization/typst-passo-1347.md", "c848a04d9bc3aaa9ed935ea8fef6e615cdb77a0533c13d0fcd62ef1a87ab9a1c"],
+    "p1348_verifier_blocker_r1": ["00_nucleo/diagnosticos/p1348-verifier-blocker-r1.json", "e5b9e9423e2e3ad20064cbc20f2594e25396f7e1bffe20123a4f8392cb8501de"],
+    "p1348_contract_spec_r1": ["00_nucleo/diagnosticos/p1348-contract-spec-r1.json", "e9e3e10b069604f7bc45143da4625e728c34d6d3b7223c7fa9491173fa7131af"],
+    "p1348_contract_binding_r1": ["00_nucleo/diagnosticos/p1348-contract-binding-r1.json", "de05f7c3a33bae7e131bca1aec0774a1fc370cdb3a6f43d50b1e2d050db5785f"],
+    "p1348_contract_receipt_r1": ["00_nucleo/diagnosticos/p1348-contract-receipt-r1.json", "1f49bdd80627edb61f115da108eca0b4216050bd81aaba093839e051f31b0daf"],
+    "p1348_oracle_checker_r1": ["00_nucleo/diagnosticos/p1348-oracle-checker-r1.py", "fd1c4a0e1601ea817ffb92ad6723367083ac9f5c7a0f9bcecb155e9148764249"],
+    "p1348_adversary_suite_r1": ["00_nucleo/diagnosticos/p1348-adversary-suite-r1.py", "14f3f41b28cfaa927197f5b5767612833e38944a9db74fb9f5ace7ee9b32e30c"],
+    "p1348_verifier_adapter_r1": ["00_nucleo/diagnosticos/p1348-verifier-adapter-r1.py", "bcec1c05eed907ec3ea8f45c55940ee5244fe9498c731e66458b9817d946edfa"]
+  },
+  "outputs": {
+    "contract_spec": ["00_nucleo/diagnosticos/p1349-contract-spec-r1.json", "9b3363fe2c60d634a7547357217299a2fc610e04f3c0116b667ce23caf555335"],
+    "contract_binding": ["00_nucleo/diagnosticos/p1349-contract-binding-r1.json", "3db25f33a5af2716b432788cd06e8ec527567584b803def215bd45cad06e29bd"]
+  },
+  "contract_decision": {
+    "result_domains": "meta_result, classification_result and integration_blocker are pairwise-disjoint strict schemas and API channels. Meta success cannot be a semantic classification, and a blocker cannot enter mutation scoring.",
+    "meta_gate": "X06 and X15 run in that order in two independent disposable processes. Both exact planned blockers plus state/restoration/cleanup postconditions must become meta PASS; any other blocker is terminal.",
+    "supervision": "Each dangerous case has one parent supervisor, monotonic checker and outer deadlines, exact executor PID/pidfd/session/process group, pre-continuation descendant registration, dedicated pipes, and mandatory signal plus complete reap on timeout.",
+    "x14": "X14 is Violated/PROBE_AUTHORITY only if the checker detects the second exec and itself terminates/reaps within 8 seconds, with normal supervised completion by 12 seconds. External intervention is SUPERVISOR_TIMEOUT and receives no score credit.",
+    "counting": "Meta is reported as 2/2 separately. The classification base denominator is 243 before independently frozen P1349 variants; score uses only normally completed valid negatives. Unexpected blockers must equal zero.",
+    "gate_order": "Freeze -> independent oracle/adversary -> adapter -> meta 2/2 -> X14/supervisor variants -> remaining P1348 focals -> P1347 -> P1346/controls -> fresh schedules -> acceptance -> static -> limited preseal.",
+    "semantic_delta": "NONE"
+  },
+  "validation": {
+    "protected_hashes": "PASS",
+    "strict_duplicate_key_json": "PASS for spec, binding and receipt",
+    "closed_top_level_order": "PASS for spec, binding and receipt",
+    "binding_pins_spec": "PASS",
+    "receipt_pins_outputs": "PASS",
+    "canonical_schema_key_orders": "PASS",
+    "result_schema_pairwise_disjointness": "PASS",
+    "meta_allowlist_exactly_two": "PASS",
+    "deadline_order_and_x14_rule": "PASS",
+    "counts_and_score_separated": "PASS",
+    "artifact_dag_acyclic": "PASS",
+    "git_diff_check": "PASS",
+    "focal_runs": 0,
+    "full_runs": 0,
+    "ptrace_runs": 0,
+    "candidate_runs": 0,
+    "p1349_future_oracle_adversary_adapter_read_or_written": false,
+    "productive_code_modified": false,
+    "seal_created": false
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "shared_filesystem": true,
+    "inherited_context": true,
+    "read_allowlist": ["00_nucleo/materialization/typst-passo-1349.md", "00_nucleo/materialization/typst-passo-1348.md", "00_nucleo/materialization/typst-passo-1347.md as transitive pin", "00_nucleo/diagnosticos/p1348-verifier-blocker-r1.json", "00_nucleo/diagnosticos/p1348-contract-spec-r1.json", "00_nucleo/diagnosticos/p1348-contract-binding-r1.json", "00_nucleo/diagnosticos/p1348-contract-receipt-r1.json", "00_nucleo/diagnosticos/p1348-oracle-checker-r1.py", "00_nucleo/diagnosticos/p1348-adversary-suite-r1.py", "00_nucleo/diagnosticos/p1348-verifier-adapter-r1.py", "segregated-materialization skill and references previously loaded by this authority"],
+    "write_allowlist_observed": ["00_nucleo/diagnosticos/p1349-contract-spec-r1.json", "00_nucleo/diagnosticos/p1349-contract-binding-r1.json", "00_nucleo/diagnosticos/p1349-contract-receipt-r1.json"],
+    "forbidden_work_not_performed": "No P1349 oracle, adversary, adapter, implementation, focal, ptrace, test, seal, L0, consumer or candidate artifact was read, written or executed."
+  },
+  "budget": {
+    "contract_revision_consumed": 0,
+    "contract_revisions_remaining": 1,
+    "oracle_revisions_consumed": 0,
+    "adapter_revisions_consumed": 0,
+    "adversary_revisions_consumed": 0,
+    "full_runs_consumed": 0
+  },
+  "limitations": [
+    "Shared filesystem and inherited context prevent technical isolation attestation; segregation is authority/input/write-scope/order based.",
+    "No host capability, timeout, process-group cleanup or ptrace behavior was exercised by the contract author. Decisive execution must independently prove every supervisor and checker deadline predicate.",
+    "No discrimination, implementation, runtime, seal, productive-candidate or general-equivalence claim is made."
+  ],
+  "next_state": "P1349_ORACLE_AND_ADVERSARY_AUTHORSHIP_MAY_BEGIN_FROM_THESE_EXACT_CONTRACT_HASHES; ADAPTER_WAITS_FOR_BOTH_FREEZES; META_FOCAL_PRESEAL_FULL_RED_CANDIDATE_AND_CERTIFICATE_REMAIN_BLOCKED",
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "generated_at", "verdict", "verdict_scope", "causal_predecessor", "repository", "protected_inputs", "outputs", "contract_decision", "validation", "segregation", "budget", "limitations", "next_state", "closed_world"],
+    "rule": "Exactly these top-level keys in this order. This receipt intentionally does not self-pin and authorizes only downstream independent authorship from the exact output hashes."
+  }
+}
