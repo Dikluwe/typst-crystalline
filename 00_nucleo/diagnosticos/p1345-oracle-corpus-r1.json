@@ -1,0 +1,2146 @@
+{
+  "schema": "p1345-oracle-corpus-r1",
+  "step": 1345,
+  "revision": 1,
+  "role": "independent_oracle_author",
+  "regime": "executado sem atestacao de isolamento",
+  "protected_inputs": {
+    "step": [
+      "00_nucleo/materialization/typst-passo-1345.md",
+      "c2ef7ff7b0555a4f44ca6811ff3e687ef6d6a30f55e0cd106fba4118f3a18fb0"
+    ],
+    "manifest": [
+      "00_nucleo/diagnosticos/p1345-authority-manifest-r1.json",
+      "2ed02b31b39c6d588db7772cf932af40e344e87947662e12b7a8fe5c7e96b2c2"
+    ],
+    "freeze": [
+      "00_nucleo/diagnosticos/p1345-l0-toolchain-freeze-r1.json",
+      "9b1ed01ac9c7d0e5c5121906138fe4d4777ba2ce2982d0b89cafb2fef631bbf7"
+    ],
+    "inventory": [
+      "00_nucleo/diagnosticos/p1345-candidate-free-inventory-r1.md",
+      "fd4b4fa2f191bf8ba7267e48b643ff33d08a9d855a97879905f28cac429cb808"
+    ],
+    "baseline": [
+      "00_nucleo/diagnosticos/p1345-capsule-baseline-r1.json",
+      "e083f6b28d989afecf95d4b24d5483cef1d6bed45d5ce239f818156f56f05d08"
+    ],
+    "topology": [
+      "00_nucleo/diagnosticos/p1345-topology-receipt-r1.json",
+      "f4c18c856ab039ae6c99357442a97661425e2a135c87ce35194ecaaf9c571072"
+    ],
+    "p1344_contract": [
+      "00_nucleo/diagnosticos/p1344-contract-spec-r1.json",
+      "157877514d350947f6483ec371c356dd2181c2e0f98e8fa9eb5e465527983279"
+    ],
+    "p1344_binding": [
+      "00_nucleo/diagnosticos/p1344-contract-binding-r1.json",
+      "1f4d8812d0a4e2a9451d2f8c08931fb71e1baa54a3484a411d2cf76727115bab"
+    ],
+    "p1344_adversary_report": [
+      "00_nucleo/diagnosticos/p1344-adversary-report-r2.json",
+      "2c536123d13e3aa537d5c7071f2910bb5b502fdf14aea82eb931b875d9d6bf9f"
+    ],
+    "p1344_adversary_receipt": [
+      "00_nucleo/diagnosticos/p1344-adversary-receipt-r2.json",
+      "0c830744ffa6714599bc7c428277b1d37246db6d7815364b04044045752b7c4b"
+    ],
+    "contract_r1": [
+      "00_nucleo/diagnosticos/p1345-contract-spec-r1.json",
+      "816aea0c92bf95a37fccbcc3c937af889e4638cf39b96593ffc62ecf004e6d1a"
+    ],
+    "binding_r1": [
+      "00_nucleo/diagnosticos/p1345-contract-binding-r1.json",
+      "7b2451d5c290a0a4d3ad2ca4d54a0df93d39e861577aac5da7cd27f6d62417ad"
+    ],
+    "receipt_r1": [
+      "00_nucleo/diagnosticos/p1345-contract-receipt-r1.json",
+      "38b59f3952ee4e05d03ce0ff6151c9e23328093adcb4bbd76d36c6a99e6f7c85"
+    ],
+    "blocker": [
+      "00_nucleo/diagnosticos/p1345-oracle-contract-blocker-r1.md",
+      "5aa99f11d5b7b6cb23936f3a2c5888fbff0a658acbad158710cd0675753634b5"
+    ],
+    "blocker_receipt": [
+      "00_nucleo/diagnosticos/p1345-oracle-contract-blocker-receipt-r1.json",
+      "c6af354e667726824f7ac8b4ad9dec45d48aed8ca49ab4925b047d994439c1de"
+    ],
+    "contract_r2": [
+      "00_nucleo/diagnosticos/p1345-contract-spec-r2.json",
+      "f40c2b42fe83a4b75e276ab2ea8a9639fa1553e80c06581caf8c53d948f9d38d"
+    ],
+    "binding_r2": [
+      "00_nucleo/diagnosticos/p1345-contract-binding-r2.json",
+      "ecc3a8a403d9d14d51808a35876f1f43d7773732c1d20f58574dff42d5187778"
+    ],
+    "receipt_r2": [
+      "00_nucleo/diagnosticos/p1345-contract-receipt-r2.json",
+      "875f937affb30486c9f63fa0aaf84d1e9a6e93214a8fdfb95db320e76a6c14c2"
+    ],
+    "positive_fixture": [
+      "00_nucleo/diagnosticos/p1345-positive-fixture-r1.json",
+      "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12"
+    ],
+    "canonical_table": [
+      "00_nucleo/diagnosticos/p1345-canonical-capsule-table-r1.json",
+      "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+    ]
+  },
+  "case_order": [
+    "P1345-P01-exact-positive",
+    "P1345-P02-whitespace-positive",
+    "P1345-P03-comment-positive",
+    "P1345-HISTORY-P1344-A01-content-token-without-match",
+    "P1345-HISTORY-P1344-A02-content-counter-update-returns-absence",
+    "P1345-HISTORY-P1344-A03-content-helper-wrong-signature",
+    "P1345-HISTORY-P1344-A04-content-foreign-func-indirection",
+    "P1345-HISTORY-P1344-A05-counter-variant-tokens-without-match",
+    "P1345-HISTORY-P1344-A06-counter-set-step-return-presence",
+    "P1345-HISTORY-P1344-A07-counter-helper-wrong-signature",
+    "P1345-HISTORY-P1344-A08-counter-executes-callback",
+    "P1345-HISTORY-P1344-A09-func-helper-nonterminating",
+    "P1345-HISTORY-P1344-A10-func-helper-alternate-storage",
+    "P1345-HISTORY-P1344-A11-inherited-eval-helper-set-replaced",
+    "P1345-HISTORY-P1344-A12-direct-hook-extra-side-effect-argument",
+    "P1345-HISTORY-P1344-A13-comment-callee-decoy",
+    "P1345-HISTORY-P1344-A14-carrier-extra-eraser",
+    "P1345-HISTORY-P1344-A15-carrier-mutable-projection",
+    "P1345-HISTORY-P1344-A16-carrier-second-storage",
+    "P1345-HISTORY-P1344-A17-facade-substitutes-world",
+    "P1345-HISTORY-P1344-A18-observed-expression-nontermination",
+    "P1345-HISTORY-P1344-A19-string-owner-decoy",
+    "P1345-HISTORY-P1344-A20-escaped-duplicate-json-key",
+    "P1345-HISTORY-P1344-A21-alternate-corpus-and-digest",
+    "P1345-HISTORY-P1344-A22-unknown-without-dict-witness",
+    "P1345-HISTORY-P1344-A23-synthetic-candidate-runtime",
+    "P1345-HISTORY-P1344-R2A01-func-observer-token-decoys",
+    "P1345-HISTORY-P1344-R2A02-func-observer-foreign-receiver",
+    "P1345-HISTORY-P1344-R2A03-eval-exact-names-static-signatures",
+    "P1345-HISTORY-P1344-R2A04-eval-exact-names-shadow-storage",
+    "P1345-HISTORY-P1344-R2A05-carrier-aliased-non-vec-storage",
+    "P1345-HISTORY-P1344-R2A06-carrier-remove-outside-append",
+    "P1345-HISTORY-P1344-R2A07-carrier-pushes-in-dead-closure",
+    "P1345-HISTORY-P1344-R2A08-carrier-conditional-event-loss",
+    "P1345-HISTORY-P1344-R2A09-carrier-swap-remove-spelling",
+    "P1345-HISTORY-P1344-R2A10-facade-unlisted-lateral-call",
+    "P1345-HISTORY-P1344-R2A11-facade-fabricated-return-projection",
+    "P1345-HISTORY-P1344-R2A12-facade-product-call-dead-closure",
+    "P1345-HISTORY-P1344-R2A13-replacement-hook-under-if-false",
+    "P1345-HISTORY-P1344-R2A14-owner-parenthesized-with-lateral-call",
+    "P1345-HISTORY-P1344-R2A15-unknown-canonical-self-attestation",
+    "P1345-HISTORY-P1344-R2A16-escaped-duplicate-json-key",
+    "P1345-HISTORY-P1344-R2A17-alternate-corpus-root",
+    "P1345-CAPSULE-00-token-substitute",
+    "P1345-CAPSULE-01-token-substitute",
+    "P1345-CAPSULE-02-token-substitute",
+    "P1345-CAPSULE-03-token-substitute",
+    "P1345-CAPSULE-04-token-substitute",
+    "P1345-CAPSULE-05-token-substitute",
+    "P1345-CAPSULE-06-token-substitute",
+    "P1345-CAPSULE-07-token-substitute",
+    "P1345-CAPSULE-08-token-substitute",
+    "P1345-CAPSULE-09-token-substitute",
+    "P1345-CAPSULE-10-token-substitute",
+    "P1345-CAPSULE-11-token-substitute",
+    "P1345-CAPSULE-12-token-substitute",
+    "P1345-CAPSULE-13-token-substitute",
+    "P1345-CAPSULE-14-token-substitute",
+    "P1345-CAPSULE-15-token-substitute",
+    "P1345-CAPSULE-16-token-substitute",
+    "P1345-CAPSULE-17-token-substitute",
+    "P1345-CAPSULE-18-token-substitute",
+    "P1345-CAPSULE-19-token-substitute",
+    "P1345-CAPSULE-20-token-substitute",
+    "P1345-CAPSULE-21-token-substitute",
+    "P1345-CAPSULE-22-token-substitute",
+    "P1345-CAPSULE-23-token-substitute",
+    "P1345-CAPSULE-24-token-substitute",
+    "P1345-CAPSULE-25-token-substitute",
+    "P1345-CAPSULE-26-token-substitute",
+    "P1345-CAPSULE-27-token-substitute",
+    "P1345-CAPSULE-28-token-substitute",
+    "P1345-CAPSULE-29-token-substitute",
+    "P1345-CAPSULE-30-token-substitute",
+    "P1345-CAPSULE-31-token-substitute",
+    "P1345-CAPSULE-32-token-substitute",
+    "P1345-CAPSULE-33-token-substitute",
+    "P1345-CAPSULE-34-token-substitute",
+    "P1345-CAPSULE-35-token-substitute",
+    "P1345-CAPSULE-36-token-substitute",
+    "P1345-CAPSULE-37-token-substitute",
+    "P1345-EDIT-token-extra",
+    "P1345-EDIT-token-absent",
+    "P1345-EDIT-token-reorder",
+    "P1345-EDIT-token-substitute",
+    "P1345-META-string_decoy",
+    "P1345-META-missing_marker",
+    "P1345-META-duplicate_marker",
+    "P1345-META-unknown_marker",
+    "P1345-META-nested_marker",
+    "P1345-META-anchor_change",
+    "P1345-META-outside_byte",
+    "P1345-META-wrong_owner",
+    "P1345-META-alternate_table",
+    "P1345-META-alternate_fixture",
+    "P1345-META-alternate_corpus",
+    "P1345-META-duplicate_json_key",
+    "P1345-META-path_escape",
+    "P1345-PROBE-probe_replay",
+    "P1345-PROBE-probe_missing",
+    "P1345-PROBE-probe_wrong_emitter",
+    "P1345-PROBE-probe_wrong_executable",
+    "P1345-PROBE-probe_bad_nonce_digest",
+    "P1345-PROBE-probe_bad_response",
+    "P1345-PROBE-probe_bad_nonce_hex",
+    "P1345-PROBE-probe_extra_stdout",
+    "P1345-O01-executed-opaque-probe"
+  ],
+  "cases": [
+    {
+      "case_id": "P1345-P01-exact-positive",
+      "input_kind": "synthetic_source",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "identity"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-P02-whitespace-positive",
+      "input_kind": "synthetic_source",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "whitespace",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-P03-comment-positive",
+      "input_kind": "synthetic_source",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "comment",
+        "capsule_id": "P1343-PIPE-SESSION-FIELD"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A01-content-token-without-match",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-PIPE-SUPPORT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_00"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A02-content-counter-update-returns-absence",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-PIPE-SESSION-FIELD",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_01"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A03-content-helper-wrong-signature",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-PIPE-SESSION-INIT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_02"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A04-content-foreign-func-indirection",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H01-ATTEMPT-OPEN",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_03"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A05-counter-variant-tokens-without-match",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H02-CONTEXT-DISPATCH",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_04"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A06-counter-set-step-return-presence",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H03-ATTEMPT-RESULT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_05"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A07-counter-helper-wrong-signature",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H00D-DISCOVERY",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_06"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A08-counter-executes-callback",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H00S-SELECTED",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_07"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A09-func-helper-nonterminating",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H16-RAW-FREEZE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_08"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A10-func-helper-alternate-storage",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-TEST-FACADE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_09"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A11-inherited-eval-helper-set-replaced",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-EVAL-CARRIER-FIELD",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_10"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A12-direct-hook-extra-side-effect-argument",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-EVAL-CARRIER-INIT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_11"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A13-comment-callee-decoy",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-EVAL-CARRIER-HELPERS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_12"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A14-carrier-extra-eraser",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H05-DICT-PRODUCTION",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_13"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A15-carrier-mutable-projection",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H06-BOUND-UPDATE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_14"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A16-carrier-second-storage",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H07-OCCURRENCE-CREATED",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_15"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A17-facade-substitutes-world",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H06-STATIC-UPDATE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_16"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A18-observed-expression-nontermination",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CARRIER-TYPES",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_17"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A19-string-owner-decoy",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H08-FUNC-FIELD",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_18"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A20-escaped-duplicate-json-key",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-CLOSURE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_19"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A21-alternate-corpus-and-digest",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-NATIVE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_20"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A22-unknown-without-dict-witness",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-NATIVE-NS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_21"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-A23-synthetic-candidate-runtime",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-NATIVE-ENGINE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_22"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A01-func-observer-token-decoys",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-NATIVE-ENGINE-NS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_23"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A02-func-observer-foreign-receiver",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-ELEMENT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_24"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A03-eval-exact-names-static-signatures",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-PLUGIN",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_25"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A04-eval-exact-names-shadow-storage",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H09-FUNC-WITH",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_26"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A05-carrier-aliased-non-vec-storage",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CARRIER-HELPERS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_27"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A06-carrier-remove-outside-append",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H10-ACTION-CARRIER-CLONE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_28"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A07-carrier-pushes-in-dead-closure",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H11-OCCURRENCE-WALKED",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_29"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A08-carrier-conditional-event-loss",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H12A-REPLAY-ENTER",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_30"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A09-carrier-swap-remove-spelling",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H12B-REPLAY-CALL",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_31"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A10-facade-unlisted-lateral-call",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H12B-REPLAY-EXIT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_32"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A11-facade-fabricated-return-projection",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H13-FUNC-DISPATCH",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_33"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A12-facade-product-call-dead-closure",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H14-WITH-EDGE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_34"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A13-replacement-hook-under-if-false",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H15-SYNTAX-BODY",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_35"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A14-owner-parenthesized-with-lateral-call",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1344-CONTENT-CARRIER-HELPERS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_36"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A15-unknown-canonical-self-attestation",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1344-COUNTER-UPDATE-CARRIER-HELPERS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_37"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A16-escaped-duplicate-json-key",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-PIPE-SUPPORT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_38"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-HISTORY-P1344-R2A17-alternate-corpus-root",
+      "input_kind": "p1344_historical_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-PIPE-SESSION-FIELD",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_history_mutation_39"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-00-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-PIPE-SUPPORT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_00"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-01-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-PIPE-SESSION-FIELD",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_01"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-02-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-PIPE-SESSION-INIT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_02"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-03-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H01-ATTEMPT-OPEN",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_03"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-04-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H02-CONTEXT-DISPATCH",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_04"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-05-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H03-ATTEMPT-RESULT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_05"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-06-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H00D-DISCOVERY",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_06"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-07-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H00S-SELECTED",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_07"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-08-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H16-RAW-FREEZE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_08"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-09-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-TEST-FACADE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_09"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-10-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-EVAL-CARRIER-FIELD",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_10"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-11-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-EVAL-CARRIER-INIT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_11"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-12-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-EVAL-CARRIER-HELPERS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_12"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-13-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H05-DICT-PRODUCTION",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_13"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-14-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H06-BOUND-UPDATE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_14"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-15-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H07-OCCURRENCE-CREATED",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_15"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-16-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H06-STATIC-UPDATE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_16"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-17-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CARRIER-TYPES",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_17"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-18-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H08-FUNC-FIELD",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_18"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-19-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-CLOSURE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_19"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-20-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-NATIVE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_20"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-21-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-NATIVE-NS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_21"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-22-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-NATIVE-ENGINE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_22"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-23-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-NATIVE-ENGINE-NS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_23"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-24-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-ELEMENT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_24"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-25-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CTOR-PLUGIN",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_25"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-26-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H09-FUNC-WITH",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_26"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-27-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-FUNC-CARRIER-HELPERS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_27"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-28-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H10-ACTION-CARRIER-CLONE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_28"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-29-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H11-OCCURRENCE-WALKED",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_29"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-30-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H12A-REPLAY-ENTER",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_30"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-31-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H12B-REPLAY-CALL",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_31"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-32-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H12B-REPLAY-EXIT",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_32"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-33-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H13-FUNC-DISPATCH",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_33"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-34-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H14-WITH-EDGE",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_34"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-35-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H15-SYNTAX-BODY",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_35"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-36-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1344-CONTENT-CARRIER-HELPERS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_36"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-CAPSULE-37-token-substitute",
+      "input_kind": "capsule_token_mutation",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1344-COUNTER-UPDATE-CARRIER-HELPERS",
+        "token_index": 1,
+        "replacement": [
+          "identifier",
+          "p1345_capsule_mutation_37"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-EDIT-token-extra",
+      "input_kind": "token_edit_class",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_extra",
+        "capsule_id": "P1343-H02-CONTEXT-DISPATCH",
+        "token_index": 2,
+        "replacement": [
+          "identifier",
+          "p1345_edit_mutation"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-EDIT-token-absent",
+      "input_kind": "token_edit_class",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_absent",
+        "capsule_id": "P1343-H02-CONTEXT-DISPATCH",
+        "token_index": 2,
+        "replacement": [
+          "identifier",
+          "p1345_edit_mutation"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-EDIT-token-reorder",
+      "input_kind": "token_edit_class",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_reorder",
+        "capsule_id": "P1343-H02-CONTEXT-DISPATCH",
+        "token_index": 2,
+        "replacement": [
+          "identifier",
+          "p1345_edit_mutation"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-EDIT-token-substitute",
+      "input_kind": "token_edit_class",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "token_substitute",
+        "capsule_id": "P1343-H02-CONTEXT-DISPATCH",
+        "token_index": 2,
+        "replacement": [
+          "identifier",
+          "p1345_edit_mutation"
+        ]
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-string_decoy",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "string_decoy",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-missing_marker",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "missing_marker",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-duplicate_marker",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "duplicate_marker",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-unknown_marker",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "unknown_marker",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-nested_marker",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "nested_marker",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-anchor_change",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "anchor_change",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-outside_byte",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "outside_byte",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-wrong_owner",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "wrong_owner",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-alternate_table",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "alternate_table",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-alternate_fixture",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "alternate_fixture",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-alternate_corpus",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "alternate_corpus",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-duplicate_json_key",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "duplicate_json_key",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-META-path_escape",
+      "input_kind": "source_or_authority_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "path_escape",
+        "capsule_id": "P1343-PIPE-SUPPORT"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-PROBE-probe_replay",
+      "input_kind": "probe_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "probe_replay"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-PROBE-probe_missing",
+      "input_kind": "probe_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "probe_missing"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-PROBE-probe_wrong_emitter",
+      "input_kind": "probe_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "probe_wrong_emitter"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-PROBE-probe_wrong_executable",
+      "input_kind": "probe_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "probe_wrong_executable"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-PROBE-probe_bad_nonce_digest",
+      "input_kind": "probe_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "probe_bad_nonce_digest"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-PROBE-probe_bad_response",
+      "input_kind": "probe_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "probe_bad_response"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-PROBE-probe_bad_nonce_hex",
+      "input_kind": "probe_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "probe_bad_nonce_hex"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-PROBE-probe_extra_stdout",
+      "input_kind": "probe_attack",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "probe_extra_stdout"
+      },
+      "probe_request": null
+    },
+    {
+      "case_id": "P1345-O01-executed-opaque-probe",
+      "input_kind": "opaque_probe",
+      "source_bundle": {
+        "fixture_sha256": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+        "table_sha256": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+      },
+      "runtime_bundle": null,
+      "mutation_recipe": {
+        "operation": "opaque_probe"
+      },
+      "probe_request": {
+        "probe_case_id": "P1345-O01-executed-opaque-probe",
+        "fresh_challenge_hex": "verifier_generated_at_execution",
+        "invocation_nonce_hex": "verifier_generated_at_execution"
+      }
+    }
+  ],
+  "budget": {
+    "cases": 107,
+    "historical_attacks": 40,
+    "capsule_token_mutations": 38,
+    "full_corpus_runs_by_author": 0,
+    "focal_case_ids": [
+      "P1345-P01-exact-positive",
+      "P1345-P02-whitespace-positive",
+      "P1345-P03-comment-positive",
+      "P1345-CAPSULE-00-token-substitute",
+      "P1345-EDIT-token-extra",
+      "P1345-EDIT-token-absent",
+      "P1345-EDIT-token-reorder",
+      "P1345-EDIT-token-substitute",
+      "P1345-META-duplicate_json_key",
+      "P1345-META-alternate_table",
+      "P1345-PROBE-probe_bad_nonce_digest",
+      "P1345-PROBE-probe_bad_response",
+      "P1345-O01-executed-opaque-probe"
+    ]
+  },
+  "closed_world": {
+    "top_level_keys": [
+      "schema",
+      "step",
+      "revision",
+      "role",
+      "regime",
+      "protected_inputs",
+      "case_order",
+      "cases",
+      "budget",
+      "closed_world"
+    ],
+    "case_keys": [
+      "case_id",
+      "input_kind",
+      "source_bundle",
+      "runtime_bundle",
+      "mutation_recipe",
+      "probe_request"
+    ],
+    "rule": "Answer-free closed corpus; classification and witness keys are forbidden."
+  }
+}

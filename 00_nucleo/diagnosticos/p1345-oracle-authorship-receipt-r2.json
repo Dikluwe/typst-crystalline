@@ -1,0 +1,30 @@
+{
+  "schema": "p1345-oracle-authorship-receipt-r2",
+  "step": 1345,
+  "revision": 2,
+  "role": "independent_oracle_author",
+  "regime": "executado sem atestacao de isolamento",
+  "artifact_hashes": {
+    "source_verifier_r2": "9434ca3f2191cade3207d236a553b76045a016a2770da243251dc5d2d9527250",
+    "corpus_r2": "3003e7577cbf99bdc50d8f14b44897e4556a8fd18f439ec07a1de96e72c94394",
+    "checker_r2": "8e2ff788526e0b04d3bce6624c4a1864c6f32a36fc3a35088b1bbf6118d1c6a0",
+    "authorship_md_r2": "365efbbc9b3256bfd075a08eec36369b92c74997d944345b147b36ad4641c205",
+    "fixture_r1": "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12",
+    "table_r1": "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f",
+    "probe_r1": "863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc"
+  },
+  "execution": {
+    "phase": "first-focal-oracle-revision-r2-no-full",
+    "pinned_adversarial_negatives": 80,
+    "positive_controls": 4,
+    "temporary_root": "/dev/shm/p1345-*",
+    "full_corpus_runs": 0,
+    "candidate_read_or_executed": false,
+    "measured_result": "80/80 negatives Violated; 4/4 controls Preserved; score 1.0; zero survivors"
+  },
+  "verdict": "FOCAL_AUTHORED_NOT_VERIFIED_NOT_SEALED",
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "regime", "artifact_hashes", "execution", "verdict", "closed_world"],
+    "rule": "Receipt of focal oracle authorship only. Expected checker, receipt and authoring-root hashes must be delivered out of band."
+  }
+}

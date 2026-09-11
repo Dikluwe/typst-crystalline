@@ -1,0 +1,216 @@
+{
+  "schema": "p1346-l0-toolchain-freeze-r1",
+  "step": 1346,
+  "revision": 1,
+  "role": "independent_baseline_author",
+  "executor": "/root/p1346_baseline",
+  "regime": "executado sem atestacao de isolamento",
+  "protected_inputs": {
+    "step": [
+      "00_nucleo/materialization/typst-passo-1346.md",
+      "7c7138a3aa6a94635216d5c5408d3835204804984e2dadca23973ab20263bc9e"
+    ],
+    "p1345_blocker_report": [
+      "00_nucleo/diagnosticos/p1345-blocker-final-r1.md",
+      "dc1424e7f3ac1b2a4990aeb803ca4bb57caf6d445a75fac5e06443d7a82658cc"
+    ],
+    "p1345_blocker_receipt": [
+      "00_nucleo/diagnosticos/p1345-blocker-final-receipt-r1.json",
+      "db4405e38c845bf7855175485903f23527fb95e4e8e8cf89fda3c134ffad269f"
+    ],
+    "probe_relocation_receipt": [
+      "00_nucleo/diagnosticos/p1346-probe-relocation-receipt-r1.json",
+      "b5ea227d33ec5272ad67ec1f3d99d1a5efe7f84792f69af449e3cc7a13a3e9db"
+    ]
+  },
+  "l0_consumer_pairs": [
+    {
+      "ordinal": 0,
+      "prompt": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "prompt_raw_sha256": "ee9b2fda742fd7744566d331b5b769c768ad1cba952c16be7d390de63fc3cc55",
+      "consumer": "03_infra/src/pipeline/context_stabilization.rs",
+      "consumer_sha256": "2f03c9e58856aa646245b5b1f7f6d41bdef21afd04f09c7c75eb88aa02aafa30",
+      "lineage_prompt_hash": "d7dc17f7",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 1,
+      "prompt": "00_nucleo/prompts/compiler/eval.md",
+      "prompt_raw_sha256": "580849e8e2ea07f7608b4a9a4b53f4dbf4de7f8ef8b71b75118c5738af0f7324",
+      "consumer": "01_core/src/compiler/eval/mod.rs",
+      "consumer_sha256": "8706947c64635f50703d921a02b17f321d77eeedb1250c33777fc44fa49fd0dd",
+      "lineage_prompt_hash": "a49a7e39",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 2,
+      "prompt": "00_nucleo/prompts/compiler/eval/bindings/value_methods.md",
+      "prompt_raw_sha256": "2a0febd236d47b7ffdd4b4ea8b2fc9ee6ebedabd03af62115f3f0d8f05859b07",
+      "consumer": "01_core/src/compiler/eval/bindings/value_methods.rs",
+      "consumer_sha256": "26865ce023519748af1c12388720be044b7ee55b322a4d8c7eebe2b21f89e36c",
+      "lineage_prompt_hash": "d6f1b198",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 3,
+      "prompt": "00_nucleo/prompts/compiler/stdlib/counter.md",
+      "prompt_raw_sha256": "a7739f41ecb4feb0bc6ef34fd967afa527c1d09523537bb8d77ba01eb6c38a89",
+      "consumer": "01_core/src/compiler/stdlib/counter.rs",
+      "consumer_sha256": "239561a4333f41752013d710545c4b7372eece4548f732c30db5bc394eca8220",
+      "lineage_prompt_hash": "3e3d8ca4",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 4,
+      "prompt": "00_nucleo/prompts/entities/func.md",
+      "prompt_raw_sha256": "1dc7ae588dfda6a09f05be5d49e5b2aaa2e17c02606c11f12575ed6eba6c8f87",
+      "consumer": "01_core/src/entities/func.rs",
+      "consumer_sha256": "02873c6812a9dc251929b5b0a8f037810d9358a7d56cfce387b3d33d472ce314",
+      "lineage_prompt_hash": "ff5c8d6c",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 5,
+      "prompt": "00_nucleo/prompts/entities/elements/counter_update.md",
+      "prompt_raw_sha256": "3a8cb1f636396b7390ef714927c140ac53b1e5c9dad906011557590b197435ea",
+      "consumer": "01_core/src/entities/elements/counter_update.rs",
+      "consumer_sha256": "d417085e919f175b7c92326130acfa7f7a531dd9c0392ab10448427a67b1ec7b",
+      "lineage_prompt_hash": "a08231be",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 6,
+      "prompt": "00_nucleo/prompts/compiler/introspect.md",
+      "prompt_raw_sha256": "13b5b3679e2a8c888a3057b08f40036438a68876da2666d028e363a62f0c90d2",
+      "consumer": "01_core/src/compiler/introspect.rs",
+      "consumer_sha256": "6d2de23b45f0fdedbb5b46645b97007adaff434bdca3b7f273bbe72e3a8c747c",
+      "lineage_prompt_hash": "58c61fd6",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 7,
+      "prompt": "00_nucleo/prompts/compiler/introspect/from_tags.md",
+      "prompt_raw_sha256": "04596c56980e9b6a8e377beb35ec39df89497a9acdb4771636b7878c8b7a9a87",
+      "consumer": "01_core/src/compiler/introspect/from_tags.rs",
+      "consumer_sha256": "92d87a5621401b0357082332b7994b601e358165dcce468d12202c8c891f6ec5",
+      "lineage_prompt_hash": "40b375f6",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 8,
+      "prompt": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "prompt_raw_sha256": "9d00297e839c5a399577bef6cf58956f1ea5b4479bc308c7a3e2ac771e9fa775",
+      "consumer": "01_core/src/compiler/eval/call_dispatch.rs",
+      "consumer_sha256": "16fa614bb79b6c659010328c46672adbf696efc11289a8d08691ac949189588a",
+      "lineage_prompt_hash": "04df8118",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 9,
+      "prompt": "00_nucleo/prompts/compiler/eval/closures.md",
+      "prompt_raw_sha256": "4909fe1377d5a573a36f3b5607a45a09c775a83f1538e7a2ef8507156c5f5e3e",
+      "consumer": "01_core/src/compiler/eval/closures.rs",
+      "consumer_sha256": "58b0a334d7096b730af3facc4297728eee4ae380b05a11f1b37ed1f1eeb437df",
+      "lineage_prompt_hash": "52beb50d",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 10,
+      "prompt": "00_nucleo/prompts/entities/content.md",
+      "prompt_raw_sha256": "fdb33918be2ce9fc2c56d89033f273532d35e8c1c3ce5ec2be68f407c429921a",
+      "consumer": "01_core/src/entities/content.rs",
+      "consumer_sha256": "3f2d8fd61880dc7fab6148f9b5301a0e741d27dfa6c737c259053bee41845c66",
+      "lineage_prompt_hash": "88439fde",
+      "consumer_count_for_prompt": 1
+    },
+    {
+      "ordinal": 11,
+      "prompt": "00_nucleo/prompts/entities/counter_update.md",
+      "prompt_raw_sha256": "9d02b5289afda9ba8c541bf199ab595451a816ff7ccefdc42a6a5891d5bd42c3",
+      "consumer": "01_core/src/entities/counter_update.rs",
+      "consumer_sha256": "6131b00cc77b6f89b4d35ec290947632ecdfd2fff9330e1697f6e1a6becc4e74",
+      "lineage_prompt_hash": "c21c6622",
+      "consumer_count_for_prompt": 1
+    }
+  ],
+  "authoritative_observable_inputs": {
+    "p1345_contract_spec_r2": [
+      "00_nucleo/diagnosticos/p1345-contract-spec-r2.json",
+      "f40c2b42fe83a4b75e276ab2ea8a9639fa1553e80c06581caf8c53d948f9d38d"
+    ],
+    "p1345_contract_binding_r2": [
+      "00_nucleo/diagnosticos/p1345-contract-binding-r2.json",
+      "ecc3a8a403d9d14d51808a35876f1f43d7773732c1d20f58574dff42d5187778"
+    ],
+    "canonical_table": [
+      "00_nucleo/diagnosticos/p1345-canonical-capsule-table-r1.json",
+      "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+    ],
+    "positive_fixture": [
+      "00_nucleo/diagnosticos/p1345-positive-fixture-r1.json",
+      "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12"
+    ],
+    "source_verifier_r2": [
+      "00_nucleo/diagnosticos/p1345-source-verifier-r2.py",
+      "9434ca3f2191cade3207d236a553b76045a016a2770da243251dc5d2d9527250"
+    ],
+    "opaque_probe_source": [
+      "00_nucleo/diagnosticos/p1346-opaque-probe-r1.rs.txt",
+      "863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc"
+    ]
+  },
+  "toolchain": {
+    "rustc": "1.92.0 (ded5c06cf 2025-12-08)",
+    "cargo": "1.92.0 (344c4567c 2025-10-21)",
+    "rustfmt": "1.8.0-stable (ded5c06cf2 2025-12-08)",
+    "python": "3.12.3",
+    "ruby": "3.2.3",
+    "crystalline_lint_path": "/home/dikluwe/.cargo/bin/crystalline-lint",
+    "crystalline_lint_binary_sha256": "e47974fe903b225e96fec580040604d80380edda054a7b2187bbf5b18da9a30b"
+  },
+  "validation": {
+    "pair_count": 12,
+    "distinct_prompt_count": 12,
+    "distinct_consumer_count": 12,
+    "each_prompt_has_exactly_one_productive_consumer": true,
+    "lineage_headers_present": 12,
+    "v5_v15_v26_command": "crystalline-lint --checks v5,v15,v26 .",
+    "v5_v15_v26_exit": 0,
+    "v5_v15_v26": "PASS",
+    "l0_modified_by_this_authority": false,
+    "consumer_modified_by_this_authority": false
+  },
+  "provenance": {
+    "measured_at": "2026-09-11T09:56:12,894047512-03:00",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "working_tree": "uncommitted",
+    "tracked_diff_binary_sha256": "099901758e0dda60cc4c16de0091adfdcedd3fcc63029e1270c34147b60aadef",
+    "tracked_diff_stat_sha256": "9783f07bc86c21e8874ebacec9d92ce5a12208e127748377c571b091a1c92e15",
+    "tracked_diff_stat": "76 files changed, 10972 insertions(+), 833 deletions(-)"
+  },
+  "limitations": [
+    "Raw prompt SHA-256 and the eight-character lineage value are separate recorded identities; acceptance of lineage is the successful V5 gate.",
+    "Shared filesystem and inherited collaboration context prevent technical attestation of isolation."
+  ],
+  "verdict": "L0_TOOLCHAIN_FREEZE_ACCEPTED",
+  "closed_world": {
+    "top_level_keys": [
+      "schema",
+      "step",
+      "revision",
+      "role",
+      "executor",
+      "regime",
+      "protected_inputs",
+      "l0_consumer_pairs",
+      "authoritative_observable_inputs",
+      "toolchain",
+      "validation",
+      "provenance",
+      "limitations",
+      "verdict",
+      "closed_world"
+    ],
+    "rule": "Freeze only. Changes to any recorded L0, consumer, authority input or tool identity invalidate downstream P1346 artifacts."
+  }
+}

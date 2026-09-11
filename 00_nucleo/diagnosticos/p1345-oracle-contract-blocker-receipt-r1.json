@@ -1,0 +1,97 @@
+{
+  "schema": "p1345-oracle-contract-blocker-receipt-r1",
+  "step": 1345,
+  "revision": 1,
+  "role": "independent_oracle_author",
+  "executor": "/root/p1345_oracle",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-11T07:25:45-03:00",
+  "verdict": "CONTRACT_PROBE_OBSERVATION_PHYSICALLY_UNSATISFIABLE_STOP",
+  "protected_inputs": {
+    "00_nucleo/materialization/typst-passo-1345.md": "c2ef7ff7b0555a4f44ca6811ff3e687ef6d6a30f55e0cd106fba4118f3a18fb0",
+    "00_nucleo/diagnosticos/p1345-authority-manifest-r1.json": "2ed02b31b39c6d588db7772cf932af40e344e87947662e12b7a8fe5c7e96b2c2",
+    "00_nucleo/diagnosticos/p1345-l0-toolchain-freeze-r1.json": "9b1ed01ac9c7d0e5c5121906138fe4d4777ba2ce2982d0b89cafb2fef631bbf7",
+    "00_nucleo/diagnosticos/p1345-capsule-baseline-r1.json": "e083f6b28d989afecf95d4b24d5483cef1d6bed45d5ce239f818156f56f05d08",
+    "00_nucleo/diagnosticos/p1345-topology-receipt-r1.json": "f4c18c856ab039ae6c99357442a97661425e2a135c87ce35194ecaaf9c571072",
+    "00_nucleo/diagnosticos/p1345-contract-spec-r1.json": "816aea0c92bf95a37fccbcc3c937af889e4638cf39b96593ffc62ecf004e6d1a",
+    "00_nucleo/diagnosticos/p1345-contract-binding-r1.json": "7b2451d5c290a0a4d3ad2ca4d54a0df93d39e861577aac5da7cd27f6d62417ad",
+    "00_nucleo/diagnosticos/p1345-contract-receipt-r1.json": "38b59f3952ee4e05d03ce0ff6151c9e23328093adcb4bbd76d36c6a99e6f7c85"
+  },
+  "output": {
+    "00_nucleo/diagnosticos/p1345-oracle-contract-blocker-r1.md": "5aa99f11d5b7b6cb23936f3a2c5888fbff0a658acbad158710cd0675753634b5"
+  },
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado; inherited dirty state preserved",
+    "status_porcelain_v1_z_sha256": "38a372b22176323c713d72a81323709bc44f895cc6f26ebb3e0cfd96633b1d02",
+    "tracked_diff_binary_sha256": "099901758e0dda60cc4c16de0091adfdcedd3fcc63029e1270c34147b60aadef"
+  },
+  "measured_contradiction": {
+    "closed_probe_output": "Binding line 123 exposes process_nonce_sha256 but not process_nonce.",
+    "closed_transport": "Binding line 145 permits only the eight declared primitive output fields.",
+    "required_verification": "Binding line 146 requires checking SHA-256(domain_separator || challenge || process_nonce) and nonce freshness.",
+    "missing_observable": "The checker has no process_nonce bytes or permitted side channel from which to recompute the required challenge response.",
+    "failure_class": "OPAQUE_PROBE_PREIMAGE_NOT_OBSERVABLE",
+    "self_attestation_risk": "Trusting challenge_response_sha256 without recomputation would violate the P1345 no-self-attestation rule."
+  },
+  "reproduction": {
+    "public_checker_inputs": [
+      "domain_separator",
+      "challenge",
+      "process_nonce_sha256",
+      "challenge_response_sha256"
+    ],
+    "required_but_absent": "process_nonce",
+    "result": "No reproducible checker can verify the contracted preimage-based formula from the closed public schema."
+  },
+  "required_contract_revision": {
+    "budget_remaining": 1,
+    "preferred": "Add canonical 32-byte process_nonce_hex; verify process_nonce_sha256 from it and retain the original challenge-response formula.",
+    "alternative": "Define the response formula over process_nonce_sha256 explicitly instead of the unavailable preimage.",
+    "constraint": "Select one closed formula; do not accept a probe-emitted classification, reason or witness."
+  },
+  "execution": {
+    "oracle_author_artifacts_emitted": 0,
+    "focal_runs": 0,
+    "full_corpus_runs": 0,
+    "probe_builds": 0,
+    "probe_executions": 0,
+    "candidate_read": false,
+    "candidate_written": false,
+    "candidate_executed": false
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "shared_filesystem": true,
+    "read_scope": "Skill instructions, exact P1345 step, protected P1345 baseline/manifest/contract artifacts and P1344 attack history only.",
+    "write_scope": [
+      "00_nucleo/diagnosticos/p1345-oracle-contract-blocker-r1.md",
+      "00_nucleo/diagnosticos/p1345-oracle-contract-blocker-receipt-r1.json"
+    ],
+    "forbidden_work_not_performed": "No positive fixture, canonical table, source verifier, probe, checker, corpus, adversarial verdict, full run, seal, RED, candidate, implementation or certificate."
+  },
+  "next_state": "P1345_CONTRACT_R2_REQUIRED; ORACLE_ADVERSARY_PRESEAL_RED_CANDIDATE_AND_FINAL_BLOCKED",
+  "closed_world": {
+    "top_level_keys": [
+      "schema",
+      "step",
+      "revision",
+      "role",
+      "executor",
+      "regime",
+      "generated_at",
+      "verdict",
+      "protected_inputs",
+      "output",
+      "repository",
+      "measured_contradiction",
+      "reproduction",
+      "required_contract_revision",
+      "execution",
+      "segregation",
+      "next_state",
+      "closed_world"
+    ],
+    "rule": "Exactly these top-level keys in this order are valid. Duplicate keys or protected/output drift invalidates the receipt. The receipt does not self-pin."
+  }
+}

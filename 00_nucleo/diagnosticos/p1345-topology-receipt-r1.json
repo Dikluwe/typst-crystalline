@@ -1,0 +1,114 @@
+{
+  "schema": "p1345-topology-receipt-r1",
+  "step": 1345,
+  "revision": 1,
+  "role": "independent_baseline_protocol_authority",
+  "executor": "/root/p1345_baseline",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-11T07:11:52-03:00",
+  "verdict": "CANDIDATE_FREE_TOPOLOGY_ACCEPTED_FOR_P1345_CONTRACT_AUTHORSHIP",
+  "verdict_scope": "Only the candidate-free L0/toolchain and 38-capsule/12-owner topology. No canonical token production, contract, oracle, attack, full corpus, seal, RED, candidate, runtime or final acceptance.",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256_before_receipt": "f9aa45f39f824f58a90dc6c92e3c5e907e610cdc39105993e4bfa37f0b3c5c03",
+    "tracked_diff_binary_sha256": "099901758e0dda60cc4c16de0091adfdcedd3fcc63029e1270c34147b60aadef",
+    "tracked_diff_stat_sha256": "9783f07bc86c21e8874ebacec9d92ce5a12208e127748377c571b091a1c92e15",
+    "tracked_diff_stat": "76 files changed, 10972 insertions(+), 833 deletions(-)"
+  },
+  "protected_inputs": {
+    "00_nucleo/materialization/typst-passo-1345.md": "c2ef7ff7b0555a4f44ca6811ff3e687ef6d6a30f55e0cd106fba4118f3a18fb0",
+    "00_nucleo/materialization/typst-passo-1344.md": "1fff15c6f17800ca293379e17d8d2ed63b2fe9043a0aebb0baf16a9b9b0ea6f3",
+    "00_nucleo/diagnosticos/p1344-contract-spec-r1.json": "157877514d350947f6483ec371c356dd2181c2e0f98e8fa9eb5e465527983279",
+    "00_nucleo/diagnosticos/p1344-contract-binding-r1.json": "1f4d8812d0a4e2a9451d2f8c08931fb71e1baa54a3484a411d2cf76727115bab",
+    "00_nucleo/diagnosticos/p1344-capsule-baseline-r1.json": "f64744d5bdc31734f791af24acf4204949a77c019542d5baa61c48b07e7dcaea",
+    "00_nucleo/diagnosticos/p1344-l0-freeze-r1.json": "6cc3a61f2d5177b3ede1d7805f8db8f7edfcd0a2f9ea55aec50405db7832c75d",
+    "00_nucleo/diagnosticos/p1344-adversary-report-r2.json": "2c536123d13e3aa537d5c7071f2910bb5b502fdf14aea82eb931b875d9d6bf9f",
+    "00_nucleo/diagnosticos/p1344-adversary-receipt-r2.json": "0c830744ffa6714599bc7c428277b1d37246db6d7815364b04044045752b7c4b"
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1345-l0-toolchain-freeze-r1.json": "9b1ed01ac9c7d0e5c5121906138fe4d4777ba2ce2982d0b89cafb2fef631bbf7",
+    "00_nucleo/diagnosticos/p1345-candidate-free-inventory-r1.md": "fd4b4fa2f191bf8ba7267e48b643ff33d08a9d855a97879905f28cac429cb808",
+    "00_nucleo/diagnosticos/p1345-capsule-baseline-r1.json": "e083f6b28d989afecf95d4b24d5483cef1d6bed45d5ce239f818156f56f05d08",
+    "00_nucleo/diagnosticos/p1345-authority-manifest-r1.json": "2ed02b31b39c6d588db7772cf932af40e344e87947662e12b7a8fe5c7e96b2c2"
+  },
+  "execution": {
+    "protected_sha256": "PASS: all exact P1345/P1344 protected hashes",
+    "strict_json": "PASS for all protected JSON and all new JSON outputs",
+    "l0_consumer_rehash": "PASS: 12/12 pairs, 24/24 exact file hashes",
+    "candidate_search_command": "rg -n 'p134[45]|P134[45]' 01_core/src 02_shell/src 03_infra/src 04_wiring/src",
+    "candidate_search_matches": 0,
+    "capsule_manifest": "PASS: 38/38 unique capsule IDs in 12/12 unique files",
+    "new_anchor_cardinality": "PASS: 4/4 exact P1344 owner-local anchors occur once",
+    "owner_parser_probe": "PASS: rustfmt --edition 2021 parsed 3/3 complete copied consumers with one owner-local associated method each",
+    "owner_parser_temporary_root": "/dev/shm/p1345-owner-grammar.TE1qAe",
+    "crystalline_lint_command": "crystalline-lint . --checks v5,v15,v26 --format text",
+    "v5": "PASS",
+    "v15": "PASS",
+    "v26": "PASS",
+    "rustc_dev": "ABSENT",
+    "git_diff_check": "PASS"
+  },
+  "architecture": {
+    "owner_local": "PASS: Func, Content and CounterUpdate helper categories fit their existing inherent impls and 1:1 L0 consumers",
+    "new_consumer": false,
+    "reverse_import": false,
+    "wrapper_trait_macro_or_container": false,
+    "public_default_phase_or_compatibility_delta": false,
+    "p1345_l0_delta": false
+  },
+  "budgets": {
+    "contract_initial": 1,
+    "contract_revisions_max": 1,
+    "oracle_focal_revisions_max": 2,
+    "author_and_adversary_full_runs": 0,
+    "preseal_full_runs": 1,
+    "final_full_runs": 1,
+    "candidate_correction_cycles_max": 2,
+    "consumed_by_baseline": "no contract/oracle/adversary/full/candidate budget consumed"
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "shared_filesystem": true,
+    "inherited_context": true,
+    "authority_manifest_sha256": "2ed02b31b39c6d588db7772cf932af40e344e87947662e12b7a8fe5c7e96b2c2",
+    "write_allowlist_observed": [
+      "00_nucleo/diagnosticos/p1345-l0-toolchain-freeze-r1.json",
+      "00_nucleo/diagnosticos/p1345-candidate-free-inventory-r1.md",
+      "00_nucleo/diagnosticos/p1345-capsule-baseline-r1.json",
+      "00_nucleo/diagnosticos/p1345-authority-manifest-r1.json",
+      "00_nucleo/diagnosticos/p1345-topology-receipt-r1.json"
+    ]
+  },
+  "limitations": [
+    "Shared workspace and inherited conversation prevent technical isolation attestation; segregation is by authority, inputs, causal order, allowlists and hashes.",
+    "Rustfmt probes establish parser fit only, not name resolution, types, borrow behavior, reachability or runtime semantics.",
+    "The P1344 capsule baseline is inherited exactly; P1345 canonical full-token sequences do not exist yet and must be authored independently before any candidate.",
+    "No full corpus was executed and no implementation or equivalence claim is made."
+  ],
+  "next_state": "P1345_CONTRACT_AUTHORSHIP_ALLOWED; ORACLE, PRESEAL, RED_AND_CANDIDATE_REMAIN_CAUSALLY_BLOCKED",
+  "closed_world": {
+    "top_level_keys": [
+      "schema",
+      "step",
+      "revision",
+      "role",
+      "executor",
+      "regime",
+      "generated_at",
+      "verdict",
+      "verdict_scope",
+      "repository",
+      "protected_inputs",
+      "outputs",
+      "execution",
+      "architecture",
+      "budgets",
+      "segregation",
+      "limitations",
+      "next_state",
+      "closed_world"
+    ],
+    "rule": "Exactly these top-level keys are valid. Duplicate keys or drift in any protected input/output invalidates this receipt. The receipt does not self-pin."
+  }
+}

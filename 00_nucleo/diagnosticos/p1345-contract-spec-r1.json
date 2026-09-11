@@ -1,0 +1,162 @@
+{
+  "schema": "p1345-canonical-token-binding-contract-v1",
+  "step": 1345,
+  "revision": 1,
+  "role": "independent_contract_author",
+  "executor": "/root/p1345_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "CONTRACT_CANDIDATE_NOT_VERIFIED_NOT_SEALED",
+  "revision_budget": "This is the initial P1345 contract. At most one contract revision remains, only for a newly measured contract failure class; no oracle, full-corpus, seal, RED or candidate budget is consumed here.",
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1345.md", "c2ef7ff7b0555a4f44ca6811ff3e687ef6d6a30f55e0cd106fba4118f3a18fb0"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1345-authority-manifest-r1.json", "2ed02b31b39c6d588db7772cf932af40e344e87947662e12b7a8fe5c7e96b2c2"],
+    "l0_toolchain_freeze": ["00_nucleo/diagnosticos/p1345-l0-toolchain-freeze-r1.json", "9b1ed01ac9c7d0e5c5121906138fe4d4777ba2ce2982d0b89cafb2fef631bbf7"],
+    "candidate_free_inventory": ["00_nucleo/diagnosticos/p1345-candidate-free-inventory-r1.md", "fd4b4fa2f191bf8ba7267e48b643ff33d08a9d855a97879905f28cac429cb808"],
+    "capsule_baseline": ["00_nucleo/diagnosticos/p1345-capsule-baseline-r1.json", "e083f6b28d989afecf95d4b24d5483cef1d6bed45d5ce239f818156f56f05d08"],
+    "topology_receipt": ["00_nucleo/diagnosticos/p1345-topology-receipt-r1.json", "f4c18c856ab039ae6c99357442a97661425e2a135c87ce35194ecaaf9c571072"],
+    "p1344_contract": ["00_nucleo/diagnosticos/p1344-contract-spec-r1.json", "157877514d350947f6483ec371c356dd2181c2e0f98e8fa9eb5e465527983279"],
+    "p1344_binding": ["00_nucleo/diagnosticos/p1344-contract-binding-r1.json", "1f4d8812d0a4e2a9451d2f8c08931fb71e1baa54a3484a411d2cf76727115bab"],
+    "p1344_adversary_report_r2": ["00_nucleo/diagnosticos/p1344-adversary-report-r2.json", "2c536123d13e3aa537d5c7071f2910bb5b502fdf14aea82eb931b875d9d6bf9f"],
+    "p1344_adversary_receipt_r2": ["00_nucleo/diagnosticos/p1344-adversary-receipt-r2.json", "0c830744ffa6714599bc7c428277b1d37246db6d7815364b04044045752b7c4b"]
+  },
+  "normative_composition": {
+    "base_contract": ["00_nucleo/diagnosticos/p1344-contract-spec-r1.json", "157877514d350947f6483ec371c356dd2181c2e0f98e8fa9eb5e465527983279"],
+    "base_binding": ["00_nucleo/diagnosticos/p1344-contract-binding-r1.json", "1f4d8812d0a4e2a9451d2f8c08931fb71e1baa54a3484a411d2cf76727115bab"],
+    "topology": ["00_nucleo/diagnosticos/p1345-capsule-baseline-r1.json", "e083f6b28d989afecf95d4b24d5483cef1d6bed45d5ce239f818156f56f05d08"],
+    "binding": "p1345-contract-binding-r1.json at the exact hash recorded by p1345-contract-receipt-r1.json",
+    "rule": "Strictly decode P1344 R1 contract and binding first. Preserve every P1344/P1343/P1342 semantic, runtime, topology, owner, capsule, hook, row, value, type, identity, freshness, cardinality, carrier, ledger, facade, forbidden-binding, gate, scope and ordering obligation byte-semantically. Replace only the P1344 source-proof grammar decision and its source-side reason order with the canonical-token protocol declared here and in the P1345 binding. Missing, conflicting, reordered, stale or candidate-controlled composition is Violated.",
+    "replaced_p1344_clauses": [
+      "P1344 source_proof.parser, direct_hooks, replacements, owner_local_helpers and carrier grammar acceptance become exact equality against 38 authority-rooted canonical full-token sequences.",
+      "P1344 checker_authority order/root and strict source-evidence schemas become the P1345 closed artifact order, schemas and authority roots.",
+      "P1344 Unknown text becomes the executed fresh-challenge probe policy; no case or candidate may supply a classification or witness.",
+      "P1344 source-side reason order becomes the P1345 deterministic authority/schema/marker/normalization/token-divergence order; the inherited runtime reason order remains normative after the source and compiler gates pass."
+    ],
+    "preserved_without_reinterpretation": [
+      "all 38 capsule identities in 12 existing owner files, their insert/replace kinds, markers, anchors, inverse replacements and physical owner constraints",
+      "the exact ordered H00D,H00S,H01-H11,H12A,H12B,H13-H16 set and all nineteen P1342 runtime rows",
+      "the exact P1343 closed carrier-ledger/facade boundary, single append path, immutable raw freeze and read-only projection",
+      "World, Source, FileId, challenge, run, ledger, cell, carrier, content, Location, snapshot and dictionary identity/freshness algebra",
+      "attempt-kind, R, hook_hit, applicable-row, mode cardinality, H00D/H00S exclusivity, late-append, ordering and B01-B05 obligations",
+      "real independently compiled A/B evidence for candidate/final; synthetic evidence remains discriminatory-corpus-only",
+      "all public/default/pipeline/compatibility scope exclusions and all Tekt 1:1 L0 ownership restrictions"
+    ]
+  },
+  "measured_failure_and_protocol_repair": {
+    "measurement": "P1344 adversarial R2 rejected all 23 R1 attacks but accepted 14 of 17 new attacks: thirteen due to open identifier-count/blacklist productions and one due to Unknown self-attestation. Aggregate focal score was 26/40 = 0.65 with zero full-corpus runs.",
+    "public_causes": ["INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED", "UNKNOWN_LAUNDERED_WITHOUT_WITNESS"],
+    "repair": "Remove heuristic semantic inference from source proof. The oracle authority must construct one candidate-free positive overlay and derive one complete canonical token sequence for each protected capsule. Candidate source is accepted only when every non-whitespace, non-comment token is exactly equal in kind, raw lexeme and order to that external table. Unknown is no longer a corpus/candidate declaration; it is a checker result possible only after execution of the sealed probe with a fresh verifier challenge.",
+    "hir_mir_rejection": "The frozen environment has rustc 1.92.0 stable and no rustc-dev. A rustc_private HIR/MIR verifier is therefore not a reproducible dependency for P1345. Presence of a future pinned rustc-dev toolchain would require a new step and cannot silently alter this contract.",
+    "semantic_delta": "NONE. This changes the proof protocol and fixes one canonical private observation implementation shape; it does not weaken or reinterpret any P1344/P1343/P1342 runtime obligation."
+  },
+  "l0_assessment": {
+    "change_required": false,
+    "adr_0127_stop_required": false,
+    "reason": "P1345 changes neither productive intent nor public/default/pipeline/compatibility behavior. The exact twelve L0/consumer pairs and the three owner-local cfg-only clauses are already frozen and rehashed; V5/V15/V26 passed."
+  },
+  "canonical_source_proof": {
+    "authority": "The canonical table is authored before any candidate, outside the checker and outside productive source, from the protected candidate-free twelve-file baseline, exact capsule topology, preserved semantic contract and a synthetic positive overlay. Candidate files, candidate-emitted tables, sibling digest files and CLI-supplied expected hashes are untrusted.",
+    "token_model": "For each complete marker body, tokenize with the frozen stable Rust lexical rules. Discard only whitespace and comments, including doc comments; comment delimiters inside literals are literal bytes and are not discarded. Preserve every other token as the ordered pair [lexical_kind, exact_raw_lexeme], including identifiers, lifetimes, keywords, literals with suffixes, raw identifiers, punctuation and every delimiter. Compound punctuation is represented by the deterministic maximal tokenization used by the sealed P1345 source verifier. Unicode bytes are UTF-8 and no identifier, escape, literal, punctuation or delimiter normalization is permitted.",
+    "closed_equality": "There are exactly 38 nonempty canonical sequences, one for each exact capsule ID and no others. For each candidate capsule the source verifier must consume the full marker body and require equal token count and pairwise equality at every zero-based index. Any extra, absent, reordered, substituted, unsupported or ambiguously tokenized token is Violated with TOKEN_COUNT or TOKEN_DIVERGENCE and the first divergent index plus expected/actual token digests. Only whitespace/comment changes can preserve token equality.",
+    "markers_owners_anchors": "Before token comparison, independently validate exact paths, all 38 real begin/end marker pairs once, no unknown/nested/overlapping marker, exact insert/replace kind, protected anchors, physical owner and adjacency. A marker comment is identity framing only and never proves its body. Candidate-declared owner, alias, path, range or hash is ignored.",
+    "semantic_boundary": "Canonical-token equality is an architectural proof for these private observation capsules, not general Rust semantic equivalence and not Typst language mechanical parity. It cannot prove reachability, name/type/borrow resolution, freshness, identity, callback count or runtime cardinality; separate compiler and runtime gates are mandatory."
+  },
+  "inverse_normalization": {
+    "algorithm": "After exact marker/path/anchor validation, process all 38 complete capsule regions in descending live byte offset. For insert capsules remove the complete marker region; for replace capsules substitute the exact protected baseline replacement bytes. Use only authority-rooted baseline records; candidate ranges, replacements, normalized bytes and hashes are untrusted.",
+    "required_result": "The normalized complete bytes of exactly 12 files must recover all twelve exact SHA-256 values in p1345-capsule-baseline-r1.json. Missing, additional, duplicate or reordered file/capsule records, a mismatched replacement or any residual non-capsule delta is Violated.",
+    "round_trip": "The oracle must also apply the canonical positive overlay to the candidate-free bytes and inverse-normalize it back to the same 12 hashes before its table or corpus can become sealable."
+  },
+  "compiler_gate_separation": {
+    "source_gate": "Marker, anchor, owner, normalization and exact canonical tokens only.",
+    "rustfmt_gate": "cargo fmt --all -- --check proves formatting/parser acceptance for the integrated tree; it does not prove resolution or runtime.",
+    "cargo_observation_gate": "RUSTFLAGS='--cfg p1339_observation' cargo test --workspace --no-run proves Rust name, type and borrow resolution for the observation configuration; it does not prove hooks ran.",
+    "cargo_normal_gate": "cargo build --workspace without p1339_observation proves the ordinary build remains valid and observation code remains non-default.",
+    "runtime_gate": "Only the independent compiled P1345 A/B test with real fresh inputs proves reachability, causality, identity, cardinality and read-only projection. No gate substitutes for another.",
+    "hir_mir": "Not used: rustc-dev is absent from the frozen stable toolchain."
+  },
+  "runtime_proof": {
+    "preservation": "The exact complete P1344 runtime proof, P1343 FINAL R2 runtime proof and P1342 composition remain normative without reinterpretation.",
+    "candidate_required": "Candidate and final invocation must supply a canonical external runtime receipt emitted by the independently compiled P1345 Rust A/B test from the real test-only facade. Missing runtime, a nonzero test exit, receipt/hash/schema/challenge drift, synthetic evidence or candidate-emitted evidence is Violated, never Unknown.",
+    "freshness": "The verifier creates three pairwise-distinct World, Source, FileId and unpredictable 32-byte challenge sets for normal/repeat/reverse, records pre-call witnesses, calls the facade once per mode and requires the exact inherited disjoint identity and cardinality predicates.",
+    "causality": "Each immutable raw snapshot must come directly from H16 before projection; canonical digest is independently computed before and after read-only projection. Every actual receipt maps to all nineteen inherited rows and satisfies the exact append, hook_hit, R, carrier, Location, snapshot, ordering and typed-value obligations."
+  },
+  "unknown_probe": {
+    "only_allowed_unknown": "Unknown is possible for exactly one deliberately opaque dict-payload case and only as the checker-derived result of executing the sealed P1345 probe after every authority, source, compiler, runtime and non-payload predicate has passed.",
+    "fresh_challenge": "The invoking verifier generates an unpredictable 32-byte challenge for that invocation, distinct from every earlier challenge. The checker passes it to the independently compiled probe, hashes the executable immediately before execution and verifies the returned challenge transform and primitive observations against the sealed probe-source/build recipe. A fixed, replayed, missing or mismatched challenge is Violated.",
+    "no_self_attestation": "Corpus cases and candidate/runtime inputs have no expected, classification, verdict, reason, witness, opaque, source_ok, runtime_ok or equivalent trust field. The probe emits only its closed primitive observation record and never emits a classification or witness. The checker alone derives Unknown from those observations. Any supplied classification/witness field is a schema violation.",
+    "fail_closed": "Missing probe/runtime, executable/source/toolchain hash drift, build failure, timeout, nonzero exit, reused receipt, wrong emitter, malformed primitive record, challenge mismatch, exposed inspectable payload or failure of any prior predicate is Violated. Unknown is never a default for unsupported grammar, ambiguous identity, absent proof or exhausted budget."
+  },
+  "strict_artifact_io": {
+    "json": "Every JSON input is UTF-8, duplicate-decoded-key-free at every depth, finite-number-only and exact closed-schema before any field is used. Unknown keys, wrong key order where order is declared, wrong types/cardinalities/enums and last-key-wins parsing are Violated. Canonical JSON outputs use RFC 8785 plus one trailing LF.",
+    "case_input": "A corpus/candidate case carries only identity and raw artifact locations/bytes allowed by the exact P1345 binding schema. It carries no classification or witness. All paths are resolved under the verifier-selected root and all bytes are rehashed before parse/use.",
+    "source_output": "The source verifier emits only independently recomputed pins, file/capsule/token comparisons, first divergence, normalization and provenance under the exact P1345 binding schema. It emits no runtime success claim.",
+    "runtime_output": "The A/B receipt and opaque probe record use disjoint closed schemas. The checker rehashes their independently supplied paths, ties them to fresh verifier challenges and rejects synthetic/candidate substitution."
+  },
+  "checker_authority": {
+    "artifact_order": [
+      "1. Verify exact P1345 step, manifest, freeze, inventory, baseline, topology receipt, P1344 contract/binding and blocker hashes.",
+      "2. Emit and validate the candidate-free synthetic positive fixture; prove its 38-capsule overlay and twelve-file inverse-normalization round trip.",
+      "3. Derive and emit the 38-record canonical token table from that fixture, then rederive it independently and require byte-identical RFC8785 output.",
+      "4. Emit the closed corpus without classification/witness fields and compute its SHA-256.",
+      "5. Emit source verifier and opaque-probe source with literal protected hashes/table rules; compute their hashes.",
+      "6. Emit checker last with literal protected, contract, binding, fixture, table, corpus, source-verifier and probe-source hashes; no CLI/default override.",
+      "7. Emit authorship receipt pinning every output. Adversary/preseal receive its hashes out of band and rehash before execution.",
+      "8. Preseal/final verifier compiles the pinned probe source with the frozen toolchain, hashes the executable, generates a fresh challenge and records build/execution provenance."
+    ],
+    "authority_roots": "Use exactly the authoring_root_formula and execution_root_formula in p1345-contract-binding-r1.json. Checker/source/corpus/table/candidate declarations never establish their own trust. The verifier receives expected checker and authorship-receipt hashes out of band.",
+    "fail_closed": "A self-consistent alternate fixture/table/corpus/checker/root, a CLI digest override, sibling digest, candidate-authored hash/path pair, duplicate-key input, changed case order/set/budget, absent compiled pin or root mismatch is Violated before any case executes."
+  },
+  "classification": {
+    "precedence": [
+      "1. Recompute authoring/execution authority roots and every protected/input/executable hash.",
+      "2. Strict-parse all closed schemas and reject classification/witness fields in cases, candidate evidence and primitive probe output.",
+      "3. Validate exact path, marker pairing, anchors, owner/adjoining placement and 38/12 topology.",
+      "4. Inverse-normalize all 38 regions and recover all twelve candidate-free whole-file hashes.",
+      "5. Compare every full non-whitespace/non-comment capsule token sequence with the authority-rooted canonical table.",
+      "6. For a real candidate require rustfmt, observation cargo --no-run, normal cargo build and real independently compiled P1345 A/B runtime receipt.",
+      "7. Validate all inherited causal/runtime predicates from fresh challenged receipts.",
+      "8. For the sole opaque case execute the sealed probe with a fresh verifier challenge and independently derive Unknown only if its closed primitive observations demonstrate the payload remains uninspectable; every inspectable case passing 1-7 is Preserved."
+    ],
+    "violated": "Any failure before the sole valid opacity derivation, any valid semantic mutation, token divergence, missing runtime/probe, unsupported form, authority drift, replay or supplied classification/witness is Violated with the first deterministic reason and independently computed evidence.",
+    "preserved": "Only an inspectable positive/candidate case passing every applicable authority, source, compiler and runtime predicate is Preserved.",
+    "unknown": "Only the checker-derived result of the single fresh executed opaque probe after every earlier predicate passes. No input may request or declare Unknown.",
+    "reason_order": ["AUTHORITY_ROOT", "PROTECTED_INPUT", "DUPLICATE_KEY", "SCHEMA", "PATH", "MARKER", "ANCHOR", "OWNER_ADJACENCY", "NORMALIZATION", "TOKEN_COUNT", "TOKEN_DIVERGENCE", "RUSTFMT_GATE", "CARGO_OBSERVATION_GATE", "CARGO_NORMAL_GATE", "RUNTIME_AUTHORITY", "FRESH_INPUT", "RAW_CAUSAL", "PROBE_AUTHORITY", "PROBE_CHALLENGE", "OPAQUE_PAYLOAD"]
+  },
+  "gates": {
+    "oracle_focal": "Oracle authority may execute only tokenization/round-trip/probe boundary focals and controls newly introduced by P1345. It executes no full corpus.",
+    "adversary": "An independent adversary replays all forty P1344 attacks, adds at least one token mutation per each of 38 capsules and attacks token extra/absent/reordered/substituted, whitespace/comment controls, decoys, markers/owner/anchor/normalization, table/root/hash/schema and probe challenge/replay/emitter/executable boundaries. Any valid survivor blocks preseal.",
+    "preseal": "Only after focal agreement and zero survivors may an independent preseal verifier execute the one complete corpus in normal, repeat and reverse order. Valid negatives must be Violated, exact positives Preserved and only the fresh executed opaque probe Unknown. Mutation score must equal 1.0 in every order.",
+    "candidate": ["cargo fmt --all -- --check", "RUSTFLAGS='--cfg p1339_observation' cargo test --workspace --no-run", "independent P1345 A/B RED then GREEN three times with fresh normal/repeat/reverse inputs", "cargo build --workspace without p1339_observation"],
+    "final": ["one final full normal/repeat/reverse corpus execution", "exact protected/sealed hash revalidation", "V5/V15/V26", "crystalline-lint . with zero new violations", "git diff --check"]
+  },
+  "causal_invalidation": {
+    "history_not_authority": "P1344 oracle/adversary artifacts remain immutable attack history and failure evidence, never P1345 sealing authority. P1345 replays their valid controls/attacks under new artifacts.",
+    "rule": "Any post-seal drift of step, manifest, freeze, baseline, topology, P1344 contract/binding, P1345 contract/binding, positive fixture, canonical table, source verifier, probe source, corpus, checker or authorship receipt invalidates the seal from the first affected phase. An executable hash is invocation-specific but must rederive from the pinned source/toolchain/build recipe."
+  },
+  "budget_and_stop": {
+    "contract_revisions_after_r1_remaining": 1,
+    "oracle_author_full_corpus_runs": 0,
+    "adversary_full_corpus_runs": 0,
+    "full_preseal_runs": 1,
+    "candidate_correction_cycles": 2,
+    "full_final_runs": 1,
+    "stop": "Stop on any surviving valid negative, positive regression, score below 1.0, duplicate vector/cause twice, protected drift, case/candidate/probe classification self-attestation, missing real candidate runtime, thirteenth consumer, ADR-0127 surface, weakened negative or exhausted budget. No waiver or Unknown conversion is permitted."
+  },
+  "scope": {
+    "claim": "Only the focal P1342 binding through the exact preserved P1344/P1343 semantics, 38 canonical private observation capsules in twelve Tekt-owned consumers and real challenged runtime evidence.",
+    "excluded": ["P1340 lifecycle/profile matrix", "NT01-NT06", "general retention/discard/invalidation", "terminal policy", "general functional equivalence or Typst parity", "public/default/pipeline/compatibility changes"]
+  },
+  "forbidden_acceptance": [
+    "Regex, blacklist, keyword/name/count/presence, suffix, substring or partial-AST matching as deciding capsule acceptance.",
+    "Any capsule token stream other than its one exact authority-rooted canonical sequence, except whitespace and comments.",
+    "A candidate-supplied canonical table, expected digest, range, owner, replacement, normalized bytes, classification or witness.",
+    "A self-consistent alternate fixture/table/corpus/checker/root, duplicate-key JSON, CLI hash override or changed case order/set.",
+    "Unknown from a field, missing proof/runtime, parser limit, ambiguity, budget exhaustion, fixed/replayed challenge or unexecuted/self-authored probe receipt.",
+    "Synthetic runtime for candidate/final, source tokens treated as runtime reachability or any weakening of inherited nineteen-row semantics.",
+    "Nested/nonlocal impl, owner close/reopen, wrapper, trait/extension, macro/const container, reverse import/reexport, alternate storage/writer/side table or wrong owner.",
+    "A thirteenth consumer or any public API, default behavior, compatibility or pipeline-phase change."
+  ],
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "revision_budget", "protected_inputs", "normative_composition", "measured_failure_and_protocol_repair", "l0_assessment", "canonical_source_proof", "inverse_normalization", "compiler_gate_separation", "runtime_proof", "unknown_probe", "strict_artifact_io", "checker_authority", "classification", "gates", "causal_invalidation", "budget_and_stop", "scope", "forbidden_acceptance", "closed_world"],
+    "rule": "Exactly these top-level keys in this order are valid. Every downstream artifact uses the exact closed schemas and orders in the P1345 binding. Duplicate/unknown keys, unknown enums, missing fields or hash drift are Violated."
+  }
+}

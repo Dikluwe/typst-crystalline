@@ -1,0 +1,109 @@
+{
+  "schema": "p1346-probe-relocation-receipt-r1",
+  "step": 1346,
+  "revision": 1,
+  "role": "independent_baseline_author",
+  "executor": "/root/p1346_baseline",
+  "regime": "executado sem atestacao de isolamento",
+  "protected_inputs": {
+    "step": [
+      "00_nucleo/materialization/typst-passo-1346.md",
+      "7c7138a3aa6a94635216d5c5408d3835204804984e2dadca23973ab20263bc9e"
+    ],
+    "historical_probe": [
+      "00_nucleo/diagnosticos/p1345-opaque-probe-r1.rs",
+      "863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc"
+    ]
+  },
+  "relocation": {
+    "method": "apply_patch add exact bytes, sha256 plus cmp, then apply_patch delete old path",
+    "target": [
+      "00_nucleo/diagnosticos/p1346-opaque-probe-r1.rs.txt",
+      "863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc"
+    ],
+    "source_bytes_before_delete": 5496,
+    "source_lines_before_delete": 132,
+    "source_target_cmp_before_delete": "PASS",
+    "old_path_absent_after_delete": true,
+    "target_path_regular_file_after_delete": true,
+    "opaque_probe_rs_paths_remaining_under_diagnostics": 0,
+    "verdict": "HASH_PRESERVING_RELOCATION_ACCEPTED"
+  },
+  "toolchain": {
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+    "rustc_commit": "ded5c06cf21d2b93bffd5d884aa6e96934ee4234",
+    "host": "x86_64-unknown-linux-gnu",
+    "llvm": "21.1.3"
+  },
+  "compile_and_probe": {
+    "compile_command": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc --crate-name p1346_opaque_probe --edition 2021 -C opt-level=0 -C debuginfo=0 -o /dev/shm/p1346-opaque-probe 00_nucleo/diagnosticos/p1346-opaque-probe-r1.rs.txt",
+    "compile_exit": 0,
+    "binary_sha256": "5205e76bea7e23c830990ea59b1cf72c0bd21984512537ab7e843b879059a9c3",
+    "request": {
+      "schema": "p1345-opaque-probe-request-r2",
+      "fresh_challenge_hex": "0000000000000000000000000000000000000000000000000000000000000001",
+      "invocation_nonce_hex": "0000000000000000000000000000000000000000000000000000000000000002"
+    },
+    "probe_exit": 0,
+    "response_schema": "p1345-opaque-probe-primitive-output-r2",
+    "response_completed_phase": "OPAQUE_PAIR_PROJECTED",
+    "response_opaque_handle_count": 1,
+    "response_payload_octets_exposed": 0,
+    "response_stdout_sha256": "040eb4ea5151b0cd6cdaec7a5b35558d191509d46eae674e4c1718d3214a846d",
+    "strict_json_parse": "PASS",
+    "note": "The response contains a fresh process nonce, so its output hash is evidence of this invocation rather than a reproducibility pin."
+  },
+  "tekt_gate_after_relocation": {
+    "command": "crystalline-lint --checks v5,v15,v26 .",
+    "exit": 0,
+    "stdout": "No violations found",
+    "semantic_checks_reached": true
+  },
+  "provenance": {
+    "measured_at": "2026-09-11T09:56:12,894047512-03:00",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "working_tree": "uncommitted",
+    "status_porcelain_v1_sha256_after_relocation_before_outputs": "576cd3a4596910a6cf349025c80f23733f31e17c07bbc96988faf62bfb1c399f",
+    "status_porcelain_entries_after_relocation_before_outputs": 1154,
+    "status_porcelain_v1_z_sha256_after_relocation_before_outputs": "0e7bc3777f7a36f8e5106a25ea8baeaa538e50724aa715753e319e27d4e64787",
+    "tracked_diff_binary_sha256": "099901758e0dda60cc4c16de0091adfdcedd3fcc63029e1270c34147b60aadef",
+    "tracked_diff_stat_sha256": "9783f07bc86c21e8874ebacec9d92ce5a12208e127748377c571b091a1c92e15",
+    "tracked_diff_stat": "76 files changed, 10972 insertions(+), 833 deletions(-)"
+  },
+  "validation": {
+    "protected_input_hashes_match": true,
+    "target_hash_matches_historical_probe": true,
+    "probe_source_compiles_from_rs_txt": true,
+    "minimal_probe_runs": true,
+    "v5_v15_v26": "PASS",
+    "full_corpus_runs": 0,
+    "candidate_read_or_executed": false,
+    "protected_inputs_modified_except_authorized_relocation": false
+  },
+  "limitations": [
+    "Shared filesystem and inherited collaboration context prevent technical attestation of isolation.",
+    "The historical path was unsealed input from a failed chain; this receipt authorizes no semantic change and no implementation."
+  ],
+  "verdict": "RELOCATION_COMPLETE_READY_FOR_FREEZE",
+  "closed_world": {
+    "top_level_keys": [
+      "schema",
+      "step",
+      "revision",
+      "role",
+      "executor",
+      "regime",
+      "protected_inputs",
+      "relocation",
+      "toolchain",
+      "compile_and_probe",
+      "tekt_gate_after_relocation",
+      "provenance",
+      "validation",
+      "limitations",
+      "verdict",
+      "closed_world"
+    ],
+    "rule": "Relocation receipt only. It does not author a contract, oracle, candidate, seal or certificate, and intentionally does not self-pin."
+  }
+}

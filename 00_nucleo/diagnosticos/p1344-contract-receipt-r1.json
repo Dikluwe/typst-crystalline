@@ -1,0 +1,112 @@
+{
+  "schema": "p1344-contract-authorship-receipt-v1",
+  "step": 1344,
+  "revision": 1,
+  "role": "independent_contract_author",
+  "executor": "/root/p1344_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-10T23:30:09-03:00",
+  "verdict": "P1344_CONTRACT_R1_AUTHORED_NOT_VERIFIED_NOT_SEALED",
+  "verdict_scope": "The initial closed P1344 contract and binding were authored from candidate-free protected inputs. This receipt does not attest oracle correctness, discriminatory execution, mutation score, preseal, RED/GREEN, implementation, runtime behavior or final acceptance.",
+  "revision_budget": {
+    "initial_contracts_authored": 1,
+    "contract_revisions_after_r1_authorized": 1,
+    "contract_revisions_after_r1_consumed": 0,
+    "contract_revisions_remaining": 1,
+    "rule": "A revision may be consumed only for a newly measured contract failure class. It cannot weaken a negative, reinterpret Unknown, expand scope or bypass a physical owner failure."
+  },
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "measured_at_before_receipt": "2026-09-10T23:30:09-03:00",
+    "status_porcelain_v1_z_sha256_before_receipt": "3d8d9c7e40fa7dbdeb2a81f8055d7e13012e62ca4f916527c6f037ed1970b55a",
+    "tracked_diff_binary_sha256": "099901758e0dda60cc4c16de0091adfdcedd3fcc63029e1270c34147b60aadef",
+    "tracked_diff_stat": "76 files changed, 10972 insertions(+), 833 deletions(-)",
+    "contract_outputs_before_receipt": [
+      "00_nucleo/diagnosticos/p1344-contract-spec-r1.json",
+      "00_nucleo/diagnosticos/p1344-contract-binding-r1.json"
+    ]
+  },
+  "protected_inputs": {
+    "00_nucleo/materialization/typst-passo-1344.md": "1fff15c6f17800ca293379e17d8d2ed63b2fe9043a0aebb0baf16a9b9b0ea6f3",
+    "00_nucleo/diagnosticos/p1344-authority-manifest.json": "9a3cafa60d0dcffb395bb1bda5c823ed5b1881ee8239fe06d8c6cf7614d342d1",
+    "00_nucleo/diagnosticos/p1344-l0-freeze-r1.json": "6cc3a61f2d5177b3ede1d7805f8db8f7edfcd0a2f9ea55aec50405db7832c75d",
+    "00_nucleo/diagnosticos/p1344-candidate-free-inventory-r1.md": "1b9e6c5c7196a999c7e771a96dabf150dc7e5a591eff54f507b083d28943f8e7",
+    "00_nucleo/diagnosticos/p1344-capsule-baseline-r1.json": "f64744d5bdc31734f791af24acf4204949a77c019542d5baa61c48b07e7dcaea",
+    "00_nucleo/diagnosticos/p1344-topology-receipt-r1.json": "b6055f728f15f0ea21b830e3af8be85cd07af22104d947ea6453c7ed23ad4194",
+    "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ": "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714",
+    "00_nucleo/diagnosticos/p1343-contract-spec-r2.json": "d4e444f6966a2be34018854c2b3857452447af1741e799e4cc2cfd6f31c48967",
+    "00_nucleo/diagnosticos/p1343-contract-binding-r2.json": "216100a3970bdc79b3d77cd34f4528d46cd04e06dbdc9d63d552f723a557af58",
+    "00_nucleo/diagnosticos/p1343-contract-receipt-r2.json": "013c7bb1b36a5a182a69dcb5c8451af3915239ed292c83682dc1655b51243637",
+    "00_nucleo/diagnosticos/p1343-capsule-baseline-r1.json": "db143d9fec795ec81ce7a69be5e08b09e451a9d6eb07a1a39cd1dcd41ee82977",
+    "00_nucleo/diagnosticos/p1343-oracle-blocker-r3.md": "c2af3f4b314660f620904d1fd7fa2bd0d5a5c9d8162d66edcf9aaa49e8a053d3",
+    "00_nucleo/diagnosticos/p1343-oracle-blocker-receipt-r3.json": "5db7551ed182042d045a58efb9ec3c04953f9d6738cf822555de8606f4441171"
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1344-contract-spec-r1.json": "157877514d350947f6483ec371c356dd2181c2e0f98e8fa9eb5e465527983279",
+    "00_nucleo/diagnosticos/p1344-contract-binding-r1.json": "1f4d8812d0a4e2a9451d2f8c08931fb71e1baa54a3484a411d2cf76727115bab"
+  },
+  "composition": {
+    "p1343_final": "PASS: exact contract R2 and binding R2 hashes are the normative base and every clause not expressly replaced remains binding.",
+    "p1342_semantics": "PASS: the exact H00D,H00S,H01-H16 nineteen-row set, row records, schemas, types, spans, roles, challenge/identity algebra, append receipts, carrier/Location/snapshot continuity, attempt-kind/R/cardinalities, ordering, B01-B05 and payload-only Unknown rule are preserved.",
+    "capsule_topology": "PASS: exact protected overlay yields 38 unique capsule IDs over twelve unique frozen consumers; 36 inherited plus two owner-local additions, 24 insert and 14 replace.",
+    "closed_grammar": "PASS: every inherited P1343 grammar is preserved except P1343-FUNC-CARRIER-HELPERS, which now selects the finite owner_associated_methods production. The same production binds the two owner-local additions.",
+    "normalizer": "PASS: exact protected marker policy, anchors, descending-offset inverse replacement and twelve whole-file candidate-free hashes remain mandatory.",
+    "source_runtime_boundary": "PASS: source proves only protected structure, closed grammar, owner/adjacency and normalization; real challenged independent Rust evidence remains mandatory for semantic execution, freshness and cardinality.",
+    "authority_and_unknown": "PASS: strict duplicate-key JSON, corpus-first compiled hash pins, external checker/root handoff and deterministic precedence are retained; Unknown remains only the one explicit opaque payload after every non-payload predicate passes."
+  },
+  "owner_local_repair": {
+    "p1343_func_helpers": "Only the exact nine Func associated methods may occur inside the existing impl Func; no nested impl or Content/CounterUpdate helper remains.",
+    "p1344_content_helpers": "Only Content::p1343_observe_h11 may occur inside the existing impl Content and it observes the real CounterUpdate occurrence read-only.",
+    "p1344_counter_update_helpers": "Only CounterUpdate::p1343_observe_h10 may occur inside the existing impl CounterUpdate and it exposes the same Func carrier for H10/H12A/H12B; Set/Step are absent.",
+    "physical_fit": "The contract consumes the candidate-free topology authority's parser result: 3/3 representative complete-source owner placements parsed by rustfmt, with zero nested/nonlocal impls, close/reopen, wrappers or const/macro containers.",
+    "semantic_change": "NONE: helper ownership and grammar placement only."
+  },
+  "validation": {
+    "commands": [
+      "python3 strict duplicate-key and finite-number JSON parse for the two authored pre-receipt artifacts",
+      "python3 exact top-level schema-key order assertions",
+      "python3 rehash of every protected input pair in both authored artifacts",
+      "python3 exact P1344 overlay composition, 38-id uniqueness/order and twelve-file assertions",
+      "python3 exact comparison of inherited direct-hook and expression-tail sets plus five helper-owner sets against P1343 FINAL R2",
+      "sha256sum p1344-contract-spec-r1.json p1344-contract-binding-r1.json",
+      "python3 strict parse and output-hash validation for this receipt",
+      "git diff --check"
+    ],
+    "strict_json_pre_receipt": "PASS 2/2",
+    "closed_top_level_schemas": "PASS 2/2",
+    "protected_input_hashes": "PASS 24/24 references across the two outputs; shared pins agree",
+    "capsule_order_and_uniqueness": "PASS 38/38 in exact overlay order",
+    "file_count": "PASS 12/12",
+    "hook_set": "PASS 19/19 unique in exact order",
+    "inherited_closed_sets": "PASS: direct hooks 12/12, expression-tail wrappers 9/9 and all five helper owner sets equal P1343 FINAL R2 except declared physical placement",
+    "parser_fit": "CONSUMED_FROM_PROTECTED_TOPOLOGY_RECEIPT; not rerun by contract author",
+    "oracle_or_corpus_execution": "NOT_RUN_BY_ROLE",
+    "mutation_score": null,
+    "candidate_runtime": "NOT_RUN_BY_ROLE",
+    "seal": "NOT_ISSUED"
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "future_candidate_read": false,
+    "candidate_or_product_code_written": false,
+    "oracle_corpus_checker_attack_test_or_seal_written": false,
+    "l0_or_baseline_written": false,
+    "write_allowlist_observed": [
+      "00_nucleo/diagnosticos/p1344-contract-spec-r1.json",
+      "00_nucleo/diagnosticos/p1344-contract-binding-r1.json",
+      "00_nucleo/diagnosticos/p1344-contract-receipt-r1.json"
+    ]
+  },
+  "limitations": [
+    "The shared workspace prevents technical isolation attestation; segregation is by role, frozen inputs, causal order and exact write allowlist.",
+    "Authorship and structural validation do not prove that a future oracle discriminates all mutations or that a candidate compiles or behaves correctly.",
+    "The composed contract is valid only with the exact P1343 FINAL R2 and P1344 topology hashes. It is not a free-standing reinterpretation of inherited clauses.",
+    "One contract revision remains, but may not be used to weaken a valid negative or cross the protected scope."
+  ],
+  "next_authority": "An independent oracle author may consume the exact P1344 frozen inputs and these output hashes to emit a canonical corpus first, then a source verifier/checker with immutable pins and an authorship receipt. It may run focal owner-split controls only, no full corpus, and may not read a future candidate.",
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "generated_at", "verdict", "verdict_scope", "revision_budget", "repository", "protected_inputs", "outputs", "composition", "owner_local_repair", "validation", "segregation", "limitations", "next_authority", "closed_world"],
+    "rule": "This receipt has exactly the declared top-level keys. Duplicate/unknown keys or output hash drift invalidate it. The receipt intentionally does not self-pin."
+  }
+}

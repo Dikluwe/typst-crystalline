@@ -1,0 +1,182 @@
+{
+  "schema": "p1346-transport-contract-r1",
+  "step": 1346,
+  "revision": 1,
+  "role": "independent_transport_contract_author",
+  "executor": "/root/p1346_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "CONTRACT_CANDIDATE_NOT_VERIFIED_NOT_SEALED",
+  "revision_budget": "This is the initial P1346 transport contract. At most one transport-contract revision remains, only for a newly measured contract failure class; no oracle, adversary, full-corpus, seal, RED, compiler, runtime or candidate budget is consumed here.",
+  "protected_inputs": {
+    "step": ["00_nucleo/materialization/typst-passo-1346.md", "7c7138a3aa6a94635216d5c5408d3835204804984e2dadca23973ab20263bc9e"],
+    "authority_manifest": ["00_nucleo/diagnosticos/p1346-authority-manifest-r1.json", "d26e74fb5d7d675aa5ed069c2bb7b5599930bf165e5d4c678109e9ed0019b0ff"],
+    "l0_toolchain_freeze": ["00_nucleo/diagnosticos/p1346-l0-toolchain-freeze-r1.json", "9f17a4b0f9b8394d77c9b64ad9f1c7543dc4ed04a7061306fb4c28c169464550"],
+    "capsule_baseline": ["00_nucleo/diagnosticos/p1346-capsule-baseline-r1.json", "23a2182dd4af00a83d51e5eda996fe661cf312c54d65a30c4d0d63f1dd637d78"],
+    "topology_receipt": ["00_nucleo/diagnosticos/p1346-topology-receipt-r1.json", "0f80149bf7eb7844745c8f5f5e88b14819da81c220349ddfee3e975508937f85"],
+    "probe_relocation_receipt": ["00_nucleo/diagnosticos/p1346-probe-relocation-receipt-r1.json", "b5ea227d33ec5272ad67ec1f3d99d1a5efe7f84792f69af449e3cc7a13a3e9db"],
+    "p1345_final_contract_spec": ["00_nucleo/diagnosticos/p1345-contract-spec-r2.json", "f40c2b42fe83a4b75e276ab2ea8a9639fa1553e80c06581caf8c53d948f9d38d"],
+    "p1345_final_contract_binding": ["00_nucleo/diagnosticos/p1345-contract-binding-r2.json", "ecc3a8a403d9d14d51808a35876f1f43d7773732c1d20f58574dff42d5187778"],
+    "p1345_final_contract_receipt": ["00_nucleo/diagnosticos/p1345-contract-receipt-r2.json", "875f937affb30486c9f63fa0aaf84d1e9a6e93214a8fdfb95db320e76a6c14c2"],
+    "p1345_contract_spec_r1": ["00_nucleo/diagnosticos/p1345-contract-spec-r1.json", "816aea0c92bf95a37fccbcc3c937af889e4638cf39b96593ffc62ecf004e6d1a"],
+    "p1345_contract_binding_r1": ["00_nucleo/diagnosticos/p1345-contract-binding-r1.json", "7b2451d5c290a0a4d3ad2ca4d54a0df93d39e861577aac5da7cd27f6d62417ad"],
+    "canonical_table": ["00_nucleo/diagnosticos/p1345-canonical-capsule-table-r1.json", "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"],
+    "positive_fixture": ["00_nucleo/diagnosticos/p1345-positive-fixture-r1.json", "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12"],
+    "source_verifier": ["00_nucleo/diagnosticos/p1345-source-verifier-r2.py", "9434ca3f2191cade3207d236a553b76045a016a2770da243251dc5d2d9527250"],
+    "probe_source": ["00_nucleo/diagnosticos/p1346-opaque-probe-r1.rs.txt", "863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc"],
+    "p1345_blocker_report": ["00_nucleo/diagnosticos/p1345-blocker-final-r1.md", "dc1424e7f3ac1b2a4990aeb803ca4bb57caf6d445a75fac5e06443d7a82658cc"],
+    "p1345_blocker_receipt": ["00_nucleo/diagnosticos/p1345-blocker-final-receipt-r1.json", "db4405e38c845bf7855175485903f23527fb95e4e8e8cf89fda3c134ffad269f"]
+  },
+  "transport_failure_measurement": {
+    "focal_vector": "P1345 final focal measured 120/122 = 0.9836065573770492. P1344-A21-alternate-corpus-and-digest and P1344-R2A17-alternate-corpus-root survived because argparse reported absent required flags before the application emitted AUTHORITY_ROOT.",
+    "receipt_cycle": "The P1345 R3 caller consumed an authorship receipt whose accepted verdict predicate no longer matched that receipt, so the canonical caller stopped before focal execution. A receipt that consumes a caller while the caller consumes that receipt is not a sealable trust graph.",
+    "probe_namespace": "The exact 863fa158... probe bytes compile under frozen rustc and rustfmt, but a .rs path under diagnostics caused crystalline-lint PARSE. Hash-preserving relocation to p1346-opaque-probe-r1.rs.txt restores V5/V15/V26 without changing probe bytes or the linter.",
+    "repair_hypothesis": "Replace only transport: authenticate the CLI before required-argument parsing, use an acyclic externally anchored authorship/caller/delivery DAG, and execute rehashed probe bytes from a sealed memfd. The semantic source/runtime contract does not change."
+  },
+  "normative_composition": {
+    "base_final_spec": ["00_nucleo/diagnosticos/p1345-contract-spec-r2.json", "f40c2b42fe83a4b75e276ab2ea8a9639fa1553e80c06581caf8c53d948f9d38d"],
+    "base_final_binding": ["00_nucleo/diagnosticos/p1345-contract-binding-r2.json", "ecc3a8a403d9d14d51808a35876f1f43d7773732c1d20f58574dff42d5187778"],
+    "base_final_receipt": ["00_nucleo/diagnosticos/p1345-contract-receipt-r2.json", "875f937affb30486c9f63fa0aaf84d1e9a6e93214a8fdfb95db320e76a6c14c2"],
+    "composition_order": [
+      "1. Strictly decode the exact P1345 R1 spec and binding named and hashed by the P1345 FINAL R2 contract.",
+      "2. Apply every exact P1345 R2 replacement over R1, including the nine-field primitive schema, disclosed process nonce, independent hash derivation, freshness registry and FINAL reason precedence.",
+      "3. Apply only the P1346 transport replacements enumerated by this contract and p1346-contract-binding-r1.json.",
+      "4. Treat every non-replaced P1345 FINAL clause as normative without reinterpretation. Missing, stale, conflicting, reordered, self-rooted or candidate-controlled composition is AUTHORITY_ROOT and Violated."
+    ],
+    "replaced_p1345_transport_clauses_only": [
+      "checker CLI parsing and authority-preflight precedence",
+      "authoring/execution root formulas and oracle artifact delivery order",
+      "authorship receipt, caller and delivery receipt identities and causal pins",
+      "probe source path/build input and executable selection after hashing"
+    ],
+    "semantic_scope_delta": "NONE"
+  },
+  "p1345_semantics_preserved": {
+    "source": "Exactly 38 nonempty authority-rooted canonical full-token sequences in exactly twelve frozen productive consumers, 2,506 canonical Rust lexical tokens, exact markers/anchors/kinds/physical owners, and pairwise exact [lexical_kind, exact_raw_lexeme] equality after ignoring only whitespace and comments.",
+    "normalization": "Exactly 38 complete regions inverse-normalize, by descending live byte offset and authority-provided replacement bytes, to all twelve complete candidate-free SHA-256 values. The positive overlay and table round-trip remain mandatory.",
+    "ownership": "The exact P1344 split is preserved: Func-associated helpers remain within impl Func in func.rs; the Content observation helper remains within the owner-local impl Content in content.rs; the CounterUpdate observation helper remains within impl CounterUpdate in counter_update.rs. No non-local impl, reverse import, wrapper, trait, macro/const container, side table or thirteenth consumer is permitted.",
+    "semantics": "All nineteen inherited H00D/H00S/H01-H11/H12A/H12B/H13-H16 rows and hooks, carrier/ledger/facade boundary, immutable raw freeze, read-only projection, typed values, identities, freshness, causality, cardinality, ordering, late-append, attempt-kind, mode and B01-B05 obligations remain exact.",
+    "compiler_runtime": "Source proof, cargo fmt, observation-config Cargo --no-run, normal Cargo build and the real independently compiled A/B runtime receipt remain separate mandatory gates. Source tokens never substitute for Rust resolution or runtime proof; missing candidate/final runtime is Violated.",
+    "opaque_semantics": "Exactly one deliberately opaque dictionary-payload case may become Unknown, only after every prior authority/source/compiler/runtime predicate and the full authenticated primitive probe algorithm pass. The nine P1345 R2 primitive fields and all P1345 R2 formulas remain unchanged.",
+    "classification": "Inspectable positives passing all applicable predicates are Preserved; valid semantic negatives are Violated with the first deterministic public reason and witness; only the single executed opaque case is Unknown. No input, candidate, probe or receipt may supply its own classification or witness.",
+    "mutation": "All 122 P1345 valid negatives, all eight final P1345 controls, all forty P1344 attacks, at least one mutation per each of 38 capsules and normal/repeat/reverse determinism remain obligatory. Every full order requires mutation score exactly 1.0.",
+    "scope": "No L0, public API, default behavior, pipeline phase, compatibility, HIR/MIR dependency or general functional-equivalence claim changes."
+  },
+  "transport_replacement": {
+    "authority_before_completeness": "The checker performs a manual closed preflight over raw argv before constructing or invoking argparse. Presented authority arguments are authenticated before required-argument completeness is evaluated. An alternate corpus, corpus identity, authorship receipt, checker digest or authoring root is AUTHORITY_ROOT even when any other required flag is absent.",
+    "closed_cli": "Only exact long option tokens in the binding are recognized; argparse abbreviation is disabled. Duplicates, unknown options, combined spellings, positional arguments, option aliases, missing values, values beginning with an unescaped option prefix and trailing tokens are rejected according to the binding's preflight order. No environment variable, sibling digest, default path, cwd alias or candidate field fills an absent value.",
+    "acyclic_delivery": "The oracle artifacts and checker precede the authorship receipt; the authorship receipt precedes the caller; the caller precedes the delivery receipt. The caller pins and consumes checker, authorship receipt and authoring root. The delivery receipt pins the caller. The authorship receipt never pins or consumes caller or delivery receipt, and caller never consumes delivery receipt.",
+    "external_anchor": "The preseal/final verifier receives the complete delivery-receipt SHA-256 out of band. That digest is not read from caller, checker, corpus, candidate, probe or a sibling file. The verifier rehashes and strict-parses the delivery receipt, then walks its causal pins backward before loading executable code.",
+    "sealed_execution": "The independently compiled probe executable is an intermediate byte source only. Checker copies bytes whose SHA-256 matches the externally rooted executable pin into a new memfd, seals it against write/grow/shrink and further seal changes, verifies the active seal set, and executes only /proc/self/fd/N. Path execution and every fallback are forbidden."
+  },
+  "preflight_contract": {
+    "raw_input": "An ordered argv byte/string vector supplied by the invoking authority. The preflight does not call argparse, parse any JSON, open a corpus/receipt, execute a case or import untrusted Python before its lexical and presented-authority checks complete.",
+    "exact_option_order": ["--focus", "--corpus", "--authorship-receipt", "--authorship-receipt-sha256", "--expected-checker-sha256", "--expected-authoring-root-sha256"],
+    "cardinality": {
+      "--focus": "zero or one bare flag; required for focal mode and forbidden a value",
+      "--corpus": "exactly one following value",
+      "--authorship-receipt": "exactly one following value",
+      "--authorship-receipt-sha256": "exactly one following value",
+      "--expected-checker-sha256": "exactly one following value",
+      "--expected-authoring-root-sha256": "exactly one following value"
+    },
+    "exact_validation_order": [
+      "1. Scan every argv token without abbreviation or option-prefix matching; reject NUL/non-UTF-8 transport and any token that cannot be partitioned by the exact option arities.",
+      "2. Reject duplicate recognized options in exact_option_order as DUPLICATE_KEY.",
+      "3. Reject abbreviated, case-changed, equals-joined, combined, unknown or positional option syntax as SCHEMA.",
+      "4. For every presented authority-bearing option, compare its lexical canonical value with the checker-embedded authority value before checking whether other options are missing. Any alternate corpus path, alias, digest, receipt path/digest, checker digest or authoring root is AUTHORITY_ROOT.",
+      "5. For presented paths, require the exact repository-relative lexical path, resolve every existing component without symlinks beneath the externally selected authority root, require a regular file, read once, and rehash against the embedded pin. Alias spellings such as ./, ../, absolute equivalents, repeated separators and symlink traversal are AUTHORITY_ROOT.",
+      "6. Only after steps 1-5 pass, require all five valued options and mode requirements. Missing value/options are SCHEMA. Then invoke argparse with allow_abbrev=false over the already authenticated vector and require byte-identical parsed values.",
+      "7. Any preflight failure emits no stdout, exactly one UTF-8 stderr line '<REASON_CODE>: <closed detail>\\n', exits 2, and performs zero corpus parses, case executions, probe builds or candidate reads."
+    ],
+    "authority_values": "Corpus path/hash, authorship-receipt path/hash, checker hash and authoring root are literals established by the acyclic P1346 chain. Their values cannot be overridden by a CLI digest, environment, cwd, case, candidate or receipt self-claim.",
+    "completeness_not_authority": "A canonically absent required flag is SCHEMA only if every authority-bearing value that is present is canonical and authentic. Required-argument diagnostics can never mask an already-present authority mismatch."
+  },
+  "authority_dag": {
+    "nodes_exact_order": ["authority_inputs", "oracle_artifacts", "checker", "authorship_receipt", "caller", "delivery_receipt", "out_of_band_delivery_digest", "preseal_or_final_verifier"],
+    "edges": [
+      ["authority_inputs", "oracle_artifacts"],
+      ["oracle_artifacts", "checker"],
+      ["checker", "authorship_receipt"],
+      ["authorship_receipt", "caller"],
+      ["checker", "caller"],
+      ["caller", "delivery_receipt"],
+      ["delivery_receipt", "out_of_band_delivery_digest"],
+      ["out_of_band_delivery_digest", "preseal_or_final_verifier"]
+    ],
+    "forbidden_edges": [
+      ["caller", "authorship_receipt"],
+      ["delivery_receipt", "authorship_receipt"],
+      ["delivery_receipt", "caller"],
+      ["delivery_receipt", "checker"]
+    ],
+    "edge_interpretation": "Every edge [A,B] means B pins or consumes A. Allowed edges form the complete forward causal graph. Forbidden edges state the prohibited reverse dependency and are validated against the binding's exact consumes sets.",
+    "authoring_root": "The authoring root commits to protected P1346 authority inputs and every oracle artifact through checker, but excludes authorship receipt, caller and delivery receipt so no causal cycle exists.",
+    "authorship_receipt": "Strictly pins all oracle artifacts, checker and the recomputed authoring root; its verdict is exactly FOCAL_AUTHORED_NOT_VERIFIED_NOT_SEALED before focal execution. It self-excludes and has no caller/delivery fields.",
+    "caller": "Contains literal expected checker SHA-256, authorship-receipt SHA-256 and authoring-root SHA-256, rehashes all three before importing checker, and accepts exactly the authorship receipt schema/verdict stated here. It has no delivery-receipt input or default.",
+    "delivery_receipt": "Created only after caller bytes are final. It pins caller, checker, authorship receipt and authoring root, states DELIVERED_NOT_VERIFIED_NOT_SEALED, self-excludes and contains no reverse claim that an earlier artifact consumed it.",
+    "verifier_walk": "Given only an out-of-band delivery-receipt digest plus the authority-root directory, verifier rehashes delivery receipt, caller, authorship receipt, checker, corpus, source verifier, table, fixture, probe source and all protected inputs; validates every strict schema, pin, root formula and forbidden-edge absence; then and only then may import caller/checker or execute focal/full."
+  },
+  "probe_relocation_and_execution": {
+    "source": "Only 00_nucleo/diagnosticos/p1346-opaque-probe-r1.rs.txt at SHA-256 863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc is valid. No .rs probe path may remain under diagnostics.",
+    "build": "Invoke the exact frozen rustc binary with explicit --crate-name p1346_opaque_probe and the closed edition/optimization/debug/output recipe in the binding, treating the .rs.txt path as Rust source. Rehash source and rustc immediately before build; require successful exit, empty unexpected outputs and record executable SHA-256.",
+    "memfd_algorithm": [
+      "1. Open the independently built regular executable without following a symlink, read its complete bytes once and require the externally rooted executable SHA-256.",
+      "2. Create a fresh anonymous memfd with CLOEXEC disabled for the child descriptor and ALLOW_SEALING enabled; no filesystem path or preexisting descriptor is accepted.",
+      "3. Write exactly the rehashed executable bytes, set executable mode, rewind, require memfd length and SHA-256 equal the source executable pin, and reject any short write/read or extra byte.",
+      "4. Apply F_SEAL_WRITE, F_SEAL_GROW, F_SEAL_SHRINK and F_SEAL_SEAL; retrieve seals and require all four bits with no failed operation before execution.",
+      "5. Execute only /proc/self/fd/N for that exact inherited descriptor, pass only the closed P1345 R2 request on stdin, close stdin, bind stdout/stderr/PID to this child, enforce timeout and preserve the descriptor until child exit.",
+      "6. Rehash the sealed memfd bytes after execution and require equality with pre-execution and externally rooted executable hashes. Close it after evidence capture."
+    ],
+    "fail_closed": "Unsupported memfd_create, unavailable /proc/self/fd, missing sealing constants, seal failure, executable-mode failure, descriptor replacement, hash/length drift, wrong emitter, build/path race, timeout or any path-execution request is PROBE_AUTHORITY and Violated. There is no tempfile, pathname, copy-back, unsealed-fd or original-binary fallback.",
+    "semantic_probe": "The exact P1345 R2 request/output schemas, domain separator, nonce disclosure, digest formulas, replay registry, primitive-only answer boundary and single-Unknown derivation are unchanged. memfd is transport, not a new semantic witness."
+  },
+  "strict_artifact_io": {
+    "parse": "Every JSON artifact is strict UTF-8, duplicate-decoded-key-free at every depth, finite-number-only and closed before any field is used. Objects have exactly the declared keys in the declared order; arrays have declared order/cardinality; SHA-256 is 64 lowercase hexadecimal; paths are exact lexical repository-relative strings.",
+    "canonical": "Every newly authored P1346 corpus, authority receipt, delivery receipt, checker result and verifier report is RFC 8785 canonical JSON encoded as UTF-8 followed by exactly one LF. Whole-file SHA-256 is computed over those exact bytes including the LF. A pretty, alternate Unicode-escape, numeric, key-order or trailing-whitespace encoding is rejected even if it parses to an equivalent value. Exact protected P1345 fixture/table inputs and the exact P1345 R2 probe request/output wire records retain their pinned byte/order contracts; they are strict legacy inputs, not re-encoded P1346 authority artifacts. Contract-author artifacts themselves remain strict closed JSON with declared top-level order and are pinned by their exact whole-file hashes.",
+    "no_self_root": "An artifact's own contents never establish its expected whole-file digest. Self-digest fields are forbidden. Expected pins arrive from a causal predecessor or out of band according to the DAG.",
+    "first_failure": "The first failing predicate in the preserved P1345 FINAL reason order is emitted. P1346 preflight and DAG identity failures map to AUTHORITY_ROOT; CLI duplicate/closed-schema failures map to DUPLICATE_KEY or SCHEMA; memfd/build/emitter failures map to PROBE_AUTHORITY. Unknown is never a transport result."
+  },
+  "classification": {
+    "precedence": ["AUTHORITY_ROOT", "PROTECTED_INPUT", "DUPLICATE_KEY", "SCHEMA", "PATH", "MARKER", "ANCHOR", "OWNER_ADJACENCY", "NORMALIZATION", "TOKEN_COUNT", "TOKEN_DIVERGENCE", "RUSTFMT_GATE", "CARGO_OBSERVATION_GATE", "CARGO_NORMAL_GATE", "RUNTIME_AUTHORITY", "FRESH_INPUT", "RAW_CAUSAL", "PROBE_AUTHORITY", "PROBE_CHALLENGE", "OPAQUE_PAYLOAD", "PRESERVED"],
+    "preserved": "Exactly P1345 FINAL: only inspectable input passing every applicable authority, source, compiler and runtime predicate.",
+    "violated": "Exactly P1345 FINAL plus every P1346 CLI, DAG, canonical-delivery, relocation and sealed-memfd transport failure. The first failure has a closed reason and independently computed witness.",
+    "unknown": "Exactly P1345 FINAL: only one checker-derived opaque result after the authenticated sealed probe executes and all earlier predicates pass. A transport error, missing proof or unsupported mechanism is never Unknown.",
+    "no_answer_channel": "Case, candidate, corpus, probe, caller and receipts cannot supply expected classification, reason or witness."
+  },
+  "required_discriminatory_tests": {
+    "P1344-A21-alternate-corpus-and-digest": {
+      "construction": "Invoke the checker focal entry with an alternate corpus path and alternate corpus bytes/digest while omitting one or more otherwise required receipt/checker/root options, exactly preserving the historical masking condition.",
+      "required": "exit 2; empty stdout; one canonical stderr line beginning AUTHORITY_ROOT:; zero argparse completeness diagnostic; zero corpus parse/case/probe/candidate execution; classification Violated with reason AUTHORITY_ROOT.",
+      "witness": "The presented --corpus lexical path and/or rehashed bytes differ from the checker-embedded canonical corpus authority."
+    },
+    "P1344-R2A17-alternate-corpus-root": {
+      "construction": "Place identical or altered corpus bytes under an alternate, aliased or symlink-traversed authority root, optionally present a coordinated alternate digest/root, and omit one or more remaining required options.",
+      "required": "exit 2; empty stdout; one canonical stderr line beginning AUTHORITY_ROOT: before missing-required diagnostics; zero untrusted import/parse/execution; classification Violated with reason AUTHORITY_ROOT.",
+      "witness": "Lexical root/path identity, resolved no-symlink ancestry, embedded corpus pin or externally rooted authoring root differs from the canonical chain."
+    },
+    "boundary_controls": [
+      "Canonical presented authority plus one genuinely absent non-authority required option is SCHEMA, proving absence is not mislabeled authority drift.",
+      "Canonical complete focal invocation reaches the focal dispatcher exactly once.",
+      "Duplicate exact authority option is DUPLICATE_KEY before argparse.",
+      "Abbreviated, equals-joined, unknown or alias-path option is SCHEMA or AUTHORITY_ROOT at its declared earlier predicate, never argparse-generated text."
+    ]
+  },
+  "gates_budget_stop": {
+    "contract_author": "Runs zero focal/full corpus, compiler, runtime, lint semantic or candidate tests; it may only strict-parse/hash its outputs and run git diff --check.",
+    "oracle_adversary": "Oracle authors may run only transport focals; adversary reruns the 122 negatives and the added transport attacks without full. Any survivor blocks preseal.",
+    "preseal": "Only zero focal survivors permits exactly one complete normal/repeat/reverse run. Every valid negative is Violated, exact positives are Preserved, the sole authenticated opaque probe is Unknown and mutation score is 1.0 in every order.",
+    "after_seal": "Only a valid seal permits independent A/B RED, then implementation of exactly 38 capsules in twelve consumers, three fresh GREEN runs, one final full and architecture/compiler/runtime certification.",
+    "budget": {"transport_contract_revisions_after_r1": 1, "oracle_focal_revisions_max": 1, "author_full_runs": 0, "adversary_full_runs": 0, "preseal_full_runs": 1, "candidate_correction_cycles_max": 2, "final_full_runs": 1},
+    "stop": "Any survivor, mutation score below 1.0, repeated cause/vector, protected drift, cyclic/self-rooted delivery, absent out-of-band anchor, unsealed/path probe execution, lint failure, ADR-0127 trigger, positive regression, weakened negative or exhausted budget stops and blocks seal, RED, implementation and certificate."
+  },
+  "scope": {
+    "claim": "The exact P1345 FINAL focal semantic/source/runtime contract transported through a closed preflight, acyclic externally pinned delivery DAG and sealed-memfd probe execution.",
+    "excluded": ["General functional equivalence", "Closure of P1340 or P1339", "NT01 through NT06", "Retention, discard, invalidation or terminal policy", "Public API, default behavior, pipeline phase or compatibility change"],
+    "l0_change_required": false,
+    "adr_0127_stop_required": false
+  },
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "revision_budget", "protected_inputs", "transport_failure_measurement", "normative_composition", "p1345_semantics_preserved", "transport_replacement", "preflight_contract", "authority_dag", "probe_relocation_and_execution", "strict_artifact_io", "classification", "required_discriminatory_tests", "gates_budget_stop", "scope", "closed_world"],
+    "rule": "Exactly these top-level keys in this order are valid. P1346 composes all P1345 FINAL semantics and replaces only the declared transport clauses. Duplicate/unknown keys, alternate order/schema/root/formula, semantic weakening or scope expansion is Violated."
+  }
+}

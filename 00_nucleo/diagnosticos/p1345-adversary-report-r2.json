@@ -1,0 +1,1151 @@
+{
+  "schema": "p1345-adversary-report-r2",
+  "step": 1345,
+  "revision": 2,
+  "role": "independent_adversary",
+  "executor": "/root/p1345_adversary",
+  "regime": "executado sem atestacao de isolamento",
+  "phase": "focal-adversarial-r2-no-full-corpus",
+  "protected_inputs": {
+    "source_r2": [
+      "00_nucleo/diagnosticos/p1345-source-verifier-r2.py",
+      "9434ca3f2191cade3207d236a553b76045a016a2770da243251dc5d2d9527250"
+    ],
+    "corpus_r2": [
+      "00_nucleo/diagnosticos/p1345-oracle-corpus-r2.json",
+      "3003e7577cbf99bdc50d8f14b44897e4556a8fd18f439ec07a1de96e72c94394"
+    ],
+    "checker_r2": [
+      "00_nucleo/diagnosticos/p1345-oracle-checker-r2.py",
+      "8e2ff788526e0b04d3bce6624c4a1864c6f32a36fc3a35088b1bbf6118d1c6a0"
+    ],
+    "authorship_r2": [
+      "00_nucleo/diagnosticos/p1345-oracle-authorship-r2.md",
+      "365efbbc9b3256bfd075a08eec36369b92c74997d944345b147b36ad4641c205"
+    ],
+    "authorship_receipt_r2": [
+      "00_nucleo/diagnosticos/p1345-oracle-authorship-receipt-r2.json",
+      "a69a4a8d70aba0c36e99bc6155ae24a7af7f1afc3810108301ddbb7c9b9e0ec8"
+    ],
+    "fixture_r1": [
+      "00_nucleo/diagnosticos/p1345-positive-fixture-r1.json",
+      "8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12"
+    ],
+    "table_r1": [
+      "00_nucleo/diagnosticos/p1345-canonical-capsule-table-r1.json",
+      "ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f"
+    ],
+    "probe_r1": [
+      "00_nucleo/diagnosticos/p1345-opaque-probe-r1.rs",
+      "863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc"
+    ],
+    "adversary_runner_r1": [
+      "00_nucleo/diagnosticos/p1345-adversary-runner-r1.py",
+      "d758095443b701459e20a3193423771059348c4d76076bc251174564fa4a8a61"
+    ],
+    "adversary_report_r1": [
+      "00_nucleo/diagnosticos/p1345-adversary-report-r1.json",
+      "44c54be9de183c6a6bef5d9a435b31916fbb0d9c6508b6e2066c5b7f6b99377f"
+    ],
+    "adversary_report_md_r1": [
+      "00_nucleo/diagnosticos/p1345-adversary-report-r1.md",
+      "3db92c1a84a6c9cf6f21a44d21b4c58ef795117ae4d9b22af8078e42a18182c7"
+    ],
+    "adversary_receipt_r1": [
+      "00_nucleo/diagnosticos/p1345-adversary-receipt-r1.json",
+      "5c5113987c7dea411ce76ea50f6f5b25b319dbaf32092bbac9a97de1d3ecefa4"
+    ],
+    "contract_spec_r2": [
+      "00_nucleo/diagnosticos/p1345-contract-spec-r2.json",
+      "f40c2b42fe83a4b75e276ab2ea8a9639fa1553e80c06581caf8c53d948f9d38d"
+    ],
+    "contract_binding_r2": [
+      "00_nucleo/diagnosticos/p1345-contract-binding-r2.json",
+      "ecc3a8a403d9d14d51808a35876f1f43d7773732c1d20f58574dff42d5187778"
+    ],
+    "contract_receipt_r2": [
+      "00_nucleo/diagnosticos/p1345-contract-receipt-r2.json",
+      "875f937affb30486c9f63fa0aaf84d1e9a6e93214a8fdfb95db320e76a6c14c2"
+    ],
+    "authoring_root_r2": "6b7706b597cccbde357a09041ebcd14358f6be12c5b494959d4cb1879b2099fc"
+  },
+  "execution": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B 00_nucleo/diagnosticos/p1345-adversary-runner-r2.py --output 00_nucleo/diagnosticos/p1345-adversary-report-r2.json",
+    "temporary_root": "/dev/shm/p1345-r2-*",
+    "inherited_records_replayed": 84,
+    "inherited_valid_negatives": 80,
+    "inherited_positive_controls": 4,
+    "new_attacks": 42,
+    "direct_focal_vector_regenerations": 1,
+    "focal_oracle_cli_invocations": 2,
+    "full_corpus_runs": 0,
+    "candidate_read_or_executed": false,
+    "protected_inputs_modified": false
+  },
+  "vectors": {
+    "inherited": [
+      {
+        "id": "P1344-A01-content-token-without-match",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A02-content-counter-update-returns-absence",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A03-content-helper-wrong-signature",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A04-content-foreign-func-indirection",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A05-counter-variant-tokens-without-match",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A06-counter-set-step-return-presence",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A07-counter-helper-wrong-signature",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A08-counter-executes-callback",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A09-func-helper-nonterminating",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A10-func-helper-alternate-storage",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A11-inherited-eval-helper-set-replaced",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A12-direct-hook-extra-side-effect-argument",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A13-comment-callee-decoy",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A14-carrier-extra-eraser",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A15-carrier-mutable-projection",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A16-carrier-second-storage",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A17-facade-substitutes-world",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A18-observed-expression-nontermination",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A19-string-owner-decoy",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A01-func-observer-token-decoys",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A02-func-observer-foreign-receiver",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A03-eval-exact-names-static-signatures",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A04-eval-exact-names-shadow-storage",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A05-carrier-aliased-non-vec-storage",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A06-carrier-remove-outside-append",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A07-carrier-pushes-in-dead-closure",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A08-carrier-conditional-event-loss",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A09-carrier-swap-remove-spelling",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A10-facade-unlisted-lateral-call",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A11-facade-fabricated-return-projection",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A12-facade-product-call-dead-closure",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A13-replacement-hook-under-if-false",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A14-owner-parenthesized-with-lateral-call",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A20-escaped-duplicate-json-key",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A21-alternate-corpus-and-digest",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A22-unknown-without-dict-witness",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-A23-synthetic-candidate-runtime",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A15-unknown-canonical-self-attestation",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A16-escaped-duplicate-json-key",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1344-R2A17-alternate-corpus-root",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N01-token-extra-item",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N02-token-absent-visibility",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N03-token-reorder-enum",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N04-token-substitute-ident",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N05-token-substitute-literal",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N06-token-substitute-keyword",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N07-lexer-normal-string-comment-decoy",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N08-lexer-raw-string-comment-decoy",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N09-lexer-raw-byte-string",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N10-lexer-byte-char",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N11-lexer-raw-identifier",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-C01-whitespace-control",
+        "actual": "Preserved",
+        "valid": true
+      },
+      {
+        "id": "P1345-C02-line-comment-control",
+        "actual": "Preserved",
+        "valid": true
+      },
+      {
+        "id": "P1345-C03-nested-comment-control",
+        "actual": "Preserved",
+        "valid": true
+      },
+      {
+        "id": "P1345-C04-doc-comment-control",
+        "actual": "Preserved",
+        "valid": true
+      },
+      {
+        "id": "P1345-N12-marker-missing",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N13-marker-duplicate",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N14-marker-unknown",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N15-anchor-drift",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N16-owner-outside-delta",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N17-normalization-comment-outside",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N18-file-symlink-escape",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N19-symlink-root-alias",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N20-probe-schema-forged",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N21-probe-public-projection-forged",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N22-probe-public-projection-null",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N23-probe-bool-handle-count",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N24-probe-bool-payload-count",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N40-probe-float-handle-count",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N25-probe-phase-forged",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N26-probe-answer-injected",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N27-probe-process-digest-forged",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N28-probe-response-forged",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N29-probe-replay",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N30-probe-missing",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N31-probe-wrong-emitter",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N32-probe-wrong-executable",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N33-probe-bad-nonce-hex",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N34-probe-extra-stdout",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N35-json-duplicate-unicode-key",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N36-alternate-checker-self-root",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N37-wrong-source-bundle",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N38-unknown-input-kind",
+        "actual": "Violated",
+        "valid": true
+      },
+      {
+        "id": "P1345-N39-extra-case-key",
+        "actual": "Violated",
+        "valid": true
+      }
+    ],
+    "new": [
+      {
+        "id": "P1345-R2N01-bool-token-index",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N02-null-token-index",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N03-float-token-index",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N04-extra-case-key",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N05-reordered-case-keys",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N06-runtime-object",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N07-nested-answer-channel",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N08-extra-recipe-key",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N09-null-capsule-id-ignored",
+        "family": "invocation-json",
+        "actual": "Preserved",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N10-float-replacement-ignored",
+        "family": "invocation-json",
+        "actual": "Preserved",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N11-reordered-recipe-keys",
+        "family": "invocation-json",
+        "actual": "Preserved",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N12-kind-operation-mismatch-source",
+        "family": "invocation-json",
+        "actual": "Preserved",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N13-kind-operation-mismatch-probe",
+        "family": "invocation-json",
+        "actual": "Unknown",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N14-extra-source-key",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N15-extra-probe-key",
+        "family": "invocation-json",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N16-cli-abbrev-duplicate-path-alias",
+        "family": "cli-authority",
+        "actual": "Preserved",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N17-cli-duplicate-checker-pin",
+        "family": "cli-authority",
+        "actual": "Preserved",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N18-cli-focus-full-conflict",
+        "family": "cli-authority",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N19-cli-corpus-symlink",
+        "family": "cli-authority",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N20-probe-schema-forged",
+        "family": "probe-schema",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N21-probe-projection-forged",
+        "family": "probe-schema",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N22-probe-bool-count",
+        "family": "probe-schema",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N23-probe-float-count",
+        "family": "probe-schema",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N24-probe-null-projection",
+        "family": "probe-schema",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N25-probe-extra-key",
+        "family": "probe-schema",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N26-probe-key-order",
+        "family": "probe-schema",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N27-probe-duplicate-key",
+        "family": "probe-schema",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N28-probe-trailing-space",
+        "family": "probe-schema",
+        "actual": "Unknown",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N29-probe-leading-space",
+        "family": "probe-schema",
+        "actual": "Unknown",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N30-probe-escaped-key",
+        "family": "probe-schema",
+        "actual": "Unknown",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N32-probe-negative-zero",
+        "family": "probe-schema",
+        "actual": "Unknown",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N31-probe-toctou-swap-restore",
+        "family": "probe-toctou",
+        "actual": "Unknown",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N33-probe-replay",
+        "family": "probe-boundary",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N34-probe-wrong-emitter",
+        "family": "probe-boundary",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N35-probe-wrong-executable",
+        "family": "probe-boundary",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N36-probe-challenge-hash",
+        "family": "probe-boundary",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N37-probe-nonce-hash",
+        "family": "probe-boundary",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N38-probe-nonce-encoding",
+        "family": "probe-boundary",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N39-wrong-checker-pin",
+        "family": "authority-root",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N40-wrong-authoring-root",
+        "family": "authority-root",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      },
+      {
+        "id": "P1345-R2N41-coordinated-checker-receipt-root",
+        "family": "authority-root",
+        "actual": "Preserved",
+        "valid": true,
+        "survived": true
+      },
+      {
+        "id": "P1345-R2N42-table-digest-self-consistent-alternate",
+        "family": "canonical-table-authority",
+        "actual": "Violated",
+        "valid": true,
+        "survived": false
+      }
+    ]
+  },
+  "survivor_details": [
+    {
+      "id": "P1345-R2N09-null-capsule-id-ignored",
+      "family": "invocation-json",
+      "claim": "Null capsule_id supplied to identity must not be silently ignored.",
+      "expected": "Violated",
+      "actual": "Preserved",
+      "reason_code": "PRESERVED",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "case_keys": [
+          "case_id",
+          "input_kind",
+          "source_bundle",
+          "runtime_bundle",
+          "mutation_recipe",
+          "probe_request"
+        ],
+        "recipe": {
+          "operation": "identity",
+          "capsule_id": null
+        }
+      }
+    },
+    {
+      "id": "P1345-R2N10-float-replacement-ignored",
+      "family": "invocation-json",
+      "claim": "Wrong replacement type supplied to identity must not be ignored.",
+      "expected": "Violated",
+      "actual": "Preserved",
+      "reason_code": "PRESERVED",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "case_keys": [
+          "case_id",
+          "input_kind",
+          "source_bundle",
+          "runtime_bundle",
+          "mutation_recipe",
+          "probe_request"
+        ],
+        "recipe": {
+          "operation": "identity",
+          "replacement": 1.5
+        }
+      }
+    },
+    {
+      "id": "P1345-R2N11-reordered-recipe-keys",
+      "family": "invocation-json",
+      "claim": "Recipe key order is part of the closed JSON grammar.",
+      "expected": "Violated",
+      "actual": "Preserved",
+      "reason_code": "PRESERVED",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "case_keys": [
+          "case_id",
+          "input_kind",
+          "source_bundle",
+          "runtime_bundle",
+          "mutation_recipe",
+          "probe_request"
+        ],
+        "recipe": {
+          "capsule_id": "P1343-PIPE-SUPPORT",
+          "operation": "identity"
+        }
+      }
+    },
+    {
+      "id": "P1345-R2N12-kind-operation-mismatch-source",
+      "family": "invocation-json",
+      "claim": "Opaque input kind paired with identity operation must fail.",
+      "expected": "Violated",
+      "actual": "Preserved",
+      "reason_code": "PRESERVED",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "case_keys": [
+          "case_id",
+          "input_kind",
+          "source_bundle",
+          "runtime_bundle",
+          "mutation_recipe",
+          "probe_request"
+        ],
+        "recipe": {
+          "operation": "identity"
+        }
+      }
+    },
+    {
+      "id": "P1345-R2N13-kind-operation-mismatch-probe",
+      "family": "invocation-json",
+      "claim": "Synthetic-source kind paired with opaque operation must fail.",
+      "expected": "Violated",
+      "actual": "Unknown",
+      "reason_code": "OPAQUE_PAYLOAD",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "case_keys": [
+          "case_id",
+          "input_kind",
+          "source_bundle",
+          "runtime_bundle",
+          "mutation_recipe",
+          "probe_request"
+        ],
+        "recipe": {
+          "operation": "opaque_probe"
+        }
+      }
+    },
+    {
+      "id": "P1345-R2N16-cli-abbrev-duplicate-path-alias",
+      "family": "cli-authority",
+      "claim": "Abbreviated and duplicated mode flags plus a dot-path alias must fail a closed CLI grammar.",
+      "expected": "Violated",
+      "actual": "Preserved",
+      "reason_code": "PRESERVED",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "exit": 0,
+        "stdout_sha256": "8c9f804d4be47d8995ac8055a5ff4084efa5230b1877405282b0b6a5eebf783b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P1345-R2N17-cli-duplicate-checker-pin",
+      "family": "cli-authority",
+      "claim": "Conflicting duplicate checker-pin flags must not use last-value-wins.",
+      "expected": "Violated",
+      "actual": "Preserved",
+      "reason_code": "PRESERVED",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "exit": 0,
+        "stdout_sha256": "8c9f804d4be47d8995ac8055a5ff4084efa5230b1877405282b0b6a5eebf783b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P1345-R2N28-probe-trailing-space",
+      "family": "probe-schema",
+      "claim": "Noncanonical trailing JSON whitespace must fail exact output encoding.",
+      "expected": "Violated",
+      "actual": "Unknown",
+      "reason_code": "OPAQUE_PAYLOAD",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "transformed": true,
+        "binary": "daa4dcdb91065070fd8e21ecd3f6b22b035a852167eb218f973e343387e7a2d8",
+        "output": "ef2c98c5936fae03d9395a5328b22f018e196bf5907c304e41e942e888f0ed6f",
+        "process_nonce": "620e4b6e23824d67916888ffbd4bda315a32d7376468c22bd7b9d78259e60e8a",
+        "registry": "bb704db2a4d72353d8f127a4d41a1b5b91618128cd85153dd9e9a53c68937609"
+      }
+    },
+    {
+      "id": "P1345-R2N29-probe-leading-space",
+      "family": "probe-schema",
+      "claim": "Noncanonical leading JSON whitespace must fail exact output encoding.",
+      "expected": "Violated",
+      "actual": "Unknown",
+      "reason_code": "OPAQUE_PAYLOAD",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "transformed": true,
+        "binary": "daa4dcdb91065070fd8e21ecd3f6b22b035a852167eb218f973e343387e7a2d8",
+        "output": "38a5033409bbd62f122c56d9fef87fbc3ff06ce1427440866f72395f4ce90033",
+        "process_nonce": "550a22bf4f1927aa85ad08c9da1511fbbda20f12a5fd6f445dc286b514eb495f",
+        "registry": "19ea9dfdc85680324ff6edf3877bda607b39f358503e31cd234b884681374495"
+      }
+    },
+    {
+      "id": "P1345-R2N30-probe-escaped-key",
+      "family": "probe-schema",
+      "claim": "Escaped key spelling must fail canonical JSON output encoding.",
+      "expected": "Violated",
+      "actual": "Unknown",
+      "reason_code": "OPAQUE_PAYLOAD",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "transformed": true,
+        "binary": "daa4dcdb91065070fd8e21ecd3f6b22b035a852167eb218f973e343387e7a2d8",
+        "output": "30a77d2a5834c3188643b9618f7338501a4f0459264700688037ff9d3b07d7bd",
+        "process_nonce": "f7cb0c129758a67fccaaea1f0b85b3e34d9fd60f32e990cce33edbbf86825529",
+        "registry": "35530c2281cd0eee24989b8de68571881a155d4f38af4e5b492a50ae89f30304"
+      }
+    },
+    {
+      "id": "P1345-R2N32-probe-negative-zero",
+      "family": "probe-schema",
+      "claim": "Negative-zero spelling must fail canonical JSON output encoding.",
+      "expected": "Violated",
+      "actual": "Unknown",
+      "reason_code": "OPAQUE_PAYLOAD",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "transformed": true,
+        "binary": "daa4dcdb91065070fd8e21ecd3f6b22b035a852167eb218f973e343387e7a2d8",
+        "output": "ea93e9671e221305a8433114277198d28d0d18915cbf01fa859f9d44c12da8f5",
+        "process_nonce": "a276dcf25b35fcd4bf55584fa4b54c51fc8db44b54990bae22105f54ebfc1299",
+        "registry": "8ffedbc9bf2b17750e881082a6a5fcfeda98f70f4aabd1c371d1345b9ef447ae"
+      }
+    },
+    {
+      "id": "P1345-R2N31-probe-toctou-swap-restore",
+      "family": "probe-toctou",
+      "claim": "Executable swapped after pre-hash and restored before post-hash must fail emitter/binary provenance.",
+      "expected": "Violated",
+      "actual": "Unknown",
+      "reason_code": "OPAQUE_PAYLOAD",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "swapped": true,
+        "malicious_sha256": "3d6ebc9febe19de21d32f2e65a09eed439b887a6de7a616b515538293a621325",
+        "binary": "daa4dcdb91065070fd8e21ecd3f6b22b035a852167eb218f973e343387e7a2d8",
+        "output": "09f0f2b85c61ede99515d15138507290ae1f343d69f7a0c204f5e6b8c177a856",
+        "process_nonce": "99a67c3409fa8287cd7d107d8c144be774b4c1ca0faf7e45341d4002857b29d4",
+        "registry": "c035ae63c23236152e530f891f60f3ea3106d50a27f0d74f722fcf64b80fad10"
+      }
+    },
+    {
+      "id": "P1345-R2N41-coordinated-checker-receipt-root",
+      "family": "authority-root",
+      "claim": "A coordinated alternate checker/receipt/root set must not replace the frozen out-of-band triple.",
+      "expected": "Violated",
+      "actual": "Preserved",
+      "reason_code": "PRESERVED",
+      "valid": true,
+      "survived": true,
+      "evidence": {
+        "alternate_checker_sha256": "33abb1d991dd9f6d763d553093ce588ac561f6ec5b9ba6903dd95278800ac115",
+        "alternate_receipt_sha256": "0beda3ee4fa00fb666e32146d5d01dad33912d130885326b2b6240a4f083d33a",
+        "alternate_root_sha256": "e6e309fad7f216bba6418aa26ce4a834c5874f7a861481508aa8f5884b65cd6f"
+      }
+    }
+  ],
+  "summary": {
+    "records": 126,
+    "valid_negatives": 122,
+    "correctly_violated": 109,
+    "survivor_count": 13,
+    "survivors": [
+      "P1345-R2N09-null-capsule-id-ignored",
+      "P1345-R2N10-float-replacement-ignored",
+      "P1345-R2N11-reordered-recipe-keys",
+      "P1345-R2N12-kind-operation-mismatch-source",
+      "P1345-R2N13-kind-operation-mismatch-probe",
+      "P1345-R2N16-cli-abbrev-duplicate-path-alias",
+      "P1345-R2N17-cli-duplicate-checker-pin",
+      "P1345-R2N28-probe-trailing-space",
+      "P1345-R2N29-probe-leading-space",
+      "P1345-R2N30-probe-escaped-key",
+      "P1345-R2N32-probe-negative-zero",
+      "P1345-R2N31-probe-toctou-swap-restore",
+      "P1345-R2N41-coordinated-checker-receipt-root"
+    ],
+    "mutation_score": 0.8934426229508197,
+    "inherited_valid_negatives": 80,
+    "inherited_correctly_violated": 80,
+    "positive_controls": 4,
+    "positive_control_regressions": [],
+    "full_corpus_runs": 0
+  },
+  "public_failure_classes": [
+    {
+      "code": "INVOCATION_JSON",
+      "witnesses": [
+        "P1345-R2N09-null-capsule-id-ignored",
+        "P1345-R2N10-float-replacement-ignored",
+        "P1345-R2N11-reordered-recipe-keys",
+        "P1345-R2N12-kind-operation-mismatch-source",
+        "P1345-R2N13-kind-operation-mismatch-probe"
+      ]
+    },
+    {
+      "code": "CLI_AUTHORITY",
+      "witnesses": [
+        "P1345-R2N16-cli-abbrev-duplicate-path-alias",
+        "P1345-R2N17-cli-duplicate-checker-pin"
+      ]
+    },
+    {
+      "code": "PROBE_SCHEMA",
+      "witnesses": [
+        "P1345-R2N28-probe-trailing-space",
+        "P1345-R2N29-probe-leading-space",
+        "P1345-R2N30-probe-escaped-key",
+        "P1345-R2N32-probe-negative-zero"
+      ]
+    },
+    {
+      "code": "PROBE_TOCTOU",
+      "witnesses": [
+        "P1345-R2N31-probe-toctou-swap-restore"
+      ]
+    },
+    {
+      "code": "AUTHORITY_ROOT",
+      "witnesses": [
+        "P1345-R2N41-coordinated-checker-receipt-root"
+      ]
+    }
+  ],
+  "budget_stop": {
+    "triggered": true,
+    "preseal_allowed": false,
+    "full_runs_consumed": 0,
+    "oracle_correction_performed": false
+  },
+  "verdict": "ADVERSARIAL_R2_SURVIVORS_BLOCK_PRESEAL",
+  "closed_world": {
+    "top_level_keys": [
+      "schema",
+      "step",
+      "revision",
+      "role",
+      "executor",
+      "regime",
+      "phase",
+      "protected_inputs",
+      "execution",
+      "vectors",
+      "survivor_details",
+      "summary",
+      "public_failure_classes",
+      "budget_stop",
+      "verdict",
+      "closed_world"
+    ],
+    "rule": "Independent focal R2 adversarial report only; no full corpus, seal, candidate verdict or general-equivalence claim."
+  }
+}

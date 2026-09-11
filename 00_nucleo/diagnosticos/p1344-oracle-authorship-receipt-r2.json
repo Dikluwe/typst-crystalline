@@ -1,0 +1,140 @@
+{
+  "schema": "p1344-oracle-authorship-receipt-r2",
+  "step": 1344,
+  "revision": 2,
+  "role": "independent_oracle_author_refinement",
+  "executor": "/root/p1344_oracle",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-11T00:20:28-03:00",
+  "verdict": "FOCAL_R2_AUTHORED_NOT_VERIFIED_NOT_SEALED",
+  "verdict_scope": "Exactly one focal authorial refinement for each of the three public P1344 adversarial R1 failure classes. No full corpus, productive candidate, Rust A/B evidence, runtime acceptance or seal was executed or issued.",
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_v1_z_sha256_before_receipt": "aa74cc6d403bdd09025edd878014d78146157a1d58e7fb14f9a6ec29d3e482dd",
+    "tracked_diff_binary_sha256": "099901758e0dda60cc4c16de0091adfdcedd3fcc63029e1270c34147b60aadef",
+    "tracked_diff_stat": "76 files changed, 10972 insertions(+), 833 deletions(-)"
+  },
+  "protected_inputs": {
+    "00_nucleo/materialization/typst-passo-1344.md": "1fff15c6f17800ca293379e17d8d2ed63b2fe9043a0aebb0baf16a9b9b0ea6f3",
+    "00_nucleo/diagnosticos/p1344-authority-manifest.json": "9a3cafa60d0dcffb395bb1bda5c823ed5b1881ee8239fe06d8c6cf7614d342d1",
+    "00_nucleo/diagnosticos/p1344-contract-spec-r1.json": "157877514d350947f6483ec371c356dd2181c2e0f98e8fa9eb5e465527983279",
+    "00_nucleo/diagnosticos/p1344-contract-binding-r1.json": "1f4d8812d0a4e2a9451d2f8c08931fb71e1baa54a3484a411d2cf76727115bab",
+    "00_nucleo/diagnosticos/p1344-contract-receipt-r1.json": "17af4ae7978cd1801256522e18c578fb7520b1ae98d0e0b3b7cde6d47e56b249",
+    "00_nucleo/diagnosticos/p1344-capsule-baseline-r1.json": "f64744d5bdc31734f791af24acf4204949a77c019542d5baa61c48b07e7dcaea",
+    "00_nucleo/diagnosticos/p1344-l0-freeze-r1.json": "6cc3a61f2d5177b3ede1d7805f8db8f7edfcd0a2f9ea55aec50405db7832c75d",
+    "00_nucleo/diagnosticos/p1344-topology-receipt-r1.json": "b6055f728f15f0ea21b830e3af8be85cd07af22104d947ea6453c7ed23ad4194",
+    "00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ": "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714",
+    "00_nucleo/diagnosticos/p1344-oracle-corpus-r1.json": "7ce12848ce375ab21f5ca9e112e5b653d750fdd9e4a7daf93c9d8d1e7d0aa0d6",
+    "00_nucleo/diagnosticos/p1344-source-verifier-r1.py": "83a0021d504c22ddf1591210015c7d451162789b1dd0256e0299d78e9e7fc9ea",
+    "00_nucleo/diagnosticos/p1344-oracle-checker-r1.py": "375602081721b368aa0bd032738392ee7fae2ff429183d1f04fd4f7f7144c564",
+    "00_nucleo/diagnosticos/p1344-oracle-authorship-r1.md": "cbdc774e523efbff7814865bde219b3f39e7aeb9435d7c6f733bf144cbd3f7e5",
+    "00_nucleo/diagnosticos/p1344-oracle-authorship-receipt-r1.json": "dbd9f101292029a428db8533ea938d991270a06b52629c1dd11612b674c1d8f4",
+    "00_nucleo/diagnosticos/p1344-adversary-runner-r1.py": "db23812f7bd90b232b7bd3f63de6ea66118b84ba7a02ff50d9863360b905d3fe",
+    "00_nucleo/diagnosticos/p1344-adversary-report-r1.json": "c0705aa3175c80866e52546acb8fb7a22ab0df088a57ae18d13112275ae18d09",
+    "00_nucleo/diagnosticos/p1344-adversary-report-r1.md": "5e5f07688f071b865582f40824e8866951e4ef871f9d13fd73a779dbd961902d",
+    "00_nucleo/diagnosticos/p1344-adversary-receipt-r1.json": "430fd1ba9bdae3adcac49e3b775c4540c2ad106627c2172c1008d34afdc982b9"
+  },
+  "outputs": {
+    "00_nucleo/diagnosticos/p1344-oracle-corpus-r2.json": "1246920352da5678603dadcd07efd2f1e2364e2e397d2d26fdd36b8b7ef757e5",
+    "00_nucleo/diagnosticos/p1344-source-verifier-r2.py": "62824f399b34659b81a2ab6ff538ad0747b4bb76aed6c5af4cfc78fd17a20e82",
+    "00_nucleo/diagnosticos/p1344-oracle-checker-r2.py": "62a9ebb7241fc6b2ff1495417b5a5f8b3d4ad547dc2e770cba6da8c60e118d5f",
+    "00_nucleo/diagnosticos/p1344-oracle-authorship-r2.md": "446ff183bf9531a563360395b7a27002968045f2fb9ccaf8d636e7a8b3f0c419"
+  },
+  "authority_root_sha256": "4ef44241165fef855f6d5d8ea646d70dec324817c9aa619764547c4435dbba27",
+  "refinement_classes": [
+    {
+      "failure_class": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR",
+      "revision_count": 1,
+      "attacks": 8,
+      "delta": "Exact Content and CounterUpdate receiver/signature/return/match productions; closed arms and no lateral control, storage, callback or foreign indirection.",
+      "survivors_after_revision": 0
+    },
+    {
+      "failure_class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED",
+      "revision_count": 1,
+      "attacks": 9,
+      "delta": "Exact method/item inventories, order, signatures, returns, effects, argument atoms and storage cardinality for Func, EvalContext, direct hooks, carriers, facade and observed wrappers.",
+      "survivors_after_revision": 0
+    },
+    {
+      "failure_class": "UNKNOWN_LAUNDERED_WITHOUT_WITNESS",
+      "revision_count": 1,
+      "attacks": 1,
+      "delta": "Unknown requires a strict seven-field structured dict-opacity witness with canonical ordered keys and values after all non-payload predicates.",
+      "survivors_after_revision": 0
+    }
+  ],
+  "corpus_composition": {
+    "protected_r1_cases": 139,
+    "r2_controls": 6,
+    "r2_adversarial_replays": 23,
+    "full_composed_cases": 168,
+    "owner_files": 12,
+    "capsules": 38,
+    "hook_rows": 19
+  },
+  "focal_execution": {
+    "command": "python3 -B 00_nucleo/diagnosticos/p1344-oracle-checker-r2.py --focus --corpus 00_nucleo/diagnosticos/p1344-oracle-corpus-r2.json",
+    "temporary_root": "/dev/shm",
+    "process_launches_total": 3,
+    "completed_reports_observed": 2,
+    "final_cases": 29,
+    "preserved_controls": 5,
+    "opaque_unknown": 1,
+    "valid_negatives": 23,
+    "negative_violated": 23,
+    "survivors": [],
+    "mutation_score_focal": 1.0,
+    "full_corpus_runs": 0,
+    "final_agreement": true
+  },
+  "harness_correction": {
+    "code": "MUT_SELF_RECEIVER_SLICE",
+    "observed": "The first completed report rejected all 23 attacks but rejected all six controls because the method parser sliced &mut self as a non-self argument.",
+    "delta": "Correct receiver slicing for &mut self in the positive grammar parser.",
+    "negative_vector_before": "23/23 Violated",
+    "negative_vector_after": "23/23 Violated",
+    "normative_negative_weakened": false
+  },
+  "validation": {
+    "python_compile": "PASS: source verifier and checker",
+    "strict_json": "PASS: corpus and this receipt; duplicate nested-key attack classified Violated",
+    "protected_input_hashes": "PASS",
+    "output_hashes_except_self": "PASS",
+    "compiled_corpus_pin": "PASS",
+    "compiled_source_verifier_pin": "PASS",
+    "authority_root": "PASS",
+    "alternate_corpus_path_or_bytes": "FAIL_CLOSED",
+    "candidate_root_or_runtime_evidence": "FAIL_CLOSED",
+    "source_runtime_boundary": "PASS: focal runtime only synthetic in authorial corpus",
+    "focal_vector": "PASS 29/29",
+    "full_vector": "NOT_RUN_BY_ROLE",
+    "candidate_runtime": "NOT_RUN_BY_ROLE",
+    "diff_check": "PASS",
+    "seal": "NOT_ISSUED"
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "productive_candidate_read_or_executed": false,
+    "contract_l0_step_product_code_r1_artifacts_written": false,
+    "write_allowlist_observed": [
+      "00_nucleo/diagnosticos/p1344-oracle-corpus-r2.json",
+      "00_nucleo/diagnosticos/p1344-source-verifier-r2.py",
+      "00_nucleo/diagnosticos/p1344-oracle-checker-r2.py",
+      "00_nucleo/diagnosticos/p1344-oracle-authorship-r2.md",
+      "00_nucleo/diagnosticos/p1344-oracle-authorship-receipt-r2.json"
+    ]
+  },
+  "limitations": [
+    "Shared workspace prevents technical isolation attestation.",
+    "Focal score 1.0 is not the complete mutation score and cannot seal the contract.",
+    "Source proof does not establish productive runtime reachability, freshness, identities or cardinalities.",
+    "The external adversary must attack these exact R2 hashes; only a later preseal authority may run the sole full normal/repeat/reverse gate."
+  ],
+  "next_authority": "Independent adversary against the exact R2 corpus, source verifier, checker and authorship hashes. Any valid survivor blocks preseal; zero survivors permits a separate preseal full run.",
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "generated_at", "verdict", "verdict_scope", "repository", "protected_inputs", "outputs", "authority_root_sha256", "refinement_classes", "corpus_composition", "focal_execution", "harness_correction", "validation", "segregation", "limitations", "next_authority", "closed_world"],
+    "rule": "Exactly these top-level keys are allowed. Duplicate keys, unknown keys, protected/output drift or authority-root mismatch invalidates this receipt. The receipt does not self-pin."
+  }
+}

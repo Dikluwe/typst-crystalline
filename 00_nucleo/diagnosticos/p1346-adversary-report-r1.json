@@ -1,0 +1,1375 @@
+{
+  "budget_stop": {
+    "full_runs_consumed": 0,
+    "oracle_correction_performed": false,
+    "preseal_allowed": false,
+    "triggered": true
+  },
+  "closed_world": {
+    "rule": "Independent P1346 focal adversarial report only; no full corpus, seal, candidate verdict or general-equivalence claim.",
+    "top_level_keys": [
+      "budget_stop",
+      "closed_world",
+      "execution",
+      "executor",
+      "phase",
+      "protected_inputs",
+      "regime",
+      "revision",
+      "role",
+      "schema",
+      "step",
+      "summary",
+      "survivor_details",
+      "vectors",
+      "verdict"
+    ]
+  },
+  "execution": {
+    "candidate_read_or_executed": false,
+    "canonical_focal_claimed_inherited_negatives": 122,
+    "canonical_focal_claimed_transport_negatives": 18,
+    "effective_inherited_negative_executions": 2,
+    "effective_transport_negative_executions": 14,
+    "focal_only": true,
+    "full_corpus_runs": 0,
+    "historical_outcomes_copied_without_execution": 120,
+    "instrumented_calls": {
+      "legacy_loader_calls": 1,
+      "manual_preflight_calls": 8,
+      "probe_calls": 9,
+      "subprocess_preflight_calls": 2
+    },
+    "protected_inputs_modified": false,
+    "temporary_root": "/dev/shm/p1346-*"
+  },
+  "executor": "/root/p1346_adversary",
+  "phase": "focal-adversarial-r1-no-full",
+  "protected_inputs": {
+    "authoring_root_sha256": "c346067d7355418a5da0db985a49fbeb6ea28fffd3af6a6c348c3f75c1a51158",
+    "authorship": [
+      "00_nucleo/diagnosticos/p1346-oracle-authorship-r1.md",
+      "f066b46036b7e99939e612fc37f1980d91730656a8c6789235da52a3104c93bd"
+    ],
+    "authorship_receipt": [
+      "00_nucleo/diagnosticos/p1346-oracle-authorship-receipt-r1.json",
+      "79ee4e7a9e246393926cee0dbb29ed01478f7c5cff441c0de82dee9ae20e781c"
+    ],
+    "caller": [
+      "00_nucleo/diagnosticos/p1346-oracle-caller-r1.py",
+      "2db5ac3ae2c46245298450cc416d4ce6ee41e1dba38506049f200f2292f2862c"
+    ],
+    "checker": [
+      "00_nucleo/diagnosticos/p1346-oracle-checker-r1.py",
+      "aed47f690bc6fb1b24fc0711e7ccf5b6797a19055aa94478cb0b40fad133e13e"
+    ],
+    "contract_binding": [
+      "00_nucleo/diagnosticos/p1346-contract-binding-r1.json",
+      "bcc5e5fe69d3ac7a98a5ffd41e325e50ea4e6a5acc5d89834e78bfc6f4b36402"
+    ],
+    "contract_receipt": [
+      "00_nucleo/diagnosticos/p1346-contract-receipt-r1.json",
+      "2a19fbf94896b16f2dee5588450649c69e5a85e6cfa99a85025e2b3e21d4e873"
+    ],
+    "contract_spec": [
+      "00_nucleo/diagnosticos/p1346-contract-spec-r1.json",
+      "baa9065e14d9a67cd3f804c8fcc4063e3fc6a176156409a36a03f630181e026f"
+    ],
+    "corpus": [
+      "00_nucleo/diagnosticos/p1346-oracle-corpus-r1.json",
+      "3ea720774f76346fbde01a695b54eed4352dc5f65e984892ff187006d7789932"
+    ],
+    "delivery_receipt": [
+      "00_nucleo/diagnosticos/p1346-oracle-delivery-receipt-r1.json",
+      "f8d8f12776a17b08941d5969d8bdeebff183b62284d786c04481292f2c43fd6e"
+    ],
+    "delivery_root_sha256": "784058075fa4ca40cd3b0fd835f78ef46b725b565b8496b457fa56426634bb6d",
+    "external_delivery_receipt_sha256": "f8d8f12776a17b08941d5969d8bdeebff183b62284d786c04481292f2c43fd6e",
+    "manifest": [
+      "00_nucleo/diagnosticos/p1346-authority-manifest-r1.json",
+      "d26e74fb5d7d675aa5ed069c2bb7b5599930bf165e5d4c678109e9ed0019b0ff"
+    ],
+    "probe_source": [
+      "00_nucleo/diagnosticos/p1346-opaque-probe-r1.rs.txt",
+      "863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc"
+    ],
+    "step": [
+      "00_nucleo/materialization/typst-passo-1346.md",
+      "7c7138a3aa6a94635216d5c5408d3835204804984e2dadca23973ab20263bc9e"
+    ]
+  },
+  "regime": "executado sem atestacao de isolamento",
+  "revision": 1,
+  "role": "independent_adversary",
+  "schema": "p1346-adversary-report-r1",
+  "step": 1346,
+  "summary": {
+    "additional_attacks": 27,
+    "additional_correctly_violated": 24,
+    "additional_mutation_score": 0.8888888888888888,
+    "additional_survivor_count": 3,
+    "additional_survivors": [
+      "P1346-A01-inherited-result-laundering",
+      "P1346-A25-memfd-fd-swap-restore",
+      "P1346-A26-actual-memfd-absence"
+    ],
+    "canonical_control_regressions": [],
+    "canonical_controls": 4,
+    "canonical_focal_controls": 13,
+    "canonical_focal_reported_score": 1,
+    "canonical_focal_reported_valid_negatives": 140,
+    "full_corpus_runs": 0,
+    "observed_effective_p1345_replays": 2,
+    "observed_effective_transport_replays": 14,
+    "required_effective_p1345_replays": 122,
+    "required_effective_transport_replays": 18
+  },
+  "survivor_details": [
+    {
+      "actual": "Preserved",
+      "claim": "The focal gate must actually reexecute 122 P1345 negatives; replacing inherited measured outcomes with Preserved must not still yield 140/140.",
+      "evidence": {
+        "poisoned_inherited_rows": 122,
+        "reported_correctly_violated": 140,
+        "reported_survivors": []
+      },
+      "expected": "Violated",
+      "family": "historical-nonexecution",
+      "id": "P1346-A01-inherited-result-laundering",
+      "reason_code": "HISTORICAL_NONEXECUTION",
+      "survived": true,
+      "valid": true
+    },
+    {
+      "actual": "Unknown",
+      "claim": "Replacing descriptor N only during child exec and restoring the sealed descriptor before post-hash must be rejected.",
+      "evidence": {
+        "evil_sha256": "64624aa34739cd848352179c919e78cd2aa4c8429e9c70b5840dfef72511cb65",
+        "oracle_evidence_keys": [
+          "probe_executable_sha256",
+          "probe_memfd_sha256",
+          "probe_output_sha256",
+          "process_nonce_hex",
+          "seals"
+        ],
+        "swapped": true
+      },
+      "expected": "Violated",
+      "family": "memfd-descriptor-identity",
+      "id": "P1346-A25-memfd-fd-swap-restore",
+      "reason_code": "OPAQUE_PAYLOAD",
+      "survived": true,
+      "valid": true
+    },
+    {
+      "actual": "Unclassified",
+      "claim": "An actual memfd_create failure must not use a path fallback.",
+      "evidence": {},
+      "expected": "Violated",
+      "family": "memfd-fail-closed",
+      "id": "P1346-A26-actual-memfd-absence",
+      "reason_code": "OSError",
+      "survived": true,
+      "valid": true
+    }
+  ],
+  "vectors": {
+    "additional": [
+      {
+        "actual": "Preserved",
+        "claim": "The focal gate must actually reexecute 122 P1345 negatives; replacing inherited measured outcomes with Preserved must not still yield 140/140.",
+        "evidence": {
+          "poisoned_inherited_rows": 122,
+          "reported_correctly_violated": 140,
+          "reported_survivors": []
+        },
+        "expected": "Violated",
+        "family": "historical-nonexecution",
+        "id": "P1346-A01-inherited-result-laundering",
+        "reason_code": "HISTORICAL_NONEXECUTION",
+        "survived": true,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--corpus",
+            "/dev/shm/alternate.json"
+          ],
+          "expected_reason": "AUTHORITY_ROOT"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A02-alt-corpus-missing-flags",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--authorship-receipt",
+            "/dev/shm/receipt.json"
+          ],
+          "expected_reason": "AUTHORITY_ROOT"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A03-alt-receipt-missing-digest",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--expected-checker-sha256",
+            "0000000000000000000000000000000000000000000000000000000000000000"
+          ],
+          "expected_reason": "AUTHORITY_ROOT"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A04-wrong-checker-missing-flags",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--expected-checker-sha256",
+            "aed47f690bc6fb1b24fc0711e7ccf5b6797a19055aa94478cb0b40fad133e13e",
+            "--expected-authoring-root-sha256",
+            "0000000000000000000000000000000000000000000000000000000000000000"
+          ],
+          "expected_reason": "AUTHORITY_ROOT"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A05-wrong-root-missing-flags",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--corpus",
+            "00_nucleo/diagnosticos/p1346-oracle-corpus-r1.json",
+            "--authorship-receipt",
+            "00_nucleo/diagnosticos/p1346-oracle-authorship-receipt-r1.json",
+            "--authorship-receipt-sha256",
+            "79ee4e7a9e246393926cee0dbb29ed01478f7c5cff441c0de82dee9ae20e781c",
+            "--expected-checker-sha256",
+            "aed47f690bc6fb1b24fc0711e7ccf5b6797a19055aa94478cb0b40fad133e13e",
+            "--expected-authoring-root-sha256",
+            "c346067d7355418a5da0db985a49fbeb6ea28fffd3af6a6c348c3f75c1a51158",
+            "--focus"
+          ],
+          "expected_reason": "DUPLICATE_KEY"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A06-duplicate-focus",
+        "reason_code": "DUPLICATE_KEY",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--foc"
+          ],
+          "expected_reason": "SCHEMA"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A07-prefix-abbreviation",
+        "reason_code": "SCHEMA",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--corpus=00_nucleo/diagnosticos/p1346-oracle-corpus-r1.json"
+          ],
+          "expected_reason": "SCHEMA"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A08-equals-spelling",
+        "reason_code": "SCHEMA",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "attacker"
+          ],
+          "expected_reason": "SCHEMA"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A09-unknown-positional",
+        "reason_code": "SCHEMA",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--corpus",
+            "--focus"
+          ],
+          "expected_reason": "SCHEMA"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A10-option-as-value",
+        "reason_code": "SCHEMA",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--corpus",
+            "./00_nucleo/diagnosticos/p1346-oracle-corpus-r1.json"
+          ],
+          "expected_reason": "AUTHORITY_ROOT"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A11-dot-path-alias",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--authorship-receipt-sha256",
+            "79EE4E7A9E246393926CEE0DBB29ED01478F7C5CFF441C0DE82DEE9AE20E781C"
+          ],
+          "expected_reason": "SCHEMA"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A12-uppercase-digest",
+        "reason_code": "SCHEMA",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Closed raw-argv preflight must reject this vector.",
+        "evidence": {
+          "argv": [
+            "--focus",
+            "--corpus",
+            "00_nucleo/diagnosticos/p1346-oracle-corpus-r1.json",
+            "--authorship-receipt",
+            "00_nucleo/diagnosticos/p1346-oracle-authorship-receipt-r1.json",
+            "--authorship-receipt-sha256",
+            "79ee4e7a9e246393926cee0dbb29ed01478f7c5cff441c0de82dee9ae20e781c",
+            "--expected-checker-sha256",
+            "aed47f690bc6fb1b24fc0711e7ccf5b6797a19055aa94478cb0b40fad133e13e",
+            "--expected-authoring-root-sha256",
+            "c346067d7355418a5da0db985a49fbeb6ea28fffd3af6a6c348c3f75c1a51158",
+            "trailing"
+          ],
+          "expected_reason": "SCHEMA"
+        },
+        "expected": "Violated",
+        "family": "manual-preflight",
+        "id": "P1346-A13-trailing-token",
+        "reason_code": "SCHEMA",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "A mutated delivery chain must fail the unchanged out-of-band trust anchor.",
+        "evidence": {
+          "mutated_sha256": "cc1187264fc911018a7c011810df6caf46878325d3436b29d4410186b167cec6"
+        },
+        "expected": "Violated",
+        "family": "external-delivery-dag",
+        "id": "P1346-A14-delivery-caller-substitution",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "A mutated delivery chain must fail the unchanged out-of-band trust anchor.",
+        "evidence": {
+          "mutated_sha256": "699e1a151071cd2e120e8f9eefd94d116df5f735f4607255d2077868349d0684"
+        },
+        "expected": "Violated",
+        "family": "external-delivery-dag",
+        "id": "P1346-A15-delivery-checker-substitution",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "A mutated delivery chain must fail the unchanged out-of-band trust anchor.",
+        "evidence": {
+          "mutated_sha256": "8e91ff039259d0cf5f6a561e6410cc03ea9e74242e449169e1fab2056dfbd4cd"
+        },
+        "expected": "Violated",
+        "family": "external-delivery-dag",
+        "id": "P1346-A16-delivery-authorship-substitution",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "A mutated delivery chain must fail the unchanged out-of-band trust anchor.",
+        "evidence": {
+          "mutated_sha256": "1bdd65d7bfe280350eebb774233046a9625f1e88cfecf3b5fa74b9093eb04ddc"
+        },
+        "expected": "Violated",
+        "family": "external-delivery-dag",
+        "id": "P1346-A17-delivery-failed-verdict",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "A mutated delivery chain must fail the unchanged out-of-band trust anchor.",
+        "evidence": {
+          "mutated_sha256": "0c7e8a67f32930cdfcb7f8ef815d00c4f00e6022f2142a5cda4feb9731b409c1"
+        },
+        "expected": "Violated",
+        "family": "external-delivery-dag",
+        "id": "P1346-A18-delivery-cycle-key",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "A mutated delivery chain must fail the unchanged out-of-band trust anchor.",
+        "evidence": {
+          "mutated_sha256": "1f9e78903617beda45ef4551a9149cf0f8552a36619550014b3c804636f2aae7"
+        },
+        "expected": "Violated",
+        "family": "external-delivery-dag",
+        "id": "P1346-A19-delivery-duplicate-key",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "A mutated delivery chain must fail the unchanged out-of-band trust anchor.",
+        "evidence": {
+          "mutated_sha256": "76b835567d188c1b8eb2d9e9cd6579c41380b0c2902e7f2c680ec191244984da"
+        },
+        "expected": "Violated",
+        "family": "external-delivery-dag",
+        "id": "P1346-A20-delivery-noncanonical-order",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "A mutated delivery chain must fail the unchanged out-of-band trust anchor.",
+        "evidence": {
+          "mutated_sha256": "453ad6c8b0c1f939e1f2ac32ea634d62a91ab0ea2c2568127bd4dd16d9bcb003"
+        },
+        "expected": "Violated",
+        "family": "external-delivery-dag",
+        "id": "P1346-A21-delivery-trailing-space",
+        "reason_code": "AUTHORITY_ROOT",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Mutated probe JSON bytes must fail closed.",
+        "evidence": {
+          "oracle_evidence_keys": [
+            "probe_executable_sha256",
+            "probe_memfd_sha256",
+            "seals"
+          ],
+          "transformed": true
+        },
+        "expected": "Violated",
+        "family": "probe-canonical-json",
+        "id": "P1346-A22-probe-duplicate-json-key",
+        "reason_code": "DUPLICATE_KEY",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Mutated probe JSON bytes must fail closed.",
+        "evidence": {
+          "oracle_evidence_keys": [
+            "probe_executable_sha256",
+            "probe_memfd_sha256",
+            "seals"
+          ],
+          "transformed": true
+        },
+        "expected": "Violated",
+        "family": "probe-canonical-json",
+        "id": "P1346-A23-probe-reordered-json",
+        "reason_code": "SCHEMA",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Mutated probe JSON bytes must fail closed.",
+        "evidence": {
+          "oracle_evidence_keys": [
+            "probe_executable_sha256",
+            "probe_memfd_sha256",
+            "seals"
+          ],
+          "transformed": true
+        },
+        "expected": "Violated",
+        "family": "probe-canonical-json",
+        "id": "P1346-A24-probe-trailing-space",
+        "reason_code": "SCHEMA",
+        "survived": false,
+        "valid": true
+      },
+      {
+        "actual": "Unknown",
+        "claim": "Replacing descriptor N only during child exec and restoring the sealed descriptor before post-hash must be rejected.",
+        "evidence": {
+          "evil_sha256": "64624aa34739cd848352179c919e78cd2aa4c8429e9c70b5840dfef72511cb65",
+          "oracle_evidence_keys": [
+            "probe_executable_sha256",
+            "probe_memfd_sha256",
+            "probe_output_sha256",
+            "process_nonce_hex",
+            "seals"
+          ],
+          "swapped": true
+        },
+        "expected": "Violated",
+        "family": "memfd-descriptor-identity",
+        "id": "P1346-A25-memfd-fd-swap-restore",
+        "reason_code": "OPAQUE_PAYLOAD",
+        "survived": true,
+        "valid": true
+      },
+      {
+        "actual": "Unclassified",
+        "claim": "An actual memfd_create failure must not use a path fallback.",
+        "evidence": {},
+        "expected": "Violated",
+        "family": "memfd-fail-closed",
+        "id": "P1346-A26-actual-memfd-absence",
+        "reason_code": "OSError",
+        "survived": true,
+        "valid": true
+      },
+      {
+        "actual": "Violated",
+        "claim": "Missing active seals must be detected without fallback.",
+        "evidence": {},
+        "expected": "Violated",
+        "family": "memfd-fail-closed",
+        "id": "P1346-A27-actual-seal-absence",
+        "reason_code": "PROBE_AUTHORITY",
+        "survived": false,
+        "valid": true
+      }
+    ],
+    "canonical_controls": [
+      {
+        "actual": "Preserved",
+        "evidence": {
+          "correctly_violated": 140,
+          "full_corpus_runs": 0,
+          "inherited_positive_controls": 8,
+          "mutation_score": 1,
+          "new_boundary_controls": 5,
+          "positive_control_regressions": [],
+          "survivors": [],
+          "valid_negatives": 140
+        },
+        "expected": "Preserved",
+        "id": "P1346-AC01-canonical-focal"
+      },
+      {
+        "actual": "Preserved",
+        "evidence": {
+          "delivery_receipt_sha256": "f8d8f12776a17b08941d5969d8bdeebff183b62284d786c04481292f2c43fd6e"
+        },
+        "expected": "Preserved",
+        "id": "P1346-AC02-external-dag"
+      },
+      {
+        "actual": "Preserved",
+        "evidence": {
+          "probe_rs_paths": [],
+          "source_sha256": "863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc"
+        },
+        "expected": "Preserved",
+        "id": "P1346-AC03-rs-txt-relocation"
+      },
+      {
+        "actual": "Unknown",
+        "evidence": {
+          "reason_code": "OPAQUE_PAYLOAD"
+        },
+        "expected": "Unknown",
+        "id": "P1346-AC04-canonical-sealed-probe"
+      }
+    ],
+    "canonical_focal_inherited": [
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A01-content-token-without-match",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A02-content-counter-update-returns-absence",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A03-content-helper-wrong-signature",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A04-content-foreign-func-indirection",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A05-counter-variant-tokens-without-match",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A06-counter-set-step-return-presence",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A07-counter-helper-wrong-signature",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A08-counter-executes-callback",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A09-func-helper-nonterminating",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A10-func-helper-alternate-storage",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A11-inherited-eval-helper-set-replaced",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A12-direct-hook-extra-side-effect-argument",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A13-comment-callee-decoy",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A14-carrier-extra-eraser",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A15-carrier-mutable-projection",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A16-carrier-second-storage",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A17-facade-substitutes-world",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A18-observed-expression-nontermination",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A19-string-owner-decoy",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A01-func-observer-token-decoys",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A02-func-observer-foreign-receiver",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A03-eval-exact-names-static-signatures",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A04-eval-exact-names-shadow-storage",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A05-carrier-aliased-non-vec-storage",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A06-carrier-remove-outside-append",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A07-carrier-pushes-in-dead-closure",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A08-carrier-conditional-event-loss",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A09-carrier-swap-remove-spelling",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A10-facade-unlisted-lateral-call",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A11-facade-fabricated-return-projection",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A12-facade-product-call-dead-closure",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A13-replacement-hook-under-if-false",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A14-owner-parenthesized-with-lateral-call",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A20-escaped-duplicate-json-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A22-unknown-without-dict-witness",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A23-synthetic-candidate-runtime",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A15-unknown-canonical-self-attestation",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A16-escaped-duplicate-json-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N01-token-extra-item",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N02-token-absent-visibility",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N03-token-reorder-enum",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N04-token-substitute-ident",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N05-token-substitute-literal",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N06-token-substitute-keyword",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N07-lexer-normal-string-comment-decoy",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N08-lexer-raw-string-comment-decoy",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N09-lexer-raw-byte-string",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N10-lexer-byte-char",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N11-lexer-raw-identifier",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N12-marker-missing",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N13-marker-duplicate",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N14-marker-unknown",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N15-anchor-drift",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N16-owner-outside-delta",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N17-normalization-comment-outside",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N18-file-symlink-escape",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N19-symlink-root-alias",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N20-probe-schema-forged",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N21-probe-public-projection-forged",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N22-probe-public-projection-null",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N23-probe-bool-handle-count",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N24-probe-bool-payload-count",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N40-probe-float-handle-count",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N25-probe-phase-forged",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N26-probe-answer-injected",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N27-probe-process-digest-forged",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N28-probe-response-forged",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N29-probe-replay",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N30-probe-missing",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N31-probe-wrong-emitter",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N32-probe-wrong-executable",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N33-probe-bad-nonce-hex",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N34-probe-extra-stdout",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N35-json-duplicate-unicode-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N36-alternate-checker-self-root",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N37-wrong-source-bundle",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N38-unknown-input-kind",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-N39-extra-case-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N01-bool-token-index",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N02-null-token-index",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N03-float-token-index",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N04-extra-case-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N05-reordered-case-keys",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N06-runtime-object",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N07-nested-answer-channel",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N08-extra-recipe-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N09-null-capsule-id-ignored",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N10-float-replacement-ignored",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N11-reordered-recipe-keys",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N12-kind-operation-mismatch-source",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N13-kind-operation-mismatch-probe",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N14-extra-source-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N15-extra-probe-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N16-cli-abbrev-duplicate-path-alias",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N17-cli-duplicate-checker-pin",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N18-cli-focus-full-conflict",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N19-cli-corpus-symlink",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N20-probe-schema-forged",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N21-probe-projection-forged",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N22-probe-bool-count",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N23-probe-float-count",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N24-probe-null-projection",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N25-probe-extra-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N26-probe-key-order",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N27-probe-duplicate-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N28-probe-trailing-space",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N29-probe-leading-space",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N30-probe-escaped-key",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N32-probe-negative-zero",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N31-probe-toctou-swap-restore",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N33-probe-replay",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N34-probe-wrong-emitter",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N35-probe-wrong-executable",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N36-probe-challenge-hash",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N37-probe-nonce-hash",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N38-probe-nonce-encoding",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N39-wrong-checker-pin",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N40-wrong-authoring-root",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N41-coordinated-checker-receipt-root",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1345-R2N42-table-digest-self-consistent-alternate",
+        "reason_code": "PROTECTED_INPUT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-A21-alternate-corpus-and-digest",
+        "reason_code": "AUTHORITY_ROOT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1344-R2A17-alternate-corpus-root",
+        "reason_code": "AUTHORITY_ROOT"
+      }
+    ],
+    "canonical_focal_transport": [
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T03-duplicate-authority-flag",
+        "reason_code": "DUPLICATE_KEY"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T04-abbreviated-option",
+        "reason_code": "SCHEMA"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T05-equals-joined-option",
+        "reason_code": "SCHEMA"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T06-unknown-option",
+        "reason_code": "SCHEMA"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T07-alias-path",
+        "reason_code": "AUTHORITY_ROOT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T12-external-anchor-drift",
+        "reason_code": "AUTHORITY_ROOT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T08-receipt-cycle",
+        "reason_code": "AUTHORITY_ROOT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T09-failed-receipt",
+        "reason_code": "AUTHORITY_ROOT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T10-caller-swap",
+        "reason_code": "AUTHORITY_ROOT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T11-delivery-pin-drift",
+        "reason_code": "AUTHORITY_ROOT"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T13-memfd-absent",
+        "reason_code": "PROBE_AUTHORITY"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T14-seal-missing",
+        "reason_code": "PROBE_AUTHORITY"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T15-path-execution",
+        "reason_code": "PROBE_AUTHORITY"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T16-symlink-build-output",
+        "reason_code": "PROBE_AUTHORITY"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T17-swap-restore",
+        "reason_code": "PROBE_AUTHORITY"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T18-replay",
+        "reason_code": "PROBE_CHALLENGE"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T19-noncanonical-output",
+        "reason_code": "PROBE_AUTHORITY"
+      },
+      {
+        "actual": "Violated",
+        "case_id": "P1346-T20-wrong-emitter",
+        "reason_code": "PROBE_AUTHORITY"
+      }
+    ]
+  },
+  "verdict": "ADVERSARIAL_R1_SURVIVORS_AND_NONEXECUTION_BLOCK_PRESEAL"
+}

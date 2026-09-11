@@ -1,0 +1,100 @@
+{
+  "schema": "p1344-oracle-corpus-r2",
+  "step": 1344,
+  "revision": 2,
+  "role": "independent_oracle_author_refinement",
+  "executor": "/root/p1344_oracle",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "FOCAL_R2_AUTHORED_NOT_VERIFIED_NOT_SEALED",
+  "protected_inputs": {
+    "authority_manifest": ["00_nucleo/diagnosticos/p1344-authority-manifest.json", "9a3cafa60d0dcffb395bb1bda5c823ed5b1881ee8239fe06d8c6cf7614d342d1"],
+    "contract": ["00_nucleo/diagnosticos/p1344-contract-spec-r1.json", "157877514d350947f6483ec371c356dd2181c2e0f98e8fa9eb5e465527983279"],
+    "binding": ["00_nucleo/diagnosticos/p1344-contract-binding-r1.json", "1f4d8812d0a4e2a9451d2f8c08931fb71e1baa54a3484a411d2cf76727115bab"],
+    "capsule_baseline": ["00_nucleo/diagnosticos/p1344-capsule-baseline-r1.json", "f64744d5bdc31734f791af24acf4204949a77c019542d5baa61c48b07e7dcaea"],
+    "l0_freeze": ["00_nucleo/diagnosticos/p1344-l0-freeze-r1.json", "6cc3a61f2d5177b3ede1d7805f8db8f7edfcd0a2f9ea55aec50405db7832c75d"],
+    "fixture": ["00_nucleo/diagnosticos/p1342-contract-fixture-r1.typ", "98159f5ac529520590a197521dfb23383cec0ba6373b431b8b33f426cfc3a714"],
+    "corpus_r1": ["00_nucleo/diagnosticos/p1344-oracle-corpus-r1.json", "7ce12848ce375ab21f5ca9e112e5b653d750fdd9e4a7daf93c9d8d1e7d0aa0d6"],
+    "source_verifier_r1": ["00_nucleo/diagnosticos/p1344-source-verifier-r1.py", "83a0021d504c22ddf1591210015c7d451162789b1dd0256e0299d78e9e7fc9ea"],
+    "checker_r1": ["00_nucleo/diagnosticos/p1344-oracle-checker-r1.py", "375602081721b368aa0bd032738392ee7fae2ff429183d1f04fd4f7f7144c564"],
+    "authorship_r1": ["00_nucleo/diagnosticos/p1344-oracle-authorship-r1.md", "cbdc774e523efbff7814865bde219b3f39e7aeb9435d7c6f733bf144cbd3f7e5"],
+    "authorship_receipt_r1": ["00_nucleo/diagnosticos/p1344-oracle-authorship-receipt-r1.json", "dbd9f101292029a428db8533ea938d991270a06b52629c1dd11612b674c1d8f4"],
+    "adversary_runner_r1": ["00_nucleo/diagnosticos/p1344-adversary-runner-r1.py", "db23812f7bd90b232b7bd3f63de6ea66118b84ba7a02ff50d9863360b905d3fe"],
+    "adversary_report_r1": ["00_nucleo/diagnosticos/p1344-adversary-report-r1.json", "c0705aa3175c80866e52546acb8fb7a22ab0df088a57ae18d13112275ae18d09"],
+    "adversary_report_md_r1": ["00_nucleo/diagnosticos/p1344-adversary-report-r1.md", "5e5f07688f071b865582f40824e8866951e4ef871f9d13fd73a779dbd961902d"],
+    "adversary_receipt_r1": ["00_nucleo/diagnosticos/p1344-adversary-receipt-r1.json", "430fd1ba9bdae3adcac49e3b775c4540c2ad106627c2172c1008d34afdc982b9"]
+  },
+  "refinement_classes": [
+    {
+      "code": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR",
+      "attacks": ["P1344-A01", "P1344-A02", "P1344-A03", "P1344-A04", "P1344-A05", "P1344-A06", "P1344-A07", "P1344-A08"],
+      "r2_hypothesis": "Exact receiver/signature/return and a closed match-expression production over self distinguish owner semantics from loose variant tokens."
+    },
+    {
+      "code": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED",
+      "attacks": ["P1344-A09", "P1344-A10", "P1344-A11", "P1344-A12", "P1344-A14", "P1344-A15", "P1344-A16", "P1344-A17", "P1344-A18"],
+      "r2_hypothesis": "Closed method/item sets, exact signatures, finite argument atoms, exact storage inventory and control-free wrappers distinguish the inherited productions."
+    },
+    {
+      "code": "UNKNOWN_LAUNDERED_WITHOUT_WITNESS",
+      "attacks": ["P1344-A22"],
+      "r2_hypothesis": "Unknown requires a strict structured opacity witness plus every non-payload source/runtime predicate; case identity alone never classifies Unknown."
+    }
+  ],
+  "composition": {
+    "r1_closed_cases": 139,
+    "r2_controls": 6,
+    "r2_adversarial_replays": 23,
+    "full_composed_cases": 168,
+    "rule": "The exact 139-case P1344 R1 composition remains protected. R2 appends six positive/opaque boundary controls and all twenty-three P1344 adversary R1 attacks in report order; no prior negative is removed or weakened.",
+    "runtime_boundary": "All focal runtime facts are synthetic oracle-only. Candidate/final still requires the independent compiled challenged Rust receipt."
+  },
+  "budget": {
+    "focal_case_count": 29,
+    "full_corpus_runs": 0,
+    "maximum_focal_revision_per_identified_class": 1,
+    "stop": "A survivor repeating one of the three public causes after this R2 blocks further local refinement and requires a blocker; no negative may become Unknown or be deleted."
+  },
+  "controls": [
+    {"id": "P1344-R2-P01-complete-source", "family": "positive", "expected": "Preserved", "purpose": "all 38 closed productions normalize across twelve files"},
+    {"id": "P1344-R2-P02-owner-helper-grammar", "family": "positive", "expected": "Preserved", "purpose": "Content and CounterUpdate exact match productions"},
+    {"id": "P1344-R2-P03-func-eval-hook-grammar", "family": "positive", "expected": "Preserved", "purpose": "Func, EvalContext and direct-hook closed productions"},
+    {"id": "P1344-R2-P04-carrier-facade-wrapper-grammar", "family": "positive", "expected": "Preserved", "purpose": "closed storage, read-only projection, facade forwarding and observed wrapper"},
+    {"id": "P1344-R2-P05-opaque-with-witness", "family": "opaque", "expected": "Unknown", "purpose": "sole dict payload opacity with explicit witness", "opaque_witness": {"schema": "p1344-dict-opacity-witness-r1", "payload_kind": "dict", "payload_case": "P1342-H05-dict-witness", "inspection": "deliberately_opaque", "source_predicates": "Preserved", "synthetic_runtime_non_payload_predicates": "Preserved", "authority": "oracle_corpus_only"}},
+    {"id": "P1344-R2-P06-authority-boundary", "family": "positive", "expected": "Preserved", "purpose": "strict corpus/source/checker pins and duplicate-key-free schema"}
+  ],
+  "attacks": [
+    {"id": "P1344-A01-content-token-without-match", "expected": "Violated", "class": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR"},
+    {"id": "P1344-A02-content-counter-update-returns-absence", "expected": "Violated", "class": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR"},
+    {"id": "P1344-A03-content-helper-wrong-signature", "expected": "Violated", "class": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR"},
+    {"id": "P1344-A04-content-foreign-func-indirection", "expected": "Violated", "class": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR"},
+    {"id": "P1344-A05-counter-variant-tokens-without-match", "expected": "Violated", "class": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR"},
+    {"id": "P1344-A06-counter-set-step-return-presence", "expected": "Violated", "class": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR"},
+    {"id": "P1344-A07-counter-helper-wrong-signature", "expected": "Violated", "class": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR"},
+    {"id": "P1344-A08-counter-executes-callback", "expected": "Violated", "class": "OWNER_HELPER_PRODUCTION_IS_TOKEN_PRESENCE_NOT_CLOSED_GRAMMAR"},
+    {"id": "P1344-A09-func-helper-nonterminating", "expected": "Violated", "class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED"},
+    {"id": "P1344-A10-func-helper-alternate-storage", "expected": "Violated", "class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED"},
+    {"id": "P1344-A11-inherited-eval-helper-set-replaced", "expected": "Violated", "class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED"},
+    {"id": "P1344-A12-direct-hook-extra-side-effect-argument", "expected": "Violated", "class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED"},
+    {"id": "P1344-A13-comment-callee-decoy", "expected": "Violated", "class": "PRESERVED_R1_DEFENSE"},
+    {"id": "P1344-A14-carrier-extra-eraser", "expected": "Violated", "class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED"},
+    {"id": "P1344-A15-carrier-mutable-projection", "expected": "Violated", "class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED"},
+    {"id": "P1344-A16-carrier-second-storage", "expected": "Violated", "class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED"},
+    {"id": "P1344-A17-facade-substitutes-world", "expected": "Violated", "class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED"},
+    {"id": "P1344-A18-observed-expression-nontermination", "expected": "Violated", "class": "INHERITED_AND_FUNC_PRODUCTIONS_NOT_CLOSED"},
+    {"id": "P1344-A19-string-owner-decoy", "expected": "Violated", "class": "PRESERVED_R1_DEFENSE"},
+    {"id": "P1344-A20-escaped-duplicate-json-key", "expected": "Violated", "class": "PRESERVED_R1_DEFENSE"},
+    {"id": "P1344-A21-alternate-corpus-and-digest", "expected": "Violated", "class": "PRESERVED_R1_DEFENSE"},
+    {"id": "P1344-A22-unknown-without-dict-witness", "expected": "Violated", "class": "UNKNOWN_LAUNDERED_WITHOUT_WITNESS"},
+    {"id": "P1344-A23-synthetic-candidate-runtime", "expected": "Violated", "class": "PRESERVED_R1_DEFENSE"}
+  ],
+  "focal_closed_case_order": [
+    "P1344-R2-P01-complete-source", "P1344-R2-P02-owner-helper-grammar", "P1344-R2-P03-func-eval-hook-grammar", "P1344-R2-P04-carrier-facade-wrapper-grammar", "P1344-R2-P05-opaque-with-witness", "P1344-R2-P06-authority-boundary",
+    "P1344-A01-content-token-without-match", "P1344-A02-content-counter-update-returns-absence", "P1344-A03-content-helper-wrong-signature", "P1344-A04-content-foreign-func-indirection", "P1344-A05-counter-variant-tokens-without-match", "P1344-A06-counter-set-step-return-presence", "P1344-A07-counter-helper-wrong-signature", "P1344-A08-counter-executes-callback", "P1344-A09-func-helper-nonterminating", "P1344-A10-func-helper-alternate-storage", "P1344-A11-inherited-eval-helper-set-replaced", "P1344-A12-direct-hook-extra-side-effect-argument", "P1344-A13-comment-callee-decoy", "P1344-A14-carrier-extra-eraser", "P1344-A15-carrier-mutable-projection", "P1344-A16-carrier-second-storage", "P1344-A17-facade-substitutes-world", "P1344-A18-observed-expression-nontermination", "P1344-A19-string-owner-decoy", "P1344-A20-escaped-duplicate-json-key", "P1344-A21-alternate-corpus-and-digest", "P1344-A22-unknown-without-dict-witness", "P1344-A23-synthetic-candidate-runtime"
+  ],
+  "unknown_policy": {
+    "required_witness_keys": ["schema", "payload_kind", "payload_case", "inspection", "source_predicates", "synthetic_runtime_non_payload_predicates", "authority"],
+    "exact_values": ["p1344-dict-opacity-witness-r1", "dict", "P1342-H05-dict-witness", "deliberately_opaque", "Preserved", "Preserved", "oracle_corpus_only"],
+    "rule": "Unknown is returned only after strict witness validation and all prior predicates. Missing, duplicate, altered, candidate-authored or non-dict witness is Violated."
+  },
+  "scope_exclusions": ["full corpus during R2 authorship", "productive candidate", "candidate/final synthetic runtime", "seal", "Rust A/B acceptance", "P1340", "NT01-NT06", "general equivalence"]
+}

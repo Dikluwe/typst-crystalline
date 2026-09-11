@@ -1,0 +1,151 @@
+{
+  "schema": "p1344-l0-freeze-r1",
+  "step": 1344,
+  "revision": 1,
+  "role": "independent_candidate_free_l0_topology_authority",
+  "executor": "/root/p1344_baseline",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-10T23:14:43-03:00",
+  "status": "FROZEN_CANDIDATE_FREE",
+  "protected_inputs": {
+    "step": [
+      "00_nucleo/materialization/typst-passo-1344.md",
+      "1fff15c6f17800ca293379e17d8d2ed63b2fe9043a0aebb0baf16a9b9b0ea6f3"
+    ],
+    "p1342_l0_freeze": [
+      "00_nucleo/diagnosticos/p1342-l0-freeze-r1.json",
+      "2fb962c3edd8cdd83848d2cd7c9158c39a5d0218f510e81bb5e8011a540e8c0e"
+    ],
+    "p1343_capsule_baseline": [
+      "00_nucleo/diagnosticos/p1343-capsule-baseline-r1.json",
+      "db143d9fec795ec81ce7a69be5e08b09e451a9d6eb07a1a39cd1dcd41ee82977"
+    ],
+    "p1343_topology_receipt": [
+      "00_nucleo/diagnosticos/p1343-topology-receipt-r1.json",
+      "76836ea3300a66f4756985276bcfc3eb9f28ce405a1ec22a6ee8547c66f75c6d"
+    ],
+    "p1343_oracle_blocker": [
+      "00_nucleo/diagnosticos/p1343-oracle-blocker-r3.md",
+      "c2af3f4b314660f620904d1fd7fa2bd0d5a5c9d8162d66edcf9aaa49e8a053d3"
+    ],
+    "p1343_oracle_blocker_receipt": [
+      "00_nucleo/diagnosticos/p1343-oracle-blocker-receipt-r3.json",
+      "5db7551ed182042d045a58efb9ec3c04953f9d6738cf822555de8606f4441171"
+    ]
+  },
+  "repository": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "measured_at": "2026-09-10T23:14:43-03:00",
+    "status_porcelain_v1_z_sha256_before_outputs": "a381abd797e75c18dfd37a0708b806159486d219cc48d0b9b536c25ae880706c",
+    "tracked_diff_binary_sha256_before_outputs": "099901758e0dda60cc4c16de0091adfdcedd3fcc63029e1270c34147b60aadef",
+    "tracked_diff_stat_before_outputs": "76 files changed, 10972 insertions(+), 833 deletions(-)"
+  },
+  "owners": [
+    [
+      "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "ee9b2fda742fd7744566d331b5b769c768ad1cba952c16be7d390de63fc3cc55",
+      "03_infra/src/pipeline/context_stabilization.rs",
+      "2f03c9e58856aa646245b5b1f7f6d41bdef21afd04f09c7c75eb88aa02aafa30"
+    ],
+    [
+      "00_nucleo/prompts/compiler/eval.md",
+      "580849e8e2ea07f7608b4a9a4b53f4dbf4de7f8ef8b71b75118c5738af0f7324",
+      "01_core/src/compiler/eval/mod.rs",
+      "8706947c64635f50703d921a02b17f321d77eeedb1250c33777fc44fa49fd0dd"
+    ],
+    [
+      "00_nucleo/prompts/compiler/eval/bindings/value_methods.md",
+      "2a0febd236d47b7ffdd4b4ea8b2fc9ee6ebedabd03af62115f3f0d8f05859b07",
+      "01_core/src/compiler/eval/bindings/value_methods.rs",
+      "26865ce023519748af1c12388720be044b7ee55b322a4d8c7eebe2b21f89e36c"
+    ],
+    [
+      "00_nucleo/prompts/compiler/stdlib/counter.md",
+      "a7739f41ecb4feb0bc6ef34fd967afa527c1d09523537bb8d77ba01eb6c38a89",
+      "01_core/src/compiler/stdlib/counter.rs",
+      "239561a4333f41752013d710545c4b7372eece4548f732c30db5bc394eca8220"
+    ],
+    [
+      "00_nucleo/prompts/entities/func.md",
+      "1dc7ae588dfda6a09f05be5d49e5b2aaa2e17c02606c11f12575ed6eba6c8f87",
+      "01_core/src/entities/func.rs",
+      "02873c6812a9dc251929b5b0a8f037810d9358a7d56cfce387b3d33d472ce314"
+    ],
+    [
+      "00_nucleo/prompts/entities/elements/counter_update.md",
+      "3a8cb1f636396b7390ef714927c140ac53b1e5c9dad906011557590b197435ea",
+      "01_core/src/entities/elements/counter_update.rs",
+      "d417085e919f175b7c92326130acfa7f7a531dd9c0392ab10448427a67b1ec7b"
+    ],
+    [
+      "00_nucleo/prompts/compiler/introspect.md",
+      "13b5b3679e2a8c888a3057b08f40036438a68876da2666d028e363a62f0c90d2",
+      "01_core/src/compiler/introspect.rs",
+      "6d2de23b45f0fdedbb5b46645b97007adaff434bdca3b7f273bbe72e3a8c747c"
+    ],
+    [
+      "00_nucleo/prompts/compiler/introspect/from_tags.md",
+      "04596c56980e9b6a8e377beb35ec39df89497a9acdb4771636b7878c8b7a9a87",
+      "01_core/src/compiler/introspect/from_tags.rs",
+      "92d87a5621401b0357082332b7994b601e358165dcce468d12202c8c891f6ec5"
+    ],
+    [
+      "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "9d00297e839c5a399577bef6cf58956f1ea5b4479bc308c7a3e2ac771e9fa775",
+      "01_core/src/compiler/eval/call_dispatch.rs",
+      "16fa614bb79b6c659010328c46672adbf696efc11289a8d08691ac949189588a"
+    ],
+    [
+      "00_nucleo/prompts/compiler/eval/closures.md",
+      "4909fe1377d5a573a36f3b5607a45a09c775a83f1538e7a2ef8507156c5f5e3e",
+      "01_core/src/compiler/eval/closures.rs",
+      "58b0a334d7096b730af3facc4297728eee4ae380b05a11f1b37ed1f1eeb437df"
+    ],
+    [
+      "00_nucleo/prompts/entities/content.md",
+      "fdb33918be2ce9fc2c56d89033f273532d35e8c1c3ce5ec2be68f407c429921a",
+      "01_core/src/entities/content.rs",
+      "3f2d8fd61880dc7fab6148f9b5301a0e741d27dfa6c737c259053bee41845c66"
+    ],
+    [
+      "00_nucleo/prompts/entities/counter_update.md",
+      "9d02b5289afda9ba8c541bf199ab595451a816ff7ccefdc42a6a5891d5bd42c3",
+      "01_core/src/entities/counter_update.rs",
+      "6131b00cc77b6f89b4d35ec290947632ecdfd2fff9330e1697f6e1a6becc4e74"
+    ]
+  ],
+  "lineage_only_source_delta": {
+    "paths": [
+      "01_core/src/entities/func.rs",
+      "01_core/src/entities/content.rs",
+      "01_core/src/entities/counter_update.rs"
+    ],
+    "method": "Replace the single eight-hex @prompt-hash value in current and HEAD bytes by the literal <normalized>, then compare complete bytes and SHA-256.",
+    "result": "PASS: normalized bytes equal HEAD for 3/3; no source token, item, field, branch or test delta exists outside the lineage header.",
+    "normalized_sha256": {
+      "01_core/src/entities/func.rs": "aad67e4eed9cd63ccd1de3daa8cbcec584586a2d00562fb1e0ecc12f42ce1627",
+      "01_core/src/entities/content.rs": "cb397c765f3aca3b86fb35f71b47d4353b7ce85d4e886ede0753bdc78473ce51",
+      "01_core/src/entities/counter_update.rs": "c780130cbf68ef69ed8c2a8c2edf8ad5510b6e8a1865a2f279f5d4848aa20686"
+    }
+  },
+  "candidate_absence": {
+    "searched": "P1342/P1343/P1344 full-line CAPSULE-BEGIN and CAPSULE-END markers in all 12 consumers",
+    "matches": 0,
+    "result": "PASS: no productive P1342-P1344 capsule implementation exists"
+  },
+  "validation": {
+    "owner_count": 12,
+    "consumer_count": 12,
+    "unique_prompts": 12,
+    "unique_consumers": 12,
+    "historical_pairs_byte_identical": "9/9 P1342 non-Func pairs",
+    "current_pair_hashes": "PASS: 12/12 rehashed from bytes",
+    "crystalline_lint_command": "crystalline-lint . --checks v5,v15,v26 --format text",
+    "v5": "PASS",
+    "v15": "PASS",
+    "v26": "PASS",
+    "verdict": "FROZEN"
+  },
+  "scope": "Only the owner-local P1344 repair and the inherited focal P1342 binding. No implementation, contract, oracle, RED, lifecycle/profile matrix, NT01-NT06, retention, terminal policy or general parity claim."
+}
