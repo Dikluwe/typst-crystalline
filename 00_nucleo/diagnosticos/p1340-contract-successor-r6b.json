@@ -1,0 +1,56 @@
+{
+  "schema": "p1340-contract-successor-r6b",
+  "status": "NÃO_SEALED",
+  "author": "/root/p1340_contract_r6",
+  "regime": "executado sem atestacao de isolamento",
+  "utc": "2026-09-10T16:39:21Z",
+  "revision_budget": "2/2 exhausted; no silent R6c",
+  "authority": {"path": "00_nucleo/diagnosticos/p1340-closing-authority-r6.json", "sha256": "c3e14f9b591b5670d8a1114888f0f1e405d25b462b199e3b06ced1c11a5ea9b0"},
+  "predecessor": {"path": "00_nucleo/diagnosticos/p1340-contract-successor-r6.json", "sha256": "40d45851407dcd4baa68036b68e1ea012fe0081e5ffb3e19e1e557fa9437479b"},
+  "findings": {
+    "00_nucleo/diagnosticos/p1340-verifier-initial-blocker-r6.json": "d99672b58bb9ac97602a7ca6d2b181ac1c3396c91aa38c8d50dcd4f38193bd9a",
+    "00_nucleo/diagnosticos/p1340-verifier-unknown-policy-blocker-r6.json": "227e9c081fa717a95aef40d2737218e9138923428537798856bc31aa9953602d",
+    "00_nucleo/diagnosticos/p1340-verifier-causal-coverage-blocker-r6.json": "89425e60feb2a8c22290dea92e2c0261250dceab2542a0151c6be407ee15ebd6"
+  },
+  "protected_chain": {
+    "full_r4_predicate": {"path": "00_nucleo/diagnosticos/p1340-contract-predicate-r4.py", "sha256": "4cf8df636db54b5b6b4b632fd4e4e1ce4c90ae3fe3d1e23e98c14ca4707296d2"},
+    "frozen_r6_fragment": {"path": "00_nucleo/diagnosticos/p1340-contract-observability-r6.py", "sha256": "16c80c5b4cf2e753b7edd0a65f189c28782239fd0e2acb9cae8d5efa699be6fd"},
+    "terminal_r5_verdict": {"path": "00_nucleo/diagnosticos/p1340-verifier-terminal-r5-candidate-verdict.json", "sha256": "4a8533a98129d2c527e18ef9075535ba7ece8ccf498291a488d16f8634196683"}
+  },
+  "components": {
+    "spec": {"path": "00_nucleo/diagnosticos/p1340-contract-observability-r6b.md", "sha256": "ad42f66d79147076ebea5b237b29bd776c36a9f70b934759b5bc71ccd4ad2b14"},
+    "checker": {"path": "00_nucleo/diagnosticos/p1340-contract-observability-r6b.py", "sha256": "d6999eef8e53f9ae7d28c2098a3db7520583b7c43a16a6d1c0253cf34cec8068"},
+    "entrypoint": {"path": "00_nucleo/diagnosticos/p1340-contract-predicate-r6b.py", "sha256": "2a12458ce9206a83fa864bfd06d7667b28e052e5a5215e033f29e2f25fab3b11"},
+    "inheritance_oracle": {"path": "00_nucleo/diagnosticos/p1340-oracle-inheritance-focal-r6b.py", "sha256": "ca0e99a6f80a334c41c13e31e6cf35a65f55ed007fbbed1d9c9615ad2a3c3976"},
+    "inheritance_result": {"path": "00_nucleo/diagnosticos/p1340-oracle-inheritance-focal-r6b.json", "sha256": "56e82212a03cd0fe2d5f84ea8b08513782d9cc937c6984ac7b4ada1b19fd2dde"},
+    "policy_coverage_oracle": {"path": "00_nucleo/diagnosticos/p1340-oracle-policy-coverage-r6b.py", "sha256": "d98d1aaf2de2115856706762a30bbb705d37edace363eeb98d93e72028e8333a"},
+    "policy_coverage_result": {"path": "00_nucleo/diagnosticos/p1340-oracle-policy-coverage-r6b.json", "sha256": "2cf9b0b776133772aa7e519f179db76db74ae3d00f7eaf3190d716325a0bf390"}
+  },
+  "composition": [
+    "full p1340-contract-predicate-r4.py::check",
+    "R6b mandatory structural preflight",
+    "frozen R6 causal semantics",
+    "externally frozen per-case callback/Dict/counter coverage"
+  ],
+  "unknown_policy": "All mandatory structure is validated before status. Only well-formed explicit opaque can be Unknown; malformed+opaque is Violated.",
+  "coverage_authority": "--r6-expectations is a distinct frozen input, must be pinned by a future seal, and must have exactly one case entry per historical fixture case.",
+  "discriminatory_delta": {
+    "inheritance_mutants": "4/4 killed after surviving R6",
+    "malformed_opaque_mutants": "5/5 Violated after being Unknown in R6",
+    "coherent_omission_mutants": "3/3 killed after surviving R6",
+    "new_regressions_observed": 0,
+    "product_credit": 0
+  },
+  "capabilities": {
+    "candidate_read": false,
+    "product_execution": false,
+    "writes": "new *-r6b artifacts only",
+    "technical_isolation_attested": false,
+    "seal_authority": false,
+    "verdict_authority": false
+  },
+  "open_blocker": "Real 144-cell r6-expectations input has not been independently authored/frozen/pinned; therefore no seal or product execution is authorized.",
+  "stop_condition": "Budget 2/2 reached. Any new failure class stops and requires explicit new authority.",
+  "seal": null,
+  "product_verdict": null
+}

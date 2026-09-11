@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: cd6bccec
+Hash do Código: 2d4d9103
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -2925,3 +2925,31 @@ Esta alteração cria variantes/construtores públicos; permanece proibida até
 o selo humano ADR-0127. Os seis prompts de novos consumers (entidade/layout
 para underline, vec e flush) ficam
 deliberadamente sem consumer e sem `Hash do Código` durante esta pausa.
+
+## P1344 — projeção owner-local do carrier de `CounterUpdate`
+
+### Medição anterior à decisão
+
+O blocker P1343 R3 refutou alojar `impl Content` dentro de `impl Func`:
+`entities/func.rs` aceita ali apenas associated items de `Func`. O consumer
+`entities/content.rs` já é o owner 1:1 de `Content` e contém os inherent impls
+reais da unidade na mesma camada L1.
+
+### Decisão vigente
+
+Somente sob `cfg(p1339_observation)`, `Content` pode expor ao crate um helper
+owner-local que examina a variante real `Content::CounterUpdate`, consulta o
+carrier da ação já transportada e encaminha a observação H11. O helper:
+
+- recebe por borrow o `Content` e os valores reais já calculados no walk;
+- não cria, anexa, muta, reencadeia ou procura carrier por nome, output,
+  igualdade ou endereço;
+- não adiciona variante, campo, wrapper, trait, macro ou reexport;
+- não participa de Eq, Hash, Debug, repr, plain-text, walkers normais ou
+  serialização;
+- desaparece integralmente sem `p1339_observation`.
+
+O armazenamento e o writer continuam pertencendo ao carrier privado de
+`entities/func.md`; esta unidade apenas faz a projeção read-only necessária ao
+seu próprio enum. Isso não é API pública nem mudança de comportamento por
+defeito conforme ADR-0127.

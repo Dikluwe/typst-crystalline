@@ -1,0 +1,164 @@
+{
+  "schema": "p1339-ab-transport-probe-plan-v1",
+  "authority_manifest_sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b",
+  "purpose": "Corrective focal transport probe with named immutable files. No expectations, no RED, no success predicate. Prior stdin failure remains recorded.",
+  "input_sha256": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json": "178a8637df7eb75d21131a46ad68005b9f7e35670644c9cb9b7eeb93031d5ae3",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json": "5f76638911404da4569c45719b0670e7ab53d873966fc34f49059f1653300d78",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json": "bdf16ebfb94c8ab085311902b3e9786fba18b2aa117e4cabebf56e375e34444a",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-probe-r1-plan.json": "1342e58a68863e10ef7b9564a471bb46ea45c61cfd641b336695498d5ee11519",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-probe-r2-plan.json": "6bbae5b44827226129086a153249df025a10aa86e00b233b43b7c613dfa00794"
+  },
+  "cases": [
+    {
+      "id": "transport-int_float_keys-query",
+      "mode": "query",
+      "profiles": [
+        "default"
+      ],
+      "adapter": "historical-query-unmodified",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json",
+        "case_id": "int_float_keys"
+      },
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-int_float_keys-query.typ",
+      "source_sha256": "43770dd7b5924d971f235b071f60f8207c93ea9da4d261876c7c44e95a875f73"
+    },
+    {
+      "id": "transport-int_float_keys-compile",
+      "mode": "compile",
+      "adapter": "compile-unmodified",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json",
+        "case_id": "int_float_keys"
+      },
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-int_float_keys-compile.typ",
+      "source_sha256": "43770dd7b5924d971f235b071f60f8207c93ea9da4d261876c7c44e95a875f73"
+    },
+    {
+      "id": "transport-int_float_keys-encode",
+      "mode": "compile",
+      "adapter": "compile-metadata-encode-no-expectation",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json",
+        "case_id": "int_float_keys"
+      },
+      "transformation": "prepend local metadata wrapper; serialize argument without assertion, preserve original call result",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-int_float_keys-encode.typ",
+      "source_sha256": "81989853bc6767adfea1cab22f081362455db638267220bf17e5473cf5525329"
+    },
+    {
+      "id": "transport-oscillating_set-query",
+      "mode": "query",
+      "profiles": [
+        "default"
+      ],
+      "adapter": "historical-query-unmodified",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+        "case_id": "oscillating_set"
+      },
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-oscillating_set-query.typ",
+      "source_sha256": "f34450405d35b507f6dee155432c37f1bc12b54a59a2e8ceed3e1d2b5e31563b"
+    },
+    {
+      "id": "transport-oscillating_set-compile",
+      "mode": "compile",
+      "adapter": "compile-unmodified",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+        "case_id": "oscillating_set"
+      },
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-oscillating_set-compile.typ",
+      "source_sha256": "f34450405d35b507f6dee155432c37f1bc12b54a59a2e8ceed3e1d2b5e31563b"
+    },
+    {
+      "id": "transport-oscillating_set-encode",
+      "mode": "compile",
+      "adapter": "compile-metadata-encode-no-expectation",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+        "case_id": "oscillating_set"
+      },
+      "transformation": "prepend local metadata wrapper; serialize argument without assertion, preserve original call result",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-oscillating_set-encode.typ",
+      "source_sha256": "0680cf2f237710ca93941effcc102064b3367ef56fa7e639ff3399e2f6e38522"
+    },
+    {
+      "id": "transport-counter_strong_filtered-query",
+      "mode": "query",
+      "profiles": [
+        "default"
+      ],
+      "adapter": "historical-query-unmodified",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json",
+        "case_id": "counter_strong_filtered"
+      },
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-counter_strong_filtered-query.typ",
+      "source_sha256": "fdf107030dcfb9049080f14673bd9a6408c1e174b966a1cb66e9bcf2efee8d6d"
+    },
+    {
+      "id": "transport-counter_strong_filtered-compile",
+      "mode": "compile",
+      "adapter": "compile-unmodified",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json",
+        "case_id": "counter_strong_filtered"
+      },
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-counter_strong_filtered-compile.typ",
+      "source_sha256": "fdf107030dcfb9049080f14673bd9a6408c1e174b966a1cb66e9bcf2efee8d6d"
+    },
+    {
+      "id": "transport-counter_strong_filtered-encode",
+      "mode": "compile",
+      "adapter": "compile-metadata-encode-no-expectation",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json",
+        "case_id": "counter_strong_filtered"
+      },
+      "transformation": "prepend local metadata wrapper; serialize argument without assertion, preserve original call result",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-counter_strong_filtered-encode.typ",
+      "source_sha256": "f810b6dcc2a962e0b7b5560e0da1c96bb8222f444e66945e5779230edbb3dca4"
+    },
+    {
+      "id": "transport-label_boundaries-query",
+      "mode": "query",
+      "profiles": [
+        "default"
+      ],
+      "adapter": "historical-query-unmodified",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json",
+        "case_id": "label_boundaries"
+      },
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-label_boundaries-query.typ",
+      "source_sha256": "42d518ef10a9461a9bed100fcedfc71543b62d8a35e087008063c8c521791aa3"
+    },
+    {
+      "id": "transport-label_boundaries-compile",
+      "mode": "compile",
+      "adapter": "compile-unmodified",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json",
+        "case_id": "label_boundaries"
+      },
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-label_boundaries-compile.typ",
+      "source_sha256": "42d518ef10a9461a9bed100fcedfc71543b62d8a35e087008063c8c521791aa3"
+    },
+    {
+      "id": "transport-label_boundaries-encode",
+      "mode": "compile",
+      "adapter": "compile-metadata-encode-no-expectation",
+      "ancestor": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json",
+        "case_id": "label_boundaries"
+      },
+      "transformation": "prepend local metadata wrapper; serialize argument without assertion, preserve original call result",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-transport-r2-transport-label_boundaries-encode.typ",
+      "source_sha256": "265b3865b91e04ff2e1e0795688909d0d0696d499fa4c20763746c0fe3b7e1c1"
+    }
+  ],
+  "preflight_correction": "r2 plan was rejected before product execution: apply_patch added terminal newline to six fixtures whose embedded ancestors had no terminal newline. Named sources contain exactly ancestor plus one terminal newline. r2 remains immutable; r2a pins actual fixture bytes."
+}

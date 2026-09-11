@@ -1,0 +1,14 @@
+{
+  "schema": "p1340-terminal-policy-approval-v1",
+  "user_instruction": "Faça as correções",
+  "context": "Reply to explicit request to authorize error through existing channel when contextual stability cannot be verified, preserving original errors and preventing export",
+  "approved_proposal": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+  "proposal_sha256": "b96441b691c7f529a4c7cd01129417cd03286d0b6e951d9dee5a80d8d29e9473",
+  "status": "APPROVED_ADR0127_PENDING_CONTRACT_SEAL_AND_IMPLEMENTATION",
+  "scope": "P1340 selective contextual stabilization and its proposed terminal policy only; no new public API, repr repairs, Array closure or general P1339 closure",
+  "message": "contextual stability could not be verified",
+  "anchor": "source.root().span()",
+  "original_errors_take_precedence": true,
+  "unverified_export_allowed": false,
+  "commit_authorized": false
+}

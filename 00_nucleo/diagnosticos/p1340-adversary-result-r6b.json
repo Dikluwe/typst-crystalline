@@ -1,0 +1,131 @@
+{
+  "schema": "p1340-adversary-result-r6b",
+  "status": "STOP_NEW_SURVIVOR_CLASSES_BUDGET_EXHAUSTED",
+  "regime": "executado sem atestacao de isolamento",
+  "author": "/root/p1340_adversary_r6",
+  "role": "independent adversary",
+  "utc": "2026-09-10T16:49:53.159645439Z",
+  "scope": "synthetic R6b contract discrimination only; no candidate or product credit",
+  "contract_revision_budget": {
+    "used": 2,
+    "limit": 2,
+    "remaining": 0,
+    "stop_rule": "Any new failure class survives => stop; no silent R6c."
+  },
+  "execution": {
+    "authoritative_command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1340-adversary-mutations-r6b.py",
+    "authoritative_exit": 0,
+    "orders": ["normal", "repeat", "reverse"],
+    "unique_valid_negative_mutants": 41,
+    "classifications_per_authoritative_run": 123,
+    "positive_controls": {"expected": "Preserved", "actual": "Preserved"},
+    "opaque_controls": {"expected": "Unknown", "actual": "Unknown"},
+    "deterministic_normal_repeat_reverse": true,
+    "product_runs": 0,
+    "candidate_runs": 0,
+    "candidate_reads": 0
+  },
+  "score": {
+    "killed": 19,
+    "survived": 22,
+    "mutation_score_fraction": "19/41",
+    "mutation_score": 0.4634146341463415,
+    "seal_threshold": 1.0,
+    "threshold_met": false,
+    "known_r6_findings": {
+      "killed": 12,
+      "total": 12,
+      "inheritance": "4/4 Violated",
+      "coherent_coverage_omissions": "3/3 Violated",
+      "missing-field-plus-opaque": "5/5 Violated"
+    },
+    "boundary_mutants": {
+      "killed": 7,
+      "total": 7,
+      "ids": [
+        "B-WITH-CALLSITE",
+        "B-CALLBACK-PHASE",
+        "B-EXTRA-CALLBACK",
+        "B-COUNTER-WRONG-LOCATION",
+        "B-COUNTER-READ-SPAN",
+        "B-LINEAGE-BREAK",
+        "B-DICT-TOP-ORDER"
+      ]
+    }
+  },
+  "survivors": [
+    {"id": "N-FEATURE-COORDINATED", "class": "feature-actual-anchor", "actual": "Preserved", "attack": "replace context, supplied, body and request feature vectors together"},
+    {"id": "N-FEATURE-ORIGIN-RELABEL", "class": "feature-actual-anchor", "actual": "Preserved", "attack": "relabel default origin as entrypoint supplied with a coherent empty value"},
+    {"id": "N-FEATURE-FICTITIOUS-INHERIT", "class": "feature-actual-anchor", "actual": "Preserved", "attack": "replace supplied selected context by a coherent but fictitious inherited context"},
+    {"id": "N-FEATURE-WITNESS-ALIAS", "class": "feature-actual-anchor", "actual": "Preserved", "attack": "reuse the default-origin witness for the selected context"},
+    {"id": "N-BODY-CALLBACK-FUNC", "class": "func-carrier-origin", "actual": "Preserved", "attack": "bind a BodyStarted entry dispatch to the callback Func identity while retaining the context_body_entry label"},
+    {"id": "N-CALLBACK-JOINT-FUNC", "class": "func-carrier-origin", "actual": "Preserved", "attack": "replace callback dispatch and FunctionInvoked func_id together"},
+    {"id": "N-FUNC-CARRIER-ALIAS", "class": "func-carrier-origin", "actual": "Preserved", "attack": "collapse distinct Func identities onto one carrier_id"},
+    {"id": "N-FUNC-WRONG-PRODUCER", "class": "func-carrier-origin", "actual": "Preserved", "attack": "replace With target producer_generation_id without changing callback coverage tuple"},
+    {"id": "N-COUNTER-WRONG-KEY", "class": "counter-key-action", "actual": "Preserved", "attack": "join the current event to a different key while occurrence key remains unchanged"},
+    {"id": "N-COUNTER-WRONG-ACTION", "class": "counter-key-action", "actual": "Preserved", "attack": "join the current event to Set while occurrence action remains Step"},
+    {"id": "N-COUNTER-WRONG-PRODUCER", "class": "counter-occurrence-anchor", "actual": "Preserved", "attack": "replace event and occurrence producer generation together"},
+    {"id": "N-COUNTER-WRONG-CONTENT", "class": "counter-occurrence-anchor", "actual": "Preserved", "attack": "replace event/occurrence walked content and terminal lineage edge together"},
+    {"id": "N-COUNTER-ROOT-ROLE", "class": "counter-span-role", "actual": "Preserved", "attack": "declare the otherwise matching Span to have root role"},
+    {"id": "N-LINEAGE-CYCLE", "class": "lineage-global-acyclicity", "actual": "Preserved", "attack": "use distinct edge ids along source->mid->source->walked"},
+    {"id": "N-DICT-NESTED-RETYPE", "class": "dict-payload-anchor", "actual": "Preserved", "attack": "replace a required nested Dict payload by a valid Func carrier"},
+    {"id": "N-DICT-NESTED-REORDER", "class": "dict-payload-anchor", "actual": "Preserved", "attack": "reverse nested Dict pairs while top-level expected key order remains unchanged"},
+    {"id": "N-DICT-PAYLOAD", "class": "dict-payload-anchor", "actual": "Preserved", "attack": "replace a Dict entry value while preserving value_id and top-level keys"},
+    {"id": "N-DICT-DUPLICATE-NESTED-KEY", "class": "dict-payload-anchor", "actual": "Preserved", "attack": "insert a duplicate key in a nested ordered Dict"},
+    {"id": "N-OPAQUE-HIDES-COVERAGE", "class": "unknown-semantic-short-circuit", "actual": "Unknown", "reason_code": "R6-provenance-opaque", "attack": "top-level opaque hides a coherent callback omission before external coverage"},
+    {"id": "N-OPAQUE-HIDES-SPAN-RANGE", "class": "unknown-semantic-short-circuit", "actual": "Unknown", "reason_code": "R6-counter-origin-opaque", "attack": "counter-origin opaque hides byte_start greater than byte_end"},
+    {"id": "N-OPAQUE-HIDES-FEATURE", "class": "unknown-semantic-short-circuit", "actual": "Unknown", "reason_code": "R6-feature-context-opaque", "attack": "feature-context opaque hides a default context carrying html"},
+    {"id": "N-OPAQUE-HIDES-DICT-ORDER", "class": "unknown-semantic-short-circuit", "actual": "Unknown", "reason_code": "R6-Dict-value-opaque", "attack": "Dict row opaque hides entry_key_order inconsistent with its payload"}
+  ],
+  "new_survivor_classes": [
+    {"id": "feature-actual-anchor", "count": 4, "finding": "R6b external expectations do not bind actual feature values or their construction origin."},
+    {"id": "func-carrier-origin", "count": 4, "finding": "Callback expectations bind callsite/kind/phase/role but not Func identity, carrier, producer, or BodyStarted carrier."},
+    {"id": "counter-key-action", "count": 2, "finding": "Counter external expectations and the R6 join omit key and action."},
+    {"id": "counter-occurrence-anchor", "count": 2, "finding": "Counter external expectations do not bind producer generation or walked content."},
+    {"id": "counter-span-role", "count": 1, "finding": "The R6b Span vocabulary omits lexical role, so root/read/consumer role cannot be rejected when coordinates are otherwise equal."},
+    {"id": "lineage-global-acyclicity", "count": 1, "finding": "Repeated lineage IDs are rejected, but repeated content IDs through distinct edges are accepted."},
+    {"id": "dict-payload-anchor", "count": 4, "finding": "External Dict expectations bind only value_id and top-level key order, not recursive typed payload, nested order, or key uniqueness."},
+    {"id": "unknown-semantic-short-circuit", "count": 4, "finding": "R6b preflight validates mandatory field presence/basic types, but opaque still short-circuits before semantic well-formedness and external coverage."}
+  ],
+  "cost": {
+    "authoritative_order_seconds": {
+      "normal": 0.003849413013085723,
+      "repeat": 0.0034969759872183204,
+      "reverse": 0.0033492909860797226
+    },
+    "authoritative_total_seconds": 0.010917694016825408,
+    "processes": 2,
+    "note": "The first process completed classifications but its reporting pipe failed because jq was unavailable (exit 127; BrokenPipe at final print). The second direct process is the authoritative successful result. No result from the failed pipe was used for score.",
+    "product_processes": 0,
+    "candidate_processes": 0
+  },
+  "pins": {
+    "00_nucleo/diagnosticos/p1340-contract-successor-r6b.json": "90c4898a06f76b0b0446a34761222c360aa9a9fb9729f5c649ca9d08b2844594",
+    "00_nucleo/diagnosticos/p1340-contract-observability-r6b.md": "ad42f66d79147076ebea5b237b29bd776c36a9f70b934759b5bc71ccd4ad2b14",
+    "00_nucleo/diagnosticos/p1340-contract-observability-r6b.py": "d6999eef8e53f9ae7d28c2098a3db7520583b7c43a16a6d1c0253cf34cec8068",
+    "00_nucleo/diagnosticos/p1340-contract-predicate-r6b.py": "2a12458ce9206a83fa864bfd06d7667b28e052e5a5215e033f29e2f25fab3b11",
+    "00_nucleo/diagnosticos/p1340-contract-receipt-r6b.json": "34c2410a858b039e13403f9a49ccdfb02dabd9fa51a751bc04d45cbfffe235a0",
+    "00_nucleo/diagnosticos/p1340-oracle-inheritance-focal-r6b.py": "ca0e99a6f80a334c41c13e31e6cf35a65f55ed007fbbed1d9c9615ad2a3c3976",
+    "00_nucleo/diagnosticos/p1340-oracle-inheritance-focal-r6b.json": "56e82212a03cd0fe2d5f84ea8b08513782d9cc937c6984ac7b4ada1b19fd2dde",
+    "00_nucleo/diagnosticos/p1340-oracle-policy-coverage-r6b.py": "d98d1aaf2de2115856706762a30bbb705d37edace363eeb98d93e72028e8333a",
+    "00_nucleo/diagnosticos/p1340-oracle-policy-coverage-r6b.json": "2cf9b0b776133772aa7e519f179db76db74ae3d00f7eaf3190d716325a0bf390",
+    "00_nucleo/diagnosticos/p1340-adversary-mutations-r6b.py": "158df134575ef597e475ebd4611ce681ec77277e048ff358610e15d2f420a667"
+  },
+  "provenance": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado; baseline state remains identified by p1340-closing-baseline-r6.json",
+    "candidate_source_reads": 0,
+    "candidate_adapter_reads": 0,
+    "candidate_output_or_receipt_reads": 0,
+    "candidate_diff_or_hunk_reads": 0,
+    "materialization_or_context_reads": 0,
+    "technical_isolation_attested": false
+  },
+  "decision": {
+    "contract_discriminatory_gate": "FAIL",
+    "reason": "Eight new valid-negative failure classes have survivors and mutation score is below 1.0.",
+    "next_action": "STOP and request explicit new authority; do not seal, do not execute product, and do not silently revise the exhausted R6b contract.",
+    "seal": null,
+    "product_verdict": null
+  }
+}

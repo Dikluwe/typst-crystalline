@@ -1,6 +1,12 @@
 # Prompt L0 — `entities/selector`
 Hash do Código: 83fa0a63
 
+**Estado da extensão P1339:** `APPROVED_ADR0127_PENDING_INTEGRATION_GATES`.
+O dono aprovou Element + NativeElement em resposta à proposta P1339;
+`diagnosticos/p1339-where-approval.json` fixa as minutas aprovadas. A aprovação
+não dispensa os L0 de integração, contrato, selo e RED anteriores ao código.
+O hash de código continua identificando o antecedente.
+
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/selector.rs`
 **Criado em**: 2026-04-29 (P175 sub-passo .B — primeiro consumer fixpoint)
@@ -232,3 +238,79 @@ semântica de query e revisão de matches consumidores. Ambos permanecem
 `BLOCKED_ADR0127_PUBLIC_CONTRACT` até novo L0 com desenho explícito e
 confirmação humana. Ausência é `Blocked`, não `Unknown`; simular por
 `Within`/`And`/`Or`/`Where` é `Violated`.
+
+## P1339 — identidade de elemento e grupo de filtros
+
+### Medição anterior à decisão
+
+Em HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer sem diff,
+`01_core/src/entities/selector.rs:28-61` não representa uma função de
+elemento com grupo de campos. `Kind(ElementKind)` não distingue filtro vazio
+de elemento nu e não contém identidades Strong/Emph/Text. Os resultados de
+`p1339-full-where-early-vanilla-runs.json` incluem `strong.where(:)` e
+`text.where(text: "Hi")`; o antecedente os rejeita.
+
+Na sonda `diagnosticos/p1339-where-l0-vanilla.json`, sobre esse HEAD, UTC
+`2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, filtro vazio
+é diferente de `selector(elemento)`; aliases preservam igualdade;
+reordenar campos altera igualdade e repr; spread substitui o valor sem mover
+a primeira posição da chave. A fonte ratificada `a51e02804`,
+`foundations/selector.rs:75-81,309-321`, conserva identidade, presença do
+grupo e sua sequência; `foundations/func.rs:430-450` valida o elemento e os
+nomes dos campos. O manifesto da sonda fixa fontes, binários e status integral.
+
+### Decisão proposta — contrato de dados
+
+Adicionar somente esta variante ao enum público existente:
+
+```rust
+Element {
+    function: crate::entities::func::Func,
+    fields: ecow::EcoVec<(ecow::EcoString, crate::entities::value::Value)>,
+},
+```
+
+- `function` conserva a função de elemento reconhecida pelo produtor; não é
+  uma callback a executar para descobrir tipo ou campos.
+- `fields` é um grupo ordenado de nomes e valores, com chaves únicas após
+  normalização pelo produtor. Vazio representa filtro explicitamente vazio;
+  não se reduz a `Kind`, `And([])`, regex, label ou campo sentinela.
+- O vetor é dado semântico do seletor, não registro extensível de tipos,
+  `PropMap`, vtable ou mecanismo de despacho dinâmico. A indirection de
+  `EcoVec` interrompe a recursão de armazenamento Selector↔Value.
+- Todas as variantes e seus campos atuais permanecem. Em particular,
+  `Where.value` continua `Box<Value>`, e `Regex`/`Within` continuam presentes.
+  O exemplo histórico P417 acima não redefine o enum vigente.
+- Preservar `Debug`, `Clone`, `PartialEq` e `Hash` estruturais do consumer;
+  não adicionar `Eq` à entidade que contém Value/NaN. A igualdade da
+  linguagem é responsabilidade de `compiler/eval/operators/equality.md`,
+  não motivo para mudar os derives de Func, Value ou Selector.
+- A entidade permanece pura, sem import de compiler, AST, avaliação de
+  funções ou leitura de campos de Content. Não recebe API pública adicional.
+
+Esta seção sucede, somente para a variante proposta, a proibição P1284 de
+editar o consumer. `before`/`after` permanecem bloqueados; `ElementKind`,
+`Func`, `Value` e traits não recebem novos campos ou assinaturas por esta
+proposta. Novo braço de enum quebra matches Rust externos exaustivos e por
+isso exige aprovação ADR-0127, mesmo sendo aditivo na linguagem.
+
+### Aceitação e fronteira da minuta
+
+Após aprovação, testes de dados devem conservar grupo vazio, ordem, valores
+e alias através de clone e composição. A aceitação pública exige os casos
+medidos de criação, repr, igualdade e aplicação; teste estrutural sozinho
+não fecha `function.where` (ADR-0107). A representação escolhida é mecânica;
+o significado do grupo e a forma pública são linguagem.
+
+Inferência: este carrier comporta as identidades e filtros medidos sem
+alargar Content/ElementKind. Refutação: um caso público que exija informação
+não recuperável da função e do grupo, ou uma identidade não distinguível
+pelo reconhecimento estático de funções aceitas. Nesse caso reabrir o L0,
+não introduzir metadados públicos incidentalmente.
+
+Esta minuta cobre a fronteira pública de `where` dentro de P1339, não o L0
+integral das dez rotas. Antes de materializar, atualizar individualmente os
+owners de repr, query/introspector e counter para consumir a nova variante;
+não aceitar wildcard silencioso, novo retorno vazio incondicional ou perda
+de filtro. O inventário desses consumidores fica em diagnósticos. A aprovação
+da entidade não autoriza escrever consumers cujo L0 ainda esteja pendente.

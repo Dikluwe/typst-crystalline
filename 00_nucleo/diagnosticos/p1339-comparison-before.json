@@ -1,0 +1,2708 @@
+{
+  "at": "2026-09-09T21:55:10.065024+00:00",
+  "scope": "Focal A.1 only; not a contract seal or full RED",
+  "inputs": {
+    "a0": "c70ca7d1f22aa7df222a081da4feddbc056b628eca505449eedb153acd71c361",
+    "authority-manifest": "36d64dc36333f97de2a3dc96a35ce7b70675389248238ecacd03a3da29d782f4",
+    "probe-manifest": "712fb949a5ed8725c6322157bbe06a8ef1cd3313007d02eb92fabeeb95bd8e21",
+    "vanilla-runs": "8a02ee948ad3e9f2cc73f0607dd6fcc894386cdbc2f6efcb4fc8610619e0d49f",
+    "crystalline-before-runs": "e140c37fb7cfd84398a8c13571b2428c5542ce9206ae0f21601869e4d51042ae"
+  },
+  "comparisons": [
+    {
+      "id": "discovery-angle.deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.rad",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.rad",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.rad",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.rad",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.inf",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.inf",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.inf",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.inf",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.nan",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.nan",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.nan",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.nan",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.signum",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.signum",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.signum",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.signum",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.from-bytes",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.from-bytes",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.from-bytes",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.from-bytes",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.to-bytes",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.to-bytes",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.to-bytes",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.to-bytes",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.with",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.with",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.with",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.with",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.where",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.where",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.where",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.where",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-version.at",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-version.at",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-version.at",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-version.at",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--1",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--1",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--1",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--1",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0.0",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0.0",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0.0",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0.0",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0.0",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0.0",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0.0",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0.0",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1.5",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1.5",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1.5",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1.5",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-90deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-90deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-90deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-90deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--90deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--90deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--90deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--90deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1rad",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1rad",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1rad",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1rad",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-90deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-90deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-90deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-90deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-1rad",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-1rad",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-1rad",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-1rad",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound--0deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound--0deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound--0deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound--0deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-23",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-23",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-23",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-23",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-24",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-24",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-24",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-24",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-25",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-25",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-25",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-25",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-26",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-26",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-26",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-26",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-step-equivalence",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-step-equivalence",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-step-equivalence",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-step-equivalence",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-multiply-control",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-multiply-control",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-multiply-control",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-multiply-control",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--1",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--1",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--1",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--1",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0.0",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0.0",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0.0",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0.0",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0.0",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0.0",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0.0",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0.0",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1.5",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1.5",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1.5",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1.5",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-90deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-90deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-90deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-90deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--90deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--90deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--90deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--90deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1rad",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1rad",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1rad",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1rad",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-90deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-90deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-90deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-90deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-1rad",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-1rad",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-1rad",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-1rad",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound--0deg",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound--0deg",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound--0deg",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound--0deg",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-42",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-42",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-42",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-42",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-43",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-43",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-43",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-43",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-44",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-44",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-44",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-44",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-45",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-45",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-45",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-45",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-step-equivalence",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-step-equivalence",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-step-equivalence",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-step-equivalence",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-multiply-control",
+      "order": "normal",
+      "profile": "default",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-multiply-control",
+      "order": "normal",
+      "profile": "html",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-multiply-control",
+      "order": "normal",
+      "profile": "a11y",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-multiply-control",
+      "order": "normal",
+      "profile": "html+a11y",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-multiply-control",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-multiply-control",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-multiply-control",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-multiply-control",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-step-equivalence",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-step-equivalence",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-step-equivalence",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-step-equivalence",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-45",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-45",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-45",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-45",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-44",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-44",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-44",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-44",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-43",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-43",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-43",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-43",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-42",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-42",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-42",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-invalid-42",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound--0deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound--0deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound--0deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound--0deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-1rad",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-1rad",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-1rad",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-1rad",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-90deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-90deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-90deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-bound-90deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1rad",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1rad",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1rad",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1rad",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--90deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--90deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--90deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--90deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-90deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-90deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-90deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-90deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1.5",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1.5",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1.5",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1.5",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0.0",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0.0",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0.0",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--0.0",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0.0",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0.0",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0.0",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0.0",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--1",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--1",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--1",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static--1",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-1",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-rad-static-0",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-multiply-control",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-multiply-control",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-multiply-control",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-multiply-control",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Preserved",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-step-equivalence",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-step-equivalence",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-step-equivalence",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-step-equivalence",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-26",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-26",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-26",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-26",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-25",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-25",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-25",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-25",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-24",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-24",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-24",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-24",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-23",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-23",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-23",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-invalid-23",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound--0deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound--0deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound--0deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound--0deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-1rad",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-1rad",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-1rad",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-1rad",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-90deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-90deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-90deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-bound-90deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1rad",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1rad",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1rad",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1rad",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--90deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--90deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--90deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--90deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-90deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-90deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-90deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-90deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1.5",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1.5",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1.5",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1.5",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0.0",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0.0",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0.0",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--0.0",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0.0",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0.0",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0.0",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0.0",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--1",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--1",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--1",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static--1",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-1",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "angle-deg-static-0",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-version.at",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-version.at",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-version.at",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-version.at",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.where",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.where",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.where",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.where",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.with",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.with",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.with",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-function.with",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.to-bytes",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.to-bytes",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.to-bytes",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.to-bytes",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.from-bytes",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.from-bytes",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.from-bytes",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.from-bytes",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.signum",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.signum",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.signum",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.signum",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.nan",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.nan",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.nan",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.nan",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.inf",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.inf",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.inf",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-float.inf",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.rad",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.rad",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.rad",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.rad",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.deg",
+      "order": "reverse",
+      "profile": "default",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.deg",
+      "order": "reverse",
+      "profile": "html",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.deg",
+      "order": "reverse",
+      "profile": "a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    },
+    {
+      "id": "discovery-angle.deg",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "classification": "Violated",
+      "basis": "exact public exit/stdout/stderr comparison, including diagnostic spans"
+    }
+  ],
+  "instability": [],
+  "product_unchanged": true,
+  "counts": {
+    "Preserved": 16,
+    "Violated": 368,
+    "Unknown": 0
+  }
+}

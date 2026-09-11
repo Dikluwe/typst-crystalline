@@ -1,0 +1,26 @@
+{
+  "verdict": "PASS_ARRAY_PRIVATE_FOCAL_CONTROL_AND_BOTH_ORIGIN_VARIANTS",
+  "verifier": "/root/p1311_review",
+  "regime": "executado sem atestacao de isolamento",
+  "raw_sha256": "508cfd80afb790f31345fbb60543e3a9139cc2243b9236f22a24c3b3780a8bf3",
+  "manifest_sha256": "e2f86c1df604fd3775e57440901efb9dbab2493cd398f5c4669899d96e9af74d",
+  "binary_sha256": "0923895542af8db56be9f8b6cff33255ae48a10109b0bfb6f22051292468cb7e",
+  "canonical_oracle_sha256": "ca1f4ea48a10e1c87229d9844dab572acb64f20e69988dbb02e9f29fb04cdc13",
+  "raw_rows": {
+    "mode0": "09f961bf2a83264c1bc9c4626ce0ae169f7da4b99d628300ebd4793c95c8b446",
+    "mode13": "f6f8ca90516ee539a53f8b71ce6807af7964c8155392fcc4a7a7543e7d054ce6"
+  },
+  "checks": [
+    "All three raw row hashes and complete output base64/SHA/byte lengths verified; before/after binary equal and actual mode environment correct.",
+    "Control exit0 completed10 calls: empty/nonempty unsigned Array positives plus8 real SourceDiagnostic errors. Independently checked each exact result against captured occurrence.span or Args.span fallback, including severity/message/hints/trace. Input before/after identical.",
+    "Unsigned64 raw span values retained as decimal strings during independent analysis, avoiding JavaScript Number precision loss.",
+    "Mode9 completed actual positive calls then fails canonical U02 at call4: aggregate span13834917318632669324 instead of known occurrence13834917318800441469.",
+    "Mode13 completed actual positive calls then fails canonical U01 at call3: detached Span(1) instead of aggregate13834917318632669324. Both negative processes exit101 at actual oracle assertion, not build/spawn failure.",
+    "Negative input DTOs match the corresponding real control prefixes exactly; primitive converter source delta supplies the tested fault."
+  ],
+  "counts": {"processes": 3, "control_calls": 10, "negative_mode9_calls": 4, "negative_mode13_calls": 3, "valid_origin_variants_rejected": 2, "transport_Unknown": 0},
+  "timing": {"first_start_utc": "2026-09-10T11:04:53.616210+00:00", "last_end_utc": "2026-09-10T11:04:54.697733+00:00"},
+  "budget": "Array corrective focal2 of2 valid. Same family ARR-M09 now has two real variants;12 families/13 variants total. No historical budget reset.",
+  "conclusion": "The missing detached-fallback observability now has real private positive and negative evidence. This does not reclassify historical public E08: it remains exploratory Unknown with zero credit. Mandatory origin dimension is covered by distinct canonical private carriers.",
+  "next_gate": "Eligible for prospectively declared affected reference/mutant expansion and private repeat/reverse; no Array implementation or successor seal yet. Candidate must later bind this same oracle to its actual owner and pass; no overall P1339/F PASS."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 1ddee996
+//! @prompt-hash 04df8118
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -16,6 +16,7 @@ use rustc_hash::FxBuildHasher;
 use crate::compiler::scopes::Scopes;
 use crate::compiler::stdlib::{
     extract_measure_body,
+    native_array_bytes,
     native_bytes,
     // P737 — counter/state chamáveis via despacho de tipos.
     native_counter,
@@ -453,6 +454,10 @@ pub(super) fn eval_args(
 
 /// Transporta a chamada inteira para nativas cujo erro usa o agregado.
 pub(super) fn transport_native_call_span(func: &Func, args: &mut Args, call_span: Span) {
+    if p1339_native_call_span(func) {
+        args.span = call_span;
+        return;
+    }
     use crate::compiler::stdlib::{
         calc_abs, native_csv, native_json_encode, native_panic, native_toml_encode,
         native_yaml_encode,
@@ -486,6 +491,27 @@ pub(super) fn transport_native_call_span(func: &Func, args: &mut Args, call_span
     }
 }
 
+fn p1339_native_call_span(func: &Func) -> bool {
+    if let FuncRepr::With(with) = func.repr() {
+        return p1339_native_call_span(&with.0);
+    }
+    let Some(addr) = func.native_fn_addr() else { return false };
+    if std::ptr::fn_addr_eq(addr, angle_deg_static as fn(_, _, _, _) -> _)
+        || std::ptr::fn_addr_eq(addr, angle_rad_static as fn(_, _, _, _) -> _)
+        || std::ptr::fn_addr_eq(addr, function_with_static as fn(_, _, _, _) -> _)
+        || std::ptr::fn_addr_eq(addr, bindings::native_function_where as fn(_, _, _, _) -> _) {
+        return true;
+    }
+    [crate::compiler::stdlib::float_type_field("signum"),
+     crate::compiler::stdlib::float_type_field("from-bytes"),
+     crate::compiler::stdlib::float_type_field("to-bytes"),
+     crate::compiler::stdlib::version_type_field("at")]
+        .into_iter().flatten().any(|value| match value {
+            Value::Func(native) => native.native_fn_addr().is_some_and(|other| std::ptr::fn_addr_eq(addr, other)),
+            _ => false,
+        })
+}
+
 /// Aplica uma função (closure, native ou native-with-engine) aos args dados.
 pub fn apply_func(
     func: Func,
@@ -494,7 +520,12 @@ pub fn apply_func(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    match func.repr() {
+    let previous_styles = ctx.replace_context_read_styles(engine.styles.clone());
+    let previous_file = ctx.replace_context_read_file(Some(engine.current_file));
+    let previous_rules = ctx.replace_context_read_rules(
+        engine.show_rules.clone(), engine.active_guards.clone(),
+    );
+    let result = match func.repr() {
         FuncRepr::Closure(closure) => {
             closures::apply_closure(closure, &func, args, ctx, engine)
         }
@@ -502,7 +533,7 @@ pub fn apply_func(
         // invoca o construtor do registry e devolve `Content::Dynamic`. Mesmo
         // ponto de despacho dos nativos (sem caminho paralelo). Erro do catálogo
         // existente se o ctor falhar (não panic).
-        FuncRepr::Element(ef) => Ok(Value::Content((ef.ctor)(&args.items)?)),
+        FuncRepr::Element(ef) => (ef.ctor)(&args.items).map(Value::Content),
         // P699 — export de plugin WASM: delega ao host capturado (memoizado
         // em `PluginFunc::call`). Valida args (só bytes) e propaga erros
         // verbatim (`PluginError.message` é observável — ADR-0107).
@@ -529,7 +560,11 @@ pub fn apply_func(
             let current_file = engine.current_file;
             (native.call)(ctx, &args, world, current_file, scopes, engine)
         }
-    }
+    };
+    ctx.replace_context_read_styles(previous_styles);
+    ctx.replace_context_read_file(previous_file);
+    ctx.replace_context_read_rules(previous_rules.0, previous_rules.1);
+    result
 }
 
 /// **P846 (#57)** — envolve o resultado de uma chamada com um
@@ -586,6 +621,10 @@ pub(crate) fn p1284_type_field(t: Type, field: &str) -> Option<Value> {
     }
 
     let function = match (t, field) {
+        (Type::Angle, "deg") => Func::native("deg", angle_deg_static),
+        (Type::Angle, "rad") => Func::native("rad", angle_rad_static),
+        (Type::Function, "with") => Func::native("with", function_with_static),
+        (Type::Function, "where") => Func::native("where", bindings::native_function_where),
         (Type::Direction, "axis") => {
             Func::native_with_engine("axis", direction_axis_static)
         }
@@ -650,6 +689,61 @@ pub(crate) fn p1284_type_field(t: Type, field: &str) -> Option<Value> {
         _ => return None,
     };
     Some(Value::Func(function))
+}
+
+pub(crate) fn take_p1339_self(args: &Args) -> SourceResult<(Value, Span, Args)> {
+    let occurrences = args.occurrence_sequence();
+    if let Some(arg) = occurrences.iter().find(|arg| arg.name.is_none()) {
+        let mut rest = args.clone();
+        rest.remove_positional(0);
+        let span = if arg.value_span.is_detached() { args.span } else { arg.value_span };
+        return Ok((arg.value.clone(), span, rest));
+    }
+    if let Some(arg) = occurrences.iter().find(|arg| arg.name.as_deref() == Some("self")) {
+        let span = if arg.span.is_detached() { args.span } else { arg.span };
+        return Err(vec![SourceDiagnostic::error(span, "the argument `self` is positional")
+            .with_hint("try removing `self:`")]);
+    }
+    Err(vec![SourceDiagnostic::error(args.span, "missing argument: self")])
+}
+
+fn angle_conversion(args: &Args, degrees: bool) -> SourceResult<Value> {
+    let (receiver, span, rest) = take_p1339_self(args)?;
+    let Value::Angle(angle) = receiver else {
+        return Err(vec![SourceDiagnostic::error(span,
+            format!("expected angle, found {}", vanilla_type_name(&receiver)))]);
+    };
+    if let Some(arg) = rest.occurrence_sequence().first() {
+        let message = arg.name.as_ref().map(|name| format!("unexpected argument: {name}"))
+            .unwrap_or_else(|| "unexpected argument".into());
+        let span = if arg.span.is_detached() { args.span } else { arg.span };
+        return Err(vec![SourceDiagnostic::error(span, message)]);
+    }
+    Ok(Value::Float(if degrees { angle.to_deg() } else { angle.to_rad() }))
+}
+
+fn angle_deg_static(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World,
+    _file: crate::entities::file_id::FileId) -> SourceResult<Value> {
+    angle_conversion(args, true)
+}
+
+fn angle_rad_static(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World,
+    _file: crate::entities::file_id::FileId) -> SourceResult<Value> {
+    angle_conversion(args, false)
+}
+
+fn function_with_static(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World,
+    _file: crate::entities::file_id::FileId) -> SourceResult<Value> {
+    let (receiver, span, rest) = take_p1339_self(args)?;
+    let Value::Func(function) = receiver else {
+        return Err(vec![SourceDiagnostic::error(span,
+            format!("expected function, found {}", vanilla_type_name(&receiver)))]);
+    };
+    Ok(function_with(function, rest))
+}
+
+fn function_with(function: Func, args: Args) -> Value {
+    Value::Func(function.with(args))
 }
 
 fn p1284_no_args(args: &Args) -> SourceResult<()> {
@@ -1004,7 +1098,7 @@ fn dispatch_p1284_value_method(
         }
         Value::Location(location) => {
             p1284_no_args(&args)?;
-            eval_location_method(location, method, ctx)
+            eval_location_method(location, method, ctx, args.span)
         }
         other => Err(vec![SourceDiagnostic::error(
             args.span,
@@ -1109,24 +1203,32 @@ pub(super) fn eval_func_call(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    // **P417 (M)** — Intercepção de `heading.where(field: value)` (method call
-    // syntax) antes de avaliar o callee genérico. O target deve avaliar para
-    // uma `Value::Func` nativa de elemento (heading, figure, strong, emph, raw).
-    // O resultado é `Value::Selector(Selector::Where { base: Kind(...), ... })`.
+    // As duas rotas preservam o receiver resolvido mesmo no fallback.
+    let mut resolved_callee = None;
     if let Expr::FieldAccess(access) = call.callee() {
-        if access.field().as_str() == "where" {
-            if let Some(selector) = bindings::eval_element_where(
-                access.target(),
-                call.args(),
-                scopes,
-                ctx,
-                engine,
-            )? {
-                return Ok(Value::Selector(selector));
+        let method = access.field().as_str();
+        if matches!(method, "where" | "with") {
+            let target = eval_expr(access.target(), scopes, ctx, engine)?;
+            if let Value::Func(function) = target {
+                let mut args = eval_args(call.args(), scopes, ctx, engine)?;
+                args.span = call.span();
+                let result = if method == "where" {
+                    bindings::eval_element_where(&function, &args).map(Value::Selector)
+                } else {
+                    Ok(function_with(function, args))
+                };
+                return trace_call(result, Some(method), call.span(), engine);
             }
+            if let Some(error) = bindings::field_callee_error(&target, access) {
+                return Err(error);
+            }
+            resolved_callee = Some(bindings::eval_value_field_access(
+                target, method, access.field().span(),
+            )?);
         }
     }
 
+    if resolved_callee.is_none() {
     // **P423 (S-M)** — Intercepção de `selector.or(other)` e
     // `selector.and(other)` antes de avaliar o callee genérico. O target e o
     // argumento devem avaliar para `Value::Selector`.
@@ -1268,6 +1370,14 @@ pub(super) fn eval_func_call(
                     if let Some(spans) = spans {
                         args.span = spans.anchor(&args, true);
                     }
+                    if matches!(method, "signum" | "from-bytes" | "to-bytes") {
+                        args.span = call.span();
+                        let result = crate::compiler::stdlib::dispatch_float_method_spanned(
+                            value, access.target().span(), method, args, ctx,
+                            engine.world, engine.current_file,
+                        );
+                        return trace_call(result, Some(method), call.span(), engine);
+                    }
                     return crate::compiler::stdlib::dispatch_float_method(
                         value,
                         method,
@@ -1277,6 +1387,16 @@ pub(super) fn eval_func_call(
                         engine.current_file,
                     );
                 }
+            }
+            Value::Angle(angle) if matches!(method, "deg" | "rad") => {
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                let mut occurrences = args.occurrence_sequence();
+                occurrences.insert(0, ArgOccurrence {
+                    name: None, value: Value::Angle(angle),
+                    span: access.target().span(), value_span: access.target().span(),
+                });
+                let result = angle_conversion(&Args::from_occurrences(call.span(), occurrences), method == "deg");
+                return trace_call(result, Some(method), call.span(), engine);
             }
             value @ Value::Dir(_)
                 if matches!(method, "axis" | "end" | "inv" | "sign" | "start") =>
@@ -1320,6 +1440,7 @@ pub(super) fn eval_func_call(
                         v,
                         method,
                         call.args(),
+                        call.span(),
                         scopes,
                         ctx,
                         engine,
@@ -1538,7 +1659,7 @@ pub(super) fn eval_func_call(
             let target = eval_expr(access.target(), scopes, ctx, engine)?;
             if let Value::Location(loc) = target {
                 let _args = eval_args(call.args(), scopes, ctx, engine)?;
-                return eval_location_method(loc, method, ctx);
+                return eval_location_method(loc, method, ctx, call.span());
             }
         }
     }
@@ -1585,7 +1706,11 @@ pub(super) fn eval_func_call(
         }
     }
 
-    let callee = eval_expr(call.callee(), scopes, ctx, engine)?;
+    }
+    let callee = match resolved_callee {
+        Some(value) => value,
+        None => eval_expr(call.callee(), scopes, ctx, engine)?,
+    };
 
     let float_is_nan_spans = matches!(
         &callee,
@@ -1658,8 +1783,8 @@ pub(super) fn eval_func_call(
         }
         // P685 — nomes de tipo chamáveis: `int("5")`, `str(5)`, `float("3.5")`,
         // `type(1)`. Despacha para o construtor nativo; tipos não chamáveis
-        // (`bool`, `length`, `array`, …) → erro "type X does not have a
-        // constructor" (paridade vanilla).
+        // não cobertos conservam o diagnóstico de construtor ausente.
+        // P1339 acrescenta somente a conversão autorizada Array ← Bytes.
         Value::Type(t) => {
             let world = engine.world;
             let current_file = engine.current_file;
@@ -1678,6 +1803,10 @@ pub(super) fn eval_func_call(
                 Type::Symbol => native_symbol(ctx, &args, world, current_file),
                 // P843 (F4/F5) — constructors `bytes(...)` e `datetime(...)`.
                 Type::Bytes => native_bytes(ctx, &args, world, current_file),
+                Type::Array if matches!(args.items.first(), Some(Value::Bytes(_))) => {
+                    let result = native_array_bytes(ctx, &args, world, current_file);
+                    trace_call(result, Some("array"), call.span(), engine)
+                }
                 // P1284 — `arguments(...)` preserva simultaneamente a ordem
                 // dos posicionais e dos named na representação já existente.
                 Type::Arguments => Ok(Value::Args(args)),
@@ -1714,15 +1843,16 @@ pub(super) fn eval_func_call(
 /// Acede ao `ctx.introspector` (TagIntrospector implementa `Introspector::position_of`).
 /// Se o introspector não tiver a posição da localização (pre-layout ou localização
 /// inexistente), usa defaults seguros (page=1, x=0pt, y=0pt).
-fn eval_location_method(
+pub(super) fn eval_location_method(
     loc: crate::entities::location::Location,
     method: &str,
     ctx: &mut EvalContext,
+    span: Span,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     use crate::entities::layout_types::Length;
 
-    match method {
+    let result = match method {
         "page" => {
             // Número da página (1-based) via introspector; default 1 se não disponível.
             let page_num = ctx
@@ -1755,7 +1885,15 @@ fn eval_location_method(
             None => Value::None,
         }),
         _ => unreachable!("eval_location_method chamado com método inesperado: {method}"),
-    }
+    };
+    use crate::compiler::eval::ContextReadRequest as Read;
+    let request = match method {
+        "page" => Read::LocationPage { location: loc },
+        "position" => Read::LocationPosition { location: loc },
+        "page-numbering" => Read::LocationPageNumbering { location: loc },
+        _ => unreachable!("location method already checked"),
+    };
+    ctx.observe_context_read(request, span, result)
 }
 
 #[cfg(test)]
@@ -1775,6 +1913,23 @@ mod tests {
     fn p1293_span(start: usize) -> Span {
         use std::num::NonZeroU16;
         Span::from_range(FileId::from_raw(NonZeroU16::new(9).unwrap()), start..start + 1)
+    }
+
+    #[test]
+    fn p1339_discovery_angle_and_function_methods() {
+        for (ty, field) in [
+            (Type::Angle, "deg"),
+            (Type::Angle, "rad"),
+            (Type::Function, "with"),
+            (Type::Function, "where"),
+        ] {
+            let Some(Value::Func(func)) = p1284_type_field(ty, field) else {
+                panic!("missing {}.{field}", ty.name());
+            };
+            assert_eq!(func.name(), Some(field));
+        }
+        assert!(p1284_type_field(Type::Angle, "signum").is_none());
+        assert!(p1284_type_field(Type::Function, "before").is_none());
     }
 
     #[test]

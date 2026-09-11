@@ -1,0 +1,59 @@
+{
+  "state": {
+    "at": "2026-09-10T00:04:21.240397+00:00",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "status": "?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+    "diff_stat": ""
+  },
+  "cases": [
+    [
+      "order-repr",
+      "repr((heading.where(level:2,outlined:false),heading.where(outlined:false,level:2)))"
+    ],
+    [
+      "order-equality",
+      "repr(heading.where(level:2,outlined:false)==heading.where(outlined:false,level:2))"
+    ],
+    [
+      "empty-vs-bare",
+      "repr((strong.where()==selector(strong),heading.where()==selector(heading)))"
+    ],
+    [
+      "empty-identity",
+      "{ let f=strong; repr((f.where()==strong.where(),f.where())) }"
+    ],
+    [
+      "numeric-equality",
+      "repr(heading.where(level:1)==heading.where(level:1.0))"
+    ],
+    [
+      "spread-order",
+      "repr(heading.where(..(level:1,outlined:false),..(level:2)))"
+    ],
+    [
+      "different-functions",
+      "repr(strong.where(body:[Hi])==emph.where(body:[Hi]))"
+    ],
+    [
+      "nan-field",
+      "{ let s=heading.where(level:float(\"nan\")); repr((s,s==s)) }"
+    ]
+  ],
+  "input_hashes": {
+    "00_nucleo/prompts/entities/selector.md": "8dcd7bfbc6789ed0ef669d8ffd943df63aa06343f0c4ef39f23e797ec276b429",
+    "00_nucleo/prompts/entities/show.md": "2bf028594608a4ee68b0153dd671ef3176b7c28030713c848f00a280c0d6e92a",
+    "00_nucleo/prompts/compiler/eval/bindings/value_methods.md": "7f34f9daf85cba905943b00050c194cb77a767809e5cc6f91357b683d3038bac",
+    "00_nucleo/prompts/compiler/eval/selector_matching.md": "031ba52f7a6d5870479f0fe699a572950cce594db7688d59fc484175c10505a3",
+    "01_core/src/entities/selector.rs": "c2d64d1aa8f54c1b027c8166904b67389c39dcb5ee969d8f7c76f3fdb01d44bd",
+    "01_core/src/entities/show.rs": "b4714e0ab3aac95fbb12daf1a0a50495aa62cf08309f8663cd0dfe4fd06db89f",
+    "01_core/src/entities/func.rs": "9bcd2e2b0c79cae5c2478b55d9d902f78983f9119d634a04a846d93210307bde",
+    "01_core/src/compiler/eval/bindings/value_methods.rs": "c8214d96475163f09e348362e95b9d58346b633ca00be2f359828af6c96ec4f9",
+    "01_core/src/compiler/eval/selector_matching.rs": "09014da2b4a4737db6e1e996a3d001cc9fbdcd356f84890f5020f4a324ec80f9",
+    "lab/typst-original/crates/typst-library/src/foundations/func.rs": "a119f7e8aae459a8358357f398d44c48bc24783b67891ff3901b8d4b043c6a38",
+    "lab/typst-original/crates/typst-library/src/foundations/selector.rs": "84615405b19d4869d261029936d3d5d9077f06e7198e3f60f28273c1ecdfcbdc"
+  },
+  "script_sha256": "b51ef359930e57782d87c045eb6e6dd0f4a8963ef7eeb1c6e4260c3f1399989a",
+  "role": "root: L0 author, not independent contract/verdict",
+  "budget": "one focal normal/reverse default-profile run, no full corpus",
+  "purpose": "measure ordering and equality before choosing carrier"
+}

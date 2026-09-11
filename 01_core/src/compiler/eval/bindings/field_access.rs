@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 7e89a8ce
+//! @prompt-hash 246eaace
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -705,6 +705,9 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
         },
         // P685 — Field access em valor-tipo
         Value::Type(t) => match (t, field) {
+            (Type::Version, _) => crate::compiler::stdlib::version_type_field(field)
+                .ok_or_else(|| vec![SourceDiagnostic::error(span,
+                    format!("type version does not contain field \"{field}\""))]),
             (Type::Float, _) => crate::compiler::stdlib::float_type_field(field)
                 .ok_or_else(|| {
                     vec![SourceDiagnostic::error(
@@ -785,6 +788,8 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
             }
             (
                 Type::Direction
+                | Type::Angle
+                | Type::Function
                 | Type::Alignment
                 | Type::Duration
                 | Type::Length

@@ -483,6 +483,37 @@ não o filho nu que perdeu styles. O trait não expõe callback nem cria método
 de exportação: o layout consome a mesma entrada/store semântico e query continua
 read-only.
 
+## P1339 — fronteira de dados e implementação da consulta
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
+`entities/introspector.rs:559` contém o impl Introspector for TagIntrospector;
+query em `:634-724` tem Where/Regex vazios. O store `elements` já guarda
+IntrospectedContent; a identidade nativa e igualdade linguística pertencem a
+compiler, não a entities. O desenho/revisão registrado em
+`diagnosticos/p1339-where-query-design-review.md` demonstra que uma chamada
+entities→compiler continuaria reversa mesmo com helper inerente.
+
+### Decisão proprietária
+
+Conservar aqui trait, struct, campos, derives, construtores e métodos
+inerentes de injeção. Transferir integralmente o bloco
+`impl Introspector for TagIntrospector` para o consumer existente
+`01_core/src/compiler/introspect.rs`, owner `compiler/introspect.md`.
+Nenhum método do trait muda assinatura ou default; implementações externas
+continuam válidas. A localização Rust do impl não faz parte da API de uso.
+Não importar compiler, nem instalar callback/comparador no dado para evitar
+a transferência. Não adicionar store de campos, Kind genérico ou cache global.
+
+As cláusulas anteriores de semântica do trait permanecem normativas para
+suas assinaturas e observáveis; os corpos e algoritmo da implementação
+concreta pertencem ao owner de compiler. Testes de construção/clone continuam
+aqui; testes do algoritmo transferido passam ao owner concreto. Esta mudança
+não transfere autoridade do trait nem legitima alterar os métodos de counters.
+Leituras borrowed ainda devolvem slices materializados, sem Func ou mutação
+oculta. A extensão de consulta Element é definida no owner concreto.
+
 ## P1157 — contrato page-aware tipado
 
 ### Medição antes da decisão

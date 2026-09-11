@@ -1,18 +1,112 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/primitives-constructors/version.md
-//! @prompt-hash a87eeef2
+//! @prompt-hash 7d710322
 //! @layer L1
 //! @updated 2026-08-23
 
 use super::super::err;
 use crate::compiler::eval::EvalContext;
-use crate::entities::args::Args;
+use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 use crate::entities::version::Version;
 use std::sync::Arc;
+
+fn version_required(args: &mut Args, name: &str) -> SourceResult<ArgOccurrence> {
+    let occurrences = args.occurrence_sequence();
+    if let Some(arg) = occurrences.iter().find(|arg| arg.name.is_none()) {
+        let arg = arg.clone();
+        args.remove_positional(0);
+        return Ok(arg);
+    }
+    if let Some(arg) = occurrences.iter().find(|arg| arg.name.as_deref() == Some(name)) {
+        return Err(vec![SourceDiagnostic::error(
+            version_anchor(arg.span, args.span),
+            format!("the argument `{name}` is positional"),
+        )
+        .with_hint(format!("try removing `{name}:`"))]);
+    }
+    Err(vec![SourceDiagnostic::error(args.span, format!("missing argument: {name}"))])
+}
+
+fn version_anchor(span: Span, fallback: Span) -> Span {
+    if span.is_detached() {
+        fallback
+    } else {
+        span
+    }
+}
+
+fn native_version_at(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+    let mut args = args.clone();
+    let receiver = version_required(&mut args, "self")?;
+    let Value::Version(version) = receiver.value else {
+        return Err(vec![SourceDiagnostic::error(
+            version_anchor(receiver.value_span, args.span),
+            format!("expected version, found {}", vanilla_type_name(&receiver.value)),
+        )]);
+    };
+    let arg = version_required(&mut args, "index")?;
+    let Value::Int(index) = arg.value else {
+        return Err(vec![SourceDiagnostic::error(
+            version_anchor(arg.value_span, args.span),
+            format!("expected integer, found {}", vanilla_type_name(&arg.value)),
+        )]);
+    };
+    if let Some(arg) = args.occurrence_sequence().first() {
+        let message = match &arg.name {
+            Some(name) => format!("unexpected argument: {name}"),
+            None => "unexpected argument".into(),
+        };
+        return Err(vec![SourceDiagnostic::error(
+            version_anchor(arg.span, args.span),
+            message,
+        )]);
+    }
+    version
+        .at(index)
+        .map(Value::Int)
+        .map_err(|message| vec![SourceDiagnostic::error(args.span, message)])
+}
+
+pub(crate) fn version_type_field(field: &str) -> Option<Value> {
+    (field == "at").then(|| {
+        Value::Func(crate::entities::func::Func::native("at", native_version_at))
+    })
+}
+
+pub(crate) fn dispatch_version_method(
+    receiver: &Version,
+    method: &str,
+    args: Args,
+    ctx: &mut EvalContext,
+    world: &dyn crate::contracts::world::World,
+    current_file: FileId,
+) -> SourceResult<Value> {
+    let mut occurrences = args.occurrence_sequence();
+    occurrences.insert(
+        0,
+        ArgOccurrence {
+            name: None,
+            value: Value::Version(Arc::new(receiver.clone())),
+            span: Span::detached(),
+            value_span: Span::detached(),
+        },
+    );
+    let args = Args::from_occurrences(args.span, occurrences);
+    match method {
+        "at" => native_version_at(ctx, &args, world, current_file),
+        _ => unreachable!("dispatch_version_method called for unknown method"),
+    }
+}
 
 /// Sem `pre`/`build` (não existem no Typst — ver P684); argumentos nomeados são erro.
 pub fn native_version(
@@ -107,6 +201,33 @@ mod tests {
     use super::super::test_support::*;
     use super::super::{native_decimal, native_duration};
     use super::*;
+    #[test]
+    fn p1339_version_static_at_and_closed_bound_arguments() {
+        use crate::compiler::eval::eval_expression;
+        let world = null_world();
+        for (expression, expected) in [
+            ("version.at(version(1,2,0),-1)", Value::Int(0)),
+            ("version.at(version(1,2,3),-3)", Value::Int(1)),
+            ("version.at(version(),9223372036854775807)", Value::Int(0)),
+        ] {
+            let (result, _) = eval_expression(&world, expression);
+            assert_eq!(result.unwrap(), expected, "{expression}");
+        }
+        for (expression, message) in [
+            ("version.at(version())", "missing argument: index"),
+            (
+                "version.at(version(),-1)",
+                "component index out of bounds (index: -1, len: 0)",
+            ),
+            ("version.at(version(1),index:0)", "the argument `index` is positional"),
+            ("version(1).at(0,other:1)", "unexpected argument: other"),
+            ("version.at(version(1),0.0)", "expected integer, found float"),
+        ] {
+            let (result, _) = eval_expression(&world, expression);
+            assert_eq!(result.unwrap_err()[0].message, message, "{expression}");
+        }
+    }
+
     #[test]
     fn version_valid() {
         let v = native_version(

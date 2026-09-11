@@ -1,0 +1,90 @@
+{
+  "schema": "p1340-terminal-input-contract-author-receipt-r5",
+  "status": "FROZEN_NOT_SEALED",
+  "utc": "2026-09-10T15:36:57Z",
+  "author": "/root/p1340_contract_correction",
+  "role": "independent input contract author",
+  "regime": "executado sem atestacao de isolamento",
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1340-terminal-contract-r5.json",
+    "sha256": "293dca9cdac3f96cf2110fb37f4d77ab4773cd1478dcf8089fa07f6a722091d0"
+  },
+  "companions": [
+    {
+      "path": "00_nucleo/diagnosticos/p1340-terminal-contract-r5.md",
+      "sha256": "b23a4b6d72121e0480b2e6624144a2900ec3daddef8bf1853a13bbe86ab8506f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-terminal-contract-r5.py",
+      "sha256": "83093348fe7eb4c7aec9127682239702224e654d37784d7a8bbd4829e48b6de1"
+    }
+  ],
+  "protected_inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1340-terminal-source-authority-r5.json",
+      "sha256": "32269929fe08b2c887226e1a987a51b3d83e63aa40c2736086272dec668a96f7"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-terminal-harness-r2.rs",
+      "sha256": "85c3f151cbf1e88c241acea0b68df1f6c468ba0a1a956e5a3f6af91cd0a19e7d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-binding-r2.md",
+      "sha256": "4d9426025cbc986b79793658e99a20203216089eb9951d9ece759cb962027f8c"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-terminal-input-diagnosis-r4.json",
+      "sha256": "38417781ada0f8bb74c52226b53d312671353562e3a02e8f4bc6a87fdd205d8b"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-verifier-terminal-input-gate-r4.json",
+      "sha256": "0d459964fa19954d8614cb2762917dab5ec5fdc25b4ca6177381bf8a255aefbb"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "sha256": "09b8da4367f1e37e65a6ae596cebecc8815dcbdb50b28a414d79dae99f8977be"
+    }
+  ],
+  "writes": "Only new p1340-terminal-contract-r5.* artifacts. R2 unchanged. Oracle harness owned separately.",
+  "candidate_access": {
+    "production_source": false,
+    "adapter": false,
+    "candidate_focal_output": false,
+    "baseline_content": false,
+    "allowed_diagnosis_gate_summaries": true
+  },
+  "checks_performed": [
+    "Protected input hashes match R5 authority",
+    "Exact old literal extraction is unique and replacement expressions generated without production access",
+    "Source and companion SHA256 pins computed"
+  ],
+  "checks_not_performed": [
+    "No execution of static checker on oracle yet",
+    "No vanilla reference execution by contract author",
+    "No candidate execution",
+    "No semantic gate or seal"
+  ],
+  "cost": {
+    "authority_window_start_utc": "2026-09-10T15:31:45Z",
+    "receipt_utc": "2026-09-10T15:36:57Z",
+    "reference_runs": 0,
+    "candidate_runs": 0,
+    "focal_iterations_used": 0,
+    "full_suite_runs": 0,
+    "contract_revision": "R5 single authorized revision"
+  },
+  "discriminatory_delta": {
+    "measured": false,
+    "positive_preserved": null,
+    "negative_violated": null,
+    "opaque_unknown": null,
+    "reason": "Independent oracle author/verifier still to perform prospective focal gates; file transformation is not terminal evidence"
+  },
+  "handoff": {
+    "oracle_author": "/root/p1340_terminal_oracle_r5b",
+    "verifier": "/root/p1311_review",
+    "contract_status": "Frozen for oracle author and independent review; not sealed"
+  },
+  "seal": null,
+  "verdict": null
+}

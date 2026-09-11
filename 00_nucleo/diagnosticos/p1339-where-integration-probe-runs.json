@@ -1,0 +1,830 @@
+{
+  "regime": "executado sem atestacao de isolamento",
+  "executor": "/root/p1339_where_integration_probe",
+  "baseline_upstream": "a51e02804",
+  "binary": "/usr/local/bin/typst",
+  "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+  "utc_start": "2026-09-10T00:18:55.842594+00:00",
+  "inputs": {
+    "00_nucleo/materialization/typst-passo-1339.md": "817c3a1476897fb0a847c90183e9a9fe690994f60023126997c8022c4e8b86a9",
+    "00_nucleo/diagnosticos/p1339-where-l0-gate.md": "ebd6032d60a985411ebb8746f4e44c9816daf06bb2747875249fcf46a148b17d",
+    "00_nucleo/diagnosticos/p1339-where-l0-review.md": "c2a7ebd11c415580e1bcd1f7f96370857bd06305f586a4e9e08c2f12fdfd2081",
+    "00_nucleo/diagnosticos/p1339-full-a2.md": "68cfd9a20d8ad4b0c5682b7ede7d14b67eb71f7e63ed085b897402a54e7c86c6",
+    "00_nucleo/diagnosticos/p1339-where-integration-probe.py": "7bf09df33ef6f6d55c6b93402d155ba4af7759015e941deac5addb57a9efae76"
+  },
+  "before": {
+    "head": {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "shell_command": "git rev-parse HEAD",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.842906+00:00",
+      "utc_end": "2026-09-10T00:18:55.844991+00:00",
+      "exit_code": 0,
+      "stdout": "2f42d64253547734564513a1159ee6b584c1c4b4\n",
+      "stderr": ""
+    },
+    "diff_stat": {
+      "command": [
+        "git",
+        "diff",
+        "HEAD",
+        "--stat"
+      ],
+      "shell_command": "git diff HEAD --stat",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.845007+00:00",
+      "utc_end": "2026-09-10T00:18:55.855770+00:00",
+      "exit_code": 0,
+      "stdout": " .../compiler/eval/bindings/value_methods.md        | 88 ++++++++++++++++++++++\n .../prompts/compiler/eval/operators/equality.md    | 43 +++++++++++\n .../prompts/compiler/eval/selector_matching.md     | 58 ++++++++++++++\n 00_nucleo/prompts/entities/selector.md             | 80 ++++++++++++++++++++\n 00_nucleo/prompts/entities/show.md                 | 46 +++++++++++\n 5 files changed, 315 insertions(+)\n",
+      "stderr": ""
+    },
+    "status": {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "shell_command": "git status --short",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.855785+00:00",
+      "utc_end": "2026-09-10T00:18:55.880418+00:00",
+      "exit_code": 0,
+      "stdout": " M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/entities/selector.md\n M 00_nucleo/prompts/entities/show.md\n?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-manifest.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r1.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-vanilla.json\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+      "stderr": ""
+    }
+  },
+  "cases": [
+    {
+      "id": "selector_heading_empty",
+      "expression": "{ let s = selector(heading.where()); (repr(type(s)), repr(s), s == heading.where(), s == selector(heading)) }",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = selector(heading.where()); (repr(type(s)), repr(s), s == heading.where(), s == selector(heading)) }",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "selector_heading_filtered",
+      "expression": "{ let s = selector(heading.where(level: 1)); (repr(type(s)), repr(s), s == heading.where(level: 1)) }",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = selector(heading.where(level: 1)); (repr(type(s)), repr(s), s == heading.where(level: 1)) }",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "selector_strong_empty",
+      "expression": "{ let s = selector(strong.where()); (repr(type(s)), repr(s)) }",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = selector(strong.where()); (repr(type(s)), repr(s)) }",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "selector_text_filtered",
+      "expression": "{ let s = selector(text.where(text: \"Hi\")); (repr(type(s)), repr(s)) }",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = selector(text.where(text: \"Hi\")); (repr(type(s)), repr(s)) }",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "counter_heading_bare",
+      "expression": "{ let c = counter(heading); (repr(type(c)), repr(c)) }",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let c = counter(heading); (repr(type(c)), repr(c)) }",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "counter_heading_empty",
+      "expression": "{ let c = counter(heading.where()); (repr(type(c)), repr(c)) }",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let c = counter(heading.where()); (repr(type(c)), repr(c)) }",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "counter_heading_level1",
+      "expression": "{ let c = counter(heading.where(level: 1)); (repr(type(c)), repr(c)) }",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let c = counter(heading.where(level: 1)); (repr(type(c)), repr(c)) }",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "counter_heading_level2",
+      "expression": "{ let c = counter(heading.where(level: 2)); (repr(type(c)), repr(c)) }",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let c = counter(heading.where(level: 2)); (repr(type(c)), repr(c)) }",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "counter_key_equality",
+      "expression": "(counter(heading) == counter(heading.where()), counter(heading.where(level: 1)) == counter(heading.where(level: 2)))",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "(counter(heading) == counter(heading.where()), counter(heading.where(level: 1)) == counter(heading.where(level: 2)))",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "counter_reject_strong",
+      "expression": "repr(counter(strong.where()))",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "repr(counter(strong.where()))",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "counter_reject_emph",
+      "expression": "repr(counter(emph.where()))",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "repr(counter(emph.where()))",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "counter_reject_text",
+      "expression": "repr(counter(text.where()))",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "repr(counter(text.where()))",
+        "--format",
+        "json"
+      ],
+      "stdin": null
+    },
+    {
+      "id": "query_heading_bare",
+      "expression": "query(heading).map(it => (it.level, repr(it.body)))",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading).map(it => (it.level, repr(it.body))))\n"
+    },
+    {
+      "id": "query_heading_empty",
+      "expression": "query(heading.where()).map(it => (it.level, repr(it.body)))",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where()).map(it => (it.level, repr(it.body))))\n"
+    },
+    {
+      "id": "query_heading_level1",
+      "expression": "query(heading.where(level: 1)).map(it => (it.level, repr(it.body)))",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where(level: 1)).map(it => (it.level, repr(it.body))))\n"
+    },
+    {
+      "id": "query_heading_level2",
+      "expression": "query(heading.where(level: 2)).map(it => (it.level, repr(it.body)))",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where(level: 2)).map(it => (it.level, repr(it.body))))\n"
+    },
+    {
+      "id": "query_heading_miss",
+      "expression": "query(heading.where(level: 9)).map(it => (it.level, repr(it.body)))",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where(level: 9)).map(it => (it.level, repr(it.body))))\n"
+    },
+    {
+      "id": "query_heading_wrong_type",
+      "expression": "query(heading.where(level: \"bad\")).map(it => (it.level, repr(it.body)))",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where(level: \"bad\")).map(it => (it.level, repr(it.body))))\n"
+    },
+    {
+      "id": "query_reject_strong",
+      "expression": "query(strong.where()).len()",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(strong.where()).len())\n"
+    },
+    {
+      "id": "query_reject_emph",
+      "expression": "query(emph.where()).len()",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(emph.where()).len())\n"
+    },
+    {
+      "id": "query_reject_text",
+      "expression": "query(text.where()).len()",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(text.where()).len())\n"
+    },
+    {
+      "id": "counter_get",
+      "expression": "(counter(heading).get(), counter(heading.where()).get(), counter(heading.where(level: 1)).get(), counter(heading.where(level: 2)).get(), counter(heading.where(level: 9)).get())",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata((counter(heading).get(), counter(heading.where()).get(), counter(heading.where(level: 1)).get(), counter(heading.where(level: 2)).get(), counter(heading.where(level: 9)).get()))\n"
+    },
+    {
+      "id": "counter_display",
+      "expression": "(repr(counter(heading).display()), repr(counter(heading.where()).display()), repr(counter(heading.where(level: 1)).display()))",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata((repr(counter(heading).display()), repr(counter(heading.where()).display()), repr(counter(heading.where(level: 1)).display())))\n"
+    },
+    {
+      "id": "counter_display_realized",
+      "expression": null,
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#show text: it => { metadata(it.text); it }\n#context counter(heading.where(level: 1)).display()\n"
+    }
+  ],
+  "runs": [
+    {
+      "id": "selector_heading_empty",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = selector(heading.where()); (repr(type(s)), repr(s), s == heading.where(), s == selector(heading)) }",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '{ let s = selector(heading.where()); (repr(type(s)), repr(s), s == heading.where(), s == selector(heading)) }' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.880440+00:00",
+      "utc_end": "2026-09-10T00:18:55.887120+00:00",
+      "exit_code": 0,
+      "stdout": "[\"selector\",\"heading.where(:)\",true,false]\n",
+      "stderr": ""
+    },
+    {
+      "id": "selector_heading_filtered",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = selector(heading.where(level: 1)); (repr(type(s)), repr(s), s == heading.where(level: 1)) }",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '{ let s = selector(heading.where(level: 1)); (repr(type(s)), repr(s), s == heading.where(level: 1)) }' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.887138+00:00",
+      "utc_end": "2026-09-10T00:18:55.893061+00:00",
+      "exit_code": 0,
+      "stdout": "[\"selector\",\"heading.where(level: 1)\",true]\n",
+      "stderr": ""
+    },
+    {
+      "id": "selector_strong_empty",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = selector(strong.where()); (repr(type(s)), repr(s)) }",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '{ let s = selector(strong.where()); (repr(type(s)), repr(s)) }' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.893078+00:00",
+      "utc_end": "2026-09-10T00:18:55.899112+00:00",
+      "exit_code": 0,
+      "stdout": "[\"selector\",\"strong.where(:)\"]\n",
+      "stderr": ""
+    },
+    {
+      "id": "selector_text_filtered",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = selector(text.where(text: \"Hi\")); (repr(type(s)), repr(s)) }",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '{ let s = selector(text.where(text: \"Hi\")); (repr(type(s)), repr(s)) }' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.899135+00:00",
+      "utc_end": "2026-09-10T00:18:55.905468+00:00",
+      "exit_code": 0,
+      "stdout": "[\"selector\",\"text.where(text: \\\"Hi\\\")\"]\n",
+      "stderr": ""
+    },
+    {
+      "id": "counter_heading_bare",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let c = counter(heading); (repr(type(c)), repr(c)) }",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '{ let c = counter(heading); (repr(type(c)), repr(c)) }' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.905486+00:00",
+      "utc_end": "2026-09-10T00:18:55.911421+00:00",
+      "exit_code": 0,
+      "stdout": "[\"counter\",\"counter(heading)\"]\n",
+      "stderr": ""
+    },
+    {
+      "id": "counter_heading_empty",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let c = counter(heading.where()); (repr(type(c)), repr(c)) }",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '{ let c = counter(heading.where()); (repr(type(c)), repr(c)) }' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.911445+00:00",
+      "utc_end": "2026-09-10T00:18:55.917367+00:00",
+      "exit_code": 0,
+      "stdout": "[\"counter\",\"counter(heading.where(:))\"]\n",
+      "stderr": ""
+    },
+    {
+      "id": "counter_heading_level1",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let c = counter(heading.where(level: 1)); (repr(type(c)), repr(c)) }",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '{ let c = counter(heading.where(level: 1)); (repr(type(c)), repr(c)) }' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.917384+00:00",
+      "utc_end": "2026-09-10T00:18:55.923429+00:00",
+      "exit_code": 0,
+      "stdout": "[\"counter\",\"counter(heading.where(level: 1))\"]\n",
+      "stderr": ""
+    },
+    {
+      "id": "counter_heading_level2",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let c = counter(heading.where(level: 2)); (repr(type(c)), repr(c)) }",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '{ let c = counter(heading.where(level: 2)); (repr(type(c)), repr(c)) }' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.923448+00:00",
+      "utc_end": "2026-09-10T00:18:55.929494+00:00",
+      "exit_code": 0,
+      "stdout": "[\"counter\",\"counter(heading.where(level: 2))\"]\n",
+      "stderr": ""
+    },
+    {
+      "id": "counter_key_equality",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "(counter(heading) == counter(heading.where()), counter(heading.where(level: 1)) == counter(heading.where(level: 2)))",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '(counter(heading) == counter(heading.where()), counter(heading.where(level: 1)) == counter(heading.where(level: 2)))' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.929519+00:00",
+      "utc_end": "2026-09-10T00:18:55.935282+00:00",
+      "exit_code": 0,
+      "stdout": "[false,false]\n",
+      "stderr": ""
+    },
+    {
+      "id": "counter_reject_strong",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "repr(counter(strong.where()))",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval 'repr(counter(strong.where()))' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.935300+00:00",
+      "utc_end": "2026-09-10T00:18:55.941259+00:00",
+      "exit_code": 0,
+      "stdout": "\"counter(strong.where(:))\"\n",
+      "stderr": ""
+    },
+    {
+      "id": "counter_reject_emph",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "repr(counter(emph.where()))",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval 'repr(counter(emph.where()))' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.941277+00:00",
+      "utc_end": "2026-09-10T00:18:55.947680+00:00",
+      "exit_code": 0,
+      "stdout": "\"counter(emph.where(:))\"\n",
+      "stderr": ""
+    },
+    {
+      "id": "counter_reject_text",
+      "command": [
+        "/usr/local/bin/typst",
+        "eval",
+        "repr(counter(text.where()))",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval 'repr(counter(text.where()))' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:55.947698+00:00",
+      "utc_end": "2026-09-10T00:18:55.954053+00:00",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: text is not locatable\n  ┌─ <input-expression>:1:13\n  │\n1 │ repr(counter(text.where()))\n  │              ^^^^^^^^^^^^\n\n"
+    },
+    {
+      "id": "query_heading_bare",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading).map(it => (it.level, repr(it.body))))\n",
+      "utc_start": "2026-09-10T00:18:55.954074+00:00",
+      "utc_end": "2026-09-10T00:18:56.241226+00:00",
+      "exit_code": 0,
+      "stdout": "[[[1,\"[First]\"],[2,\"[Child]\"],[1,\"[Last]\"]]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "query_heading_empty",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where()).map(it => (it.level, repr(it.body))))\n",
+      "utc_start": "2026-09-10T00:18:56.241243+00:00",
+      "utc_end": "2026-09-10T00:18:56.531462+00:00",
+      "exit_code": 0,
+      "stdout": "[[[1,\"[First]\"],[2,\"[Child]\"],[1,\"[Last]\"]]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "query_heading_level1",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where(level: 1)).map(it => (it.level, repr(it.body))))\n",
+      "utc_start": "2026-09-10T00:18:56.531488+00:00",
+      "utc_end": "2026-09-10T00:18:56.817739+00:00",
+      "exit_code": 0,
+      "stdout": "[[[1,\"[First]\"],[1,\"[Last]\"]]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "query_heading_level2",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where(level: 2)).map(it => (it.level, repr(it.body))))\n",
+      "utc_start": "2026-09-10T00:18:56.817757+00:00",
+      "utc_end": "2026-09-10T00:18:57.102528+00:00",
+      "exit_code": 0,
+      "stdout": "[[[2,\"[Child]\"]]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "query_heading_miss",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where(level: 9)).map(it => (it.level, repr(it.body))))\n",
+      "utc_start": "2026-09-10T00:18:57.102544+00:00",
+      "utc_end": "2026-09-10T00:18:57.386937+00:00",
+      "exit_code": 0,
+      "stdout": "[[]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "query_heading_wrong_type",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(heading.where(level: \"bad\")).map(it => (it.level, repr(it.body))))\n",
+      "utc_start": "2026-09-10T00:18:57.386956+00:00",
+      "utc_end": "2026-09-10T00:18:57.671624+00:00",
+      "exit_code": 0,
+      "stdout": "[[]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "query_reject_strong",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(strong.where()).len())\n",
+      "utc_start": "2026-09-10T00:18:57.671642+00:00",
+      "utc_end": "2026-09-10T00:18:57.975302+00:00",
+      "exit_code": 0,
+      "stdout": "[1]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "query_reject_emph",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(emph.where()).len())\n",
+      "utc_start": "2026-09-10T00:18:57.975320+00:00",
+      "utc_end": "2026-09-10T00:18:58.268953+00:00",
+      "exit_code": 0,
+      "stdout": "[1]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "query_reject_text",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata(query(text.where()).len())\n",
+      "utc_start": "2026-09-10T00:18:58.268972+00:00",
+      "utc_end": "2026-09-10T00:18:58.576437+00:00",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: text is not locatable\n  ┌─ <stdin>:6:24\n  │\n6 │ #context metadata(query(text.where()).len())\n  │                         ^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "counter_get",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata((counter(heading).get(), counter(heading.where()).get(), counter(heading.where(level: 1)).get(), counter(heading.where(level: 2)).get(), counter(heading.where(level: 9)).get()))\n",
+      "utc_start": "2026-09-10T00:18:58.576461+00:00",
+      "utc_end": "2026-09-10T00:18:58.894209+00:00",
+      "exit_code": 0,
+      "stdout": "[[[2],[2],[2],[0,1],[0]]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "counter_display",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#context metadata((repr(counter(heading).display()), repr(counter(heading.where()).display()), repr(counter(heading.where(level: 1)).display())))\n",
+      "utc_start": "2026-09-10T00:18:58.894227+00:00",
+      "utc_end": "2026-09-10T00:18:59.198478+00:00",
+      "exit_code": 0,
+      "stdout": "[[\"\\\"2\\\"\",\"\\\"2\\\"\",\"\\\"2\\\"\"]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "counter_display_realized",
+      "command": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set heading(numbering: \"1.1\")\n= First\n== Child\n= Last\n*Bold* _Emph_ Text\n#show text: it => { metadata(it.text); it }\n#context counter(heading.where(level: 1)).display()\n",
+      "utc_start": "2026-09-10T00:18:59.198496+00:00",
+      "utc_end": "2026-09-10T00:18:59.498501+00:00",
+      "exit_code": 0,
+      "stdout": "[\"2\"]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    }
+  ],
+  "after": {
+    "head": {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "shell_command": "git rev-parse HEAD",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:59.498526+00:00",
+      "utc_end": "2026-09-10T00:18:59.500617+00:00",
+      "exit_code": 0,
+      "stdout": "2f42d64253547734564513a1159ee6b584c1c4b4\n",
+      "stderr": ""
+    },
+    "diff_stat": {
+      "command": [
+        "git",
+        "diff",
+        "HEAD",
+        "--stat"
+      ],
+      "shell_command": "git diff HEAD --stat",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:59.500628+00:00",
+      "utc_end": "2026-09-10T00:18:59.512506+00:00",
+      "exit_code": 0,
+      "stdout": " .../compiler/eval/bindings/value_methods.md        | 88 ++++++++++++++++++++++\n .../prompts/compiler/eval/operators/equality.md    | 43 +++++++++++\n .../prompts/compiler/eval/selector_matching.md     | 58 ++++++++++++++\n 00_nucleo/prompts/entities/selector.md             | 80 ++++++++++++++++++++\n 00_nucleo/prompts/entities/show.md                 | 46 +++++++++++\n 5 files changed, 315 insertions(+)\n",
+      "stderr": ""
+    },
+    "status": {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "shell_command": "git status --short",
+      "stdin": null,
+      "utc_start": "2026-09-10T00:18:59.512522+00:00",
+      "utc_end": "2026-09-10T00:18:59.537160+00:00",
+      "exit_code": 0,
+      "stdout": " M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/entities/selector.md\n M 00_nucleo/prompts/entities/show.md\n?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-approval-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-manifest.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r1.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-vanilla.json\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+      "stderr": ""
+    }
+  },
+  "utc_end": "2026-09-10T00:18:59.537177+00:00"
+}

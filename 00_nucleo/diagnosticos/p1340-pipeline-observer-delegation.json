@@ -1,0 +1,10 @@
+{
+  "schema": "p1340-pipeline-observer-delegation-v1",
+  "seal": {"path": "00_nucleo/diagnosticos/p1340-verifier-seal-r3.json", "sha256": "82ceda880adef9a6ba2f0330f71badcfea084af64168510501cb4c4a939ea9f4"},
+  "executor": "/root/p1339_observation_design",
+  "role": "Implementation of late-bound passive L3 test observer, never oracle or verifier",
+  "write_scope": "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer*",
+  "integration": "Root inserts actual hooks and cfg-only include in productive owner; delegate may read candidate and already frozen tests to implement their mechanical bindings",
+  "forbidden": "Productive/L0 or frozen oracle edits, parallel coordinator, invented events or expected-derived observations, self-issued accepted binding audit or verdict",
+  "regime": "executado sem atestacao de isolamento"
+}

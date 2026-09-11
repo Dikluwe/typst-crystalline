@@ -4,6 +4,38 @@ Hash do Código: a4267e57
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 
+## P1339 — descoberta das nove rotas complementares
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
+`field_access.rs:708-801` já delega Float à stdlib e famílias primitivas ao
+dispatcher. As sondas congeladas `p1339-full-final-*` e
+`p1339-full-boundaries-*` distinguem descoberta estática de extração de
+método ligado, com comandos/UTC/spans/árvore próprios. A leitura de owners
+e propostas de ligação estão em `diagnosticos/p1339-remaining-l0-design.md`.
+
+### Decisão proprietária
+
+O match de Value::Type descobre Angle deg/rad e Function with pelos wrappers
+internos de call_dispatch, Float inf/nan/signum/from-bytes/to-bytes pelo
+owner foundations/float, Version at por version_type_field na fachada stdlib.
+Constantes Float permanecem valores, funções têm nome público curto.
+Não escrever fórmula, cast, parser de Args ou construção de With neste owner.
+
+Não expor deg/rad sobre valor Angle como função ligada: acesso sem chamada
+conserva `cannot access fields on type angle` no field. Float signum/to-bytes
+sem chamada continua com a rejeição correspondente do tipo float.
+`calc.pow.with` sem chamada continua sendo field ausente de pow, não um
+método capturado. `version(...).at` sem chamada continua componente
+desconhecido, sem promover at a major/minor/patch. Valores homônimos em
+Dict/Module e namespaces de funções permanecem campos ordinários.
+
+Não instalar namespace reflexivo em instâncias nem ampliar membros futuros
+implicitamente. Where continua regido por seu adendo específico. Esta
+extensão sucede somente a ausência das nove rotas listadas; os demais
+diagnósticos, estilos, features, campos e scope-outs mantêm seus owners.
+
 ## P1338 — field ausente em instância Array
 
 ### Medição anterior à decisão
@@ -1126,3 +1158,46 @@ as ocorrências restantes. Não invalidar Some nem mudar os erros vigentes.
 É extensão interna da mesma migração, não nova API ou fase; verificar a
 equivalência estática/ligada de content.func/has/at/fields/location. A fonte
 e a lista de writers refutam a suficiência da enumeração R3, não a API aprovada.
+
+## P1339 — descoberta de `function.where`
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
+`field_access.rs:689-832` despacha fields de Type sem cobrir Type::Function;
+`call_dispatch.rs:1117-1129` intercepta somente a chamada ligada de where.
+Os recibos `p1339-full-final-{vanilla,crystalline-before}-runs.json` fixam
+binários, UTC e working tree e medem `(function, "where")` no vanilla contra
+ausência no cristalino. A fonte ratificada `foundations/func.rs:412-450`
+define a função pública, enquanto `:280-308` distingue fields próprios de
+uma instância Func do namespace do seu tipo.
+
+### Decisão de integração
+
+O par fechado `(Type::Function, "where")` descobre a nativa do owner
+`compiler/eval/bindings/value_methods.md`. Este owner só encaminha lookup;
+não contém validação de receiver, tabela de campos, normalização de filtros
+ou construção de Selector. O resultado é Value::Func com nome público curto
+`where`, chamável diretamente, por alias e por aplicação de função existente.
+Type::Function continua não construtor; não fabricar namespace nas instâncias.
+
+Extrair `f.where` sem chamada mantém os erros/âncoras vigentes das categorias
+Native/NativeWithEngine/Closure/With. Não transformar método ligado em field
+de instância, não reconhecer identidade por nome e não executar o receiver.
+As preservações históricas de disponibilidade de Type são sucedidas somente
+para esse membro. Outros fields ausentes, categorias, PDF/features, snapshots,
+text contextual e diagnósticos P1301–P1338 conservam suas obrigações.
+
+Helpers de projeção já proprietários de Content podem ganhar apenas
+visibilidade interna para reutilização estática pelos novos filtros, sem
+alterar a política pública de acesso raw/LocatedContent nem inventar defaults.
+Não ampliar lookup raw Text/Raw por efeito lateral dessa reutilização: o
+owner de matching decide sua projeção, com snapshot Some autoritativo onde
+receba conteúdo consultado. Não criar API pública nova.
+
+Aceitação: descoberta/type/repr/chamada real, alias, rejeição de extração
+ligada e preservação dos demais lookups. Refutam a suficiência outra
+identidade que ganhe campo ou necessidade de novo carrier público.
+Correção de namespace em fluxo contínuo ADR-0127 dentro do gate aprovado;
+contrato, selo e RED ainda precedem implementação. Este recorte não completa
+os L0 das demais rotas P1339.

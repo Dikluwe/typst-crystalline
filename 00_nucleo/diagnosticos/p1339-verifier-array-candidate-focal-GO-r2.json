@@ -1,0 +1,18 @@
+{
+  "verdict": "GO_ARRAY_CANDIDATE_FOCAL_28_R2",
+  "verifier": "/root/p1311_review",
+  "regime": "executado sem atestacao de isolamento",
+  "seal_sha256": "cb368ce0be06d2b955dd0e213256f09778197ae04256679ba7a0d4d907ef2c5b",
+  "binary": {
+    "path": "/tmp/p1339-target.UD8gh7/release/typst",
+    "sha256": "ec13271aa5984c2eda3115c6e6988d210eeb08432e09f94c0e5343258c4d2dc9"
+  },
+  "executor": "00_nucleo/diagnosticos/p1339-array-candidate-public-run-r4.py",
+  "executor_sha256": "6af9d395e9fdd10ebeebb8b7417448b61cff1b6e529dd6a3f7c98c45f3ebc860",
+  "build_receipt_sha256": "fcc573adb317a59557b02979c6c3da830a5e62b41aa7e9e9e984f2dfba0a9ba8",
+  "derived_metadata_receipt_sha256": "2e35e7d9d57f155b29b16919c19f00246976a6eb6a4377c30c82bf5881e472b8",
+  "audit": "Binary and runner independently hashed. Exact r3-to-r4 runner diff changes only output receipt suffix r1 to r2. Build exit0; HEAD, diffstat, modified and untracked product hashes and 18 protected inputs agree before/after. Six current owner/source hashes and normative L0 hashes independently match derived-metadata receipt. Array dispatch now uses existing trace_call only on guarded first-positional-Bytes branch; frozen E05 requires this trace, without altered expectation.",
+  "permitted_run": {"mode": "focal", "cells": 28, "orders": ["normal"], "profiles": ["default"], "invocation": "python3 -B", "expected": "27 unchanged frozen literals plus exploratory E08 Unknown, zero credit"},
+  "restrictions": "One focal execution, no source/input changes during run, preserve r1 failures. No original70 rerun, expanded336, expanded840 or general F approval. Independent focal judgment required before expansion. Existing two original70 Float-repr failures remain open.",
+  "budget": "Candidate focal 28 processes, not a new preseal revision or calibration/full-C reset. No automatic retry."
+}

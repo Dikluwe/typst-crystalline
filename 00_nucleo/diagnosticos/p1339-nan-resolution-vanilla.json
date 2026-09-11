@@ -1,0 +1,2517 @@
+{
+  "provenance": {
+    "at": "2026-09-09T23:50:24.560720+00:00",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "status": "?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+    "diff_stat": ""
+  },
+  "end_provenance": {
+    "at": "2026-09-09T23:50:25.599677+00:00",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "status": "?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+    "diff_stat": ""
+  },
+  "binary": {
+    "path": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "manifest_sha256": "719e0b08e19f15a8ccb377351fbb0b1615241f9c87b4448ffc15bc61a6e07425",
+  "rows": [
+    {
+      "id": "multiply-nan",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"nan\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.629254+00:00",
+      "end": "2026-09-09T23:50:24.637056+00:00",
+      "seconds": 0.007796888996381313,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-nan",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"nan\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.637075+00:00",
+      "end": "2026-09-09T23:50:24.643558+00:00",
+      "seconds": 0.00649592000991106,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-nan",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"nan\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.643583+00:00",
+      "end": "2026-09-09T23:50:24.649804+00:00",
+      "seconds": 0.0062295509851537645,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-nan",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"nan\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.649822+00:00",
+      "end": "2026-09-09T23:50:24.656313+00:00",
+      "seconds": 0.006500947987660766,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-zero-infinity",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 0deg * float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.656333+00:00",
+      "end": "2026-09-09T23:50:24.663142+00:00",
+      "seconds": 0.006819062982685864,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-zero-infinity",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 0deg * float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.663161+00:00",
+      "end": "2026-09-09T23:50:24.669880+00:00",
+      "seconds": 0.006731061032041907,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-zero-infinity",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 0deg * float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.669900+00:00",
+      "end": "2026-09-09T23:50:24.676384+00:00",
+      "seconds": 0.0064931249944493175,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-zero-infinity",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 0deg * float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.676402+00:00",
+      "end": "2026-09-09T23:50:24.683504+00:00",
+      "seconds": 0.00711045804200694,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "subtract-infinities",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.683521+00:00",
+      "end": "2026-09-09T23:50:24.691183+00:00",
+      "seconds": 0.0076735030161216855,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "subtract-infinities",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.691211+00:00",
+      "end": "2026-09-09T23:50:24.699255+00:00",
+      "seconds": 0.008052629011217505,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "subtract-infinities",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.699274+00:00",
+      "end": "2026-09-09T23:50:24.706033+00:00",
+      "seconds": 0.006768701015971601,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "subtract-infinities",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.706051+00:00",
+      "end": "2026-09-09T23:50:24.712225+00:00",
+      "seconds": 0.006187574006617069,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "add-opposite-infinities",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg + -float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.712249+00:00",
+      "end": "2026-09-09T23:50:24.718784+00:00",
+      "seconds": 0.006545611016917974,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "add-opposite-infinities",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg + -float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.718802+00:00",
+      "end": "2026-09-09T23:50:24.725261+00:00",
+      "seconds": 0.006467687955591828,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "add-opposite-infinities",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg + -float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.725278+00:00",
+      "end": "2026-09-09T23:50:24.731611+00:00",
+      "seconds": 0.006346074980683625,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "add-opposite-infinities",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg + -float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.731635+00:00",
+      "end": "2026-09-09T23:50:24.738549+00:00",
+      "seconds": 0.006921722029801458,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-by-nan",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 1deg / float(\"nan\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.738568+00:00",
+      "end": "2026-09-09T23:50:24.745317+00:00",
+      "seconds": 0.006759673997294158,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-by-nan",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 1deg / float(\"nan\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.745336+00:00",
+      "end": "2026-09-09T23:50:24.752072+00:00",
+      "seconds": 0.006747912033461034,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-by-nan",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 1deg / float(\"nan\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.752094+00:00",
+      "end": "2026-09-09T23:50:24.758271+00:00",
+      "seconds": 0.006185039004776627,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-by-nan",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 1deg / float(\"nan\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.758292+00:00",
+      "end": "2026-09-09T23:50:24.765203+00:00",
+      "seconds": 0.0069191670045256615,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-infinities",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = (float(\"inf\") * 1deg) / float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.765221+00:00",
+      "end": "2026-09-09T23:50:24.771536+00:00",
+      "seconds": 0.006324224988929927,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-infinities",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = (float(\"inf\") * 1deg) / float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.771553+00:00",
+      "end": "2026-09-09T23:50:24.777779+00:00",
+      "seconds": 0.006233818014152348,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-infinities",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = (float(\"inf\") * 1deg) / float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.777795+00:00",
+      "end": "2026-09-09T23:50:24.784092+00:00",
+      "seconds": 0.006305168964900076,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-infinities",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = (float(\"inf\") * 1deg) / float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.784109+00:00",
+      "end": "2026-09-09T23:50:24.790176+00:00",
+      "seconds": 0.006078033009544015,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan-nan",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.790196+00:00",
+      "end": "2026-09-09T23:50:24.796764+00:00",
+      "seconds": 0.006577740015927702,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan-nan",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.796782+00:00",
+      "end": "2026-09-09T23:50:24.803009+00:00",
+      "seconds": 0.006239047972485423,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan-nan",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.803030+00:00",
+      "end": "2026-09-09T23:50:24.809942+00:00",
+      "seconds": 0.006925357971340418,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan-nan",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.809966+00:00",
+      "end": "2026-09-09T23:50:24.816545+00:00",
+      "seconds": 0.00658833998022601,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-y",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(float(\"nan\"), 1.0); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.816564+00:00",
+      "end": "2026-09-09T23:50:24.822947+00:00",
+      "seconds": 0.0063911970355547965,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-y",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(float(\"nan\"), 1.0); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.822968+00:00",
+      "end": "2026-09-09T23:50:24.829420+00:00",
+      "seconds": 0.0064635699964128435,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-y",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(float(\"nan\"), 1.0); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.829441+00:00",
+      "end": "2026-09-09T23:50:24.835623+00:00",
+      "seconds": 0.006195107998792082,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-y",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(float(\"nan\"), 1.0); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.835644+00:00",
+      "end": "2026-09-09T23:50:24.841714+00:00",
+      "seconds": 0.0060853149625472724,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-x",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(1.0, float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.841744+00:00",
+      "end": "2026-09-09T23:50:24.847871+00:00",
+      "seconds": 0.006136230018455535,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-x",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(1.0, float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.847893+00:00",
+      "end": "2026-09-09T23:50:24.854233+00:00",
+      "seconds": 0.006355061021167785,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-x",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(1.0, float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.854262+00:00",
+      "end": "2026-09-09T23:50:24.860740+00:00",
+      "seconds": 0.006487944978289306,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-x",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(1.0, float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.860760+00:00",
+      "end": "2026-09-09T23:50:24.868160+00:00",
+      "seconds": 0.007414416002575308,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "asin-nan",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.asin(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.868190+00:00",
+      "end": "2026-09-09T23:50:24.874708+00:00",
+      "seconds": 0.00652648601680994,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "asin-nan",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.asin(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.874726+00:00",
+      "end": "2026-09-09T23:50:24.881376+00:00",
+      "seconds": 0.0066602620063349605,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "asin-nan",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.asin(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.881393+00:00",
+      "end": "2026-09-09T23:50:24.887653+00:00",
+      "seconds": 0.006270095007494092,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "asin-nan",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.asin(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.887675+00:00",
+      "end": "2026-09-09T23:50:24.893931+00:00",
+      "seconds": 0.00626608805032447,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "acos-nan",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.acos(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.893954+00:00",
+      "end": "2026-09-09T23:50:24.901406+00:00",
+      "seconds": 0.007461083005182445,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "acos-nan",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.acos(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.901424+00:00",
+      "end": "2026-09-09T23:50:24.907804+00:00",
+      "seconds": 0.006389654008671641,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "acos-nan",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.acos(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.907822+00:00",
+      "end": "2026-09-09T23:50:24.914458+00:00",
+      "seconds": 0.006648891023360193,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "acos-nan",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.acos(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.914484+00:00",
+      "end": "2026-09-09T23:50:24.920684+00:00",
+      "seconds": 0.0062064980156719685,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-positive-infinity",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.920704+00:00",
+      "end": "2026-09-09T23:50:24.927893+00:00",
+      "seconds": 0.007200262974947691,
+      "exit": 0,
+      "stdout": "\"(angle, float.inf * 1deg, true, float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-positive-infinity",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.927913+00:00",
+      "end": "2026-09-09T23:50:24.935450+00:00",
+      "seconds": 0.007546540000475943,
+      "exit": 0,
+      "stdout": "\"(angle, float.inf * 1deg, true, float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-positive-infinity",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.935468+00:00",
+      "end": "2026-09-09T23:50:24.942284+00:00",
+      "seconds": 0.006827628996688873,
+      "exit": 0,
+      "stdout": "\"(angle, float.inf * 1deg, true, float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-positive-infinity",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.942306+00:00",
+      "end": "2026-09-09T23:50:24.949624+00:00",
+      "seconds": 0.007331104017794132,
+      "exit": 0,
+      "stdout": "\"(angle, float.inf * 1deg, true, float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-infinity",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.949649+00:00",
+      "end": "2026-09-09T23:50:24.956345+00:00",
+      "seconds": 0.006707107007969171,
+      "exit": 0,
+      "stdout": "\"(angle, -float.inf * 1deg, true, -float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-infinity",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.956367+00:00",
+      "end": "2026-09-09T23:50:24.962791+00:00",
+      "seconds": 0.006438774988055229,
+      "exit": 0,
+      "stdout": "\"(angle, -float.inf * 1deg, true, -float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-infinity",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.962816+00:00",
+      "end": "2026-09-09T23:50:24.969175+00:00",
+      "seconds": 0.006367954949382693,
+      "exit": 0,
+      "stdout": "\"(angle, -float.inf * 1deg, true, -float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-infinity",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.969195+00:00",
+      "end": "2026-09-09T23:50:24.975375+00:00",
+      "seconds": 0.0061923020402900875,
+      "exit": 0,
+      "stdout": "\"(angle, -float.inf * 1deg, true, -float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-zero",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -0deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.975397+00:00",
+      "end": "2026-09-09T23:50:24.981874+00:00",
+      "seconds": 0.006486862956080586,
+      "exit": 0,
+      "stdout": "\"(angle, -0deg, true, -0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-zero",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -0deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.981894+00:00",
+      "end": "2026-09-09T23:50:24.988737+00:00",
+      "seconds": 0.006853726983536035,
+      "exit": 0,
+      "stdout": "\"(angle, -0deg, true, -0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-zero",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -0deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.988757+00:00",
+      "end": "2026-09-09T23:50:24.995310+00:00",
+      "seconds": 0.006565788004081696,
+      "exit": 0,
+      "stdout": "\"(angle, -0deg, true, -0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-zero",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -0deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:24.995336+00:00",
+      "end": "2026-09-09T23:50:25.001782+00:00",
+      "seconds": 0.006454142974689603,
+      "exit": 0,
+      "stdout": "\"(angle, -0deg, true, -0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-finite",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 90deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.001802+00:00",
+      "end": "2026-09-09T23:50:25.009298+00:00",
+      "seconds": 0.0075058850343339145,
+      "exit": 0,
+      "stdout": "\"(angle, 90deg, true, 90.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-finite",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 90deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.009316+00:00",
+      "end": "2026-09-09T23:50:25.015827+00:00",
+      "seconds": 0.006518631998915225,
+      "exit": 0,
+      "stdout": "\"(angle, 90deg, true, 90.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-finite",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 90deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.015844+00:00",
+      "end": "2026-09-09T23:50:25.022832+00:00",
+      "seconds": 0.006997983029577881,
+      "exit": 0,
+      "stdout": "\"(angle, 90deg, true, 90.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-finite",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 90deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.022855+00:00",
+      "end": "2026-09-09T23:50:25.030059+00:00",
+      "seconds": 0.007216053025331348,
+      "exit": 0,
+      "stdout": "\"(angle, 90deg, true, 90.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-float-nan",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let n = float(\"nan\"); repr((type(n), n, n == n)) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.030081+00:00",
+      "end": "2026-09-09T23:50:25.037318+00:00",
+      "seconds": 0.007247850997373462,
+      "exit": 0,
+      "stdout": "\"(float, float.nan, false)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-float-nan",
+      "order": "normal",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let n = float(\"nan\"); repr((type(n), n, n == n)) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.037338+00:00",
+      "end": "2026-09-09T23:50:25.044274+00:00",
+      "seconds": 0.006946076988242567,
+      "exit": 0,
+      "stdout": "\"(float, float.nan, false)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-float-nan",
+      "order": "normal",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let n = float(\"nan\"); repr((type(n), n, n == n)) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.044293+00:00",
+      "end": "2026-09-09T23:50:25.052235+00:00",
+      "seconds": 0.007951873994898051,
+      "exit": 0,
+      "stdout": "\"(float, float.nan, false)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-float-nan",
+      "order": "normal",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let n = float(\"nan\"); repr((type(n), n, n == n)) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.052254+00:00",
+      "end": "2026-09-09T23:50:25.058819+00:00",
+      "seconds": 0.006573833001311868,
+      "exit": 0,
+      "stdout": "\"(float, float.nan, false)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-float-nan",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let n = float(\"nan\"); repr((type(n), n, n == n)) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.058838+00:00",
+      "end": "2026-09-09T23:50:25.065622+00:00",
+      "seconds": 0.006794538989197463,
+      "exit": 0,
+      "stdout": "\"(float, float.nan, false)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-float-nan",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let n = float(\"nan\"); repr((type(n), n, n == n)) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.065641+00:00",
+      "end": "2026-09-09T23:50:25.072463+00:00",
+      "seconds": 0.006834492029156536,
+      "exit": 0,
+      "stdout": "\"(float, float.nan, false)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-float-nan",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let n = float(\"nan\"); repr((type(n), n, n == n)) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.072486+00:00",
+      "end": "2026-09-09T23:50:25.078921+00:00",
+      "seconds": 0.006444876024033874,
+      "exit": 0,
+      "stdout": "\"(float, float.nan, false)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-float-nan",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let n = float(\"nan\"); repr((type(n), n, n == n)) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.078939+00:00",
+      "end": "2026-09-09T23:50:25.085336+00:00",
+      "seconds": 0.006406395987141877,
+      "exit": 0,
+      "stdout": "\"(float, float.nan, false)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-finite",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 90deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.085356+00:00",
+      "end": "2026-09-09T23:50:25.091801+00:00",
+      "seconds": 0.006455845956224948,
+      "exit": 0,
+      "stdout": "\"(angle, 90deg, true, 90.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-finite",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 90deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.091825+00:00",
+      "end": "2026-09-09T23:50:25.098994+00:00",
+      "seconds": 0.007178293017204851,
+      "exit": 0,
+      "stdout": "\"(angle, 90deg, true, 90.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-finite",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 90deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.099014+00:00",
+      "end": "2026-09-09T23:50:25.106487+00:00",
+      "seconds": 0.007484075031243265,
+      "exit": 0,
+      "stdout": "\"(angle, 90deg, true, 90.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-finite",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 90deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.106507+00:00",
+      "end": "2026-09-09T23:50:25.113673+00:00",
+      "seconds": 0.007175297010689974,
+      "exit": 0,
+      "stdout": "\"(angle, 90deg, true, 90.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-zero",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -0deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.113693+00:00",
+      "end": "2026-09-09T23:50:25.122522+00:00",
+      "seconds": 0.008853930979967117,
+      "exit": 0,
+      "stdout": "\"(angle, -0deg, true, -0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-zero",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -0deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.122561+00:00",
+      "end": "2026-09-09T23:50:25.130931+00:00",
+      "seconds": 0.008382584957871586,
+      "exit": 0,
+      "stdout": "\"(angle, -0deg, true, -0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-zero",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -0deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.130954+00:00",
+      "end": "2026-09-09T23:50:25.139211+00:00",
+      "seconds": 0.008267293043900281,
+      "exit": 0,
+      "stdout": "\"(angle, -0deg, true, -0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-zero",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -0deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.139231+00:00",
+      "end": "2026-09-09T23:50:25.148904+00:00",
+      "seconds": 0.009683885029517114,
+      "exit": 0,
+      "stdout": "\"(angle, -0deg, true, -0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-infinity",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.148925+00:00",
+      "end": "2026-09-09T23:50:25.156372+00:00",
+      "seconds": 0.007456413994077593,
+      "exit": 0,
+      "stdout": "\"(angle, -float.inf * 1deg, true, -float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-infinity",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.156392+00:00",
+      "end": "2026-09-09T23:50:25.163806+00:00",
+      "seconds": 0.007429114019032568,
+      "exit": 0,
+      "stdout": "\"(angle, -float.inf * 1deg, true, -float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-infinity",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.163835+00:00",
+      "end": "2026-09-09T23:50:25.174028+00:00",
+      "seconds": 0.010199131036642939,
+      "exit": 0,
+      "stdout": "\"(angle, -float.inf * 1deg, true, -float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-negative-infinity",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = -float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.174051+00:00",
+      "end": "2026-09-09T23:50:25.180653+00:00",
+      "seconds": 0.006611782999243587,
+      "exit": 0,
+      "stdout": "\"(angle, -float.inf * 1deg, true, -float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-positive-infinity",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.180672+00:00",
+      "end": "2026-09-09T23:50:25.187526+00:00",
+      "seconds": 0.0068687949678860605,
+      "exit": 0,
+      "stdout": "\"(angle, float.inf * 1deg, true, float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-positive-infinity",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.187551+00:00",
+      "end": "2026-09-09T23:50:25.195939+00:00",
+      "seconds": 0.008398553996812552,
+      "exit": 0,
+      "stdout": "\"(angle, float.inf * 1deg, true, float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-positive-infinity",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.195959+00:00",
+      "end": "2026-09-09T23:50:25.203338+00:00",
+      "seconds": 0.0073934089741669595,
+      "exit": 0,
+      "stdout": "\"(angle, float.inf * 1deg, true, float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "control-positive-infinity",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.203365+00:00",
+      "end": "2026-09-09T23:50:25.211682+00:00",
+      "seconds": 0.0083262610132806,
+      "exit": 0,
+      "stdout": "\"(angle, float.inf * 1deg, true, float.inf, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "acos-nan",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.acos(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.211703+00:00",
+      "end": "2026-09-09T23:50:25.218787+00:00",
+      "seconds": 0.007093116990290582,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "acos-nan",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.acos(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.218804+00:00",
+      "end": "2026-09-09T23:50:25.226782+00:00",
+      "seconds": 0.007987118035089225,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "acos-nan",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.acos(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.226800+00:00",
+      "end": "2026-09-09T23:50:25.233563+00:00",
+      "seconds": 0.006772257969714701,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "acos-nan",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.acos(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.233581+00:00",
+      "end": "2026-09-09T23:50:25.240663+00:00",
+      "seconds": 0.00709223496960476,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "asin-nan",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.asin(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.240687+00:00",
+      "end": "2026-09-09T23:50:25.248045+00:00",
+      "seconds": 0.007367189973592758,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "asin-nan",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.asin(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.248065+00:00",
+      "end": "2026-09-09T23:50:25.254703+00:00",
+      "seconds": 0.006647738977335393,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "asin-nan",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.asin(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.254722+00:00",
+      "end": "2026-09-09T23:50:25.262152+00:00",
+      "seconds": 0.00744269898859784,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "asin-nan",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.asin(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.262173+00:00",
+      "end": "2026-09-09T23:50:25.270252+00:00",
+      "seconds": 0.00808796298224479,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-x",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(1.0, float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.270271+00:00",
+      "end": "2026-09-09T23:50:25.277485+00:00",
+      "seconds": 0.007225490000564605,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-x",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(1.0, float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.277507+00:00",
+      "end": "2026-09-09T23:50:25.285241+00:00",
+      "seconds": 0.007747288036625832,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-x",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(1.0, float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.285267+00:00",
+      "end": "2026-09-09T23:50:25.292127+00:00",
+      "seconds": 0.006870208017062396,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-x",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(1.0, float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.292151+00:00",
+      "end": "2026-09-09T23:50:25.299409+00:00",
+      "seconds": 0.0072698009898886085,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-y",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(float(\"nan\"), 1.0); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.299435+00:00",
+      "end": "2026-09-09T23:50:25.306921+00:00",
+      "seconds": 0.00749950302997604,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-y",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(float(\"nan\"), 1.0); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.306950+00:00",
+      "end": "2026-09-09T23:50:25.313954+00:00",
+      "seconds": 0.007016046030912548,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-y",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(float(\"nan\"), 1.0); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.313980+00:00",
+      "end": "2026-09-09T23:50:25.321075+00:00",
+      "seconds": 0.007104507996700704,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan2-nan-y",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan2(float(\"nan\"), 1.0); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.321101+00:00",
+      "end": "2026-09-09T23:50:25.329044+00:00",
+      "seconds": 0.007957734982483089,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan-nan",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.329070+00:00",
+      "end": "2026-09-09T23:50:25.336262+00:00",
+      "seconds": 0.007203079003375024,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan-nan",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.336283+00:00",
+      "end": "2026-09-09T23:50:25.347693+00:00",
+      "seconds": 0.01142660598270595,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan-nan",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.347723+00:00",
+      "end": "2026-09-09T23:50:25.356775+00:00",
+      "seconds": 0.009072763030417264,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "atan-nan",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = calc.atan(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.356813+00:00",
+      "end": "2026-09-09T23:50:25.364748+00:00",
+      "seconds": 0.00794653402408585,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-infinities",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = (float(\"inf\") * 1deg) / float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.364771+00:00",
+      "end": "2026-09-09T23:50:25.372924+00:00",
+      "seconds": 0.008167038962710649,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-infinities",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = (float(\"inf\") * 1deg) / float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.372950+00:00",
+      "end": "2026-09-09T23:50:25.380805+00:00",
+      "seconds": 0.007867087959311903,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-infinities",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = (float(\"inf\") * 1deg) / float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.380828+00:00",
+      "end": "2026-09-09T23:50:25.388953+00:00",
+      "seconds": 0.008140840975102037,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-infinities",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = (float(\"inf\") * 1deg) / float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.388982+00:00",
+      "end": "2026-09-09T23:50:25.396839+00:00",
+      "seconds": 0.007865895982831717,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-by-nan",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 1deg / float(\"nan\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.396859+00:00",
+      "end": "2026-09-09T23:50:25.406565+00:00",
+      "seconds": 0.00972264597658068,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-by-nan",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 1deg / float(\"nan\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.406640+00:00",
+      "end": "2026-09-09T23:50:25.414813+00:00",
+      "seconds": 0.00818802701542154,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-by-nan",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 1deg / float(\"nan\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.414843+00:00",
+      "end": "2026-09-09T23:50:25.422422+00:00",
+      "seconds": 0.007586652995087206,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "divide-by-nan",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 1deg / float(\"nan\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.422440+00:00",
+      "end": "2026-09-09T23:50:25.429945+00:00",
+      "seconds": 0.00752567098243162,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "add-opposite-infinities",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg + -float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.429983+00:00",
+      "end": "2026-09-09T23:50:25.437358+00:00",
+      "seconds": 0.007389009988401085,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "add-opposite-infinities",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg + -float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.437387+00:00",
+      "end": "2026-09-09T23:50:25.444568+00:00",
+      "seconds": 0.007195364043582231,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "add-opposite-infinities",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg + -float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.444597+00:00",
+      "end": "2026-09-09T23:50:25.457514+00:00",
+      "seconds": 0.012922072026412934,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "add-opposite-infinities",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg + -float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.457541+00:00",
+      "end": "2026-09-09T23:50:25.466324+00:00",
+      "seconds": 0.008796375012025237,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "subtract-infinities",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.466352+00:00",
+      "end": "2026-09-09T23:50:25.475693+00:00",
+      "seconds": 0.009359829011373222,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "subtract-infinities",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.475729+00:00",
+      "end": "2026-09-09T23:50:25.483624+00:00",
+      "seconds": 0.007904787024017423,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "subtract-infinities",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.483648+00:00",
+      "end": "2026-09-09T23:50:25.490928+00:00",
+      "seconds": 0.00729213299928233,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "subtract-infinities",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.490959+00:00",
+      "end": "2026-09-09T23:50:25.499035+00:00",
+      "seconds": 0.008087743015494198,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-zero-infinity",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 0deg * float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.499062+00:00",
+      "end": "2026-09-09T23:50:25.505840+00:00",
+      "seconds": 0.0067866340395994484,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-zero-infinity",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 0deg * float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.505859+00:00",
+      "end": "2026-09-09T23:50:25.513752+00:00",
+      "seconds": 0.007906240003649145,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-zero-infinity",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 0deg * float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.513777+00:00",
+      "end": "2026-09-09T23:50:25.522176+00:00",
+      "seconds": 0.008408593013882637,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-zero-infinity",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = 0deg * float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.522194+00:00",
+      "end": "2026-09-09T23:50:25.529268+00:00",
+      "seconds": 0.007083257951308042,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-nan",
+      "order": "reverse",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"nan\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.529287+00:00",
+      "end": "2026-09-09T23:50:25.537419+00:00",
+      "seconds": 0.00814375700429082,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-nan",
+      "order": "reverse",
+      "profile": "html",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"nan\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.537442+00:00",
+      "end": "2026-09-09T23:50:25.544212+00:00",
+      "seconds": 0.006779310991987586,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-nan",
+      "order": "reverse",
+      "profile": "a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"nan\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.544230+00:00",
+      "end": "2026-09-09T23:50:25.554045+00:00",
+      "seconds": 0.009833930002059788,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    },
+    {
+      "id": "multiply-nan",
+      "order": "reverse",
+      "profile": "html+a11y",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let a = float(\"nan\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }",
+        "--features",
+        "html,a11y-extras"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-09T23:50:25.554077+00:00",
+      "end": "2026-09-09T23:50:25.561902+00:00",
+      "seconds": 0.007834577991161495,
+      "exit": 0,
+      "stdout": "\"(angle, 0deg, true, 0.0, true)\"\n",
+      "stderr": "",
+      "execution": "completed"
+    }
+  ]
+}

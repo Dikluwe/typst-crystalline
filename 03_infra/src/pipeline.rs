@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 6d75c61f
+//! @prompt-hash 703e89bc
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -68,6 +68,8 @@ use crate::export::{
 };
 use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
+
+mod context_stabilization;
 
 /// Avalia uma expressão code isolada e devolve o valor + warnings crus.
 pub fn eval_expression_with_sink(
@@ -225,60 +227,7 @@ pub fn expand_context_blocks(
     world: &dyn World,
     source: &Source,
 ) -> SourceResult<Content> {
-    if intr.context_block_locations.is_empty() {
-        return Ok(content);
-    }
-
-    // Colecta os ContextBlocks pelo id, com o StyleChain acumulado até à
-    // sua posição (P711 — paridade com o show rule `CONTEXT_RULE` vanilla).
-    let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
-
-    // **P858** — métricas de fonte reais partilhadas entre todos os
-    // ContextBlocks do documento. O `FallbackFontMetrics` tem caches internas
-    // (`Arc<Mutex<...>>`); instanciar uma só vez evita re-parsear fontes em
-    // cada bloco.
-    let font_metrics = FallbackFontMetrics::new(world);
-
-    // Resolve cada ContextBlock.
-    let mut resolved = HashMap::new();
-    for (id, loc) in &intr.context_block_locations {
-        let Some((elem, block_chain)) = blocks.get(id) else { continue };
-        let mut ctx = EvalContext::new();
-        ctx.in_context = true;
-        ctx.introspector = intr.clone();
-        ctx.current_location = Some(*loc);
-
-        let mut scopes = Scopes::new(None);
-        // P711 — StyleChain real da posição, não `default_chain()` isolada.
-        let mut styles = block_chain.clone();
-        let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
-        let mut active_guards: Vec<u64> = Vec::new();
-        let mut sink = TypstSink::new();
-        let route = Route::root().with_id(source.id());
-        let mut tracked_sink = sink.track_mut();
-        let mut local_sink = TrackedMut::reborrow_mut(&mut tracked_sink);
-        let mut engine = Engine {
-            world,
-            font_metrics: &font_metrics,
-            route: route.track(),
-            styles: &mut styles,
-            show_rules: &mut show_rules,
-            active_guards: &mut active_guards,
-            current_file: source.id(),
-            sink: &mut local_sink,
-        };
-
-        let result = apply_func(
-            elem.closure.clone(),
-            Args::positional(vec![]),
-            &mut scopes,
-            &mut ctx,
-            &mut engine,
-        )?;
-        resolved.insert(*id, value_to_content(&result));
-    }
-
-    Ok(substitute_context_blocks(content, &resolved))
+    context_stabilization::expand(content, intr, world, source)
 }
 
 /// **P844** (achado #54 de P831) — Expansão de ContextBlocks **+
@@ -638,6 +587,18 @@ fn compile_to_paged_document_full_error_and_features(
         typst_core::compiler::introspect::convert_bib_refs_to_cites(intr_content);
     let content =
         typst_core::compiler::introspect::convert_bib_refs_to_cites(content.clone());
+    #[cfg(all(test, p1339_observation))]
+    let (content, intr_content) = {
+        let mut content = content;
+        let mut intr_content = intr_content;
+        context_stabilization::observation::post_eval(
+            &mut content,
+            &mut intr_content,
+            source,
+            &mut warnings,
+        );
+        (content, intr_content)
+    };
     // Preservado para reexpandir `context` depois de o PageStore existir.
     let contextual_content = content.clone();
 
@@ -648,13 +609,18 @@ fn compile_to_paged_document_full_error_and_features(
     let t2 = Instant::now();
     timings.introspect_ms = duration_ms(t2.duration_since(t1));
 
-    let (mut content, _) = match expand_context_blocks_and_reintrospect(
+    let (prepared, contextual_warnings) = context_stabilization::prepare(
         content.clone(),
         &intr,
         world,
         source,
-    ) {
-        Ok(pair) => pair,
+        full_error,
+        features,
+        Some(&module),
+    );
+    warnings.extend(contextual_warnings);
+    let prepared = match prepared {
+        Ok(prepared) => prepared,
         Err(errors) => {
             timings.expand_context_ms = duration_ms(Instant::now().duration_since(t2));
             timings.total_ms =
@@ -662,86 +628,39 @@ fn compile_to_paged_document_full_error_and_features(
             return (Err(errors), warnings);
         }
     };
-    let (runtime_intr, runtime_warnings) =
-        introspect_with_runtime_for_pipeline(&content, world, source);
-    warnings.extend(runtime_warnings);
-    let mut intr = match runtime_intr {
-        Ok(intr) => intr,
-        Err(errors) => {
-            timings.expand_context_ms = duration_ms(Instant::now().duration_since(t2));
-            timings.total_ms =
-                timings.eval_ms + timings.introspect_ms + timings.expand_context_ms;
-            return (Err(errors), warnings);
-        }
-    };
-    for (key, style) in module.bibliography_styles() {
-        intr.bib_store.add_style(*key, style.clone());
-    }
-    let extracted_headings = intr.headings_for_bookmarks().to_vec();
-    let logical_page_start = intr
-        .counter_final_values(&typst_core::entities::counter::CounterKey::Page)
-        .and_then(|values| values.first().copied())
-        .unwrap_or(1);
+    let mut content = prepared.content;
     let t3 = Instant::now();
     timings.expand_context_ms = duration_ms(t3.duration_since(t2));
-
-    let intr_for_positions = intr.clone();
-    let mut layout_intr = intr;
-    let (mut doc, callback_warnings) = match layout_with_realized_math_callbacks(
-        &content,
-        layout_intr.clone(),
-        world,
-        source,
-    ) {
-        Ok(pair) => pair,
-        Err(errors) => return (Err(errors), warnings),
-    };
-    warnings.extend(callback_warnings);
-    // P1159: callbacks são executados somente aqui, onde existe Engine. O
-    // layouter recebe apenas vistas Content seladas da passagem anterior.
-    for _ in 0..5 {
-        let previous_pages = doc.pages.len();
-        let reference_pages = page_reference_pages(&content, &doc);
-        let (store, numbering_warnings) = match realize_page_numberings(
-            world,
-            source,
-            &doc,
-            logical_page_start,
-            &reference_pages,
-        ) {
-            Ok(pair) => pair,
-            Err(errors) => return (Err(errors), warnings),
-        };
-        warnings.extend(numbering_warnings);
-        layout_intr.inject_positions(doc.extracted_positions.clone());
-        layout_intr.inject_pages(store.clone());
-        // `location.page-numbering()` vive em `context`; a primeira expansão
-        // ocorreu legitimamente sem páginas conhecidas. Reexecutá-la com o
-        // snapshot anterior é parte do fixpoint, não um default falso.
-        let (expanded, _) = match expand_context_blocks_and_reintrospect(
-            contextual_content.clone(),
-            &layout_intr,
-            world,
-            source,
-        ) {
-            Ok(pair) => pair,
-            Err(errors) => return (Err(errors), warnings),
-        };
-        let (runtime_expanded, runtime_expanded_warnings) =
-            introspect_with_runtime_for_pipeline(&expanded, world, source);
-        warnings.extend(runtime_expanded_warnings);
-        let mut expanded_intr = match runtime_expanded {
+    let (mut doc, intr_for_positions, extracted_headings) = if let Some((intr, doc)) =
+        prepared.settled
+    {
+        let headings = intr.headings_for_bookmarks().to_vec();
+        (doc, intr, headings)
+    } else {
+        let (runtime_intr, runtime_warnings) =
+            introspect_with_runtime_for_pipeline(&content, world, source);
+        warnings.extend(runtime_warnings);
+        let mut intr = match runtime_intr {
             Ok(intr) => intr,
-            Err(errors) => return (Err(errors), warnings),
+            Err(errors) => {
+                timings.expand_context_ms =
+                    duration_ms(Instant::now().duration_since(t2));
+                timings.total_ms =
+                    timings.eval_ms + timings.introspect_ms + timings.expand_context_ms;
+                return (Err(errors), warnings);
+            }
         };
         for (key, style) in module.bibliography_styles() {
-            expanded_intr.bib_store.add_style(*key, style.clone());
+            intr.bib_store.add_style(*key, style.clone());
         }
-        expanded_intr.inject_positions(doc.extracted_positions.clone());
-        expanded_intr.inject_pages(store);
-        content = expanded;
-        layout_intr = expanded_intr;
-        let (next, callback_warnings) = match layout_with_realized_math_callbacks(
+        let extracted_headings = intr.headings_for_bookmarks().to_vec();
+        let logical_page_start = intr
+            .counter_final_values(&typst_core::entities::counter::CounterKey::Page)
+            .and_then(|values| values.first().copied())
+            .unwrap_or(1);
+        let intr_for_positions = intr.clone();
+        let mut layout_intr = intr;
+        let (mut doc, callback_warnings) = match layout_with_realized_math_callbacks(
             &content,
             layout_intr.clone(),
             world,
@@ -751,12 +670,68 @@ fn compile_to_paged_document_full_error_and_features(
             Err(errors) => return (Err(errors), warnings),
         };
         warnings.extend(callback_warnings);
-        let converged = next.pages.len() == previous_pages;
-        doc = next;
-        if converged {
-            break;
+        // P1159: callbacks são executados somente aqui, onde existe Engine. O
+        // layouter recebe apenas vistas Content seladas da passagem anterior.
+        for _ in 0..5 {
+            let previous_pages = doc.pages.len();
+            let reference_pages = page_reference_pages(&content, &doc);
+            let (store, numbering_warnings) = match realize_page_numberings(
+                world,
+                source,
+                &doc,
+                logical_page_start,
+                &reference_pages,
+            ) {
+                Ok(pair) => pair,
+                Err(errors) => return (Err(errors), warnings),
+            };
+            warnings.extend(numbering_warnings);
+            layout_intr.inject_positions(doc.extracted_positions.clone());
+            layout_intr.inject_pages(store.clone());
+            // `location.page-numbering()` vive em `context`; a primeira expansão
+            // ocorreu legitimamente sem páginas conhecidas. Reexecutá-la com o
+            // snapshot anterior é parte do fixpoint, não um default falso.
+            let expanded = match context_stabilization::expand_legacy(
+                contextual_content.clone(),
+                &layout_intr,
+                world,
+                source,
+            ) {
+                Ok(expanded) => expanded,
+                Err(errors) => return (Err(errors), warnings),
+            };
+            let (runtime_expanded, runtime_expanded_warnings) =
+                introspect_with_runtime_for_pipeline(&expanded, world, source);
+            warnings.extend(runtime_expanded_warnings);
+            let mut expanded_intr = match runtime_expanded {
+                Ok(intr) => intr,
+                Err(errors) => return (Err(errors), warnings),
+            };
+            for (key, style) in module.bibliography_styles() {
+                expanded_intr.bib_store.add_style(*key, style.clone());
+            }
+            expanded_intr.inject_positions(doc.extracted_positions.clone());
+            expanded_intr.inject_pages(store);
+            content = expanded;
+            layout_intr = expanded_intr;
+            let (next, callback_warnings) = match layout_with_realized_math_callbacks(
+                &content,
+                layout_intr.clone(),
+                world,
+                source,
+            ) {
+                Ok(pair) => pair,
+                Err(errors) => return (Err(errors), warnings),
+            };
+            warnings.extend(callback_warnings);
+            let converged = next.pages.len() == previous_pages;
+            doc = next;
+            if converged {
+                break;
+            }
         }
-    }
+        (doc, intr_for_positions, extracted_headings)
+    };
     for warning in doc.layout_warnings.drain(..) {
         warnings.push(SourceDiagnostic::warning(Span::detached(), warning));
     }
@@ -1042,6 +1017,12 @@ fn compile_to_pdf_bytes_impl(
     let (doc_result, warnings) = compile_to_paged_document_full_error_and_features(
         world, source, full_error, features, timings,
     );
+    #[cfg(all(test, p1339_observation))]
+    context_stabilization::observation::compilation_returned(
+        source,
+        &doc_result,
+        &warnings,
+    );
     let doc = match doc_result {
         Ok(d) => d,
         Err(errors) => {
@@ -1115,6 +1096,8 @@ fn compile_to_pdf_bytes_impl(
     }
 
     let t_render = Instant::now();
+    #[cfg(all(test, p1339_observation))]
+    context_stabilization::observation::exporter_dispatched();
     // **P980** — caminho oráculo: mesma resolução de fontes, emissão com
     // as transformações de paridade de operador (`export/oracle.rs`).
     let (pdf, subset_ms) = if oracle {
@@ -1843,6 +1826,14 @@ mod tests {
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
 
+    #[cfg(p1339_observation)]
+    mod p1342_implementation_tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../00_nucleo/diagnosticos/p1342-implementation-tests.rs"
+        ));
+    }
+
     #[test]
     fn p1247_contexto_svg_filtra_pagina_e_posicao_homologa() {
         use typst_core::entities::label::Label;
@@ -1911,6 +1902,73 @@ mod tests {
             book: FontBook::new(),
             source,
         }
+    }
+
+    #[test]
+    fn p1339_filtered_context_waits_for_later_contextual_update() {
+        let world = mock_world("#let c = counter(heading.where(level: 1))\n#context assert.eq(c.final(), (3,))\n#context c.update(3)");
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        assert!(result.is_ok(), "{result:?}");
+    }
+
+    #[test]
+    fn p1339_filtered_context_does_not_discard_independent_error() {
+        let world = mock_world("#let c = counter(heading.where(level: 1))\n#context panic(\"independent\")\n#context c.final()");
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        assert!(result
+            .unwrap_err()
+            .iter()
+            .any(|error| error.message.contains("independent")));
+    }
+
+    #[test]
+    fn p1340_selected_context_preserves_page_numbering_relayout() {
+        let world = mock_world("#set page(numbering: (current, total) => [V#current/#total])\n#let c = counter(heading.where())\n#context c.final()\nTexto");
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        );
+        let document = result.unwrap();
+        assert_eq!(frame_items_text(&document.pages[0].foreground), "V1/1");
+    }
+
+    #[test]
+    fn p1340_reused_unselected_context_keeps_legacy_result() {
+        let world = mock_world("#let x = context [x]\n#x #x");
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        );
+        assert!(result.is_ok(), "{result:?}");
+    }
+
+    #[test]
+    fn p1340_discovery_keeps_legacy_context_options() {
+        let world = mock_world("#context [legacy]");
+        let options = context_stabilization::discovered_options_for_test(
+            &world,
+            &world.source,
+            typst_core::entities::compiler_features::Features::html(),
+        );
+        assert!(!options.is_empty());
+        assert!(options.into_iter().all(|(full_error, features)| !full_error
+            && features == typst_core::entities::compiler_features::Features::default()));
     }
 
     fn frame_items_text(items: &[FrameItem]) -> String {

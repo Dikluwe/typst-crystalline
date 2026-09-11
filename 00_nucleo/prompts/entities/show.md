@@ -1,6 +1,11 @@
 # Prompt L0 — Entidade `ShowRule` (Passo 68-70; atualizado P352)
 Hash do Código: d610960a
 
+**Estado da extensão P1339:** `APPROVED_ADR0127_PENDING_INTEGRATION_GATES`.
+NativeElement foi aprovado junto com Element; recibo
+`diagnosticos/p1339-where-approval.json`. L0 de integração, contrato, selo e
+RED continuam obrigatórios antes do código.
+
 ## Propósito
 
 Define as entidades de dados para o motor de show rules do cristalino.
@@ -190,3 +195,46 @@ paridade contra o vanilla e A2/A3 entram nessa hora — não antes (ADR-0107/010
 ## Layer
 
 L1 — domínio puro. Sem I/O, sem estado global.
+
+## P1339 — base de show por função nativa de elemento
+
+### Medição anterior à decisão
+
+Em HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, sem diff produtivo,
+`01_core/src/entities/show.rs:23-86` possui `NodeKind`, mas não uma base
+para toda função nativa de elemento; `Text(String)` significa padrão literal,
+não a função `text`. `selector_matching.rs:43-65` rejeita identidades que
+não consegue converter. As fixtures `diagnosticos/p1339-full-show-fixture-*`
+comprovam no vanilla ratificado aplicação de filtros de strong/emph/text;
+recibos `p1339-full-show-final-*.json` registram proveniência e a limitação
+CLI nos perfis cristalinos não-default, sem convertê-la em prova de matching.
+
+### Decisão proposta — somente o carrier
+
+Adicionar ao `entities::show::Selector`:
+
+```rust
+NativeElement(crate::entities::func::Func),
+```
+
+É uma base de regra sobre identidade nativa, não invocação da função. Não
+duplicar o grupo de filtros neste enum: o conversor pode compor a base com
+os `Where` já existentes. A apresentação pública do grupo pertence ao
+QuerySelector e ao owner de repr, não a essa forma interna de realização.
+
+Preservar `NodeKind`, `Text`, `DynKind`, `Regex`, `Where`, `And`, `Or`,
+`Label`, RuleId, Transformation, ShowRule e suas assinaturas. `DynKind`
+continua exclusivo de elemento dinâmico; `Text` continua padrão literal.
+Não acrescentar variantes a NodeKind nem modificar Content nesta proposta.
+
+O comportamento da nova base é propriedade de
+`compiler/eval/selector_matching.md`; a entidade não importa compiler,
+não reconhece endereços de builtins, não chama funções nem transforma nós.
+Clone/PartialEq continuam mecânicos; a variante não muda a igualdade de Func.
+
+A extensão é pública e afeta matches exaustivos: gate ADR-0127 obrigatório.
+Não muda fase, precedência de regras, revogação, guardas de recursão ou
+ordenação de show-set. Aplicação ao mesmo nó via caminhos antigos e novos
+precisa ser verificada, inclusive particularidades de Par; não basta fazer
+a variante compilar. Inferência de suficiência é refutada por um seletor
+nativo medido que precise de outra informação para identificar o nó.

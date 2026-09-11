@@ -1,0 +1,22 @@
+{
+  "acceptance": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-red-lossless-static-acceptance-r1.json",
+    "sha256": "a22db10f446103a0206c81011a94091a28b0083542b49f4c653663860891c276"
+  },
+  "manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-manifest.json",
+    "sha256": "ad5b2016e8cf1c2e469241cc105ca2cbf27fbf6124765688b80e9f8360ee93de"
+  },
+  "argv": [
+    "python3",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-judge.py"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "start_utc": "2026-09-10T05:37:23.251369+00:00",
+  "end_utc": "2026-09-10T05:37:25.041247+00:00",
+  "seconds": 1.7898809390026145,
+  "exit": 0,
+  "stdout": "{\"receipt\": {\"path\": \"/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-red.json\", \"sha256\": \"e4e564e606283c15ef792d59de2d36f1a402d6d5d5077f7d6581b23219076f7d\"}, \"raw\": {\"path\": \"/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-runs.json\", \"sha256\": \"5431c89a90e40d1c6530c3a3fca3bfad569a21bf881c57264c443f1d4db65740\"}, \"status\": \"GENUINE_BASELINE_RED_WITH_GREEN_CONTROLS\", \"counts\": {\"IDs\": 124, \"baseline_RED_observed_Violated\": 120, \"vanilla_discovery_Preserved\": 120, \"control_cells\": 2466, \"controls_Preserved\": 2466, \"mandatory_Unknown\": 0}, \"failures\": 0}\n",
+  "stderr": "",
+  "automatic_retry": false
+}

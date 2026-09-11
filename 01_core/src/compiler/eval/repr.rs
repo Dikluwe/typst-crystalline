@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 14f917a5
+//! @prompt-hash a3a30189
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1040,6 +1040,18 @@ pub fn repr_content(c: &Content) -> String {
 pub fn repr_selector(sel: &Selector) -> String {
     match sel {
         Selector::Kind(kind) => kind.as_str().to_string(),
+        Selector::Element { function, fields } => {
+            let group = if fields.is_empty() {
+                "(:)".to_string()
+            } else {
+                let parts: Vec<String> = fields
+                    .iter()
+                    .map(|(name, value)| format!("{}: {}", name, repr_value(value)))
+                    .collect();
+                pretty_array_like(&parts, false)
+            };
+            format!("{}.where{}", repr_value(&Value::Func(function.clone())), group)
+        }
         Selector::Label(l) => format!("<{0}>", l.0),
         Selector::Location(_) => "location".to_string(),
         Selector::And(list) => {
@@ -1187,6 +1199,34 @@ mod tests {
     use crate::entities::label::Label;
     use crate::entities::selector::Selector;
     use crate::entities::value::Value;
+
+    #[test]
+    fn p1339_element_repr_preserves_empty_and_ordered_group() {
+        let function = crate::entities::func::Func::native(
+            "heading",
+            crate::compiler::stdlib::native_heading,
+        );
+        let render = |fields| {
+            repr_value(&Value::Selector(Selector::Element {
+                function: function.clone(),
+                fields,
+            }))
+        };
+        assert_eq!(render(Default::default()), "heading.where(:)");
+        assert_eq!(
+            render(
+                [("level".into(), Value::Int(1)), ("outlined".into(), Value::Bool(true))]
+                    .into_iter()
+                    .collect()
+            ),
+            "heading.where(level: 1, outlined: true)"
+        );
+        let long = "a".repeat(60);
+        let rendered =
+            render([("body".into(), Value::Str(long.clone().into()))].into_iter().collect());
+        assert!(rendered.starts_with("heading.where(\n"));
+        assert!(rendered.contains(&long));
+    }
 
     #[test]
     fn p1293_c_html_elem_usa_formatter_canonico_curto_e_multiline() {

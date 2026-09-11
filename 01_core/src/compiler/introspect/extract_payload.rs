@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/extract_payload.md
-//! @prompt-hash c418e26a
+//! @prompt-hash ec4d6ca2
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -17,6 +17,8 @@ use crate::entities::elements::Element; // Modelo D (P316): trait p/ to_payload(
 /// uma variante locatable (Heading/Figure/Cite em M1).
 pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
     match content {
+        Content::Strong(e) => e.to_payload(),
+        Content::Emph(e) => e.to_payload(),
         // Modelo D (P316): absorção do locatável — o elemento fornece o payload.
         Content::Heading(h) => h.to_payload(),
 

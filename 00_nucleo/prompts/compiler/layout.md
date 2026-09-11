@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 2ccc7ac0
+Hash do Código: f3971329
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -23,6 +23,33 @@ preservam referencial e causalidade.
 Empty, texto, parágrafos, paginação, páginas auto, dispatch e composição final
 são cobertos pela suíte de layout. Mudança pública/default/fase para no gate
 ADR-0127.
+
+## P1339 — sincronização das ocorrências Strong/Emph
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
+`compiler/layout/mod.rs:1484-1501` é o ponto único de Locator/Position;
+`:1523-1525` o chama antes do dispatch real. Strong/Emph em `:1894-1913`
+descem no body por layout_content, mas a medição pura de tamanho em
+`:2640-2666` usa measure_content_constrained e não emite ocorrências.
+A promoção aprovada de NativeElement exige preservar essa distinção.
+
+### Decisão
+
+Strong/Emph locatáveis avançam exatamente no ponto canônico pré-dispatch,
+seguindo a classificação de `compiler/introspect/locatable.md`. Não adicionar
+incremento nos braços dos elementos nem nas sondas de tamanho. Styled
+exterior continua sem avanço; seu filho Strong/Emph avança uma única vez.
+O render de bold/italic e as fórmulas de medida não mudam.
+
+Verificar que as Locations do walk e do layout pertencem às mesmas
+ocorrências em corpo vazio, nested, labels e elementos subsequentes;
+Position associa-se ao nó correto. Medição especulativa e replay de flow
+não podem confirmar outra ocorrência para o mesmo evento. Preservar a
+transação P1292 e o protocolo de callbacks math P1291, sem nova fase,
+assinatura ou execução de Func. Se os braços já satisfizerem a regra,
+não fazer refactor produtivo além de testes/linhagem necessários.
 
 ## P1292 — dispatch de `Flush` em forma B
 

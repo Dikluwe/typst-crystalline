@@ -1,0 +1,52 @@
+{
+  "schema": "p1340-authorities-v1",
+  "regime": "executado sem atestacao de isolamento",
+  "stage": "Before any P1340 productive implementation; consolidates role grants already delivered by agent messages, after the initial contract proposal and baseline RED",
+  "scope": "Only selective contextual stabilization transferred from P1339; no general P1339 closure, repr, Array or commits",
+  "baseline": {
+    "path": "00_nucleo/diagnosticos/p1340-baseline.json",
+    "sha256": "0869202e774bd7b76278365aac7292d45a1c930be42cf83270845c985cb5000a"
+  },
+  "l0": [
+    {"path": "00_nucleo/prompts/infra/pipeline/context_stabilization.md", "sha256": "62f27ec604a0b9b0d4121ecf43ac556a18a59cd53947744c29187c4d49c1781c"},
+    {"path": "00_nucleo/prompts/infra/pipeline.md", "sha256": "e69691e7ced9e1cc26ddc0b752ff64a418322cad68c21a4b5bc68bbae6f66c1d"},
+    {"path": "00_nucleo/prompts/compiler/eval.md", "sha256": "321d6747749a72488e13ee4f4996ae0d8b8a3c7df1c227a521431f02ae4a0cb1"}
+  ],
+  "contract_proposal": {
+    "path": "00_nucleo/diagnosticos/p1340-contract-proposal.json",
+    "sha256": "d4508967910e1a47e9e0f4b803bb559476f65f9a16cf7d18d7932174aab9cadc"
+  },
+  "roles": [
+    {
+      "executor": "/root", "role": "intention and implementation",
+      "context": "Full user history and prior P1339 implementation; cannot claim independent test authorship",
+      "read": ["L0, baseline, approved contracts, frozen tests and agent artifacts"],
+      "write": ["P1340 planning and diagnostic records", "individualized pipeline L0", "03_infra/src/pipeline.rs", "03_infra/src/pipeline/context_stabilization.rs after seal"],
+      "forbidden": ["alter frozen oracles or mutant expectations", "issue independent verdict", "expand public contracts without applicable approval"]
+    },
+    {
+      "executor": "/root/p1340_contract", "role": "independent contract and oracle selection",
+      "context": "Fresh agent with explicit task only; no root conversation fork",
+      "read": ["skill, ADRs, L0, baseline public interfaces, historical sealed contracts and tests"],
+      "write": ["00_nucleo/diagnosticos/p1340-contract-*"],
+      "forbidden": ["candidate implementation", "productive or L0 edits", "verdict", "changing historical expectations"]
+    },
+    {
+      "executor": "/root/p1340_adversary", "role": "adversarial feasibility and attacks",
+      "context": "Fresh agent with explicit task only; no root conversation fork",
+      "read": ["skill, ADRs, L0, frozen baseline and historical contracts"],
+      "write": ["00_nucleo/diagnosticos/p1340-adversary-*", "isolated named /tmp attack directories after input freeze"],
+      "forbidden": ["productive or L0 edits", "fix candidate", "alter oracle expectations", "issue final verdict"]
+    },
+    {
+      "executor": "/root/p1311_review", "role": "independent verifier",
+      "context": "Existing P1339 verifier with same role; receives new step and role grant",
+      "read": ["all relevant frozen artifacts and candidate outputs for audit"],
+      "write": ["00_nucleo/diagnosticos/p1340-verifier-*"],
+      "forbidden": ["fix implementation", "edit L0, contract, baseline or oracles"]
+    }
+  ],
+  "unknown_policy": "Unknown is never success; inability to prove stability is not a language nonconvergence warning. Undefined mandatory behavior blocks seal and requires an explicit decision.",
+  "gate_policy": "Reuse historical discrimination only after independent validity review; source or normative transfer requires explicit successor seal. F07/F08/F09 remain due against the real product.",
+  "isolation_limit": "All roles share the same filesystem; path capabilities are declared, not technically enforced. Hashes prove input identity, not isolation."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_payload.md
-//! @prompt-hash b1ad5ae4
+//! @prompt-hash 988be010
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -33,6 +33,8 @@ use crate::entities::label::Label;
 /// reflexividade). Consumers que precisem de `Eq`-bound usam `PartialEq`.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ElementPayload {
+    /// Ocorrência nativa cuja identidade e campos estão no store canônico.
+    NativeElement,
     Heading {
         /// Nível clamped 1..=6 (paridade `Content::Heading.level`).
         depth: u8,

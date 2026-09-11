@@ -1,18 +1,21 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/primitives-constructors.md
-//! @prompt-hash 461f6aaa
+//! @prompt-hash 6816b0df
 //! @layer L1
 //! @updated 2026-08-23
 //!
 //! Hub estático dos construtores primitivos atomizados no Passo 1140.1-A.
 
+mod array;
 mod decimal;
 mod duration;
 mod version;
 
+pub(crate) use array::native_array_bytes;
 pub use decimal::native_decimal;
 pub use duration::native_duration;
 pub use version::native_version;
+pub(crate) use version::{dispatch_version_method, version_type_field};
 
 #[cfg(test)]
 mod test_support {

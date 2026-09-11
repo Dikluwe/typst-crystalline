@@ -4,6 +4,51 @@ Hash do Código: b4929ec0
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/state/language-semantics.toml sha256:27acb21a5e0b2e0cb3b65de61bba5266158f3e9828392fe92a1a3b160e9d61a4
 
+## P1339 — observação de state em contexto selecionado
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
+`state.rs:61-80,84-131,144-182` lê o snapshot em get/display/at/final;
+`:348-364,378-395` contém também as nativas históricas state_final/state_at.
+`display` lê o valor antes de chamar sua callback no mesmo EvalContext.
+Os helpers get/at/final recebem `&EvalContext`, não `&mut EvalContext`.
+A auditoria `diagnosticos/p1339-observation-integration.md` e seu recibo
+registram fontes e estado exatos. São entradas contextuais, mesmo quando
+lidas antes da demanda de um contador Element.
+
+### Obrigação interna de registro e replay
+
+Registrar as leituras realmente executadas no armazenamento privado aprovado
+de `compiler/eval.md`, sem mudar as assinaturas Rust vigentes. Acesso por
+referência compartilhada exige mutabilidade interior local ao contexto, não
+mutação do TagIntrospector nem estado global. O registro começa com a avaliação
+do bloco, sem depender de ele já ter alcançado uma leitura Element.
+
+Cada requisição conserva key, init/fallback próprio da rota, Location ou label
+original quando aplicável, span e resultado observado. Não substituir a rota
+histórica por método moderno: state_at/state_final globais mantêm None onde
+os métodos de State usam init. Resolução de label e sua ausência são parte
+da requisição, não uma Location congelada que elimina a dependência do label.
+O glue AST registra sua resolução no owner value_methods; estes helpers
+continuam donos da leitura de valor.
+
+Em display, observar o valor antes da callback/conversão. Leituras feitas
+dentro da callback pertencem ao mesmo registro causal. Validar não reaplica
+essa callback: repete somente as leituras registradas com o snapshot candidato
+e os mesmos fallbacks. Erro posterior da callback continua sendo erro do corpo,
+não um resultado bem-sucedido da leitura. A validação de leituras não executa
+StateUpdate::Func nem muda sua fase preexistente de materialização.
+
+Nenhuma operação state seleciona por si só o bloco para novas tentativas.
+Sem demanda Element, o orquestrador conserva a passagem ordinária. Em bloco
+selecionado, a validação usa a semântica legada da leitura, sem reparo de
+paridade incidental. Criação de state/update/display diferido não é leitura.
+Aceitação: state antes/depois de Element, at com label movido/ausente,
+fallback init versus None e callback de display com leitura/erro. Comparar
+valor opaco por repr ou ignorá-lo não certifica estabilidade; a cobertura do
+comparador é obrigação de eval antes do selo. Contrato/RED seguem pendentes.
+
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/state.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
 **Origem**: Passo 506 — fecho do gap P500 (runtime state mutável).

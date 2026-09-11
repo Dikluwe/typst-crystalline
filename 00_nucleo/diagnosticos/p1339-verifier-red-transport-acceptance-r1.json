@@ -1,0 +1,34 @@
+{
+  "schema": "p1339-independent-D-transport-acceptance-v1",
+  "utc": "2026-09-10T05:22:35.430515+00:00",
+  "authority_manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+    "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+  },
+  "seal": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-seal.json",
+    "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"
+  },
+  "incident": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-executor-call.json",
+    "sha256": "4c0290ca1d1e89ed140fb57cdf2efc6b44d60140d58f930e4d003ab5afad59c9"
+  },
+  "verdict": "GO_PREPARE_MECHANICAL_D_ARRAY_TRANSPORT",
+  "cause": "Frozen executor run() line107 splits IDs on commas; version expression IDs contain commas. Membership assertion failed before task construction/ThreadPool/execute. No Typst process or RED raw generated.",
+  "semantic_processes_failed_attempt": 0,
+  "preserve_failed_attempt_seconds": 0.29671979299746454,
+  "permitted": [
+    "New author-owned p1339-ab-* D transport helper importing the exact sealed executor execute and checked_inputs; no changes to sealed files.",
+    "Represent exact124 existing IDs as a lossless JSON array, unique/set exact, with membership validation; select unchanged cases in frozen plan order.",
+    "Require sealed manifest/plan/contract/source hashes, actual binary hashes and accepted seal before and after; same four profiles, normal/repeat/reverse, query applicability, two products, four workers,2706 cells.",
+    "Preserve execution env/argv/input/timeout/raw channels from execute, including Unknown; save provenance/helper+selection hashes and causal previous failure receipt.",
+    "Use identical sealed classification predicates and references; baseline discovery RED120 against F vanilla and vanilla120 green; remaining positive controls against their own prescribed reference.",
+    "Submit helper and selection pins for independent static review before execution."
+  ],
+  "forbidden": [
+    "No monkeypatch to parser/args/execute, no ID rename/split/reconstruction.",
+    "No new expectations, sources, case eligibility, timeout, normalizations or classification changes.",
+    "No new C/focal or budget reset; no implementation permission until real D verified."
+  ],
+  "regime": "executado sem atestacao de isolamento"
+}

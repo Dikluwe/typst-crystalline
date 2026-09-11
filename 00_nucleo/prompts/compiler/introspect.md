@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 5eb54cb3
+Hash do Código: 386047f7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -44,6 +44,129 @@ neste módulo. A implementação depende da aprovação do carrier público.
 
 ---
 
+
+## P1339 — integração da ocorrência e consulta nativa
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
+o topo do walk (`compiler/introspect.rs:1278-1363`) aloca por payload e
+guarda a entrada canônica; Strong/Emph (`:1398-1401`) apenas descem no body.
+O parent index (`:1086-1099`) admite explicitamente payloads reais.
+O fim do walk (`:1944-1948`) usa hash_content(content) em Tag::End.
+`entities/introspector.rs:634-724` contém o algoritmo legado da consulta e
+não pode importar o comparador linguístico de compiler.
+
+As sondas congeladas `diagnosticos/p1339-where-integration-probe-runs.json`
+e `diagnosticos/p1339-where-integration-probe-supplement-runs.json` fixam
+binário vanilla `a51e02804`, estado, horários e resultados de query/body,
+contagem e chave filtrada vazia. A aprovação específica do payload está em
+`diagnosticos/p1339-where-payload-approval.json`.
+
+### Decisão proprietária — ocorrência
+
+O novo NativeElement unit percorre o caminho normal pré-recursão:
+alocar Location, registrar label causal, guardar conteúdo/snapshot, emitir
+Start; descer uma vez no body; emitir End com hash do conteúdo integral.
+No match de populate, o marcador não cria Kind nem finge ser outro payload.
+Incluir NativeElement no conjunto de ocorrências reais do parent index;
+tags derivadas pós-recursão mantêm a exceção vigente e não sobrescrevem pais.
+Strong/Emph vazios e aninhados são ocorrências próprias, sem deduplicação
+por igualdade do body. Styled exterior é transporte de chain, não ocorrência
+adicional; não converter flags históricas do matcher de show em Locations.
+
+Preservar os entrypoints, ordem das fases e contratos de snapshots anteriores.
+A promoção de Strong/Emph não altera numbering de headings, TOC, símbolos,
+callbacks ou o fluxo de state. O preenchimento de contadores filtrados exige
+a cláusula própria de runtime antes de código; este marcador não é uma ação
+genérica que conta qualquer elemento automaticamente.
+
+### Captura de campos das ocorrências Strong/Emph
+
+Medição adicional anterior a esta cláusula: a rodada independente
+`diagnosticos/p1339-where-occurrence-probe-runs.json`, UTC
+`2026-09-10T01:06:52.262421+00:00`–`01:06:55.221414+00:00`, guarda
+proveniência integral e compara sintaxe/call, nesting, reuso, body e labels
+no vanilla ratificado. Strong consultado tem delta realizado (default 300),
+enquanto o constructor sem delta explícito só expõe body. Fonte:
+`lab/typst-original/crates/typst-library/src/model/strong.rs:29` e
+`lab/typst-original/crates/typst-realize/src/lib.rs:571-582`.
+No cristalino, `compiler/stdlib/structural/markup.rs:35` rejeita named em
+strong e `compiler/eval/bindings/field_access.rs:1024-1035` marca delta não
+assente. Não há armazenamento desse valor em StrongElem.
+
+No walk puro, já no ponto do Start, guardar snapshot Some completo para
+Strong e Emph próprios: campos públicos na ordem vanilla, valores realizados
+de body e, em Strong, delta default 300; acrescentar label causal presente
+por último. Não adicionar func/location aos campos. Não mudar a projeção do
+constructor cru para parecer conteúdo já introspectado. Nesting preserva o
+body semântico, não plain_text; captura não usa chain do futuro consumidor.
+
+Esta cláusula não implementa named delta no constructor nem set strong(delta),
+rotas anteriores fora do lote. As sondas unilaterais desses casos explicitam
+uma dívida, não autorizam ampliar o passo ou alegar que ela foi fechada.
+Não aceitar silenciosamente um produtor novo de delta e continuar fixando
+300: se tal produtor entrar no escopo, nucleá-lo e capturar o valor causal
+real antes de materializar. No recorte atual, delta é constante da linguagem,
+body está em Content e label está em ElementInfo; hash_content da tag final
+mais a tag inicial não perde um campo variável só da chain. A suficiência é
+delimitada a esse domínio, não uma prova universal sobre snapshots.
+
+### Decisão proprietária — implementação concreta de Introspector
+
+Receber neste consumer existente todo o impl Introspector for TagIntrospector
+retirado de entities; não criar módulo novo apenas para alojar o mesmo bloco.
+Preservar os corpos e resultados anteriores, exceto a nova consulta Element
+explicitamente definida aqui. Struct/trait/construtores continuam propriedade
+de `entities/introspector.md`; não há import reverso nem assinatura nova.
+
+Para Selector::Element, examinar as entradas reais do store canônico em
+ordem crescente de Location (Locator é monotônico), nunca ordem do HashMap.
+O matcher interno de `compiler/eval/selector_matching.md` verifica identidade
+funcional estática e cada filtro com igualdade da linguagem. Snapshot Some é
+autoritativo completo; None usa somente a projeção legada contratada. Não
+interpretar NativeElement unit como identidade e não reconstruir campos pela
+chain do caller. Sem filtros, retornar cada ocorrência da função exatamente
+uma vez. Entrada sintética sem conteúdo não é evidência para inventar fields.
+
+And/Or/Within continuam recursando pela implementação concreta. Se a árvore
+contiver uma folha Element, normalizar seu resultado como Locations únicas
+em ordem documental, inclusive a união de funções intercaladas: a sonda de
+ocorrências mede outer strong, inner emph, outer emph, inner strong, não
+concatenação por ramo do Or. Árvores sem Element conservam a ordem/regra
+legada. Regex e Where legados não recebem conserto incidental. Um filtro novo não pode ser reduzido
+para Kind nem concatenado a string. Consulta permanece pura: não executa
+construtor, callback, layout, update ou reconstrução de documento.
+
+Aceitação: conteúdo consultado preserva função/body/label/Location; Strong e
+Emph não se confundem; filtros match/miss e vazio funcionam; aninhamento
+preserva pais/ordem; duas ocorrências de mesmo body não colapsam. Os testes
+legados do impl transferido passam no novo owner. Hash final distingue body
+alterado; campos de snapshot derivados de chain precisam de captura causal
+explicitada, não são provados pelo hash do Content nu.
+
+### P1339 — captura de ações para runtime filtrado (fase aprovada; integração pendente)
+
+Medição: `populate_intr_from_tag_start` alimenta snapshots sob chaves Kind
+(`compiler/introspect.rs:793-834,953-1040`), sem registrar a ação causal em
+forma reutilizável. A revisão `diagnosticos/p1339-where-counter-integration-design.md`
+e as sondas de fase refutam derivar ações das diferenças de estados.
+
+Proposta: registrar no log privado de `entities/counter_registry.md`, junto
+à ocorrência, a ação automática efetiva (ou nenhuma quando o gate falha).
+Heading conserva depth e numbering_active; as demais famílias conservam
+seus próprios gates. Strong/Emph próprios contam por Step(1), depois da
+promoção aprovada, sem atribuir identidade ao payload unit. O registro de
+evento manual conserva a chave completa e a ação original, inclusive Func.
+Não duplicar eventos pela escrita paralela de figure:kind, nem pelos Start
+derivados que reutilizam Location. Func não executa no walk.
+
+Fornecer ao runtime de `compiler/introspect/from_tags.md` seleção pura de
+eventos automáticos por Location/store/folha Element, usando o matcher
+linguístico já contratado. Captura não altera contadores legados nem a
+ordem de tags. Este log é dado para resolução sob demanda aprovada no recibo
+`diagnosticos/p1339-where-counter-phase-approval.json`; não dispensa os gates
+de integração nem resolve sozinho convergência de conteúdo gerado em contexto.
 
 ## Módulo
 `01_core/src/compiler/introspect.rs`
@@ -1522,3 +1645,47 @@ um destes elementos adquirisse contrato público locatável, se labels/counters
 internos de um body math válido devessem emitir tags, ou se `place.flush()`
 alterasse counters, labels ou resultados de query. Uma refutação exige novo
 L0 antes do código; não autoriza descida silenciosa neste owner.
+
+## P1341 — âncora test-only da ocorrência percorrida
+
+### Medição anterior à decisão
+
+A ocorrência real de counter reúne `Content`, payload/ação e `Location` no walk;
+projeções posteriores não conseguem reconstruir com segurança qual conteúdo e
+qual span lexical produziram o evento. O corpus P1341 inclui substituição de
+produtor, conteúdo, origem e ciclo de lineage.
+
+### Decisão
+
+Sob `cfg(p1339_observation)`, o walk emite uma referência de ocorrência no
+mesmo ponto em que aplica a ação efetiva. Ela liga o conteúdo percorrido,
+Location/snapshot runtime, chave/ação e papel lexical do span; clonagem e
+descida preservam a referência da mesma ocorrência sem side table global.
+O grafo projetado é dirigido, conectado a `execution` e contém exatamente as
+arestas causais exigidas pelo manifesto; ciclo, aresta invertida, desconexão ou
+duplicação falham fechados.
+
+Esta é observabilidade privada de teste: não muda tags, Locator, counters,
+query, payload público, igualdade, ordem do walk ou resultados normais.
+
+## P1342 — binding do walk à ocorrência real
+
+### Medição anterior à decisão
+
+`diagnosticos/p1342-topology-audit-r1.md` mede que o walk possui, no mesmo
+ponto, o `Content::CounterUpdate` real, o payload/ação, a `Location` recém
+alocada e o snapshot gravado no `CounterRegistry`. A projeção posterior P1341
+não prova qual ocorrência produziu essa tupla.
+
+### Decisão vigente
+
+Sob `cfg(p1339_observation)`, imediatamente após inserir o Content real no
+store pela Location e registrar a ação, o walk reconhece apenas
+`CounterUpdate::Func` cujo Func já possua carrier P1342. Pelo próprio carrier,
+anexa evento com id da ocorrência, Content real, Location, chave/ação e snapshot
+real disponível naquele ponto. Não enumera fonte, não procura por igualdade ou
+nome e não cria carrier no consumidor.
+
+O hook observa a travessia existente; tags, Locator, stores, ordem, clones e
+resultados não mudam. Sem o cfg ele inexiste. Esta seção sucede a âncora P1341
+no fragmento P1342 e não afirma lifecycle, retenção, invalidação ou NT01–NT06.

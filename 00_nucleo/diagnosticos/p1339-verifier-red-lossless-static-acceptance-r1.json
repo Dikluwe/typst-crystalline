@@ -1,0 +1,62 @@
+{
+  "schema": "p1339-independent-D-lossless-static-acceptance-v1",
+  "utc": "2026-09-10T05:30:53.009578+00:00",
+  "verdict": "GO_EXECUTE_D_LOSSLESS_2706",
+  "authority_manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+    "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+  },
+  "seal": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-seal.json",
+    "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"
+  },
+  "manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-manifest.json",
+    "sha256": "ad5b2016e8cf1c2e469241cc105ca2cbf27fbf6124765688b80e9f8360ee93de"
+  },
+  "adapter": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-executor.py",
+    "sha256": "b47ed8ac5f87a570890d0eadef1f55a782f74f672da61a328ec4586061ecc07b"
+  },
+  "selection": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-selection.json",
+    "sha256": "9b5800e5071856997c0f89525ebfe5fe90bff75ca3bf8b3ccbcc538f92312d2e"
+  },
+  "judge": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-judge.py",
+    "sha256": "9f68feda9ced26e5b09c759b7c86166be41e657ac7266b0fdaebf88664b3c64c"
+  },
+  "checks": {
+    "all_19_manifest_input_hashes": true,
+    "exact_124_ID_array": true,
+    "ten_discovery_plus_114_baseline_controls": true,
+    "all_2706_ordered_cells_independently_reconstructed": true,
+    "direct_sealed_checked_inputs_execute_without_monkeypatch": true,
+    "same_case_sources_flags_env_timeout_applicability": true,
+    "1619_input_hashes_before_after_required": true,
+    "judge_composes_sealed_predicates_without_new_expected": true,
+    "baseline_discovery_Observed_exit1_Violated_120_required": true,
+    "vanilla_discovery_Observed_exit0_Preserved_120_required": true,
+    "control_cells_2466_Preserved_required": true,
+    "zero_mandatory_Unknown_required": true,
+    "future_D_execution_and_credit_zero": true
+  },
+  "commands": [
+    [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-executor.py",
+      "--selection",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-selection.json",
+      "--selection-sha256",
+      "9b5800e5071856997c0f89525ebfe5fe90bff75ca3bf8b3ccbcc538f92312d2e",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-runs.json"
+    ],
+    [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-judge.py"
+    ]
+  ],
+  "scope": "One real D execution plus read-only judgment. Preserve raw and predecessor incident; no automatic semantic retry, C rerun, input modification or candidate authorization. Independent D evidence review remains mandatory.",
+  "regime": "executado sem atestacao de isolamento"
+}

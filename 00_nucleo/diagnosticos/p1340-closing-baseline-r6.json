@@ -1,0 +1,28 @@
+{
+  "schema": "p1340-closing-baseline-r6",
+  "utc": "2026-09-10T16:02:20Z",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "state": "working tree nao commitado",
+  "status_porcelain_z_sha256": "6f49ab712b56f4c4814630fe33a4a4b736d80f982330e7af761065a736164f7f",
+  "tracked_diff_binary_sha256": "b5cfe4bff5207acbf6cf1feb7b85cb71efbcfe9ad928df5655d4bc444037382d",
+  "tracked_diff_stat": "66 files changed, 10579 insertions(+), 823 deletions(-)",
+  "l0": {
+    "00_nucleo/prompts/infra/pipeline.md": "d8fd5b70d90e0ff172dfbfc8c2784815fc6a8967b0ee32ddd8c9624e4a11bc20",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md": "09b8da4367f1e37e65a6ae596cebecc8815dcbdb50b28a414d79dae99f8977be",
+    "00_nucleo/prompts/compiler/eval.md": "b2b9c074d499e6bfeb9466962bbdfba618b0dfff710a5fa826ca6b1c87f36712"
+  },
+  "candidate_file_sha256": {
+    "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs": "669af6940bb21c47540913039779c51d8f492480fad8df12f6aff1fe4004fa7c",
+    "01_core/src/compiler/eval/mod.rs": "3a7b0afe311347ff938076f8d616edd12314e58bc90df1e70f87ec63d4b1d7e6",
+    "01_core/src/compiler/eval/call_dispatch.rs": "f7e87fb49ee6e40d48466339103f4e0656fb62c9f699af06cffe8da8f6193ca9",
+    "01_core/src/compiler/eval/bindings/value_methods.rs": "ff44a898dbfdd9931f6bc28f353f099b95241d86d80786693f891c997e460b12",
+    "01_core/src/compiler/stdlib/counter.rs": "31dfc8413e5b90901c6c8fc313bc254c2d0794df87b2d7df61661f6166d65f62",
+    "01_core/src/compiler/stdlib/state.rs": "23c9b683a5beb25778aeee7672fd561943656da69434aff9573a549b8c569f49",
+    "01_core/src/compiler/introspect/from_tags.rs": "94428b74754f1e3de3b43a3e20da456b37632a6e1f67665874331497389d7600",
+    "01_core/src/compiler/introspect.rs": "f71589c6594c99bd5d4cdb2d3c2b521ad2789a388e6bc13126f744f02035fd5c",
+    "01_core/src/compiler/stdlib/numbering.rs": "7a529cafa2ab35444e04e850768c893276dbd1fcdd8f56d451cceccb7e128dc0",
+    "03_infra/src/pipeline.rs": "cde32fc5c77ee116a41d1ff5a8a6912c887d05a4de88c6955619a07c65f66cfb",
+    "03_infra/src/pipeline/context_stabilization.rs": "be5fe625382790e26ee3bdc545ea67a4df04c8e0aaac28a27745df705031c323"
+  },
+  "note": "Hashes identify the shared candidate state for integration and later verification. Contract and adversary roles receive this metadata but not candidate file contents."
+}

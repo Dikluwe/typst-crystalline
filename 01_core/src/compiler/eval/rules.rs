@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash b4cec5d0
+//! @prompt-hash c41331a7
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -473,7 +473,7 @@ pub(crate) fn apply_show_rules(
     // aplicar as show rules. Realização é transparente para o layout.
     let has_par_rule = rules
         .iter()
-        .any(|r| matches!(r.selector, Selector::NodeKind(NodeKind::Par)));
+        .any(|r| super::selector_matching::is_par_rule(&r.selector));
     if has_par_rule {
         content = realize_paragraphs(content);
     }
@@ -830,7 +830,7 @@ pub(crate) fn intercept_paragraphs(
     let par_rules: Vec<ShowRule> = engine
         .show_rules
         .iter()
-        .filter(|r| matches!(r.selector, Selector::NodeKind(NodeKind::Par)))
+        .filter(|r| super::selector_matching::is_par_rule(&r.selector))
         .cloned()
         .collect();
 

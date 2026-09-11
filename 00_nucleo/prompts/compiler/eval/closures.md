@@ -162,3 +162,24 @@ primeiro valor passado à closure. A origem deve sobreviver a alias, factory,
 With e passagem por Args. Não muda binding, capture, sink, fluxo ou aplicação.
 Este dado serve ao cast de retorno de arguments.filter; erros ocorridos na
 execução do callback continuam seus erros originais. Sem campo público novo.
+
+## P1342 — entrada e saída do `SyntaxNode` real
+
+### Medição anterior à decisão
+
+A auditoria P1342 refuta `func.body` como função: `ClosureRepr.body` é
+`SyntaxNode`, convertido em `Expr` imediatamente antes de `eval_expr`.
+
+### Decisão vigente
+
+Sob `cfg(p1339_observation)`, quando há ocorrência ativa, `apply_closure`
+registra antes de `eval_expr` o Func closure recebido, a identidade local do
+`SyntaxNode` real, kind e span do body. Registra a saída com o resultado ou erro
+real antes de o propagar, inclusive FlowEvent. Esse objeto recebe domínio
+`syntax-body`, nunca `func`, e a aresta nasce no ponto que conhece closure e
+body. O Dict produzido dentro do corpo usa a mesma ocorrência do contexto.
+
+Não reparsear para observar, executar de novo, alterar binding, scope, route,
+sink, flow ou diagnóstico. Sem o cfg, o caminho é byte-equivalente em
+comportamento. O recorte cobre a closure callback focal P1342, não todas as
+closures nem a matriz P1340.

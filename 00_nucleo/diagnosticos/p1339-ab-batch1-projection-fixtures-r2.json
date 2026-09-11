@@ -1,0 +1,989 @@
+{
+  "schema": "p1339-batch1-additional-projection-fixtures-v1",
+  "author": "/root/p1319_tests",
+  "status": "Same aggregated batch1 component; no product process; future APIs NOT_EXECUTED_PRESEAL",
+  "authority_manifest_sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b",
+  "l0_freeze_sha256": "397c136fc8710d44b2f7537193fe5b9c44ab89d40a99bf6b994296e05e7c4d04",
+  "interface": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-interface.md",
+    "sha256": "7ff05129bd9213ffbe1a9c72b403262559834c782bb9f10928ea7d20bfd02f8d"
+  },
+  "adapter_authority": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-closed-harness-authority.json",
+    "sha256": "08d0be7f19894c111130d0c791df6804cd1e7d89d2b8d6f418702be88af2125d"
+  },
+  "regime": "executado sem atesta\u00e7\u00e3o de isolamento",
+  "read_boundary": "Frozen L0 and public mechanical signature interface only. No productive source or candidate inspected.",
+  "construction_rules": [
+    "Use actual Source parser, eval_expr, EvalContext, Engine, TagIntrospector, registries and IntrospectedContent listed in pinned interface.",
+    "Each symbol is allocated once with Locator. label:name resolves the actual label in that snapshot. Undefined symbol or operation fails closed.",
+    "origin clone_of preserves the real snapshot/value identities before listed overlays. No custom comparator or mock observation record.",
+    "An element overlay replaces only elements[Location] using IntrospectedContent::new of the stated content expression and exact fields None/Some sequence; it does not replace index/Location/order.",
+    "Read body Result, selection getter, actual public validation for every listed candidate, and actual diagnostics for history_ids. Keep all observations separate and serialize complete errors and spans.",
+    "New public APIs execute only on final candidate; no pre-seal positive credit. F06 actual private relation and F07/F08 lifecycle require distinct frozen bindings/tests; these API-bool cases do not claim those missing witnesses."
+  ],
+  "batch": 1,
+  "predecessor": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-projection-fixtures.json",
+    "sha256": "380c3222be8cc02114811b01a5465cb29e656d79c52b63c0d56f74a9de6fff34"
+  },
+  "contract": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-r3.json",
+    "sha256": "c0cd1826679ddaf77e937a677839c5cbe64fdae6ec71bfa34e635d584d9c3e17"
+  },
+  "budget": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-budget-redesign-r1.json",
+    "sha256": "4bdd984d7b9d482d68ebb787e98eeed8333a1d4447c637615d4ceb9c78ed6c19"
+  },
+  "cases": [
+    {
+      "id": "api-state-method-init-fallback",
+      "obligation_ids": [
+        "W05",
+        "W06",
+        "W09"
+      ],
+      "matrix_ids": [
+        "F05-projections",
+        "F09-errors-sinks"
+      ],
+      "setup_code": "",
+      "value_bindings": [],
+      "snapshots": [
+        {
+          "id": "base",
+          "origin": "empty"
+        },
+        {
+          "id": "same",
+          "origin": "clone_of",
+          "clone_of": "base"
+        },
+        {
+          "id": "changed",
+          "origin": "clone_of",
+          "clone_of": "base",
+          "overlays": [
+            {
+              "kind": "state_init",
+              "key": "s",
+              "expression": "1",
+              "location": "entry"
+            }
+          ]
+        }
+      ],
+      "body_code": "{ let v = state(\"s\", 7).final(); counter(heading.where()).final(); v }",
+      "body_snapshot": "base",
+      "location_symbols": [
+        "entry",
+        "update",
+        "current"
+      ],
+      "current_location": "current",
+      "in_context": true,
+      "target": "paged",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "orders": [
+        "normal",
+        "repeat",
+        "reverse"
+      ],
+      "history_ids": [
+        "base",
+        "same"
+      ],
+      "validate_candidate_ids": [
+        "same",
+        "changed"
+      ],
+      "predicates": {
+        "body": {
+          "result": "Ok",
+          "value_type": "Int",
+          "value": 7
+        },
+        "has_filtered_counter_reads": true,
+        "validation": {
+          "same": {
+            "result": "Ok",
+            "value": true
+          },
+          "changed": {
+            "result": "Ok",
+            "value": false
+          }
+        },
+        "nonconvergence_diagnostics": {
+          "result": "Ok",
+          "length": 0
+        }
+      },
+      "resources": {
+        "world": "same immutable memory World for all construction, body and replay in one fixture",
+        "font_metrics": "same FixedMetrics",
+        "styles": "StyleChain::default_chain unless explicit request style fixture",
+        "validation_sink": "distinct transactional sink; not product sink",
+        "binding_retention": "evaluate value_bindings once in declared order and reuse values by name; do not recreate while cloning/replaying"
+      },
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "preseal_credit": 0
+      }
+    },
+    {
+      "id": "api-state-global-none-fallback",
+      "obligation_ids": [
+        "W05",
+        "W06",
+        "W09"
+      ],
+      "matrix_ids": [
+        "F05-projections",
+        "F09-errors-sinks"
+      ],
+      "setup_code": "",
+      "value_bindings": [],
+      "snapshots": [
+        {
+          "id": "base",
+          "origin": "empty"
+        },
+        {
+          "id": "same",
+          "origin": "clone_of",
+          "clone_of": "base"
+        },
+        {
+          "id": "changed",
+          "origin": "clone_of",
+          "clone_of": "base",
+          "overlays": [
+            {
+              "kind": "state_init",
+              "key": "s",
+              "expression": "1",
+              "location": "entry"
+            }
+          ]
+        }
+      ],
+      "body_code": "{ let v = state_final(\"s\"); counter(heading.where()).final(); v }",
+      "body_snapshot": "base",
+      "location_symbols": [
+        "entry",
+        "update",
+        "current"
+      ],
+      "current_location": "current",
+      "in_context": true,
+      "target": "paged",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "orders": [
+        "normal",
+        "repeat",
+        "reverse"
+      ],
+      "history_ids": [
+        "base",
+        "same"
+      ],
+      "validate_candidate_ids": [
+        "same",
+        "changed"
+      ],
+      "predicates": {
+        "body": {
+          "result": "Ok",
+          "value_type": "None"
+        },
+        "has_filtered_counter_reads": true,
+        "validation": {
+          "same": {
+            "result": "Ok",
+            "value": true
+          },
+          "changed": {
+            "result": "Ok",
+            "value": false
+          }
+        },
+        "nonconvergence_diagnostics": {
+          "result": "Ok",
+          "length": 0
+        }
+      },
+      "resources": {
+        "world": "same immutable memory World for all construction, body and replay in one fixture",
+        "font_metrics": "same FixedMetrics",
+        "styles": "StyleChain::default_chain unless explicit request style fixture",
+        "validation_sink": "distinct transactional sink; not product sink",
+        "binding_retention": "evaluate value_bindings once in declared order and reuse values by name; do not recreate while cloning/replaying"
+      },
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "preseal_credit": 0
+      }
+    },
+    {
+      "id": "api-state-display-value-before-callback-error",
+      "obligation_ids": [
+        "W05",
+        "W06",
+        "W09"
+      ],
+      "matrix_ids": [
+        "F05-projections",
+        "F09-errors-sinks"
+      ],
+      "setup_code": "",
+      "value_bindings": [],
+      "snapshots": [
+        {
+          "id": "base",
+          "origin": "empty"
+        },
+        {
+          "id": "same",
+          "origin": "clone_of",
+          "clone_of": "base"
+        },
+        {
+          "id": "changed",
+          "origin": "clone_of",
+          "clone_of": "base",
+          "overlays": [
+            {
+              "kind": "state_init",
+              "key": "s",
+              "expression": "1",
+              "location": "entry"
+            }
+          ]
+        }
+      ],
+      "body_code": "{ state(\"s\", 7).display(x => { counter(heading.where()).final(); panic(\"P1339_DISPLAY_BODY\") }) }",
+      "body_snapshot": "base",
+      "location_symbols": [
+        "entry",
+        "update",
+        "current"
+      ],
+      "current_location": "current",
+      "in_context": true,
+      "target": "paged",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "orders": [
+        "normal",
+        "repeat",
+        "reverse"
+      ],
+      "history_ids": [
+        "base",
+        "same"
+      ],
+      "validate_candidate_ids": [
+        "same",
+        "changed"
+      ],
+      "predicates": {
+        "body": {
+          "result": "Err",
+          "message": "panicked with: P1339_DISPLAY_BODY",
+          "span_required": true
+        },
+        "has_filtered_counter_reads": true,
+        "validation": {
+          "same": {
+            "result": "Ok",
+            "value": true
+          },
+          "changed": {
+            "result": "Ok",
+            "value": false
+          }
+        },
+        "nonconvergence_diagnostics": {
+          "result": "Ok",
+          "length": 0
+        }
+      },
+      "resources": {
+        "world": "same immutable memory World for all construction, body and replay in one fixture",
+        "font_metrics": "same FixedMetrics",
+        "styles": "StyleChain::default_chain unless explicit request style fixture",
+        "validation_sink": "distinct transactional sink; not product sink",
+        "binding_retention": "evaluate value_bindings once in declared order and reuse values by name; do not recreate while cloning/replaying"
+      },
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "preseal_credit": 0
+      },
+      "actual_effect_predicates": {
+        "display_callback_invocations_during_body": 1,
+        "display_callback_invocations_during_validation": 0,
+        "display_callback_invocations_during_diagnostics": 0,
+        "recorded_operations_in_order": [
+          "state_display_value",
+          "counter_final"
+        ],
+        "counter_request_selector_contains_element": true,
+        "retained_body_error_not_replaced_by_validation_success": true
+      }
+    },
+    {
+      "id": "api-state-at-missing-label-resolution",
+      "obligation_ids": [
+        "W05",
+        "W06",
+        "W09"
+      ],
+      "matrix_ids": [
+        "F05-projections",
+        "F09-errors-sinks"
+      ],
+      "setup_code": "",
+      "value_bindings": [],
+      "snapshots": [
+        {
+          "id": "base",
+          "origin": "empty"
+        },
+        {
+          "id": "same",
+          "origin": "clone_of",
+          "clone_of": "base"
+        },
+        {
+          "id": "resolved",
+          "origin": "clone_of",
+          "clone_of": "base",
+          "overlays": [
+            {
+              "kind": "label",
+              "label": "missing",
+              "location": "entry"
+            }
+          ]
+        }
+      ],
+      "body_code": "{ counter(heading.where()).final(); state(\"s\", 7).at(<missing>) }",
+      "body_snapshot": "base",
+      "location_symbols": [
+        "entry",
+        "update",
+        "current"
+      ],
+      "current_location": "current",
+      "in_context": true,
+      "target": "paged",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "orders": [
+        "normal",
+        "repeat",
+        "reverse"
+      ],
+      "history_ids": [
+        "base",
+        "same"
+      ],
+      "validate_candidate_ids": [
+        "same",
+        "resolved"
+      ],
+      "predicates": {
+        "body": {
+          "result": "Err",
+          "message": "label `<missing>` does not exist in the document",
+          "span_required": true
+        },
+        "has_filtered_counter_reads": true,
+        "validation": {
+          "same": {
+            "result": "Ok",
+            "value": true
+          },
+          "resolved": {
+            "result": "Ok",
+            "value": false
+          }
+        },
+        "nonconvergence_diagnostics": {
+          "result": "Ok",
+          "length": 0
+        }
+      },
+      "resources": {
+        "world": "same immutable memory World for all construction, body and replay in one fixture",
+        "font_metrics": "same FixedMetrics",
+        "styles": "StyleChain::default_chain unless explicit request style fixture",
+        "validation_sink": "distinct transactional sink; not product sink",
+        "binding_retention": "evaluate value_bindings once in declared order and reuse values by name; do not recreate while cloning/replaying"
+      },
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "preseal_credit": 0
+      }
+    },
+    {
+      "id": "api-locate-first-not-full-carrier",
+      "obligation_ids": [
+        "W05",
+        "W06",
+        "W09"
+      ],
+      "matrix_ids": [
+        "F05-projections",
+        "F09-errors-sinks"
+      ],
+      "setup_code": "",
+      "value_bindings": [],
+      "snapshots": [
+        {
+          "id": "base",
+          "origin": "content_expression",
+          "content_expression": "[#metadata(1)<node>]",
+          "introspection_entrypoint": "pure"
+        },
+        {
+          "id": "same",
+          "origin": "clone_of",
+          "clone_of": "base"
+        },
+        {
+          "id": "changed_content_same_location",
+          "origin": "clone_of",
+          "clone_of": "base",
+          "overlays": [
+            {
+              "kind": "element",
+              "location": "label:node",
+              "content_expression": "metadata(2)",
+              "fields": [
+                [
+                  "value",
+                  "2"
+                ],
+                [
+                  "label",
+                  "<node>"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "none",
+          "origin": "empty"
+        }
+      ],
+      "body_code": "{ let v = locate(metadata); counter(heading.where()).final(); v }",
+      "body_snapshot": "base",
+      "location_symbols": [
+        "entry",
+        "update",
+        "current"
+      ],
+      "current_location": "current",
+      "in_context": true,
+      "target": "paged",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "orders": [
+        "normal",
+        "repeat",
+        "reverse"
+      ],
+      "history_ids": [
+        "base",
+        "same"
+      ],
+      "validate_candidate_ids": [
+        "same",
+        "changed_content_same_location",
+        "none"
+      ],
+      "predicates": {
+        "body": {
+          "result": "Ok",
+          "value_type": "Location"
+        },
+        "has_filtered_counter_reads": true,
+        "validation": {
+          "same": {
+            "result": "Ok",
+            "value": true
+          },
+          "changed_content_same_location": {
+            "result": "Ok",
+            "value": true
+          },
+          "none": {
+            "result": "Ok",
+            "value": false
+          }
+        },
+        "nonconvergence_diagnostics": {
+          "result": "Ok",
+          "length": 0
+        }
+      },
+      "resources": {
+        "world": "same immutable memory World for all construction, body and replay in one fixture",
+        "font_metrics": "same FixedMetrics",
+        "styles": "StyleChain::default_chain unless explicit request style fixture",
+        "validation_sink": "distinct transactional sink; not product sink",
+        "binding_retention": "evaluate value_bindings once in declared order and reuse values by name; do not recreate while cloning/replaying"
+      },
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "preseal_credit": 0
+      }
+    },
+    {
+      "id": "api-locate-none-to-first",
+      "obligation_ids": [
+        "W05",
+        "W06",
+        "W09"
+      ],
+      "matrix_ids": [
+        "F05-projections",
+        "F09-errors-sinks"
+      ],
+      "setup_code": "",
+      "value_bindings": [],
+      "snapshots": [
+        {
+          "id": "base",
+          "origin": "empty"
+        },
+        {
+          "id": "same",
+          "origin": "clone_of",
+          "clone_of": "base"
+        },
+        {
+          "id": "first",
+          "origin": "content_expression",
+          "content_expression": "[#metadata(1)<node>]",
+          "introspection_entrypoint": "pure"
+        }
+      ],
+      "body_code": "{ let v = locate(metadata); counter(heading.where()).final(); v }",
+      "body_snapshot": "base",
+      "location_symbols": [
+        "entry",
+        "update",
+        "current"
+      ],
+      "current_location": "current",
+      "in_context": true,
+      "target": "paged",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "orders": [
+        "normal",
+        "repeat",
+        "reverse"
+      ],
+      "history_ids": [
+        "base",
+        "same"
+      ],
+      "validate_candidate_ids": [
+        "same",
+        "first"
+      ],
+      "predicates": {
+        "body": {
+          "result": "Ok",
+          "value_type": "None"
+        },
+        "has_filtered_counter_reads": true,
+        "validation": {
+          "same": {
+            "result": "Ok",
+            "value": true
+          },
+          "first": {
+            "result": "Ok",
+            "value": false
+          }
+        },
+        "nonconvergence_diagnostics": {
+          "result": "Ok",
+          "length": 0
+        }
+      },
+      "resources": {
+        "world": "same immutable memory World for all construction, body and replay in one fixture",
+        "font_metrics": "same FixedMetrics",
+        "styles": "StyleChain::default_chain unless explicit request style fixture",
+        "validation_sink": "distinct transactional sink; not product sink",
+        "binding_retention": "evaluate value_bindings once in declared order and reuse values by name; do not recreate while cloning/replaying"
+      },
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "preseal_credit": 0
+      }
+    },
+    {
+      "id": "api-here-location-only",
+      "obligation_ids": [
+        "W05",
+        "W06",
+        "W09"
+      ],
+      "matrix_ids": [
+        "F05-projections",
+        "F09-errors-sinks"
+      ],
+      "setup_code": "",
+      "value_bindings": [],
+      "snapshots": [
+        {
+          "id": "base",
+          "origin": "empty"
+        },
+        {
+          "id": "same",
+          "origin": "clone_of",
+          "clone_of": "base"
+        },
+        {
+          "id": "changed_positions",
+          "origin": "clone_of",
+          "clone_of": "base",
+          "overlays": [
+            {
+              "kind": "position",
+              "location": "current",
+              "page": 2,
+              "x_pt": 50,
+              "y_pt": 60
+            },
+            {
+              "kind": "pages",
+              "total_pages": 2
+            }
+          ]
+        }
+      ],
+      "body_code": "{ let v = here(); counter(heading.where()).final(); v }",
+      "body_snapshot": "base",
+      "location_symbols": [
+        "entry",
+        "update",
+        "current"
+      ],
+      "current_location": "current",
+      "in_context": true,
+      "target": "paged",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "orders": [
+        "normal",
+        "repeat",
+        "reverse"
+      ],
+      "history_ids": [
+        "base",
+        "same"
+      ],
+      "validate_candidate_ids": [
+        "same",
+        "changed_positions"
+      ],
+      "predicates": {
+        "body": {
+          "result": "Ok",
+          "value_type": "Location"
+        },
+        "has_filtered_counter_reads": true,
+        "validation": {
+          "same": {
+            "result": "Ok",
+            "value": true
+          },
+          "changed_positions": {
+            "result": "Ok",
+            "value": true
+          }
+        },
+        "nonconvergence_diagnostics": {
+          "result": "Ok",
+          "length": 0
+        }
+      },
+      "resources": {
+        "world": "same immutable memory World for all construction, body and replay in one fixture",
+        "font_metrics": "same FixedMetrics",
+        "styles": "StyleChain::default_chain unless explicit request style fixture",
+        "validation_sink": "distinct transactional sink; not product sink",
+        "binding_retention": "evaluate value_bindings once in declared order and reuse values by name; do not recreate while cloning/replaying"
+      },
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "preseal_credit": 0
+      }
+    },
+    {
+      "id": "api-page-numbering-raw-function",
+      "obligation_ids": [
+        "W05",
+        "W06",
+        "W09"
+      ],
+      "matrix_ids": [
+        "F05-projections",
+        "F09-errors-sinks"
+      ],
+      "setup_code": "",
+      "value_bindings": [
+        {
+          "name": "f",
+          "expression": "n => panic(\"P1339_NUMBERING_NOT_CALLED\")"
+        },
+        {
+          "name": "g",
+          "expression": "n => panic(\"P1339_NUMBERING_NOT_CALLED\")"
+        }
+      ],
+      "snapshots": [
+        {
+          "id": "base",
+          "origin": "empty",
+          "overlays": [
+            {
+              "kind": "position",
+              "location": "current",
+              "page": 1,
+              "x_pt": 0,
+              "y_pt": 0
+            },
+            {
+              "kind": "pages_raw",
+              "total_pages": 1,
+              "numberings": [
+                {
+                  "kind": "Func",
+                  "binding": "f"
+                }
+              ],
+              "supplements": [
+                "[]"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "same",
+          "origin": "clone_of",
+          "clone_of": "base"
+        },
+        {
+          "id": "new_function",
+          "origin": "clone_of",
+          "clone_of": "base",
+          "overlays": [
+            {
+              "kind": "pages_raw",
+              "total_pages": 1,
+              "numberings": [
+                {
+                  "kind": "Func",
+                  "binding": "g"
+                }
+              ],
+              "supplements": [
+                "[]"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "pattern",
+          "origin": "clone_of",
+          "clone_of": "base",
+          "overlays": [
+            {
+              "kind": "pages_raw",
+              "total_pages": 1,
+              "numberings": [
+                {
+                  "kind": "Pattern",
+                  "value": "1"
+                }
+              ],
+              "supplements": [
+                "[]"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "none",
+          "origin": "clone_of",
+          "clone_of": "base",
+          "overlays": [
+            {
+              "kind": "pages_raw",
+              "total_pages": 1,
+              "numberings": [
+                null
+              ],
+              "supplements": [
+                "[]"
+              ]
+            }
+          ]
+        }
+      ],
+      "body_code": "{ counter(heading.where()).final(); here().page-numbering() }",
+      "body_snapshot": "base",
+      "location_symbols": [
+        "entry",
+        "update",
+        "current"
+      ],
+      "current_location": "current",
+      "in_context": true,
+      "target": "paged",
+      "profiles": [
+        "default",
+        "html",
+        "a11y",
+        "html+a11y"
+      ],
+      "orders": [
+        "normal",
+        "repeat",
+        "reverse"
+      ],
+      "history_ids": [
+        "base",
+        "same"
+      ],
+      "validate_candidate_ids": [
+        "same",
+        "new_function",
+        "pattern",
+        "none"
+      ],
+      "predicates": {
+        "body": {
+          "result": "Ok",
+          "value_type": "Func"
+        },
+        "has_filtered_counter_reads": true,
+        "validation": {
+          "same": {
+            "result": "Ok",
+            "value": true
+          },
+          "new_function": {
+            "result": "Ok",
+            "value": false
+          },
+          "pattern": {
+            "result": "Ok",
+            "value": false
+          },
+          "none": {
+            "result": "Ok",
+            "value": false
+          }
+        },
+        "nonconvergence_diagnostics": {
+          "result": "Ok",
+          "length": 0
+        }
+      },
+      "resources": {
+        "world": "same immutable memory World for all construction, body and replay in one fixture",
+        "font_metrics": "same FixedMetrics",
+        "styles": "StyleChain::default_chain unless explicit request style fixture",
+        "validation_sink": "distinct transactional sink; not product sink",
+        "binding_retention": "evaluate value_bindings once in declared order and reuse values by name; do not recreate while cloning/replaying"
+      },
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "preseal_credit": 0
+      },
+      "actual_effect_predicates": {
+        "numbering_callback_invocations_body": 0,
+        "numbering_callback_invocations_validation": 0,
+        "numbering_callback_invocations_diagnostics": 0,
+        "same_binding_returned_from_body": "f"
+      },
+      "overlay_translation": "pages_raw calls existing PageStore::from_runtime(NonZeroUsize, Vec<Option<Numbering>>, Vec<Content>) and inject_pages. Func uses existing Value binding without re-evaluation; no new public API."
+    }
+  ],
+  "additional_effect_port": "Passive hooks at actual display/numbering callback invocation and RequestRecorded boundaries. Typed counts above are mandatory; callback must not be invoked merely to compare/probe its category.",
+  "authoring_correction": "Use established label overlay payload missing, not angle-bracket source syntax; all original files preserved. No run occurred."
+}

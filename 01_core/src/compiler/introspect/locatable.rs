@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/locatable.md
-//! @prompt-hash 714dbd3f
+//! @prompt-hash 001988af
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -19,6 +19,7 @@ use crate::entities::content::Content;
 /// construção de payload nem cálculo de hash.
 pub fn is_locatable(content: &Content) -> bool {
     match content {
+        Content::Strong(_) | Content::Emph(_) => true,
         // ── Locatable em M1 ──────────────────────────────────────────
         Content::Heading(_) => true,
         Content::Figure(_) => true,
@@ -155,8 +156,6 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Place(_)
         | Content::Flush(_)
         | Content::Styled(_, _)
-        | Content::Strong(_)
-        | Content::Emph(_)
         | Content::Divider(_)
         | Content::Terms(_)
         | Content::TermItem(_)
@@ -228,6 +227,15 @@ pub fn is_locatable(content: &Content) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn p1339_own_emphasis_occurrences_are_locatable() {
+        for content in [Content::strong(Content::Empty), Content::emph(Content::Empty)] {
+            assert!(is_locatable(&content));
+            assert!(crate::compiler::introspect::extract_payload::extract_payload(&content).is_some());
+        }
+        assert!(!is_locatable(&Content::text("plain")));
+    }
     use crate::compiler::introspect::extract_payload::extract_payload;
     use ecow::EcoString;
 

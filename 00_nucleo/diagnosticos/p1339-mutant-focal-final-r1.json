@@ -1,0 +1,3088 @@
+{
+  "authority_manifest_sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b",
+  "start": "2026-09-10T03:11:48.232163+00:00",
+  "end": "2026-09-10T03:11:54.648123+00:00",
+  "negative_oracles_sha256": "a583a098876d2882be73c5c67e077cbcf8ad17629d8d5f3ba25f078ea0d0751d",
+  "runner_sha256": "72d678d15f926ea8463dc42e853e9db06858feacad76da548246e7557f86557c",
+  "rows": [
+    {
+      "family": 1,
+      "role": "pinned",
+      "case": "m01-deg-rad-swapped",
+      "source": "(angle.deg(90deg), angle.rad(1rad))",
+      "source_sha256": "d2555bf2c036ab58f6226ca14b967221150fb660e2a08ffa7cad2c578b007277",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "(angle.deg(90deg), angle.rad(1rad))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.232214+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[90.0,1.0]\n",
+      "stdout_base64": "WzkwLjAsMS4wXQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.301642+00:00"
+    },
+    {
+      "family": 1,
+      "role": "rebuild",
+      "case": "m01-deg-rad-swapped",
+      "source": "(angle.deg(90deg), angle.rad(1rad))",
+      "source_sha256": "d2555bf2c036ab58f6226ca14b967221150fb660e2a08ffa7cad2c578b007277",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "(angle.deg(90deg), angle.rad(1rad))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.301758+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[90.0,1.0]\n",
+      "stdout_base64": "WzkwLjAsMS4wXQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.375806+00:00"
+    },
+    {
+      "family": 1,
+      "role": "control",
+      "case": "m01-deg-rad-swapped",
+      "source": "(angle.deg(90deg), angle.rad(1rad))",
+      "source_sha256": "d2555bf2c036ab58f6226ca14b967221150fb660e2a08ffa7cad2c578b007277",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(angle.deg(90deg), angle.rad(1rad))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.375871+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[90.0,1.0]\n",
+      "stdout_base64": "WzkwLjAsMS4wXQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.451454+00:00"
+    },
+    {
+      "family": 1,
+      "role": "mutant",
+      "case": "m01-deg-rad-swapped",
+      "source": "(angle.deg(90deg), angle.rad(1rad))",
+      "source_sha256": "d2555bf2c036ab58f6226ca14b967221150fb660e2a08ffa7cad2c578b007277",
+      "profile": "default",
+      "mode": "1",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(angle.deg(90deg), angle.rad(1rad))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "1",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.451518+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[1.5707963267948966,57.29577951308232]\n",
+      "stdout_base64": "WzEuNTcwNzk2MzI2Nzk0ODk2Niw1Ny4yOTU3Nzk1MTMwODIzMl0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.526694+00:00"
+    },
+    {
+      "family": 2,
+      "role": "pinned",
+      "case": "m02-wrong-unit-scale",
+      "source": "angle.rad(180deg)",
+      "source_sha256": "31442b523e671c4639dc4844616f99ffb0723bd570885b1475eadb5e40d3f8d3",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "angle.rad(180deg)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.526755+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "3.141592653589793\n",
+      "stdout_base64": "My4xNDE1OTI2NTM1ODk3OTMK",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.595314+00:00"
+    },
+    {
+      "family": 2,
+      "role": "rebuild",
+      "case": "m02-wrong-unit-scale",
+      "source": "angle.rad(180deg)",
+      "source_sha256": "31442b523e671c4639dc4844616f99ffb0723bd570885b1475eadb5e40d3f8d3",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "angle.rad(180deg)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.595376+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "3.141592653589793\n",
+      "stdout_base64": "My4xNDE1OTI2NTM1ODk3OTMK",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.667780+00:00"
+    },
+    {
+      "family": 2,
+      "role": "control",
+      "case": "m02-wrong-unit-scale",
+      "source": "angle.rad(180deg)",
+      "source_sha256": "31442b523e671c4639dc4844616f99ffb0723bd570885b1475eadb5e40d3f8d3",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "angle.rad(180deg)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.667835+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "3.141592653589793\n",
+      "stdout_base64": "My4xNDE1OTI2NTM1ODk3OTMK",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.739853+00:00"
+    },
+    {
+      "family": 2,
+      "role": "mutant",
+      "case": "m02-wrong-unit-scale",
+      "source": "angle.rad(180deg)",
+      "source_sha256": "31442b523e671c4639dc4844616f99ffb0723bd570885b1475eadb5e40d3f8d3",
+      "profile": "default",
+      "mode": "2",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "angle.rad(180deg)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "2",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.739912+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "0.05483113556160754\n",
+      "stdout_base64": "MC4wNTQ4MzExMzU1NjE2MDc1NAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.812576+00:00"
+    },
+    {
+      "family": 3,
+      "role": "pinned",
+      "case": "m03-finite-infinity",
+      "source": "(type(float.inf) == float, float.inf.is-infinite())",
+      "source_sha256": "4fcf4a097eb2d7f5b4bd9f68b95bc8f7ee52a41f90e76222492e68e145af5606",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "(type(float.inf) == float, float.inf.is-infinite())",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.812658+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[true,true]\n",
+      "stdout_base64": "W3RydWUsdHJ1ZV0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.879396+00:00"
+    },
+    {
+      "family": 3,
+      "role": "rebuild",
+      "case": "m03-finite-infinity",
+      "source": "(type(float.inf) == float, float.inf.is-infinite())",
+      "source_sha256": "4fcf4a097eb2d7f5b4bd9f68b95bc8f7ee52a41f90e76222492e68e145af5606",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "(type(float.inf) == float, float.inf.is-infinite())",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.879451+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[true,true]\n",
+      "stdout_base64": "W3RydWUsdHJ1ZV0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:48.951727+00:00"
+    },
+    {
+      "family": 3,
+      "role": "control",
+      "case": "m03-finite-infinity",
+      "source": "(type(float.inf) == float, float.inf.is-infinite())",
+      "source_sha256": "4fcf4a097eb2d7f5b4bd9f68b95bc8f7ee52a41f90e76222492e68e145af5606",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(type(float.inf) == float, float.inf.is-infinite())",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:48.951787+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[true,true]\n",
+      "stdout_base64": "W3RydWUsdHJ1ZV0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.024213+00:00"
+    },
+    {
+      "family": 3,
+      "role": "mutant",
+      "case": "m03-finite-infinity",
+      "source": "(type(float.inf) == float, float.inf.is-infinite())",
+      "source_sha256": "4fcf4a097eb2d7f5b4bd9f68b95bc8f7ee52a41f90e76222492e68e145af5606",
+      "profile": "default",
+      "mode": "3",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(type(float.inf) == float, float.inf.is-infinite())",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "3",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.024273+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[true,false]\n",
+      "stdout_base64": "W3RydWUsZmFsc2VdCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.097702+00:00"
+    },
+    {
+      "family": 4,
+      "role": "pinned",
+      "case": "m04-reflexive-nan",
+      "source": "float.nan == float.nan",
+      "source_sha256": "45a6132cfd5833a18eacbb091a39e6abaae712c45d81476117512e963d47a496",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "float.nan == float.nan",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.097759+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "false\n",
+      "stdout_base64": "ZmFsc2UK",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.163452+00:00"
+    },
+    {
+      "family": 4,
+      "role": "rebuild",
+      "case": "m04-reflexive-nan",
+      "source": "float.nan == float.nan",
+      "source_sha256": "45a6132cfd5833a18eacbb091a39e6abaae712c45d81476117512e963d47a496",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "float.nan == float.nan",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.163508+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "false\n",
+      "stdout_base64": "ZmFsc2UK",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.236679+00:00"
+    },
+    {
+      "family": 4,
+      "role": "control",
+      "case": "m04-reflexive-nan",
+      "source": "float.nan == float.nan",
+      "source_sha256": "45a6132cfd5833a18eacbb091a39e6abaae712c45d81476117512e963d47a496",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.nan == float.nan",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.236748+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "false\n",
+      "stdout_base64": "ZmFsc2UK",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.309183+00:00"
+    },
+    {
+      "family": 4,
+      "role": "mutant",
+      "case": "m04-reflexive-nan",
+      "source": "float.nan == float.nan",
+      "source_sha256": "45a6132cfd5833a18eacbb091a39e6abaae712c45d81476117512e963d47a496",
+      "profile": "default",
+      "mode": "4",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.nan == float.nan",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "4",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.309238+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "true\n",
+      "stdout_base64": "dHJ1ZQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.382457+00:00"
+    },
+    {
+      "family": 5,
+      "role": "pinned",
+      "case": "m05-negative-zero-sign",
+      "source": "float.signum(-0.0)",
+      "source_sha256": "11376b5afa7586f39be7027951024f2e0ffdd8ba894fea4bed511205d1eee35d",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "float.signum(-0.0)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.382524+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "-1.0\n",
+      "stdout_base64": "LTEuMAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.451161+00:00"
+    },
+    {
+      "family": 5,
+      "role": "rebuild",
+      "case": "m05-negative-zero-sign",
+      "source": "float.signum(-0.0)",
+      "source_sha256": "11376b5afa7586f39be7027951024f2e0ffdd8ba894fea4bed511205d1eee35d",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "float.signum(-0.0)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.451213+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "-1.0\n",
+      "stdout_base64": "LTEuMAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.525616+00:00"
+    },
+    {
+      "family": 5,
+      "role": "control",
+      "case": "m05-negative-zero-sign",
+      "source": "float.signum(-0.0)",
+      "source_sha256": "11376b5afa7586f39be7027951024f2e0ffdd8ba894fea4bed511205d1eee35d",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.signum(-0.0)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.525675+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "-1.0\n",
+      "stdout_base64": "LTEuMAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.598337+00:00"
+    },
+    {
+      "family": 5,
+      "role": "mutant",
+      "case": "m05-negative-zero-sign",
+      "source": "float.signum(-0.0)",
+      "source_sha256": "11376b5afa7586f39be7027951024f2e0ffdd8ba894fea4bed511205d1eee35d",
+      "profile": "default",
+      "mode": "5",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.signum(-0.0)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "5",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.598395+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "1.0\n",
+      "stdout_base64": "MS4wCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.672480+00:00"
+    },
+    {
+      "family": 6,
+      "role": "pinned",
+      "case": "m06-nan-sign-zero",
+      "source": "float.signum(float.nan).is-nan()",
+      "source_sha256": "e5f3d80bd1f19fca16559a9c00cab0e7e466ff90ad276cfa01971cd2d4b518ce",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "float.signum(float.nan).is-nan()",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.672579+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "true\n",
+      "stdout_base64": "dHJ1ZQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.745239+00:00"
+    },
+    {
+      "family": 6,
+      "role": "rebuild",
+      "case": "m06-nan-sign-zero",
+      "source": "float.signum(float.nan).is-nan()",
+      "source_sha256": "e5f3d80bd1f19fca16559a9c00cab0e7e466ff90ad276cfa01971cd2d4b518ce",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "float.signum(float.nan).is-nan()",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.745333+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "true\n",
+      "stdout_base64": "dHJ1ZQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.821201+00:00"
+    },
+    {
+      "family": 6,
+      "role": "control",
+      "case": "m06-nan-sign-zero",
+      "source": "float.signum(float.nan).is-nan()",
+      "source_sha256": "e5f3d80bd1f19fca16559a9c00cab0e7e466ff90ad276cfa01971cd2d4b518ce",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.signum(float.nan).is-nan()",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.821254+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "true\n",
+      "stdout_base64": "dHJ1ZQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.899129+00:00"
+    },
+    {
+      "family": 6,
+      "role": "mutant",
+      "case": "m06-nan-sign-zero",
+      "source": "float.signum(float.nan).is-nan()",
+      "source_sha256": "e5f3d80bd1f19fca16559a9c00cab0e7e466ff90ad276cfa01971cd2d4b518ce",
+      "profile": "default",
+      "mode": "6",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.signum(float.nan).is-nan()",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "6",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.899195+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "false\n",
+      "stdout_base64": "ZmFsc2UK",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:49.975442+00:00"
+    },
+    {
+      "family": 7,
+      "role": "pinned",
+      "case": "m07-endian-inverted",
+      "source": "(array(float.to-bytes(1.0)), float.from-bytes(bytes((0,0,0,0,0,0,240,63))))",
+      "source_sha256": "bc77a131b6f25536eb88dbb8b051ca532fdef9cb0bece70194c6a804895de448",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "(array(float.to-bytes(1.0)), float.from-bytes(bytes((0,0,0,0,0,0,240,63))))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:49.975509+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[[0,0,0,0,0,0,240,63],1.0]\n",
+      "stdout_base64": "W1swLDAsMCwwLDAsMCwyNDAsNjNdLDEuMF0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.046251+00:00"
+    },
+    {
+      "family": 7,
+      "role": "rebuild",
+      "case": "m07-endian-inverted",
+      "source": "(array(float.to-bytes(1.0)), float.from-bytes(bytes((0,0,0,0,0,0,240,63))))",
+      "source_sha256": "bc77a131b6f25536eb88dbb8b051ca532fdef9cb0bece70194c6a804895de448",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "(array(float.to-bytes(1.0)), float.from-bytes(bytes((0,0,0,0,0,0,240,63))))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.046322+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[[0,0,0,0,0,0,240,63],1.0]\n",
+      "stdout_base64": "W1swLDAsMCwwLDAsMCwyNDAsNjNdLDEuMF0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.122738+00:00"
+    },
+    {
+      "family": 7,
+      "role": "control",
+      "case": "m07-endian-inverted",
+      "source": "(array(float.to-bytes(1.0)), float.from-bytes(bytes((0,0,0,0,0,0,240,63))))",
+      "source_sha256": "bc77a131b6f25536eb88dbb8b051ca532fdef9cb0bece70194c6a804895de448",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(array(float.to-bytes(1.0)), float.from-bytes(bytes((0,0,0,0,0,0,240,63))))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.122795+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[[0,0,0,0,0,0,240,63],1.0]\n",
+      "stdout_base64": "W1swLDAsMCwwLDAsMCwyNDAsNjNdLDEuMF0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.198624+00:00"
+    },
+    {
+      "family": 7,
+      "role": "mutant",
+      "case": "m07-endian-inverted",
+      "source": "(array(float.to-bytes(1.0)), float.from-bytes(bytes((0,0,0,0,0,0,240,63))))",
+      "source_sha256": "bc77a131b6f25536eb88dbb8b051ca532fdef9cb0bece70194c6a804895de448",
+      "profile": "default",
+      "mode": "7",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(array(float.to-bytes(1.0)), float.from-bytes(bytes((0,0,0,0,0,0,240,63))))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "7",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.198686+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[[63,240,0,0,0,0,0,0],3.03865e-319]\n",
+      "stdout_base64": "W1s2MywyNDAsMCwwLDAsMCwwLDBdLDMuMDM4NjVlLTMxOV0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.275533+00:00"
+    },
+    {
+      "family": 8,
+      "role": "pinned",
+      "case": "m08-invalid-byte-length",
+      "source": "float.from-bytes(bytes((1,2,3)))",
+      "source_sha256": "8c6d2465326145c541c59a38b42d7b5305182f27fd0084c4314b49dd55eda835",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "float.from-bytes(bytes((1,2,3)))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.275592+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: bytes must have a length of 4 or 8\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.from-bytes(bytes((1,2,3)))\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IGJ5dGVzIG11c3QgaGF2ZSBhIGxlbmd0aCBvZiA0IG9yIDgKICDilIzilIAgPGlucHV0LWV4cHJlc3Npb24+OjE6MAogIOKUggoxIOKUgiBmbG9hdC5mcm9tLWJ5dGVzKGJ5dGVzKCgxLDIsMykpKQogIOKUgiBeXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXgoK",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.347865+00:00"
+    },
+    {
+      "family": 8,
+      "role": "rebuild",
+      "case": "m08-invalid-byte-length",
+      "source": "float.from-bytes(bytes((1,2,3)))",
+      "source_sha256": "8c6d2465326145c541c59a38b42d7b5305182f27fd0084c4314b49dd55eda835",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "float.from-bytes(bytes((1,2,3)))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.347923+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: bytes must have a length of 4 or 8\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.from-bytes(bytes((1,2,3)))\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IGJ5dGVzIG11c3QgaGF2ZSBhIGxlbmd0aCBvZiA0IG9yIDgKICDilIzilIAgPGlucHV0LWV4cHJlc3Npb24+OjE6MAogIOKUggoxIOKUgiBmbG9hdC5mcm9tLWJ5dGVzKGJ5dGVzKCgxLDIsMykpKQogIOKUgiBeXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXgoK",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.424106+00:00"
+    },
+    {
+      "family": 8,
+      "role": "control",
+      "case": "m08-invalid-byte-length",
+      "source": "float.from-bytes(bytes((1,2,3)))",
+      "source_sha256": "8c6d2465326145c541c59a38b42d7b5305182f27fd0084c4314b49dd55eda835",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.from-bytes(bytes((1,2,3)))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.424179+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: bytes must have a length of 4 or 8\n  ┌─ <input-expression>:1:0\n  │\n1 │ float.from-bytes(bytes((1,2,3)))\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IGJ5dGVzIG11c3QgaGF2ZSBhIGxlbmd0aCBvZiA0IG9yIDgKICDilIzilIAgPGlucHV0LWV4cHJlc3Npb24+OjE6MAogIOKUggoxIOKUgiBmbG9hdC5mcm9tLWJ5dGVzKGJ5dGVzKCgxLDIsMykpKQogIOKUgiBeXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXgoK",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.499341+00:00"
+    },
+    {
+      "family": 8,
+      "role": "mutant",
+      "case": "m08-invalid-byte-length",
+      "source": "float.from-bytes(bytes((1,2,3)))",
+      "source_sha256": "8c6d2465326145c541c59a38b42d7b5305182f27fd0084c4314b49dd55eda835",
+      "profile": "default",
+      "mode": "8",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.from-bytes(bytes((1,2,3)))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "8",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.499399+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "0.0\n",
+      "stdout_base64": "MC4wCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.575871+00:00"
+    },
+    {
+      "family": 9,
+      "role": "pinned",
+      "case": "m09-size-ignored",
+      "source": "float.to-bytes(1.0, size: 4).len()",
+      "source_sha256": "661663a5ce3a487f89a1d4b207a108c986a733b1209b38610ccd960d4a7381d4",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "float.to-bytes(1.0, size: 4).len()",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.575932+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "4\n",
+      "stdout_base64": "NAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.652680+00:00"
+    },
+    {
+      "family": 9,
+      "role": "rebuild",
+      "case": "m09-size-ignored",
+      "source": "float.to-bytes(1.0, size: 4).len()",
+      "source_sha256": "661663a5ce3a487f89a1d4b207a108c986a733b1209b38610ccd960d4a7381d4",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "float.to-bytes(1.0, size: 4).len()",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.652757+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "4\n",
+      "stdout_base64": "NAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.734030+00:00"
+    },
+    {
+      "family": 9,
+      "role": "control",
+      "case": "m09-size-ignored",
+      "source": "float.to-bytes(1.0, size: 4).len()",
+      "source_sha256": "661663a5ce3a487f89a1d4b207a108c986a733b1209b38610ccd960d4a7381d4",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.to-bytes(1.0, size: 4).len()",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.734127+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "4\n",
+      "stdout_base64": "NAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.808178+00:00"
+    },
+    {
+      "family": 9,
+      "role": "mutant",
+      "case": "m09-size-ignored",
+      "source": "float.to-bytes(1.0, size: 4).len()",
+      "source_sha256": "661663a5ce3a487f89a1d4b207a108c986a733b1209b38610ccd960d4a7381d4",
+      "profile": "default",
+      "mode": "9",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.to-bytes(1.0, size: 4).len()",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "9",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.808245+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "8\n",
+      "stdout_base64": "OAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.882259+00:00"
+    },
+    {
+      "family": 10,
+      "role": "pinned",
+      "case": "m10-array-not-bytes",
+      "source": "type(float.to-bytes(1.0)) == bytes",
+      "source_sha256": "8c305c9b5eb2a728e32d58395ea615207e632d994e3024ac010d4fa06aacd495",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "type(float.to-bytes(1.0)) == bytes",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.882324+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "true\n",
+      "stdout_base64": "dHJ1ZQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:50.953433+00:00"
+    },
+    {
+      "family": 10,
+      "role": "rebuild",
+      "case": "m10-array-not-bytes",
+      "source": "type(float.to-bytes(1.0)) == bytes",
+      "source_sha256": "8c305c9b5eb2a728e32d58395ea615207e632d994e3024ac010d4fa06aacd495",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "type(float.to-bytes(1.0)) == bytes",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:50.953494+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "true\n",
+      "stdout_base64": "dHJ1ZQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.032899+00:00"
+    },
+    {
+      "family": 10,
+      "role": "control",
+      "case": "m10-array-not-bytes",
+      "source": "type(float.to-bytes(1.0)) == bytes",
+      "source_sha256": "8c305c9b5eb2a728e32d58395ea615207e632d994e3024ac010d4fa06aacd495",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "type(float.to-bytes(1.0)) == bytes",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.032960+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "true\n",
+      "stdout_base64": "dHJ1ZQo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.110679+00:00"
+    },
+    {
+      "family": 10,
+      "role": "mutant",
+      "case": "m10-array-not-bytes",
+      "source": "type(float.to-bytes(1.0)) == bytes",
+      "source_sha256": "8c305c9b5eb2a728e32d58395ea615207e632d994e3024ac010d4fa06aacd495",
+      "profile": "default",
+      "mode": "10",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "type(float.to-bytes(1.0)) == bytes",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "10",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.110743+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "false\n",
+      "stdout_base64": "ZmFsc2UK",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.188943+00:00"
+    },
+    {
+      "family": 11,
+      "role": "pinned",
+      "case": "m11-discovery-stub",
+      "source": "(repr(float.signum), float.signum(-3.25))",
+      "source_sha256": "a872070d2dde2713a4a874d0846f2e7daf3f33343aa2cec3532a2fe7a3ea7386",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "(repr(float.signum), float.signum(-3.25))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.189027+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[\"signum\",-1.0]\n",
+      "stdout_base64": "WyJzaWdudW0iLC0xLjBdCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.260426+00:00"
+    },
+    {
+      "family": 11,
+      "role": "rebuild",
+      "case": "m11-discovery-stub",
+      "source": "(repr(float.signum), float.signum(-3.25))",
+      "source_sha256": "a872070d2dde2713a4a874d0846f2e7daf3f33343aa2cec3532a2fe7a3ea7386",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "(repr(float.signum), float.signum(-3.25))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.260498+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[\"signum\",-1.0]\n",
+      "stdout_base64": "WyJzaWdudW0iLC0xLjBdCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.337166+00:00"
+    },
+    {
+      "family": 11,
+      "role": "control",
+      "case": "m11-discovery-stub",
+      "source": "(repr(float.signum), float.signum(-3.25))",
+      "source_sha256": "a872070d2dde2713a4a874d0846f2e7daf3f33343aa2cec3532a2fe7a3ea7386",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(repr(float.signum), float.signum(-3.25))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.337224+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[\"signum\",-1.0]\n",
+      "stdout_base64": "WyJzaWdudW0iLC0xLjBdCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.414862+00:00"
+    },
+    {
+      "family": 11,
+      "role": "mutant",
+      "case": "m11-discovery-stub",
+      "source": "(repr(float.signum), float.signum(-3.25))",
+      "source_sha256": "a872070d2dde2713a4a874d0846f2e7daf3f33343aa2cec3532a2fe7a3ea7386",
+      "profile": "default",
+      "mode": "11",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(repr(float.signum), float.signum(-3.25))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "11",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.414917+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[\"signum\",0.0]\n",
+      "stdout_base64": "WyJzaWdudW0iLDAuMF0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.489909+00:00"
+    },
+    {
+      "family": 12,
+      "role": "pinned",
+      "case": "m12-duplicate-formula",
+      "source": "(angle.deg(90deg), (90deg).deg())",
+      "source_sha256": "d4371e70af84d1d71e4277facf42a33cb239cd2bf818b4089ca5a13110d54075",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "(angle.deg(90deg), (90deg).deg())",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.490006+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[90.0,90.0]\n",
+      "stdout_base64": "WzkwLjAsOTAuMF0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.562185+00:00"
+    },
+    {
+      "family": 12,
+      "role": "rebuild",
+      "case": "m12-duplicate-formula",
+      "source": "(angle.deg(90deg), (90deg).deg())",
+      "source_sha256": "d4371e70af84d1d71e4277facf42a33cb239cd2bf818b4089ca5a13110d54075",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "(angle.deg(90deg), (90deg).deg())",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.562247+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[90.0,90.0]\n",
+      "stdout_base64": "WzkwLjAsOTAuMF0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.640660+00:00"
+    },
+    {
+      "family": 12,
+      "role": "control",
+      "case": "m12-duplicate-formula",
+      "source": "(angle.deg(90deg), (90deg).deg())",
+      "source_sha256": "d4371e70af84d1d71e4277facf42a33cb239cd2bf818b4089ca5a13110d54075",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(angle.deg(90deg), (90deg).deg())",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.640728+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[90.0,90.0]\n",
+      "stdout_base64": "WzkwLjAsOTAuMF0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.716791+00:00"
+    },
+    {
+      "family": 12,
+      "role": "mutant",
+      "case": "m12-duplicate-formula",
+      "source": "(angle.deg(90deg), (90deg).deg())",
+      "source_sha256": "d4371e70af84d1d71e4277facf42a33cb239cd2bf818b4089ca5a13110d54075",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-architecture-pure-r1",
+        "--color=never",
+        "eval",
+        "(angle.deg(90deg), (90deg).deg())",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.716937+00:00",
+      "binary_sha256": "41219b0d3201b14754acebe6fe0eb9d51c3e4eb141c9b655ef1a3921de130934",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[90.0,90.0]\n",
+      "stdout_base64": "WzkwLjAsOTAuMF0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.792570+00:00"
+    },
+    {
+      "family": 13,
+      "role": "pinned",
+      "case": "m13-with-order",
+      "source": "{let f(a,b)=(a,b); function.with(f,1)(2)}",
+      "source_sha256": "6b65b6efe9d935a85141e3fb600942083cb8d174c3de64e43528a88cf917d84d",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "{let f(a,b)=(a,b); function.with(f,1)(2)}",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.792643+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[1,2]\n",
+      "stdout_base64": "WzEsMl0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.865588+00:00"
+    },
+    {
+      "family": 13,
+      "role": "rebuild",
+      "case": "m13-with-order",
+      "source": "{let f(a,b)=(a,b); function.with(f,1)(2)}",
+      "source_sha256": "6b65b6efe9d935a85141e3fb600942083cb8d174c3de64e43528a88cf917d84d",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "{let f(a,b)=(a,b); function.with(f,1)(2)}",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.865679+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[1,2]\n",
+      "stdout_base64": "WzEsMl0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:51.949514+00:00"
+    },
+    {
+      "family": 13,
+      "role": "control",
+      "case": "m13-with-order",
+      "source": "{let f(a,b)=(a,b); function.with(f,1)(2)}",
+      "source_sha256": "6b65b6efe9d935a85141e3fb600942083cb8d174c3de64e43528a88cf917d84d",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "{let f(a,b)=(a,b); function.with(f,1)(2)}",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:51.949620+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[1,2]\n",
+      "stdout_base64": "WzEsMl0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.031343+00:00"
+    },
+    {
+      "family": 13,
+      "role": "mutant",
+      "case": "m13-with-order",
+      "source": "{let f(a,b)=(a,b); function.with(f,1)(2)}",
+      "source_sha256": "6b65b6efe9d935a85141e3fb600942083cb8d174c3de64e43528a88cf917d84d",
+      "profile": "default",
+      "mode": "13",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "{let f(a,b)=(a,b); function.with(f,1)(2)}",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "13",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.031400+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[2,1]\n",
+      "stdout_base64": "WzIsMV0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.112692+00:00"
+    },
+    {
+      "family": 14,
+      "role": "pinned",
+      "case": "m14-where-closure",
+      "source": "function.where(x => x)",
+      "source_sha256": "64c7d12b157e5d8eff9eb83bf03044ba8ed3487e4345b63abacbefb9b3ce5ab3",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "function.where(x => x)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.112759+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: `where()` can only be called on element functions\n  ┌─ <input-expression>:1:0\n  │\n1 │ function.where(x => x)\n  │ ^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IGB3aGVyZSgpYCBjYW4gb25seSBiZSBjYWxsZWQgb24gZWxlbWVudCBmdW5jdGlvbnMKICDilIzilIAgPGlucHV0LWV4cHJlc3Npb24+OjE6MAogIOKUggoxIOKUgiBmdW5jdGlvbi53aGVyZSh4ID0+IHgpCiAg4pSCIF5eXl5eXl5eXl5eXl5eXl5eXl5eXl4KCg==",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.189858+00:00"
+    },
+    {
+      "family": 14,
+      "role": "rebuild",
+      "case": "m14-where-closure",
+      "source": "function.where(x => x)",
+      "source_sha256": "64c7d12b157e5d8eff9eb83bf03044ba8ed3487e4345b63abacbefb9b3ce5ab3",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "function.where(x => x)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.189951+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: `where()` can only be called on element functions\n  ┌─ <input-expression>:1:0\n  │\n1 │ function.where(x => x)\n  │ ^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IGB3aGVyZSgpYCBjYW4gb25seSBiZSBjYWxsZWQgb24gZWxlbWVudCBmdW5jdGlvbnMKICDilIzilIAgPGlucHV0LWV4cHJlc3Npb24+OjE6MAogIOKUggoxIOKUgiBmdW5jdGlvbi53aGVyZSh4ID0+IHgpCiAg4pSCIF5eXl5eXl5eXl5eXl5eXl5eXl5eXl4KCg==",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.272422+00:00"
+    },
+    {
+      "family": 14,
+      "role": "control",
+      "case": "m14-where-closure",
+      "source": "function.where(x => x)",
+      "source_sha256": "64c7d12b157e5d8eff9eb83bf03044ba8ed3487e4345b63abacbefb9b3ce5ab3",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "function.where(x => x)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.272489+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: `where()` can only be called on element functions\n  ┌─ <input-expression>:1:0\n  │\n1 │ function.where(x => x)\n  │ ^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IGB3aGVyZSgpYCBjYW4gb25seSBiZSBjYWxsZWQgb24gZWxlbWVudCBmdW5jdGlvbnMKICDilIzilIAgPGlucHV0LWV4cHJlc3Npb24+OjE6MAogIOKUggoxIOKUgiBmdW5jdGlvbi53aGVyZSh4ID0+IHgpCiAg4pSCIF5eXl5eXl5eXl5eXl5eXl5eXl5eXl4KCg==",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.347930+00:00"
+    },
+    {
+      "family": 14,
+      "role": "mutant",
+      "case": "m14-where-closure",
+      "source": "function.where(x => x)",
+      "source_sha256": "64c7d12b157e5d8eff9eb83bf03044ba8ed3487e4345b63abacbefb9b3ce5ab3",
+      "profile": "default",
+      "mode": "14",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "function.where(x => x)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "14",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.347990+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "\"heading.where(:)\"\n",
+      "stdout_base64": "ImhlYWRpbmcud2hlcmUoOikiCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.423988+00:00"
+    },
+    {
+      "family": 15,
+      "role": "pinned",
+      "case": "m15-where-fields-discarded",
+      "source": "repr(function.where(heading, level: 2))",
+      "source_sha256": "9ad822c639780681d10898093b5d40fc725848d24860442bd1d6b96bc29fbcc9",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "repr(function.where(heading, level: 2))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.424047+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "\"heading.where(level: 2)\"\n",
+      "stdout_base64": "ImhlYWRpbmcud2hlcmUobGV2ZWw6IDIpIgo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.497472+00:00"
+    },
+    {
+      "family": 15,
+      "role": "rebuild",
+      "case": "m15-where-fields-discarded",
+      "source": "repr(function.where(heading, level: 2))",
+      "source_sha256": "9ad822c639780681d10898093b5d40fc725848d24860442bd1d6b96bc29fbcc9",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "repr(function.where(heading, level: 2))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.497528+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "\"heading.where(level: 2)\"\n",
+      "stdout_base64": "ImhlYWRpbmcud2hlcmUobGV2ZWw6IDIpIgo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.573721+00:00"
+    },
+    {
+      "family": 15,
+      "role": "control",
+      "case": "m15-where-fields-discarded",
+      "source": "repr(function.where(heading, level: 2))",
+      "source_sha256": "9ad822c639780681d10898093b5d40fc725848d24860442bd1d6b96bc29fbcc9",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "repr(function.where(heading, level: 2))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.573786+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "\"heading.where(level: 2)\"\n",
+      "stdout_base64": "ImhlYWRpbmcud2hlcmUobGV2ZWw6IDIpIgo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.651266+00:00"
+    },
+    {
+      "family": 15,
+      "role": "mutant",
+      "case": "m15-where-fields-discarded",
+      "source": "repr(function.where(heading, level: 2))",
+      "source_sha256": "9ad822c639780681d10898093b5d40fc725848d24860442bd1d6b96bc29fbcc9",
+      "profile": "default",
+      "mode": "15",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "repr(function.where(heading, level: 2))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "15",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.651356+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "\"heading.where(:)\"\n",
+      "stdout_base64": "ImhlYWRpbmcud2hlcmUoOikiCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.738239+00:00"
+    },
+    {
+      "family": 16,
+      "role": "pinned",
+      "case": "m16-version-static-divergence",
+      "source": "(version.at(version(3,5),1), version(3,5).at(1))",
+      "source_sha256": "88afeb2a700ca4b8bbd6f9c5f98d5c0885003db29864ec2ab3cc41b526651fdb",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "(version.at(version(3,5),1), version(3,5).at(1))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.738337+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[5,5]\n",
+      "stdout_base64": "WzUsNV0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.813920+00:00"
+    },
+    {
+      "family": 16,
+      "role": "rebuild",
+      "case": "m16-version-static-divergence",
+      "source": "(version.at(version(3,5),1), version(3,5).at(1))",
+      "source_sha256": "88afeb2a700ca4b8bbd6f9c5f98d5c0885003db29864ec2ab3cc41b526651fdb",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "(version.at(version(3,5),1), version(3,5).at(1))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.813985+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[5,5]\n",
+      "stdout_base64": "WzUsNV0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.889200+00:00"
+    },
+    {
+      "family": 16,
+      "role": "control",
+      "case": "m16-version-static-divergence",
+      "source": "(version.at(version(3,5),1), version(3,5).at(1))",
+      "source_sha256": "88afeb2a700ca4b8bbd6f9c5f98d5c0885003db29864ec2ab3cc41b526651fdb",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(version.at(version(3,5),1), version(3,5).at(1))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.889293+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[5,5]\n",
+      "stdout_base64": "WzUsNV0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:52.968170+00:00"
+    },
+    {
+      "family": 16,
+      "role": "mutant",
+      "case": "m16-version-static-divergence",
+      "source": "(version.at(version(3,5),1), version(3,5).at(1))",
+      "source_sha256": "88afeb2a700ca4b8bbd6f9c5f98d5c0885003db29864ec2ab3cc41b526651fdb",
+      "profile": "default",
+      "mode": "16",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(version.at(version(3,5),1), version(3,5).at(1))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "16",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:52.968227+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[3,5]\n",
+      "stdout_base64": "WzMsNV0K",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.048240+00:00"
+    },
+    {
+      "family": 17,
+      "role": "pinned",
+      "case": "m17-negative-padding",
+      "source": "version.at(version(1), -2)",
+      "source_sha256": "dace40f36e4d38e251bf7928e5fe9d36e280ec04bf5bbe318ea8877d5425d719",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "version.at(version(1), -2)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.048311+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: component index out of bounds (index: -2, len: 1)\n  ┌─ <input-expression>:1:0\n  │\n1 │ version.at(version(1), -2)\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IGNvbXBvbmVudCBpbmRleCBvdXQgb2YgYm91bmRzIChpbmRleDogLTIsIGxlbjogMSkKICDilIzilIAgPGlucHV0LWV4cHJlc3Npb24+OjE6MAogIOKUggoxIOKUgiB2ZXJzaW9uLmF0KHZlcnNpb24oMSksIC0yKQogIOKUgiBeXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXgoK",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.122579+00:00"
+    },
+    {
+      "family": 17,
+      "role": "rebuild",
+      "case": "m17-negative-padding",
+      "source": "version.at(version(1), -2)",
+      "source_sha256": "dace40f36e4d38e251bf7928e5fe9d36e280ec04bf5bbe318ea8877d5425d719",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "version.at(version(1), -2)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.122648+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: component index out of bounds (index: -2, len: 1)\n  ┌─ <input-expression>:1:0\n  │\n1 │ version.at(version(1), -2)\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IGNvbXBvbmVudCBpbmRleCBvdXQgb2YgYm91bmRzIChpbmRleDogLTIsIGxlbjogMSkKICDilIzilIAgPGlucHV0LWV4cHJlc3Npb24+OjE6MAogIOKUggoxIOKUgiB2ZXJzaW9uLmF0KHZlcnNpb24oMSksIC0yKQogIOKUgiBeXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXgoK",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.200842+00:00"
+    },
+    {
+      "family": 17,
+      "role": "control",
+      "case": "m17-negative-padding",
+      "source": "version.at(version(1), -2)",
+      "source_sha256": "dace40f36e4d38e251bf7928e5fe9d36e280ec04bf5bbe318ea8877d5425d719",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "version.at(version(1), -2)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.200901+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: component index out of bounds (index: -2, len: 1)\n  ┌─ <input-expression>:1:0\n  │\n1 │ version.at(version(1), -2)\n  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IGNvbXBvbmVudCBpbmRleCBvdXQgb2YgYm91bmRzIChpbmRleDogLTIsIGxlbjogMSkKICDilIzilIAgPGlucHV0LWV4cHJlc3Npb24+OjE6MAogIOKUggoxIOKUgiB2ZXJzaW9uLmF0KHZlcnNpb24oMSksIC0yKQogIOKUgiBeXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXgoK",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.278773+00:00"
+    },
+    {
+      "family": 17,
+      "role": "mutant",
+      "case": "m17-negative-padding",
+      "source": "version.at(version(1), -2)",
+      "source_sha256": "dace40f36e4d38e251bf7928e5fe9d36e280ec04bf5bbe318ea8877d5425d719",
+      "profile": "default",
+      "mode": "17",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "version.at(version(1), -2)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "17",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.278834+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "0\n",
+      "stdout_base64": "MAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.357924+00:00"
+    },
+    {
+      "family": 18,
+      "role": "pinned",
+      "case": "m18-unexpected-named-accepted",
+      "source": "angle.deg(90deg, bogus: 1)",
+      "source_sha256": "bd21e716864be44f53265518d7e1d3d41340ff63e9927d6573456cc36b48f4e5",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "angle.deg(90deg, bogus: 1)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.357993+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: unexpected argument: bogus\n  ┌─ <input-expression>:1:17\n  │\n1 │ angle.deg(90deg, bogus: 1)\n  │                  ^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQ6IGJvZ3VzCiAg4pSM4pSAIDxpbnB1dC1leHByZXNzaW9uPjoxOjE3CiAg4pSCCjEg4pSCIGFuZ2xlLmRlZyg5MGRlZywgYm9ndXM6IDEpCiAg4pSCICAgICAgICAgICAgICAgICAgXl5eXl5eXl4KCg==",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.432994+00:00"
+    },
+    {
+      "family": 18,
+      "role": "rebuild",
+      "case": "m18-unexpected-named-accepted",
+      "source": "angle.deg(90deg, bogus: 1)",
+      "source_sha256": "bd21e716864be44f53265518d7e1d3d41340ff63e9927d6573456cc36b48f4e5",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "angle.deg(90deg, bogus: 1)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.433051+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: unexpected argument: bogus\n  ┌─ <input-expression>:1:17\n  │\n1 │ angle.deg(90deg, bogus: 1)\n  │                  ^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQ6IGJvZ3VzCiAg4pSM4pSAIDxpbnB1dC1leHByZXNzaW9uPjoxOjE3CiAg4pSCCjEg4pSCIGFuZ2xlLmRlZyg5MGRlZywgYm9ndXM6IDEpCiAg4pSCICAgICAgICAgICAgICAgICAgXl5eXl5eXl4KCg==",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.507726+00:00"
+    },
+    {
+      "family": 18,
+      "role": "control",
+      "case": "m18-unexpected-named-accepted",
+      "source": "angle.deg(90deg, bogus: 1)",
+      "source_sha256": "bd21e716864be44f53265518d7e1d3d41340ff63e9927d6573456cc36b48f4e5",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "angle.deg(90deg, bogus: 1)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.507820+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 1,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "error: unexpected argument: bogus\n  ┌─ <input-expression>:1:17\n  │\n1 │ angle.deg(90deg, bogus: 1)\n  │                  ^^^^^^^^\n\n",
+      "stderr_base64": "ZXJyb3I6IHVuZXhwZWN0ZWQgYXJndW1lbnQ6IGJvZ3VzCiAg4pSM4pSAIDxpbnB1dC1leHByZXNzaW9uPjoxOjE3CiAg4pSCCjEg4pSCIGFuZ2xlLmRlZyg5MGRlZywgYm9ndXM6IDEpCiAg4pSCICAgICAgICAgICAgICAgICAgXl5eXl5eXl4KCg==",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.582258+00:00"
+    },
+    {
+      "family": 18,
+      "role": "mutant",
+      "case": "m18-unexpected-named-accepted",
+      "source": "angle.deg(90deg, bogus: 1)",
+      "source_sha256": "bd21e716864be44f53265518d7e1d3d41340ff63e9927d6573456cc36b48f4e5",
+      "profile": "default",
+      "mode": "18",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "angle.deg(90deg, bogus: 1)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "18",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.582311+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "90.0\n",
+      "stdout_base64": "OTAuMAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.655057+00:00"
+    },
+    {
+      "family": 19,
+      "role": "pinned",
+      "case": "m19-scope-out-before",
+      "source": "(repr(type(selector.before)), repr(selector.before))",
+      "source_sha256": "5d8b252b3533b1edf521113c1e337791f2bff8379e11cfeb67dc055f434e1719",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "(repr(type(selector.before)), repr(selector.before))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.655115+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[\"function\",\"before\"]\n",
+      "stdout_base64": "WyJmdW5jdGlvbiIsImJlZm9yZSJdCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.726074+00:00"
+    },
+    {
+      "family": 19,
+      "role": "rebuild",
+      "case": "m19-scope-out-before",
+      "source": "(repr(type(selector.before)), repr(selector.before))",
+      "source_sha256": "5d8b252b3533b1edf521113c1e337791f2bff8379e11cfeb67dc055f434e1719",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "(repr(type(selector.before)), repr(selector.before))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.726144+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[\"function\",\"before\"]\n",
+      "stdout_base64": "WyJmdW5jdGlvbiIsImJlZm9yZSJdCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.802541+00:00"
+    },
+    {
+      "family": 19,
+      "role": "control",
+      "case": "m19-scope-out-before",
+      "source": "(repr(type(selector.before)), repr(selector.before))",
+      "source_sha256": "5d8b252b3533b1edf521113c1e337791f2bff8379e11cfeb67dc055f434e1719",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(repr(type(selector.before)), repr(selector.before))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.802596+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[\"function\",\"before\"]\n",
+      "stdout_base64": "WyJmdW5jdGlvbiIsImJlZm9yZSJdCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.876151+00:00"
+    },
+    {
+      "family": 19,
+      "role": "mutant",
+      "case": "m19-scope-out-before",
+      "source": "(repr(type(selector.before)), repr(selector.before))",
+      "source_sha256": "5d8b252b3533b1edf521113c1e337791f2bff8379e11cfeb67dc055f434e1719",
+      "profile": "default",
+      "mode": "19",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "(repr(type(selector.before)), repr(selector.before))",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "19",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.876218+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "[\"float\",\"0.0\"]\n",
+      "stdout_base64": "WyJmbG9hdCIsIjAuMCJdCg==",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:53.949663+00:00"
+    },
+    {
+      "family": 20,
+      "role": "pinned",
+      "case": "m20-mandatory-abnormal-execution",
+      "source": "float.signum(-3.25)",
+      "source_sha256": "ef59e8c9562a2373903924833370170bb2f098b538828fa3efa9a7ffb2be312f",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/usr/local/bin/typst",
+        "--color=never",
+        "eval",
+        "float.signum(-3.25)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:53.949740+00:00",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "exit": 0,
+      "signal": null,
+      "stdout": "-1.0\n",
+      "stdout_base64": "LTEuMAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:54.025487+00:00"
+    },
+    {
+      "family": 20,
+      "role": "rebuild",
+      "case": "m20-mandatory-abnormal-execution",
+      "source": "float.signum(-3.25)",
+      "source_sha256": "ef59e8c9562a2373903924833370170bb2f098b538828fa3efa9a7ffb2be312f",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-uninstrumented",
+        "--color=never",
+        "eval",
+        "float.signum(-3.25)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:54.025542+00:00",
+      "binary_sha256": "02d2d0601ac90509b6159d7129b6102d896be658384e6d47a1c5296457da953d",
+      "exit": 0,
+      "signal": null,
+      "stdout": "-1.0\n",
+      "stdout_base64": "LTEuMAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:54.099480+00:00"
+    },
+    {
+      "family": 20,
+      "role": "control",
+      "case": "m20-mandatory-abnormal-execution",
+      "source": "float.signum(-3.25)",
+      "source_sha256": "ef59e8c9562a2373903924833370170bb2f098b538828fa3efa9a7ffb2be312f",
+      "profile": "default",
+      "mode": "0",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.signum(-3.25)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "0",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:54.099531+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 0,
+      "signal": null,
+      "stdout": "-1.0\n",
+      "stdout_base64": "LTEuMAo=",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:54.171074+00:00"
+    },
+    {
+      "family": 20,
+      "role": "mutant",
+      "case": "m20-mandatory-abnormal-execution",
+      "source": "float.signum(-3.25)",
+      "source_sha256": "ef59e8c9562a2373903924833370170bb2f098b538828fa3efa9a7ffb2be312f",
+      "profile": "default",
+      "mode": "20",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "float.signum(-3.25)",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "20",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:54.171131+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": -6,
+      "signal": 6,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "",
+      "stderr_base64": "",
+      "transport": "terminated_by_signal",
+      "end": "2026-09-10T03:11:54.578486+00:00"
+    },
+    {
+      "family": 0,
+      "role": "invalid-mode",
+      "case": "mode-invalid",
+      "source": "1",
+      "source_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+      "profile": "default",
+      "mode": "99",
+      "argv": [
+        "/tmp/p1339-mutants.oPfqdA/binaries/typst-multiplex-r4",
+        "--color=never",
+        "eval",
+        "1",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "env_delta": {
+        "P1339_MUTANT": "99",
+        "LC_ALL": "C.UTF-8",
+        "NO_COLOR": "1"
+      },
+      "inherited_environment": "host environment plus recorded env_delta; no fixture-dependent values",
+      "rlimit_core": [
+        0,
+        0
+      ],
+      "at": "2026-09-10T03:11:54.578543+00:00",
+      "binary_sha256": "76d403220017629c9b3a3c8e3bf91e42f9be966f178fedf37b1a37eaa8b12e16",
+      "exit": 101,
+      "signal": null,
+      "stdout": "",
+      "stdout_base64": "",
+      "stderr": "\nthread 'main' (1363) panicked at crates/typst-library/src/lib.rs:19:5:\ninvalid P1339_MUTANT mode\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "stderr_base64": "CnRocmVhZCAnbWFpbicgKDEzNjMpIHBhbmlja2VkIGF0IGNyYXRlcy90eXBzdC1saWJyYXJ5L3NyYy9saWIucnM6MTk6NToKaW52YWxpZCBQMTMzOV9NVVRBTlQgbW9kZQpub3RlOiBydW4gd2l0aCBgUlVTVF9CQUNLVFJBQ0U9MWAgZW52aXJvbm1lbnQgdmFyaWFibGUgdG8gZGlzcGxheSBhIGJhY2t0cmFjZQo=",
+      "transport": "completed",
+      "end": "2026-09-10T03:11:54.648092+00:00"
+    }
+  ],
+  "purpose": "focal raw observations; no discrimination verdict or seal"
+}

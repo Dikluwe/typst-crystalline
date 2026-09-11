@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/emph.md
-//! @prompt-hash 1d6c7f95
+//! @prompt-hash 21547a02
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -30,6 +30,10 @@ impl EmphElem {
 }
 
 impl Element for EmphElem {
+    fn to_payload(&self) -> Option<crate::entities::element_payload::ElementPayload> {
+        Some(crate::entities::element_payload::ElementPayload::NativeElement)
+    }
+
     fn plain_text(&self) -> String {
         self.body.plain_text()
     }

@@ -1,0 +1,143 @@
+{
+  "schema": "p1339-D-mechanical-lossless-transport-manifest-v1",
+  "utc": "2026-09-10T05:29:29.291650+00:00",
+  "author": "/root/p1319_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "state": "PREPARED_NOT_EXECUTED_PENDING_INDEPENDENT_STATIC_ACCEPTANCE",
+  "inputs": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-seal.json",
+      "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+      "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-r3.json",
+      "sha256": "c0cd1826679ddaf77e937a677839c5cbe64fdae6ec71bfa34e635d584d9c3e17"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-discrimination-runs.json",
+      "sha256": "4e7f14744dcb62f91c7d0c89a1f56edc397987208d97307f63cb217a7871c995"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-cli-plan.json",
+      "sha256": "e36f89070d5de5c9ac9e340f443255797aea109a42b8cfe71e448bc34dcb380b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-executor-v4.py",
+      "sha256": "0f4353a9b2b6ebb66b2ff918cae7580681b7d83308d4801b2d4924a6d6759c97"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-positive-oracles.json",
+      "sha256": "2d33aac0f559d377b4275b07a1cdc77997cc90b9d887fdabf5ff9bccf28ab55f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-opaque-oracles.json",
+      "sha256": "dc612c50cf80e7eedd6072d8956ed3534f09c0c0eba5a16edbce7b95256db182"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-public-predicate.py",
+      "sha256": "1a7f3ba6759080ef59f6987f5418c3518eb918efaa1ce7e1423d7ff78960b08d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-causal-derived-expectations.json",
+      "sha256": "6560027a09390584ddd690e872ea2471bd1506bb52467fbb5e3b16905bf8a253"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-focal-runs.json",
+      "sha256": "b2f5228e1fc5ac8c714ee044ae6a8c3ef8492863e38970d6983d3cde50a0e746"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-executor.py",
+      "sha256": "b47ed8ac5f87a570890d0eadef1f55a782f74f672da61a328ec4586061ecc07b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-judge.py",
+      "sha256": "9f68feda9ced26e5b09c759b7c86166be41e657ac7266b0fdaebf88664b3c64c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-selection.json",
+      "sha256": "9b5800e5071856997c0f89525ebfe5fe90bff75ca3bf8b3ccbcc538f92312d2e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-red-transport-acceptance-r1.json",
+      "sha256": "0e1c32603a151986a8dce3445ff343e0653a6517b0541e0c9e52dc4e38e73972"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-invocation.json",
+      "sha256": "602084b680f760812b0a8c1b46b075437f851e57d39cbc1c7048e73c8193ba51"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-executor-call.json",
+      "sha256": "4c0290ca1d1e89ed140fb57cdf2efc6b44d60140d58f930e4d003ab5afad59c9"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-integrity-before.json",
+      "sha256": "a0b0c1d416aa30fedcd771df50628ce2006050fef7c8287bf0312ef3cf55d02f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-recorder.py",
+      "sha256": "c9bad102cb49b6055b76e1f882ee30ed33727c209ae81f98a4c27ef0a4c3cfd5"
+    }
+  ],
+  "authority_manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+    "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+  },
+  "seal": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-seal.json",
+    "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"
+  },
+  "contract": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-r3.json",
+    "sha256": "c0cd1826679ddaf77e937a677839c5cbe64fdae6ec71bfa34e635d584d9c3e17"
+  },
+  "selection": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-selection.json",
+    "sha256": "9b5800e5071856997c0f89525ebfe5fe90bff75ca3bf8b3ccbcc538f92312d2e"
+  },
+  "counts": {
+    "IDs": 124,
+    "discovery_IDs": 10,
+    "baseline_preservation_IDs": 114,
+    "cells": 2706,
+    "discovery_baseline_RED_required": 120,
+    "discovery_vanilla_Preserved_required": 120,
+    "control_cells_Preserved_required": 2466,
+    "mandatory_Unknown_allowed": 0,
+    "future_execution_D": 0,
+    "future_credit_D": 0
+  },
+  "commands": [
+    [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-executor.py",
+      "--selection",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-selection.json",
+      "--selection-sha256",
+      "9b5800e5071856997c0f89525ebfe5fe90bff75ca3bf8b3ccbcc538f92312d2e",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-runs.json"
+    ],
+    [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-judge.py"
+    ]
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "transport": "JSON array membership preserves original plan order and exact cells sequence. Direct frozen checked_inputs and execute; no run override, no monkeypatch, no transformed IDs. Four workers and unchanged profile applicability/environment/timeout/raw channels. All1619sealed SHA inputs before and after; no source bodies interpreted/emitted.",
+  "judgment": "All2706own-product classifications mustPreserved; actual baseline120discovery rows mustObserved exit1 and sealedF-reference Violated with differences; vanilla120Observed exit0 Preserved. No exit0-as-PASS; receipt records all rows and failures.",
+  "incident": {
+    "receipt": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-executor-call.json",
+      "sha256": "4c0290ca1d1e89ed140fb57cdf2efc6b44d60140d58f930e4d003ab5afad59c9"
+    },
+    "actual_Typst_processes": 0,
+    "seconds": 0.29671979299746454,
+    "cause": "Comma-bearing version IDs split by frozen run CLI; rejection before tasks."
+  },
+  "scope": "No new normative expectation, source, obligation, semantic revision, C/focal budget reset or candidate. Mechanical D transport correction only. Existing failed artifacts immutable. No automatic retry.",
+  "static_validation": "AST syntax only for new helper/recorder; exact selection equality with original approved invocation and2706 orderedcell construction. Zero new Typst processes."
+}

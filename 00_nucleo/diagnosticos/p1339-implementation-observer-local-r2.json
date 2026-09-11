@@ -1,0 +1,301 @@
+{
+  "schema": "p1339-observer-engineering-run-v1",
+  "role": "implementation, not independent verifier",
+  "mode": "local",
+  "argv": [
+    "cargo",
+    "test",
+    "-p",
+    "typst-core",
+    "p1339_observer_local_tests",
+    "--lib",
+    "--release",
+    "--locked",
+    "--offline",
+    "--message-format",
+    "short"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "environment_delta": {
+    "CARGO_TARGET_DIR": "/tmp/p1339-target.UD8gh7"
+  },
+  "before": {
+    "utc": "2026-09-10T06:12:40.227Z",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "diff_stat": " 00_nucleo/prompts/compiler/eval.md                 |  230 +\n .../prompts/compiler/eval/bindings/field_access.md |   75 +\n .../compiler/eval/bindings/value_methods.md        |  160 +\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  151 +\n .../prompts/compiler/eval/operators/equality.md    |   67 +\n 00_nucleo/prompts/compiler/eval/repr.md            |   38 +\n 00_nucleo/prompts/compiler/eval/rules.md           |   34 +\n .../prompts/compiler/eval/selector_matching.md     |   78 +\n 00_nucleo/prompts/compiler/introspect.md           |  123 +\n .../prompts/compiler/introspect/extract_payload.md |   27 +\n 00_nucleo/prompts/compiler/introspect/from_tags.md |   78 +\n 00_nucleo/prompts/compiler/introspect/locatable.md |   26 +-\n 00_nucleo/prompts/compiler/layout.md               |   29 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   20 +\n 00_nucleo/prompts/compiler/stdlib/counter.md       |   80 +\n .../prompts/compiler/stdlib/foundations/float.md   |  120 +-\n .../prompts/compiler/stdlib/foundations/query.md   |   66 +\n .../compiler/stdlib/foundations/selector.md        |   37 +-\n .../compiler/stdlib/primitives-constructors.md     |   25 +\n .../stdlib/primitives-constructors/version.md      |   76 +-\n 00_nucleo/prompts/compiler/stdlib/state.md         |   45 +\n 00_nucleo/prompts/entities/counter_registry.md     |   35 +\n 00_nucleo/prompts/entities/element_payload.md      |   88 +\n 00_nucleo/prompts/entities/elements/emph.md        |   27 +-\n 00_nucleo/prompts/entities/elements/strong.md      |   28 +-\n 00_nucleo/prompts/entities/introspector.md         |   31 +\n 00_nucleo/prompts/entities/layout_types.md         |   27 +\n 00_nucleo/prompts/entities/selector.md             |   82 +\n 00_nucleo/prompts/entities/show.md                 |   48 +\n 00_nucleo/prompts/entities/version.md              |   44 +-\n 00_nucleo/prompts/infra/pipeline.md                |  173 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |    7 +-\n 01_core/src/compiler/eval/bindings/mod.rs          |    6 +-\n .../src/compiler/eval/bindings/value_methods.rs    |  295 +-\n 01_core/src/compiler/eval/call_dispatch.rs         |  190 +-\n 01_core/src/compiler/eval/mod.rs                   | 5796 +++++++++++++++++++-\n 01_core/src/compiler/eval/operators/equality.rs    |  126 +-\n 01_core/src/compiler/eval/repr.rs                  |   42 +-\n 01_core/src/compiler/eval/rules.rs                 |    6 +-\n 01_core/src/compiler/eval/selector_matching.rs     |  377 +-\n 01_core/src/compiler/introspect.rs                 |  389 +-\n 01_core/src/compiler/introspect/extract_payload.rs |    4 +-\n 01_core/src/compiler/introspect/from_tags.rs       |   71 +-\n 01_core/src/compiler/introspect/locatable.rs       |   14 +-\n 01_core/src/compiler/layout/mod.rs                 |    2 +-\n 01_core/src/compiler/stdlib/counter.rs             |  261 +-\n 01_core/src/compiler/stdlib/foundations/float.rs   |  302 +-\n 01_core/src/compiler/stdlib/foundations/query.rs   |   16 +-\n .../src/compiler/stdlib/foundations/selector.rs    |   23 +-\n 01_core/src/compiler/stdlib/mod.rs                 |    6 +-\n .../src/compiler/stdlib/primitives_constructors.rs |    3 +-\n .../stdlib/primitives_constructors/version.rs      |  125 +-\n 01_core/src/compiler/stdlib/state.rs               |   39 +-\n 01_core/src/entities/counter_registry.rs           |   24 +-\n 01_core/src/entities/element_payload.rs            |    4 +-\n 01_core/src/entities/elements/emph.rs              |    6 +-\n 01_core/src/entities/elements/strong.rs            |    6 +-\n 01_core/src/entities/introspector.rs               |  340 +-\n 01_core/src/entities/layout_types.rs               |    2 +-\n 01_core/src/entities/selector.rs                   |    5 +-\n 01_core/src/entities/show.rs                       |    4 +-\n 01_core/src/entities/version.rs                    |    2 +-\n 03_infra/src/pipeline.rs                           |    2 +-\n 63 files changed, 9984 insertions(+), 679 deletions(-)\n",
+    "source_pins": [
+      {
+        "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+        "sha256": "7664273d858ebf90ce29f022ab0d9a24bf7abe4fe58de05a52254490d1b8faf4"
+      },
+      {
+        "path": "01_core/src/compiler/eval/bindings/mod.rs",
+        "sha256": "bc065391e31ab7d8bcbb08984badc78a5d68881af4340d32001ccefac11eb56c"
+      },
+      {
+        "path": "01_core/src/compiler/eval/bindings/value_methods.rs",
+        "sha256": "ff44a898dbfdd9931f6bc28f353f099b95241d86d80786693f891c997e460b12"
+      },
+      {
+        "path": "01_core/src/compiler/eval/call_dispatch.rs",
+        "sha256": "042fe6cda3c46eb1ea3bcaae90255cce151eb1607f5e38f2a87c08d6e1210b5b"
+      },
+      {
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "sha256": "ab6ccd271911be74f511c6568e2e0b191b74d002f46fbffd362596882d4a874a"
+      },
+      {
+        "path": "01_core/src/compiler/eval/operators/equality.rs",
+        "sha256": "5356a3fb89b257a9edb6770a148cf959b4abe53da97c69011f3dc46f9cbae47d"
+      },
+      {
+        "path": "01_core/src/compiler/eval/repr.rs",
+        "sha256": "bd0f02de2a1418087457d5c0da41a681e9a2371091437263efb48b700e174248"
+      },
+      {
+        "path": "01_core/src/compiler/eval/rules.rs",
+        "sha256": "b4bb1f81da20435ace5ad90194edbcc022a1ba53602a02cf9cccdb50afdcc639"
+      },
+      {
+        "path": "01_core/src/compiler/eval/selector_matching.rs",
+        "sha256": "e1bed9945e8ab7ac69c11841025d6c531d2f7604ec3ffbd036ed149c47777c1c"
+      },
+      {
+        "path": "01_core/src/compiler/introspect.rs",
+        "sha256": "f71589c6594c99bd5d4cdb2d3c2b521ad2789a388e6bc13126f744f02035fd5c"
+      },
+      {
+        "path": "01_core/src/compiler/introspect/extract_payload.rs",
+        "sha256": "20945c39f7be8a46b68de25f8f72dbaf19406aabbaa737f3a9d6c2fdc1cda71d"
+      },
+      {
+        "path": "01_core/src/compiler/introspect/from_tags.rs",
+        "sha256": "94428b74754f1e3de3b43a3e20da456b37632a6e1f67665874331497389d7600"
+      },
+      {
+        "path": "01_core/src/compiler/introspect/locatable.rs",
+        "sha256": "8fd07f99ecded11d89c099d077b7f04cbcabf1b5ba36f82fccbae3907ff80cbc"
+      },
+      {
+        "path": "01_core/src/compiler/layout/mod.rs",
+        "sha256": "7597ba8bbf9a0caf18701f5fc4dddc3a5fe12a4a6bab7bbef79cbdf4395a79ab"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/counter.rs",
+        "sha256": "31dfc8413e5b90901c6c8fc313bc254c2d0794df87b2d7df61661f6166d65f62"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/foundations/float.rs",
+        "sha256": "14f21c8c42a928d8c6d445034e111e604a1dea1fd55272ae81e9481a0b98c15d"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/foundations/query.rs",
+        "sha256": "af68151dddad305696b4ff81687fd4d66374cd602905eb92d10b3be374127b21"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/foundations/selector.rs",
+        "sha256": "397b593d847d704a500a699e98c44e54881c6fc054d40b912159423a1fa2a5df"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/mod.rs",
+        "sha256": "9d81b8102609bbad6363ebd1d449bb3a750a25da15aafaa1198e2d839fa05f05"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/primitives_constructors.rs",
+        "sha256": "e88ce8ac3d22bd94d119863480e692d04f4423ecc0776ee0c9db2baccda55c7b"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/primitives_constructors/version.rs",
+        "sha256": "393fb73129907ce65865cedefba439f2d1badd5cbc003e3fc5d0944f293afdb6"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/state.rs",
+        "sha256": "23c9b683a5beb25778aeee7672fd561943656da69434aff9573a549b8c569f49"
+      },
+      {
+        "path": "01_core/src/entities/counter_registry.rs",
+        "sha256": "4f2d6292229a32f0a4c74d48fde3e95162e61920e4960af86f172a478e5ef81d"
+      },
+      {
+        "path": "01_core/src/entities/element_payload.rs",
+        "sha256": "6b270338eb8d327b43f9422705edcb958616d5da6eba5475d69e83c02827af5f"
+      },
+      {
+        "path": "01_core/src/entities/elements/emph.rs",
+        "sha256": "febdb6364f0e000016bbccbb481ded8b45e4854114d1bb33784d53f16bb654a2"
+      },
+      {
+        "path": "01_core/src/entities/elements/strong.rs",
+        "sha256": "185af4d93d8fb00fe0281e0dd319fbb012a502f3c167ac439d911d6e7128c73f"
+      },
+      {
+        "path": "01_core/src/entities/introspector.rs",
+        "sha256": "92dd7908b9f72bcc8828ecff8e8a120024ff3c6c33b35d8c3a601b7a4367cb48"
+      },
+      {
+        "path": "01_core/src/entities/layout_types.rs",
+        "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+      },
+      {
+        "path": "01_core/src/entities/selector.rs",
+        "sha256": "86ca290128cb6e5d2f306c0beeafbf5a71a0b0d00d7cfb7f1125ae2fa55c8024"
+      },
+      {
+        "path": "01_core/src/entities/show.rs",
+        "sha256": "26372fc47b01a1684329c94942d50ef5326c2f758c5134d87dab1630bedd5ecc"
+      },
+      {
+        "path": "01_core/src/entities/version.rs",
+        "sha256": "6619badab8b78d367c49c38009d4daba1fe0a8560a32f33aeb723d6a688a30ef"
+      },
+      {
+        "path": "03_infra/src/pipeline.rs",
+        "sha256": "d6a770b3d92e09dc419bf9796314f1d53de8555431a52145980ce7c2689dfe3a"
+      }
+    ]
+  },
+  "after": {
+    "utc": "2026-09-10T06:14:07.009Z",
+    "source_pins": [
+      {
+        "path": "01_core/src/compiler/eval/bindings/field_access.rs",
+        "sha256": "7664273d858ebf90ce29f022ab0d9a24bf7abe4fe58de05a52254490d1b8faf4"
+      },
+      {
+        "path": "01_core/src/compiler/eval/bindings/mod.rs",
+        "sha256": "bc065391e31ab7d8bcbb08984badc78a5d68881af4340d32001ccefac11eb56c"
+      },
+      {
+        "path": "01_core/src/compiler/eval/bindings/value_methods.rs",
+        "sha256": "ff44a898dbfdd9931f6bc28f353f099b95241d86d80786693f891c997e460b12"
+      },
+      {
+        "path": "01_core/src/compiler/eval/call_dispatch.rs",
+        "sha256": "042fe6cda3c46eb1ea3bcaae90255cce151eb1607f5e38f2a87c08d6e1210b5b"
+      },
+      {
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "sha256": "ab6ccd271911be74f511c6568e2e0b191b74d002f46fbffd362596882d4a874a"
+      },
+      {
+        "path": "01_core/src/compiler/eval/operators/equality.rs",
+        "sha256": "5356a3fb89b257a9edb6770a148cf959b4abe53da97c69011f3dc46f9cbae47d"
+      },
+      {
+        "path": "01_core/src/compiler/eval/repr.rs",
+        "sha256": "bd0f02de2a1418087457d5c0da41a681e9a2371091437263efb48b700e174248"
+      },
+      {
+        "path": "01_core/src/compiler/eval/rules.rs",
+        "sha256": "b4bb1f81da20435ace5ad90194edbcc022a1ba53602a02cf9cccdb50afdcc639"
+      },
+      {
+        "path": "01_core/src/compiler/eval/selector_matching.rs",
+        "sha256": "e1bed9945e8ab7ac69c11841025d6c531d2f7604ec3ffbd036ed149c47777c1c"
+      },
+      {
+        "path": "01_core/src/compiler/introspect.rs",
+        "sha256": "f71589c6594c99bd5d4cdb2d3c2b521ad2789a388e6bc13126f744f02035fd5c"
+      },
+      {
+        "path": "01_core/src/compiler/introspect/extract_payload.rs",
+        "sha256": "20945c39f7be8a46b68de25f8f72dbaf19406aabbaa737f3a9d6c2fdc1cda71d"
+      },
+      {
+        "path": "01_core/src/compiler/introspect/from_tags.rs",
+        "sha256": "94428b74754f1e3de3b43a3e20da456b37632a6e1f67665874331497389d7600"
+      },
+      {
+        "path": "01_core/src/compiler/introspect/locatable.rs",
+        "sha256": "8fd07f99ecded11d89c099d077b7f04cbcabf1b5ba36f82fccbae3907ff80cbc"
+      },
+      {
+        "path": "01_core/src/compiler/layout/mod.rs",
+        "sha256": "7597ba8bbf9a0caf18701f5fc4dddc3a5fe12a4a6bab7bbef79cbdf4395a79ab"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/counter.rs",
+        "sha256": "31dfc8413e5b90901c6c8fc313bc254c2d0794df87b2d7df61661f6166d65f62"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/foundations/float.rs",
+        "sha256": "14f21c8c42a928d8c6d445034e111e604a1dea1fd55272ae81e9481a0b98c15d"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/foundations/query.rs",
+        "sha256": "af68151dddad305696b4ff81687fd4d66374cd602905eb92d10b3be374127b21"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/foundations/selector.rs",
+        "sha256": "397b593d847d704a500a699e98c44e54881c6fc054d40b912159423a1fa2a5df"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/mod.rs",
+        "sha256": "9d81b8102609bbad6363ebd1d449bb3a750a25da15aafaa1198e2d839fa05f05"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/primitives_constructors.rs",
+        "sha256": "e88ce8ac3d22bd94d119863480e692d04f4423ecc0776ee0c9db2baccda55c7b"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/primitives_constructors/version.rs",
+        "sha256": "393fb73129907ce65865cedefba439f2d1badd5cbc003e3fc5d0944f293afdb6"
+      },
+      {
+        "path": "01_core/src/compiler/stdlib/state.rs",
+        "sha256": "23c9b683a5beb25778aeee7672fd561943656da69434aff9573a549b8c569f49"
+      },
+      {
+        "path": "01_core/src/entities/counter_registry.rs",
+        "sha256": "4f2d6292229a32f0a4c74d48fde3e95162e61920e4960af86f172a478e5ef81d"
+      },
+      {
+        "path": "01_core/src/entities/element_payload.rs",
+        "sha256": "6b270338eb8d327b43f9422705edcb958616d5da6eba5475d69e83c02827af5f"
+      },
+      {
+        "path": "01_core/src/entities/elements/emph.rs",
+        "sha256": "febdb6364f0e000016bbccbb481ded8b45e4854114d1bb33784d53f16bb654a2"
+      },
+      {
+        "path": "01_core/src/entities/elements/strong.rs",
+        "sha256": "185af4d93d8fb00fe0281e0dd319fbb012a502f3c167ac439d911d6e7128c73f"
+      },
+      {
+        "path": "01_core/src/entities/introspector.rs",
+        "sha256": "92dd7908b9f72bcc8828ecff8e8a120024ff3c6c33b35d8c3a601b7a4367cb48"
+      },
+      {
+        "path": "01_core/src/entities/layout_types.rs",
+        "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+      },
+      {
+        "path": "01_core/src/entities/selector.rs",
+        "sha256": "86ca290128cb6e5d2f306c0beeafbf5a71a0b0d00d7cfb7f1125ae2fa55c8024"
+      },
+      {
+        "path": "01_core/src/entities/show.rs",
+        "sha256": "26372fc47b01a1684329c94942d50ef5326c2f758c5134d87dab1630bedd5ecc"
+      },
+      {
+        "path": "01_core/src/entities/version.rs",
+        "sha256": "6619badab8b78d367c49c38009d4daba1fe0a8560a32f33aeb723d6a688a30ef"
+      },
+      {
+        "path": "03_infra/src/pipeline.rs",
+        "sha256": "d6a770b3d92e09dc419bf9796314f1d53de8555431a52145980ce7c2689dfe3a"
+      }
+    ]
+  },
+  "wall_ms": 86722,
+  "status": 0,
+  "signal": null,
+  "error": null,
+  "stdout": "\nrunning 2 tests\ntest compiler::eval::p1339_observer_local_tests::p1339_observation_ieee_and_recursive_fields ... ok\ntest compiler::eval::p1339_observer_local_tests::p1339_observation_records_before_selection_and_preserves_error ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 5660 filtered out; finished in 0.00s\n\n",
+  "stderr_encoding": "gzip+base64 UTF-8, lossless",
+  "stderr_gzip_base64": "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",
+  "stderr_sha256": "99bed4fa3ce794cf8a50c1c12b9ca66310e32b847283758190b27e3c21eccb40",
+  "source_pins_unchanged": true,
+  "runtime_credit": "Engineering check only. No phase-F/verdict credit."
+}
+

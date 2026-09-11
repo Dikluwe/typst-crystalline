@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/counter_registry.md
-//! @prompt-hash c10820bd
+//! @prompt-hash d141d328
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -15,6 +15,14 @@ use std::collections::HashMap;
 use crate::entities::counter::CounterKey;
 use crate::entities::counter_update::CounterUpdate;
 use crate::entities::location::Location;
+
+/// Ação causal: `None` identifica a ocorrência automática no store, não uma chave.
+#[derive(Debug, Clone)]
+pub(crate) struct CounterActionEvent {
+    pub(crate) location: Location,
+    pub(crate) key: Option<CounterKey>,
+    pub(crate) action: CounterUpdate,
+}
 
 /// Counters indexados por `CounterKey`. Mutável só durante
 /// construção em `from_tags` via `pub(crate) fn apply` (estado
@@ -32,9 +40,23 @@ pub struct CounterRegistry {
     /// são monotonicamente crescentes (Locator P161), pelo que ordem
     /// de inserção é cronológica — `value_at` faz lookup linear.
     history: HashMap<CounterKey, Vec<(Location, Vec<usize>)>>,
+    actions: Vec<CounterActionEvent>,
 }
 
 impl CounterRegistry {
+    pub(crate) fn record_action(
+        &mut self,
+        location: Location,
+        key: Option<CounterKey>,
+        action: CounterUpdate,
+    ) {
+        self.actions.push(CounterActionEvent { location, key, action });
+    }
+
+    pub(crate) fn actions(&self) -> &[CounterActionEvent] {
+        &self.actions
+    }
+
     /// Cria registry vazio.
     pub fn empty() -> Self {
         Self::default()

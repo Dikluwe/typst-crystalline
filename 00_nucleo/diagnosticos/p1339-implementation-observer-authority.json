@@ -1,0 +1,46 @@
+{
+  "schema": "p1339-prospective-observer-implementation-authority-v1",
+  "authority_manifest": {
+    "path": "00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+    "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+  },
+  "predecessor_implementation_authority": {
+    "path": "00_nucleo/diagnosticos/p1339-implementation-authorities.json",
+    "sha256": "cab15a1dce423a12fe198a640b541ee00b3f8743ec0f6a9e97519416d940f3c0"
+  },
+  "independent_prospective_review": {
+    "path": "00_nucleo/diagnosticos/p1339-verifier-budget-redesign-acceptance-r1.md",
+    "sha256": "0552cdbfb02e18496ac3c07121e0640fad2a772aa32e678a0b7062344286bafd"
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1339-contract-r3.json",
+    "sha256": "c0cd1826679ddaf77e937a677839c5cbe64fdae6ec71bfa34e635d584d9c3e17"
+  },
+  "regime": "executado sem atestação de isolamento",
+  "causal_stage": "No semantic candidate exists; authority is dormant until a valid independent seal pinning this supplement and an actual phase-D RED.",
+  "purpose": "Split implementation work within the existing eval owner, with no new module, L0 or contract. This is delegated root implementation authority only, never an additional independent verifier.",
+  "executor": "/root/p1312_review",
+  "inherited_context": "Completed earlier independent P1312 verification, unrelated to P1339 candidate. No P1339 implementation assignment or candidate is delivered before activation. Skill, frozen P1339 intent and sealed inputs must be read on activation.",
+  "read_after_gate": [
+    "Frozen L0 and sealed R3 contract/oracles/templates",
+    "Baseline productive source and declarative inventory",
+    "Candidate productive owners needed to coordinate actual observation helpers and test-only bindings"
+  ],
+  "write_after_gate": [
+    "01_core/src/compiler/eval/mod.rs",
+    "00_nucleo/diagnosticos/p1339-implementation-observer-*"
+  ],
+  "responsibility": "Private EvalContext read recorder, closed Same/Different/Unproven observation relation, actual request replay and diagnostics, three approved public methods, owner-local tests and mechanical test-only bindings within this owner.",
+  "boundaries": [
+    "No productive write, candidate implementation or binding before seal plus RED.",
+    "Never edit contract, frozen L0 semantics, independent oracles/fixtures, baseline, mutant registry or verifier artifacts.",
+    "No own final verdict; no claim of independent test authorship for local implementation tests.",
+    "No global equality changes, speculative public APIs, new owner/module or scope expansion.",
+    "Root owns read-operation consumers and pipeline; coordinate typed helper interfaces before concurrent integration.",
+    "Root does not edit eval/mod.rs concurrently while this assignment owns it; completion hands the file back to root for integration.",
+    "Other prospective numerics/selectors assignments remain exactly as previously pinned.",
+    "No commit, external publication or account-usage mutation.",
+    "Allowlists are procedural on a shared filesystem, not enforced isolation."
+  ],
+  "seal_requirement": "Independent verifier must pin and accept this concrete supplement before activation. Otherwise the executor cannot write under this assignment."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/state.md
-//! @prompt-hash 794c9ac3
+//! @prompt-hash d2567bb9
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -10,7 +10,7 @@
 use ecow::EcoString;
 
 use crate::compiler::eval::call_dispatch::apply_func;
-use crate::compiler::eval::EvalContext;
+use crate::compiler::eval::{ContextReadRequest as Read, EvalContext};
 use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
@@ -76,7 +76,7 @@ pub fn state_get(state: &State, ctx: &EvalContext, span: Span) -> SourceResult<V
         .state_value(state.key.as_str(), location)
         .unwrap_or(state.init.as_ref())
         .clone();
-    Ok(value)
+    ctx.observe_context_read(Read::StateGet { state: state.clone() }, span, Ok(value))
 }
 
 /// Resolve `.display([callback])` dentro ou fora de context.
@@ -107,9 +107,13 @@ pub fn state_display(
         .unwrap_or(state.init.as_ref())
         .clone();
 
+    ctx.observe_context_read(Read::StateDisplay { state: state.clone() }, span, Ok(value.clone()))?;
+
     match args.items.as_slice() {
         [] => Ok(Value::Content(value_to_content(&value))),
         [Value::Func(callback)] => {
+            #[cfg(p1339_observation)]
+            ctx.p1339_observe_callback(crate::compiler::eval::ContextCallbackKind::StateDisplay);
             let result = apply_func(
                 callback.clone(),
                 Args::positional(vec![value]),
@@ -158,7 +162,7 @@ pub fn state_at_location(
         .state_value(state.key.as_str(), location)
         .unwrap_or(state.init.as_ref())
         .clone();
-    Ok(value)
+    ctx.observe_context_read(Read::StateAt { state: state.clone(), location }, span, Ok(value))
 }
 
 /// **P844** (achado #49 de P831) — Resolve `.final()` dentro de
@@ -178,7 +182,7 @@ pub fn state_final(state: &State, ctx: &EvalContext, span: Span) -> SourceResult
         .state_final_value(state.key.as_str())
         .cloned()
         .unwrap_or_else(|| state.init.as_ref().clone());
-    Ok(value)
+    ctx.observe_context_read(Read::StateFinal { state: state.clone() }, span, Ok(value))
 }
 
 /// Converte um `Value` resolvido em `Content` para display.
@@ -360,7 +364,7 @@ pub fn native_state_final(
                 .state_final_value(key.as_str())
                 .cloned()
                 .unwrap_or(Value::None);
-            Ok(value)
+            ctx.observe_context_read(Read::StateLegacyFinal { key: key.to_string() }, args.span, Ok(value))
         }
         [other] => err(format!(
             "state_final() requer string como argumento (key), recebeu {}",
@@ -393,7 +397,7 @@ pub fn native_state_at(
                 .query_by_label(&label)
                 .and_then(|loc| ctx.introspector.state_value(key.as_str(), loc).cloned())
                 .unwrap_or(Value::None);
-            Ok(value)
+            ctx.observe_context_read(Read::StateLegacyAt { key: key.to_string(), label }, args.span, Ok(value))
         }
         [_, other] => err(format!(
             "state_at() requer string como segundo argumento (label), recebeu {}",
@@ -403,6 +407,27 @@ pub fn native_state_at(
             "state_at() requer 2 argumentos (key, label), recebeu {}",
             args.items.len()
         )),
+    }
+}
+
+pub(crate) fn replay_context_read(request: &Read, ctx: &mut EvalContext,
+    engine: &mut Engine<'_>, span: Span,
+) -> SourceResult<Value> {
+    match request {
+        Read::StateGet { state } => state_get(state, ctx, span),
+        Read::StateAt { state, location } => state_at_location(state, *location, ctx, span),
+        Read::StateFinal { state } => state_final(state, ctx, span),
+        Read::StateDisplay { state } => {
+            if !ctx.in_context { return Err(vec![SourceDiagnostic::error(span, "state.display() can only be used inside context")]); }
+            let location = ctx.current_location.ok_or_else(|| vec![SourceDiagnostic::error(span, "state.display() requer uma localização de contexto")])?;
+            Ok(ctx.introspector.state_value(state.key.as_str(), location).unwrap_or(state.init.as_ref()).clone())
+        }
+        Read::StateResolveLabel { label } => crate::compiler::eval::bindings::resolve_state_label(label, ctx, span).map(Value::Location),
+        Read::StateLegacyFinal { key } => native_state_final(ctx,
+            &Args::from_parts(vec![Value::Str(key.clone().into())], indexmap::IndexMap::default(), span), engine.world, engine.current_file),
+        Read::StateLegacyAt { key, label } => native_state_at(ctx,
+            &Args::from_parts(vec![Value::Str(key.clone().into()), Value::Str(label.0.clone().into())], indexmap::IndexMap::default(), span), engine.world, engine.current_file),
+        _ => unreachable!("state replay called for another owner"),
     }
 }
 

@@ -1,0 +1,10 @@
+{
+  "authority": "p1339-style-observation-owner-extension.md",
+  "authority_sha256": "aa6997e57f4ffdbe8c732e852eb05395df4a8df89da61e04fe591f80ec64774c",
+  "owner": "01_core/src/entities/style_chain.rs",
+  "before_sha256": "02a1a8bb1016bf33a384f841026d70f0d7306ed30b4275204728c990bfacbd19",
+  "after_sha256": "3f77f12991d4038b3c695606aec5d18934869c3a17a23bbe45e3c60f594287ed",
+  "unchanged_l0_sha256": "1efe881899ab5cdc290be6350e2da6f5e3ea8cbff60ab4e65e01585ec28cdf6c",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "scope": "test-only cfg(p1339_observation) accessor; not a runtime or final verdict"
+}

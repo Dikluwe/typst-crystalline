@@ -1,0 +1,3644 @@
+{
+  "schema": "p1339-independent-private-relation-fixtures-v1",
+  "author": "/root/p1319_tests",
+  "authority_manifest_sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b",
+  "contract": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-r3.json",
+    "sha256": "c0cd1826679ddaf77e937a677839c5cbe64fdae6ec71bfa34e635d584d9c3e17"
+  },
+  "private_interface": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-private-interface.md",
+    "sha256": "f91cd79149fc5801af203e0aa13941ce9b7cd7b20a0e75addd78076e3e1f3d7a"
+  },
+  "inventory": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-inventory.json",
+    "sha256": "d0ab8a2a2297a8f8fcff36ac372a8b418368b814c92cf25184fbe17f7efd101f"
+  },
+  "regime": "executado sem atesta\u00e7\u00e3o de isolamento",
+  "status": "Concrete independent inputs/assertions for translation; not sealed, not compiled and NOT_EXECUTED_PRESEAL. Not an exhaustive inventory claim.",
+  "port_output_schema": {
+    "discriminant": [
+      "Same",
+      "Different",
+      "Unproven"
+    ],
+    "required": [
+      "actual private discriminant",
+      "left/right actual runtime variants",
+      "binding identity provenance",
+      "actual productive operation source/binary/config identity"
+    ]
+  },
+  "operation_semantics": {
+    "eval_binding": "Evaluate once in the real fixture scope using pinned parser/eval entry.",
+    "clone_binding": "Clone the already-created real Value without reevaluating its expression.",
+    "float_bits": "Construct Value::Float(f64::from_bits(the specified u64)), preserving all64bits.",
+    "source": "Create real parsed Source with declared exact text and stable FileId.",
+    "args_literal": "Construct Value::Args with ordered items/named, exact span and occurrences; evaluate value expressions in the same real scope. None and Some(empty) are distinct.",
+    "source span": "Use the actual parsed node span matching the byte range; missing or ambiguous node is a binding gap, never synthesize a detached span.",
+    "located_content": "Construct Value::LocatedContent using real IntrospectedContent::new, Content from binding, declared None/ordered Some fields and actual shared Location token.",
+    "dynamic_callout": "Use only existing test CalloutElem::new and Content::dynamic; no handwritten DynElement, dyn_eq or shadow relation."
+  },
+  "rules": [
+    "Port delegates actual private relation used by ordinary context validation. It never computes an independent relation.",
+    "Preserve actual discriminant; public false cannot identify Different versus Unproven.",
+    "Every supported case must yield the exact asserted discriminant; Unproven cannot satisfy a supported positive.",
+    "Opaque control requires actual private Unproven plus separate public validation never Ok(true); no positive semantic coverage credit.",
+    "Complete structural witnesses for unexercised variants/fields and unresolved inventory remain separately required before seal."
+  ],
+  "cases": [
+    {
+      "id": "relation-bool",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "true"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "false"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-int",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "1"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "2"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-type-variant",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "1"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "1.0"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-string",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "\"alpha\""
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "\"beta\""
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-unicode",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "\"\u00e9\""
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "\"e\u0301\""
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-array-order",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "(1, 2)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "(2, 1)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-dict-order",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "(a: 1, b: 2)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "(b: 2, a: 1)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-dict-presence",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "(:)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "(a: none)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-nested-value",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "(a: (1, (x: 2)))"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "(a: (1, (x: 3)))"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-length",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "1pt"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "2pt"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-relative",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "10% + 1pt"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "10% + 2pt"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-ratio",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "10%"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "20%"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-angle",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "1deg"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "2deg"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-color",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "red"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "blue"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-fraction",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "1fr"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "2fr"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-align",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "left"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-bytes",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "bytes((0, 1))"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "bytes((1, 0))"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-duration",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "duration(seconds: 1)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "duration(seconds: 2)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-version",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "version(1,2)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "version(1,3)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-label",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "<first>"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "<second>"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-dir",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "ltr"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "rtl"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-type",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "int"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "float"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-state-key",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "state(\"a\", 1)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "state(\"b\", 1)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-state-init",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "state(\"a\", 1)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "state(\"a\", 2)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-counter-key",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "counter(\"a\")"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "counter(\"b\")"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-none",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "none"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-auto",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "auto"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-nan",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "float(\"nan\")"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-nested-nan",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "(a: (float(\"nan\"), -0.0))"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-native",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "range"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-native-with-engine",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "query"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-native-element",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "heading"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-module",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "math"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-ordinary-closure",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "() => panic(\"MUST_NOT_INVOKE\")"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-datetime",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "datetime(year: 2024, month: 2, day: 29)"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-regex",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "regex(\"a+\")"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-strong",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "strong[inner]"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-emph",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "emph[inner]"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-styled",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "text(fill: red)[inner]"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-context",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "context [inner]"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-metadata-fresh-same",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "metadata(1)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "metadata(1)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Content::Metadata",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-metadata-change",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "metadata(1)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "metadata(2)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Content::Metadata",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-state-init",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "[#state(\"s\", 1)]"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "[#state(\"s\", 2)]"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Content::State",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-state-update",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "state(\"s\",0).update(1)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "state(\"s\",0).update(2)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Content::StateUpdate",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-morphology",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "[inner]"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "strong[inner]"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Content",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-content-styles",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "text(fill: red)[inner]"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "text(fill: blue)[inner]"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Content::Styled",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-closure-recreated",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "() => 1"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "() => 1"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Func::Closure identity",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-module-different",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "math"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "sys"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Module identity",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-selector-field-value",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "heading.where(level: 1)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "heading.where(level: 2)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Selector::Element/composition",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-selector-field-type",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "heading.where(level: 1)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "heading.where(level: 1.0)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Selector::Element/composition",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-selector-field-order",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "heading.where(level: 1, outlined: true)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "heading.where(outlined: true, level: 1)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Selector::Element/composition",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-selector-empty-bare",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "heading.where()"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "selector(heading)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Selector::Element/composition",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-selector-or-order",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "heading.where(level: 1).or(heading.where(level: 2))"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "heading.where(level: 2).or(heading.where(level: 1))"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Selector::Element/composition",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-selector-retained",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "heading.where(level: float(\"nan\"))"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Selector::Element NaN observation",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-with-retained",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "function.with(range, 1, end: 3)"
+        },
+        {
+          "kind": "clone_binding",
+          "input_binding": "left",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Func::With",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-with-prearg-change",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "left",
+          "expression": "function.with(range, 1, end: 3)"
+        },
+        {
+          "kind": "eval_binding",
+          "output_binding": "right",
+          "expression": "function.with(range, 2, end: 3)"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Func::With",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-bits-same-nan",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "float_bits",
+          "output_binding": "left",
+          "u64_hex": "7ff8000000000042"
+        },
+        {
+          "kind": "float_bits",
+          "output_binding": "right",
+          "u64_hex": "7ff8000000000042"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Same",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Float IEEE bits; not language equality",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-bits-nan-payload",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "float_bits",
+          "output_binding": "left",
+          "u64_hex": "7ff8000000000042"
+        },
+        {
+          "kind": "float_bits",
+          "output_binding": "right",
+          "u64_hex": "7ff8000000000043"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Float IEEE bits; not language equality",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-bits-signed-zero",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "float_bits",
+          "output_binding": "left",
+          "u64_hex": "0000000000000000"
+        },
+        {
+          "kind": "float_bits",
+          "output_binding": "right",
+          "u64_hex": "8000000000000000"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Float IEEE bits; not language equality",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-args-items",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "source",
+          "id": "args-origin",
+          "text": "1 + 2"
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "left",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": null
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "right",
+          "items": [
+            "2"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": null
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Args all fields and causal origin",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-args-named",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "source",
+          "id": "args-origin",
+          "text": "1 + 2"
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "left",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": null
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "right",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "3"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": null
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Args all fields and causal origin",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-args-presence",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "source",
+          "id": "args-origin",
+          "text": "1 + 2"
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "left",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": null
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "right",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": []
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Args all fields and causal origin",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-args-span",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "source",
+          "id": "args-origin",
+          "text": "1 + 2"
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "left",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": null
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "right",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "source:args-origin:0..1",
+          "occurrences": null
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Args all fields and causal origin",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-occurrence-name",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "source",
+          "id": "args-origin",
+          "text": "1 + 2"
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "left",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": [
+            {
+              "name": "a",
+              "value": "2",
+              "span": "source:args-origin:0..1",
+              "value_span": "source:args-origin:4..5"
+            }
+          ]
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "right",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": [
+            {
+              "name": null,
+              "value": "2",
+              "span": "source:args-origin:0..1",
+              "value_span": "source:args-origin:4..5"
+            }
+          ]
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "ArgOccurrence.name",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-occurrence-value",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "source",
+          "id": "args-origin",
+          "text": "1 + 2"
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "left",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": [
+            {
+              "name": "a",
+              "value": "2",
+              "span": "source:args-origin:0..1",
+              "value_span": "source:args-origin:4..5"
+            }
+          ]
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "right",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": [
+            {
+              "name": "a",
+              "value": "3",
+              "span": "source:args-origin:0..1",
+              "value_span": "source:args-origin:4..5"
+            }
+          ]
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "ArgOccurrence.value",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-occurrence-span",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "source",
+          "id": "args-origin",
+          "text": "1 + 2"
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "left",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": [
+            {
+              "name": "a",
+              "value": "2",
+              "span": "source:args-origin:0..1",
+              "value_span": "source:args-origin:4..5"
+            }
+          ]
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "right",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": [
+            {
+              "name": "a",
+              "value": "2",
+              "span": "source:args-origin:4..5",
+              "value_span": "source:args-origin:4..5"
+            }
+          ]
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "ArgOccurrence.span",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-occurrence-value-span",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "source",
+          "id": "args-origin",
+          "text": "1 + 2"
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "left",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": [
+            {
+              "name": "a",
+              "value": "2",
+              "span": "source:args-origin:0..1",
+              "value_span": "source:args-origin:4..5"
+            }
+          ]
+        },
+        {
+          "kind": "args_literal",
+          "output_binding": "right",
+          "items": [
+            "1"
+          ],
+          "named": [
+            [
+              "a",
+              "2"
+            ]
+          ],
+          "span": "detached",
+          "occurrences": [
+            {
+              "name": "a",
+              "value": "2",
+              "span": "source:args-origin:0..1",
+              "value_span": "source:args-origin:0..1"
+            }
+          ]
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "ArgOccurrence.value_span",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-located-none-some",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "body",
+          "expression": "metadata(1)"
+        },
+        {
+          "kind": "location_symbol",
+          "symbol": "loc"
+        },
+        {
+          "kind": "located_content",
+          "output_binding": "left",
+          "content_binding": "body",
+          "location": "loc",
+          "fields": null
+        },
+        {
+          "kind": "located_content",
+          "output_binding": "right",
+          "content_binding": "body",
+          "location": "loc",
+          "fields": []
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value::LocatedContent fields presence/order",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-located-missing-explicit-none",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "body",
+          "expression": "metadata(1)"
+        },
+        {
+          "kind": "location_symbol",
+          "symbol": "loc"
+        },
+        {
+          "kind": "located_content",
+          "output_binding": "left",
+          "content_binding": "body",
+          "location": "loc",
+          "fields": []
+        },
+        {
+          "kind": "located_content",
+          "output_binding": "right",
+          "content_binding": "body",
+          "location": "loc",
+          "fields": [
+            [
+              "value",
+              "none"
+            ]
+          ]
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value::LocatedContent fields presence/order",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-located-ordered-fields",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "body",
+          "expression": "metadata(1)"
+        },
+        {
+          "kind": "location_symbol",
+          "symbol": "loc"
+        },
+        {
+          "kind": "located_content",
+          "output_binding": "left",
+          "content_binding": "body",
+          "location": "loc",
+          "fields": [
+            [
+              "value",
+              "1"
+            ],
+            [
+              "label",
+              "<node>"
+            ]
+          ]
+        },
+        {
+          "kind": "located_content",
+          "output_binding": "right",
+          "content_binding": "body",
+          "location": "loc",
+          "fields": [
+            [
+              "label",
+              "<node>"
+            ],
+            [
+              "value",
+              "1"
+            ]
+          ]
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Different",
+        "public_noncertification_required": false,
+        "public_validation_must_not_be": null
+      },
+      "role": "positive",
+      "mandatory": true,
+      "required_control": true,
+      "category": "Value::LocatedContent fields presence/order",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    },
+    {
+      "id": "relation-opaque-independent-callout",
+      "port": "relation_actual",
+      "operations": [
+        {
+          "kind": "eval_binding",
+          "output_binding": "body",
+          "expression": "[opaque]"
+        },
+        {
+          "kind": "dynamic_callout",
+          "body_binding": "body",
+          "title": "same",
+          "tone": "info",
+          "output_binding": "left"
+        },
+        {
+          "kind": "dynamic_callout",
+          "body_binding": "body",
+          "title": "same",
+          "tone": "info",
+          "output_binding": "right"
+        }
+      ],
+      "left_binding": "left",
+      "right_binding": "right",
+      "causal_context": {
+        "world": "same immutable fixture World",
+        "producer": "independent evaluations unless explicit clone_binding",
+        "retention": "clone_binding preserves actual original immutable binding, not re-evaluation"
+      },
+      "expected": {
+        "discriminant": "Unproven",
+        "public_noncertification_required": true,
+        "public_validation_must_not_be": true
+      },
+      "role": "opaque",
+      "mandatory": false,
+      "required_control": true,
+      "category": "Content::Dynamic unsupported identity",
+      "obligation_ids": [
+        "W07"
+      ],
+      "matrix_ids": [
+        "F06-closed-comparator"
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": [
+          "F"
+        ],
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "credit": 0
+      }
+    }
+  ]
+}

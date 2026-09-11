@@ -1,0 +1,80 @@
+{
+  "id": "ARR-E04-extra-first",
+  "family": "ARR-M08-surplus",
+  "role": "mutant",
+  "mode": 8,
+  "profile": "a11y",
+  "order": "reverse",
+  "source": "array(bytes((1,)), 3, other: 2)",
+  "source_sha256": "20d2a277bb481a71fde78b230f8b881fb7ef77df2a51bf16423370541c7e34da",
+  "argv": [
+    "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+    "eval",
+    "--features",
+    "a11y-extras",
+    "array(bytes((1,)), 3, other: 2)"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "stdin_base64": "",
+  "utc_start": "2026-09-10T11:13:58.919823+00:00",
+  "utc_end": "2026-09-10T11:13:59.015715+00:00",
+  "environment_delta": {
+    "NO_COLOR": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "P1339_ARRAY_MUTANT": "8",
+    "RUST_BACKTRACE": "0"
+  },
+  "effective_relevant_environment": {
+    "XDG_CONFIG_DIRS": "/etc/xdg/xdg-cinnamon:/etc/xdg",
+    "XDG_SESSION_PATH": "/org/freedesktop/DisplayManager/Session0",
+    "XDG_SEAT": "seat0",
+    "XDG_SESSION_DESKTOP": "cinnamon",
+    "XDG_SESSION_TYPE": "x11",
+    "XDG_GREETER_DATA_DIR": "/var/lib/lightdm-data/dikluwe",
+    "HOME": "/home/dikluwe",
+    "LANG": "pt_BR.UTF-8",
+    "XDG_CURRENT_DESKTOP": "X-Cinnamon",
+    "XDG_SEAT_PATH": "/org/freedesktop/DisplayManager/Seat0",
+    "XDG_SESSION_CLASS": "user",
+    "XDG_VTNR": "7",
+    "XDG_SESSION_ID": "c2",
+    "NO_COLOR": "1",
+    "LC_CTYPE": "C.UTF-8",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "LC_ALL": "C.UTF-8",
+    "XDG_DATA_DIRS": "/usr/share/cinnamon:/home/dikluwe/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share",
+    "PATH": "/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.codex/tmp/arg0/codex-arg0OjL0Km:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.bun/bin:/home/dikluwe/.kimi-code/bin:/home/dikluwe/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/dikluwe/.lmstudio/bin:/opt/zig:/home/dikluwe/go/bin:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "P1339_ARRAY_MUTANT": "8",
+    "RUST_BACKTRACE": "0"
+  },
+  "core_limit": 0,
+  "timeout_seconds": 30,
+  "binary_before": {
+    "path": "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+    "sha256": "fe0c60f17f67748480c78ccc8a2c5e7a42a738c808f29b901c44f3e177b4a055"
+  },
+  "binary_after": {
+    "path": "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+    "sha256": "fe0c60f17f67748480c78ccc8a2c5e7a42a738c808f29b901c44f3e177b4a055"
+  },
+  "transport": "Completed",
+  "exit": 0,
+  "signal": null,
+  "spawn_error": null,
+  "channels": {
+    "stdout": {
+      "utf8": "[1]\n",
+      "base64": "WzFdCg==",
+      "sha256": "acc07b62f23f458923737c4cd4a66bd05d1e71eb4f384003baaf2dcc760d6349",
+      "bytes": 4
+    },
+    "stderr": {
+      "utf8": "",
+      "base64": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "comparison": "ObservedLiteralDifference"
+}

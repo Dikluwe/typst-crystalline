@@ -1,0 +1,126 @@
+{
+  "schema": "p1339-array-style-derived-lineage-v1",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "working_tree": "uncommitted; source state and exact diffstat in p1339-array-candidate-build-r2.json",
+  "scope": "Six owners in Array and the explicitly accepted Style instrumentation; only four canonical eight-digit fields changed, no productive bytes or normative prompt changes.",
+  "algorithm": "Same as tekt-linter/03_infra/hash_writer.rs compute_source_hash: SHA256 first eight hex digits after removing only the canonical source header @prompt-hash line.",
+  "before": {
+    "utc": "2026-09-10T11:35:21.122Z",
+    "pairs": [
+      {
+        "source": "01_core/src/compiler/stdlib/primitives_constructors/array.rs",
+        "source_sha256": "fc90dd20da8098416d90c3ea1293c457bde1c147826258a9e7c28534c12ce038",
+        "prompt": "00_nucleo/prompts/compiler/stdlib/primitives-constructors/array.md",
+        "prompt_sha256": "e3d688dcccfb5420d2f447ac171323cf0e0bce5fcafd2abf01961fc632346abd",
+        "normative_sha256": "17729bfaff2e872f7a654c70226c85dc17d50191a26bd453dfd71626de5a286f",
+        "old": "5fd98f82",
+        "expected": "11f935ba"
+      },
+      {
+        "source": "01_core/src/compiler/stdlib/primitives_constructors.rs",
+        "source_sha256": "2ccebf722eee949ac677cad3001c7423afb1041c69e71cfb71e25a690e706402",
+        "prompt": "00_nucleo/prompts/compiler/stdlib/primitives-constructors.md",
+        "prompt_sha256": "4720aa8033af7cd4db6e287c56a0a1eeff84caa1e071438cad18dcbffa287a21",
+        "normative_sha256": "1d2146ebe12abd4bf39fa11e0c63592f1e850c1aa6f8baf1df32fbbdf368888c",
+        "old": "e5419abe",
+        "expected": "e5419abe"
+      },
+      {
+        "source": "01_core/src/compiler/stdlib/mod.rs",
+        "source_sha256": "231c48c7b18785e4514b08dc9e0731b42819b98f54b821b1d622073c69ace9be",
+        "prompt": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+        "prompt_sha256": "83d3a01800d5ef8772b1d6e5173576187232bf955a3473fb48a164e378f91315",
+        "normative_sha256": "4fcd16147b8cf776528cb7152447b40e2428d9669cf99972af59e7d22b6bb906",
+        "old": "c239668b",
+        "expected": "c239668b"
+      },
+      {
+        "source": "01_core/src/compiler/eval/call_dispatch.rs",
+        "source_sha256": "f7e87fb49ee6e40d48466339103f4e0656fb62c9f699af06cffe8da8f6193ca9",
+        "prompt": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "prompt_sha256": "ad7222fa16804a4ce332e748bfe544dc9e22797058b5d8f4bb87acec4f213279",
+        "normative_sha256": "68129e0065efbc165ddeee3b5782d939a4395e583373b213f23537cfae977c95",
+        "old": "d86dbd57",
+        "expected": "45775311"
+      },
+      {
+        "source": "01_core/src/compiler/eval/mod.rs",
+        "source_sha256": "8cac57e3d1d1f1401a8e0d63ede40d4fc0772d1df60134478a73f37d37b47e6a",
+        "prompt": "00_nucleo/prompts/compiler/eval.md",
+        "prompt_sha256": "e6796a6fe6eeb88290aada11980372936aca294b75c1bc793f85817f7ab475fa",
+        "normative_sha256": "fcbf544bb82d15ced07a8af76d95d3fd114e5da82e5d54435b2b95fff2d1efc5",
+        "old": "823ed329",
+        "expected": "ecac25e6"
+      },
+      {
+        "source": "01_core/src/entities/style_chain.rs",
+        "source_sha256": "3f77f12991d4038b3c695606aec5d18934869c3a17a23bbe45e3c60f594287ed",
+        "prompt": "00_nucleo/prompts/entities/style_chain.md",
+        "prompt_sha256": "1efe881899ab5cdc290be6350e2da6f5e3ea8cbff60ab4e65e01585ec28cdf6c",
+        "normative_sha256": "c08b7ab8f0e53204a82fdaf2d3e62b435def02bd842cf7f9e0d63c54b294cb26",
+        "old": "2daa3854",
+        "expected": "0dcf3dd1"
+      }
+    ]
+  },
+  "after": {
+    "utc": "2026-09-10T11:35:45.039Z",
+    "pairs": [
+      {
+        "source": "01_core/src/compiler/stdlib/primitives_constructors/array.rs",
+        "source_sha256": "fc90dd20da8098416d90c3ea1293c457bde1c147826258a9e7c28534c12ce038",
+        "prompt": "00_nucleo/prompts/compiler/stdlib/primitives-constructors/array.md",
+        "prompt_sha256": "28a12b895b2f1c734880359547be848fe83bdc185fa8ec6513c388a309700b09",
+        "normative_sha256": "17729bfaff2e872f7a654c70226c85dc17d50191a26bd453dfd71626de5a286f",
+        "old": "11f935ba",
+        "expected": "11f935ba"
+      },
+      {
+        "source": "01_core/src/compiler/stdlib/primitives_constructors.rs",
+        "source_sha256": "2ccebf722eee949ac677cad3001c7423afb1041c69e71cfb71e25a690e706402",
+        "prompt": "00_nucleo/prompts/compiler/stdlib/primitives-constructors.md",
+        "prompt_sha256": "4720aa8033af7cd4db6e287c56a0a1eeff84caa1e071438cad18dcbffa287a21",
+        "normative_sha256": "1d2146ebe12abd4bf39fa11e0c63592f1e850c1aa6f8baf1df32fbbdf368888c",
+        "old": "e5419abe",
+        "expected": "e5419abe"
+      },
+      {
+        "source": "01_core/src/compiler/stdlib/mod.rs",
+        "source_sha256": "231c48c7b18785e4514b08dc9e0731b42819b98f54b821b1d622073c69ace9be",
+        "prompt": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+        "prompt_sha256": "83d3a01800d5ef8772b1d6e5173576187232bf955a3473fb48a164e378f91315",
+        "normative_sha256": "4fcd16147b8cf776528cb7152447b40e2428d9669cf99972af59e7d22b6bb906",
+        "old": "c239668b",
+        "expected": "c239668b"
+      },
+      {
+        "source": "01_core/src/compiler/eval/call_dispatch.rs",
+        "source_sha256": "f7e87fb49ee6e40d48466339103f4e0656fb62c9f699af06cffe8da8f6193ca9",
+        "prompt": "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+        "prompt_sha256": "4c9ec02e1790b0b93702f10e9b3db48f96c86d9de6cec5cf6256289c69a71477",
+        "normative_sha256": "68129e0065efbc165ddeee3b5782d939a4395e583373b213f23537cfae977c95",
+        "old": "45775311",
+        "expected": "45775311"
+      },
+      {
+        "source": "01_core/src/compiler/eval/mod.rs",
+        "source_sha256": "8cac57e3d1d1f1401a8e0d63ede40d4fc0772d1df60134478a73f37d37b47e6a",
+        "prompt": "00_nucleo/prompts/compiler/eval.md",
+        "prompt_sha256": "321d6747749a72488e13ee4f4996ae0d8b8a3c7df1c227a521431f02ae4a0cb1",
+        "normative_sha256": "fcbf544bb82d15ced07a8af76d95d3fd114e5da82e5d54435b2b95fff2d1efc5",
+        "old": "ecac25e6",
+        "expected": "ecac25e6"
+      },
+      {
+        "source": "01_core/src/entities/style_chain.rs",
+        "source_sha256": "3f77f12991d4038b3c695606aec5d18934869c3a17a23bbe45e3c60f594287ed",
+        "prompt": "00_nucleo/prompts/entities/style_chain.md",
+        "prompt_sha256": "bce4091e7fe39017a7220e7eecdc3cb997c82e09d17f746eae70622f98966c2b",
+        "normative_sha256": "c08b7ab8f0e53204a82fdaf2d3e62b435def02bd842cf7f9e0d63c54b294cb26",
+        "old": "0dcf3dd1",
+        "expected": "0dcf3dd1"
+      }
+    ]
+  },
+  "verified_source_and_normative_bytes_unchanged": true
+}

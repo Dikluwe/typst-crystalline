@@ -1,0 +1,284 @@
+{
+  "start": "2026-09-10T01:53:33.885664+00:00",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "status": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/repr.md\n M 00_nucleo/prompts/compiler/eval/rules.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/compiler/introspect.md\n M 00_nucleo/prompts/compiler/introspect/extract_payload.md\n M 00_nucleo/prompts/compiler/introspect/from_tags.md\n M 00_nucleo/prompts/compiler/introspect/locatable.md\n M 00_nucleo/prompts/compiler/layout.md\n M 00_nucleo/prompts/compiler/stdlib/counter.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/query.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/entities/counter_registry.md\n M 00_nucleo/prompts/entities/element_payload.md\n M 00_nucleo/prompts/entities/elements/emph.md\n M 00_nucleo/prompts/entities/elements/strong.md\n M 00_nucleo/prompts/entities/introspector.md\n M 00_nucleo/prompts/entities/selector.md\n M 00_nucleo/prompts/entities/show.md\n?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-gate.md\n?? 00_nucleo/diagnosticos/p1339-context-dependency-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-probe.py\n?? 00_nucleo/diagnosticos/p1339-context-dependency-receipt.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-recorder.py\n?? 00_nucleo/diagnosticos/p1339-context-dependency-review.md\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-stabilization-approval.json\n?? 00_nucleo/diagnosticos/p1339-stabilization-boundaries-probe.py\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-approval-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-integration-design.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-compile-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-file-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-index-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-manifest.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r1.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-payload-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review.md\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+  "diff_stat": " .../prompts/compiler/eval/bindings/field_access.md |  43 +++++++\n .../compiler/eval/bindings/value_methods.md        | 111 +++++++++++++++++++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 +++++++++\n .../prompts/compiler/eval/operators/equality.md    |  67 +++++++++++\n 00_nucleo/prompts/compiler/eval/repr.md            |  38 +++++++\n 00_nucleo/prompts/compiler/eval/rules.md           |  34 ++++++\n .../prompts/compiler/eval/selector_matching.md     |  78 +++++++++++++\n 00_nucleo/prompts/compiler/introspect.md           | 123 +++++++++++++++++++++\n .../prompts/compiler/introspect/extract_payload.md |  27 +++++\n 00_nucleo/prompts/compiler/introspect/from_tags.md |  74 +++++++++++++\n 00_nucleo/prompts/compiler/introspect/locatable.md |  24 ++++\n 00_nucleo/prompts/compiler/layout.md               |  27 +++++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  42 +++++++\n .../prompts/compiler/stdlib/foundations/query.md   |  31 ++++++\n .../compiler/stdlib/foundations/selector.md        |  35 ++++++\n 00_nucleo/prompts/entities/counter_registry.md     |  35 ++++++\n 00_nucleo/prompts/entities/element_payload.md      |  88 +++++++++++++++\n 00_nucleo/prompts/entities/elements/emph.md        |  25 +++++\n 00_nucleo/prompts/entities/elements/strong.md      |  26 +++++\n 00_nucleo/prompts/entities/introspector.md         |  31 ++++++\n 00_nucleo/prompts/entities/selector.md             |  82 ++++++++++++++\n 00_nucleo/prompts/entities/show.md                 |  48 ++++++++\n 22 files changed, 1142 insertions(+)\n",
+  "baseline": {
+    "path": "/usr/local/bin/typst",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "upstream": "a51e02804"
+  },
+  "runner_sha256": "2900fbffdfe551f17eeefcd548981b065a86913c72c5fb9526def012f9d31f3f",
+  "cases": {
+    "oscillating_set": "#let c = counter(heading.where())\n#context c.update(if c.final().first() == 0 { 1 } else { 0 })\n#context metadata(c.final())",
+    "increasing_set": "#let c = counter(heading.where())\n#context c.update(c.final().first() + 1)\n#context metadata(c.final())",
+    "nan_key_stable_zero": "#let c = counter(heading.where(level: float.nan))\n#context c.update(12)\n#context { assert(c.get() == (0,)); metadata(c.get()) }",
+    "fresh_callback_stable": "#let c = counter(heading.where())\n#set heading(numbering: \"1\")\n= A\n#context c.update(n => n + 10)\n= B\n#context { assert(c.get() == (12,)); metadata(c.get()) }",
+    "nested_producer": "#let c = counter(heading.where())\n#context [#context c.update(12)]\n#context { assert(c.get() == (12,)); metadata(c.get()) }",
+    "unrelated_error": "#let c = counter(heading.where())\n#context panic(\"unrelated-error\")\n#context c.update(12)\n#context { assert(c.get() == (12,)); metadata(c.get()) }"
+  },
+  "runs": [
+    {
+      "case": "oscillating_set",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "ad391d7e935c0757576b97cd709d67bd12edaea38718766607b36334525fc1b0",
+      "start": "2026-09-10T01:53:33.928264+00:00",
+      "end": "2026-09-10T01:53:33.934978+00:00",
+      "exit": 0,
+      "stdout": "[[0]]\n",
+      "stderr": "warning: document did not converge within five attempts\n = hint: see 2 additional warnings for more details\n = hint: see https://typst.app/help/convergence for help\n\nwarning: value of `counter(heading.where(:))` did not converge\n  ┌─ <stdin>:2:21\n  │\n2 │ #context c.update(if c.final().first() == 0 { 1 } else { 0 })\n  │                      ^^^^^^^^^\n  │\n  = hint: the following values were observed:\n    - run 1: 0\n    - run 2: 1\n    - run 3: 0\n    - run 4: 1\n    - run 5: 0\n    - final: 1\n\nwarning: value of `counter(heading.where(:))` did not converge\n  ┌─ <stdin>:3:18\n  │\n3 │ #context metadata(c.final())\n  │                   ^^^^^^^^^\n  │\n  = hint: the following values were observed:\n    - run 1: 0\n    - run 2: 1\n    - run 3: 0\n    - run 4: 1\n    - run 5: 0\n    - final: 1\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "increasing_set",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "eb84f004ff40a72cbbf1909b2e35fd6f640db8fff9a728e556f8b2afc37d5984",
+      "start": "2026-09-10T01:53:33.934993+00:00",
+      "end": "2026-09-10T01:53:33.941242+00:00",
+      "exit": 0,
+      "stdout": "[[4]]\n",
+      "stderr": "warning: document did not converge within five attempts\n = hint: see 2 additional warnings for more details\n = hint: see https://typst.app/help/convergence for help\n\nwarning: value of `counter(heading.where(:))` did not converge\n  ┌─ <stdin>:2:18\n  │\n2 │ #context c.update(c.final().first() + 1)\n  │                   ^^^^^^^^^\n  │\n  = hint: the following values were observed:\n    - run 1: 0\n    - run 2: 1\n    - run 3: 2\n    - run 4: 3\n    - run 5: 4\n    - final: 5\n\nwarning: value of `counter(heading.where(:))` did not converge\n  ┌─ <stdin>:3:18\n  │\n3 │ #context metadata(c.final())\n  │                   ^^^^^^^^^\n  │\n  = hint: the following values were observed:\n    - run 1: 0\n    - run 2: 1\n    - run 3: 2\n    - run 4: 3\n    - run 5: 4\n    - final: 5\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "nan_key_stable_zero",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "74182ce63bb67e768989d5ea1ec6232997483578b0ad7d2b0ce32b0ed243b0ce",
+      "start": "2026-09-10T01:53:33.941254+00:00",
+      "end": "2026-09-10T01:53:33.946822+00:00",
+      "exit": 0,
+      "stdout": "[[0]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "fresh_callback_stable",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "863e5ab6da6714bcf7b1f7851d635d889bfaa301fc70c648afe5335c209e08e4",
+      "start": "2026-09-10T01:53:33.946834+00:00",
+      "end": "2026-09-10T01:53:34.213771+00:00",
+      "exit": 0,
+      "stdout": "[[12]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "nested_producer",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "eb118567b94467037f5a9fe0843dd181afe40f95fc5d9cc53e8b2e1b3a92ebd4",
+      "start": "2026-09-10T01:53:34.213786+00:00",
+      "end": "2026-09-10T01:53:34.219664+00:00",
+      "exit": 0,
+      "stdout": "[[12]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "unrelated_error",
+      "order": "normal",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "7badea331d72a69e86632d3372423f3a15cea2f95260437247a1aebe42848559",
+      "start": "2026-09-10T01:53:34.219676+00:00",
+      "end": "2026-09-10T01:53:34.225136+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: unrelated-error\n  ┌─ <stdin>:2:9\n  │\n2 │ #context panic(\"unrelated-error\")\n  │          ^^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "unrelated_error",
+      "order": "reverse",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "7badea331d72a69e86632d3372423f3a15cea2f95260437247a1aebe42848559",
+      "start": "2026-09-10T01:53:34.225147+00:00",
+      "end": "2026-09-10T01:53:34.230569+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: unrelated-error\n  ┌─ <stdin>:2:9\n  │\n2 │ #context panic(\"unrelated-error\")\n  │          ^^^^^^^^^^^^^^^^^^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "nested_producer",
+      "order": "reverse",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "eb118567b94467037f5a9fe0843dd181afe40f95fc5d9cc53e8b2e1b3a92ebd4",
+      "start": "2026-09-10T01:53:34.230579+00:00",
+      "end": "2026-09-10T01:53:34.236007+00:00",
+      "exit": 0,
+      "stdout": "[[12]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "fresh_callback_stable",
+      "order": "reverse",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "863e5ab6da6714bcf7b1f7851d635d889bfaa301fc70c648afe5335c209e08e4",
+      "start": "2026-09-10T01:53:34.236017+00:00",
+      "end": "2026-09-10T01:53:34.507101+00:00",
+      "exit": 0,
+      "stdout": "[[12]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "nan_key_stable_zero",
+      "order": "reverse",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "74182ce63bb67e768989d5ea1ec6232997483578b0ad7d2b0ce32b0ed243b0ce",
+      "start": "2026-09-10T01:53:34.507116+00:00",
+      "end": "2026-09-10T01:53:34.513180+00:00",
+      "exit": 0,
+      "stdout": "[[0]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "increasing_set",
+      "order": "reverse",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "eb84f004ff40a72cbbf1909b2e35fd6f640db8fff9a728e556f8b2afc37d5984",
+      "start": "2026-09-10T01:53:34.513190+00:00",
+      "end": "2026-09-10T01:53:34.518951+00:00",
+      "exit": 0,
+      "stdout": "[[4]]\n",
+      "stderr": "warning: document did not converge within five attempts\n = hint: see 2 additional warnings for more details\n = hint: see https://typst.app/help/convergence for help\n\nwarning: value of `counter(heading.where(:))` did not converge\n  ┌─ <stdin>:2:18\n  │\n2 │ #context c.update(c.final().first() + 1)\n  │                   ^^^^^^^^^\n  │\n  = hint: the following values were observed:\n    - run 1: 0\n    - run 2: 1\n    - run 3: 2\n    - run 4: 3\n    - run 5: 4\n    - final: 5\n\nwarning: value of `counter(heading.where(:))` did not converge\n  ┌─ <stdin>:3:18\n  │\n3 │ #context metadata(c.final())\n  │                   ^^^^^^^^^\n  │\n  = hint: the following values were observed:\n    - run 1: 0\n    - run 2: 1\n    - run 3: 2\n    - run 4: 3\n    - run 5: 4\n    - final: 5\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "case": "oscillating_set",
+      "order": "reverse",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value",
+        "--format",
+        "json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "ad391d7e935c0757576b97cd709d67bd12edaea38718766607b36334525fc1b0",
+      "start": "2026-09-10T01:53:34.518962+00:00",
+      "end": "2026-09-10T01:53:34.524616+00:00",
+      "exit": 0,
+      "stdout": "[[0]]\n",
+      "stderr": "warning: document did not converge within five attempts\n = hint: see 2 additional warnings for more details\n = hint: see https://typst.app/help/convergence for help\n\nwarning: value of `counter(heading.where(:))` did not converge\n  ┌─ <stdin>:2:21\n  │\n2 │ #context c.update(if c.final().first() == 0 { 1 } else { 0 })\n  │                      ^^^^^^^^^\n  │\n  = hint: the following values were observed:\n    - run 1: 0\n    - run 2: 1\n    - run 3: 0\n    - run 4: 1\n    - run 5: 0\n    - final: 1\n\nwarning: value of `counter(heading.where(:))` did not converge\n  ┌─ <stdin>:3:18\n  │\n3 │ #context metadata(c.final())\n  │                   ^^^^^^^^^\n  │\n  = hint: the following values were observed:\n    - run 1: 0\n    - run 2: 1\n    - run 3: 0\n    - run 4: 1\n    - run 5: 0\n    - final: 1\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    }
+  ],
+  "role": "root, exploratory measurement after reading source; not an independent oracle",
+  "budget": "six cases, two orders, no adaptive revision; no full corpus",
+  "end": "2026-09-10T01:53:34.524627+00:00",
+  "status_after": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/repr.md\n M 00_nucleo/prompts/compiler/eval/rules.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/compiler/introspect.md\n M 00_nucleo/prompts/compiler/introspect/extract_payload.md\n M 00_nucleo/prompts/compiler/introspect/from_tags.md\n M 00_nucleo/prompts/compiler/introspect/locatable.md\n M 00_nucleo/prompts/compiler/layout.md\n M 00_nucleo/prompts/compiler/stdlib/counter.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/query.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/entities/counter_registry.md\n M 00_nucleo/prompts/entities/element_payload.md\n M 00_nucleo/prompts/entities/elements/emph.md\n M 00_nucleo/prompts/entities/elements/strong.md\n M 00_nucleo/prompts/entities/introspector.md\n M 00_nucleo/prompts/entities/selector.md\n M 00_nucleo/prompts/entities/show.md\n?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-gate.md\n?? 00_nucleo/diagnosticos/p1339-context-dependency-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-probe.py\n?? 00_nucleo/diagnosticos/p1339-context-dependency-receipt.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-recorder.py\n?? 00_nucleo/diagnosticos/p1339-context-dependency-review.md\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-stabilization-approval.json\n?? 00_nucleo/diagnosticos/p1339-stabilization-boundaries-probe.py\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-approval-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-integration-design.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-compile-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-file-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-index-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-manifest.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r1.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-payload-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review.md\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+  "diff_stat_after": " .../prompts/compiler/eval/bindings/field_access.md |  43 +++++++\n .../compiler/eval/bindings/value_methods.md        | 111 +++++++++++++++++++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 +++++++++\n .../prompts/compiler/eval/operators/equality.md    |  67 +++++++++++\n 00_nucleo/prompts/compiler/eval/repr.md            |  38 +++++++\n 00_nucleo/prompts/compiler/eval/rules.md           |  34 ++++++\n .../prompts/compiler/eval/selector_matching.md     |  78 +++++++++++++\n 00_nucleo/prompts/compiler/introspect.md           | 123 +++++++++++++++++++++\n .../prompts/compiler/introspect/extract_payload.md |  27 +++++\n 00_nucleo/prompts/compiler/introspect/from_tags.md |  74 +++++++++++++\n 00_nucleo/prompts/compiler/introspect/locatable.md |  24 ++++\n 00_nucleo/prompts/compiler/layout.md               |  27 +++++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  42 +++++++\n .../prompts/compiler/stdlib/foundations/query.md   |  31 ++++++\n .../compiler/stdlib/foundations/selector.md        |  35 ++++++\n 00_nucleo/prompts/entities/counter_registry.md     |  35 ++++++\n 00_nucleo/prompts/entities/element_payload.md      |  88 +++++++++++++++\n 00_nucleo/prompts/entities/elements/emph.md        |  25 +++++\n 00_nucleo/prompts/entities/elements/strong.md      |  26 +++++\n 00_nucleo/prompts/entities/introspector.md         |  31 ++++++\n 00_nucleo/prompts/entities/selector.md             |  82 ++++++++++++++\n 00_nucleo/prompts/entities/show.md                 |  48 ++++++++\n 22 files changed, 1142 insertions(+)\n",
+  "previous_unpersisted_run": {
+    "start": "2026-09-10T01:53:20.536167+00:00",
+    "end": "2026-09-10T01:53:21.163041+00:00",
+    "reason": "Same runner repeated only to persist complete receipt via apply_patch; original output remains in tool transcript."
+  }
+}

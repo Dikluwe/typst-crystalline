@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: 4ac1e283
+Hash do Código: 002feaca
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -295,6 +295,86 @@ assinatura Rust pública, default novo ou fase nova. Fluxo contínuo ADR-0127.
 - `counter.display(pattern)` (#53): o stub "Pattern minimal" foi removido; usa `structural::format_pattern` (P793) — estilos romano/alfabético/circled (`①`), descarte de tokens extra e repetição do último token, paridade medida (`II B ii ② 2` para counter=2).
 - `counter.display()` sem argumento (#52): usa o numbering activo do contexto via custom `"{key}.numbering.pattern"` da chain (canal `rules.rs`); sem pattern na chain, mantém o join hierárquico.
 
+## P1339 — chave filtrada e leitura owned (fase aprovada; integração pendente)
+
+### Medição anterior à decisão
+
+`compiler/stdlib/counter.rs:100-120` reduz filtros à base/primeiro filho;
+`:293-315,517-546` lê slices materializados sem Engine. Entretanto os wrappers
+estáticos (`:175-208,250-275`) já recebem Engine e o despacho ligado também.
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, fontes intactas.
+A sonda `diagnosticos/p1339-where-integration-probe-supplement-runs.json`
+mede que update bare não afeta where vazio. As sondas de fase
+`diagnosticos/p1339-where-counter-phase-probe-runs.json` e
+`diagnosticos/p1339-where-counter-phase-file-runs.json` refutam tanto perder
+Steps posteriores a Func quanto executar todos os callbacks antes do contexto.
+
+### Decisão proposta
+
+Conservar a árvore inteira de Selector quando contiver Element, com grupo
+vazio distinto do bare e ordem dos campos intacta. Validar locatability da
+folha nativa pelo reconhecimento estático tipado do owner
+`compiler/eval/bindings/value_methods.md`; Text continua não localizável,
+Strong/Emph aprovados são aceitos. Não promover os parsers de strings ou
+funções bare incidentais nem alterar chaves antigas sem Element.
+
+Para chamadas da linguagem get/final/at/display sobre essas chaves, formas
+estática e ligada delegam a um único helper interno owned, com Engine e
+Scopes do despacho. A resolução de ações e Func pertence a
+`compiler/introspect/from_tags.md`. Argumentos, context gate, Location, erro,
+numbering/both e ordem de avaliação mantêm seus owners anteriores. Não usar
+query.len(), mapa Kind ou callback do constructor para simular a leitura.
+
+Os helpers Rust públicos anteriores sem Engine conservam assinatura e
+leitura materializada; não se declara que passam a resolver qualquer Func
+de um Selector arbitrário. A superfície nova da linguagem não passa por
+esse caminho incapaz e não converte estado ainda não calculado em zero.
+Sem eventos relevantes, o estado inicial segue o zero da linguagem.
+
+CounterRegistry/introspector permanecem dados lidos, sem demanda mutável
+registrada no construtor nem nova passagem L3. Executar Func na demanda
+contextual é a mudança ADR-0127 aprovada pelo dono em
+`diagnosticos/p1339-where-counter-phase-approval.json`, não mero glue.
+A autorização não dispensa os demais gates do P1339 antes da implementação.
+
+### P1339 — registro causal das leituras de counter
+
+Medição no mesmo HEAD, consumer intacto: `counter.rs:305-315,335-363`
+resolve Location/label/selector; `:402-411` lê prefixo e total para both;
+`:503-546` contém at/final; `:608-610,640` contém as vistas string globais.
+O display aplica numbering depois de obter os valores. O recibo de integração
+de observações P1339 fixa essas fontes, sem atribuir execução de testes a
+essa inspeção.
+
+Toda leitura efetivamente alcançada registra seus inputs no EvalContext,
+mesmo nas chaves legadas e antes da primeira demanda Element do bloco.
+Somente a demanda com árvore contendo Element aciona o bit de seleção.
+Marcar essa demanda antes de resolver label/Location/selector ou executar
+o fold; erros dessas operações não apagam a marca. Construtores, step/update
+e descoberta de método continuam sem seleção nem execução de callback.
+
+Registrar separadamente as entradas observadas: resolução da localização
+pedida, resultado/erro do fold completo demandado e projeção get/at/final;
+display com both inclui o total realmente usado. Nas chaves antigas, ler
+os mesmos stores/fallbacks anteriores; nas novas, replay delega ao resolver
+owned de from_tags com Engine transacional. Label/selector ausente que passa
+a resolver deve invalidar a tentativa; reter só a Location resultante é
+insuficiente. As nativas globais conservam resultado string e seus fallbacks,
+sem conversão artificial para o array dos métodos modernos.
+
+O registro das entradas de display precede numbering/conversão; callback de
+numbering executada no corpo conserva suas próprias leituras causais. A
+validação não reaplica esse numbering só para comparar Content de saída.
+Reexecutar CounterUpdate::Func durante o replay do fold completo é operação
+distinta, já autorizada e limitada às chaves demandadas. Estilos usados no
+numbering são os capturados na tentativa, sem lookup em defaults novos.
+
+Não duplicar observação nos wrappers: os helpers semânticos que fazem a
+leitura são os pontos de registro. Replays usam contexto de validação
+separado, não acrescentam leituras ao histórico produtivo nem publicam
+warnings de callbacks. Aceitação inclui get antes de Func inválida posterior,
+both, label que muda, leitura legada antes de Element e callback não demandada.
+
 ## P1159 — `counter(page)` alimenta o número lógico
 
 O constructor reconhece a função nativa `page` e produz `CounterKey::Page`.
@@ -329,3 +409,45 @@ Testar os wrappers e o consumo com Some/None, inclusive default, sobra e
 receiver ausente; os argumentos consumidos não podem permanecer no carrier.
 É adaptação interna em fluxo contínuo ADR-0127 à API Args aprovada, não novo
 contrato público de Counter nem aprovação de dívidas históricas deste L0.
+
+## P1341 — testemunho test-only da ocorrência de counter
+
+### Medição anterior à decisão
+
+O ataque P1341 demonstrou que Location isolada não prova a ocorrência: chave,
+ação, ordinal, conteúdo percorrido e papel lexical do span podem ser trocados
+coerentemente. A expectativa estável não contém a Location runtime.
+
+### Decisão
+
+Sob `cfg(p1339_observation)`, o ponto semântico que consome a ocorrência emite
+um evento com chave e ação efetivas, ordinal da ocorrência, referência ao
+conteúdo realmente percorrido e span runtime ligado à coordenada/papel lexical
+derivável da fonte. Location e snapshot permanecem IDs dinâmicos do ledger e
+ocupam domínios distintos; nenhum deles é fabricado a partir da fixture.
+
+O evento observa a execução existente e não reaplica `CounterUpdate::Func`, não
+altera associação, ordem, fallback, warnings ou APIs do counter. Ausência ou
+inconsistência falha fechada no harness; o build normal não contém esse efeito.
+
+## P1342 — carrier no `Func` efetivamente classificado
+
+### Medição anterior à decisão
+
+A auditoria P1342 mede que este owner transforma o `Value` real em
+`CounterUpdate::{Set,Step,Func}` e constrói o Content, mas hoje não recebe a
+origem da ocorrência. Mede também que `FuncRepr::With` sobrevive dentro da ação.
+
+### Decisão vigente
+
+Sob `cfg(p1339_observation)`, as rotas ligada e estática entregam a este owner
+o span real e o `EvalContext`. Depois da classificação efetiva, apenas
+`CounterUpdate::Func` recebe no próprio `Func` exterior um carrier P1342 com
+ledger, célula, id de ocorrência e span. O owner emite nesse momento o evento
+de criação com chave, ação real, wrapper With real e alvo interno observável;
+depois usa o constructor normal de `Content::counter_update`.
+
+O carrier é ignorado por Eq/Hash/Debug/repr e preservado por clone. Nenhum
+callback é chamado para observar e nenhum erro ou valor muda. Sem o cfg, a API
+e o código efetivo continuam o caminho anterior. P1342 não instrumenta Set,
+Step ou leituras alheias à fixture e não substitui a semântica P1339/P1340.

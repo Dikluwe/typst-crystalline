@@ -1,0 +1,38 @@
+{
+  "schema": "p1339-independent-seal-F-mechanical-supersession-v2",
+  "utc": "2026-09-10T10:20:43Z",
+  "verifier": "/root/p1311_review",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "ACCEPT_STATIC_F_STYLE_ASSOCIATED_CALL_SUPERSESSION",
+  "ancestor_seal": {"path": "00_nucleo/diagnosticos/p1339-seal.json", "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"},
+  "prior_F_supplement": {"path": "00_nucleo/diagnosticos/p1339-verifier-seal-F-style-supersession-r1.json", "sha256": "b52144ed17ca14a154bf61141da5e98501901a3d6485e68f3460b552a68c29d8"},
+  "active_F_style_adapter": {"path": "00_nucleo/diagnosticos/p1339-mutant-closed-state-style-harness-r3.rs", "sha256": "9a8d7ed98658d2121dfa8761abbdbd23fc18d88183ff56a3a58b4ec2e43a89dc"},
+  "exact_diff": {"path": "00_nucleo/diagnosticos/p1339-mutant-closed-state-style-harness-r3.diff", "sha256": "00ff740853d7fd88079b66f2c02620c5e9d2c5aaaa2688cd11262003156ef359"},
+  "author_receipt": {"path": "00_nucleo/diagnosticos/p1339-mutant-closed-state-style-harness-r3-receipt.md", "sha256": "14e087de15519b6953bcceffc2d06971ca50965bf73702a1eb9039497d821e7d"},
+  "convention": {"path": "01_core/CLAUDE.md", "sha256": "d358e69f77ceb88bfd7f64bbf64f90b88b6e97c0bac88566f0eb94315b48829f", "section": "TrackedMut::reborrow_mut associated function, convention 3"},
+  "preserved": [
+    {"path": "00_nucleo/diagnosticos/p1339-mutant-closed-state-style-harness.rs", "sha256": "2f01811e5ae26ea7ed5650adcf359c47b00afdbdd22089bd0775cd6d6f7d8f21"},
+    {"path": "00_nucleo/diagnosticos/p1339-mutant-closed-state-style-harness-r2.rs", "sha256": "6527552f2ef6518e2fbc22f02ac1a73af8bb7c34803d0f572c1320b1e3258231"},
+    {"path": "00_nucleo/diagnosticos/p1339-ab-batch1-same-context-style-fixture.json", "sha256": "70d572c86aee6499c0f5ebf20849187d4113ebc6016888f1e0b4a0ea43d572aa"}
+  ],
+  "independent_static_proof": {
+    "method_to_associated_call_product_sink_count": 3,
+    "method_to_associated_call_validation_sink_count": 2,
+    "only_additional_change": "One version-comment line",
+    "exact_whole_file_transformation_asserted": true,
+    "all_other_bytes_equal": true,
+    "no_semantic_process_executed_by_verifier": true
+  },
+  "incidents_preserved": [
+    {"path": "00_nucleo/diagnosticos/p1339-implementation-observer-build-incident.json", "sha256": "e86626ed24f63ce3774c35fc73789856d5b511c3a747274f514385fcf4861e7b", "limitation": "E0499 retained compiler excerpt; original full streams, precise UTC/state unavailable. No reconstruction or reproducible-build credit."},
+    {"path": "00_nucleo/diagnosticos/p1339-implementation-observer-instrumented-compile-r2.json", "sha256": "3c4b1e39a5f9ee3328fc06b04f44fd1c419eb8b6b3e85297086df2d334dc44e0", "purpose": "Real engineering E0599 record; no F runtime credit"}
+  ],
+  "first_affected_gate": "F engineering compilation of concrete same-context style binding; twelve style cells remain due",
+  "permission": "Apply exact r3 include through a downstream test-only thin wrapper successor, preserving every other wrapper byte. Pin wrapper, active adapter and both supplements in final independent real-product binding audit. Engineering no-run compilation may proceed; final F runtime still requires that binding audit.",
+  "inherited_conditions": "All restrictions and resource-identity obligations of prior F supplement remain in force. R3 is the active mechanical adapter; original and r2 remain immutable ancestors.",
+  "budgets": {"historical_contract_revisions_used": 3, "historical_additional_focal_batches_used": 2, "historical_full_C_used": 1, "historical_full_C_limit": 2, "additional_C_or_focal_credit": 0},
+  "C_D_reexecution_required_for_this_delta": false,
+  "F_runtime_credit": 0,
+  "Array_scope_permission": false,
+  "overall_P1339_PASS": false
+}

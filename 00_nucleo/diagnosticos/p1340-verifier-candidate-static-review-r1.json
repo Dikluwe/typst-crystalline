@@ -1,0 +1,52 @@
+{
+  "schema": "p1340-verifier-candidate-static-review-r1",
+  "utc": "2026-09-10T14:11:18.557720+00:00",
+  "mode": "Read-only review of initial candidate; no F verdict, runtime, product edits or oracle edits",
+  "source_pins": {
+    "03_infra/src/pipeline/context_stabilization.rs": "7e195d6717a21a9d5cba46a7a675f3853550794d3d3eaaa0c23543ba998ebeef",
+    "03_infra/src/pipeline.rs": "146a5e7cddd62fcf97aef4c0cb31ba0286a332ece9e62ac0c63b80d3da129649",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md": "3094bd8cda8d1971e765cf91cbb110d376ff713e4348ae8f4bf8214e33b45b9b",
+    "00_nucleo/prompts/infra/pipeline.md": "e69691e7ced9e1cc26ddc0b752ff64a418322cad68c21a4b5bc68bbae6f66c1d"
+  },
+  "findings": [
+    {
+      "id": "R1-P1159",
+      "priority": 1,
+      "location": "context_stabilization.rs:314-354; pipeline.rs settled path",
+      "evidence": "Dk is laid out with I(k-1) pages, then new numbering views are produced into Ik. valid only reduces selected context read checks and locations. On true, Dk returns without consuming new numbering views; parent deliberately skips legacy P1159.",
+      "requirement": "Parent P1159 demands reinjection and relayout with page count/logical snapshots/raw numbering/realized content stability, under child shared attempt budget.",
+      "classification": "Concrete missing paginated invalidation condition; actual output witness pending."
+    },
+    {
+      "id": "R2-legacy-features",
+      "priority": 2,
+      "location": "context_stabilization.rs:132-133",
+      "evidence": "Feature/full_error propagation occurs for every discovered root before selection; old expansion used default EvalContext fields.",
+      "requirement": "Child explicitly disallows fixing legacy target/features outside selected scope; parent no-selection path preserved.",
+      "classification": "Concrete unauthorized propagation delta; precise observable profile witness pending."
+    },
+    {
+      "id": "R3-duplicate-before-selection",
+      "priority": 1,
+      "location": "context_stabilization.rs:72-87,391",
+      "evidence": "Every duplicate id sets impossible and returns new terminal before any execution/selection; same existing ContextBlock reused twice is included.",
+      "requirement": "Preserve no-selection legacy path; ambiguity must be demonstrated, not infer new default from duplicate integer alone.",
+      "prospective_control": "#let x = context [x]\n#x #x",
+      "classification": "Concrete changed decision outside selection; runtime not measured by verifier."
+    }
+  ],
+  "additional_risk": {
+    "location": "discover:166-175 and prepare:392-400",
+    "description": "Only roots execute in discovery; nested children discovered only by realize after some root selects. A document whose only Element demand is in a produced child may never enter stabilization. Needs scope-aware actual witness, not asserted final failure."
+  },
+  "positive_static_observations": [
+    "Original body diagnostics retained independently and returned before generic insufficient-proof terminal at normal final boundary.",
+    "Opaque self-validation is kept distinct from nonconvergence details; no details-as-opacity heuristic in current branch.",
+    "Current contributions rebuilt from origin, invalidated descendants retired, selected output retained by actual Execution object.",
+    "I0 empty and history appends I1..I5; loop has no A6. These are static observations, not F credit."
+  ],
+  "not_findings": [
+    "Passive hooks currently in construction are not treated as final missing coverage.",
+    "No claim that static review closes terminal, producer identity, sinks or full pagination gates."
+  ]
+}

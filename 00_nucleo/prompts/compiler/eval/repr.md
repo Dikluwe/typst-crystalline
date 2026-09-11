@@ -641,3 +641,41 @@ Autoriza-se explicitamente a regra longa e sua propagação aos fallbacks.
 Não se pede nova implementação quando o baseline já a cumpre.
 O autor independente migra a expectativa histórica de Location neste
 consumer para `location(..)`. Nenhum outro expected é relaxado.
+
+## P1339 — grupo público de filtros de elemento
+
+### Medição anterior à decisão
+
+No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto,
+`repr.rs:1040-1069` tem match exaustivo sobre Selector e representa cada
+Where antigo separadamente. A sonda `p1339-where-l0-vanilla.json`, UTC
+`2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, mede
+grupo vazio `strong.where(:)` e grupo ordenado único para heading, em vez
+de chamadas Where encadeadas. Manifesto e recibos pinam binários e estado.
+Em `lab/typst-original/crates/typst-library/src/foundations/selector.rs:309-321`,
+a apresentação distingue ausência do filtro de filtro presente vazio.
+
+### Decisão de integração
+
+O novo braço Selector::Element aprovado no gate P1339 imprime o nome
+canônico da função seguido de `.where` e da apresentação de um grupo named.
+Vazio imprime `(:)`; não vazio usa os campos na ordem armazenada, com
+`nome: repr_value(valor)`, escaping e disciplina curta/multilinha do formatter
+canônico de named. Nenhum campo é elidido. Values aninhados mantêm seus
+formatters próprios, inclusive elisão de arrays reais e reindentação.
+Não usar Debug de Func/Selector, endereço de função ou o nome lexical de alias.
+Não reordenar campos, achatar o grupo para Kind ou encadear vários `.where`.
+
+A mesma projeção chega a CounterKey::Selector e aos fallbacks textuais
+existentes por delegação, sem novo serializer nem nova assinatura pública.
+Esses deltas de strings para os novos valores devem integrar o contrato antes
+do candidato; não afirmar preservação de bytes dos fallbacks para eles.
+As variantes anteriores, incluindo as formas históricas de And/Or/Where,
+mantêm sua representação. P1339 não corrige repr geral de seletores compostos.
+
+Aceitação: vazio, campo único, ordem oposta, spread com sobrescrita, alias,
+filhos multiline, valores escapados e projeção em Counter/fallback. Refuta a
+decisão qualquer perda de grupo, ordem ou valor, ou alteração do repr de
+variantes anteriores. Morfologia é linguagem; escolher um helper é mecânica.
+O gate público está aprovado (`p1339-where-approval.json`); contrato, selo e
+RED permanecem anteriores à implementação.

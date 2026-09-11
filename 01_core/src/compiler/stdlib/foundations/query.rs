@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/query.md
-//! @prompt-hash 733b0edf
+//! @prompt-hash 7c50e9fc
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -50,6 +50,7 @@ pub fn native_query(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let selector = parse_selector_arg(&args.items, "query")?;
+    crate::compiler::eval::bindings::validate_element_locatability(&selector, args.span)?;
     let locations = ctx.introspector.query(&selector);
     // **P844** — devolve o `Content` do elemento encontrado (paridade
     // vanilla `query() -> array<content>`). Fallback para `Value::Location`
@@ -61,7 +62,7 @@ pub fn native_query(
             None => Value::Location(loc),
         })
         .collect();
-    Ok(Value::Array(values))
+    ctx.observe_context_read(crate::compiler::eval::ContextReadRequest::Query { selector }, args.span, Ok(Value::Array(values)))
 }
 
 /// **P208C (M9c)** — `locate(kind)` — retorna a **primeira** Location
@@ -74,11 +75,13 @@ pub fn native_locate(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let selector = parse_selector_arg(&args.items, "locate")?;
+    crate::compiler::eval::bindings::validate_element_locatability(&selector, args.span)?;
     let first = ctx.introspector.query(&selector).first().copied();
-    Ok(match first {
+    let result = Ok(match first {
         Some(loc) => Value::Location(loc),
         None => Value::None,
-    })
+    });
+    ctx.observe_context_read(crate::compiler::eval::ContextReadRequest::Locate { selector }, args.span, result)
 }
 
 /// **P208B (M9c)** — `here()` — retorna a Location "actual" disponível
@@ -96,13 +99,14 @@ pub fn native_here(
             args.items.len()
         ));
     }
-    match ctx.current_location {
+    let result = match ctx.current_location {
         Some(loc) => Ok(Value::Location(loc)),
         None => err("here() chamado fora de contexto locatable — \
              current_location não populado (P208B: infra minimal; \
              captura automática no walk é deferred)"
             .to_string()),
-    }
+    };
+    ctx.observe_context_read(crate::compiler::eval::ContextReadRequest::Here, args.span, result)
 }
 
 /// **P772w** — `target()` — devolve o alvo de exportação actual.

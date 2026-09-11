@@ -1,6 +1,11 @@
 # Prompt L0 — `entities/element_payload`
 Hash do Código: d3882e3e
 
+**Extensão P1339:** `APPROVED_ADR0127_PENDING_INTEGRATION_GATES` para NativeElement.
+A aprovação específica do dono está registrada em
+`diagnosticos/p1339-where-payload-approval.json`; os gates de integração,
+contrato, selo e RED do P1339 continuam obrigatórios antes de código.
+
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_payload.rs`
 **Criado em**: 2026-04-30 (P161 sub-passo .7)
@@ -283,3 +288,86 @@ O payload Equation ganha `alt: Value` (`Str | None`) e o alinhamento efetivo
 necessário à visão realizada. O walk captura ambos da chain, com defaults
 medidos. Esses campos alimentam introspecção/query e emissão semântica; não são
 copiados para `EquationElem`. Hash/eq e matches exaustivos incluem os campos.
+
+## P1339 — ocorrência nativa sem novo ElementKind
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto SHA-256
+`35fcddfd22a08c824c146a82b5feaea93c18d5751d256875b1550cb8255411a9`:
+o enum não possui payload para Strong/Emph. `compiler/introspect.rs:1278-1363`
+aloca Location e entrada de conteúdo somente se extract_payload retorna Some;
+`:1398-1401` atravessa Strong/Emph sem ocorrência própria. O L0 de locatable
+exige equivalência entre is_locatable e presença de payload. Portanto um
+Selector que conserve a função não cria por si só a ocorrência consultável.
+
+As sondas `p1339-where-integration-probe-runs.json` e
+`p1339-where-integration-probe-supplement-runs.json`, UTC respectivamente
+`2026-09-10T00:18:55.842594+00:00`–`00:18:59.537177+00:00` e
+`00:20:17.650961+00:00`–`00:20:19.215281+00:00`, fixam o working tree
+não commitado e o vanilla ratificado `a51e02804`. Query/counter aceitam
+Strong/Emph e aplicam filtros de body; Text é rejeitado como não localizável.
+Fonte normativa: `model/strong.rs:21`, `model/emph.rs:26`, Locatable/Tagged;
+`introspection/counter.rs:338-357`, contagem filtrada por campos.
+
+`compiler/introspect.rs:1944-1948` já emite Tag::End com hash_content do nó;
+`compiler/introspect/convergence.rs:25-28` inclui a tag final no hash da
+sequência. A forma unit do evento inicial não elimina essa evidência de
+mudança do conteúdo. A ADR-0069 possui precedente de payload sem novo Kind,
+mas sua emissão pós-recursão excepcional não se aplica a estes nós puros.
+
+### Decisão aprovada — uma variante pública adicional
+
+Adicionar somente esta variante unit ao enum ElementPayload:
+
+```rust
+NativeElement,
+```
+
+Ela marca a existência de uma ocorrência de elemento nativo cujo conteúdo
+completo fica no store canônico por Location. Em P1339, os únicos produtores
+novos com unidade de ocorrência identificada são Content::Strong e
+Content::Emph próprios. Uma representação alternativa em Styled só pode ser
+promovida após medição de equivalência de ocorrência e L0 proprietário de
+extração/walk que fixe cardinalidade, ordem, parent e ausência de dupla
+alocação. Flags de origem usadas pelo matcher de show, isoladamente, não
+provam uma ocorrência: flags Strong/Emph simultâneas ou Styled envolvendo
+Strong próprio não autorizam emitir Locations adicionais automaticamente.
+Estilo de render assado não é origem semântica. Não é catch-all para os demais Content, não
+promove Text, elementos dinâmicos ou tipos futuros implicitamente.
+
+Não adicionar ElementKind::NativeElement nem Kind por função. A ocorrência
+usa o par normal Tag::Start/End, Location e ElementInfo já existentes;
+identidade e campos são projetados do Content/snapshot armazenado, nunca
+inferidos da unidade NativeElement, de hash, nome lexical ou payload falso
+de Heading/Metadata. Label causal permanece em ElementInfo. O Hash de
+conteúdo é mecanismo de convergência, não comparador de identidade/filtros
+da linguagem; não duplicá-lo no payload nem preenchê-lo com constante.
+
+Esta cláusula sucede somente para NativeElement a correspondência histórica
+uma variante por Kind. Preservar variantes, campos e derives/implementações
+vigentes do enum; o exemplo antigo de Interface pública não remove variantes
+posteriores. A entidade permanece dado puro, sem compiler, callback, registry,
+mapa de propriedades ou método público adicional.
+
+### Gates e alcance
+
+A variante quebra matches Rust externos exaustivos; o gate específico
+ADR-0127 foi aprovado em p1339-where-payload-approval.json, separadamente
+da aprovação de Selector/ShowSelector. A promoção completa
+exige L0s próprios de extração, locatability, walk, consulta, contagem e
+sincronização das Locations com layout antes de código; esta entidade não
+legitima esses consumers sozinha. Não muda fase de avaliação de callbacks.
+
+Aceitação posterior: ocorrências Strong/Emph distintas e ordenadas, query de
+body match/miss, counter filtrado e updates por chave, labels/parents/posições
+sem regressão; mudança de body deve continuar detectável entre iterações por
+Tag::End. Clone/hash/construção unit não bastam como prova de linguagem.
+Inferência de suficiência: os dados completos e a tag final tornam desnecessário
+novo campo no payload para o recorte. Refutam-na perda de identidade/campos
+no store, hash final ausente, alteração de fase ou necessidade de outro dado
+público; nesses casos reabrir o desenho, sem ampliar esta variante em silêncio.
+O hash do Content nu não prova estabilidade de campos derivados somente da
+chain; o owner de captura deve medir esse caso e preservar a evidência causal
+na integração. Duplicar o mesmo hash no payload não soluciona essa perda.
+Esta proposta não afirma paridade geral de query/counter nem fecha P1339.

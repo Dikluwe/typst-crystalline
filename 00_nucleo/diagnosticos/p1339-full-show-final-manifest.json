@@ -1,0 +1,178 @@
+{
+  "at": "2026-09-09T23:35:53.958969+00:00",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "status_short": "?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+  "diff_stat": "",
+  "input_sha256": {
+    "00_nucleo/materialization/typst-passo-1339.md": "817c3a1476897fb0a847c90183e9a9fe690994f60023126997c8022c4e8b86a9",
+    "00_nucleo/diagnosticos/p1339-resume-r1.json": "657f6eeeee2aa8a30a5443f930125231af38ce0088c63956ce17d38bb112fa02",
+    "00_nucleo/diagnosticos/p1339-authority-manifest-r1.json": "074ec7a3cfeea34f0f6a230dcd4cc4b9b2777a860ce439bdad8c774c034f38fc",
+    "00_nucleo/diagnosticos/p1339-a0.json": "c70ca7d1f22aa7df222a081da4feddbc056b628eca505449eedb153acd71c361",
+    "00_nucleo/diagnosticos/p1339-probe-manifest.json": "712fb949a5ed8725c6322157bbe06a8ef1cd3313007d02eb92fabeeb95bd8e21"
+  },
+  "runner_sha256": "45bc7cd558283cb1c3e36ab0d44e2bbabec224ed010df7540dbe8a161f60e37b",
+  "runner_sha": "df9ac31218b4e070ea81087c8a84a4d52f747a073bae94498ae9b8e96d6664d9",
+  "cases": [
+    {
+      "id": "strong-static-empty",
+      "source": "#show function.where(strong): it => metadata(\"MATCH\")\n#strong[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ",
+      "sha256": "5469e61554f67b27797ebb4661259d603a5ddd934bf84dbbfeee572be52bb2b3",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters strong through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "strong-static-match",
+      "source": "#show function.where(strong,body: [BASE]): it => metadata(\"MATCH\")\n#strong[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ",
+      "sha256": "62c08b6b1069a6c807430dfa78f9a84d24f7255fad622ad468cc6c181b61ea6f",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters strong through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "strong-static-miss",
+      "source": "#show function.where(strong,body: [OTHER]): it => metadata(\"MATCH\")\n#strong[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ",
+      "sha256": "3dc550bc2ffd6418bdbb2782ae84ee3b345bec8a4c142461633b1f11d71cb7b9",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters strong through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "strong-bound-empty",
+      "source": "#show strong.where(): it => metadata(\"MATCH\")\n#strong[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ",
+      "sha256": "5a962a1be452fcd3ecdbd0442728299e45777978e6ba27c346ad695f14bfefca",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters strong through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "strong-bound-match",
+      "source": "#show strong.where(body: [BASE]): it => metadata(\"MATCH\")\n#strong[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ",
+      "sha256": "86c54ae4a7553c745e09ed2a7fbcb6744e6b4225702cb5d0d02f78de677cbf21",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters strong through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "strong-bound-miss",
+      "source": "#show strong.where(body: [OTHER]): it => metadata(\"MATCH\")\n#strong[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ",
+      "sha256": "247ddcd2ab24f49adf49ef4886a7b8d7f75e37e861c8b2a7cbc90422bc840ac0",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters strong through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "emph-static-empty",
+      "source": "#show function.where(emph): it => metadata(\"MATCH\")\n#emph[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ",
+      "sha256": "7ee4a6cdf2ec8791a884c92a876af5c29c5ffb5a12ddf6f5709add91694be5da",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters emph through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "emph-static-match",
+      "source": "#show function.where(emph,body: [BASE]): it => metadata(\"MATCH\")\n#emph[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ",
+      "sha256": "a3607e11e19a2cf9461f80ca173ff31354ead47e8cb147b1fc24c0ed1c7a7989",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters emph through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "emph-static-miss",
+      "source": "#show function.where(emph,body: [OTHER]): it => metadata(\"MATCH\")\n#emph[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ",
+      "sha256": "62a497cdbf84d30f2f345041b62f40e6dbf9332a3594105548990ed3dcf89162",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters emph through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "emph-bound-empty",
+      "source": "#show emph.where(): it => metadata(\"MATCH\")\n#emph[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ",
+      "sha256": "585b5f4ec6f3cf4fd3bacd1b9941b255ddc193f7a4875c06b5bc003cb87390e3",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters emph through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "emph-bound-match",
+      "source": "#show emph.where(body: [BASE]): it => metadata(\"MATCH\")\n#emph[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ",
+      "sha256": "07f4d43cf50bbf161aa4aa3e4c54a678f10b4d4881a810ee5b854045704ad1ef",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters emph through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "emph-bound-miss",
+      "source": "#show emph.where(body: [OTHER]): it => metadata(\"MATCH\")\n#emph[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ",
+      "sha256": "fb31613eefafc73acadd3482ff28a60d204552412fad3a5800aa898b8cbfa29e",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters emph through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "text-static-empty",
+      "source": "#show function.where(text): it => metadata(\"MATCH\")\n#text(\"BASE\")\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ",
+      "sha256": "f6809b7a3bcbb13b2f876c4724b2ba192490dfccc30a20e764d21a3a4b16afbc",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters text through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "text-static-match",
+      "source": "#show function.where(text,text: \"BASE\"): it => metadata(\"MATCH\")\n#text(\"BASE\")\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ",
+      "sha256": "75503f910f71840877f677eb12fac06582d23b004d6b38f6c5a12c2855568716",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters text through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "text-static-miss",
+      "source": "#show function.where(text,text: \"OTHER\"): it => metadata(\"MATCH\")\n#text(\"BASE\")\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ",
+      "sha256": "a75ab0110e9df11bc4b03149e0c5eb6695b753f16d6b06b1dacadb2a040d1986",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters text through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "text-bound-empty",
+      "source": "#show text.where(): it => metadata(\"MATCH\")\n#text(\"BASE\")\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ",
+      "sha256": "9abae0d61117e0388c80311236520c0b51d6e161281d4f3fa9078665228bf75f",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters text through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "text-bound-match",
+      "source": "#show text.where(text: \"BASE\"): it => metadata(\"MATCH\")\n#text(\"BASE\")\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ",
+      "sha256": "ad562716f822852850bdc50cfd5490f82b0697ebfa9cc887cb1fe665718fd5b6",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters text through show; field miss must not emit MATCH"
+    },
+    {
+      "id": "text-bound-miss",
+      "source": "#show text.where(text: \"OTHER\"): it => metadata(\"MATCH\")\n#text(\"BASE\")\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ",
+      "sha256": "2a862aa81254988965f1f1d382e87d885367d90abe089dfb759c259cebdab369",
+      "preclassification": "Unknown",
+      "obligation": "realized selector filters text through show; field miss must not emit MATCH"
+    }
+  ],
+  "profiles": {
+    "default": [],
+    "html": [
+      "--features",
+      "html"
+    ],
+    "a11y": [
+      "--features",
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "--features",
+      "html,a11y-extras"
+    ]
+  },
+  "observation": "query metadata --field value triggers layout; metadata emission observes selector match",
+  "no_candidate": true
+}

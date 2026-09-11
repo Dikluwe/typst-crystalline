@@ -1,0 +1,28 @@
+{
+  "acceptance": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-red-lossless-static-acceptance-r1.json",
+    "sha256": "a22db10f446103a0206c81011a94091a28b0083542b49f4c653663860891c276"
+  },
+  "manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-manifest.json",
+    "sha256": "ad5b2016e8cf1c2e469241cc105ca2cbf27fbf6124765688b80e9f8360ee93de"
+  },
+  "argv": [
+    "python3",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-executor.py",
+    "--selection",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-selection.json",
+    "--selection-sha256",
+    "9b5800e5071856997c0f89525ebfe5fe90bff75ca3bf8b3ccbcc538f92312d2e",
+    "--output",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-runs.json"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "start_utc": "2026-09-10T05:36:15.749022+00:00",
+  "end_utc": "2026-09-10T05:37:23.244124+00:00",
+  "seconds": 67.49509653600398,
+  "exit": 0,
+  "stdout": "Lossless D: verifying sealed inputs; no compiler started yet\nLossless D: starting 2706 cells through unchanged frozen execute\nLossless D: Typst completed; rechecking sealed inputs\n{\"raw\": {\"path\": \"/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-red-lossless-runs.json\", \"sha256\": \"5431c89a90e40d1c6530c3a3fca3bfad569a21bf881c57264c443f1d4db65740\"}, \"processes\": 2706, \"unknown\": 0, \"wall_seconds\": 66.24114760698285}\n",
+  "stderr": "",
+  "automatic_retry": false
+}

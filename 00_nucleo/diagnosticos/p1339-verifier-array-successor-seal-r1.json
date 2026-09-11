@@ -1,0 +1,488 @@
+{
+  "schema": "p1339-array-bytes-prerequisite-successor-seal-v1",
+  "utc": "2026-09-10T11:19:18.023Z",
+  "verifier": "/root/p1311_review",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "SEALED_ARRAY_BYTES_PREREQUISITE_SCOPED",
+  "ancestor_seal": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-seal.json",
+    "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"
+  },
+  "authority_manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+    "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+  },
+  "contract": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-r3.json",
+    "sha256": "c0cd1826679ddaf77e937a677839c5cbe64fdae6ec71bfa34e635d584d9c3e17"
+  },
+  "supplement": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-supplement-r2.json",
+    "sha256": "3f6050dbd7b3373d7972f58e1343860697d2af7c672845cc06033cd5383767fc"
+  },
+  "explicit_user_authorization": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-authorization.md",
+    "sha256": "34a4842adb3f78e52af0927ed0ac378447e104fed3664b4a7460787aa28902f4"
+  },
+  "scope": "Only first-positional Bytes -> Array of unsigned Int, order/multiplicity/empty, causal surplus diagnostic, occurrence span and detached Args.span fallback. No Array/Version/general constructor, public API or change to original expected results.",
+  "succession": "Additive narrow successor. Three authorized L0 successors plus one new owner; all other ancestral obligations retained. Direct independent RED and real discrimination revalidate the first affected preimplementation gate. Original seal, histories and budgets remain immutable; unaffected C evidence is not relabeled or rerun.",
+  "l0": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval.md",
+      "raw_sha256": "e6796a6fe6eeb88290aada11980372936aca294b75c1bc793f85817f7ab475fa",
+      "normative_sha256": "fcbf544bb82d15ced07a8af76d95d3fd114e5da82e5d54435b2b95fff2d1efc5"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+      "raw_sha256": "a2414e3288de9c21e8eef86866089b784f8ef535e06787369a27ea29f0216c43",
+      "normative_sha256": "dc1e328ea92f5093fff07e6afdbc5ab7c27c00e08846073a72df48d399e3a991"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings/value_methods.md",
+      "raw_sha256": "a66a71d0c3589b650497b266352b545f29e931cf90471cf51df010d2d97a202b",
+      "normative_sha256": "4a10baaaf4e06d4506ebd81f50655de297b5d5dd8f48614565124b1cfcaf21de"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "raw_sha256": "19b67415cb4d197096f4254d0f8d9dcef3adad01455f823e81237528d1283198",
+      "normative_sha256": "68129e0065efbc165ddeee3b5782d939a4395e583373b213f23537cfae977c95"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/operators/equality.md",
+      "raw_sha256": "5b9124c32eecd3fbf80994d8601cf7efe7d21a187a6d8e740ac0ec9aee87fba5",
+      "normative_sha256": "ea4f48157059d91446f8664094182489c979f617a8f59f55ffacad4a213c9dba"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/repr.md",
+      "raw_sha256": "8552abc207e790a67fbc055fc32107bb6daa4dbac93de937a9931a3789880a3f",
+      "normative_sha256": "a71e8ea1ccda006245623a57ae6ccc36b34e23f63ad5876b8d69192ca877cba6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/rules.md",
+      "raw_sha256": "2e7320602cbb8b38b37bbf2ba12d76d418e41d30c20bd13fc03e31c6e32bf2fa",
+      "normative_sha256": "b7c80872c7e39766e9a7a9b14ade619ca59aecf9bddaccd22943f7cad0152528"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/selector_matching.md",
+      "raw_sha256": "93fc3e5f20894fa09a54996e13328201f5dd2216c5ca260b67dd42e8dcc91bba",
+      "normative_sha256": "7c41ed846d72a6d2823250a387b015c820f57b79dcc8d2187fdbb23cf2da71ec"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect.md",
+      "raw_sha256": "701e2442c7741637aa6f826f3a42e6ebd90173657a59dc2f76b811ef031ec20b",
+      "normative_sha256": "155459b351fa2b730b5ba07d67f5d528b97e802d00ef4aa73986304024a2aea4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/extract_payload.md",
+      "raw_sha256": "cfdf29749ac82f26d27d96ab973ff82b19de004a2cacba16134b10b9a172517c",
+      "normative_sha256": "ec4d6ca269e7dd8f541af004d46cefedf6b5239aa03cf49cafd41869bc4d9cce"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/from_tags.md",
+      "raw_sha256": "739b43d5f62073d5df165452235c13ac69d0f0cd002d1b7115c105f43431d8ec",
+      "normative_sha256": "c3268fb0706bdee9bde44901ae88e8f77d027b942607d23061c65cd36242ae3a"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/introspect/locatable.md",
+      "raw_sha256": "f9fb062e6830bbfc7cb80edaa213b8281c993e12a6e913ed8ae5aec6870d3606",
+      "normative_sha256": "001988af23f8cbc6e3c05adc8d25ee35796f2aa9947f6827edd0c1748be12c7d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/layout.md",
+      "raw_sha256": "4ca2927ffa83a38cd0e45883a75cdd73bea9a28574bbce7ab0778a8fb7dd58ca",
+      "normative_sha256": "d0f097aa8a469f37d0df871b26be7ecd80636db2e314f8b20efc58b6771c5f59"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "raw_sha256": "d10ed84ba3a36295fb223f23e61e6177f7d1d5c3dff320fdb3bcaedf1276b0fb",
+      "normative_sha256": "4fcd16147b8cf776528cb7152447b40e2428d9669cf99972af59e7d22b6bb906"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/counter.md",
+      "raw_sha256": "e5c0bf6e74fdd9f147696d53809697ba6472f0159877ae3bd84948dbe7afaa38",
+      "normative_sha256": "c6575b037ee4df205e9a0708a0397aba7468e24cfa8bd15147a6c3d295c165f8"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/float.md",
+      "raw_sha256": "784c12e7f9f515c2b05cdc9077f375d8e4049be6c083afbda78e4aa099b36c15",
+      "normative_sha256": "497e6d311402010beb884c1363fd015d709d563e306c49280860d639caaf8759"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/query.md",
+      "raw_sha256": "f3257063eda69c1bec85a37fa4b57d96e7b870fce6a7dfc0e290565096a625c8",
+      "normative_sha256": "14aa15d31de1851aca2a740564701fe0b4a1b9cae21de7b909f87a6666008c06"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/foundations/selector.md",
+      "raw_sha256": "1d36bd9d1f83df40184b1bd3eb6b1f2445baf04675235b883877b9a38acfbb7c",
+      "normative_sha256": "f998e7094dc20c8faca910a631655d93be18ea5970ab33b051acd0f6af728a18"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/primitives-constructors.md",
+      "raw_sha256": "6158e99064d725735af4049e3749c32f1367fa1fc538d34d6bb315516161f58b",
+      "normative_sha256": "1d2146ebe12abd4bf39fa11e0c63592f1e850c1aa6f8baf1df32fbbdf368888c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/primitives-constructors/version.md",
+      "raw_sha256": "d7c17986b649fe0393821c8e3e3b4073017957078a6bea54aa4676e2276328ef",
+      "normative_sha256": "3571d4e1653fc7081316a8fb73c4ae54d2177f61e3a7d9e3e518d3e80e7d61d1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/state.md",
+      "raw_sha256": "8adbc8f307a4ea108aff0a30998ebcaa507c62ed6ba830c28eb393700398c4b9",
+      "normative_sha256": "4d00c48717b98cec5d161ecb7603c17b6f504d133e658893b1f8e48be2e649e3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/counter_registry.md",
+      "raw_sha256": "78d93e7387f89f26187b175958c31c4e3b2a3db58f4e14ca4b2c6760170a1efe",
+      "normative_sha256": "d141d328c55aa10b90f6677568cc1103fe547201714d98a7c4d14e933c546921"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/element_payload.md",
+      "raw_sha256": "44994d49505a501d657e413ffff6d69ae68d1feb9044c863505f40ccf1da77f5",
+      "normative_sha256": "988be0102f377af2419bc755003071d0a3214b922531ff989f1e7be9f39e881c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/emph.md",
+      "raw_sha256": "e9233a598bfb32fae4221e79f0dbfa653192974f1dfa3891aca3544ff4b82654",
+      "normative_sha256": "f6da380e5beb1ff93b6c52d32ef70c919044e1a258ea94167888ebc03228c82d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/elements/strong.md",
+      "raw_sha256": "eed88d6e0d8b1365f1ec432c0a5790c70ea710b303902d5ce500c12f039d2a45",
+      "normative_sha256": "77d57204994607f9c2015de5e01c3a6a949e6745bb3c3b025322bde536c14ccb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/introspector.md",
+      "raw_sha256": "d47eb8459a4062ea902ad38f5aeb5a97bc4fea4fb62ac5230107fbdc20707944",
+      "normative_sha256": "b73806670fdf0eb84657e44b55fa8f490d97236dac7e779e8f0fc2a8ac434f1c"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/layout_types.md",
+      "raw_sha256": "95199a92409babfce1875920803acee1f94a4406d53352751345467023d051b7",
+      "normative_sha256": "6107a4100cc4377f673276a5ae5b7450829eaf364e2155c9c158ca642dab8862"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/selector.md",
+      "raw_sha256": "8b6ebfea3455c6191455b007b461270765b8b07726911f5830835dfd259239df",
+      "normative_sha256": "33bb30f8014ee46d69d2471de4ea84d4074e271cd0e6c27a1b1b0141c2946fa1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/show.md",
+      "raw_sha256": "777e6aecdad7bb23ba69b82471fb4bc9c9b7636c8a2273e50232c248fa522e73",
+      "normative_sha256": "9e8dec827c7c0324731cf64ff2aadc80911ad0b87180b2ccba0d521c460197d2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/entities/version.md",
+      "raw_sha256": "a41f7e3ad44eddc8bdb18126e673822ac4a6afec57d1b38467b85c756e85286f",
+      "normative_sha256": "360b6dfc7eaba502ca1c0e664887ba284c36fd1a6b46296d3108e8c818aa7517"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/infra/pipeline.md",
+      "raw_sha256": "b2557aed0dde5cb79a702b84075d8ab3820745a4a0c8745cf6903e5562637526",
+      "normative_sha256": "fe9156c7a4c1b9d51bb217e03af0044a41e6efe691c05e534f51f5f40f3dab15"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/primitives-constructors/array.md",
+      "raw_sha256": "e3aa1e062603319adcfecc7723bbe14df18a8a139b6e2e1750fe171a4208815b",
+      "normative_sha256": "17729bfaff2e872f7a654c70226c85dc17d50191a26bd453dfd71626de5a286f"
+    }
+  ],
+  "l0_hash_policy": {
+    "raw": "Raw hashes pin the exact pre-candidate snapshot and remain immutable historical records. Final raw may differ solely in the eight lowercase hex digits of the one canonical Hash do Código line.",
+    "normative": "Remove only that validated line in preamble before first empty line/fence, preserving all other bytes. Full SHA256 must equal frozen normative SHA256. Do not strip similarly named body examples, pins, headings, whitespace, comments or other metadata.",
+    "derivation": "Before/after raw hashes, exact eight-digit old/new field, productive owner source hash excluding canonical @prompt-hash and independent strict V5/V15/V26 plus fix-hashes dryrun Nothing to fix are mandatory. No nucleus refresh, owner change or other L0 change qualifies. Any other changed byte invalidates the seal.",
+    "source_evidence": [
+      "/repos/Antigravity/tekt-linter/03_infra/prompt_io.rs:164",
+      "/repos/Antigravity/tekt-linter/03_infra/hash_writer.rs:15",
+      "/repos/Antigravity/tekt-linter/03_infra/hash_writer.rs:63",
+      "/repos/Antigravity/tekt-linter/03_infra/nucleus.rs:200"
+    ],
+    "interpretation": "Derived lineage metadata is not a normative amendment. This exception is fixed before seal, not retroactive waiver. The pinned skill/step require frozen obligation/provenance; neither mandates an impossible immutable derived code hash after implementation."
+  },
+  "ancestral_immutable_inputs": {
+    "count": 1619,
+    "source": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-seal.json",
+      "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"
+    },
+    "verification": "All ancestral inputs currently rehashed.32-owner normative map excludes only exact canonical Hash do Codigo header line; no other changed protected bytes."
+  },
+  "additional_immutable_inputs": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-authorization.md",
+      "sha256": "34a4842adb3f78e52af0927ed0ac378447e104fed3664b4a7460787aa28902f4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-supplement-r2.json",
+      "sha256": "3f6050dbd7b3373d7972f58e1343860697d2af7c672845cc06033cd5383767fc"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-inputs-r2.json",
+      "sha256": "8a0c77118c80d220b58dd8070fe0da2399353c4ae0f46610b245224b389bb3a0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-owner-harness-r2.rs",
+      "sha256": "ca1f4ea48a10e1c87229d9844dab572acb64f20e69988dbb02e9f29fb04cdc13"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-owner-freeze-r1.json",
+      "sha256": "77029c7eb9c2838ae417ff60c984072b5205f8a6c3381c406bd27ba82743a0e3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-oracles-focal-r1.json",
+      "sha256": "9fde62b1664bdda6d83aece3580f9acbebeb2768113a204ebeb8889117b3c533"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-focal-raw-r1.json",
+      "sha256": "e969bffc9da5f796498fdd5bf635eaea468efac7cb67c4d0f5d04810c4a71196"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-expanded-manifest-r2.json",
+      "sha256": "f53860b4769219b4aa508210fa806897930ab99a126b7bd9841509ba4556fb45"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-expanded-recorder-r2.py",
+      "sha256": "07ff1270ad4609db44cf39ef343bfa94308069da0af76a21c1806923d15cc145"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-expanded-raw-r1.json",
+      "sha256": "53b9ab9f4b5c3ee0bcffa2ea248a101aa85dc9a03539217cbea9b15202fdee8e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-expanded-oracles-r1.json",
+      "sha256": "35c043a82bbfd56b1d9e334355a0acacaed57039bb0c47b02826bdd888b183c0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-expanded-receipt-r1.json",
+      "sha256": "53d315b6e566098ee442eada495b2544976734607a2fb376e9dc2a2eec0dfbed"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-registry-r1.json",
+      "sha256": "d48373e9944f1f1cc9e8417a7379d71d00016d2e3a1f38fa46a9e2d1c61df9ee"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-build-r1.json",
+      "sha256": "b972819d26f9f1465484dc0f3cfece79ea4e5a11d8dedfa1f84345594906bad6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-multiplex-r1.patch",
+      "sha256": "5ad4012ab99bd3398318ebe5d397cc28327da01ee3d5f3bf6bb53bd852668a47"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-private-build-manifest-r2.json",
+      "sha256": "65d439a36a1d96a0f796eed339227f5e67dca0ea36e652525f12f9a3af24d5e4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-private-build-r2.json",
+      "sha256": "f10ab259c7c29161ab1c7310da622eaabd30fb9516e9bcee9301ca12b701ff51"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-private-r2.patch",
+      "sha256": "64604d9356499e3eacee3d4931fb69648d9a8923f7a406f4598c2c28cb6de876"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-owner-binding-r2.rs",
+      "sha256": "57594230adc279cd6b70fc2f3bd398065e073ab68ab23f7f8d6ceb184ac62245"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-private-focal-manifest-r2.json",
+      "sha256": "e2f86c1df604fd3775e57440901efb9dbab2493cd398f5c4669899d96e9af74d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-private-focal-r2-output/aggregate.json",
+      "sha256": "508cfd80afb790f31345fbb60543e3a9139cc2243b9236f22a24c3b3780a8bf3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-private-expanded-manifest-r1.json",
+      "sha256": "a680076e0eadf455f89c32c7e40bbb5373f6033a464cf6d93b2cbbc92b162853"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-private-expanded-r1-output/aggregate.json",
+      "sha256": "37979befc8446872d1eaa014aa9fb336fef8b1c83bda2a3d1653593234dbe249"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-focal-r1-output/aggregate.json",
+      "sha256": "f189d937e695feb1fa6403e7d989a1c5b143f86682c31eb722f9018297a8cdfe"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-expanded-manifest-r1.json",
+      "sha256": "2b30a18ffa687493b04ef9318bb8758b296c28d21525b50fa3111447b69ffe61"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-expanded-r1.py",
+      "sha256": "4b902238124335c119a0f3e5687467416597ac00f3bd8a54948f9160707d4b72"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-expanded-r1-output/aggregate.json",
+      "sha256": "71db8d84ee5322547c3db18557b7e2b8090164bc8552ecf543f949e8239aa3af"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-array-mutant-focal-review-r1.json",
+      "sha256": "03c1bd946f2100731b644dec47418c891a2896161cb2e455cb2010dd3267b9ff"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-array-private-focal-review-r1.json",
+      "sha256": "f785ed67a30ed2527a3fa3aba6b4148ae338b116d38de2aefdca94482f2fb1e2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-array-expansion-review-r1.json",
+      "sha256": "ad5abd4e2a69411eb146a69419d124cbc1ef6ddc276012557009b94ff93b2a49"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-array-mutant-expanded-review-r1.json",
+      "sha256": "2133bf2fc99c3a48e279ac492c3693d5bc290e2bc3b7b8fa7955ccc40f533ea1"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-array-originals-envelope-review-r1.json",
+      "sha256": "1500c56dc11118788c3337d2a3608a0563a501a68e8fb2a208be6b611a84cff4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-envelope-r1.json",
+      "sha256": "7c975dc120d21e5c8d5a4661f294c1176958258adb80ae23bf43bc0c875813a2"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-executor-r1.py",
+      "sha256": "15168c3a2c71bfb90bf5d0dd939a19e46bc4a6e18b020dc65d845d4b9ef731de"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-lint-history-acceptance-r1.json",
+      "sha256": "a445e0711828d98c7c85617055b90ba834c387d99082499df02e2ed48672b5eb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-lineage-preflight-r2.json",
+      "sha256": "2701db933ea742ba3523c17b418253361216a21109960e798ceca7b10233c7cd"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-local-red-r1.json",
+      "sha256": "659f2d28cfe174745dbdd0fe7eeeaf85f934f9b9142f60a6e2415c80b386b5d0"
+    }
+  ],
+  "transitive_pin_policy": "Manifest protected inputs, aggregate raw-row pins, source inventories, actual binaries and included oracle files remain protected transitively. Verify them, not only top-level receipt hashes.",
+  "binaries": [
+    {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    },
+    {
+      "path": "/tmp/p1338-target.vlNAmp/release/typst",
+      "sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1"
+    },
+    {
+      "path": "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+      "sha256": "fe0c60f17f67748480c78ccc8a2c5e7a42a738c808f29b901c44f3e177b4a055"
+    },
+    {
+      "path": "/tmp/p1339-mutant-array.jrXHiv/target-r2/release/deps/typst_core-34577d6f7c6d8e68",
+      "sha256": "0923895542af8db56be9f8b6cff33255ae48a10109b0bfb6f22051292468cb7e"
+    }
+  ],
+  "independent_RED": {
+    "basis": "10 direct accepted-Bytes cases in each profile/order: vanilla0, baseline actual missing-constructor error; C10 reachable Bytes positive control. No float.to-bytes absence used as Array RED.",
+    "local_implementer_RED": "Separate receipt has2semantic failures+1legacy control success; retained without independent credit."
+  },
+  "discrimination": {
+    "valid_families": 12,
+    "rejected_families": 12,
+    "valid_variants": 13,
+    "rejected_variants": 13,
+    "family_score": 1,
+    "variant_score": 1,
+    "public_expanded_processes": 660,
+    "control_literal_preserved": 324,
+    "negative_literal_violations": 276,
+    "family_profile_order_groups_rejected": 144,
+    "stable_noninvalid_three_order_groups": 216,
+    "private_processes": 9,
+    "private_control_calls_per_run": 10,
+    "private_variants": "Mode9 known-origin overwritten and mode13 detached fallback omitted cause actual canonical assertions in all3orders. No compiled-only/build-error/mock kills."
+  },
+  "Unknown_policy": {
+    "E08": "Exploratory E08 does not construct detached occurrence: all historical/expanded null expectations remain Unknown, zero credit. Mandatory origin dimension independently discharged by canonical private Args carriers, not waived.",
+    "invalid_mode": "Actual mode255 exit101 is deliberate Unknown control, not semantic family or kill.",
+    "mandatory": "No unexpected Unknown accepted for any mandatory tested dimension. Candidate missing/opaque/timeout evidence fails unless explicitly declared opacity."
+  },
+  "budget": {
+    "historical_contract_revisions_spent": 3,
+    "historical_additional_focals_spent": 2,
+    "historical_full_C_used": 1,
+    "historical_full_C_limit": 2,
+    "new_Array_successors_used": 1,
+    "new_Array_focal_cycles_used": 2,
+    "new_Array_focal_cycles_limit": 2,
+    "independent_Array_CLI_focal_processes": 111,
+    "reference_expansion_processes": 672,
+    "mutant_expansion_processes": 660,
+    "private_focal_and_expansion_processes": 9,
+    "total_independent_Array_semantic_processes": 1452,
+    "actual_isolated_compilations": 2,
+    "reset": false
+  },
+  "implementation_gate": {
+    "status": "GO_ARRAY_IMPLEMENTATION",
+    "executor": "/root",
+    "preconditions_satisfied": "Explicit user authority, prospective L0, independently frozen oracles, direct RED, actual positive/negative discrimination including private fallback and repeat/reverse.",
+    "allowed_productive_paths": [
+      "01_core/src/compiler/stdlib/primitives_constructors/array.rs",
+      "01_core/src/compiler/stdlib/primitives_constructors.rs",
+      "01_core/src/compiler/stdlib/mod.rs",
+      "01_core/src/compiler/eval/call_dispatch.rs"
+    ],
+    "limits": "Owner constructor ABI, two thin hub exports, guarded first-positional Bytes dispatcher only. Preserve nonBytes/missing/named-only legacy errors. No oracle/contract writes or commit authorized."
+  },
+  "pre_implementation_state": {
+    "working_tree": "uncommitted; other P1339 E changes already exist and were not read by independent Array authors/adversary",
+    "array_owner": "test-only before this seal; constructor/guarded route absent",
+    "productive_path_pins": [
+      {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/stdlib/primitives_constructors/array.rs",
+        "sha256": "b15462823db6869da3ba425f54c3e51cade33ba97dfbd89775d292bc23afaf7c"
+      },
+      {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/stdlib/primitives_constructors.rs",
+        "sha256": "bb4ab2a957cbc94dca296d151873b9eb8b1db2923e71300d54984cf59d98f1c7"
+      },
+      {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/stdlib/mod.rs",
+        "sha256": "9d81b8102609bbad6363ebd1d449bb3a750a25da15aafaa1198e2d839fa05f05"
+      },
+      {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/call_dispatch.rs",
+        "sha256": "c68b41de05cf437d30969be886b23bcda185b88f346d98a8bfd3e124ea3ad557"
+      }
+    ],
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "diffstat": " 01_core/src/compiler/eval/bindings/field_access.rs |    7 +-\n 01_core/src/compiler/eval/bindings/mod.rs          |    6 +-\n .../src/compiler/eval/bindings/value_methods.rs    |  295 +-\n 01_core/src/compiler/eval/call_dispatch.rs         |  196 +-\n 01_core/src/compiler/eval/mod.rs                   | 5932 +++++++++++++++++++-\n 01_core/src/compiler/eval/operators/equality.rs    |  126 +-\n 01_core/src/compiler/eval/repr.rs                  |   42 +-\n 01_core/src/compiler/eval/rules.rs                 |    6 +-\n 01_core/src/compiler/eval/selector_matching.rs     |  377 +-\n 01_core/src/compiler/introspect.rs                 |  389 +-\n 01_core/src/compiler/introspect/extract_payload.rs |    4 +-\n 01_core/src/compiler/introspect/from_tags.rs       |   71 +-\n 01_core/src/compiler/introspect/locatable.rs       |   14 +-\n 01_core/src/compiler/layout/mod.rs                 |    2 +-\n 01_core/src/compiler/stdlib/counter.rs             |  261 +-\n 01_core/src/compiler/stdlib/foundations/float.rs   |  313 +-\n 01_core/src/compiler/stdlib/foundations/query.rs   |   16 +-\n .../src/compiler/stdlib/foundations/selector.rs    |   23 +-\n 01_core/src/compiler/stdlib/mod.rs                 |    6 +-\n .../src/compiler/stdlib/primitives_constructors.rs |    4 +-\n .../stdlib/primitives_constructors/version.rs      |  125 +-\n 01_core/src/compiler/stdlib/state.rs               |   39 +-\n 01_core/src/entities/counter_registry.rs           |   24 +-\n 01_core/src/entities/element_payload.rs            |    4 +-\n 01_core/src/entities/elements/emph.rs              |    6 +-\n 01_core/src/entities/elements/strong.rs            |    6 +-\n 01_core/src/entities/introspector.rs               |  340 +-\n 01_core/src/entities/layout_types.rs               |    2 +-\n 01_core/src/entities/selector.rs                   |    5 +-\n 01_core/src/entities/show.rs                       |    4 +-\n 01_core/src/entities/style_chain.rs                |    7 +\n 01_core/src/entities/version.rs                    |    2 +-\n 03_infra/src/pipeline.rs                           |   22 +-\n crystalline.toml                                   |    1 +\n 34 files changed, 8008 insertions(+), 669 deletions(-)\n"
+  },
+  "final_due": [
+    "Actual candidate owner binds unchanged canonical ten-vector harness; mechanical ABI glue must be audited against real owner.",
+    "New324 known public candidate cells with explicit E08null accounting, all profiles/orders/policies.",
+    "Original70 unchanged float.to-bytes programs: focal70 then expanded840, successor integrity and frozen predicates.",
+    "All original R3 W01-W10/F01-F10,1428 internal cells,119future definitions, variant/field/producer/lifecycle witnesses remain due, without preseal NotDue credit.",
+    "All original P1339 public/global regression,4718 catalog/delta,18scopeout,20oldmutant and ordinary/instrumented obligations retained.",
+    "Ownership1:1/hashes, ordinary build/tests and complete lint under identified configuration; V15/V26 preflight alone is not full lint.",
+    "Style technical supersessions/current actual-chain binding require candidate revalidation; historical engineering PASS is not final F."
+  ],
+  "lint_classification": {
+    "configuration": {
+      "path": "/repos/Antigravity/typst-crystalline/crystalline.toml",
+      "sha256": "b13f932eb40b73f4db755abfb0e027f977a77ac26834130b05e3be36d193cdff"
+    },
+    "acceptance": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-lint-history-acceptance-r1.json",
+      "sha256": "a445e0711828d98c7c85617055b90ba834c387d99082499df02e2ed48672b5eb"
+    },
+    "historical_script": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-prepare-coverage-map.py",
+      "sha256": "8ede124840a8ed862f219f25c4c78290e56f25be11e6a7871944ca648469ac0c"
+    },
+    "scope": "Exact archived nonexecutable file exclusion only; original bytes stay sealed. No rule or productive consumer excluded."
+  },
+  "invalidation": "Protected semantic changes, oracle rewrite, unapproved capability or mandatory Unknown block affected gate from first changed phase. Canonical Hash do Codigo metadata reseal follows exact existing policy; no normalization of outputs or expected-result edits.",
+  "no_claims": [
+    "No technical isolation attestation; inherited unrelated agent history disclosed by role receipts.",
+    "No general Array/language parity.",
+    "No candidate GREEN, complete F, full lint PASS, final P1339 closure or automatic retry."
+  ],
+  "verifier_metadata_incidents": "First inline header check accidentally sliced off the header newline and was corrected; no input drift. Initial seal metadata attempt hit Node child_process EPERM while reading git; no file was written. Direct git commands succeeded. No semantic execution/retry or protected mutation in either incident."
+}

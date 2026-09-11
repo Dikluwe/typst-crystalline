@@ -1,8 +1,83 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: e18f9669
+Hash do Código: 45775311
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1339 — Angle, With e ligação das operações numéricas
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
+`call_dispatch.rs:549-654` descobre wrappers internos; `:1263-1328`
+encaminha Float/Version ligados; `:1369-1383` cria With ligado;
+`:510-515,1057-1068` já aplica With concatenando Args causais.
+Angle::to_rad/to_deg existem em `entities/layout_types.rs:1286-1290`.
+Fonte ratificada `layout/angle.rs:142-151` e `foundations/func.rs:372-374,
+395-409` documenta conversão e pré-aplicação. Sondas P1339 full-final e
+boundaries conservam valores, prioridades, spans e proveniência. Leitura
+e classificação dos owners em `diagnosticos/p1339-remaining-l0-design.md`.
+
+### Conversões de Angle
+
+Estender o lookup fechado com wrappers internos de angle.deg/angle.rad,
+de nomes públicos deg/rad. Wrappers estáticos e a intercepção ligada chamam
+um parser interno único que consome positional self estritamente Angle,
+rejeita sobras e delega somente a Angle::to_deg/to_rad. Resultado é Float;
+nenhuma segunda fórmula existe em eval ou field_access.
+
+Missing self ancora `missing argument: self` na chamada inteira. Self
+apenas named produz ``the argument `self` is positional`` na ocorrência
+completa, com hint de remover `self:`; outro named não preenche positional.
+Inteiro/float sem unidade são rejeitados com `expected angle, found <tipo>`
+no value span. A primeira ocorrência sobrante produz unexpected argument
+ou unexpected argument: nome, no span da ocorrência. Preservar Args e
+origens através de aliases, spreads e With, sem procurar texto da fonte.
+
+### Pré-aplicação de função
+
+function.with(f, ..preargs) e f.with(..preargs) compartilham helper de
+construção que chama Func::with com Args restante integral. A estática
+consome self estritamente Func; missing, self named e cast seguem os
+diagnósticos posicionais acima, com expected function no cast. Demais
+named são pré-argumentos, não keywords desconhecidas de with. Não validar
+assinatura de f, converter Type em Func nem chamar corpo/constructor.
+
+Conservar merge_with_args: concatenação de ocorrências pre/new, com ligações
+antigas antes das novas e da chamada. Última ocorrência named determina a
+view; as anteriores não desaparecem, e a nativa final conserva autoridade
+de validá-las. Duplicado literal inválido continua erro sintático; spreads
+permitidos conservam sua ordem. With de With, closure, nativa e elemento
+continuam aceitos, sem alteração da representação pública de Func/Args.
+
+Na estática, avaliar argumentos antes do cast de self: with(1, panic(...))
+observa o panic. Na ligada, resolver receiver/método antes dos argumentos:
+(1).with(panic(...)) falha como método ausente de integer. Resolver o target
+uma única vez e reutilizar o Value no fallback, inclusive se Type::Function
+ou campo homônimo não tomar a rota ligada. Não voltar a eval_expr para
+descobrir a mesma função. Essa disciplina estende o adendo where somente
+ao transporte necessário às rotas deste lote, não refatora outros métodos.
+
+### Float, Version e origens de chamada
+
+Encaminhar Float signum/to-bytes e a rejeição medida de from-bytes ao owner
+float, uma vez por chamada. Receiver Float de from-bytes é o argumento
+Bytes inválido: preservar seu span lexical, não detached. Não capturar
+Int.signum pela coerção Float estática. Version ligada avalia Args uma vez
+e passa ao adapter da stdlib por value_methods, sem parser de índice aqui.
+
+Transportar call.span às identidades resolvidas destas nativas para missing
+e erros de domínio; aliases e With delas usam o mesmo helper de transporte
+agregado já existente. Identificar ponteiros tipados, nunca nome curto,
+spelling ou mensagem. Os ponteiros privados Float podem ser obtidos por
+float_type_field, sem reexportá-los publicamente. Ocorrências e origens dos
+argumentos ficam intactas. Ligadas preservam também a origem real do receiver;
+sintéticos sem AST conservam origem legitimamente ausente.
+
+Traces continuam causais, incluindo retornos antecipados de intercepções.
+Não alterar is-nan/is-infinite certificados, Int, constructors, outros
+namespaces, PARITY_VERSION, defaults ou fases. Esta seção completa a ligação
+das outras rotas P1339; não dispensa contrato, selo, RED e verificação final.
 
 ## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
 
@@ -776,3 +851,155 @@ novo, origem perdida ou transporte de homônimo. Aceitação independente
 RED→GREEN por identidade, With aninhado, agregado distinto de individuais,
 preargs intactos, falsa identidade com nome abs e controles encoders/panic/
 CSV/nativas alheias; gates integrais do conjunto manifestado.
+
+## P1339 — dispatch de `where` sem reavaliar receiver
+
+### Medição anterior à decisão
+
+No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto,
+`call_dispatch.rs:1117-1129` chama eval_element_where, que pode devolver
+None depois de avaliar o target (`value_methods.rs:676-684`); o caminho
+genérico pode então avaliá-lo novamente. O helper antigo ainda examina AST
+named diretamente e ignora spreads. As sondas `p1339-full-final-*` e
+`p1339-full-boundaries-*` registram a prioridade de panic, casts, argumentos
+e spans nas duas formas, com proveniência integral. No vanilla ratificado,
+`foundations/func.rs:430-450` recebe Args avaliados; a forma estática avalia
+argumentos antes do cast de self, sem tornar idêntica a prioridade do
+receiver inválido na chamada ligada.
+
+### Decisão de integração
+
+Na intercepção sintática cujo field é where, avaliar o target uma única vez
+e conservar o Value resolvido até decidir entre método ligado, lookup
+estático de Type::Function e chamada ordinária de field. A rota não pode
+voltar a eval_expr(target) quando não reconhece método; reutilizar o target
+já avaliado no fallback. Isso não autoriza alterar a ordem global dos demais
+métodos nem promover homônimos em Dict/Module a método de função.
+
+Para receiver Func ligado, avaliar Args no momento medido e delegar ao helper
+semântico único de value_methods. Para Type::Function, resolver a nativa
+estática e aplicar o caminho de chamada normal, também reutilizando o target.
+Alias da nativa funciona pela identidade resolvida, não pelo spelling.
+A intercepção escolhe rota e transporta dados; não copia a tabela de elementos,
+casts de campo ou construção de Selector. Rejeição ligada de não-função e
+prioridade de falhas conservam as sondas; não avaliar args antecipadamente
+para uniformizar chamadas distintas.
+
+Args conserva occurrences, spreads, valores e origens. O agregado da chamada
+inteira pode ser transportado somente para a identidade nativa estática de
+where e sua chamada ligada, para o missing self e erros agregados medidos.
+Estender o helper tipado de transporte já existente, sem seleção por nome,
+mensagem, aridade ou conteúdo; sintéticos sem AST preservam o span recebido.
+Não alterar as regras de traces; o resultado passa pela disciplina causal
+existente, inclusive quando a intercepção toma retorno antecipado.
+
+Esta seção sucede apenas a preservação do antigo caminho de where e estende
+a whitelist de agregado somente por sua nova identidade. With, outros métodos,
+math e nativas anteriores conservam seus contratos; nenhum novo campo público
+de Args, assinatura externa, default ou fase é autorizado. O gate de Selector
+foi aprovado; contrato, selo e RED continuam obrigatórios antes do código.
+
+Aceitação: estática/ligada, aliases, receiver com efeito contado uma vez,
+homônimos ordinários, named/spreads/duplicados, panic, missing/casts/extra,
+spans e traces. Qualquer necessidade de reavaliar receiver ou deslocar fase
+refuta o desenho e exige reabertura. Este recorte não é o L0 integral das
+demais rotas P1339.
+
+### P1339 — observação dos métodos de Location
+
+Medição no HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer
+intacto: `call_dispatch.rs:1007,1541` converge a forma estática e ligada em
+eval_location_method; `:1725-1755` lê position_of/page_numbering. O método
+page projeta apenas a página; position inclui página e coordenadas;
+page-numbering devolve Numbering cru, inclusive Func sem executar callback.
+Proveniência no recibo de integração de observações P1339.
+
+Registrar a operação efetiva com receiver Location, span disponível e
+resultado da projeção, incluindo seus defaults atuais. O helper privado
+pode receber o span já disponível nos callers; não criar API pública nem
+recuperar origem por AST reavaliada. Revalidar pela mesma projeção sobre
+candidate: mudar apenas x/y não invalida uma leitura page, mas invalida
+position. Page-numbering não pode ser substituído pela vista formatada nem
+chamar seu Func para comparar resultados. O comparador de eval precisa
+certificar o valor cru observado, sem inferir estabilidade de repr.
+
+O registro cobre ambas as formas pelo owner comum e não duplica observações
+no wrapper. Não seleciona bloco sem demanda Element. Defaults e validação
+de argumentos/contexto das rotas anteriores permanecem, inclusive suas
+diferenças conhecidas; novas tentativas ficam restritas ao escopo aprovado.
+
+## P1339 — pré-requisito autorizado `array(bytes)`
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, working tree não commitada,
+registrada em `diagnosticos/p1339-array-prerequisite-measure-r2.json`:
+`call_dispatch.rs:1791-1830` não contém Type::Array e devolve diagnóstico
+no span do callee. Vanilla ratificado a51e02804,
+`foundations/array.rs:164-169,1176-1179`, aceita Bytes e preserva cada byte.
+A ausência impede os oráculos públicos identificados pelo parecer
+`diagnosticos/p1339-verifier-array-prerequisite-gap-r1.json`.
+
+### Decisão estreita
+
+O dono autorizou `diagnosticos/p1339-array-authorization.md`. Após avaliar
+callee e todos os argumentos exatamente uma vez pelo caminho vigente,
+o match fechado de Value::Type pode delegar Type::Array para
+`stdlib::native_array_bytes` somente se o primeiro positional é Value::Bytes.
+Passar Args e origens intactos; o owner dedicado consome, valida e converte.
+Aliases de Type seguem o valor resolvido, sem reconhecimento nominal.
+Erros de avaliação dos argumentos antecedem a seleção dessa rota.
+
+Sem primeiro positional Bytes, manter o erro legado no span do callee,
+inclusive missing, named-only, Array e Version. Não adicionar coerções,
+formas de With, ponteiro de Func, transformação de tipos ou validação de
+sobras aqui. Não alterar a fórmula de float.to-bytes ou seus testes públicos.
+As demais rotas e traces permanecem intactas. Esta cláusula sucede somente
+a proibição de constructors das seções anteriores para Array a partir de
+Bytes; nenhum construtor geral ou nova assinatura Rust externa é autorizado.
+
+Exigir sucessão do contrato, discriminação e RED prévios, positivos diretos/
+alias/spread, efeitos uma vez, sobras e controles não Bytes. A implementação
+pertence a `primitives-constructors/array.md`; este nó conserva somente a
+ligação tipada. Sem mudança de fase ou correção incidental de outros tipos.
+
+## P1341 — testemunho test-only do dispatch de callback
+
+### Medição anterior à decisão
+
+O registro P1340 conservava apenas `(fase, espécie)` e não podia provar que o
+`Func` invocado e o body observado provinham do carrier real. Ataques por alias
+de produtor sobreviveram antes do contrato P1341 R3/R4.
+
+### Decisão
+
+Sob `cfg(p1339_observation)`, no braço real `Value::Func`, registrar antes de
+`apply_func` a função efetiva, o carrier da chamada e o papel/origem do produtor;
+registrar o início do body sem reavaliar callee ou argumentos. Aliases e `With`
+seguem o valor resolvido e não reconhecimento por nome. A ordem é dispatch,
+invocação e body; o retorno/tracing conserva o caminho vigente.
+
+Identidades são locais ao ledger e tipadas por domínio. Não expor API nova,
+alterar spans, executar callbacks adicionais ou afetar o build normal.
+
+## P1342 — dispatch tipado de With e alvo real
+
+### Medição anterior à decisão
+
+`diagnosticos/p1342-topology-audit-r1.md` mede o braço real
+`FuncRepr::With(Arc<(Func, Args)>)` e sua recursão para o `inner`; não existe
+um segundo Func chamado `func.body`.
+
+### Decisão vigente
+
+Sob `cfg(p1339_observation)`, quando o `EvalContext` possui ocorrência P1342
+ativa, `apply_func` registra a função efetivamente recebida antes do match. No
+braço With registra o wrapper real, o alvo `inner` real e a aresta conhecida no
+desempacote, então recorre normalmente. No braço Closure registra o dispatch do
+mesmo alvo antes de delegar a `closures::apply_closure`. IDs são atribuídos pelo
+ledger a objetos reais e só comparados localmente; o oráculo não fixa endereços.
+
+Não reconhecer nome, repr ou output; não reavaliar callee/Args nem criar um Func
+para o body. Merge, recursão, trace, estilos e resultados permanecem vigentes.
+Sem o cfg, nenhum evento ou branch existe. Esta seção substitui P1341 apenas na
+cadeia focal P1342 e não cobre callbacks alheios.

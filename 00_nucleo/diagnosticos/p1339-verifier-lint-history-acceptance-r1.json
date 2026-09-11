@@ -1,0 +1,17 @@
+{
+  "verdict": "ACCEPT_EXACT_HISTORICAL_NONEXECUTABLE_CLASSIFICATION",
+  "verifier": "/root/p1311_review",
+  "proposal_sha256": "2a49c60a45698da7a5af9fb82ab070e1cb782736fe2eb195ab41aa7f67023864",
+  "configuration_before_sha256": "cb0468a924a2683feca7eb7f4f0826d342cefe8265267b39126dfd807cd97a28",
+  "preflight_failure_sha256": "ac6db4bebdef2771b70c4d792a48164f25c5cecc742f5eb258ff8529de1aa2a8",
+  "allowed_change": "Add only the exact relative path 00_nucleo/diagnosticos/p1339-ab-batch1-prepare-coverage-map.py to crystalline.toml [excluded_files], classifying the preserved unexecuted historical syntax-failure artifact. No directory, glob, consumer, other fixture or rule exclusion.",
+  "preserved_artifact_sha256": "8ede124840a8ed862f219f25c4c78290e56f25be11e6a7871944ca648469ac0c",
+  "evidence": [
+    "All four reported hashes independently verified before configuration change.",
+    "Historical publication ledger records the syntax defect before metadata execution and identifies the preserved corrected successor; the original is not a runtime oracle or productive consumer.",
+    "Linter walker.rs is_ignored compares excluded_files to exact normalized relative paths before parsing."
+  ],
+  "required_followup": "Record exact configuration delta and resulting hash; rerun lint with that identified configuration and retain original PARSE failure. Continue independent sealed-input hash verification including the archived script. A new failure must be evaluated independently, not covered by this exclusion.",
+  "gates": "First affected gate is final scanner input classification. No change to semantic inputs, C/D evidence, expected outcomes, protected bytes or budgets. No lint PASS or overall P1339 PASS asserted here.",
+  "regime": "executado sem atestacao de isolamento"
+}

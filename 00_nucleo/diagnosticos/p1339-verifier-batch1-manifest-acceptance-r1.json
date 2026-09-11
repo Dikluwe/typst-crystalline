@@ -1,0 +1,83 @@
+{
+  "schema": "p1339-verifier-batch1-manifest-acceptance-v1",
+  "utc": "2026-09-10T04:49:10.864515+00:00",
+  "verifier": "/root/p1311_review",
+  "regime": "executado sem atestacao de isolamento",
+  "manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-manifest-r2.json",
+    "sha256": "86742a540fc58ac9e4096aadf32541f520a7953af3e209df490f48f69cee3d08"
+  },
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "working_tree": "uncommitted",
+  "git_diff_HEAD_stat": " 00_nucleo/prompts/compiler/eval.md                 | 230 +++++++++++++++++++++\n .../prompts/compiler/eval/bindings/field_access.md |  75 +++++++\n .../compiler/eval/bindings/value_methods.md        | 160 ++++++++++++++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   | 151 ++++++++++++++\n .../prompts/compiler/eval/operators/equality.md    |  67 ++++++\n 00_nucleo/prompts/compiler/eval/repr.md            |  38 ++++\n 00_nucleo/prompts/compiler/eval/rules.md           |  34 +++\n .../prompts/compiler/eval/selector_matching.md     |  78 +++++++\n 00_nucleo/prompts/compiler/introspect.md           | 123 +++++++++++\n .../prompts/compiler/introspect/extract_payload.md |  27 +++\n 00_nucleo/prompts/compiler/introspect/from_tags.md |  78 +++++++\n 00_nucleo/prompts/compiler/introspect/locatable.md |  26 ++-\n 00_nucleo/prompts/compiler/layout.md               |  29 ++-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |  20 ++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  80 +++++++\n .../prompts/compiler/stdlib/foundations/float.md   | 120 ++++++++++-\n .../prompts/compiler/stdlib/foundations/query.md   |  66 ++++++\n .../compiler/stdlib/foundations/selector.md        |  37 +++-\n .../compiler/stdlib/primitives-constructors.md     |  25 +++\n .../stdlib/primitives-constructors/version.md      |  76 ++++++-\n 00_nucleo/prompts/compiler/stdlib/state.md         |  45 ++++\n 00_nucleo/prompts/entities/counter_registry.md     |  35 ++++\n 00_nucleo/prompts/entities/element_payload.md      |  88 ++++++++\n 00_nucleo/prompts/entities/elements/emph.md        |  27 ++-\n 00_nucleo/prompts/entities/elements/strong.md      |  28 ++-\n 00_nucleo/prompts/entities/introspector.md         |  31 +++\n 00_nucleo/prompts/entities/layout_types.md         |  27 +++\n 00_nucleo/prompts/entities/selector.md             |  82 ++++++++\n 00_nucleo/prompts/entities/show.md                 |  48 +++++\n 00_nucleo/prompts/entities/version.md              |  44 +++-\n 00_nucleo/prompts/infra/pipeline.md                | 173 +++++++++++++++-\n 01_core/src/compiler/eval/bindings/field_access.rs |   2 +-\n .../src/compiler/eval/bindings/value_methods.rs    |   2 +-\n 01_core/src/compiler/eval/call_dispatch.rs         |   2 +-\n 01_core/src/compiler/eval/mod.rs                   |   2 +-\n 01_core/src/compiler/eval/operators/equality.rs    |   2 +-\n 01_core/src/compiler/eval/repr.rs                  |   2 +-\n 01_core/src/compiler/eval/rules.rs                 |   2 +-\n 01_core/src/compiler/eval/selector_matching.rs     |   2 +-\n 01_core/src/compiler/introspect.rs                 |   2 +-\n 01_core/src/compiler/introspect/extract_payload.rs |   2 +-\n 01_core/src/compiler/introspect/from_tags.rs       |   2 +-\n 01_core/src/compiler/introspect/locatable.rs       |   2 +-\n 01_core/src/compiler/layout/mod.rs                 |   2 +-\n 01_core/src/compiler/stdlib/counter.rs             |   2 +-\n 01_core/src/compiler/stdlib/foundations/float.rs   |   2 +-\n 01_core/src/compiler/stdlib/foundations/query.rs   |   2 +-\n .../src/compiler/stdlib/foundations/selector.rs    |   2 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   2 +-\n .../src/compiler/stdlib/primitives_constructors.rs |   2 +-\n .../stdlib/primitives_constructors/version.rs      |   2 +-\n 01_core/src/compiler/stdlib/state.rs               |   2 +-\n 01_core/src/entities/counter_registry.rs           |   2 +-\n 01_core/src/entities/element_payload.rs            |   2 +-\n 01_core/src/entities/elements/emph.rs              |   2 +-\n 01_core/src/entities/elements/strong.rs            |   2 +-\n 01_core/src/entities/introspector.rs               |   2 +-\n 01_core/src/entities/layout_types.rs               |   2 +-\n 01_core/src/entities/selector.rs                   |   2 +-\n 01_core/src/entities/show.rs                       |   2 +-\n 01_core/src/entities/version.rs                    |   2 +-\n 03_infra/src/pipeline.rs                           |   2 +-\n 62 files changed, 2188 insertions(+), 42 deletions(-)\n",
+  "checks": {
+    "unique_path_sha_pins_verified": 242,
+    "pin_mismatches": 0,
+    "l0_raw_and_normative_pairs_verified": 31,
+    "l0_mismatches": 0,
+    "cells": 384,
+    "unique_cells": 384,
+    "exact_cartesian_cells": true,
+    "predecessor_semantic_fields_identical": true,
+    "predecessor_artifacts_removed": 0,
+    "added_artifacts": "two independent acceptances, immutable predecessor and metadata finalizer only",
+    "product_diff": "31 lineage-header pairs only; zero nonheader changed lines",
+    "untracked_product_and_tests": [],
+    "pending_raw_and_derived_absent_before_authorization": true
+  },
+  "verdict": "ACCEPT_FOCAL_BATCH1_ONLY",
+  "authorized_execution": [
+    "python3",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-executor-v4.py",
+    "--plan",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-cli-plan.json",
+    "--phase",
+    "calibration",
+    "--products",
+    "vanilla,baseline",
+    "--orders",
+    "normal,repeat,reverse",
+    "--ids",
+    "causal-bare-strong-isolated,causal-empty-vs-bare-padded-legacy-control,causal-heading-empty-vs-bare,causal-strong-empty-isolated,opaque-budget-finite,opaque-budget-workload,show-emph-direct-control,show-emph-static-match,show-emph-static-miss,show-strong-direct-control,show-strong-static-match,show-strong-static-miss,show-text-direct-control,show-text-static-match,show-text-static-miss,where-l0-empty-vs-bare",
+    "--output",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-focal-runs.json"
+  ],
+  "execution_limits": {
+    "redesign_batch_limit": 2,
+    "batches_executed_before_manifest": 0,
+    "this_batch_planned_processes": 384,
+    "automatic_semantic_retries": 0,
+    "complete_preseal_limit": 2,
+    "complete_preseal_used_all_roles": 0,
+    "per_process_timeout_seconds": {
+      "causal-bare-strong-isolated": 30,
+      "causal-empty-vs-bare-padded-legacy-control": 30,
+      "causal-heading-empty-vs-bare": 30,
+      "causal-strong-empty-isolated": 30,
+      "opaque-budget-finite": 3,
+      "opaque-budget-workload": 1,
+      "show-emph-direct-control": 30,
+      "show-emph-static-match": 30,
+      "show-emph-static-miss": 30,
+      "show-strong-direct-control": 30,
+      "show-strong-static-match": 30,
+      "show-strong-static-miss": 30,
+      "show-text-direct-control": 30,
+      "show-text-static-match": 30,
+      "show-text-static-miss": 30,
+      "where-l0-empty-vs-bare": 30
+    },
+    "maximum_sum_child_timeout_seconds": 10176,
+    "worker_limit": 4,
+    "observed_cost": "PENDING_MEASUREMENT; preserve every technical failure and actual child/wall cost. Preparation metadata ledger is separate from compiler runtime.",
+    "retry_policy": "Any failed process/publication is recorded, never free because draft/transport. No automatic retry. Second aggregate batch only on independently reviewed residual within closed list plus new causal hypothesis; unchanged failure/no gain stops."
+  },
+  "not_authorized": [
+    "candidate",
+    "canonical RED",
+    "future API/runtime",
+    "automatic retry",
+    "full C before focal PASS"
+  ],
+  "next_gate": "Independent review of all384 classifications, raw provenance/cost and deterministic derived receipt; then complete C within global0/2 budget. No automatic seal."
+}

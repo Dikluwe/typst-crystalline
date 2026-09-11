@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: 70c9dd6c
+Hash do Código: c239668b
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -167,3 +167,34 @@ Nenhum helper, fórmula, registro ou reexport anterior muda. Necessidade de
 lógica no hub refuta o recorte. Glue interno de paridade ADR-0127 contínuo,
 sem entidade, contrato público ou fase nova. Verificar build/testes de
 identidade via fachada, ownership 1:1, linhagem e preservação do módulo.
+
+## P1339 — ligação interna de version.at
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
+`stdlib/mod.rs:49,163-165` declara primitives_constructors privado e encaminha
+apenas seus constructors. A implementação e descoberta de version.at passam
+ao owner `primitives-constructors/version.md`, com ligação intermediária
+declarada em `primitives-constructors.md`. Não existe necessidade de lógica
+de versão nesta fachada.
+
+### Decisão
+
+Reexportar `version_type_field` e `dispatch_version_method` de
+primitives_constructors apenas em `pub(crate)`, de forma explícita e sem
+wrapper. Field access e call dispatch alcançam os helpers por esta fachada;
+Version::at continua dona da regra de índice, o owner stdlib/version da
+validação da chamada. Não ampliar API externa, namespaces ou constructors,
+alterar PARITY_VERSION, criar fórmula/lookup ou usar wildcard no hub.
+
+## P1339 — ligação limitada de Array a partir de Bytes
+
+Medição anterior: `stdlib/mod.rs:49,94,167` já encaminha os constructors
+atomizados. O pré-requisito ausente está documentado em
+`diagnosticos/p1339-array-prerequisite-measure-r2.json` com HEAD/árvore/UTC.
+A autorização `diagnosticos/p1339-array-authorization.md` permite reexportar
+`primitives_constructors::native_array_bytes` somente em `pub(crate)`.
+Sem wrapper, validação, conversão, registro de Func ou API Rust externa.
+Esta exceção à proibição de ampliar constructors da seção version.at fica
+restrita à ligação do novo owner `primitives-constructors/array.md`.

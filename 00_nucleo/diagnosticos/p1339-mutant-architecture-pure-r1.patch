@@ -1,0 +1,39 @@
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-eval/src/call.rs b/tmp/p1339-mutants.oPfqdA/architecture-negative/crates/typst-eval/src/call.rs
+index 0e1a22c80..9e6dd07d1 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-eval/src/call.rs
++++ b/tmp/p1339-mutants.oPfqdA/architecture-negative/crates/typst-eval/src/call.rs
+@@ -58,13 +58,21 @@ impl Eval for ast::FuncCall<'_> {
+                     call_func(vm, func, args, span)
+                 }
+                 FieldCallee::Method(func, target) => {
++                    let duplicate_angle = match (&target, field.as_str()) {
++                        (Value::Angle(angle), "deg") => Some(*angle),
++                        _ => None,
++                    };
+                     let mut args = match maybe_args {
+                         Some(args) => args,
+                         None => self.args().eval(vm)?.spanned(span),
+                     };
+                     // Method calls pass the target as the first argument.
+                     args.insert(0, target_expr.span(), target);
+-                    call_func(vm, func, args, span)
++                    let validated = call_func(vm, func, args, span)?;
++                    Ok(match duplicate_angle {
++                        Some(angle) => Value::Float(p1339_duplicate_angle_degrees(angle)),
++                        None => validated,
++                    })
+                 }
+                 FieldCallee::NonFunc(_, err) => Err(err).at(callee.span()),
+             }
+@@ -163,6 +171,11 @@ fn eval_math_call(vm: &mut Vm, math_call: ast::MathCall) -> SourceResult<Value>
+     }
+ }
+ 
++/// P1339 M12: physical duplication specific to the bound route.
++fn p1339_duplicate_angle_degrees(angle: typst_library::layout::Angle) -> f64 {
++    angle.to_raw() / (std::f64::consts::PI / 180.0)
++}
++
+ /// Call a function.
+ fn call_func(vm: &mut Vm, func: Func, args: Args, span: Span) -> SourceResult<Value> {
+     let func = func.spanned(span);

@@ -1,6 +1,10 @@
 # Prompt L0 — `compiler/eval/operators/equality` — igualdade e pertença
 Hash do Código: 0bbf6281
 
+**Extensão P1339:** direção aprovada no gate público de Selector, conforme
+`diagnosticos/p1339-where-approval.json`. A implementação depende ainda dos
+L0 de integração, contrato, selo e RED do P1339.
+
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 
@@ -142,3 +146,66 @@ eval_binary_op(NotIn, Int(1), Str("hello"))     == Err("cannot apply 'not in' to
 
 - Braços `Eq`/`Neq`/`In`/`NotIn` e os helpers `values_eq`/`value_eq`
   conforme especificado; testes unitários no ficheiro e E2E no eval.
+
+## P1339 — igualdade pública do seletor de elemento
+
+### Medição anterior à decisão
+
+No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, sem diff produtivo,
+`equality.rs:101-130` deixa Value::Selector no fallback estrutural. A sonda
+`diagnosticos/p1339-where-l0-vanilla.json`, UTC
+`2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, mede
+`heading.where(level:1) == heading.where(level:1.0)` verdadeiro no vanilla;
+o antecedente cristalino mede falso. Reordenar campos é diferente; alias
+é igual; campo NaN torna `s == s` falso; filtro vazio é distinto do elemento
+nu. A fonte `foundations/selector.rs:75-81` usa sequência de campos, cujos
+valores têm igualdade de linguagem; não se exige copiar o derive Rust.
+
+### Decisão proposta
+
+Adicionar tratamento de linguagem para Selector::Element no caminho de
+`values_eq`. Comparar a função canônica com a igualdade Func vigente, e
+comparar a sequência de campos por nomes na mesma posição e valores por
+`values_eq` recursiva. Reconhecimento de um receiver como elemento é tarefa
+do produtor, nunca consequência dessa comparação por Func. Preservar ordem:
+não converter o grupo em comparação de conjuntos de Dict.
+
+A regra deve propagar através de arrays, dicts e composição de seletores
+que contenha a variante nova. Pares de variantes anteriores sem Element
+preservam comportamento antecedente; não usar esta mudança para corrigir
+outros seletores. Element vazio não é Kind; ausência de campos filtrados não
+equivale a ausência do grupo. Eq, Neq e pertença seguem a mesma regra.
+
+Não modificar PartialEq/Hash de Selector, Value, Func ou Content; os hashes
+estruturais não são usados como oráculo de igualdade da linguagem. A regra
+de comparação de valores necessária ao matcher pode ser reutilizada por
+helper interno tipado, sem nova API pública nem import reverso de entities.
+Snapshots de conteúdo continuam seguindo o Núcleo já pinado neste owner.
+
+Aceitação: casos focais de coerção, ordem, alias, grupo vazio e NaN; mesmos
+casos aninhados; preservação das famílias antigas. Inferência de suficiência
+é refutada por valor de campo cuja igualdade não atravesse o helper comum,
+ou por uma regressão em pares antigos sem a variante nova.
+
+### P1339 — identidade linguística da chave de counter filtrado
+
+Medição anterior à decisão: no HEAD acima, `values_eq` também deixa
+Value::Counter no fallback derivado. O recibo
+`diagnosticos/p1339-where-counter-runtime-probe-runs.json`, SHA-256
+`178a8637df7eb75d21131a46ad68005b9f7e35670644c9cb9b7eeb93031d5ae3`,
+registra UTC e árvore integrais: filtros level inteiro/float comparam iguais
+e compartilham update; inverter ordem dos fields distingue chaves e updates;
+filtro com NaN não compara igual a si próprio e não reencontra seu update.
+`introspection/counter.rs:243,256` seleciona updates pela chave, separadamente
+das ocorrências casadas pelo filtro. Trata-se de identidade observável da
+linguagem, não de igualdade de HashMap nem de intenção inferida sobre NaN.
+
+Para Value::Counter cuja chave contenha Selector::Element, comparar a chave
+inteira usando a regra recursiva do seletor acima; delegar pares sem Element
+ao comportamento anterior. Eq/Neq/pertença, inclusive aninhados, usam essa
+mesma regra. O runtime pode reutilizar helper interno de comparação de
+CounterKey para associar eventos manuais. Não usar Arc identity como atalho
+reflexivo nem bucket de hash estrutural para excluir pares int/float iguais.
+Não mudar Eq/Hash públicos de Counter, CounterKey, Value ou Selector e não
+normalizar a ordem dos fields. A mudança é interna de paridade, subordinada
+aos gates P1339, sem nova entidade ou assinatura pública.

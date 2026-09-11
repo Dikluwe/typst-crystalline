@@ -1,0 +1,80 @@
+{
+  "id": "ARR-C10-bytes-control",
+  "family": null,
+  "role": "control",
+  "mode": 0,
+  "profile": "a11y",
+  "order": "repeat",
+  "source": "{ let b = bytes((0, 127, 128, 255)); repr((type(b), b.len(), b.at(0), b.at(1), b.at(2), b.at(3))) }",
+  "source_sha256": "1dac0bbfa170ba8287f6c00b76fffad2146e349bc95619aba319f0b52b095874",
+  "argv": [
+    "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+    "eval",
+    "--features",
+    "a11y-extras",
+    "{ let b = bytes((0, 127, 128, 255)); repr((type(b), b.len(), b.at(0), b.at(1), b.at(2), b.at(3))) }"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "stdin_base64": "",
+  "utc_start": "2026-09-10T11:13:10.723013+00:00",
+  "utc_end": "2026-09-10T11:13:10.820062+00:00",
+  "environment_delta": {
+    "NO_COLOR": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "P1339_ARRAY_MUTANT": "0",
+    "RUST_BACKTRACE": "0"
+  },
+  "effective_relevant_environment": {
+    "XDG_CONFIG_DIRS": "/etc/xdg/xdg-cinnamon:/etc/xdg",
+    "XDG_SESSION_PATH": "/org/freedesktop/DisplayManager/Session0",
+    "XDG_SEAT": "seat0",
+    "XDG_SESSION_DESKTOP": "cinnamon",
+    "XDG_SESSION_TYPE": "x11",
+    "XDG_GREETER_DATA_DIR": "/var/lib/lightdm-data/dikluwe",
+    "HOME": "/home/dikluwe",
+    "LANG": "pt_BR.UTF-8",
+    "XDG_CURRENT_DESKTOP": "X-Cinnamon",
+    "XDG_SEAT_PATH": "/org/freedesktop/DisplayManager/Seat0",
+    "XDG_SESSION_CLASS": "user",
+    "XDG_VTNR": "7",
+    "XDG_SESSION_ID": "c2",
+    "NO_COLOR": "1",
+    "LC_CTYPE": "C.UTF-8",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "LC_ALL": "C.UTF-8",
+    "XDG_DATA_DIRS": "/usr/share/cinnamon:/home/dikluwe/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share",
+    "PATH": "/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.codex/tmp/arg0/codex-arg0OjL0Km:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.bun/bin:/home/dikluwe/.kimi-code/bin:/home/dikluwe/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/dikluwe/.lmstudio/bin:/opt/zig:/home/dikluwe/go/bin:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "P1339_ARRAY_MUTANT": "0",
+    "RUST_BACKTRACE": "0"
+  },
+  "core_limit": 0,
+  "timeout_seconds": 30,
+  "binary_before": {
+    "path": "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+    "sha256": "fe0c60f17f67748480c78ccc8a2c5e7a42a738c808f29b901c44f3e177b4a055"
+  },
+  "binary_after": {
+    "path": "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+    "sha256": "fe0c60f17f67748480c78ccc8a2c5e7a42a738c808f29b901c44f3e177b4a055"
+  },
+  "transport": "Completed",
+  "exit": 0,
+  "signal": null,
+  "spawn_error": null,
+  "channels": {
+    "stdout": {
+      "utf8": "\"(bytes, 4, 0, 127, 128, 255)\"\n",
+      "base64": "IihieXRlcywgNCwgMCwgMTI3LCAxMjgsIDI1NSkiCg==",
+      "sha256": "2efa2072e2ea9e3ac39ce27c482eb99a690f547fc6095534edf3719b52b64425",
+      "bytes": 31
+    },
+    "stderr": {
+      "utf8": "",
+      "base64": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "comparison": "ExactLiteralMatch"
+}

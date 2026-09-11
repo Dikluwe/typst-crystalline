@@ -1,0 +1,45 @@
+{
+  "schema": "p1339-independent-bounded-style-binding-review-v2",
+  "verifier": "/root/p1311_review",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "ACCEPT_BOUNDED_ACTUAL_STYLE_REPLAY_BINDING_AND_ENGINEERING_ROWS",
+  "prior_gap": {"path": "00_nucleo/diagnosticos/p1339-verifier-style-r3-engineering-review-r1.json", "sha256": "85c08dd60780f10d2228f89af73ebc07ce09ded31c4b1185b6e1274a22ab424a"},
+  "owner_extension": {"path": "00_nucleo/diagnosticos/p1339-style-observation-owner-extension.md", "sha256": "aa6997e57f4ffdbe8c732e852eb05395df4a8df89da61e04fe591f80ec64774c"},
+  "extension_pins": {"path": "00_nucleo/diagnosticos/p1339-style-observation-owner-extension-pins.json", "sha256": "f1b64766c799c4df0d8d45db97cf0a8f20efec488d9aec07582d6c08e1107f21"},
+  "raw_receipt": {"path": "00_nucleo/diagnosticos/p1339-implementation-observer-style-r4-actual-chain-engineering.json", "sha256": "77dbd832fc95721563de3d194952035fec0a5877a71dfe114c8144c54ddac63d"},
+  "source_pins": [
+    {"path": "01_core/src/compiler/eval/mod.rs", "sha256": "3b608e291143b6feff07101fdfdb32b4782f11f12adbc877a90ad703841064c7"},
+    {"path": "01_core/src/entities/style_chain.rs", "sha256": "3f77f12991d4038b3c695606aec5d18934869c3a17a23bbe45e3c60f594287ed"},
+    {"path": "00_nucleo/prompts/entities/style_chain.md", "sha256": "1efe881899ab5cdc290be6350e2da6f5e3ea8cbff60ab4e65e01585ec28cdf6c"}
+  ],
+  "binary": {"path": "/tmp/p1339-implementation-observer-instrumented.Y0Zc3f/release/deps/typst_core-af52440717336ad7", "sha256": "e0a5ca4ee6187aba21eecabb58e8d07cc799afca67bca646af78d828b7b10c41"},
+  "window": {"start_utc": "2026-09-10T10:33:10.175Z", "end_utc": "2026-09-10T10:34:42.367Z", "wall_ms": 92193, "head": "2f42d64253547734564513a1159ee6b584c1c4b4", "working_tree": "uncommitted; full recorded diffstat in raw"},
+  "verified": {
+    "compressed_streams_hashes": true,
+    "compile_exit": 0,
+    "runtime_exit": 0,
+    "raw_style_rows": 12,
+    "unique_four_profiles_three_order_labels": true,
+    "all_declared_DTO_predicates": true,
+    "captured10_and20_backings_distinct_and_both_distinct_from_final30": true,
+    "tracked_manifest_before_after_compile_after_runtime": 520,
+    "include_authority_L0_pins_before_after_compile_after_runtime": 21,
+    "all_recorded_pins_match_at_audit": true,
+    "style_owner_inverse_removal_of_only_cfg_accessor_matches_original_sha256": "02a1a8bb1016bf33a384f841026d70f0d7306ed30b4275204728c990bfacbd19"
+  },
+  "actual_binding": [
+    "StyleChain getter exists only under p1339_observation, reads Arc backing pointer or None; no production API/representation/resolver/default changes.",
+    "ContextReplayObservation retains a clone of transaction.styles immediately before actual read-owner dispatch. The clone pins the real immutable backing until DTO formatting, preventing address reuse.",
+    "Recorded DTO derives from captured read.styles; replay DTO derives independently from observation.actual_styles, not the requested capture. Both use identical backing-resource meaning for identity.",
+    "Size bits and backing identity therefore reflect the effective transaction chain. The existing source mapping, real request/result/sink paths and immutable style predicates remain unchanged."
+  ],
+  "refutability": "Static data-flow inspection establishes that substituting transaction.styles before observation changes the retained replay resource and its DTO. No adversarial replay-style execution was performed or credited by this review.",
+  "remaining": [
+    "Final F still needs complete real-product binding audit and effective per-crate configuration/ordinary-instrumented equivalence, plus core/pipeline matrices.",
+    "This receipt certifies only the named style binding and twelve engineering rows; it must not be supplied as accepted_real_product_path for the entire frozen runner.",
+    "Preserve all prior failed/limited receipts and mechanical supplements. Array succession and global P1339 obligations are independent."
+  ],
+  "F_full_runtime_credit": 0,
+  "overall_P1339_PASS": false,
+  "verifier_new_semantic_executions": 0
+}

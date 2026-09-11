@@ -1,6 +1,33 @@
 # Prompt L0 — layout_types
 Hash do Código: 29f025ff
 
+## P1339 — causa existente das conversões de Angle
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
+`layout_types.rs:1277-1290` já define Angle em radianos e os métodos
+to_rad/to_deg. A fonte vanilla ratificada `layout/angle.rs:142-151`
+documenta conversões Angle → float, não os constructors Rust homônimos.
+As sondas `p1339-full-final-vanilla-runs.json` e seu manifesto conservam
+expressões, saídas, UTC e proveniência; o inventário de owners está em
+`diagnosticos/p1339-remaining-l0-design.md`.
+
+### Decisão
+
+Angle conserva a unidade interna em radianos; to_rad devolve essa medida
+como float, to_deg devolve a equivalente em graus. Estas são as causas
+existentes reutilizadas por angle.rad/angle.deg. Os constructors Rust
+Angle::rad/deg não são essas operações públicas de conversão.
+
+Preservar finitos, zeros com sinal e infinitos; não alterar representação,
+assinaturas, operações aritméticas ou construção de Angle. Não criar novo
+módulo para copiar estas fórmulas. Divergência pública de precisão nas
+entradas medidas refuta a suficiência e exige correção de causa, não
+arredondamento arbitrário no repr. Angle NaN permanece sob a resolução
+condicional já autorizada em `diagnosticos/p1339-nan-resolution.md`:
+não modificar aritmética para fabricar receiver bilateral.
+
 ## P1286 — attachments e artifact semântico propostos (GATE ADR-0127)
 
 ### Medição anterior à decisão

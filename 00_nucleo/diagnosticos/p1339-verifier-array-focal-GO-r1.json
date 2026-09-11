@@ -1,0 +1,34 @@
+{
+  "schema": "p1339-independent-prospective-array-focal-acceptance-v1",
+  "verifier": "/root/p1311_review",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "GO_ONLY_ARRAY_FOCAL_CYCLE_1_56_PROCESSES",
+  "user_authorization_sha256": "34a4842adb3f78e52af0927ed0ac378447e104fed3664b4a7460787aa28902f4",
+  "execution_manifest": {"path": "00_nucleo/diagnosticos/p1339-contract-array-execution-manifest-r1.json", "sha256": "fe909971ea267a2afe2c90c8a0c3857d89964978b64f7fbca500c3d657688ce7"},
+  "supplement": {"path": "00_nucleo/diagnosticos/p1339-contract-array-supplement-r2.json", "sha256": "3f6050dbd7b3373d7972f58e1343860697d2af7c672845cc06033cd5383767fc"},
+  "inputs": {"path": "00_nucleo/diagnosticos/p1339-contract-array-inputs-r2.json", "sha256": "8a0c77118c80d220b58dd8070fe0da2399353c4ae0f46610b245224b389bb3a0"},
+  "recorder": {"path": "00_nucleo/diagnosticos/p1339-contract-array-recorder-r2.py", "sha256": "e3c33f80a3bf8e0e29e14900c48bbe198728f1849a86afdde849186bd0241a9f"},
+  "static_basis": [
+    "Read four L0 owners in full plus primitive-calls nucleus; raw pins match supplement. Narrow exception explicitly supersedes constructor prohibition only for first positional Bytes.",
+    "Three existing L0 normative bodies match ancestor seal after removing only appended Array section and its separator plus canonical code-hash metadata line. New owner is additive.",
+    "28 input sources, policies and twelve negative causes read fully. NonBytes/Version/Array/missing preserve baseline, even when vanilla differs.",
+    "Recorder r2 preserves sources and transport, enforces input/supplement identity, records effective relevant environment and before/after self/input/binary hashes. Timeout channels retained as UTF8 or base64, never fabricated known error.",
+    "Only named focal command is approved; no freezer, expanded run, successor seal or product write approved here."
+  ],
+  "cost_limit": {"new_Array_focal_cycle": 1, "new_Array_focal_limit": 2, "CLI_processes": 56, "cases": 28, "products": 2, "profiles": ["default"], "orders": ["normal"], "timeout_seconds_per_process": 30},
+  "history_preserved": {"contract_revisions_spent": 3, "additional_focal_batches_spent": 2, "full_C_used": 1, "full_C_limit": 2, "new_successor_scope": "One explicitly authorized narrow Array prerequisite, not general R4 or a reset"},
+  "authoring_incident": {
+    "announced_r1_inputs_sha256": "56efd2067f8fb19f6553de5085880fe079844d4e2baabec6159f9d46ccc2d3c5",
+    "disposition": "Author disclosed overwrite before execution: E08 added and schematic owner templates removed. Original bytes unavailable, not reconstructed. No credit under announced old pin. Canonical r2 and explicit incident now define prospective inputs. This does not authorize overwriting any future published artifact.",
+    "semantic_execution_under_old_inputs": 0
+  },
+  "fail_closed": [
+    "ARR-E08 must actually reach detached surplus; missing map, parser failure or earlier error gives no fallback coverage and blocks seal for that dimension. Preserve raw and require separately frozen executable owner test if necessary.",
+    "Every positive and negative source must reach intended causal route; prior missing float or Array cannot stand in for a constructor-specific predicate.",
+    "Timeout, signal, missing identity/channel and opaque parser remain Unknown. No automatic expanded672 or mutation-score credit.",
+    "Literal reference expectations, real compiled negative eligibility/discrimination and direct array(bytes) RED must be independently accepted before Array implementation.",
+    "All70/840 original positives, four Version controls, ancestral M01-M20, W/F and global4718 remain due; no overallP1339PASS."
+  ],
+  "Array_implementation_authorized": false,
+  "independent_semantic_runs_by_verifier_so_far_in_Array_successor": 0
+}

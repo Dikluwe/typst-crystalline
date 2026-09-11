@@ -1,0 +1,25 @@
+{
+  "schema": "p1339-array-expanded-receipt-v1",
+  "utc": "2026-09-10T11:08:59.087973+00:00",
+  "manifest_sha256": "f53860b4769219b4aa508210fa806897930ab99a126b7bd9841509ba4556fb45",
+  "raw": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-expanded-raw-r1.json",
+    "sha256": "53b9ab9f4b5c3ee0bcffa2ea248a101aa85dc9a03539217cbea9b15202fdee8e"
+  },
+  "oracles": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-expanded-oracles-r1.json",
+    "sha256": "35c043a82bbfd56b1d9e334355a0acacaed57039bb0c47b02826bdd888b183c0"
+  },
+  "status": "Recorded expansion; no successor seal or candidate verdict",
+  "scheduled_cells": 672,
+  "executed_cli_processes": 672,
+  "timeout_cells": 0,
+  "not_executed_cells": 0,
+  "literal_oracle_cells": 324,
+  "unknown_oracle_cells": 12,
+  "repeat_reverse_disagreements": [],
+  "prior_focal_default_disagreements": [],
+  "integrity_ok": true,
+  "elapsed_seconds": 32.41134772199439,
+  "budget": "Same prospectively declared 672-process expansion; no new contract revision, no focal reset. Private focal costs belong to adversary/verifier receipts. Original70/840 and all other W/F remain due; E08 historical Unknown persists even if distinct owner harness proves fallback."
+}

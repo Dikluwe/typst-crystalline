@@ -1,0 +1,104 @@
+{
+  "schema": "p1339-final-batch-delta-ledger-v1",
+  "author": "/root/p1319_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "batch": 2,
+  "go": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-batch1-focal-review-r1.md",
+    "sha256": "d4b8b1c5dd764e479270ebd4eb31b5d510f176c46ca0996f66a17c9a68bcdcab"
+  },
+  "predecessor_manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-manifest-r2.json",
+    "sha256": "86742a540fc58ac9e4096aadf32541f520a7953af3e209df490f48f69cee3d08"
+  },
+  "predecessor_raw": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-focal-runs.json",
+    "sha256": "471b753ba19921b4d90e0393452ac251b5875dfc833b362d8d7146bfa171c7c8"
+  },
+  "predecessor_evaluation": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-focal-evaluation.json",
+    "sha256": "b129f6861852ff9c76c444a27ea3f2d5d751e4b4c0092b62e361c38841125067"
+  },
+  "historical_cost": {
+    "batch1_processes": 384,
+    "wall_seconds": 12.819637848006096,
+    "sum_child_seconds": 49.92340499785496,
+    "recipe_seconds": 0.10872717201709747,
+    "recipe_failed": true,
+    "raw_unknown": 12,
+    "classification_counts_preserved_unmodified": {
+      "Preserved": 324,
+      "Violated": 48,
+      "Unknown": 12
+    }
+  },
+  "historical_false_effects": "36baseline static-match cells were falsely tagged as callback evidence because marker occurred in source frame. Historical classifications remain byte-intact and are not positive causal proof.",
+  "hypotheses": [
+    {
+      "cause": "show marker/source conflation and phase-target mismatch",
+      "affected_ids": [
+        "show-strong-static-empty",
+        "show-strong-static-match",
+        "show-strong-static-miss",
+        "show-strong-bound-empty",
+        "show-strong-bound-match",
+        "show-strong-bound-miss",
+        "show-emph-static-empty",
+        "show-emph-static-match",
+        "show-emph-static-miss",
+        "show-emph-bound-empty",
+        "show-emph-bound-match",
+        "show-emph-bound-miss",
+        "show-text-static-empty",
+        "show-text-static-match",
+        "show-text-static-miss",
+        "show-text-bound-empty",
+        "show-text-bound-match",
+        "show-text-bound-miss",
+        "show-strong-direct-control",
+        "show-emph-direct-control",
+        "show-text-direct-control"
+      ],
+      "delta": "Exact primary diagnostic panic line, full raw tuple unchanged; explicit product/profile/phase table for all21static/bound/direct forms. mutation_host resolves vanilla independently of raw label.",
+      "predicted_gain": "No source-embedded marker certifies callback. All baseline where forms report OtherDiagnosticBeforeCallback while vanilla match/empty executes and miss succeeds; directtext preserves legacy baseline error. Correcting former36false effects is not a new positive case."
+    },
+    {
+      "cause": "strict recipe assumed absent source frame",
+      "affected_ids": [
+        "causal-bare-strong-isolated",
+        "causal-empty-vs-bare-padded-legacy-control",
+        "causal-heading-empty-vs-bare",
+        "causal-strong-empty-isolated",
+        "where-l0-empty-vs-bare"
+      ],
+      "delta": "Add only exact measured spanless full tuple identity branch, zero substitutions, all12cells and complete vanilla conjunctions; preserve original strict spanful branch separately.",
+      "predicted_gain": "Derived expectation produced without invented location if all exact controls stable; any extra/partial context fails closed."
+    }
+  ],
+  "unchanged_controls": [
+    "opaque-budget-finite",
+    "opaque-budget-workload"
+  ],
+  "source_cases_changed": 0,
+  "future_definitions_changed": 0,
+  "R3_changed": false,
+  "L0_changed": false,
+  "candidate_read": false,
+  "budget": {
+    "batch1_consumed_rejected": true,
+    "batch2_is_last": true,
+    "batch2_executed": false,
+    "automatic_retries": 0,
+    "third_batch_allowed": false,
+    "full_C_used": 0,
+    "full_C_limit": 2
+  },
+  "static_checks_before_publication": [
+    "Parse all generated Python with ast.parse only; no recipe/predicate invocation",
+    "Require all724case objects exactly equal to predecessor",
+    "Require119future definitions and opaque source/expectations exactly equal",
+    "Require21show policies,28focal IDs and672unique cells",
+    "Verify all pinned baseline/vanilla reference SHAs before extracting exact primary lines"
+  ],
+  "no_runtime_credit": "Metadata publication/AST parsing is not compiler execution, mutant rejection or future F coverage."
+}

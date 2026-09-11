@@ -1,0 +1,127 @@
+{
+  "schema": "p1339-show-witness-exploratory-manifest-v1",
+  "phase": "focal",
+  "state": {
+    "utc": "2026-09-10T02:29:36.093647+00:00",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "status_short": " M 00_nucleo/prompts/compiler/eval.md\n M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/repr.md\n M 00_nucleo/prompts/compiler/eval/rules.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/compiler/introspect.md\n M 00_nucleo/prompts/compiler/introspect/extract_payload.md\n M 00_nucleo/prompts/compiler/introspect/from_tags.md\n M 00_nucleo/prompts/compiler/introspect/locatable.md\n M 00_nucleo/prompts/compiler/layout.md\n M 00_nucleo/prompts/compiler/stdlib/_comum.md\n M 00_nucleo/prompts/compiler/stdlib/counter.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/float.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/query.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/compiler/stdlib/primitives-constructors.md\n M 00_nucleo/prompts/compiler/stdlib/primitives-constructors/version.md\n M 00_nucleo/prompts/compiler/stdlib/state.md\n M 00_nucleo/prompts/entities/counter_registry.md\n M 00_nucleo/prompts/entities/element_payload.md\n M 00_nucleo/prompts/entities/elements/emph.md\n M 00_nucleo/prompts/entities/elements/strong.md\n M 00_nucleo/prompts/entities/introspector.md\n M 00_nucleo/prompts/entities/selector.md\n M 00_nucleo/prompts/entities/show.md\n M 00_nucleo/prompts/entities/version.md\n M 00_nucleo/prompts/infra/pipeline.md\n?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-completion-authorization.md\n?? 00_nucleo/diagnosticos/p1339-context-dependency-gate.md\n?? 00_nucleo/diagnosticos/p1339-context-dependency-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-probe.py\n?? 00_nucleo/diagnosticos/p1339-context-dependency-receipt.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-recorder.py\n?? 00_nucleo/diagnosticos/p1339-context-dependency-review.md\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-observation-integration-receipt.json\n?? 00_nucleo/diagnosticos/p1339-observation-integration-recorder.py\n?? 00_nucleo/diagnosticos/p1339-observation-integration.md\n?? 00_nucleo/diagnosticos/p1339-observation-interface-approval.json\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-remaining-l0-design.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-show-witness-focal-strong-direct-control.typ\n?? 00_nucleo/diagnosticos/p1339-show-witness-focal-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-show-witness-focal-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-show-witness-probe.py\n?? 00_nucleo/diagnosticos/p1339-stabilization-approval.json\n?? 00_nucleo/diagnosticos/p1339-stabilization-boundaries-probe.py\n?? 00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json\n?? 00_nucleo/diagnosticos/p1339-stabilization-design.md\n?? 00_nucleo/diagnosticos/p1339-stabilization-public-gate.md\n?? 00_nucleo/diagnosticos/p1339-stabilization-receipt.json\n?? 00_nucleo/diagnosticos/p1339-stabilization-recorder.py\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-approval-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-integration-design.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-compile-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-file-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-index-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-manifest.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r1.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-payload-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review.md\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+    "diff_stat": " 00_nucleo/prompts/compiler/eval.md                 | 173 +++++++++++++++++++++\n .../prompts/compiler/eval/bindings/field_access.md |  43 +++++\n .../compiler/eval/bindings/value_methods.md        | 134 ++++++++++++++++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  76 +++++++++\n .../prompts/compiler/eval/operators/equality.md    |  67 ++++++++\n 00_nucleo/prompts/compiler/eval/repr.md            |  38 +++++\n 00_nucleo/prompts/compiler/eval/rules.md           |  34 ++++\n .../prompts/compiler/eval/selector_matching.md     |  78 ++++++++++\n 00_nucleo/prompts/compiler/introspect.md           | 123 +++++++++++++++\n .../prompts/compiler/introspect/extract_payload.md |  27 ++++\n 00_nucleo/prompts/compiler/introspect/from_tags.md |  78 ++++++++++\n 00_nucleo/prompts/compiler/introspect/locatable.md |  24 +++\n 00_nucleo/prompts/compiler/layout.md               |  27 ++++\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |  20 +++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  80 ++++++++++\n .../prompts/compiler/stdlib/foundations/float.md   | 120 +++++++++++++-\n .../prompts/compiler/stdlib/foundations/query.md   |  66 ++++++++\n .../compiler/stdlib/foundations/selector.md        |  35 +++++\n .../compiler/stdlib/primitives-constructors.md     |  25 +++\n .../stdlib/primitives-constructors/version.md      |  74 ++++++++-\n 00_nucleo/prompts/compiler/stdlib/state.md         |  45 ++++++\n 00_nucleo/prompts/entities/counter_registry.md     |  35 +++++\n 00_nucleo/prompts/entities/element_payload.md      |  88 +++++++++++\n 00_nucleo/prompts/entities/elements/emph.md        |  25 +++\n 00_nucleo/prompts/entities/elements/strong.md      |  26 ++++\n 00_nucleo/prompts/entities/introspector.md         |  31 ++++\n 00_nucleo/prompts/entities/selector.md             |  82 ++++++++++\n 00_nucleo/prompts/entities/show.md                 |  48 ++++++\n 00_nucleo/prompts/entities/version.md              |  44 +++++-\n 00_nucleo/prompts/infra/pipeline.md                | 114 ++++++++++++++\n 30 files changed, 1876 insertions(+), 4 deletions(-)\n"
+  },
+  "runner_sha256": "31b51d021cf67493d85a52a1b84b146dde1c3a1bf3be56997c907e5273984026",
+  "inputs": {
+    "00_nucleo/diagnosticos/p1339-full-show-final-manifest.json": "c5a559867c16efe566f75a6ebc2b0cc952fa7027ab82cf60753960facb89d03c",
+    "00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json": "7d4afd8ea6d3fb8f1ec56b6b2a0d0913db8205cb5469aa94fd4581aaab2e6842",
+    "00_nucleo/diagnosticos/p1339-full-a2.md": "68cfd9a20d8ad4b0c5682b7ede7d14b67eb71f7e63ed085b897402a54e7c86c6",
+    "00_nucleo/diagnosticos/p1339-full-cli-capabilities.json": "f92d2d156562708fc5204c7f94eccbd80371a4ffc5fb109d9d5d96aadf705f7a",
+    "00_nucleo/diagnosticos/p1339-a0.json": "c70ca7d1f22aa7df222a081da4feddbc056b628eca505449eedb153acd71c361",
+    "00_nucleo/materialization/typst-passo-1339.md": "817c3a1476897fb0a847c90183e9a9fe690994f60023126997c8022c4e8b86a9",
+    "00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ": "62c08b6b1069a6c807430dfa78f9a84d24f7255fad622ad468cc6c181b61ea6f",
+    "00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ": "3dc550bc2ffd6418bdbb2782ae84ee3b345bec8a4c142461633b1f11d71cb7b9"
+  },
+  "binaries": {
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "upstream": "a51e02804"
+    },
+    "baseline": {
+      "path": "/tmp/p1338-target.vlNAmp/release/typst",
+      "sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1"
+    }
+  },
+  "profiles": {
+    "default": [],
+    "html": [
+      "--features",
+      "html"
+    ],
+    "a11y": [
+      "--features",
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "--features",
+      "html,a11y-extras"
+    ]
+  },
+  "orders": [
+    "normal"
+  ],
+  "cases": [
+    {
+      "id": "strong-static-match",
+      "kind": "selector",
+      "source": "#show function.where(strong,body: [BASE]): it => panic(\"P1339_SHOW_WITNESS_STRONG_STATIC_MATCH\")\n#strong[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-show-witness-focal-strong-static-match.typ",
+      "sha256": "4c20b38951eebcc79e56633d85a081e13daa899c5c74b004f056b502ff5413d8",
+      "marker": "P1339_SHOW_WITNESS_STRONG_STATIC_MATCH",
+      "prior_id": "strong-static-match",
+      "prior_source_sha256": "62c08b6b1069a6c807430dfa78f9a84d24f7255fad622ad468cc6c181b61ea6f",
+      "prior_vanilla_stdout": "[\"MATCH\"]\n",
+      "prior_Unknown_unchanged": true,
+      "expected_effect": "CallbackExecuted",
+      "expected_primary": "error: panicked with: \"P1339_SHOW_WITNESS_STRONG_STATIC_MATCH\"",
+      "basis": "Prior independent vanilla metadata observation, same selector and subject; callback body alone replaced. Prediction frozen before running either product."
+    },
+    {
+      "id": "strong-static-miss",
+      "kind": "selector",
+      "source": "#show function.where(strong,body: [OTHER]): it => panic(\"P1339_SHOW_WITNESS_STRONG_STATIC_MISS\")\n#strong[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-show-witness-focal-strong-static-miss.typ",
+      "sha256": "22047e4c296f6a02c825c2c7a24d21bbbc44424850fcbfa9a81703afdf284adc",
+      "marker": "P1339_SHOW_WITNESS_STRONG_STATIC_MISS",
+      "prior_id": "strong-static-miss",
+      "prior_source_sha256": "3dc550bc2ffd6418bdbb2782ae84ee3b345bec8a4c142461633b1f11d71cb7b9",
+      "prior_vanilla_stdout": "[]\n",
+      "prior_Unknown_unchanged": true,
+      "expected_effect": "CompileSucceededNoCallback",
+      "expected_primary": null,
+      "basis": "Prior independent vanilla metadata observation, same selector and subject; callback body alone replaced. Prediction frozen before running either product."
+    },
+    {
+      "id": "strong-direct-control",
+      "kind": "direct-control",
+      "source": "#show strong: it => panic(\"P1339_SHOW_WITNESS_STRONG_DIRECT_CONTROL\")\n#strong[BASE]\n",
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-show-witness-focal-strong-direct-control.typ",
+      "sha256": "69a14948a064e94a2a44cb2fd20da0afacdbecd245f2277414afcc76c9b643c7",
+      "marker": "P1339_SHOW_WITNESS_STRONG_DIRECT_CONTROL",
+      "expected_effect": "CallbackExecuted",
+      "expected_primary": "error: panicked with: \"P1339_SHOW_WITNESS_STRONG_DIRECT_CONTROL\"",
+      "basis": "Exploratory native element show control without where: inferred to invoke callback, explicitly refutable by either product's compile observation."
+    }
+  ],
+  "regime": "Exploratory independent observation; executed without isolation attestation; no contract, seal, implementation or final verdict",
+  "capabilities": {
+    "executor": "/root/p1312_tests",
+    "historical_context": "Reused agent retains P1312 test-author context. Those prior functions/implementations are not inputs or evidence for P1339. No P1339 L0/productive/candidate source read.",
+    "reads": [
+      "00_nucleo/diagnosticos/p1339-full-show-final-manifest.json",
+      "00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json",
+      "00_nucleo/diagnosticos/p1339-full-a2.md",
+      "00_nucleo/diagnosticos/p1339-full-cli-capabilities.json",
+      "00_nucleo/diagnosticos/p1339-a0.json",
+      "00_nucleo/materialization/typst-passo-1339.md",
+      "00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ",
+      "00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ",
+      "CLAUDE.md",
+      "01_core/CLAUDE.md",
+      "skill and refs",
+      "own witness artifacts",
+      "binary observations",
+      "git HEAD/status/diffstat"
+    ],
+    "writes": [
+      "00_nucleo/diagnosticos/p1339-show-witness-*",
+      "dedicated /tmp compile output"
+    ],
+    "limitation": "Shared filesystem does not enforce the role allowlist."
+  },
+  "observation_policy": {
+    "callback_executed": "Nonzero exit with the first diagnostic line exactly equal to expected_primary; a marker appearing only in printed source is never a witness.",
+    "mismatch": "Zero exit plus produced PDF and no stderr error is only negative observation; paired matching/direct controls must establish callback execution capability.",
+    "other_diagnostic": "Record exact primary and full channels. A supported compile semantic rejection before callback is an observation of unavailable route, not proof of matching.",
+    "Unknown": "Timeout, missing output with success, no recognizable diagnostic, CLI transport rejection, missing identity or unverified fixture remain Unknown and prevent expansion."
+  },
+  "budget": "One initial focal of 3 strong cases in four profiles. At most one focal revision if needed; expand only after valid focal. Expanded 18 selectors plus 3 direct controls in four profiles, normal/reverse. No implementation or final PASS permitted.",
+  "fragment": "Selector acceptance/rejection and causal callback invocation or non-invocation for fixed strong/emph/text empty/equal/unequal fields. Does not compare PDF bytes or callback return morphology."
+}

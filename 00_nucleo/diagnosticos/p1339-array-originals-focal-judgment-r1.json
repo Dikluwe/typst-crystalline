@@ -1,0 +1,842 @@
+{
+  "raw": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-focal-runs-r1.json",
+    "sha256": "42e2f3388f721e4508f1b97891d5f3949292e7e4fb4c4908a5c15d0c229587ad"
+  },
+  "manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-envelope-r1.json",
+    "sha256": "7c975dc120d21e5c8d5a4661f294c1176958258adb80ae23bf43bc0c875813a2"
+  },
+  "predicate": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-public-predicate.py",
+    "sha256": "1a7f3ba6759080ef59f6987f5418c3518eb918efaa1ce7e1423d7ff78960b08d"
+  },
+  "source_and_oracle_changes": 0,
+  "mode": "focal",
+  "cells": 70,
+  "classified": 70,
+  "classifications": [
+    {
+      "id": "historical-to-bytes-4-little-static-0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-bound-0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-static--0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-bound--0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-static-1.5",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-bound-1.5",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-static--2.25",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-bound--2.25",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-static-float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-bound-float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-static--float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-bound--float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-static-float(\"nan\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-little-bound-float(\"nan\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-static-0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-bound-0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-static--0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-bound--0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-static-1.5",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-bound-1.5",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-static--2.25",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-bound--2.25",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-static-float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-bound-float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-static--float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-bound--float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-static-float(\"nan\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-4-big-bound-float(\"nan\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-static-0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-bound-0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-static--0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-bound--0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-static-1.5",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-bound-1.5",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-static--2.25",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-bound--2.25",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-static-float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-bound-float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-static--float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-bound--float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-static-float(\"nan\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-little-bound-float(\"nan\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-static-0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-bound-0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-static--0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-bound--0.0",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-static-1.5",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-bound-1.5",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-static--2.25",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-bound--2.25",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-static-float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-bound-float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-static--float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-bound--float(\"inf\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-static-float(\"nan\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-8-big-bound-float(\"nan\")",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-default",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-to-bytes-default-endian",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding-0.1-little",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding-0.1-big",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding--0.1-little",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding--0.1-big",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding-1e-46-little",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding-1e-46-big",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding-1e-45-little",
+      "raw_execution": "Observed",
+      "classification": "Violated",
+      "reason": "observable_difference",
+      "differences": [
+        {
+          "dimension": "stdout",
+          "expected": "\"((1, 0, 0, 0), 1.401298464324817e-45)\"\n",
+          "actual": "\"(\\n  (1, 0, 0, 0),\\n  0.000000000000000000000000000000000000000000001401298464324817,\\n)\"\n"
+        }
+      ],
+      "positive_credit": 0,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding-1e-45-big",
+      "raw_execution": "Observed",
+      "classification": "Violated",
+      "reason": "observable_difference",
+      "differences": [
+        {
+          "dimension": "stdout",
+          "expected": "\"((0, 0, 0, 1), 1.401298464324817e-45)\"\n",
+          "actual": "\"(\\n  (0, 0, 0, 1),\\n  0.000000000000000000000000000000000000000000001401298464324817,\\n)\"\n"
+        }
+      ],
+      "positive_credit": 0,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding-1e40-little",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding-1e40-big",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding--1e40-little",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding--1e40-big",
+      "raw_execution": "Observed",
+      "classification": "Preserved",
+      "reason": "exact_designated_reference",
+      "differences": [],
+      "positive_credit": 1,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    }
+  ],
+  "failures": [
+    {
+      "id": "historical-bytes-rounding-1e-45-little",
+      "raw_execution": "Observed",
+      "classification": "Violated",
+      "reason": "observable_difference",
+      "differences": [
+        {
+          "dimension": "stdout",
+          "expected": "\"((1, 0, 0, 0), 1.401298464324817e-45)\"\n",
+          "actual": "\"(\\n  (1, 0, 0, 0),\\n  0.000000000000000000000000000000000000000000001401298464324817,\\n)\"\n"
+        }
+      ],
+      "positive_credit": 0,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "id": "historical-bytes-rounding-1e-45-big",
+      "raw_execution": "Observed",
+      "classification": "Violated",
+      "reason": "observable_difference",
+      "differences": [
+        {
+          "dimension": "stdout",
+          "expected": "\"((0, 0, 0, 1), 1.401298464324817e-45)\"\n",
+          "actual": "\"(\\n  (0, 0, 0, 1),\\n  0.000000000000000000000000000000000000000000001401298464324817,\\n)\"\n"
+        }
+      ],
+      "positive_credit": 0,
+      "product": "candidate",
+      "profile": "default",
+      "order": "normal"
+    }
+  ],
+  "Unknown": 0,
+  "PASS": false,
+  "review": "PENDING_INDEPENDENT_REVIEW; no global/future/internal/Array-isolated-RED claim",
+  "regime": "executado sem atestacao de isolamento"
+}

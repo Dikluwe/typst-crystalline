@@ -1,0 +1,41 @@
+{
+  "recorded_utc": "2026-09-10T01:50:32.563929+00:00",
+  "authority": "Dono: Autorizo após proposta de incluir estabilização contextual no P1339",
+  "status": "SCOPE_APPROVED_PENDING_CONCRETE_L0_AND_GATES",
+  "predecessor_sha256": "264a4a6fb76d64738714ab528295667491da53d20af6c93e2916f4762e139894",
+  "gate_path": "00_nucleo/diagnosticos/p1339-context-dependency-gate.md",
+  "gate_sha256": "074e3d9c9c908043c752b3be82511d3728f158f6e4989dcaea6f904c589489ca",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "approved_predecessor_l0_sha256": {
+    "00_nucleo/prompts/compiler/eval/bindings/field_access.md": "f6f9454be8b20ca19330610fcb3f6c8e0425bbb7e339a3db3dfd1092d31d72e6",
+    "00_nucleo/prompts/compiler/eval/bindings/value_methods.md": "cb79eeaf3c8d0519858098a40d1f2e23da21e68173536a9074725145808724bb",
+    "00_nucleo/prompts/compiler/eval/call_dispatch.md": "b856f5bc2c8a6fa70385909666a83d7b7eb0c32f4f945de9c1bd396db33c2e48",
+    "00_nucleo/prompts/compiler/eval/operators/equality.md": "5b9124c32eecd3fbf80994d8601cf7efe7d21a187a6d8e740ac0ec9aee87fba5",
+    "00_nucleo/prompts/compiler/eval/repr.md": "8552abc207e790a67fbc055fc32107bb6daa4dbac93de937a9931a3789880a3f",
+    "00_nucleo/prompts/compiler/eval/rules.md": "2e7320602cbb8b38b37bbf2ba12d76d418e41d30c20bd13fc03e31c6e32bf2fa",
+    "00_nucleo/prompts/compiler/eval/selector_matching.md": "93fc3e5f20894fa09a54996e13328201f5dd2216c5ca260b67dd42e8dcc91bba",
+    "00_nucleo/prompts/compiler/introspect.md": "701e2442c7741637aa6f826f3a42e6ebd90173657a59dc2f76b811ef031ec20b",
+    "00_nucleo/prompts/compiler/introspect/extract_payload.md": "cfdf29749ac82f26d27d96ab973ff82b19de004a2cacba16134b10b9a172517c",
+    "00_nucleo/prompts/compiler/introspect/from_tags.md": "4c9db86ef37e88a008f92d2ad0e145338eca5aa194b03a73fbd9c4951d3c6f4b",
+    "00_nucleo/prompts/compiler/introspect/locatable.md": "cdeb753844af1cc8af8e138c8e92533ce272a5c07b938961ad0da47a99c90183",
+    "00_nucleo/prompts/compiler/layout.md": "5959c62058b10dfb81fd9b547979a2e69c86564a441c5b05a774b35160ca49cd",
+    "00_nucleo/prompts/compiler/stdlib/counter.md": "552d4af0e6cb0512fed8a2275ec77b767d72ca283792d08e094c89bbbb56f04b",
+    "00_nucleo/prompts/compiler/stdlib/foundations/query.md": "3ff938af10d7bd65c294aa4babf2f1ce9b836bc4723fe113615b0eb1ad2b8260",
+    "00_nucleo/prompts/compiler/stdlib/foundations/selector.md": "17e210cb6cc0976c4058ddd3513dbb3b48330a5c32e6458a2fc4e59aa2a558e9",
+    "00_nucleo/prompts/entities/counter_registry.md": "78d93e7387f89f26187b175958c31c4e3b2a3db58f4e14ca4b2c6760170a1efe",
+    "00_nucleo/prompts/entities/element_payload.md": "44994d49505a501d657e413ffff6d69ae68d1feb9044c863505f40ccf1da77f5",
+    "00_nucleo/prompts/entities/elements/emph.md": "02fb4e64aced1c9191b49010bb5cd9f4a982a567b640f998049d8ff053f353cd",
+    "00_nucleo/prompts/entities/elements/strong.md": "856e6795e57c220252d6d340647df461fe33a14b739a3289c59447103dc2aded",
+    "00_nucleo/prompts/entities/introspector.md": "d47eb8459a4062ea902ad38f5aeb5a97bc4fea4fb62ac5230107fbdc20707944",
+    "00_nucleo/prompts/entities/selector.md": "8b6ebfea3455c6191455b007b461270765b8b07726911f5830835dfd259239df",
+    "00_nucleo/prompts/entities/show.md": "777e6aecdad7bb23ba69b82471fb4bc9c9b7636c8a2273e50232c248fa522e73"
+  },
+  "scope": "Incluir estabilização dos contextos dependentes dos novos contadores filtrados no P1339; preservar contadores legados e assinaturas públicas existentes; não executar callbacks globalmente por antecipação",
+  "limits": [
+    "Não aprova contrato público novo ainda não especificado",
+    "Não dispensa L0, contrato, oráculos, mutações, selo, RED e validação",
+    "Não autoriza corrigir os controles legados nem outras rotas"
+  ],
+  "implementation_started": false,
+  "regime": "executado sem atestação de isolamento"
+}

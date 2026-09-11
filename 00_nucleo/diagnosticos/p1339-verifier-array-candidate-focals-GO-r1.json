@@ -1,0 +1,37 @@
+{
+  "verdict": "GO_ARRAY_CANDIDATE_FOCALS_28_AND_ORIGINAL70",
+  "verifier": "/root/p1311_review",
+  "seal": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-array-successor-seal-r1.json",
+    "sha256": "cb368ce0be06d2b955dd0e213256f09778197ae04256679ba7a0d4d907ef2c5b"
+  },
+  "binary": {
+    "path": "/tmp/p1339-target.UD8gh7/release/typst",
+    "sha256": "b689f3fe7f34059a3ccb1cce9b1f4ce57b026cc88b86a4dac2e9b66456d9a993"
+  },
+  "build_receipt_sha256": "1d8b46b9775df23a54ba3a99612e6741ecdd1c8823232018f6389c262272e1f2",
+  "permitted_runs": [
+    {
+      "executor": "00_nucleo/diagnosticos/p1339-array-candidate-public-run-r3.py",
+      "executor_sha256": "c2048c722637acab1ad1deca891848e563f8703cd06fe6053d85a1b3e50cc25f",
+      "state_recorder_sha256": "d4dd934008030b8e9f5c87452f9fb3a60fa60e6e9171162a3d23df1818953304",
+      "mode": "focal",
+      "cells": 28,
+      "expected": "27 frozen literals plus exploratory E08null, default/normal only."
+    },
+    {
+      "executor": "00_nucleo/diagnosticos/p1339-array-originals-executor-r1.py",
+      "executor_sha256": "15168c3a2c71bfb90bf5d0dd939a19e46bc4a6e18b020dc65d845d4b9ef731de",
+      "envelope": "00_nucleo/diagnosticos/p1339-array-originals-envelope-r1.json",
+      "envelope_sha256": "7c975dc120d21e5c8d5a4661f294c1176958258adb80ae23bf43bc0c875813a2",
+      "mode": "focal",
+      "cells": 70,
+      "expected": "Unchanged original70 positive program expectations, default/normal."
+    }
+  ],
+  "static_audit": "Both new Python runners fully read. Public r3 directly reuses frozen transport07ff and actual reference order; no literal edits. State captures modified/untracked product and transitive Array/Style includes. Original70 executor/preflight independently accepted previously. Build real exit0 and all captured source/input hashes verified stable and currently equal; candidate binary independently hashed.",
+  "source_audit": "New owner uses real evaluated Args clone/remove_positional, causal first surplus, occurrence span/fallback and unsigned byte mapping. Dispatcher only first positional Bytes; hubs thin. Canonical private oracle included unchanged and bound directly to actual native_array_bytes, not a model/stub.",
+  "restrictions": "Run each focal once with python3 -B, same sealed sources/expectations, no source mutation during execution. Preserve failures and Unknown. No expanded336/840 run until independent focal acceptance. Engineering result comparisons are not independent verdicts.",
+  "budget": "98 candidate focal processes, not new preseal calibration/full C. No automatic retries or historical budget reset.",
+  "regime": "executado sem atestacao de isolamento"
+}

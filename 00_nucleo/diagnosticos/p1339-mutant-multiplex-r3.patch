@@ -1,0 +1,262 @@
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-cli/src/main.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-cli/src/main.rs
+index 6e47b1c82..c360c3202 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-cli/src/main.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-cli/src/main.rs
+@@ -48,6 +48,7 @@ static ARGS: LazyLock<CliArguments> = LazyLock::new(|| {
+ 
+ /// Entry point.
+ fn main() -> ExitCode {
++    let _ = typst::p1339_mutant(0);
+     // Handle SIGPIPE
+     // https://stackoverflow.com/questions/65755853/simple-word-count-rust-program-outputs-valid-stdout-but-panicks-when-piped-to-he/65760807
+     sigpipe::reset();
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-eval/src/call.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-eval/src/call.rs
+index 0e1a22c80..dae23bded 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-eval/src/call.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-eval/src/call.rs
+@@ -51,10 +51,17 @@ impl Eval for ast::FuncCall<'_> {
+                 false,
+             )? {
+                 FieldCallee::Func(func) => {
+-                    let args = match maybe_args {
++                    let mut args = match maybe_args {
+                         Some(args) => args,
+                         None => self.args().eval(vm)?.spanned(span),
+                     };
++                    if typst_library::p1339_mutant(16) && func.name() == Some("at")
++                        && matches!(args.items.first().map(|arg| &arg.value.v), Some(Value::Version(_)))
++                    {
++                        if let Some(index) = args.items.make_mut().get_mut(1) {
++                            index.value.v = Value::Int(0);
++                        }
++                    }
+                     call_func(vm, func, args, span)
+                 }
+                 FieldCallee::Method(func, target) => {
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/args.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/args.rs
+index f3e204638..13bd0dcc0 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/args.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/args.rs
+@@ -257,6 +257,9 @@ impl Args {
+     /// Return an "unexpected argument" error if there is any remaining
+     /// argument.
+     pub fn finish(self) -> SourceResult<()> {
++        if crate::p1339_mutant(18) && self.items.iter().all(|arg| arg.name.is_some()) {
++            return Ok(());
++        }
+         if let Some(arg) = self.items.first() {
+             match &arg.name {
+                 Some(name) => bail!(arg.span, "unexpected argument: {name}"),
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/float.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/float.rs
+index bcbe36d16..6c2604924 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/float.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/float.rs
+@@ -108,6 +108,18 @@ impl f64 {
+     /// ```
+     #[func(since = "0.11.0")]
+     pub fn signum(self) -> f64 {
++        if crate::p1339_mutant(20) {
++            std::process::abort();
++        }
++        if crate::p1339_mutant(11) {
++            return 0.0;
++        }
++        if crate::p1339_mutant(5) && self == 0.0 {
++            return 1.0;
++        }
++        if crate::p1339_mutant(6) && self.is_nan() {
++            return 0.0;
++        }
+         f64::signum(self)
+     }
+ 
+@@ -131,6 +143,17 @@ impl f64 {
+         #[default(Endianness::Little)]
+         endian: Endianness,
+     ) -> StrResult<f64> {
++        let endian = if crate::p1339_mutant(7) {
++            match endian {
++                Endianness::Little => Endianness::Big,
++                Endianness::Big => Endianness::Little,
++            }
++        } else {
++            endian
++        };
++        if crate::p1339_mutant(8) && !matches!(bytes.len(), 4 | 8) {
++            return Ok(0.0);
++        }
+         // Convert slice to an array of length 4 or 8.
+         if let Ok(buffer) = <[u8; 8]>::try_from(bytes.as_ref()) {
+             return Ok(match endian {
+@@ -171,8 +194,17 @@ impl f64 {
+         #[named]
+         #[default(8)]
+         size: u32,
+-    ) -> StrResult<Bytes> {
+-        Ok(match size {
++    ) -> StrResult<crate::foundations::Value> {
++        let size = if crate::p1339_mutant(9) { 8 } else { size };
++        let endian = if crate::p1339_mutant(7) {
++            match endian {
++                Endianness::Little => Endianness::Big,
++                Endianness::Big => Endianness::Little,
++            }
++        } else {
++            endian
++        };
++        let bytes = match size {
+             8 => Bytes::new(match endian {
+                 Endianness::Little => self.to_le_bytes(),
+                 Endianness::Big => self.to_be_bytes(),
+@@ -182,7 +214,11 @@ impl f64 {
+                 Endianness::Big => (self as f32).to_be_bytes(),
+             }),
+             _ => bail!("size must be either 4 or 8"),
+-        })
++        };
++        if crate::p1339_mutant(10) {
++            return Ok(crate::foundations::Value::Array(bytes.as_slice().iter().map(|b| crate::foundations::Value::Int(*b as i64)).collect()));
++        }
++        Ok(crate::foundations::Value::Bytes(bytes))
+     }
+ }
+ 
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/func.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/func.rs
+index 1549f4f24..4598839db 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/func.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/func.rs
+@@ -370,7 +370,11 @@ impl Func {
+                 Ok(Value::Bytes(output))
+             }
+             FuncInner::With(with) => {
+-                args.items = with.1.items.iter().cloned().chain(args.items).collect();
++                args.items = if crate::p1339_mutant(13) {
++                    args.items.into_iter().chain(with.1.items.iter().cloned()).collect()
++                } else {
++                    with.1.items.iter().cloned().chain(args.items).collect()
++                };
+                 with.0.call(engine, context, args)
+             }
+         }
+@@ -430,11 +434,13 @@ impl Func {
+         let fields = args.to_named();
+         args.items.retain(|arg| arg.name.is_none());
+ 
+-        let element = self
+-            .to_element()
+-            .ok_or("`where()` can only be called on element functions")?;
++        let element = if crate::p1339_mutant(14) && matches!(&self.inner, FuncInner::Closure(_)) {
++            <crate::model::HeadingElem as crate::foundations::NativeElement>::ELEM
++        } else {
++            self.to_element().ok_or("`where()` can only be called on element functions")?
++        };
+ 
+-        let fields = fields
++        let mut fields = fields
+             .into_iter()
+             .map(|(key, value)| {
+                 element.field_id(&key).map(|id| (id, value)).ok_or_else(|| {
+@@ -447,6 +453,9 @@ impl Func {
+             })
+             .collect::<StrResult<smallvec::SmallVec<_>>>()?;
+ 
++        if crate::p1339_mutant(15) {
++            fields.clear();
++        }
+         Ok(element.where_(fields))
+     }
+ }
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/ops.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/ops.rs
+index 7e72a61aa..841931c3b 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/ops.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/ops.rs
+@@ -420,6 +420,11 @@ comparison!(geq, ">=", Ordering::Greater | Ordering::Equal);
+ 
+ /// Determine whether two values are equal.
+ pub fn equal(lhs: &Value, rhs: &Value) -> bool {
++    if crate::p1339_mutant(4)
++        && matches!((lhs, rhs), (Value::Float(a), Value::Float(b)) if a.is_nan() && b.is_nan())
++    {
++        return true;
++    }
+     use Value::*;
+     match (lhs, rhs) {
+         // Compare reflexively.
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/value.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/value.rs
+index 0282c46c6..0c56e6076 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/value.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/value.rs
+@@ -155,6 +155,14 @@ impl Value {
+ 
+     /// Try to access a field on the value.
+     pub fn field(&self, field: &str, guard: impl BindingGuard) -> HintedStrResult<Value> {
++        if let Self::Type(ty) = self {
++            if crate::p1339_mutant(3) && ty.short_name() == "float" && field == "inf" {
++                return Ok(Self::Float(1.0));
++            }
++            if crate::p1339_mutant(19) && ty.short_name() == "selector" && field == "before" {
++                return Ok(Self::Float(0.0));
++            }
++        }
+         Ok(match self {
+             Self::Symbol(symbol) => Self::Symbol(symbol.clone().modified(guard, field)?),
+             Self::Version(version) => Self::Int(version.component(field)?),
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/version.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/version.rs
+index 8272569bf..2478446d2 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/foundations/version.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/foundations/version.rs
+@@ -117,6 +117,9 @@ impl Version {
+         /// from the back of the explicitly given components.
+         index: i64,
+     ) -> StrResult<i64> {
++        if crate::p1339_mutant(17) && index < -(self.0.len() as i64) {
++            return Ok(0);
++        }
+         let mut index = index;
+         if index < 0 {
+             match (self.0.len() as i64).checked_add(index) {
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/layout/angle.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/layout/angle.rs
+index 090e467f3..e398d5344 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/layout/angle.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/layout/angle.rs
+@@ -142,12 +142,21 @@ impl Angle {
+     /// Converts this angle to radians.
+     #[func(name = "rad", title = "Radians", since = "0.7.0")]
+     pub fn to_rad(self) -> f64 {
++        if crate::p1339_mutant(1) {
++            return self.to_unit(AngleUnit::Deg);
++        }
++        if crate::p1339_mutant(2) {
++            return self.to_raw() / (180.0 / PI);
++        }
+         self.to_unit(AngleUnit::Rad)
+     }
+ 
+     /// Converts this angle to degrees.
+     #[func(name = "deg", title = "Degrees", since = "0.7.0")]
+     pub fn to_deg(self) -> f64 {
++        if crate::p1339_mutant(1) {
++            return self.to_unit(AngleUnit::Rad);
++        }
+         self.to_unit(AngleUnit::Deg)
+     }
+ }
+diff --git a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/lib.rs b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/lib.rs
+index 992fe4ab5..eec93eb36 100644
+--- a/tmp/p1339-mutants.oPfqdA/reference/crates/typst-library/src/lib.rs
++++ b/tmp/p1339-mutants.oPfqdA/instrumented/crates/typst-library/src/lib.rs
+@@ -12,6 +12,14 @@
+ 
+ extern crate self as typst_library;
+ 
++/// P1339 adversarial apparatus only: explicit process mode, never fixture-driven.
++pub fn p1339_mutant(id: u8) -> bool {
++    let raw = std::env::var("P1339_MUTANT").unwrap_or_else(|_| "0".into());
++    let mode: u8 = raw.parse().expect("invalid P1339_MUTANT mode");
++    assert!(mode <= 20 && mode != 12, "invalid P1339_MUTANT mode");
++    mode == id
++}
++
+ pub mod diag;
+ pub mod engine;
+ pub mod foundations;

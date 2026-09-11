@@ -86,6 +86,72 @@ selector("heading")              -> Selector::Kind(Heading)
 selector("<intro>")              -> Selector::Label(intro)
 ```
 
+## P1339 — consumir seletor de elemento sem apagar filtros
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
+`compiler/stdlib/foundations/query.rs:52-64,76-80` separa parsing,
+consulta e projeção. O store completo já está disponível. A sonda
+`diagnosticos/p1339-where-integration-probe-runs.json` registra query de
+strong/emph aceitas e text.where rejeitado com `text is not locatable`;
+fonte ratificada `introspection/query.rs:160-175` recebe LocatableSelector.
+
+### Decisão
+
+Conservar integralmente Selector::Element recebido, inclusive função e
+grupo vazio, e delegar a seleção ao impl de `compiler/introspect.md`.
+Validar locatability da nova folha antes de consultar: usar reconhecimento
+nativo estático tipado do owner `compiler/eval/bindings/value_methods.md`,
+nunca chamar o constructor, identificar só por nome ou usar resultado vazio
+como prova de tipo inválido. Text rejeitado não pode virar array vazio;
+Strong/Emph não podem ser rejeitados por ausência de ElementKind.
+Em composições contendo Element, verificar suas folhas novas, conservando
+as regras legadas das folhas antigas. Constructor selector e uso em show
+não recebem esta restrição de locatability.
+
+Preservar no resultado cada entrada completa com sua Location exata;
+snapshot Some não sofre fallback por campo nem consulta à chain atual.
+O caminho locate compartilha essa validação quando consome Element, sem
+alterar sua política preexistente de primeiro resultado ou ausência.
+Metadata/here/target e diagnóstico das formas antigas ficam inalterados.
+Não executar callbacks nem adicionar outra passagem nesta nativa.
+
+### P1339 — registrar a consulta, não apenas suas locations
+
+Medição complementar no mesmo HEAD, consumer intacto:
+`query.rs:53-65` projeta o store completo depois da seleção; `:77-81`
+devolve a primeira Location/None; `:99-105` consulta current_location;
+`:145-155` consulta contexto/target, sem ler o snapshot. Proveniência em
+`diagnosticos/p1339-observation-integration-receipt.json`.
+
+Após a validação de argumentos vigente, registrar query/locate com o Selector
+efetivo e seus resultados completos no registro privado de EvalContext.
+Query conserva ordem, cardinalidade, cada carrier e Location e a distinção
+entre snapshot presente e fallback. Locations iguais com conteúdo/fields
+alterados não provam que a entrada permaneceu igual. Locate registra a
+primeira ocorrência ou ausência conforme sua política própria, não exige
+que matches posteriores não observados permaneçam iguais.
+
+Revalidar pela mesma seleção/projeção contra candidate, sem executar corpos
+contextuais nem chamar constructors. Valores Func/Content dentro do resultado
+não podem ser certificados por Debug, repr ou apenas igualdade de Location;
+o comparador de observações de eval deve cobrir a entrada ou declarar sua
+incompletude antes do selo. Um resultado vazio também é uma observação.
+
+Here registra a Location contextual ou sua ausência. Como current_location
+não é parte do snapshot candidato, sua estabilidade é precondição da
+tentativa retida; mudança da identidade do bloco exige nova avaliação pela
+pipeline, não replay com a Location antiga como prova. Target/features são
+inputs da tentativa, não resultados de query: conservar os mesmos valores
+durante sua revalidação. Não mudar sua propagação legada nesta extensão.
+
+Registrar não seleciona o bloco: somente demanda de counter Element o faz.
+Assim query/locate/here anteriores à demanda ficam disponíveis sem ampliar
+o conjunto de blocos reexecutados. Metadata e criação de Selector continuam
+sem leitura. Gates incluem consulta vazia que ganha ocorrência e mesma
+Location com field alterado; nenhum deles passa só por contagem de páginas.
+
 ## P1151 — preservar Location no resultado de `query`
 
 ### Medição

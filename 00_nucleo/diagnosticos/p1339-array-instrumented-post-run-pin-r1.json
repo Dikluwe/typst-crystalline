@@ -1,0 +1,14 @@
+{
+  "schema": "p1339-instrumented-post-run-pin-v1",
+  "observed_at": "2026-09-10T11:28:33.274Z",
+  "path": "/tmp/p1339-implementation-observer-instrumented.Y0Zc3f/release/deps/typst_core-af52440717336ad7",
+  "sha256": "5efeeb0976f14fd6f82701274bd594c2e83d8ac134c7e012c7253930bf404f43",
+  "size": 48349536,
+  "mtime": "2026-09-10T11:25:18.684Z",
+  "provenance": "Pin collected AFTER owner and style runtime, not before/after runtime proof. No rerun claimed.",
+  "incident": "The first capture command had a JavaScript syntax error and generated no pin; its invalid draft was immediately replaced. No tests rerun.",
+  "receipts": [
+    "p1339-array-candidate-owner-r1.json",
+    "p1339-array-candidate-style-r1.json"
+  ]
+}

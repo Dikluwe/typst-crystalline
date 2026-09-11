@@ -1,0 +1,104 @@
+diff --git a/00_nucleo/diagnosticos/p1339-mutant-closed-state-style-harness.rs b/00_nucleo/diagnosticos/p1339-mutant-closed-state-style-harness-r2.rs
+index 00462c191..9faadd40a 100644
+--- a/00_nucleo/diagnosticos/p1339-mutant-closed-state-style-harness.rs
++++ b/00_nucleo/diagnosticos/p1339-mutant-closed-state-style-harness-r2.rs
+@@ -1,5 +1,6 @@
+ // Batch-one direct same-EvalContext/same-Engine input adapter; no pipeline loop.
+-// Descendant of the frozen API harness. NOT_EXECUTED_PRESEAL.
++// Descendant of the frozen API harness. Successor r2: instrumental E0499 fix only.
++// Same logical Engine resources; short-lived reborrow views, no runtime credit.
+ use super::*;
+ use crate::entities::style_chain::StyleDelta;
+ 
+@@ -163,22 +164,47 @@ fn run_style_case(
+     {
+         let mut product_tracked = product_sink.track_mut();
+         let mut validation_tracked = validation_sink.track_mut();
+-        let mut engine = Engine {
+-            world: &world,
+-            font_metrics: &metrics,
+-            route: route.track(),
+-            styles: &mut styles,
+-            show_rules: &mut rules,
+-            active_guards: &mut guards,
+-            current_file: world.main(),
+-            sink: &mut product_tracked,
++        // Engine is a short-lived borrow view; all logical resources and ctx
++        // remain the same. Reborrow tracked sinks to bound each view's lifetime.
++        let mut current_file = {
++            let mut setup_tracked = product_tracked.reborrow_mut();
++            let mut engine = Engine {
++                world: &world,
++                font_metrics: &metrics,
++                route: route.track(),
++                styles: &mut styles,
++                show_rules: &mut rules,
++                active_guards: &mut guards,
++                current_file: world.main(),
++                sink: &mut setup_tracked,
++            };
++            eval_existing_engine(&world, "setup", &mut scopes, &mut ctx, &mut engine)
++                .expect("real style setup failed");
++            hooks.begin(&mut ctx, &mut engine);
++            engine.current_file
+         };
+-        eval_existing_engine(&world, "setup", &mut scopes, &mut ctx, &mut engine)
+-            .expect("real style setup failed");
+-        hooks.begin(&mut ctx, &mut engine);
++        let mut validation_phase = false;
+         let mut selection = Json::Null;
+         let mut validation = Json::Null;
+         for op in case["operations"].as_array().unwrap() {
++            if op["op"] == "call_actual_context_reads_valid_for" {
++                validation_phase = true;
++            }
++            let mut operation_tracked = if validation_phase {
++                validation_tracked.reborrow_mut()
++            } else {
++                product_tracked.reborrow_mut()
++            };
++            let mut engine = Engine {
++                world: &world,
++                font_metrics: &metrics,
++                route: route.track(),
++                styles: &mut styles,
++                show_rules: &mut rules,
++                active_guards: &mut guards,
++                current_file,
++                sink: &mut operation_tracked,
++            };
+             match string(op, "op") {
+                 "set_engine_chain" => {
+                     let value = string(op, "construction")
+@@ -219,7 +245,6 @@ fn run_style_case(
+                 "call_actual_context_reads_valid_for" => {
+                     assert_eq!(op["same_ctx"], true);
+                     assert_eq!(op["candidate"], "clone of same actual empty snapshot");
+-                    engine.sink = &mut validation_tracked;
+                     validation = match ctx
+                         .context_reads_valid_for(&snapshot.clone(), &mut engine)
+                     {
+@@ -234,7 +259,23 @@ fn run_style_case(
+                 }
+                 unknown => panic!("untranslated operation {unknown}"),
+             }
++            current_file = engine.current_file;
+         }
++        let mut finish_tracked = if validation_phase {
++            validation_tracked.reborrow_mut()
++        } else {
++            product_tracked.reborrow_mut()
++        };
++        let engine = Engine {
++            world: &world,
++            font_metrics: &metrics,
++            route: route.track(),
++            styles: &mut styles,
++            show_rules: &mut rules,
++            active_guards: &mut guards,
++            current_file,
++            sink: &mut finish_tracked,
++        };
+         row = hooks.finish(&ctx, &engine);
+         assert!(row.is_object(), "actual style hook DTO missing");
+         row["selection"] = selection;

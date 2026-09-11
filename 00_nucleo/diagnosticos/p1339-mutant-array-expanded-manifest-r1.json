@@ -1,0 +1,5421 @@
+{
+  "schema": "p1339-array-expanded-mutant-manifest-v1",
+  "utc": "2026-09-10T11:10:20.996210+00:00",
+  "author": "/root/p1336_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "executor": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-expanded-r1.py",
+    "sha256": "4b902238124335c119a0f3e5687467416597ac00f3bd8a54948f9160707d4b72"
+  },
+  "oracles": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-expanded-oracles-r1.json",
+    "sha256": "35c043a82bbfd56b1d9e334355a0acacaed57039bb0c47b02826bdd888b183c0"
+  },
+  "protected_inputs": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-proposal-r1.md",
+      "sha256": "8134bbb78a389847d865f93e255db3d8afeb0810b0284a29fa00c065213b109b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-inputs-r2.json",
+      "sha256": "8a0c77118c80d220b58dd8070fe0da2399353c4ae0f46610b245224b389bb3a0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-supplement-r2.json",
+      "sha256": "3f6050dbd7b3373d7972f58e1343860697d2af7c672845cc06033cd5383767fc"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-budget-r1.json",
+      "sha256": "f92fe2857944d332b78504779074fc43e25ae6eb2f498ac18f6101af9f2a0692"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-build-r1.py",
+      "sha256": "2b2a89539c5af7bf5388b1ff9efa96a45d3eb4854fe1bb99f251dd39a6489862"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-build-r1.json",
+      "sha256": "b972819d26f9f1465484dc0f3cfece79ea4e5a11d8dedfa1f84345594906bad6"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-multiplex-r1.patch",
+      "sha256": "5ad4012ab99bd3398318ebe5d397cc28327da01ee3d5f3bf6bb53bd852668a47"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutation-registry.json",
+      "sha256": "04d5578d720b4c7fff47954c29d20392b7a221f8b0cb80094a3859409add3677"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/primitives-constructors/array.md",
+      "sha256": "e3aa1e062603319adcfecc7723bbe14df18a8a139b6e2e1750fe171a4208815b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/primitives-constructors.md",
+      "sha256": "6158e99064d725735af4049e3749c32f1367fa1fc538d34d6bb315516161f58b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "sha256": "d10ed84ba3a36295fb223f23e61e6177f7d1d5c3dff320fdb3bcaedf1276b0fb"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/call_dispatch.md",
+      "sha256": "19b67415cb4d197096f4254d0f8d9dcef3adad01455f823e81237528d1283198"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-focal-r1.py",
+      "sha256": "7ed3dd412191d53fc47511cd642e016fe87c4e570d2131c32115ab51fbc4c8ec"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-focal-manifest-r1.py",
+      "sha256": "187ea60e293c44500a93ce858959c7f923fea404b2b6d2fad0d66bc894cf905b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-oracles-focal-r1.json",
+      "sha256": "9fde62b1664bdda6d83aece3580f9acbebeb2768113a204ebeb8889117b3c533"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-registry-r1.json",
+      "sha256": "d48373e9944f1f1cc9e8417a7379d71d00016d2e3a1f38fa46a9e2d1c61df9ee"
+    },
+    {
+      "path": "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+      "sha256": "fe0c60f17f67748480c78ccc8a2c5e7a42a738c808f29b901c44f3e177b4a055"
+    },
+    {
+      "path": "/tmp/p1339-mutant-array.jrXHiv/baseline-build.tar",
+      "sha256": "ad3eb3e338d486330d6cc2a49091be3beb83cb4f68269b06bed1560f6b28bc66"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-expanded-oracles-r1.json",
+      "sha256": "35c043a82bbfd56b1d9e334355a0acacaed57039bb0c47b02826bdd888b183c0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-expanded-r1.py",
+      "sha256": "4b902238124335c119a0f3e5687467416597ac00f3bd8a54948f9160707d4b72"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-array-private-focal-r2-output/aggregate.json",
+      "sha256": "508cfd80afb790f31345fbb60543e3a9139cc2243b9236f22a24c3b3780a8bf3"
+    }
+  ],
+  "profiles": {
+    "default": [],
+    "html": [
+      "--features",
+      "html"
+    ],
+    "a11y": [
+      "--features",
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "--features",
+      "html,a11y-extras"
+    ]
+  },
+  "orders": [
+    "normal",
+    "repeat",
+    "reverse"
+  ],
+  "process_plan": [
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "default",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "normal"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "default",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "repeat"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "default",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C10-bytes-control",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C09-shadow",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C08-later-bytes",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C07-none",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C06-str",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C05-int",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C04-version",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C03-array",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C02-named-only",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-C01-missing",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E08-detached-surplus",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E07-argument-order",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E05-spread-origin",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E04-extra-first",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E03-named-first",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E02-named",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-E01-extra",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P10-bytes-immutable",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P09-once-order",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P08-spread-array",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P07-spread-args",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P06-alias",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P04-all-octets",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P02-extremes",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "control",
+      "mode": 0,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E07-argument-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-E06-evaluation-before-route",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 12,
+      "id": "ARR-P09-once-order",
+      "family": "ARR-M12-re-evaluation",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 11,
+      "id": "ARR-C08-later-bytes",
+      "family": "ARR-M11-later-bytes",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C05-int",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C04-version",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C03-array",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 10,
+      "id": "ARR-C02-named-only",
+      "family": "ARR-M10-broad-guard",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E08-detached-surplus",
+      "family": "ARR-M09-origin",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E05-spread-origin",
+      "family": "ARR-M09-origin",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 9,
+      "id": "ARR-E02-named",
+      "family": "ARR-M09-origin",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E04-extra-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E03-named-first",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E02-named",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 8,
+      "id": "ARR-E01-extra",
+      "family": "ARR-M08-surplus",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 7,
+      "id": "ARR-P05-utf8-is-octets",
+      "family": "ARR-M07-text",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 6,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M06-deduplicate",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M05-drop",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 5,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M05-drop",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M04-order",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 4,
+      "id": "ARR-P03-asymmetric-repeat",
+      "family": "ARR-M04-order",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P04-all-octets",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 3,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M03-signed-or-clipped",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 2,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M02-wrong-result-type",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P02-extremes",
+      "family": "ARR-M01-stub",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "mutant",
+      "mode": 1,
+      "id": "ARR-P01-empty",
+      "family": "ARR-M01-stub",
+      "profile": "html+a11y",
+      "order": "reverse"
+    },
+    {
+      "role": "invalid_mode",
+      "mode": 255,
+      "id": "ARR-P01-empty",
+      "family": null,
+      "profile": "html+a11y",
+      "order": "reverse"
+    }
+  ],
+  "processes": 660,
+  "source_formula": "same28 controls + same26 family witnesses + invalid255 for each12cells",
+  "reverse": "reverse controls and full witness list, keep control-first gate and invalid-mode last; normal/repeat identical order",
+  "control_gate": "each55-process block stops before26mutants unless all27non-E08 controls match that measured profile/order literal",
+  "budget": {
+    "previous_focal_CLI": 111,
+    "private_processes": 3,
+    "reference_expansion": 672,
+    "mutant_expansion": 660,
+    "affected_expansion_total": 1332,
+    "Array_focal_cycles_used": 2,
+    "Array_focal_cycles_limit": 2,
+    "historical_full_C_used": 1,
+    "historical_full_C_limit": 2,
+    "reset": false
+  },
+  "runtime": "sequential processes,30s each,RLIMIT_CORE0,full immutable channels and binary checks before/after each",
+  "E08": "12controls+12mode9 rows retainUnknown; invalid255 separately12Unknown, never semantic rejection credit",
+  "no_credit": "No execution or verdict from preparation; precondition is accepted private focal and new independent GO"
+}

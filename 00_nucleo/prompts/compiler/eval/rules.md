@@ -19,6 +19,40 @@ diagnosticado. Named desconhecido nunca é ignorado.
 Selectors, regras, warnings, casts, composição, recursão e spans seguem
 `a51e02804`.
 
+## P1339 — transporte da base nativa aprovada
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
+`rules.rs:2403-2408` delega Value::Selector ao conversor; `:476-480` e
+`:829-838` reconhecem somente NodeKind::Par nas rotas de parágrafo.
+As fixtures e recibos `p1339-full-show-final-*` medem aplicação real de
+strong/emph/text no vanilla ratificado `a51e02804`; os recibos fixam binários,
+working tree e UTC. A limitação CLI dos perfis cristalinos está separada em
+`p1339-full-a2.md` e não constitui evidência positiva de matching.
+
+### Decisão de integração
+
+Manter a delegação única de Value::Selector para selector_matching, incluindo
+Element. NativeElement e Where com essa base seguem a travessia de nós; os
+caminhos literais/Regex/Label continuam distintos. Não recriar filtros ou
+reconhecer função pelo nome neste owner. A receita recebe o nó morfológico
+correto; não texto concatenado dos descendentes nem fatia de regex.
+
+As duas seleções especiais de regras de parágrafo devem reconhecer também
+NativeElement da função par, inclusive seus filtros Where, por predicado
+interno tipado do owner selector_matching. Não ampliar genericamente o
+caminho de parágrafos a outros elementos ou a todas as composições antigas.
+Preservar os momentos de síntese/aplicação já existentes, sem mudar fase ou
+aplicar regras de texto/elementos novamente por causa do caminho especial.
+
+Show-set, precedência, RuleId, guardas, ponto-fixo e teto mantêm seu contrato.
+Testes devem distinguir transformação efetiva de simples repr não realizado,
+cobrir match/miss/vazio e coexistência de bases antiga/nova. Um caso que exija
+mudar fase ou informação pública adicional reabre o gate; não se resolve
+por aplicação extra. A extensão de dados foi aprovada no P1339; selo e RED
+ainda são condições anteriores ao código.
+
 ## P1286 — `#set smartquote`
 
 ### Medição anterior à decisão

@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: c3a60a77
+Hash do Código: 818d4bcb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -656,3 +656,35 @@ feature gate, target e conteúdo avaliado permanecem idênticos. A assinatura
 pública nova e o default preservado exigem confirmação humana ADR-0127 antes de
 código ou resselo. Refutam a forma: mudar APIs antigas, mover lógica entre
 eval/layout/export, duplicar o enum ou observar o modo em pipeline paginado.
+
+## P1340 — delegação da estabilização contextual seletiva
+
+### Medição anterior à decisão
+
+`diagnosticos/p1340-baseline.json` congela o antecedente: a expansão
+`:244-281` aborta por Err e o ciclo `:721-760` termina por páginas iguais.
+As cláusulas P1339 antes contidas nesta seção continuam necessárias, mas
+sua coordenação passa ao owner individualizado, evitando acrescentar essa
+responsabilidade ao monólito.
+
+### Contrato proprietário de integração
+
+Declarar módulo privado descendente `context_stabilization`. O owner
+`infra/pipeline/context_stabilization.md` legitima somente seu consumer.
+As fachadas públicas de expansão e compilação preservam suas assinaturas;
+a pipeline entrega World/Source, conteúdo original e introspector de origem
+à sessão seletiva. Nenhum caller implementa segunda regra de estabilização.
+
+No caminho paginado com seleção efetiva, receber conteúdo, introspector,
+documento e warnings finais da coordenação seletiva; seguir com os mesmos
+passos de metadados, shaping e exportação. Não executar depois outro ciclo
+contextual/P1159 sobre esse resultado. Sem seleção, preservar o percurso
+legado e seus diagnósticos. Os helpers privados de layout math, page numbering
+e introspecção runtime continuam disponíveis ao descendente, sem alargar
+visibilidade pública ou transferir suas próprias responsabilidades.
+
+As fachadas de expansão delegam sua parte à mesma sessão, sem alegar
+estabilidade de páginas que não produziram. HTML mantém caminho semântico
+separado. A individualização não corrige show rules/P1037 incidentalmente,
+não altera features/defaults nem fecha o P1339. Os L0s de leituras e de eval
+permanecem proprietários da semântica e de sua revalidação.

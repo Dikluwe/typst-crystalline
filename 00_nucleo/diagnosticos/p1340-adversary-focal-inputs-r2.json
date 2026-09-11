@@ -1,0 +1,40 @@
+{
+  "schema": "p1340-adversarial-inputs-r2",
+  "author": "/root/p1340_adversary",
+  "role": "Inputs and negative causes only; independent contract author owns predicates",
+  "baseline_sha256": "0869202e774bd7b76278365aac7292d45a1c930be42cf83270845c985cb5000a",
+  "l0_sha256": "3094bd8cda8d1971e765cf91cbb110d376ff713e4348ae8f4bf8214e33b45b9b",
+  "approval_sha256": "b47f3ba08307a2bc01c720c8ac218da2091d8965e417d2b34ed77936f2f714c6",
+  "cases": [
+    {"id":"A01-mixed-counter-first","body":"c.final(); s.final()","state":"opaque_callout","candidate":"counter_update_1"},
+    {"id":"A01-mixed-opaque-first","body":"s.final(); c.final()","state":"opaque_callout","candidate":"counter_update_1"},
+    {"id":"A01-opaque-only","body":"c.final(); s.final()","state":"opaque_callout","candidate":"same"},
+    {"id":"A02-position-different","body":"c.final(); here().position()","state":"closed_int","candidate":"position_x_10"},
+    {"id":"C-closed-different","body":"c.final(); s.final()","state":"closed_int","candidate":"counter_update_1"},
+    {"id":"C-closed-same","body":"c.final(); s.final()","state":"closed_int","candidate":"same"},
+    {"id":"C-retained-closure","body":"c.final(); s.final()","state":"retained_closure","candidate":"same"},
+    {"id":"C-persistent-error","body":"c.final(); panic(\"original error\")","state":"closed_int","candidate":"same"}
+  ],
+  "construction": {
+    "setup_code":"let c = counter(strong.where());",
+    "closed_state_init":7,
+    "retained_closure_expression":"() => 7",
+    "opaque_constructor":"Value::Content(Content::dynamic(CalloutElem::new(Content::text(\"opaque\"), \"title\", \"note\")))",
+    "state_key":"p1340",
+    "initial_position":{"page":1,"x_pt":0,"y_pt":0},
+    "candidate_content_expression":"c.update(1)",
+    "history":["I0","candidate"]
+  },
+  "negative_causes": [
+    {"id":"NM01","operation":"actual baseline DynElement observation relation","mutation":"Return Same instead of Unproven for the existing dynamic leaf","stage":"pre-candidate L1 discrimination, no terminal-policy credit"},
+    {"id":"NM02","operation":"actual baseline LocationPosition replay arm","mutation":"Replay against the retained original snapshot instead of candidate for LocationPosition only","stage":"pre-candidate L1 discrimination, no terminal-policy credit"},
+    {"id":"NT01","operation":"future real terminal branch","mutation":"Accept D5 whenever any nonconvergence detail exists, bypassing the completeness/reflexivity condition","cases":["A01-mixed-counter-first","A01-mixed-opaque-first"],"stage":"F only; nonexistent operation has no C execution or score"},
+    {"id":"NT02","operation":"future real retry/terminal branch","mutation":"Emit terminal verification error immediately on first false when details are empty","cases":["A02-position-different"],"stage":"F only; real producer must reach later stable snapshot"},
+    {"id":"NT03","operation":"future real terminal diagnostic construction","mutation":"Return generic terminal error in place of a retained original error","cases":["C-persistent-error"],"stage":"F only"},
+    {"id":"NT04","operation":"future real terminal publication branch","mutation":"Return provisional successful document when verification remains incomplete","cases":["A01-opaque-only"],"stage":"F only"},
+    {"id":"NT05","operation":"future real terminal diagnostic construction","mutation":"Use detached span or add fabricated nonconvergence hints to verification error","cases":["A01-opaque-only"],"stage":"F only"},
+    {"id":"NT06","operation":"future real terminal sink branch","mutation":"Drop retained warnings or publish validation/replaced warnings on verification Err","stage":"F only; frozen independent sink fixtures required"}
+  ],
+  "budget":{"focal_control_runs":1,"focal_negative_runs":2,"repeat_reorder_after_focal_pass":1,"full_global_runs":0,"automatic_semantic_revisions":0},
+  "limits":"No L3 coordinator is implemented here. API raw false is never labeled Unknown. Private variants are recorded separately from real comparison. No output rewriting, simulated attempt transcript or claimed terminal export behavior. A03-A08 remain frozen by p1340-adversary-audit-r1.md for real candidate F."
+}

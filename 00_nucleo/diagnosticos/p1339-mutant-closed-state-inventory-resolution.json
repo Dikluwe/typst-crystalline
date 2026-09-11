@@ -1,0 +1,4386 @@
+{
+  "schema": "p1339-closed-direct-payload-nominal-resolution-v1",
+  "batch": 1,
+  "at": "2026-09-10T04:04:27.762221+00:00",
+  "executor": "/root/p1336_tests",
+  "role": "declarative transport/signature adapter only",
+  "regime": "executado sem atestação de isolamento",
+  "inherited_context": "P1336; P1339 baseline only, no candidate",
+  "status": "Nominal map and structural witness inputs, not executed coverage or verdict",
+  "inputs": {
+    "p1339-mutant-closed-state-inventory.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-inventory.json",
+      "sha256": "d0ab8a2a2297a8f8fcff36ac372a8b418368b814c92cf25184fbe17f7efd101f"
+    },
+    "p1339-mutant-closed-state-inventory-supplement.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-inventory-supplement.json",
+      "sha256": "87f07ec2951b5d16843161ea08054f08d974f72ef749b34e171854384aa23390"
+    },
+    "p1339-mutant-closed-state-inventory-closure.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-inventory-closure.json",
+      "sha256": "6ebcb7b23272d166c5b142e3548876c2ae6e4921b5ef97618c8307077f332fd8"
+    },
+    "p1339-budget-redesign-r1.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-budget-redesign-r1.json",
+      "sha256": "4bdd984d7b9d482d68ebb787e98eeed8333a1d4447c637615d4ceb9c78ed6c19"
+    },
+    "p1339-verifier-budget-redesign-acceptance-r1.md": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-budget-redesign-acceptance-r1.md",
+      "sha256": "0552cdbfb02e18496ac3c07121e0640fad2a772aa32e678a0b7062344286bafd"
+    },
+    "p1339-l0-freeze.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-l0-freeze.json",
+      "sha256": "397c136fc8710d44b2f7537193fe5b9c44ab89d40a99bf6b994296e05e7c4d04"
+    },
+    "p1339-authority-manifest-r2.json": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+      "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+    }
+  },
+  "generator": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-inventory-resolution.py",
+    "sha256": "44207d7424c19a66cef5dc21a67311ef31d26321b52b217c95f949aeab3d0116"
+  },
+  "cargo_lock": {
+    "path": "/repos/Antigravity/typst-crystalline/Cargo.lock",
+    "sha256": "6ab63c71323c0c8b3c1dd1f4036f0eecaf79c7b929456b1acd13b36e93343db7"
+  },
+  "provenance": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "additional_qualified_declarations": [
+    {
+      "path": "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rust_decimal-1.42.1/src/decimal.rs",
+      "sha256": "ccd9000fac353f1f0b42ae75d53e48d0875563eeb32beb51e9ac480d69987049",
+      "qualified_name": "rust_decimal::Decimal",
+      "name": "Decimal",
+      "kind": "struct",
+      "first_line": 135,
+      "last_line": 146,
+      "declaration": [
+        {
+          "line": 135,
+          "text": "pub struct Decimal {"
+        },
+        {
+          "line": 140,
+          "text": "    flags: u32,"
+        },
+        {
+          "line": 143,
+          "text": "    hi: u32,"
+        },
+        {
+          "line": 144,
+          "text": "    lo: u32,"
+        },
+        {
+          "line": 145,
+          "text": "    mid: u32,"
+        },
+        {
+          "line": 146,
+          "text": "}"
+        }
+      ]
+    },
+    {
+      "path": "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-1.12.3/src/regex/string.rs",
+      "sha256": "9f7686e10535fe385a767063132d39ee1a1af1a20a119d78df479f110822e274",
+      "qualified_name": "regex::Regex",
+      "name": "Regex",
+      "kind": "struct",
+      "first_line": 101,
+      "last_line": 104,
+      "declaration": [
+        {
+          "line": 101,
+          "text": "pub struct Regex {"
+        },
+        {
+          "line": 102,
+          "text": "    pub(crate) meta: meta::Regex,"
+        },
+        {
+          "line": 103,
+          "text": "    pub(crate) pattern: Arc<str>,"
+        },
+        {
+          "line": 104,
+          "text": "}"
+        }
+      ]
+    },
+    {
+      "path": "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-automata-0.4.14/src/meta/regex.rs",
+      "sha256": "92295ff6a6b1e0e6d19fc1fe29679fa5681973160ee61e043d29bf29f44a65b5",
+      "qualified_name": "regex_automata::meta::regex::Regex",
+      "name": "Regex",
+      "kind": "struct",
+      "first_line": 235,
+      "last_line": 252,
+      "declaration": [
+        {
+          "line": 235,
+          "text": "pub struct Regex {"
+        },
+        {
+          "line": 237,
+          "text": "    imp: Arc<RegexI>,"
+        },
+        {
+          "line": 251,
+          "text": "    pool: CachePool,"
+        },
+        {
+          "line": 252,
+          "text": "}"
+        }
+      ]
+    },
+    {
+      "path": "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-automata-0.4.14/src/meta/regex.rs",
+      "sha256": "92295ff6a6b1e0e6d19fc1fe29679fa5681973160ee61e043d29bf29f44a65b5",
+      "qualified_name": "regex_automata::meta::regex::RegexI",
+      "name": "RegexI",
+      "kind": "struct",
+      "first_line": 257,
+      "last_line": 278,
+      "declaration": [
+        {
+          "line": 257,
+          "text": "struct RegexI {"
+        },
+        {
+          "line": 267,
+          "text": "    strat: Arc<dyn Strategy>,"
+        },
+        {
+          "line": 277,
+          "text": "    info: RegexInfo,"
+        },
+        {
+          "line": 278,
+          "text": "}"
+        }
+      ]
+    },
+    {
+      "path": "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-automata-0.4.14/src/meta/regex.rs",
+      "sha256": "92295ff6a6b1e0e6d19fc1fe29679fa5681973160ee61e043d29bf29f44a65b5",
+      "qualified_name": "regex_automata::meta::regex::CachePool",
+      "name": "CachePool",
+      "kind": "type",
+      "first_line": 32,
+      "last_line": 32,
+      "declaration": [
+        {
+          "line": 32,
+          "text": "type CachePool = Pool<Cache, CachePoolFn>;"
+        }
+      ]
+    },
+    {
+      "path": "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-automata-0.4.14/src/meta/regex.rs",
+      "sha256": "92295ff6a6b1e0e6d19fc1fe29679fa5681973160ee61e043d29bf29f44a65b5",
+      "qualified_name": "regex_automata::meta::regex::CachePoolFn",
+      "name": "CachePoolFn",
+      "kind": "type",
+      "first_line": 39,
+      "last_line": 40,
+      "declaration": [
+        {
+          "line": 39,
+          "text": "type CachePoolFn ="
+        },
+        {
+          "line": 40,
+          "text": "    Box<dyn Fn() -> Cache + Send + Sync + UnwindSafe + RefUnwindSafe>;"
+        }
+      ]
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/mod.rs",
+      "sha256": "aa423c6fbc0fc66ebda70e102118313d313a5c81e1335d3c3bc73197562bfd74",
+      "qualified_name": "crate::compiler::eval::EvalTarget",
+      "name": "EvalTarget",
+      "kind": "enum",
+      "first_line": 289,
+      "last_line": 292,
+      "declaration": [
+        {
+          "line": 289,
+          "text": "pub enum EvalTarget {"
+        },
+        {
+          "line": 290,
+          "text": "    Paged,"
+        },
+        {
+          "line": 291,
+          "text": "    Html,"
+        },
+        {
+          "line": 292,
+          "text": "}"
+        }
+      ]
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/flow.rs",
+      "sha256": "0cdab35aa62fed3719e56331b22211a95fe716316528d418bf3f3e70fae73f4b",
+      "qualified_name": "crate::compiler::eval::flow::FlowEvent",
+      "name": "FlowEvent",
+      "kind": "enum",
+      "first_line": 17,
+      "last_line": 25,
+      "declaration": [
+        {
+          "line": 17,
+          "text": "pub enum FlowEvent {"
+        },
+        {
+          "line": 19,
+          "text": "    Break(Span),"
+        },
+        {
+          "line": 21,
+          "text": "    Continue(Span),"
+        },
+        {
+          "line": 24,
+          "text": "    Return(Span, Option<Value>, bool),"
+        },
+        {
+          "line": 25,
+          "text": "}"
+        }
+      ]
+    }
+  ],
+  "direct_payload_map": [
+    {
+      "owner": "Value",
+      "variant": "None",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 62,
+      "payload_declaration": [
+        {
+          "line": 62,
+          "text": "    None,"
+        }
+      ],
+      "nominal_payload_tokens": {}
+    },
+    {
+      "owner": "Value",
+      "variant": "Bool",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 64,
+      "payload_declaration": [
+        {
+          "line": 64,
+          "text": "    Bool(bool),"
+        }
+      ],
+      "nominal_payload_tokens": {}
+    },
+    {
+      "owner": "Value",
+      "variant": "Int",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 66,
+      "payload_declaration": [
+        {
+          "line": 66,
+          "text": "    Int(i64),"
+        }
+      ],
+      "nominal_payload_tokens": {}
+    },
+    {
+      "owner": "Value",
+      "variant": "Float",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 68,
+      "payload_declaration": [
+        {
+          "line": 68,
+          "text": "    Float(f64),"
+        }
+      ],
+      "nominal_payload_tokens": {}
+    },
+    {
+      "owner": "Value",
+      "variant": "Str",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 70,
+      "payload_declaration": [
+        {
+          "line": 70,
+          "text": "    Str(EcoString),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "EcoString": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Array",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 74,
+      "payload_declaration": [
+        {
+          "line": 74,
+          "text": "    Array(Vec<Value>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Value": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/value.rs",
+              "line": 59,
+              "qualified_name": null,
+              "sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b"
+            }
+          ]
+        },
+        "Vec": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Dict",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 76,
+      "payload_declaration": [
+        {
+          "line": 76,
+          "text": "    Dict(IndexMap<EcoString, Value, FxBuildHasher>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "EcoString": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "FxBuildHasher": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "IndexMap": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Value": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/value.rs",
+              "line": 59,
+              "qualified_name": null,
+              "sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Module",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 78,
+      "payload_declaration": [
+        {
+          "line": 78,
+          "text": "    Module(crate::entities::module::Module),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Module": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/module.rs",
+              "line": 29,
+              "qualified_name": null,
+              "sha256": "da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Datetime",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 80,
+      "payload_declaration": [
+        {
+          "line": 80,
+          "text": "    Datetime(crate::entities::world_types::Datetime),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Datetime": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/world_types.rs",
+              "line": 119,
+              "qualified_name": null,
+              "sha256": "384f23229346f5ceeefcb0ecde304794dcc6183258ad59af153ae997e60a0925"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs",
+              "line": 119,
+              "qualified_name": "crate::entities::world_types::Datetime",
+              "sha256": "384f23229346f5ceeefcb0ecde304794dcc6183258ad59af153ae997e60a0925"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Func",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 84,
+      "payload_declaration": [
+        {
+          "line": 84,
+          "text": "    Func(crate::entities::func::Func),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Func": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/func.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "9bcd2e2b0c79cae5c2478b55d9d902f78983f9119d634a04a846d93210307bde"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Content",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 88,
+      "payload_declaration": [
+        {
+          "line": 88,
+          "text": "    Content(crate::entities::content::Content),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Content": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/content.rs",
+              "line": 142,
+              "qualified_name": null,
+              "sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "LocatedContent",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 92,
+      "payload_declaration": [
+        {
+          "line": 92,
+          "text": "    LocatedContent(IntrospectedContent, crate::entities::location::Location),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "IntrospectedContent": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/value.rs",
+              "line": 26,
+              "qualified_name": null,
+              "sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b"
+            }
+          ]
+        },
+        "Location": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/location.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "fca2f39716b5cb674ed6417884fe0a28a2c02dc7123d4888af4dfb4519dd4f06"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/location.rs",
+              "line": 19,
+              "qualified_name": "crate::entities::location::Location",
+              "sha256": "fca2f39716b5cb674ed6417884fe0a28a2c02dc7123d4888af4dfb4519dd4f06"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Auto",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 96,
+      "payload_declaration": [
+        {
+          "line": 96,
+          "text": "    Auto,"
+        }
+      ],
+      "nominal_payload_tokens": {}
+    },
+    {
+      "owner": "Value",
+      "variant": "Length",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 98,
+      "payload_declaration": [
+        {
+          "line": 98,
+          "text": "    Length(crate::entities::layout_types::Length),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Length": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/layout_types.rs",
+              "line": 1162,
+              "qualified_name": null,
+              "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Relative",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 100,
+      "payload_declaration": [
+        {
+          "line": 100,
+          "text": "    Relative(crate::entities::rel::Rel<crate::entities::layout_types::Length>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Length": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/layout_types.rs",
+              "line": 1162,
+              "qualified_name": null,
+              "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+            }
+          ]
+        },
+        "Rel": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/rel.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "4c33247506e3fa20afb763ffa3c8c1a7dc5c167f56aa5f96c169c0357df71308"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Ratio",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 102,
+      "payload_declaration": [
+        {
+          "line": 102,
+          "text": "    Ratio(crate::entities::layout_types::Ratio),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Ratio": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/layout_types.rs",
+              "line": 1259,
+              "qualified_name": null,
+              "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/layout_types.rs",
+              "line": 1259,
+              "qualified_name": "crate::entities::layout_types::Ratio",
+              "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Angle",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 104,
+      "payload_declaration": [
+        {
+          "line": 104,
+          "text": "    Angle(crate::entities::layout_types::Angle),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Angle": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/layout_types.rs",
+              "line": 1277,
+              "qualified_name": null,
+              "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/layout_types.rs",
+              "line": 1277,
+              "qualified_name": "crate::entities::layout_types::Angle",
+              "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Color",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 106,
+      "payload_declaration": [
+        {
+          "line": 106,
+          "text": "    Color(crate::entities::layout_types::Color),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Color": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/color.rs",
+              "line": 32,
+              "qualified_name": null,
+              "sha256": "e3abf5c36f486ea1385c5402fe96f567bdac59dd86500d76db07201a4bc6fdce"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Stroke",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 111,
+      "payload_declaration": [
+        {
+          "line": 111,
+          "text": "    Stroke(crate::entities::geometry::Stroke),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Stroke": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/geometry.rs",
+              "line": 75,
+              "qualified_name": null,
+              "sha256": "ef7a4b8471daba09e5c0fbe28e4f26f0dc2ba2f675245c434326391540b57749"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Fraction",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 113,
+      "payload_declaration": [
+        {
+          "line": 113,
+          "text": "    Fraction(f64),"
+        }
+      ],
+      "nominal_payload_tokens": {}
+    },
+    {
+      "owner": "Value",
+      "variant": "Align",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 119,
+      "payload_declaration": [
+        {
+          "line": 119,
+          "text": "    Align(crate::entities::layout_types::Align2D),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Align2D": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/layout_types.rs",
+              "line": 551,
+              "qualified_name": null,
+              "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Location",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 125,
+      "payload_declaration": [
+        {
+          "line": 125,
+          "text": "    Location(crate::entities::location::Location),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Location": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/location.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "fca2f39716b5cb674ed6417884fe0a28a2c02dc7123d4888af4dfb4519dd4f06"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/location.rs",
+              "line": 19,
+              "qualified_name": "crate::entities::location::Location",
+              "sha256": "fca2f39716b5cb674ed6417884fe0a28a2c02dc7123d4888af4dfb4519dd4f06"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Gradient",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 131,
+      "payload_declaration": [
+        {
+          "line": 131,
+          "text": "    Gradient(crate::entities::gradient::Gradient),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Gradient": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/gradient.rs",
+              "line": 903,
+              "qualified_name": null,
+              "sha256": "3a5f17ed15937a0d8fe491418b0f7674e047c253a546d876674e863f406fe68f"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Regex",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 135,
+      "payload_declaration": [
+        {
+          "line": 135,
+          "text": "    Regex(crate::entities::regex::Regex),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Regex": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/regex.rs",
+              "line": 30,
+              "qualified_name": null,
+              "sha256": "29e778710b259be1c188376cab64171abaa656dc05d0e76da209a4d3a1f05a96"
+            },
+            {
+              "path": "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-1.12.3/src/regex/string.rs",
+              "line": 101,
+              "qualified_name": "regex::Regex",
+              "sha256": "9f7686e10535fe385a767063132d39ee1a1af1a20a119d78df479f110822e274"
+            },
+            {
+              "path": "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-automata-0.4.14/src/meta/regex.rs",
+              "line": 235,
+              "qualified_name": "regex_automata::meta::regex::Regex",
+              "sha256": "92295ff6a6b1e0e6d19fc1fe29679fa5681973160ee61e043d29bf29f44a65b5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Tiling",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 139,
+      "payload_declaration": [
+        {
+          "line": 139,
+          "text": "    Tiling(Arc<crate::entities::tiling::Tiling>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Tiling": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/tiling.rs",
+              "line": 26,
+              "qualified_name": null,
+              "sha256": "15bcaf3ce812ee3408e6df6e8d1f15fa82944a0edf8d39e8d76a6dd94dfb697a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Bytes",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 143,
+      "payload_declaration": [
+        {
+          "line": 143,
+          "text": "    Bytes(Bytes),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Bytes": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/bytes.rs",
+              "line": 15,
+              "qualified_name": null,
+              "sha256": "8d71b928732a0771e980651d72bfc4c6c3aa285062cc9eb99bcab1cb288cecf7"
+            },
+            {
+              "path": "01_core/src/entities/world_types.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "384f23229346f5ceeefcb0ecde304794dcc6183258ad59af153ae997e60a0925"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/bytes.rs",
+              "line": 15,
+              "qualified_name": "crate::entities::bytes::Bytes",
+              "sha256": "8d71b928732a0771e980651d72bfc4c6c3aa285062cc9eb99bcab1cb288cecf7"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs",
+              "line": 19,
+              "qualified_name": "crate::entities::world_types::Bytes",
+              "sha256": "384f23229346f5ceeefcb0ecde304794dcc6183258ad59af153ae997e60a0925"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Decimal",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 147,
+      "payload_declaration": [
+        {
+          "line": 147,
+          "text": "    Decimal(Decimal),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Decimal": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/decimal.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "f2643253e1235b359234f4cd00a0aec6cd193500b5a9f4ac9178d8e3295842d2"
+            },
+            {
+              "path": "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rust_decimal-1.42.1/src/decimal.rs",
+              "line": 135,
+              "qualified_name": "rust_decimal::Decimal",
+              "sha256": "ccd9000fac353f1f0b42ae75d53e48d0875563eeb32beb51e9ac480d69987049"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Duration",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 151,
+      "payload_declaration": [
+        {
+          "line": 151,
+          "text": "    Duration(Duration),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Duration": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/duration.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "2ba6f8c14f7429b174e1754e358515c43745e5242d665a5d3e2bb143906fd560"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Version",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 155,
+      "payload_declaration": [
+        {
+          "line": 155,
+          "text": "    Version(Arc<Version>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Version": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/version.rs",
+              "line": 33,
+              "qualified_name": null,
+              "sha256": "6619badab8b78d367c49c38009d4daba1fe0a8560a32f33aeb723d6a688a30ef"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Selector",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 160,
+      "payload_declaration": [
+        {
+          "line": 160,
+          "text": "    Selector(Selector),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Selector": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/selector.rs",
+              "line": 27,
+              "qualified_name": null,
+              "sha256": "90b4b022c70244788d1b27f4262b49bc2546ba5f7fa5707a1d5c5be43b36a581"
+            },
+            {
+              "path": "01_core/src/entities/show.rs",
+              "line": 62,
+              "qualified_name": null,
+              "sha256": "84b0b958fde3d8e7c587c279d7364c3fae85df30374b38cc90daeee0f019654b"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/selector.rs",
+              "line": 27,
+              "qualified_name": "crate::entities::selector::Selector",
+              "sha256": "90b4b022c70244788d1b27f4262b49bc2546ba5f7fa5707a1d5c5be43b36a581"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/show.rs",
+              "line": 62,
+              "qualified_name": "crate::entities::show::Selector",
+              "sha256": "84b0b958fde3d8e7c587c279d7364c3fae85df30374b38cc90daeee0f019654b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Symbol",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 164,
+      "payload_declaration": [
+        {
+          "line": 164,
+          "text": "    Symbol(Symbol),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Symbol": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/symbol.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "abdf49eb37fc68ecd72f39634bbd29231da8f38e4c24fa337077bd120e8bcf03"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Args",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 168,
+      "payload_declaration": [
+        {
+          "line": 168,
+          "text": "    Args(crate::entities::args::Args),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Args": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/args.rs",
+              "line": 25,
+              "qualified_name": null,
+              "sha256": "f3e77a9bf2d038cbede40c8b5304dd00cb18f7c2f5b5cd9d53822a44ba7e0c4b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "State",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 171,
+      "payload_declaration": [
+        {
+          "line": 171,
+          "text": "    State(State),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "State": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/state.rs",
+              "line": 16,
+              "qualified_name": null,
+              "sha256": "db06762e151c1501904828d59f8df4a282a5df5bf8082855d5576d8a8aa83e23"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Counter",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 174,
+      "payload_declaration": [
+        {
+          "line": 174,
+          "text": "    Counter(Counter),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Counter": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/counter.rs",
+              "line": 53,
+              "qualified_name": null,
+              "sha256": "d85f2151f08b6f9adc966f3611728b75fa1ce270b3904461155dcd76f634053e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Label",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 178,
+      "payload_declaration": [
+        {
+          "line": 178,
+          "text": "    Label(crate::entities::label::Label),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Label": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/label.rs",
+              "line": 12,
+              "qualified_name": null,
+              "sha256": "80d2c20a840d256ab17dfed3a0872859a38887ab04078af8c525827619421f90"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Dir",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 181,
+      "payload_declaration": [
+        {
+          "line": 181,
+          "text": "    Dir(Dir),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Dir": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/dir.rs",
+              "line": 25,
+              "qualified_name": null,
+              "sha256": "d17f3e011c62f78456ecca5367bc4f5e626753fae52915abcb3c37a55126b94e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Path",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 184,
+      "payload_declaration": [
+        {
+          "line": 184,
+          "text": "    Path(crate::entities::path::RootedPath),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "RootedPath": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/path.rs",
+              "line": 79,
+              "qualified_name": null,
+              "sha256": "26800a84f15e2d894e85017d084d845a6ac533deaa28f14ea8d5a8cf42738a5a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Value",
+      "variant": "Type",
+      "source_path": "01_core/src/entities/value.rs",
+      "source_sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b",
+      "line": 189,
+      "payload_declaration": [
+        {
+          "line": 189,
+          "text": "    Type(Type),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Type": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/value.rs",
+              "line": 210,
+              "qualified_name": null,
+              "sha256": "f792590f48799067f2f00767319c97aa498a519f207a154332ffc4deb6c8712b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Empty",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 144,
+      "payload_declaration": [
+        {
+          "line": 144,
+          "text": "    Empty,"
+        }
+      ],
+      "nominal_payload_tokens": {}
+    },
+    {
+      "owner": "Content",
+      "variant": "Text",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 149,
+      "payload_declaration": [
+        {
+          "line": 149,
+          "text": "    Text(EcoString),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "EcoString": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Space",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 151,
+      "payload_declaration": [
+        {
+          "line": 151,
+          "text": "    Space,"
+        }
+      ],
+      "nominal_payload_tokens": {}
+    },
+    {
+      "owner": "Content",
+      "variant": "Parbreak",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 154,
+      "payload_declaration": [
+        {
+          "line": 154,
+          "text": "    Parbreak,"
+        }
+      ],
+      "nominal_payload_tokens": {}
+    },
+    {
+      "owner": "Content",
+      "variant": "Sequence",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 156,
+      "payload_declaration": [
+        {
+          "line": 156,
+          "text": "    Sequence(Arc<[Content]>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Content": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/content.rs",
+              "line": 142,
+              "qualified_name": null,
+              "sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "HtmlElem",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 159,
+      "payload_declaration": [
+        {
+          "line": 159,
+          "text": "    HtmlElem(Arc<crate::entities::html::HtmlElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "HtmlElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/html.rs",
+              "line": 40,
+              "qualified_name": null,
+              "sha256": "9c22d54451a3339a8c68fcce480815bd250499cfc9f72c5158b448747b8a2762"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Par",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 163,
+      "payload_declaration": [
+        {
+          "line": 163,
+          "text": "    Par {"
+        },
+        {
+          "line": 164,
+          "text": "        body: Box<Content>,"
+        },
+        {
+          "line": 165,
+          "text": "    },"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Box": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Content": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/content.rs",
+              "line": 142,
+              "qualified_name": null,
+              "sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Heading",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 177,
+      "payload_declaration": [
+        {
+          "line": 177,
+          "text": "    Heading(Arc<HeadingElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "HeadingElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/heading.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "d82758d34763ecaea1253531ca92c3d1a282dc0665c874274a0a9d6ba413051a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Title",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 182,
+      "payload_declaration": [
+        {
+          "line": 182,
+          "text": "    Title(Arc<TitleElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TitleElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/title.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "eb2a6919fda6ef2142b0f81366a231355bdd7a3433d11d5002d82ee9849445d3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Strong",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 187,
+      "payload_declaration": [
+        {
+          "line": 187,
+          "text": "    Strong(Arc<StrongElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "StrongElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/strong.rs",
+              "line": 25,
+              "qualified_name": null,
+              "sha256": "c82bdd4aabe4f097430f81dcdb8956579902caa26641a3c20ff2f2b6233bab53"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Emph",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 190,
+      "payload_declaration": [
+        {
+          "line": 190,
+          "text": "    Emph(Arc<EmphElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "EmphElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/emph.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "acd34b3536aa2bf8c2fccb63347d9a34ebec8a50390066de8a834ca05d3b30f2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Raw",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 195,
+      "payload_declaration": [
+        {
+          "line": 195,
+          "text": "    Raw(Arc<RawElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "RawElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/raw.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "022e77017744ee70bb2c6fce044c19cdaa4dba41fa3657acd61f1abc247de3f5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "ListItem",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 198,
+      "payload_declaration": [
+        {
+          "line": 198,
+          "text": "    ListItem(Arc<ListItemElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "ListItemElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/list_item.rs",
+              "line": 21,
+              "qualified_name": null,
+              "sha256": "c1cb016a8c9f126cc17481befc29319ecdc658cbdeeb5e5509974ce54661895b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "EnumItem",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 201,
+      "payload_declaration": [
+        {
+          "line": 201,
+          "text": "    EnumItem(Arc<EnumItemElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "EnumItemElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/enum_item.rs",
+              "line": 21,
+              "qualified_name": null,
+              "sha256": "3095b42ab5a5df4929da3cc05997f24443b3401362cf5c8085400b15e96b7d56"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Link",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 204,
+      "payload_declaration": [
+        {
+          "line": 204,
+          "text": "    Link(Arc<LinkElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "LinkElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/link.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "fe4d9959acb9eaf811662c0dca9206c11b2bdc139f99f273ce4d7dd57bf07765"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Equation",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 213,
+      "payload_declaration": [
+        {
+          "line": 213,
+          "text": "    Equation(Arc<EquationElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "EquationElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/equation.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "feaa7de0e2b6418bd4c21bcb7a1392927bdf9c43824722bd1305fe4f8033dfce"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathSequence",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 216,
+      "payload_declaration": [
+        {
+          "line": 216,
+          "text": "    MathSequence(Arc<[Content]>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Content": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/content.rs",
+              "line": 142,
+              "qualified_name": null,
+              "sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathIdent",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 219,
+      "payload_declaration": [
+        {
+          "line": 219,
+          "text": "    MathIdent(EcoString),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "EcoString": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathText",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 222,
+      "payload_declaration": [
+        {
+          "line": 222,
+          "text": "    MathText(EcoString),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "EcoString": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathFrac",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 226,
+      "payload_declaration": [
+        {
+          "line": 226,
+          "text": "    MathFrac(Arc<MathFracElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathFracElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_frac.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "978c37cec5d20db44860a093faa8b701301e79e196151a419138f0882319cf74"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathAttach",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 232,
+      "payload_declaration": [
+        {
+          "line": 232,
+          "text": "    MathAttach(Arc<MathAttachElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathAttachElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_attach.rs",
+              "line": 45,
+              "qualified_name": null,
+              "sha256": "1c3419a919efccbcc444feb76ebc3dbe4cb708cfc23195aa62024913dd52efb4"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathRoot",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 237,
+      "payload_declaration": [
+        {
+          "line": 237,
+          "text": "    MathRoot(Arc<MathRootElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathRootElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_root.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "dd544158b38ea0011fe877951262d4e445c68d1881fd4ecd67d218628bf3a5f9"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathDelimited",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 244,
+      "payload_declaration": [
+        {
+          "line": 244,
+          "text": "    MathDelimited(Arc<MathDelimitedElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathDelimitedElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_delimited.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "bef47c8e80861a30db5952d776735e624b5020630a4f8a0e4a153b0e78ae0c40"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathAlignPoint",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 249,
+      "payload_declaration": [
+        {
+          "line": 249,
+          "text": "    MathAlignPoint(Arc<MathAlignPointElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathAlignPointElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_align_point.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "e7adce3cbbabaa0319ddba52a5d1bde46a91b0dfbd9c5ed4fd68f869aa409067"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Linebreak",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 254,
+      "payload_declaration": [
+        {
+          "line": 254,
+          "text": "    Linebreak(Arc<LinebreakElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "LinebreakElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/linebreak.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "89e97e6b50e0143ff844f4323d8cec18e6a1cb2836dd630d611a81fa6d24b03e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathMatrix",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 260,
+      "payload_declaration": [
+        {
+          "line": 260,
+          "text": "    MathMatrix(Arc<MathMatrixElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathMatrixElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_matrix.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "b03d3149399f23ead6e33b4be53a3de1efd934d772cd0df3e976deea26fab65a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathCases",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 266,
+      "payload_declaration": [
+        {
+          "line": 266,
+          "text": "    MathCases(Arc<MathCasesElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathCasesElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_cases.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "ebc1aec8409799c6affb5db40f8ae8f25192a6f590f84efcb4634071ab58786c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathAccent",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 280,
+      "payload_declaration": [
+        {
+          "line": 280,
+          "text": "    MathAccent(Arc<MathAccentElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathAccentElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_accent.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "f1d7c7c1a35cea279ff6c24592ed9723f02ea7d96abb0bf0fc8eb6bc5c767015"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathCancel",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 296,
+      "payload_declaration": [
+        {
+          "line": 296,
+          "text": "    MathCancel(Arc<MathCancelElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathCancelElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_cancel.rs",
+              "line": 45,
+              "qualified_name": null,
+              "sha256": "3955824ae9cdb3624e228551a9bcd2b0021a22fe790dd9c3222fc0088631085c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathUnderline",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 299,
+      "payload_declaration": [
+        {
+          "line": 299,
+          "text": "    MathUnderline(Arc<MathUnderlineElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathUnderlineElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_underline.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "6a08c552d47f7a90263b6f3e447f15ee9e42f17885201a866db910edddfa4948"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathVec",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 302,
+      "payload_declaration": [
+        {
+          "line": 302,
+          "text": "    MathVec(Arc<MathVecElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathVecElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_vec.rs",
+              "line": 28,
+              "qualified_name": null,
+              "sha256": "d88b24532f3e51e44713b868e4f93fd2cfbe755971ce15d62f50fdfbe18917d7"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathClassOverride",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 310,
+      "payload_declaration": [
+        {
+          "line": 310,
+          "text": "    MathClassOverride(Arc<MathClassOverrideElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathClassOverrideElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_class_override.rs",
+              "line": 26,
+              "qualified_name": null,
+              "sha256": "3ea7c783fc5e66813a7cab0ae8f7b5fcd381534593bcbfe011e0a36bf8224847"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathLimitsOverride",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 319,
+      "payload_declaration": [
+        {
+          "line": 319,
+          "text": "    MathLimitsOverride(Arc<MathLimitsOverrideElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathLimitsOverrideElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_limits_override.rs",
+              "line": 21,
+              "qualified_name": null,
+              "sha256": "d4edfbb5cafd298b5be60555c6a4b457d4856d20a7e5d935bdba8776bdeb9398"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathUnderover",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 343,
+      "payload_declaration": [
+        {
+          "line": 343,
+          "text": "    MathUnderover(Arc<MathUnderoverElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathUnderoverElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_underover.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "aab62f0cd57bb9b26fbf3e3bb1f8a47f55c48709a9e5ccec75168db399f99d87"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathOp",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 363,
+      "payload_declaration": [
+        {
+          "line": 363,
+          "text": "    MathOp(Arc<MathOpElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathOpElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_op.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "188e8536c055f8893f704c439a42dfc62565cb754ee107b5ea96cb7ca8d58371"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "MathStyled",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 387,
+      "payload_declaration": [
+        {
+          "line": 387,
+          "text": "    MathStyled(Arc<MathStyledElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MathStyledElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/math_styled.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "44ee1d42e8320f90a3bcba845bc14a07428550217cf41f94bbafc4ac74703586"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Label",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 397,
+      "payload_declaration": [
+        {
+          "line": 397,
+          "text": "    Label(Arc<LabelElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "LabelElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/label.rs",
+              "line": 25,
+              "qualified_name": null,
+              "sha256": "0b094b9ccb3cae2b1749bc2b63418344eb205b6b8782e20ab370b4b73c43cfcf"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Ref",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 403,
+      "payload_declaration": [
+        {
+          "line": 403,
+          "text": "    Ref(Arc<RefElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "RefElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/ref.rs",
+              "line": 31,
+              "qualified_name": null,
+              "sha256": "6312dd3f0d04170298e69179c708398b0795634af4a2d26e8b637d9c6b92880b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "CounterDisplay",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 415,
+      "payload_declaration": [
+        {
+          "line": 415,
+          "text": "    CounterDisplay(Arc<CounterDisplayElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "CounterDisplayElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/counter_display.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "aff81dec27bbada321bab5a5570ccf329d736b9a66b83014874203e53d21431e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "CounterUpdate",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 420,
+      "payload_declaration": [
+        {
+          "line": 420,
+          "text": "    CounterUpdate(Arc<CounterUpdateElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "CounterUpdateElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/counter_update.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "1c73dd0a10e078fb17d531304bb43b3fef2c4c280789c19c06f20c92506daed0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Outline",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 426,
+      "payload_declaration": [
+        {
+          "line": 426,
+          "text": "    Outline(Arc<OutlineElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "OutlineElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/outline.rs",
+              "line": 67,
+              "qualified_name": null,
+              "sha256": "5fd553d299d83c43ec6ea901aec444155b199e78d14988035356b22cafb43491"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Figure",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 434,
+      "payload_declaration": [
+        {
+          "line": 434,
+          "text": "    Figure(Arc<FigureElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "FigureElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/figure.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "e6212505ed31f1bdcf2354ff65ff86434c82aa37a29cd184c5fd8e9e470ae4ad"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Image",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 444,
+      "payload_declaration": [
+        {
+          "line": 444,
+          "text": "    Image(Arc<ImageElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "ImageElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/image.rs",
+              "line": 21,
+              "qualified_name": null,
+              "sha256": "01e012ea4e86afa54887e9b717cfceebf12de4e6616e2f980e147d051d585fc8"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Shape",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 453,
+      "payload_declaration": [
+        {
+          "line": 453,
+          "text": "    Shape(Arc<ShapeElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "ShapeElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/shape.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "ddcb323e3099d9da61f7f82b8bfbb3afde0fd5c0385b4e2597f154cfdc266ac3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Curve",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 460,
+      "payload_declaration": [
+        {
+          "line": 460,
+          "text": "    Curve(Arc<CurveElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "CurveElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/curve.rs",
+              "line": 47,
+              "qualified_name": null,
+              "sha256": "ba642a3ba43043635ded82d8ece86968fc7ceb797f29abeac95188593e57f6fd"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Transform",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 468,
+      "payload_declaration": [
+        {
+          "line": 468,
+          "text": "    Transform(Arc<TransformElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TransformElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/transform.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "78d13b1d1df83a797317c2e7c9ef85636478f23d4710b2efe7a0c2b76cb97932"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Grid",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 494,
+      "payload_declaration": [
+        {
+          "line": 494,
+          "text": "    Grid(Arc<GridElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "GridElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/grid.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "6362419b020b205cbde36607592e2b55865413a09bda9bbb9b876ec7d994efb1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "GridHeader",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 502,
+      "payload_declaration": [
+        {
+          "line": 502,
+          "text": "    GridHeader(Arc<GridHeaderElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "GridHeaderElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/grid_header.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "c322e48f4d3843b16e734e20b6061a2bfebc7998cb5a67182d5c8e6715eb6d63"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "GridFooter",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 507,
+      "payload_declaration": [
+        {
+          "line": 507,
+          "text": "    GridFooter(Arc<GridFooterElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "GridFooterElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/grid_footer.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "85b7e84d30fe3a7c62b149dc22b104a75a4a10137638d9134491213e58e5c01c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "GridCell",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 531,
+      "payload_declaration": [
+        {
+          "line": 531,
+          "text": "    GridCell(Arc<GridCellElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "GridCellElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/grid_cell.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "d09a58e903b75d8989835a931a71f835daa3a101df2ffd9522fd0355af82eeb0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "SetPage",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 538,
+      "payload_declaration": [
+        {
+          "line": 538,
+          "text": "    SetPage {"
+        },
+        {
+          "line": 539,
+          "text": "        paper: Option<crate::entities::page_geometry::Paper>,"
+        },
+        {
+          "line": 540,
+          "text": "        flipped: Option<bool>,"
+        },
+        {
+          "line": 541,
+          "text": "        binding: Option<crate::entities::page_geometry::PageBinding>,"
+        },
+        {
+          "line": 544,
+          "text": "        width: Option<crate::entities::layout_types::PageDimension>,"
+        },
+        {
+          "line": 546,
+          "text": "        height: Option<crate::entities::layout_types::PageDimension>,"
+        },
+        {
+          "line": 547,
+          "text": "        margin: Option<crate::entities::layout_types::PageMarginSpec>,"
+        },
+        {
+          "line": 549,
+          "text": "        numbering: Option<Option<crate::entities::numbering::Numbering>>,"
+        },
+        {
+          "line": 550,
+          "text": "        number_align: Option<crate::entities::page_running::PageNumberAlign>,"
+        },
+        {
+          "line": 551,
+          "text": "        header: Option<crate::entities::page_running::PageMarginal>,"
+        },
+        {
+          "line": 552,
+          "text": "        header_ascent: Option<crate::entities::page_running::PageMarginalOffset>,"
+        },
+        {
+          "line": 553,
+          "text": "        footer: Option<crate::entities::page_running::PageMarginal>,"
+        },
+        {
+          "line": 554,
+          "text": "        footer_descent: Option<crate::entities::page_running::PageMarginalOffset>,"
+        },
+        {
+          "line": 555,
+          "text": "        supplement: Option<crate::entities::page_supplement::PageSupplement>,"
+        },
+        {
+          "line": 557,
+          "text": "        columns: Option<usize>,"
+        },
+        {
+          "line": 559,
+          "text": "        bleed: Option<crate::entities::page_canvas::PageBleedSpec>,"
+        },
+        {
+          "line": 560,
+          "text": "        fill: Option<crate::entities::page_canvas::PageFill>,"
+        },
+        {
+          "line": 562,
+          "text": "        background: Option<Option<Arc<Content>>>,"
+        },
+        {
+          "line": 563,
+          "text": "        foreground: Option<Option<Arc<Content>>>,"
+        },
+        {
+          "line": 564,
+          "text": "    },"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Content": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/content.rs",
+              "line": 142,
+              "qualified_name": null,
+              "sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98"
+            }
+          ]
+        },
+        "Numbering": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/numbering.rs",
+              "line": 13,
+              "qualified_name": null,
+              "sha256": "9dad38562108438bb3a6617ded1a8b90035f9969600b1c6d837b9bc882dfd875"
+            }
+          ]
+        },
+        "Option": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "PageBinding": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/page_geometry.rs",
+              "line": 151,
+              "qualified_name": null,
+              "sha256": "9cffbd235505a8012a8752ea0b4d47c63959e4b310ca29fa2e064b8fe53e2339"
+            }
+          ]
+        },
+        "PageBleedSpec": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/page_canvas.rs",
+              "line": 8,
+              "qualified_name": null,
+              "sha256": "68bf0bc1c26ba418dc4b9641d63a2e54068616b22d182d880afb9b422b7a125a"
+            }
+          ]
+        },
+        "PageDimension": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/layout_types.rs",
+              "line": 623,
+              "qualified_name": null,
+              "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+            }
+          ]
+        },
+        "PageFill": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/page_canvas.rs",
+              "line": 81,
+              "qualified_name": null,
+              "sha256": "68bf0bc1c26ba418dc4b9641d63a2e54068616b22d182d880afb9b422b7a125a"
+            }
+          ]
+        },
+        "PageMarginSpec": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/layout_types.rs",
+              "line": 633,
+              "qualified_name": null,
+              "sha256": "8de06d023b68969919148f2ea48133588b50acc81d96aa6ce41c822b1ca97500"
+            }
+          ]
+        },
+        "PageMarginal": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/page_running.rs",
+              "line": 35,
+              "qualified_name": null,
+              "sha256": "5bfc044cd840acb3ad5adaa4eff0a051dea6045600b6c7edcf423fd30b105e3e"
+            }
+          ]
+        },
+        "PageMarginalOffset": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/page_running.rs",
+              "line": 47,
+              "qualified_name": null,
+              "sha256": "5bfc044cd840acb3ad5adaa4eff0a051dea6045600b6c7edcf423fd30b105e3e"
+            }
+          ]
+        },
+        "PageNumberAlign": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/page_running.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "5bfc044cd840acb3ad5adaa4eff0a051dea6045600b6c7edcf423fd30b105e3e"
+            }
+          ]
+        },
+        "PageSupplement": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/page_supplement.rs",
+              "line": 11,
+              "qualified_name": null,
+              "sha256": "edf4e6a765628bf313eb6020540b47557155665481f283f9d179ab9c28225f7a"
+            }
+          ]
+        },
+        "Paper": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/page_geometry.rs",
+              "line": 10,
+              "qualified_name": null,
+              "sha256": "9cffbd235505a8012a8752ea0b4d47c63959e4b310ca29fa2e064b8fe53e2339"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "PageRun",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 567,
+      "payload_declaration": [
+        {
+          "line": 567,
+          "text": "    PageRun(Arc<PageRunElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "PageRunElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/page_run.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "379b4cd12fb736c48b296b128e775bd4dd05945aa95cc1ecd9ea5a0a356f8452"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Align",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 572,
+      "payload_declaration": [
+        {
+          "line": 572,
+          "text": "    Align(Arc<AlignElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "AlignElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/align.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "a01d8a00456d952ecd55cc5cbee7d64a61606fa8ad69aba75d45ed6d8144834a"
+            }
+          ]
+        },
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Place",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 591,
+      "payload_declaration": [
+        {
+          "line": 591,
+          "text": "    Place(Arc<PlaceElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "PlaceElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/place.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "95bbdf7f26121775302705644e6e42ce3f1c041e74e3c103ffadbdfd21982dde"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Flush",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 594,
+      "payload_declaration": [
+        {
+          "line": 594,
+          "text": "    Flush(Arc<FlushElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "FlushElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/flush.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "0208c6b3d86f3f64b7c84051dead1e5487b8d02ccf92dbf902257cafccc3cad1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Styled",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 604,
+      "payload_declaration": [
+        {
+          "line": 604,
+          "text": "    Styled(Box<Content>, crate::entities::style::Styles),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Box": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Content": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/content.rs",
+              "line": 142,
+              "qualified_name": null,
+              "sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98"
+            }
+          ]
+        },
+        "Styles": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/style.rs",
+              "line": 245,
+              "qualified_name": null,
+              "sha256": "48514114042c66fe98c39514b9e7a1ac44b0ff061a8a84161efab21963081f42"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Divider",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 610,
+      "payload_declaration": [
+        {
+          "line": 610,
+          "text": "    Divider(Arc<DividerElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "DividerElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/divider.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "c25afafd70722e3c8694ad0da8f85ff898e2473f698d177ab8a72764bccbf29e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Terms",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 615,
+      "payload_declaration": [
+        {
+          "line": 615,
+          "text": "    Terms(Arc<TermsElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TermsElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/terms.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "4ac994a33f9b5764247e0b2ed684d9f8a231af312cd7bdc31b97f9234848c28f"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "TermItem",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 621,
+      "payload_declaration": [
+        {
+          "line": 621,
+          "text": "    TermItem(Arc<TermItemElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TermItemElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/term_item.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "24018472dcdbf9b1f9436cda3640402be117001715a634163c987305c2d8c7b3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Quote",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 636,
+      "payload_declaration": [
+        {
+          "line": 636,
+          "text": "    Quote(Arc<QuoteElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "QuoteElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/quote.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "bd57a2984492880d9c7e9b0cdf6aeab8710c95eaccda0b51196d6ca3f7fa55c5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Document",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 642,
+      "payload_declaration": [
+        {
+          "line": 642,
+          "text": "    Document {"
+        },
+        {
+          "line": 643,
+          "text": "        title: Option<Box<Content>>,"
+        },
+        {
+          "line": 644,
+          "text": "        author: Vec<EcoString>,"
+        },
+        {
+          "line": 645,
+          "text": "        date: Option<Datetime>,"
+        },
+        {
+          "line": 646,
+          "text": "        keywords: Vec<EcoString>,"
+        },
+        {
+          "line": 647,
+          "text": "    },"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Box": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Content": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/content.rs",
+              "line": 142,
+              "qualified_name": null,
+              "sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98"
+            }
+          ]
+        },
+        "Datetime": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/world_types.rs",
+              "line": 119,
+              "qualified_name": null,
+              "sha256": "384f23229346f5ceeefcb0ecde304794dcc6183258ad59af153ae997e60a0925"
+            },
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs",
+              "line": 119,
+              "qualified_name": "crate::entities::world_types::Datetime",
+              "sha256": "384f23229346f5ceeefcb0ecde304794dcc6183258ad59af153ae997e60a0925"
+            }
+          ]
+        },
+        "EcoString": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Option": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Vec": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Asset",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 651,
+      "payload_declaration": [
+        {
+          "line": 651,
+          "text": "    Asset {"
+        },
+        {
+          "line": 652,
+          "text": "        path: EcoString,"
+        },
+        {
+          "line": 653,
+          "text": "        kind: Option<EcoString>,"
+        },
+        {
+          "line": 654,
+          "text": "    },"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "EcoString": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Option": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "SmartQuote",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 678,
+      "payload_declaration": [
+        {
+          "line": 678,
+          "text": "    SmartQuote(Arc<SmartQuoteElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "SmartQuoteElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/smartquote.rs",
+              "line": 38,
+              "qualified_name": null,
+              "sha256": "6331608fdbd951b438b11ade2333dd4e4813b3fe771e15c8345b718278d234ea"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "PdfAttach",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 681,
+      "payload_declaration": [
+        {
+          "line": 681,
+          "text": "    PdfAttach(Arc<PdfAttachElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "PdfAttachElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/pdf_attach.rs",
+              "line": 36,
+              "qualified_name": null,
+              "sha256": "a27fc2bb5b8b75ea93738939547a13d3e4213a7c5bf598159d02d25e62152179"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "PdfArtifact",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 684,
+      "payload_declaration": [
+        {
+          "line": 684,
+          "text": "    PdfArtifact(Arc<PdfArtifactElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "PdfArtifactElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/pdf_artifact.rs",
+              "line": 68,
+              "qualified_name": null,
+              "sha256": "5bd69660bafd428ecc0c3769aea87d1a84a0926c20a581c0f70086dd011c1d42"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Underline",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 704,
+      "payload_declaration": [
+        {
+          "line": 704,
+          "text": "    Underline(Arc<UnderlineElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "UnderlineElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/underline.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "a310f4b08399349fdce7bd783dab9f515ba5d2cfbd52c201083bc30a6f895417"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Strike",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 707,
+      "payload_declaration": [
+        {
+          "line": 707,
+          "text": "    Strike(Arc<StrikeElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "StrikeElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/strike.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "62ff4c5fa43fd3a08e906b7472ad90acf2e1241a628a118121dabfafb2f1677e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Overline",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 710,
+      "payload_declaration": [
+        {
+          "line": 710,
+          "text": "    Overline(Arc<OverlineElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "OverlineElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/overline.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "1cd51e612baac5ff3a526121d350f5dbb074e243928f8f41c284c6213eaff644"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "SmallCaps",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 721,
+      "payload_declaration": [
+        {
+          "line": 721,
+          "text": "    SmallCaps {"
+        },
+        {
+          "line": 722,
+          "text": "        body: Box<Content>,"
+        },
+        {
+          "line": 723,
+          "text": "    },"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Box": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "Content": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/content.rs",
+              "line": 142,
+              "qualified_name": null,
+              "sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Pad",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 743,
+      "payload_declaration": [
+        {
+          "line": 743,
+          "text": "    Pad(Arc<PadElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "PadElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/pad.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "6c937fc527282d5f1ace5b93f5c358bc3ca1aa8aa03b3a0368f9d3ae004c5322"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Hide",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 752,
+      "payload_declaration": [
+        {
+          "line": 752,
+          "text": "    Hide(Arc<HideElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "HideElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/hide.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "784f34fb886c0a179fab815d01cfd5cda78f14af6af2853be0c123e837339e57"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "HSpace",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 762,
+      "payload_declaration": [
+        {
+          "line": 762,
+          "text": "    HSpace(Arc<HSpaceElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "HSpaceElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/h_space.rs",
+              "line": 41,
+              "qualified_name": null,
+              "sha256": "6f921de6523a8a157db11670bfea83090dd1cc4b288ff5ebcaea1504998f4eb0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "VSpace",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 770,
+      "payload_declaration": [
+        {
+          "line": 770,
+          "text": "    VSpace(Arc<VSpaceElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "VSpaceElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/v_space.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "1696a80c8be4d0b037ef0822822fe9fc6b2773c8e2dcab860abcd1c283ccb4e0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Pagebreak",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 781,
+      "payload_declaration": [
+        {
+          "line": 781,
+          "text": "    Pagebreak(Arc<PagebreakElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "PagebreakElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/pagebreak.rs",
+              "line": 21,
+              "qualified_name": null,
+              "sha256": "bebb8759545daeccc2a071ba3c5685736962a1d7f72382fb5bf5395d31b3b941"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Colbreak",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 802,
+      "payload_declaration": [
+        {
+          "line": 802,
+          "text": "    Colbreak(Arc<ColbreakElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "ColbreakElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/colbreak.rs",
+              "line": 17,
+              "qualified_name": null,
+              "sha256": "4ed6a768eadd2c8cef0231bc29e1dadbc279aae260a5e2ae37f24e56b8fa035c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Stack",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 817,
+      "payload_declaration": [
+        {
+          "line": 817,
+          "text": "    Stack(Arc<StackElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "StackElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/stack.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "ab5a4a08716256b43cc923b430b4616f17b039e7ffdf50bc453260819f875ea6"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Boxed",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 840,
+      "payload_declaration": [
+        {
+          "line": 840,
+          "text": "    Boxed(Arc<BoxedElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "BoxedElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/boxed.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "a272e74b3c8fcbc647e3d482bf2c81f3dbc43d86f2a4aae010b5bd131e49f85c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Block",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 859,
+      "payload_declaration": [
+        {
+          "line": 859,
+          "text": "    Block(Arc<BlockElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "BlockElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/block.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "dc6abff77700a3e195e60bcfbba2f3ba1ce8b8ce3ae3800a26c80672c30219c6"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "TableCell",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 886,
+      "payload_declaration": [
+        {
+          "line": 886,
+          "text": "    TableCell(Arc<TableCellElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TableCellElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/table_cell.rs",
+              "line": 40,
+              "qualified_name": null,
+              "sha256": "53388df38bc575793b37f1194f6d305742efc7afb404bd26197230465fd87841"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Bibliography",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 912,
+      "payload_declaration": [
+        {
+          "line": 912,
+          "text": "    Bibliography(Arc<BibliographyElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "BibliographyElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/bibliography.rs",
+              "line": 35,
+              "qualified_name": null,
+              "sha256": "a885cfcd2616837f949955c0566e8f5dcf59a031f9c2d4c808b797a2c9eb9ee0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Cite",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 940,
+      "payload_declaration": [
+        {
+          "line": 940,
+          "text": "    Cite(Arc<CiteElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "CiteElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/cite.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "457efb93c14e615b6f4c18d5e13544120be3fef04cc576db9385e3c12802312f"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Footnote",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 967,
+      "payload_declaration": [
+        {
+          "line": 967,
+          "text": "    Footnote(Arc<FootnoteElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "FootnoteElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/footnote.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "46ed5151f932036eba1dd62b9a95dd785014b80a33a84e378cdc97879235fc41"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "TableHeader",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 994,
+      "payload_declaration": [
+        {
+          "line": 994,
+          "text": "    TableHeader(Arc<TableHeaderElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TableHeaderElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/table_header.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "e1f296e4cce087bd22b1165c21bcac4a10853c9c71e82ad3ceba1f6461e5cbb6"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "TableFooter",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1005,
+      "payload_declaration": [
+        {
+          "line": 1005,
+          "text": "    TableFooter(Arc<TableFooterElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TableFooterElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/table_footer.rs",
+              "line": 18,
+              "qualified_name": null,
+              "sha256": "d52f6c2f279b15e46428193812db78cbedf7062c2eb75e073fd379ecb35c2786"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "GridHLine",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1009,
+      "payload_declaration": [
+        {
+          "line": 1009,
+          "text": "    GridHLine(Arc<GridHLineElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "GridHLineElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/grid_hline.rs",
+              "line": 24,
+              "qualified_name": null,
+              "sha256": "0b85fbea46d625434236302496825f73323492e342f15677a57f80b0b4be6e32"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "GridVLine",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1011,
+      "payload_declaration": [
+        {
+          "line": 1011,
+          "text": "    GridVLine(Arc<GridVLineElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "GridVLineElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/grid_vline.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "75b6184023cc8c81e33f3820d5064ad98503b0dda963d6c12a49fc5a5dd871e2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "TableHLine",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1013,
+      "payload_declaration": [
+        {
+          "line": 1013,
+          "text": "    TableHLine(Arc<TableHLineElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TableHLineElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/table_hline.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "bfff1c21c42a6458a512bf9111bdc1df34764d54898896704198914f355c36b5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "TableVLine",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1015,
+      "payload_declaration": [
+        {
+          "line": 1015,
+          "text": "    TableVLine(Arc<TableVLineElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TableVLineElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/table_vline.rs",
+              "line": 23,
+              "qualified_name": null,
+              "sha256": "cd1f3122f2f65a02689d1dd08428ca5344b13f817ea7e1d720434f1fdfde4996"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Table",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1038,
+      "payload_declaration": [
+        {
+          "line": 1038,
+          "text": "    Table(Arc<TableElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "TableElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/table.rs",
+              "line": 30,
+              "qualified_name": null,
+              "sha256": "9857f10f8a44fbf19127e35af7156810f5cefdc2c4322a0d66edf225eccf2e56"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Repeat",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1059,
+      "payload_declaration": [
+        {
+          "line": 1059,
+          "text": "    Repeat(Arc<RepeatElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "RepeatElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/repeat.rs",
+              "line": 20,
+              "qualified_name": null,
+              "sha256": "a06615c00a5f456a726c16b090278c4103e2652910b3c844ac16d875ee2f487a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Columns",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1086,
+      "payload_declaration": [
+        {
+          "line": 1086,
+          "text": "    Columns(Arc<ColumnsElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "ColumnsElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/columns.rs",
+              "line": 19,
+              "qualified_name": null,
+              "sha256": "8cd5782c423bc429ea7777490f0bfcd9dbb402ac086887033484c564b2bf494e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Metadata",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1102,
+      "payload_declaration": [
+        {
+          "line": 1102,
+          "text": "    Metadata(Arc<MetadataElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "MetadataElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/metadata.rs",
+              "line": 21,
+              "qualified_name": null,
+              "sha256": "7df36fb15da8b89ab84a298c73e8a4aed0c7c377925d8ba37a78556b4d4d0e79"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "State",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1110,
+      "payload_declaration": [
+        {
+          "line": 1110,
+          "text": "    State(Arc<StateElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "StateElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/state.rs",
+              "line": 21,
+              "qualified_name": null,
+              "sha256": "7b2aa45b928a1442c9101692f6ca13c6b8186d2cd4eb7ab533b692d87aee8870"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "StateUpdate",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1119,
+      "payload_declaration": [
+        {
+          "line": 1119,
+          "text": "    StateUpdate(Arc<StateUpdateElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "StateUpdateElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/state_update.rs",
+              "line": 21,
+              "qualified_name": null,
+              "sha256": "242d3b50cda0e1cbf20839536bf0e2203bc0832ab19e465eaa9d74a1fcd9dce8"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "StateDisplay",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1136,
+      "payload_declaration": [
+        {
+          "line": 1136,
+          "text": "    StateDisplay(Arc<StateDisplayElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "StateDisplayElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/state_display.rs",
+              "line": 21,
+              "qualified_name": null,
+              "sha256": "dd1d04cbee8a67415e60bb21ba3a0de919b68bfc8dad561eddd7b35f4c27b169"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "CounterDisplayCallback",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1161,
+      "payload_declaration": [
+        {
+          "line": 1161,
+          "text": "    CounterDisplayCallback(Arc<CounterDisplayCallbackElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "CounterDisplayCallbackElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/counter_display_callback.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "15e4666c481763721761c052224e369c2c0e83e2515dda45c55a72bd0128d65a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "ContextBlock",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1165,
+      "payload_declaration": [
+        {
+          "line": 1165,
+          "text": "    ContextBlock(Arc<ContextBlockElem>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "ContextBlockElem": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "01_core/src/entities/elements/context_block.rs",
+              "line": 22,
+              "qualified_name": null,
+              "sha256": "f3346dd7f2f6ece97ecef5c1ae90fed824eb1db03b50bc8a19200697ca7c3f3c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "owner": "Content",
+      "variant": "Dynamic",
+      "source_path": "01_core/src/entities/content.rs",
+      "source_sha256": "34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98",
+      "line": 1175,
+      "payload_declaration": [
+        {
+          "line": 1175,
+          "text": "    Dynamic(Arc<dyn DynElement>),"
+        }
+      ],
+      "nominal_payload_tokens": {
+        "Arc": {
+          "kind": "stdlib/generic container; payload parameters remain mapped separately"
+        },
+        "DynElement": {
+          "kind": "declaration references; use exact payload qualification for homonyms",
+          "references": [
+            {
+              "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/elements/dynamic.rs",
+              "line": 45,
+              "qualified_name": "crate::entities::elements::dynamic::DynElement",
+              "sha256": "503a3604c26b45fcf58fbb30a7c91742664ad8b820383ba6406f94103f512575"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "qualified_aliases": {
+    "CounterAction": "crate::entities::counter_update::CounterUpdate",
+    "Constraint": "<crate::entities::world_types::Route<'static> as comemo::Validate>::Constraint",
+    "IndependentStyle": "citationberg::IndependentStyle through hayagriva re-export",
+    "NonZeroU64": "core::num::NonZero<u64>",
+    "AtomicUsize": "core::sync::atomic::AtomicUsize",
+    "InnerDecimal": "rust_decimal::Decimal (1.42.1)"
+  },
+  "external_boundary_witness_inputs": [
+    {
+      "subject": "InnerDecimal",
+      "source": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/decimal.rs",
+        "sha256": "f2643253e1235b359234f4cd00a0aec6cd193500b5a9f4ac9178d8e3295842d2"
+      },
+      "import_line": 11,
+      "target": "rust_decimal::Decimal",
+      "fields": [
+        "flags:u32",
+        "hi:u32",
+        "lo:u32",
+        "mid:u32"
+      ],
+      "limit": "Closed integer representation declaration; normalization/observation equivalence remains L0 plus verifier, not invented here."
+    },
+    {
+      "subject": "crate::entities::regex::Regex.compiled",
+      "source": {
+        "path": "/repos/Antigravity/typst-crystalline/01_core/src/entities/regex.rs",
+        "sha256": "29e778710b259be1c188376cab64171abaa656dc05d0e76da209a4d3a1f05a96"
+      },
+      "target": "Arc<regex::Regex>, not recursive crate::entities::regex::Regex",
+      "graph": "regex::Regex { meta:regex_automata::meta::Regex, pattern:Arc<str> }; meta::Regex { imp:Arc<RegexI>, pool:CachePool }; RegexI { strat:Arc<dyn Strategy>, info:RegexInfo }; CachePool=Pool<Cache,CachePoolFn>; CachePoolFn=Box<dyn Fn()->Cache+Send+Sync+UnwindSafe+RefUnwindSafe>.",
+      "limit": "Actual external compiled engine/cache boundary, not a Typst Func. No Arc-address sameness or generic opaque-leaf claim. Regex language-observable projection and exclusion of mutable compilation caches need the independent normative structural witness; declaration graph is not that verdict."
+    }
+  ],
+  "cost_history": {
+    "product_processes": 0,
+    "future_api_executions": 0,
+    "focal_batches": 0,
+    "causes": [
+      "Ancestral global variant-name subtraction omitted payload homonyms.",
+      "First supplement resolved only reported tokens; closure successor repairs all enum payload positions.",
+      "Current supplement resolves newly exposed InnerDecimal and explicitly distinguishes external regex::Regex; previous artifacts unchanged."
+    ]
+  },
+  "limits": [
+    "Lexical declaration reachability is not rustc type resolution; every qualified ambiguity retains its separate declaration.",
+    "Direct 38 Value and 98 Content variants are all mapped to declared nominal payloads, including unit variants.",
+    "External service/trait/macro/compiled-engine boundaries remain explicitly named witness obligations; not recursively equated by Eq/Debug/Arc.",
+    "Independent oracle must assign concrete tests or normative structural witnesses for every variant/field; this map does not assert acceptance."
+  ]
+}

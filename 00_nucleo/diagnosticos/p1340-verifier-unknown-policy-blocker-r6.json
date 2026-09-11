@@ -1,0 +1,40 @@
+{
+  "schema": "p1340-verifier-unknown-policy-blocker-r6",
+  "utc": "2026-09-10T16:30:56.074618152Z",
+  "verdict": "BLOCK_SEAL_UNKNOWN_ACCEPTS_MALFORMED_LEDGER",
+  "regime": "executado sem atestacao de isolamento",
+  "role": "/root/p1340_verifier_r6",
+  "scope": "synthetic contract-only audit; no candidate source, adapter, candidate output or receipt read or executed",
+  "pins": {
+    "00_nucleo/diagnosticos/p1340-contract-successor-r6.json": "40d45851407dcd4baa68036b68e1ea012fe0081e5ffb3e19e1e557fa9437479b",
+    "00_nucleo/diagnosticos/p1340-contract-observability-r6.py": "16c80c5b4cf2e753b7edd0a65f189c28782239fd0e2acb9cae8d5efa699be6fd",
+    "00_nucleo/diagnosticos/p1340-oracle-focal-r6.py": "40917e2f0f300a83df2a9dd29d6e0d3fca105245bd415055f4039501b9bdf2f8"
+  },
+  "finding": {
+    "id": "R6-UNKNOWN-001",
+    "severity": "blocking",
+    "declared_policy": "Only explicit status=opaque in a well-formed ledger yields Unknown; missing/malformed/inconsistent/incomplete evidence is Violated.",
+    "measured_cause": "check_features calls explicit_status before validating the remaining required context fields. ContractUnknown short-circuits classify, so malformed evidence can be hidden behind status=opaque.",
+    "synthetic_mutation": "Starting from oracle base(), delete feature_contexts[0].source and set feature_contexts[0].status=opaque.",
+    "observed_result": {
+      "classification": "Unknown",
+      "reason_code": "R6-feature-context-opaque"
+    },
+    "required_result": "Violated because the ledger is malformed independently of its opacity declaration.",
+    "impact": "The classifier does not establish that Unknown is restricted to well-formed opaque fixtures. The existing four opaque controls keep all other fields valid and therefore do not discriminate this mutation. Seal is blocked."
+  },
+  "reproduction": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -c import-oracle-base-delete-source-set-opaque-print-classify",
+    "exit": 0,
+    "stdout": "{'classification': 'Unknown', 'reason_code': 'R6-feature-context-opaque'}",
+    "writes": 0
+  },
+  "provenance": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_z_sha256_at_finding": "3c6af27885bdd54d9fb9d18da59335d2f81801add5e0ee036964c32acf03c350"
+  },
+  "seal": null,
+  "candidate_execution": 0,
+  "candidate_reads": 0
+}

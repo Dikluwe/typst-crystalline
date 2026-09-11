@@ -1,0 +1,63 @@
+{
+  "start": "2026-09-09T23:35:40.683903+00:00",
+  "end": "2026-09-09T23:35:40.690296+00:00",
+  "provenance": {
+    "at": "2026-09-09T23:35:40.481158+00:00",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "status_short": "?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+    "diff_stat": "",
+    "input_sha256": {
+      "00_nucleo/materialization/typst-passo-1339.md": "817c3a1476897fb0a847c90183e9a9fe690994f60023126997c8022c4e8b86a9",
+      "00_nucleo/diagnosticos/p1339-resume-r1.json": "657f6eeeee2aa8a30a5443f930125231af38ce0088c63956ce17d38bb112fa02",
+      "00_nucleo/diagnosticos/p1339-authority-manifest-r1.json": "074ec7a3cfeea34f0f6a230dcd4cc4b9b2777a860ce439bdad8c774c034f38fc",
+      "00_nucleo/diagnosticos/p1339-a0.json": "c70ca7d1f22aa7df222a081da4feddbc056b628eca505449eedb153acd71c361",
+      "00_nucleo/diagnosticos/p1339-probe-manifest.json": "712fb949a5ed8725c6322157bbe06a8ef1cd3313007d02eb92fabeeb95bd8e21"
+    },
+    "runner_sha256": "45bc7cd558283cb1c3e36ab0d44e2bbabec224ed010df7540dbe8a161f60e37b"
+  },
+  "end_provenance": {
+    "at": "2026-09-09T23:35:40.690300+00:00",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "status_short": "?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+    "diff_stat": "",
+    "input_sha256": {
+      "00_nucleo/materialization/typst-passo-1339.md": "817c3a1476897fb0a847c90183e9a9fe690994f60023126997c8022c4e8b86a9",
+      "00_nucleo/diagnosticos/p1339-resume-r1.json": "657f6eeeee2aa8a30a5443f930125231af38ce0088c63956ce17d38bb112fa02",
+      "00_nucleo/diagnosticos/p1339-authority-manifest-r1.json": "074ec7a3cfeea34f0f6a230dcd4cc4b9b2777a860ce439bdad8c774c034f38fc",
+      "00_nucleo/diagnosticos/p1339-a0.json": "c70ca7d1f22aa7df222a081da4feddbc056b628eca505449eedb153acd71c361",
+      "00_nucleo/diagnosticos/p1339-probe-manifest.json": "712fb949a5ed8725c6322157bbe06a8ef1cd3313007d02eb92fabeeb95bd8e21"
+    },
+    "runner_sha256": "45bc7cd558283cb1c3e36ab0d44e2bbabec224ed010df7540dbe8a161f60e37b"
+  },
+  "runner_sha256": "df9ac31218b4e070ea81087c8a84a4d52f747a073bae94498ae9b8e96d6664d9",
+  "manifest_sha256": "25028e1b967391197c4d290f119ff4925672f2e547f783de3e37da7e2c0870fb",
+  "binary": {
+    "path": "/usr/local/bin/typst",
+    "expected_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+    "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+  },
+  "rows": [
+    {
+      "id": "strong-static-match",
+      "order": "normal",
+      "profile": "default",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "source_sha256": "62c08b6b1069a6c807430dfa78f9a84d24f7255fad622ad468cc6c181b61ea6f",
+      "start": "2026-09-09T23:35:40.683924+00:00",
+      "end": "2026-09-09T23:35:40.690276+00:00",
+      "seconds": 0.006360945000778884,
+      "exit": 0,
+      "stdout": "[\"MATCH\"]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ` instead\n\n",
+      "execution": "Observed"
+    }
+  ]
+}

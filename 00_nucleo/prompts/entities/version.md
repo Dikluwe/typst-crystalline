@@ -2,7 +2,8 @@
 Hash do Código: 1e86df0e
 
 **Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/version.rs`, `01_core/src/entities/value.rs`
+**Ficheiro alvo**: `01_core/src/entities/version.rs` (owner único; a integração
+histórica com Value pertence ao Prompt proprietário de `entities/value.rs`).
 **Origem**: Passo 401 — modelagem de `Value::Version`. **Corrigido em P684** — a
 leitura original (semver 2.0.0 com `pre`/`build`) foi uma confusão com o SemVer
 geral; o `version` do Typst é outro conceito (ver nota de origem no diagnóstico
@@ -243,3 +244,44 @@ pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
 `type(version) == type` e `repr(type(version)) == "type"`, enquanto valores
 construídos continuam com `type_name() == "version"`. A representação interna
 da entidade e suas operações não mudam.
+
+## P1339 — causa semântica compartilhada por chamada estática e ligada
+
+### Medição anterior à decisão
+
+No baseline HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`,
+`01_core/src/entities/version.rs:103–120` já conserva o índice original para
+erro, resolve negativos pelo comprimento explícito e devolve zero quando
+positivo está além da lista. A fonte ratificada `a51e02804`,
+`lab/typst-original/crates/typst-library/src/foundations/version.rs:109–134`,
+documenta a mesma regra. As sondas `version-static-*`/`version-bound-*` em
+`00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json:2` registram
+proveniência integral, diff/stat vazio na medição, horários e saídas: negativos
+fora da lista dão `component index out of bounds (index: ..., len: ...)`;
+positivos além da lista dão zero, inclusive sobre versão vazia.
+
+### Decisão proprietária e sucessão
+
+`Version::at(&self, index: i64) -> Result<i64, String>` continua a única
+causa da consulta. A descoberta `version.at` e o parser compartilhado com
+`.at()` pertencem ao consumer `compiler/stdlib/primitives_constructors/version.rs`.
+Este adendo sucede as descrições históricas de dispatch em bindings/closures
+e, exclusivamente para `at`, revoga a dispensa literal de erros de argparsing
+do §8a: mensagens, hints, spans e prioridade são observáveis da linguagem,
+devem coincidir com a referência. A entidade recebe o índice já validado;
+não recebe Args/AST, contexto, World ou spans de chamada.
+
+Positivo usa extensão por zero. Negativo usa a lista explícita, conservando
+zeros finais, e nunca a extensão infinita. `i64::MIN` deve falhar sem overflow
+ou panic e imprimir o índice original. Não alterar a assinatura, o carrier
+de componentes, major/minor/patch, repr, display, igualdade/hash/ordem,
+constructor ou `PARITY_VERSION`. As referências antigas a versões nominais
+acima são registro histórico; o alvo P1339 é somente `a51e02804`.
+
+Presença, consulta e diagnóstico são linguagem; representação e chamadas
+internas são mecânica. A documentação fundamenta a intenção; a medição
+confirma comportamento. Inferência de reutilização suficiente é refutada se
+uma entrada válida de `version.at` exigir alterar a regra de `Version::at`.
+Não declarar que §10 fecha paridade geral: P1339 fecha apenas a rota `at`
+no fragmento contratado e mantém os outros membros como controles, inclusive
+a divergência de campos nomeados ausentes registrada em A.2.

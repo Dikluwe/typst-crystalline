@@ -1,0 +1,60 @@
+{
+  "schema": "p1340-contract-author-receipt-r4",
+  "status": "NOT_SEALED",
+  "R2inputvalidityblocked": true,
+  "utc": "2026-09-10T14:52:53Z",
+  "author": "/root/p1340_contract_correction",
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1340-contract-successor-r4.json",
+    "sha256": "d56ccf8a6e61b6c87b39694c6401ecacb8b7c3af0a5ee35895acd70e67590149"
+  },
+  "produced": [
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-base-r4.py",
+      "sha256": "86ea70da06a55b8c91824cd638378bd12e05ce44503a82dc2fddaac69f693909"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-predicate-r4.py",
+      "sha256": "4cf8df636db54b5b6b4b632fd4e4e1ce4c90ae3fe3d1e23e98c14ca4707296d2"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-observability-r4.py",
+      "sha256": "b6d081ad1efa66bcfc91079b05f7b394ddd0c4e181840f38de3bbdb9f687c20e"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-observability-r4.md",
+      "sha256": "1228552361a3d854619b5aaff54bc3f4a36c5fb4cecbab79c476ba680053b572"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-dict-r4.json",
+      "sha256": "ad4d3bad4b91927027f3a3258903507eda7eabb12bf0cfa5d058c94ab651ddc5"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-focal-r4.py",
+      "sha256": "d80a3c041706bea9e4f3738f9453f5995702b6d23a061fdf8107a06c72a65c6c"
+    }
+  ],
+  "scope": "Three authorized observability corrections and strictly injective Dict representation only",
+  "execution": {
+    "production_runs": 0,
+    "focal_runs": 0,
+    "full_corpus_runs": 0,
+    "syntax_checks": 0
+  },
+  "cost": {
+    "unit": "authoring/read-only inspection only",
+    "review_window_start_utc": "2026-09-10T14:34:29Z",
+    "end_utc": "2026-09-10T14:52:53Z",
+    "discriminatory_delta": "not measured: calibration stopped before execution",
+    "attempts_by_failure_class": {
+      "features": 0,
+      "invocation": 0,
+      "event_span": 0,
+      "dict_injectivity": 0
+    }
+  },
+  "preserved": "All frozen R2/R3/earlier sources, predicates and terminal expectations untouched. No candidate content read, no normal code or L0 written.",
+  "stop": "Independent verifier stop relayed by root: additional oracle revision needed for R2 input validity, outside this authorized correction. No calibration or matrix after this stop.",
+  "verdict": null,
+  "seal": null
+}

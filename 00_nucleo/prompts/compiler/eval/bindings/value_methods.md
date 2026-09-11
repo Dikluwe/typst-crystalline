@@ -1,5 +1,35 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: efef75f5
+Hash do Código: a929ee00
+
+## P1339 — adapter ligado de version.at sem parser duplicado
+
+### Medição anterior à decisão
+
+No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto,
+`value_methods.rs:623-662` valida índice ligado com mensagem genérica de
+aridade e não rejeita named; `entities/version.rs:103-120` já possui a
+regra de índice. As sondas P1339 full-final e boundaries medem as duas
+formas e suas origens; `diagnosticos/p1339-remaining-l0-design.md` fixa
+a classificação e a delegação proposta.
+
+### Decisão
+
+eval_version_method_value torna-se adapter AST→Args: avalia uma vez,
+conserva ocorrências/spans e delega receiver e Args a
+stdlib::dispatch_version_method. O owner primitives-constructors/version
+faz a inserção causal de self, a validação comum e os diagnósticos; a fórmula
+permanece Version::at. Não conservar o parser anterior, sua tolerância a
+named ou mensagem genérica de aridade. O span integral da chamada é
+transportado pelo caller interno, sem inventar origem de argumento.
+
+Demais métodos de state/counter/color/selector não migram para este adapter.
+Campos de Version, constructor, componentes e PARITY_VERSION ficam intactos.
+Sucedem somente a localização anterior do parser ligado e suas divergências
+diagnósticas, sem API externa nova nem segunda causa semântica.
+
+**Extensão P1339:** direção aprovada no gate público Selector/ShowSelector;
+recibo `diagnosticos/p1339-where-approval.json`. A implementação depende ainda
+dos L0 de integração, contrato, selo e RED do P1339.
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/value_methods.rs`
@@ -164,3 +194,155 @@ cor e erros preexistentes, além da coerência Some/views. É inferência que
 esses dados já disponíveis bastem; nova informação de domínio ou mudança
 pública além do carrier aprovado exige reabertura. Fluxo contínuo ADR-0127
 para esta migração interna, com L0 primeiro e verificação independente.
+
+## P1339 — semântica comum de `function.where` e chamada ligada
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer sem diff:
+`value_methods.rs:676-750` só reconhece heading/figure, rejeita strong/emph/raw,
+descarta spreads e exige ao menos um campo. No vanilla ratificado,
+`foundations/func.rs:412-450` documenta o filtro por função de elemento,
+valida nomes, não converte valores pelo tipo do parâmetro construtor e
+rejeita função não-elemento. `With(elemento)` também é rejeitado.
+`p1339-full-final-vanilla-runs.json` e `p1339-full-boundaries-vanilla-runs.json`
+medem tipo, repr, prioridade de falhas, spans e formas estática/ligada sobre
+o baseline e estado integral registrados em cada recibo.
+
+A sonda focal `p1339-where-l0-vanilla.json`, UTC
+`2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, confirma que
+o grupo preserva ordem e que spread sobrescreve o valor sem mover a chave.
+Isso é linguagem; a estrutura SmallVec do vanilla não prescreve a nossa.
+
+### Decisão proposta — owner semântico, sem novo módulo produtivo
+
+Este owner passa a possuir um helper puro interno de construção de `where`
+sobre receiver Func e Args já avaliados. A chamada estática e a ligada
+devem convergir nesse helper; não duplicar validação ou normalização. As
+assinaturas auxiliares podem ser `pub(crate)`/visibilidade entre módulos,
+nunca uma nova API pública de entidade/trait.
+
+Somente para `where`, esta decisão sucede o limite P1284 que restringia o
+owner à orquestração com AST. As demais famílias mantêm esse limite; não se
+transfere semântica de coleções, encoders ou outros métodos para este nó.
+
+1. Reconhecer função nativa real de elemento por identidade de implementação
+   (`native_fn_addr`/equivalente tipado e `fn_addr_eq`), não só por nome,
+   namespace, igualdade Func ou resultado de executar o receiver. Aliases
+   preservam identidade. Não desembrulhar With, promover closure/plugin ou
+   confundir o Element de utilizador com um builtin vanilla.
+2. O conjunto de reconhecimento é estático e declara os campos linguísticos
+   válidos por elemento. Deve cobrir os elementos expostos pertinentes, não
+   somente os exemplos heading/figure/strong/emph/raw/text/table da sonda.
+   Não criar registro genérico, vtable nem usar o fallback não chamável de
+   `content_elem_func` como identidade de elemento.
+3. Consumir Args mantendo ocorrências e spans; avaliar uma vez, na ordem
+   observável do caminho. Duplicação sintática, efeitos de spreads, cast do
+   receiver e positional extra conservam a prioridade vanilla medida. A
+   forma estática avalia argumentos antes do cast; a ligada resolve o
+   receiver antes dos argumentos. A convergência semântica não apaga essa
+   diferença de avaliação. Nunca reavaliar receiver em fallback.
+4. Validar nomes de campos, sem cast dos valores: por exemplo
+   `heading.where(level: "bad")` é filtro válido, não erro de constructor.
+   Chaves repetidas via spread têm último valor e primeira posição;
+   literais named duplicados continuam sujeitos ao erro sintático.
+5. Produzir `Selector::Element { function, fields }`, inclusive grupo vazio.
+   Não usar a cadeia histórica de QuerySelector::Where para representar um
+   grupo público; suas variantes existentes continuam válidas para outros
+   consumers. Ordem de avaliação nunca se reconstrói do grupo normalizado.
+
+Mensagens e origens obrigatórias seguem os casos medidos:
+
+```text
+missing argument: self
+expected function, found <tipo>
+`where()` can only be called on element functions
+element `<nome>` does not have field `<campo>`
+unexpected argument
+```
+
+O positional inesperado aponta à ocorrência original. Não uniformizar erros
+da forma ligada inválida com os casts da
+forma estática. O nome público da função descoberta é `where`; extrair
+`f.where` como valor não se torna válido só porque `function.where` existe.
+
+O helper não realiza conteúdo, não consulta introspector e não imprime repr.
+Encaminhamento por field_access/call_dispatch, apresentação, query e counter
+exigem suas atualizações L0 proprietárias na continuação de P1339 antes do
+código. Esta seção não autoriza alterar outros métodos deste owner nem
+antecipa os lotes seguintes.
+
+Aceitação posterior ao gate: criação e identidade de seletor, filtros vazios
+e múltiplos, aliases, spreads, rejeição de With/closure/nativa não-elemento,
+ordem de panic e spans; aplicação de filtros positivos e negativos por show.
+Inferência de que Args contém as origens suficientes deve ser refutada por
+uma chamada com perda de span/ocorrência; não inventar campos públicos para
+reparar isso incidentalmente. A cláusula P1284 que não autorizava mudança
+pública continua valendo fora da extensão explicitamente submetida aqui.
+
+### Integração de locatability e despacho de counter P1339
+
+Medição: query/counter exigem LocatableSelector no vanilla
+(`introspection/query.rs:160-175`, `introspection/counter.rs:338-357`), mas
+where/show aceitam text. O reconhecimento nativo deste owner deve fornecer
+também um predicado interno estático de locatability para os consumers de
+Selector::Element; suas entradas devem ser justificadas pelas declarações
+vanilla e pela classificação de ocorrência cristalina. Strong/Emph aprovados
+são aceitos, text não. Não promover função por nome nem executar constructor;
+não fazer o próprio where rejeitar um elemento válido só por não locatável.
+
+Medição de despacho: `value_methods.rs:392,397,478` já tem ctx/scopes/engine
+quando chama os helpers públicos de counter, mas get/final antigos não
+recebem Engine. Na resolução de fase aprovada de `compiler/stdlib/counter.md`,
+as chamadas ligadas cuja chave contenha Element delegam aos helpers internos
+owned com esses recursos já disponíveis. Preservar consumo/validação de Args
+e suas origens; os demais counters seguem os helpers anteriores. Não alterar
+assinaturas públicas para transportar Engine nem executar Func na simples
+descoberta do método. A resolução contextual foi autorizada no recibo
+`diagnosticos/p1339-where-counter-phase-approval.json`; continuam obrigatórios
+contrato, selo e RED antes da implementação.
+
+### P1339 — resolução de label é uma entrada contextual
+
+Medição no HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer
+intacto: `value_methods.rs:127-153` resolve label antes de state_at_location;
+uma ausência devolve Err antes de entrar no owner state. Rastrear apenas
+state_value perderia essa dependência. Proveniência no recibo de integração
+de observações P1339.
+
+O helper interno de resolução registra label original, Location encontrada
+ou erro e span no registro privado de EvalContext. Faz isso para literal e
+valor avaliado, sem avaliar novamente o argumento. Replay consulta o label
+original contra candidate, conservando mensagem/ordem preexistentes; não
+reavalia AST nem substitui o pedido por Location previamente resolvida.
+O owner state registra depois sua leitura de valor, caso tenha sido alcançada.
+Ausência que vira presença invalida a tentativa, inclusive quando esta já
+estava selecionada por leitura Element anterior. A resolução não marca
+seleção filtrada por si só. Não ampliar selectors aceitos por state.at.
+
+No despacho de counter, transportar a demanda aos helpers owned antes da
+resolução introspectiva que possa falhar; não executar uma consulta invisível
+no glue nem corrigir fallbacks legados. Parsing e avaliação de argumentos
+continuam na ordem vigente, com suas leituras causais registradas normalmente.
+
+## P1342 — origem da ocorrência ligada `counter.update`
+
+### Medição anterior à decisão
+
+`diagnosticos/p1342-topology-audit-r1.md` mede que
+`eval_counter_method_value` possui `args.span()` antes de `eval_args`, mas o
+descarta ao chamar `counter_update`. O span do callback não identifica a
+ocorrência de update.
+
+### Decisão vigente
+
+Sob `cfg(p1339_observation)`, somente o ramo ligado `update` passa ao owner de
+counter o span agregado capturado antes da avaliação e o `EvalContext` real.
+O owner anexa o carrier somente se a ação efetiva for `CounterUpdate::Func`.
+Avaliação, prioridade de erros, Args e delegação continuam uma vez e na ordem
+vigente. A forma estática faz captura equivalente no owner, que já recebe
+`Args.span` e `EvalContext`.
+
+Não inferir origem do Func, valor ou output nem procurar por nome. Sem o cfg,
+a chamada e assinatura normal permanecem atuais. O recorte cobre o callback
+focal P1342, não step/set, todos os métodos de counter ou a matriz P1340.

@@ -1,0 +1,3824 @@
+{
+  "author": "/root/p1319_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "batch": 1,
+  "status": "COMPONENT_OF_BATCH_1_NOT_A_RUN_MANIFEST",
+  "authority_manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+    "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+  },
+  "contract": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-r3.json",
+    "sha256": "c0cd1826679ddaf77e937a677839c5cbe64fdae6ec71bfa34e635d584d9c3e17"
+  },
+  "l0_freeze": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-l0-freeze.json",
+    "sha256": "397c136fc8710d44b2f7537193fe5b9c44ab89d40a99bf6b994296e05e7c4d04"
+  },
+  "budget_redesign": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-budget-redesign-r1.json",
+    "sha256": "4bdd984d7b9d482d68ebb787e98eeed8333a1d4447c637615d4ceb9c78ed6c19"
+  },
+  "budget_acceptance": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-budget-redesign-acceptance-r1.md",
+    "sha256": "0552cdbfb02e18496ac3c07121e0640fad2a772aa32e678a0b7062344286bafd"
+  },
+  "phase": {
+    "freeze": "C",
+    "execute": "F",
+    "preseal_state": "NOT_EXECUTED_PRESEAL",
+    "runtime_credit": 0
+  },
+  "candidate_access": "No candidate or productive source read. Inputs derived from frozen L0 and public historical sources/signature DTOs.",
+  "schema": "p1339-independent-retention-lifecycle-fixtures-v2",
+  "private_interface": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-private-interface.md",
+    "sha256": "f91cd79149fc5801af203e0aa13941ce9b7cd7b20a0e75addd78076e3e1f3d7a"
+  },
+  "dto_schema": {
+    "format": "JSON objects, exact required keys and types; additional real provenance keys allowed, missing/unknown keys never silently defaulted",
+    "types": {
+      "Identity": "nonempty string backed by actual immutable generation/object identity or audited reference equality; never a fixture-assigned success token",
+      "OptionalIdentity": "Identity | null",
+      "Attempt": "integer 0..5, 0 only denotes actual ordinary discovery",
+      "Span": "{file_id: string, source_sha256: 64-hex-string, byte_start: nonnegative integer, byte_end: nonnegative integer, raw_span: string}",
+      "Diagnostic": "{severity: Error|Warning, span: Span, message: string, hints: [string], trace: [{kind: Call|Show|Import|Include, payload: string|null, span: Span}]}",
+      "Result": "{kind: Ok, value: typed JSON value} | {kind: Err, diagnostics: [Diagnostic]}",
+      "CounterValue": "[nonnegative integer]",
+      "MetadataValue": "integer | string | boolean | null | [MetadataValue] | {Func: Identity} | {Length: {abs_pt_bits: 16-hex-string, em_bits:16-hex-string}}; other runtime variants must be reported as an explicit binding gap, not stringify/repr",
+      "Resources": "{producer_id:Identity,capture_id:Identity,context_location:Identity,entry_chain_id:Identity,world_id:Identity,metrics_id:Identity,target:paged,features:[html|a11y-extras]}",
+      "CounterEvent": "{key_id:string,action:{kind:Set,values:CounterValue}|{kind:Step,level:positive integer}|{kind:Func,func_id:Identity},location:Identity,span:Span,producer_generation_id:Identity}",
+      "RequestReplay": "{request_id:Identity,chain_id:Identity,resources:Resources,operation:string,typed_arguments:JSON,result:Result}"
+    },
+    "event_common": {
+      "sequence": "consecutive nonnegative integer, actual hook order",
+      "kind": "one of exact event variants below"
+    },
+    "event_variants": {
+      "DiscoveryCompleted": {
+        "source_context_offset": "nonnegative byte offset",
+        "generation_id": "Identity",
+        "selected": "boolean",
+        "result": "Result",
+        "output_id": "OptionalIdentity",
+        "sink_id": "Identity"
+      },
+      "AttemptStarted": {
+        "attempt": "Attempt >=1",
+        "read_snapshot_id": "Identity",
+        "observational_stores_empty": "boolean",
+        "counter_values": "object key_id -> CounterValue"
+      },
+      "BodyStarted": {
+        "attempt": "Attempt",
+        "source_context_offset": "nonnegative byte offset",
+        "execution_id": "Identity",
+        "generation_id": "Identity",
+        "parent_generation_id": "OptionalIdentity",
+        "resources": "Resources"
+      },
+      "RequestRecorded": {
+        "execution_id": "Identity",
+        "generation_id": "Identity",
+        "request_id": "Identity",
+        "operation": "string from actual closed operation variant",
+        "typed_arguments": "lossless typed JSON",
+        "span": "Span",
+        "chain_id": "Identity",
+        "resources": "Resources",
+        "result": "Result"
+      },
+      "BodyCompleted": {
+        "attempt": "Attempt",
+        "execution_id": "Identity",
+        "generation_id": "Identity",
+        "result": "Result",
+        "output_id": "OptionalIdentity",
+        "func_ids": "[Identity]",
+        "sink_id": "Identity",
+        "final_chain_id": "Identity",
+        "selected": "boolean observed from actual completed EvalContext"
+      },
+      "CandidateBuilt": {
+        "attempt": "Attempt >=1",
+        "document_id": "Identity",
+        "content_id": "Identity",
+        "snapshot_id": "Identity",
+        "positions_complete": "boolean",
+        "page_store_complete": "boolean",
+        "counter_values": "object key_id -> CounterValue",
+        "metadata_values": "[MetadataValue]",
+        "counter_events": "[CounterEvent]",
+        "current_generation_ids": "[Identity]",
+        "selected_generation_ids": "[Identity] projected from actual current pipeline record selection flags, not reconstructed from test expected"
+      },
+      "ValidationCompleted": {
+        "attempt": "Attempt >=1",
+        "generation_id": "Identity",
+        "candidate_snapshot_id": "Identity",
+        "result": "Result whose Ok value is boolean",
+        "replayed_requests": "[RequestReplay]",
+        "sink_id": "Identity"
+      },
+      "ContributionRetained": {
+        "attempt": "Attempt >=1",
+        "generation_id": "Identity",
+        "original_execution_id": "Identity",
+        "output_id": "OptionalIdentity",
+        "func_ids": "[Identity]",
+        "sink_id": "Identity",
+        "resources": "Resources",
+        "request_ids": "[Identity]"
+      },
+      "GenerationInvalidated": {
+        "attempt": "Attempt",
+        "generation_id": "Identity",
+        "reason": "actual closed reason as string",
+        "descendant_ids": "[Identity]",
+        "actual_descendant_ids_before_replacement": "[Identity] observed from pre-replacement real traversal, not copied from expected list"
+      },
+      "SinkDisposition": {
+        "sink_id": "Identity",
+        "origin_generation_id": "OptionalIdentity",
+        "origin_phase": "validation|discovery_selected|discovery_legacy|selected_body|final_nonconvergence",
+        "disposition": "published|discarded",
+        "diagnostics": "[Diagnostic]"
+      },
+      "FunctionInvoked": {
+        "func_id": "Identity",
+        "origin": "body|counter_fold|display_callback|projection|comparator_category_test|other_actual_origin"
+      },
+      "CompilationReturned": {
+        "attempt": "Attempt",
+        "document_id": "OptionalIdentity",
+        "result": "Result",
+        "metadata_values": "[MetadataValue]",
+        "current_output_ids": "[Identity]",
+        "current_func_ids": "[Identity]",
+        "published_sink_ids": "[Identity]",
+        "export_permitted": "boolean"
+      }
+    },
+    "observation_envelope": {
+      "case_id": "exact frozen id",
+      "execution": "Observed|Unknown",
+      "binding_audit": "accepted_real_product_path only after independent verifier audit; otherwise explicit pending/rejected",
+      "events": "[event_variant]",
+      "binary_sha256": "64 hex",
+      "compiled_configuration": "object",
+      "port_source_pins": "array of exact actual productive binding paths and hashes",
+      "source_sha256": "exact frozen source sha256",
+      "profile": "default|html|a11y|html+a11y",
+      "order": "normal|repeat|reverse"
+    },
+    "identity_caveat": "Pointer addresses may serve only where verifier proves immutable causal lifetime and generation provenance. Mutable world/service pointer alone never proves sameness."
+  },
+  "global_predicates": [
+    "Every required event is backed by a reachable actual productive operation; missing event/field or ambiguous identity is a binding failure, never an expected value.",
+    "Discovery-selected output and sink are discarded before A1; discovery does not consume an attempt number. Legacy sibling contributions/errors retain their ordinary handling.",
+    "Each ContributionRetained has the identical original execution, producer, capture, output, requests and sink identities; no new BodyStarted is fabricated for that reuse.",
+    "Every retained resource_tuple equals the one at that generation BodyStarted. A changed producer/capture/entry chain invalidates all its old descendant records even where their own snapshot observations are unchanged.",
+    "Each request uses the chain captured at its RequestRecorded boundary; replay does not substitute the final body chain. Resources are the same logical World/metrics/context/target/features by construction.",
+    "CandidateBuilt precedes validation against that same produced snapshot and contains completed positions/PageStore. Attempt k reads the snapshot produced by k-1, with actual empty observational stores at I0 and preserved contextual source Location.",
+    "Selected generation remains selected for its lifetime even if a later branch executes no filtered request. Selection never leaks to sibling generations.",
+    "A generation with current Err contributes only its marker, never a previous success. Replacement removes old descendants/updates; no duplicate source marker or old-generation contribution remains in the current tree.",
+    "Validation sinks and replaced/discovery-selected execution sinks are discarded. Retained contribution sinks are published once with original ordered complete diagnostics. No fabricated, sorted or deduplicated-by-text errors.",
+    "Final body Err remains error even if read validation is Ok(true). Export is forbidden for pending final Err; Unproven never becomes a vanilla nonconvergence warning."
+  ],
+  "cases": [
+    {
+      "id": "lifecycle-retained-sibling-growth",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F07-retention",
+        "F08-attempts"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let stable = counter(heading.where(level: 9))\n#let changing = counter(heading.where(level: 1))\n#context { let captured = stable.final().first(); metadata(x => x + captured) }\n#context changing.update(changing.final().first() + 1)\n",
+      "source_sha256": "9a7cbe2806c3b0e9502a3eb498ce9ed70e330a77a051cdec8f759a44352b2f9d",
+      "source_origin": {
+        "kind": "independent L0-derived source; not an ancestor same-graph bridge"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-retained-sibling-growth.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "The first context is selected by stable.final; its read is (0,) in every snapshot. Its A1 metadata closure captures Int(0).",
+        "The changing-key sibling requires A1..A5; its produced counter values are 1,2,3,4,5. The stable-key output generation from A1 is retained unchanged through return D5.",
+        "Exactly one real BodyStarted for the stable first context among A1..A5; its captured Func and complete output/request/sink identities at D5 equal their A1 identities. Discovery execution is separate and discarded.",
+        "No function is invoked merely to compare or certify its identity; private comparison/replay hooks must show no body invocation originating from comparator dispatch."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 96,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 176,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "stable": "heading.where(level: 9)",
+          "changing": "heading.where(level: 1)"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "attempts": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "counter_key_id": "changing",
+        "counter_values_read": [
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "counter_values_produced": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
+        "retained_context_index": 0,
+        "manual_set_events_per_snapshot": 1
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-replaced-capture-descendant",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F07-retention",
+        "F08-attempts"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let stable = counter(heading.where(level: 9))\n#let changing = counter(heading.where(level: 1))\n#context { let captured = changing.final().first(); [#context { stable.final(); metadata(captured) }] }\n#context changing.update(changing.final().first() + 1)\n",
+      "source_sha256": "5d66bc0239e546703055fe624e29bda376be2095ef52f406298012d7e77cf095",
+      "source_origin": {
+        "kind": "independent L0-derived source; not an ancestor same-graph bridge"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-replaced-capture-descendant.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "Changing key reads per A1..A5 are 0,1,2,3,4; outer selected producer captures those exact Int values.",
+        "Child selected stable-key query is always (0,), yet each replacement of outer producer invalidates the old child generation and its record before new child evaluation.",
+        "Current metadata values per D1..D5 are exactly [0],[1],[2],[3],[4]; final is [4], never [0] or [5]. No earlier child metadata/update remains.",
+        "Child body source span is the same across replacements, while real producer/capture identities and generation provenance distinguish them; identical source/body or page count cannot certify reuse."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 96,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 149,
+          "token": "#context"
+        },
+        {
+          "index": 2,
+          "byte_offset": 200,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "stable": "heading.where(level: 9)",
+          "changing": "heading.where(level: 1)"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "attempts": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "counter_key_id": "changing",
+        "counter_values_read": [
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "counter_values_produced": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
+        "metadata_by_attempt": [
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "final_metadata": [
+          4
+        ],
+        "replaced_child_context_index": 1,
+        "manual_set_events_per_snapshot": 1
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-replaced-chain-descendant",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F07-retention",
+        "F08-attempts"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let stable = counter(heading.where(level: 9))\n#let changing = counter(heading.where(level: 1))\n#context { let captured = changing.final().first(); [#set text(size: (10 + captured) * 1pt)\n#context { stable.final(); metadata(text.size) }] }\n#context changing.update(changing.final().first() + 1)\n",
+      "source_sha256": "4b7068ab6a64f6e55f6287ae49a4ba80f93b34225a523a25c999ece02a67f607",
+      "source_origin": {
+        "kind": "independent L0-derived source; not an ancestor same-graph bridge"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-replaced-chain-descendant.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "Outer changing-key reads are 0,1,2,3,4; new descendant entry text-size chains are 10pt,11pt,12pt,13pt,14pt respectively.",
+        "Child stable-key read remains (0,), but every replaced outer producer/chain invalidates its prior descendants and preserves no stale request record.",
+        "Actual metadata in D1..D5 is [10pt],[11pt],[12pt],[13pt],[14pt], typed Length, not text; final D5 metadata is [14pt].",
+        "Chain and capture identity changes are observed at real BodyStarted/RequestRecorded boundaries, not inferred from metadata alone."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 96,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 188,
+          "token": "#context"
+        },
+        {
+          "index": 2,
+          "byte_offset": 240,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "stable": "heading.where(level: 9)",
+          "changing": "heading.where(level: 1)"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "attempts": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "counter_key_id": "changing",
+        "counter_values_read": [
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "counter_values_produced": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
+        "metadata_by_attempt": [
+          [
+            {
+              "Length": {
+                "abs_pt_bits": "4024000000000000",
+                "em_bits": "0000000000000000"
+              }
+            }
+          ],
+          [
+            {
+              "Length": {
+                "abs_pt_bits": "4026000000000000",
+                "em_bits": "0000000000000000"
+              }
+            }
+          ],
+          [
+            {
+              "Length": {
+                "abs_pt_bits": "4028000000000000",
+                "em_bits": "0000000000000000"
+              }
+            }
+          ],
+          [
+            {
+              "Length": {
+                "abs_pt_bits": "402a000000000000",
+                "em_bits": "0000000000000000"
+              }
+            }
+          ],
+          [
+            {
+              "Length": {
+                "abs_pt_bits": "402c000000000000",
+                "em_bits": "0000000000000000"
+              }
+            }
+          ]
+        ],
+        "final_metadata": [
+          {
+            "Length": {
+              "abs_pt_bits": "402c000000000000",
+              "em_bits": "0000000000000000"
+            }
+          }
+        ],
+        "replaced_child_context_index": 1,
+        "manual_set_events_per_snapshot": 1
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-request-chain-points",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F07-retention",
+        "F09-errors-sinks"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let c = counter(heading.where())\n#context { c.final(); [#set text(size: 10pt)\n#context { c.final(); metadata(text.size) }\n#set text(size: 20pt)\n#context { c.final(); metadata(text.size) }] }\n",
+      "source_sha256": "1b015a7ec6f3c9f15369716ba43e90fbcc472437a389ea703dd719b572486c3a",
+      "source_origin": {
+        "kind": "independent L0-derived source; not an ancestor same-graph bridge"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-request-chain-points.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "The two child contexts enter with distinct 10pt and 20pt text-size chains; their current metadata results are [10pt,20pt] in document order.",
+        "Every child counter request records its own actual entry/effective chain; validations use that exact request chain, with resource tuples preserved.",
+        "The two child records remain distinct despite same filtered counter key and same result (0,); neither is replaced by a shared default/final sibling chain."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 34,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 79,
+          "token": "#context"
+        },
+        {
+          "index": 2,
+          "byte_offset": 145,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "c": "heading.where()"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "final_metadata": [
+          {
+            "Length": {
+              "abs_pt_bits": "4024000000000000",
+              "em_bits": "0000000000000000"
+            }
+          },
+          {
+            "Length": {
+              "abs_pt_bits": "4034000000000000",
+              "em_bits": "0000000000000000"
+            }
+          }
+        ]
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-increasing_set",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F08-attempts",
+        "F09-errors-sinks"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let c = counter(heading.where())\n#context c.update(c.final().first() + 1)\n#context metadata(c.final())\n",
+      "source_sha256": "52d0516a09a6dd0c1de02b43db5c070b9ddede021ef6bf5c5044fcf028e9f1e5",
+      "source_origin": {
+        "artifact": {
+          "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+          "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241"
+        },
+        "selector": "cases.increasing_set"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-increasing_set.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        {
+          "assertion": "exact_attempt_numbers",
+          "value": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "assertion": "counter_read_values_by_attempt",
+          "value": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "assertion": "produced_counter_values_by_attempt",
+          "value": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "assertion": "returned_metadata_value",
+          "value": [
+            [
+              4
+            ]
+          ]
+        },
+        "Return the identical document D5 produced while reading I4; no A6 BodyStarted and no exported output from replay on I5; do not return D4.",
+        "Each I1..I5 has exactly one current manual Set event for c and zero automatic heading events; old attempt updates are absent. I0 has no c updates.",
+        {
+          "assertion": "final_request_historical_counter_projection_I0_to_I5",
+          "value": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "Each final diagnostic corresponds to a request actually recorded by the final retained generation; preserve the public vanilla warning order, full history and source spans via the separately pinned CLI oracle. Unrelated requests receive no invented detail.",
+        "Attempt budget is shared with actual pagination/position invalidations; the transcript must not restart numbering or add five inner rounds on a relayout."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 34,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 75,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "c": "heading.where()"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "attempts": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "counter_key_id": "c",
+        "counter_values_read": [
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "counter_values_produced": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
+        "metadata_by_attempt": [
+          [
+            [
+              0
+            ]
+          ],
+          [
+            [
+              1
+            ]
+          ],
+          [
+            [
+              2
+            ]
+          ],
+          [
+            [
+              3
+            ]
+          ],
+          [
+            [
+              4
+            ]
+          ]
+        ],
+        "final_metadata": [
+          [
+            4
+          ]
+        ],
+        "manual_set_events_per_snapshot": 1
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-oscillating_set",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F08-attempts",
+        "F09-errors-sinks"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let c = counter(heading.where())\n#context c.update(if c.final().first() == 0 { 1 } else { 0 })\n#context metadata(c.final())\n",
+      "source_sha256": "f34450405d35b507f6dee155432c37f1bc12b54a59a2e8ceed3e1d2b5e31563b",
+      "source_origin": {
+        "artifact": {
+          "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+          "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241"
+        },
+        "selector": "cases.oscillating_set"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-oscillating_set.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        {
+          "assertion": "exact_attempt_numbers",
+          "value": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "assertion": "counter_read_values_by_attempt",
+          "value": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "assertion": "produced_counter_values_by_attempt",
+          "value": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "assertion": "returned_metadata_value",
+          "value": [
+            [
+              0
+            ]
+          ]
+        },
+        "Return the identical document D5 produced while reading I4; no A6 BodyStarted and no exported output from replay on I5; do not return D4.",
+        "Each I1..I5 has exactly one current manual Set event for c and zero automatic heading events; old attempt updates are absent. I0 has no c updates.",
+        {
+          "assertion": "final_request_historical_counter_projection_I0_to_I5",
+          "value": [
+            0,
+            1,
+            0,
+            1,
+            0,
+            1
+          ]
+        },
+        "Each final diagnostic corresponds to a request actually recorded by the final retained generation; preserve the public vanilla warning order, full history and source spans via the separately pinned CLI oracle. Unrelated requests receive no invented detail.",
+        "Attempt budget is shared with actual pagination/position invalidations; the transcript must not restart numbering or add five inner rounds on a relayout."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 34,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 96,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "c": "heading.where()"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "attempts": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "counter_key_id": "c",
+        "counter_values_read": [
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            0
+          ]
+        ],
+        "counter_values_produced": [
+          [
+            1
+          ],
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            0
+          ],
+          [
+            1
+          ]
+        ],
+        "metadata_by_attempt": [
+          [
+            [
+              0
+            ]
+          ],
+          [
+            [
+              1
+            ]
+          ],
+          [
+            [
+              0
+            ]
+          ],
+          [
+            [
+              1
+            ]
+          ],
+          [
+            [
+              0
+            ]
+          ]
+        ],
+        "final_metadata": [
+          [
+            0
+          ]
+        ],
+        "manual_set_events_per_snapshot": 1
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-nested_producer",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F07-retention",
+        "F08-attempts",
+        "F09-errors-sinks"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let c = counter(heading.where())\n#context [#context c.update(12)]\n#context { assert(c.get() == (12,)); metadata(c.get()) }\n",
+      "source_sha256": "069d28c21f3fb9ab8ba1d9d1d076a222d552b1d624b8124e2d8b3b096a2ecf07",
+      "source_origin": {
+        "artifact": {
+          "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+          "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241"
+        },
+        "selector": "cases.nested_producer"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-nested_producer.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "The outer non-demanding producer retains its ordinary contribution; its real nested context/update is discovered by Content traversal, not source scanning.",
+        "Consumer selected attempt A1 reads empty counter (0,) and may fail its assert; after incorporating ordinary nested producer, candidate counter is (12,). Its next necessary evaluation succeeds with metadata (12,).",
+        "Actual returned metadata is [(12,)]; final has no assertion error. New descendant discovery never resets the attempt budget and exactly one current update contributes 12, not duplicated 24."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 34,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 44,
+          "token": "#context"
+        },
+        {
+          "index": 2,
+          "byte_offset": 67,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "c": "heading.where()"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "final_metadata": [
+          [
+            12
+          ]
+        ]
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-fresh_callback_stable",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F07-retention",
+        "F08-attempts"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let c = counter(heading.where())\n#set heading(numbering: \"1\")\n= A\n#context c.update(n => n + 10)\n= B\n#context { assert(c.get() == (12,)); metadata(c.get()) }\n",
+      "source_sha256": "89ad0aa38fce26b45934dfcdf9c1c80e738517551bb39f0729fa2acaba523693",
+      "source_origin": {
+        "artifact": {
+          "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+          "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241"
+        },
+        "selector": "cases.fresh_callback_stable"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-fresh_callback_stable.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "The producer of c.update(n => n + 10) does not demand c, so its ordinary output and callback Func identity are retained; no reconstruction solely for equality.",
+        "Consumer final metadata is [(12,)]; retained callback is folded only by actual demanded counter readings, with no comparison-driven function invocation.",
+        "The current snapshot contains the two actual automatic heading events and one current manual Func update in document order; no historical duplication."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 67,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 102,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "c": "heading.where()"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "final_metadata": [
+          [
+            12
+          ]
+        ]
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-nan_key_stable_zero",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F07-retention",
+        "F08-attempts",
+        "F09-errors-sinks"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let c = counter(heading.where(level: float.nan))\n#context c.update(12)\n#context { assert(c.get() == (0,)); metadata(c.get()) }\n",
+      "source_sha256": "844270b1e51f24430b3d1ef945827e4d124012cbdc1b39c136be8205bc71370c",
+      "source_origin": {
+        "artifact": {
+          "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+          "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241"
+        },
+        "selector": "cases.nan_key_stable_zero"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-nan_key_stable_zero.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "The selected consumer reads (0,) against I0 and the produced candidate. Its NaN-containing request validates reflexively by identical IEEE bits, while language key association does not attach update12.",
+        "First selected attempt validates and returns metadata [(0,)] without nonconvergence diagnostics; no force-repeat merely because request contains NaN."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 50,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 72,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "c": "heading.where(level: float.nan)"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "attempts": [
+          1
+        ],
+        "final_metadata": [
+          [
+            0
+          ]
+        ]
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-provisional-assert-final-panic",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F08-attempts",
+        "F09-errors-sinks"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let c = counter(heading.where())\n#context c.update(12)\n#context { assert(c.final() == (12,)); panic(\"P1339_FINAL_PANIC\") }\n",
+      "source_sha256": "e3f3bfcf567148e8099cf18d31ae2ba7177ebfc7b88f86d228a9ba28d441f328",
+      "source_origin": {
+        "kind": "independent L0-derived source; not an ancestor same-graph bridge"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-provisional-assert-final-panic.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "Ordinary update producer remains nonselected and contributes 12 only to produced snapshots, never artificially to empty I0.",
+        "Selected A1 consumer records filtered read (0,) before its assertion Err. Candidate (12,) invalidates that observation; the replaced assertion error and its sink are discarded.",
+        "Reevaluation observes (12,), passes assert and reaches the original P1339_FINAL_PANIC; if that recorded read validates, the original panic Err with its full trace is returned unchanged.",
+        "Export is false, document return is None; no provisional assertion survives and no nonconvergence warning downgrades the final panic."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 34,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 56,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "c": "heading.where()"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "final_error_message": "panicked with: P1339_FINAL_PANIC",
+        "forbidden_final_messages": [
+          "assertion failed"
+        ]
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-legacy-sibling-error",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F04-selection",
+        "F08-attempts",
+        "F09-errors-sinks"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let c = counter(heading.where())\n#context panic(\"P1339_LEGACY_SIBLING\")\n#context c.update(12)\n#context c.final()\n",
+      "source_sha256": "804d1621190aa2a405f8b3cbea7ea4710332ee4b59660f407c55ebb78edd2aa9",
+      "source_origin": {
+        "kind": "independent L0-derived source; not an ancestor same-graph bridge"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-legacy-sibling-error.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "The first context reaches no filtered demand; its P1339_LEGACY_SIBLING error remains the ordinary result. Another selected context does not mark it selected or make its error provisional.",
+        "Compilation remains Err with that original complete diagnostic; export false. No extra evaluation of that legacy context is invented to repair it."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 34,
+          "token": "#context"
+        },
+        {
+          "index": 1,
+          "byte_offset": 73,
+          "token": "#context"
+        },
+        {
+          "index": 2,
+          "byte_offset": 95,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "c": "heading.where()"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "final_error_message": "panicked with: P1339_LEGACY_SIBLING",
+        "legacy_error_unselected": true
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    },
+    {
+      "id": "lifecycle-selected-stable-error",
+      "ports": [
+        "retention_actual",
+        "attempt_transcript_actual"
+      ],
+      "matrix_ids": [
+        "F04-selection",
+        "F09-errors-sinks"
+      ],
+      "obligation_ids": [
+        "W05",
+        "W07",
+        "W08",
+        "W09",
+        "W10"
+      ],
+      "source": "#let c = counter(heading.where())\n#context c.at(<missing>)\n",
+      "source_sha256": "37de5f9516959e18b80160c7ffe66c1a8b9c4b1a00b2268b3eb9f602e67e60e3",
+      "source_origin": {
+        "kind": "independent L0-derived source; not an ancestor same-graph bridge"
+      },
+      "execution": {
+        "entrypoint": "actual paginated compilation facade and pipeline",
+        "named_source_id": "p1339-ab-selected-stable-error.typ",
+        "target": "paged",
+        "profiles": [
+          "default",
+          "html",
+          "a11y",
+          "html+a11y"
+        ],
+        "orders": [
+          "normal",
+          "repeat",
+          "reverse"
+        ],
+        "world": "fresh immutable memory World per compilation; same instance for all attempts and replay",
+        "metrics": "Actual paginated owner FallbackFontMetrics injected by compile_to_paged_document_full_error_and_features and its real helpers; preserve logical instance/provenance across body and replay. Do not replace with test FixedMetrics.",
+        "element_registry": "empty"
+      },
+      "observation_lookup": "Use exact source spans and actual parent-child traversal to locate context bodies; never identify generations only by numeric ContextBlock id or text.",
+      "predicates": [
+        "The c.at(<missing>) demand marks the context selected before label resolution fails. The recorded error includes the missing label, source span and ordered trace.",
+        "Revalidation against the same empty label registry may return Ok(true), but the body remains its original Err and export remains false.",
+        "No callback, successful content contribution or nonconvergence warning is fabricated to replace the persistent error."
+      ],
+      "phase": {
+        "freeze": "C",
+        "execute": "F",
+        "preseal_state": "NOT_EXECUTED_PRESEAL",
+        "runtime_credit": 0
+      },
+      "context_coordinates": [
+        {
+          "index": 0,
+          "byte_offset": 34,
+          "token": "#context"
+        }
+      ],
+      "explicit_projections": {
+        "contexts": "Only actual context generations whose Source spans originate at the listed context_coordinates, including their real descendant edges.",
+        "metadata": "Actual current MetadataStore entries belonging to this source, in document order. No metadata assertion wrapper or added context is used.",
+        "counter_keys": {
+          "c": "heading.where()"
+        },
+        "projection_call_context": "Separate fresh EvalContext/Engine for observation only, same actual snapshot/resources and complete counter owner. Do not register observation-probe calls in product read records or publish their sinks. Probe counter keys are declared below, never all keys.",
+        "events": "All listed DTO transitions for this source across ordinary discovery, actual selected attempts and validations, with no speculative extra transitions."
+      },
+      "typed_predicates": {
+        "final_error_message": "label `<missing>` does not exist in the document",
+        "stable_error_validation": true
+      },
+      "prose_status": "Retained predecessor rationale. Machine checks use typed_predicates + pinned predicate program; additional structural obligations are explicitly enumerated in structural_witnesses."
+    }
+  ],
+  "translation_limits": [
+    "Source strings and assertions are frozen inputs for this component. Adapter may only construct real inputs, invoke actual operations and project their real observations.",
+    "No trial execution until the single aggregate batch manifest exists. No future private operation earns preseal runtime credit.",
+    "Any inaccessible event, unsupported constructor, ambiguous source generation or inconsistent chain carrier must be reported as a concrete binding gap before seal, never inferred from expected JSON.",
+    "Separate compilations/profiles get separate memory Worlds and records. Cross-compilation resource/record reuse is prohibited; structural audit must trace all eight resource_tuple members and request-chain capture to real owners.",
+    "These scenarios alone are not a declaration of complete W/F coverage; the exhaustive field/clause witness map is a separate required component of the same batch."
+  ],
+  "predecessor": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-retention-lifecycle-typed-r2.json",
+    "sha256": "a1f5cf0e93723dde9c3bb317929e2e50fcdbc839475ec1d961fc661567a422bb"
+  },
+  "predicate_program": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+    "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+  },
+  "predicate_precedence": "All original 50 propositions remain conjunctive. Each exact assertion and narrow SW is mapped below; no prose rationale removes an obligation. Future runtime and actual-source proof remain NOT_EXECUTED_PRESEAL.",
+  "review_input": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-batch1-component-review-r1.md",
+    "sha256": "6208a57a61fc5c4b5245477704adeffa90113a6d6e8be62694aa5a67eceeb035"
+  },
+  "structural_witnesses": [
+    {
+      "id": "SW-F08-shared-pagination-budget",
+      "phase": "F",
+      "mandatory": true,
+      "owners": [
+        "03_infra/src/pipeline.rs",
+        "01_core/src/compiler/eval/mod.rs"
+      ],
+      "input": "Actual candidate source and compiled paginated callgraph, frozen L0 infra/pipeline.md paragraphs naming Ak/Ik and shared relayout ceiling.",
+      "required_evidence": {
+        "budget_storage": "Exact path/line/symbol for the single selected-attempt budget/counter and its owner lifetime.",
+        "initializations": "Exhaustive source-backed list of writes initializing/reinitializing that budget; each with path/line and containing function.",
+        "retry_edges": "Exhaustive edges that retry after contextual invalidation, page count, PageStore, positions, or nested discovery; exact caller/callee/callsite and budget passed/read/written.",
+        "cycles": "Enumerate every actual callgraph cycle/SCC reachable from paginated compile through those retry edges; list storage identity read/updated by each.",
+        "return_dataflow": "Exact def-use chain from Dk created with I(k-1) to returned document; final history I0..I5; no I5 projection/replay output exported."
+      },
+      "assertions": [
+        {
+          "op": "every",
+          "subject": "initializations",
+          "predicate": "dominates first A1 and is outside all retry cycles; no reset on layout/position/nested edge"
+        },
+        {
+          "op": "every",
+          "subject": "retry_edges",
+          "predicate": "selected semantic attempt budget storage is identical across contextual and pagination transitions"
+        },
+        {
+          "op": "every",
+          "subject": "cycles",
+          "predicate": "no path can complete A6 or bypass the shared ceiling by recursively starting another private five-attempt loop"
+        },
+        {
+          "op": "equals",
+          "subject": "at_ceiling.return_document_def",
+          "expected": "D5 created reading I4"
+        },
+        {
+          "op": "equals",
+          "subject": "at_ceiling.diagnostic_snapshot_order",
+          "expected": [
+            "I0",
+            "I1",
+            "I2",
+            "I3",
+            "I4",
+            "I5"
+          ]
+        }
+      ],
+      "failure_policy": "Missing edge/initialization or unsupported proof is a mandatory final failure, not a prose coverage claim. The actual increasing/oscillating DTO tests are conjunctive; this witness is not inferred from their page count."
+    },
+    {
+      "id": "SW-F09-sink-error-lineage",
+      "phase": "F",
+      "mandatory": true,
+      "owners": [
+        "03_infra/src/pipeline.rs",
+        "01_core/src/compiler/eval/mod.rs"
+      ],
+      "required_evidence": "Exhaustive actual sink creation, replay sink disposal, replaced-generation disposal, retained publication and Err-to-return paths with def-use for complete SourceDiagnostic vectors.",
+      "assertions": [
+        "No discarded validation or invalidated-generation sink reaches exported publication",
+        "Each retained sink publication edge is reached once",
+        "Pending final Err dominates export rejection without sorting or textual reclassification",
+        "No Unproven branch constructs vanilla nonconvergence warning"
+      ],
+      "conjunctive_runtime": "All twelve actual DTO scenarios and full public diagnostic oracles; missing real transitions fail."
+    },
+    {
+      "id": "SW-LC-capture-zero",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For retained-sibling-growth context 0, map actual stable.final result -> .first -> local captured -> closure captured environment field -> metadata Value::Func. Require the environment stores Int(0) from that exact read, without substituting a fresh closure on A2..A5.",
+      "required_evidence": "Exact callsite/AST span and all assignment/capture construction def-use edges; actual capture field name/type and immutable lifetime; link to runtime request_id, capture_id and func_id. A constant unrelated zero, missing edge or reconstructed closure fails.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-retained-sibling-growth",
+          "predicate_index": 0
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-capture-replacement",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For replaced-capture-descendant outer context 0 and child context 1, each actual changing.final read 0..4 reaches the new child captured environment as the same typed Int. Child source identity is fixed; resource capture identities are five distinct runtime identities.",
+      "required_evidence": "Enumerate actual lexical-binding capture construction and producer replacement paths with path/line; bind each of the five body execution_ids to its captured field and originating outer generation. Require no stale capture, not merely distinct producer IDs or metadata values.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-replaced-capture-descendant",
+          "predicate_index": 0
+        },
+        {
+          "case_id": "lifecycle-replaced-capture-descendant",
+          "predicate_index": 3
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-chain-replacement",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For replaced-chain-descendant, the actual style setter computes (10 + captured)*1pt from outer reads 0..4. Actual descendant entry chain text-size projection is respectively 10/11/12/13/14pt, and each real request uses that entry chain.",
+      "required_evidence": "Exact style delta construction, push, descendant capture and request-record/replay def-use path/line. Bind actual entry_chain_id to the actual StyleChain::size projection and Int capture from the same outer generation; all five assignments must appear. Metadata alone does not discharge chain identity or projection.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-replaced-chain-descendant",
+          "predicate_index": 0
+        },
+        {
+          "case_id": "lifecycle-replaced-chain-descendant",
+          "predicate_index": 3
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-sibling-chain-sizes",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For request-chain-points child contexts 1 and 2, actual entry StyleChain text-size projects 10pt and 20pt in that order. Distinct actual records share the same filtered key and result but cannot be interned by that equality.",
+      "required_evidence": "Map both set text source spans through real push and descendant entry capture; quote actual record insertion key/ownership and request chain paths; bind each chain_id to actual 10pt/20pt projection. Reject any final/default-chain substitution or record keyed solely by equal request.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-request-chain-points",
+          "predicate_index": 0
+        },
+        {
+          "case_id": "lifecycle-request-chain-points",
+          "predicate_index": 2
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-invocation-origin-completeness",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For all lifecycle fixtures, FunctionInvoked must exhaust all actual callback invocations reachable from private comparison, validation, diagnosis and counter folding. Comparator/category/reflexivity dispatch invokes no Func; counter callbacks run only on actual counter-fold operations.",
+      "required_evidence": "Enumerate callsites to actual Func invocation in reachable comparison/validation/diagnosis/fold callgraph; every callsite must have one truthful passive origin hook. Empty event list without this exhaustive callsite audit fails. Counter fold edges retain operation provenance; test-projection callbacks cannot leak to the product.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-retained-sibling-growth",
+          "predicate_index": 3
+        },
+        {
+          "case_id": "lifecycle-fresh_callback_stable",
+          "predicate_index": 1
+        },
+        {
+          "case_id": "lifecycle-selected-stable-error",
+          "predicate_index": 2
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-final-request-diagnostic-lineage",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For increasing_set and oscillating_set, every generated final request diagnostic is for a request in the final current generation. The actual diagnosis replays that request against I0,I1,I2,I3,I4,I5 in order; no unrelated request detail or fabricated history.",
+      "required_evidence": "Exact final retained record -> request iterator -> historical snapshots -> SourceDiagnostic vector def-use, with snapshot/order and request identity at each edge. Enumerate all diagnostic append sites and prove their request belongs to final current records. Conjoin exact pinned CLI equal/different raw diagnostic oracles for warning bytes/order/spans.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-increasing_set",
+          "predicate_index": 6
+        },
+        {
+          "case_id": "lifecycle-increasing_set",
+          "predicate_index": 7
+        },
+        {
+          "case_id": "lifecycle-oscillating_set",
+          "predicate_index": 6
+        },
+        {
+          "case_id": "lifecycle-oscillating_set",
+          "predicate_index": 7
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone.",
+      "exact_cli_conjunct": {
+        "artifact": {
+          "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-cli-oracles.json",
+          "sha256": "9b12c239447bc2684dae8987fd8b554218ef49812efbdecfb6425d1090300512"
+        },
+        "selectors": [
+          "oracles[id=stabilization-boundaries-increasing_set-equal]",
+          "oracles[id=stabilization-boundaries-increasing_set-different]",
+          "oracles[id=stabilization-boundaries-oscillating_set-equal]",
+          "oracles[id=stabilization-boundaries-oscillating_set-different]"
+        ],
+        "channels": [
+          "exit",
+          "stdout",
+          "stderr",
+          "artifact_presence"
+        ],
+        "normalization": "none"
+      }
+    },
+    {
+      "id": "SW-LC-ordinary-nested-producer",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For nested_producer source contexts 0 and 1, neither update construction reaches a filtered read. Their actual ordinary content is retained and the nested context/update is obtained by traversal of produced Content, not scanning source/AST for demand.",
+      "required_evidence": "Quote every actual registration/discovery callsite and closed Content arm reached by this nested source; trace ordinary output/producer identity through selected-attempt seed and descendant insertion. Prove selection flags false at both construction-only contexts and one actual Set(12) contribution in each produced store. Reject recreated ordinary producer or duplicate nested update.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-nested_producer",
+          "predicate_index": 0
+        },
+        {
+          "case_id": "lifecycle-nested_producer",
+          "predicate_index": 2
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-nested-counter-transition",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For nested_producer consumer context 2, the first selected read is [0] from empty I0; the next necessary evaluation reads [12] after one retained ordinary Set(12). It succeeds with metadata [12]; no stale assertion survives.",
+      "required_evidence": "Bind consumer RequestRecorded/BodyCompleted execution IDs and actual snapshot projections to source get/assert/get spans. Enumerate registry fold events, requiring exactly one Set(12), no automatic heading event and no historical duplicate. Empty I0 construction and next invalidation edge must be concrete def-use, not page-count inference.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-nested_producer",
+          "predicate_index": 1
+        },
+        {
+          "case_id": "lifecycle-nested_producer",
+          "predicate_index": 2
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-ordinary-func-retention",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For fresh_callback_stable context 0, c.update creates but does not demand the filtered counter. Its ordinary callback Func and complete output remain the exact immutable original through all selected attempts.",
+      "required_evidence": "Bind discovery output, callback Func identity and captured environment to actual current contribution/store event IDs; enumerate writes/reconstruction branches and prove none recreate or re-evaluate that producer solely for equality. Show construction route never reaches filtered demand recorder.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-fresh_callback_stable",
+          "predicate_index": 0
+        },
+        {
+          "case_id": "lifecycle-fresh_callback_stable",
+          "predicate_index": 1
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-fresh-event-order",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For fresh_callback_stable, each actual current store event order is automatic heading A, manual Func update n=>n+10, automatic heading B; exactly three events, no older generation duplication.",
+      "required_evidence": "List actual Introspector store event traversal entries with Location/Span/action and producer generation; show closed automatic/manual classification paths and exact document-order iterator. Actual fold from [0] uses Step(1), retained Func(+10), Step(1) and yields [12]. Reject order sorting by callback identity or repeated old event.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-fresh_callback_stable",
+          "predicate_index": 2
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-nan-language-vs-request",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For nan_key_stable_zero, original and replayed request contain the same NaN IEEE bits and the private relation is Same, while language counter-key matching does not associate the ordinary update12 with that NaN key. Both actual read projections are [0].",
+      "required_evidence": "Map exact request field bits through relation leaf and recursion; map the distinct language selector association callsite and nonassociation branch. Bind actual counter read/replay results and I0/produced stores. No unification of these two relations, zero special-case fallback or forced retry is allowed.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-nan_key_stable_zero",
+          "predicate_index": 0
+        },
+        {
+          "case_id": "lifecycle-nan_key_stable_zero",
+          "predicate_index": 1
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-provisional-error-transition",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For provisional-assert-final-panic, construction-only context 0 remains ordinary and contributes one Set(12) only after empty I0. Consumer A1 records [0] before assertion Err; validation against [12] is false, invalidation discards that generation and its sink; next necessary execution reads [12], passes assert and produces original panic Err.",
+      "required_evidence": "Bind each request/body/validation/invalidation/sink ID at exact source spans and enumerate the two real control-flow branches. Require complete provisional Err be absent from final retained error and publication; show ordinary update cannot populate I0. Require recorded value [12] precedes panic on replacement, without evaluation after panic.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-provisional-assert-final-panic",
+          "predicate_index": 0
+        },
+        {
+          "case_id": "lifecycle-provisional-assert-final-panic",
+          "predicate_index": 1
+        },
+        {
+          "case_id": "lifecycle-provisional-assert-final-panic",
+          "predicate_index": 2
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-final-error-trace-preservation",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For all three error fixtures, final complete diagnostic vectors are the actual retained body Err without sorting, textual reclassification, trace rewriting or omission. Persistent error never becomes document output/export.",
+      "required_evidence": "Exact body Result -> retained contribution -> final Result -> export rejection def-use; audit every map/filter/diagnostic append on that path. For legacy-sibling-error the chosen origin must be context 0 ordinary execution; for provisional panic the replacement execution; for stable missing label the originally recorded body error.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-provisional-assert-final-panic",
+          "predicate_index": 2
+        },
+        {
+          "case_id": "lifecycle-provisional-assert-final-panic",
+          "predicate_index": 3
+        },
+        {
+          "case_id": "lifecycle-legacy-sibling-error",
+          "predicate_index": 0
+        },
+        {
+          "case_id": "lifecycle-legacy-sibling-error",
+          "predicate_index": 1
+        },
+        {
+          "case_id": "lifecycle-selected-stable-error",
+          "predicate_index": 1
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    },
+    {
+      "id": "SW-LC-selection-before-missing-label",
+      "phase": "F",
+      "mandatory": true,
+      "exact_claim": "For selected-stable-error, filtered c.at demand sets selection and records the request before label resolution fails; stored Err includes the actual missing-label diagnostic Span and ordered trace. Revalidation of this same error can return Ok(true).",
+      "required_evidence": "Enumerate real method dispatch, selection write, request registration, label lookup and Err propagation callsites with ordering/dominance. Bind actual RequestRecorded span/typed label/error fields and actual ValidationCompleted result. Prove no pre-resolution early return bypasses selection/recording.",
+      "affected_propositions": [
+        {
+          "case_id": "lifecycle-selected-stable-error",
+          "predicate_index": 0
+        }
+      ],
+      "evidence_format": {
+        "actual_source_edges": "array of {path,sha256,line,symbol,caller,callee,def,use,branch}; nonempty and exhaustive for named route",
+        "runtime_bindings": "array of {case_id,profile,order,execution_id,event_sequence,field,actual_source_edge_ref}; all four profiles and three orders when the claim binds runtime identities",
+        "audit": "independent verifier accepted/rejected with counterexample, never author self-attestation"
+      },
+      "failure_policy": "Any absent edge, contradictory binding, uncovered branch or Unknown fails this mandatory final witness; no inferred identity from producer ID/metadata/address alone."
+    }
+  ],
+  "authoring_corrections": [
+    "Same aggregate batch1: v3 adds explicit capture/entry-chain identities, stable read vectors, causal invalidation order, actual published sinks, complete final body-error equality and exact missing-label predicates. No semantic process or new contract revision."
+  ],
+  "original_lifecycle_predicate_map": [
+    {
+      "case_id": "lifecycle-retained-sibling-growth",
+      "predicate_index": 0,
+      "original_predicate": "The first context is selected by stable.final; its read is (0,) in every snapshot. Its A1 metadata closure captures Int(0).",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 28,
+          "assertion_label": "V3-stable-zero-every-read-and-candidate",
+          "exact_statement": "require(all(e['counter_values']['stable'] == [0] for e in starts + candidates), 'V3-stable-zero-every-read-and-candidate')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 31,
+          "assertion_label": "V3-stable-requests-exist",
+          "exact_statement": "require(selected and all(requests(b) for b in selected), 'V3-stable-requests-exist')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 32,
+          "assertion_label": "V3-stable-request-results-zero",
+          "exact_statement": "require(all(r['result'] == {'kind':'Ok','value':[0]} for b in selected for r in requests(b)), 'V3-stable-request-results-zero')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-capture-zero"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-retained-sibling-growth",
+      "predicate_index": 1,
+      "original_predicate": "The changing-key sibling requires A1..A5; its produced counter values are 1,2,3,4,5. The stable-key output generation from A1 is retained unchanged through return D5.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 91,
+          "assertion_label": "exact attempt sequence",
+          "exact_statement": "require([x['attempt'] for x in starts]==expected['attempts'], 'exact attempt sequence')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 94,
+          "assertion_label": "actual produced counter projections",
+          "exact_statement": "require([at('CandidateBuilt',k)['counter_values'][key] for k in expected['attempts']]==expected['counter_values_produced'], 'actual produced counter projections')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v2.py",
+            "sha256": "b7115b78a61d4b07391f46d50d9b0ffba0244a9571f7b7eb48f617f8c6517209"
+          },
+          "line": 109,
+          "assertion_label": "explicit retention A2..A5",
+          "exact_statement": "require([e['attempt'] for e in retained]==[2,3,4,5],'explicit retention A2..A5')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 114,
+          "assertion_label": "original output present at return",
+          "exact_statement": "require(original['output_id'] in final['current_output_ids'],'original output present at return')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-retained-sibling-growth",
+      "predicate_index": 2,
+      "original_predicate": "Exactly one real BodyStarted for the stable first context among A1..A5; its captured Func and complete output/request/sink identities at D5 equal their A1 identities. Discovery execution is separate and discarded.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 111,
+          "assertion_label": "stable producer executes once after discovery",
+          "exact_statement": "require(len(selected)==1,'stable producer executes once after discovery')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 63,
+          "assertion_label": "retain original output",
+          "exact_statement": "require(kept['output_id']==completion['output_id'], 'retain original output')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 64,
+          "assertion_label": "retain original embedded funcs",
+          "exact_statement": "require(kept['func_ids']==completion['func_ids'], 'retain original embedded funcs')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 65,
+          "assertion_label": "retain original sink",
+          "exact_statement": "require(kept['sink_id']==completion['sink_id'], 'retain original sink')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 68,
+          "assertion_label": "retain complete original request sequence",
+          "exact_statement": "require(kept['request_ids']==expected, 'retain complete original request sequence')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 66,
+          "assertion_label": "retain causal producer/capture/location/chain/world/metrics/target/features",
+          "exact_statement": "require(kept['resources']==start['resources'], 'retain causal producer/capture/location/chain/world/metrics/target/features')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v2.py",
+            "sha256": "b7115b78a61d4b07391f46d50d9b0ffba0244a9571f7b7eb48f617f8c6517209"
+          },
+          "line": 102,
+          "assertion_label": "selected discovery discarded before seed",
+          "exact_statement": "require(dispositions[discovery['sink_id']][0]['disposition']=='discarded','selected discovery discarded before seed')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-retained-sibling-growth",
+      "predicate_index": 3,
+      "original_predicate": "No function is invoked merely to compare or certify its identity; private comparison/replay hooks must show no body invocation originating from comparator dispatch.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 136,
+          "assertion_label": "no function invocation for equality/category",
+          "exact_statement": "require(not any(x['origin']=='comparator_category_test' for x in rows('FunctionInvoked')), 'no function invocation for equality/category')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-invocation-origin-completeness"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-replaced-capture-descendant",
+      "predicate_index": 0,
+      "original_predicate": "Changing key reads per A1..A5 are 0,1,2,3,4; outer selected producer captures those exact Int values.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 97,
+          "assertion_label": "actual read counter projections",
+          "exact_statement": "require([at('AttemptStarted',k)['counter_values'][key] for k in expected['attempts']]==expected['counter_values_read'], 'actual read counter projections')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-capture-replacement"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-replaced-capture-descendant",
+      "predicate_index": 1,
+      "original_predicate": "Child selected stable-key query is always (0,), yet each replacement of outer producer invalidates the old child generation and its record before new child evaluation.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 32,
+          "assertion_label": "V3-stable-request-results-zero",
+          "exact_statement": "require(all(r['result'] == {'kind':'Ok','value':[0]} for b in selected for r in requests(b)), 'V3-stable-request-results-zero')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 38,
+          "assertion_label": "V3-old-child-invalidated-before-new-body",
+          "exact_statement": "require(any(i['sequence'] < new['sequence'] for i in invalidations), 'V3-old-child-invalidated-before-new-body')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 71,
+          "assertion_label": "invalidate actual descendant set, no omissions",
+          "exact_statement": "require(invalidation['descendant_ids']==invalidation['actual_descendant_ids_before_replacement'], 'invalidate actual descendant set, no omissions')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 74,
+          "assertion_label": "invalidated descendant never reused",
+          "exact_statement": "require(not set(invalidation['descendant_ids']) & set(candidate['current_generation_ids']), 'invalidated descendant never reused')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-replaced-capture-descendant",
+      "predicate_index": 2,
+      "original_predicate": "Current metadata values per D1..D5 are exactly [0],[1],[2],[3],[4]; final is [4], never [0] or [5]. No earlier child metadata/update remains.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 99,
+          "assertion_label": "actual metadata projection for each Dk",
+          "exact_statement": "require([at('CandidateBuilt',k)['metadata_values'] for k in expected['attempts']]==expected['metadata_by_attempt'], 'actual metadata projection for each Dk')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 101,
+          "assertion_label": "actual final metadata",
+          "exact_statement": "require(final['metadata_values']==expected['final_metadata'], 'actual final metadata')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 106,
+          "assertion_label": "one current update, not historical accumulation",
+          "exact_statement": "require(len(selected)==expected['manual_set_events_per_snapshot'], 'one current update, not historical accumulation')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 43,
+          "assertion_label": "no stale update generation",
+          "exact_statement": "require(event['producer_generation_id'] in candidate['current_generation_ids'], 'no stale update generation')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-replaced-capture-descendant",
+      "predicate_index": 3,
+      "original_predicate": "Child body source span is the same across replacements, while real producer/capture identities and generation provenance distinguish them; identical source/body or page count cannot certify reuse.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 119,
+          "assertion_label": "child re-evaluates each actual replacement",
+          "exact_statement": "require([x['attempt'] for x in selected]==expected['attempts'],'child re-evaluates each actual replacement')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 120,
+          "assertion_label": "different child generation, even equal source",
+          "exact_statement": "require(len({x['generation_id'] for x in selected})==len(selected),'different child generation, even equal source')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 121,
+          "assertion_label": "actual child producers replaced",
+          "exact_statement": "require(len({x['resources']['producer_id'] for x in selected})==len(selected),'actual child producers replaced')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 34,
+          "assertion_label": "V3-replacement-capture-identities-distinct",
+          "exact_statement": "require(len({b['resources']['capture_id'] for b in selected}) == 5, 'V3-replacement-capture-identities-distinct')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 35,
+          "assertion_label": "V3-replacement-parent-generations-distinct",
+          "exact_statement": "require(len({b['parent_generation_id'] for b in selected}) == 5 and all(b['parent_generation_id'] is not None for b in selected), 'V3-replacement-parent-generations-distinct')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 40,
+          "assertion_label": "V3-child-request-capture-resources-at-boundary",
+          "exact_statement": "require(all(r['resources'] == b['resources'] for r in requests(b)), 'V3-child-request-capture-resources-at-boundary')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-capture-replacement"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-replaced-chain-descendant",
+      "predicate_index": 0,
+      "original_predicate": "Outer changing-key reads are 0,1,2,3,4; new descendant entry text-size chains are 10pt,11pt,12pt,13pt,14pt respectively.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 97,
+          "assertion_label": "actual read counter projections",
+          "exact_statement": "require([at('AttemptStarted',k)['counter_values'][key] for k in expected['attempts']]==expected['counter_values_read'], 'actual read counter projections')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 42,
+          "assertion_label": "V3-replacement-entry-chain-identities-distinct",
+          "exact_statement": "require(len({b['resources']['entry_chain_id'] for b in selected}) == 5, 'V3-replacement-entry-chain-identities-distinct')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-chain-replacement"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-replaced-chain-descendant",
+      "predicate_index": 1,
+      "original_predicate": "Child stable-key read remains (0,), but every replaced outer producer/chain invalidates its prior descendants and preserves no stale request record.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 32,
+          "assertion_label": "V3-stable-request-results-zero",
+          "exact_statement": "require(all(r['result'] == {'kind':'Ok','value':[0]} for b in selected for r in requests(b)), 'V3-stable-request-results-zero')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 38,
+          "assertion_label": "V3-old-child-invalidated-before-new-body",
+          "exact_statement": "require(any(i['sequence'] < new['sequence'] for i in invalidations), 'V3-old-child-invalidated-before-new-body')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 74,
+          "assertion_label": "invalidated descendant never reused",
+          "exact_statement": "require(not set(invalidation['descendant_ids']) & set(candidate['current_generation_ids']), 'invalidated descendant never reused')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v2.py",
+            "sha256": "b7115b78a61d4b07391f46d50d9b0ffba0244a9571f7b7eb48f617f8c6517209"
+          },
+          "line": 85,
+          "assertion_label": "every actual registered request replayed in original order",
+          "exact_statement": "require([r['request_id'] for r in v['replayed_requests']]==expected_ids,'every actual registered request replayed in original order')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-replaced-chain-descendant",
+      "predicate_index": 2,
+      "original_predicate": "Actual metadata in D1..D5 is [10pt],[11pt],[12pt],[13pt],[14pt], typed Length, not text; final D5 metadata is [14pt].",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 99,
+          "assertion_label": "actual metadata projection for each Dk",
+          "exact_statement": "require([at('CandidateBuilt',k)['metadata_values'] for k in expected['attempts']]==expected['metadata_by_attempt'], 'actual metadata projection for each Dk')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 101,
+          "assertion_label": "actual final metadata",
+          "exact_statement": "require(final['metadata_values']==expected['final_metadata'], 'actual final metadata')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-replaced-chain-descendant",
+      "predicate_index": 3,
+      "original_predicate": "Chain and capture identity changes are observed at real BodyStarted/RequestRecorded boundaries, not inferred from metadata alone.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 42,
+          "assertion_label": "V3-replacement-entry-chain-identities-distinct",
+          "exact_statement": "require(len({b['resources']['entry_chain_id'] for b in selected}) == 5, 'V3-replacement-entry-chain-identities-distinct')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 34,
+          "assertion_label": "V3-replacement-capture-identities-distinct",
+          "exact_statement": "require(len({b['resources']['capture_id'] for b in selected}) == 5, 'V3-replacement-capture-identities-distinct')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 40,
+          "assertion_label": "V3-child-request-capture-resources-at-boundary",
+          "exact_statement": "require(all(r['resources'] == b['resources'] for r in requests(b)), 'V3-child-request-capture-resources-at-boundary')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 43,
+          "assertion_label": "V3-child-request-actual-entry-chain",
+          "exact_statement": "require(all(r['chain_id'] == b['resources']['entry_chain_id'] for b in selected for r in requests(b)), 'V3-child-request-actual-entry-chain')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-chain-replacement"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-request-chain-points",
+      "predicate_index": 0,
+      "original_predicate": "The two child contexts enter with distinct 10pt and 20pt text-size chains; their current metadata results are [10pt,20pt] in document order.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 101,
+          "assertion_label": "actual final metadata",
+          "exact_statement": "require(final['metadata_values']==expected['final_metadata'], 'actual final metadata')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 48,
+          "assertion_label": "V3-sibling-entry-chains-disjoint",
+          "exact_statement": "require({b['resources']['entry_chain_id'] for b in first}.isdisjoint({b['resources']['entry_chain_id'] for b in second}), 'V3-sibling-entry-chains-disjoint')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-sibling-chain-sizes"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-request-chain-points",
+      "predicate_index": 1,
+      "original_predicate": "Every child counter request records its own actual entry/effective chain; validations use that exact request chain, with resource tuples preserved.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 50,
+          "assertion_label": "V3-sibling-request-exists",
+          "exact_statement": "require(requests(b), 'V3-sibling-request-exists')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 51,
+          "assertion_label": "V3-sibling-request-chain-and-zero-result",
+          "exact_statement": "require(all(r['chain_id'] == b['resources']['entry_chain_id'] and r['result'] == {'kind':'Ok','value':[0]} for r in requests(b)), 'V3-sibling-request-chain-and-zero-result')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 55,
+          "assertion_label": "replay exact request chain, not final chain",
+          "exact_statement": "require(replay['chain_id']==original['chain_id'], 'replay exact request chain, not final chain')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 56,
+          "assertion_label": "replay exact request resources",
+          "exact_statement": "require(replay['resources']==original['resources'], 'replay exact request resources')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-request-chain-points",
+      "predicate_index": 2,
+      "original_predicate": "The two child records remain distinct despite same filtered counter key and same result (0,); neither is replaced by a shared default/final sibling chain.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 47,
+          "assertion_label": "V3-sibling-record-generations-disjoint",
+          "exact_statement": "require({b['generation_id'] for b in first}.isdisjoint({b['generation_id'] for b in second}), 'V3-sibling-record-generations-disjoint')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 48,
+          "assertion_label": "V3-sibling-entry-chains-disjoint",
+          "exact_statement": "require({b['resources']['entry_chain_id'] for b in first}.isdisjoint({b['resources']['entry_chain_id'] for b in second}), 'V3-sibling-entry-chains-disjoint')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 51,
+          "assertion_label": "V3-sibling-request-chain-and-zero-result",
+          "exact_statement": "require(all(r['chain_id'] == b['resources']['entry_chain_id'] and r['result'] == {'kind':'Ok','value':[0]} for r in requests(b)), 'V3-sibling-request-chain-and-zero-result')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-sibling-chain-sizes"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-increasing_set",
+      "predicate_index": 0,
+      "original_predicate": {
+        "assertion": "exact_attempt_numbers",
+        "value": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 91,
+          "assertion_label": "exact attempt sequence",
+          "exact_statement": "require([x['attempt'] for x in starts]==expected['attempts'], 'exact attempt sequence')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-increasing_set",
+      "predicate_index": 1,
+      "original_predicate": {
+        "assertion": "counter_read_values_by_attempt",
+        "value": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 97,
+          "assertion_label": "actual read counter projections",
+          "exact_statement": "require([at('AttemptStarted',k)['counter_values'][key] for k in expected['attempts']]==expected['counter_values_read'], 'actual read counter projections')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-increasing_set",
+      "predicate_index": 2,
+      "original_predicate": {
+        "assertion": "produced_counter_values_by_attempt",
+        "value": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 94,
+          "assertion_label": "actual produced counter projections",
+          "exact_statement": "require([at('CandidateBuilt',k)['counter_values'][key] for k in expected['attempts']]==expected['counter_values_produced'], 'actual produced counter projections')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-increasing_set",
+      "predicate_index": 3,
+      "original_predicate": {
+        "assertion": "returned_metadata_value",
+        "value": [
+          [
+            4
+          ]
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 101,
+          "assertion_label": "actual final metadata",
+          "exact_statement": "require(final['metadata_values']==expected['final_metadata'], 'actual final metadata')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-increasing_set",
+      "predicate_index": 4,
+      "original_predicate": "Return the identical document D5 produced while reading I4; no A6 BodyStarted and no exported output from replay on I5; do not return D4.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 57,
+          "assertion_label": "V3-return-at-A5",
+          "exact_statement": "require(final['attempt'] == 5, 'V3-return-at-A5')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 56,
+          "assertion_label": "V3-no-A6-body",
+          "exact_statement": "require(not any(b['attempt'] > 5 for b in rows('BodyStarted')), 'V3-no-A6-body')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 85,
+          "assertion_label": "return actual current Dk",
+          "exact_statement": "require(final['document_id']==at('CandidateBuilt',final['attempt'])['document_id'], 'return actual current Dk')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 38,
+          "assertion_label": "Ak reads I(k-1)",
+          "exact_statement": "require(start['read_snapshot_id']==at('CandidateBuilt',k-1)['snapshot_id'], 'Ak reads I(k-1)')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-F08-shared-pagination-budget"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-increasing_set",
+      "predicate_index": 5,
+      "original_predicate": "Each I1..I5 has exactly one current manual Set event for c and zero automatic heading events; old attempt updates are absent. I0 has no c updates.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 58,
+          "assertion_label": "V3-one-current-Set-zero-automatic-events",
+          "exact_statement": "require(all(len(c['counter_events']) == 1 and c['counter_events'][0]['action']['kind'] == 'Set' for c in candidates), 'V3-one-current-Set-zero-automatic-events')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 36,
+          "assertion_label": "I0 observational stores empty",
+          "exact_statement": "require(start['observational_stores_empty'] is True, 'I0 observational stores empty')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 43,
+          "assertion_label": "no stale update generation",
+          "exact_statement": "require(event['producer_generation_id'] in candidate['current_generation_ids'], 'no stale update generation')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-increasing_set",
+      "predicate_index": 6,
+      "original_predicate": {
+        "assertion": "final_request_historical_counter_projection_I0_to_I5",
+        "value": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 55,
+          "assertion_label": "V3-exact-historical-counter-projection-I0-I5",
+          "exact_statement": "require(history == [expected['counter_values_read'][0]] + expected['counter_values_produced'], 'V3-exact-historical-counter-projection-I0-I5')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-final-request-diagnostic-lineage"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-increasing_set",
+      "predicate_index": 7,
+      "original_predicate": "Each final diagnostic corresponds to a request actually recorded by the final retained generation; preserve the public vanilla warning order, full history and source spans via the separately pinned CLI oracle. Unrelated requests receive no invented detail.",
+      "typed_assertions": [],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-final-request-diagnostic-lineage"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-increasing_set",
+      "predicate_index": 8,
+      "original_predicate": "Attempt budget is shared with actual pagination/position invalidations; the transcript must not restart numbering or add five inner rounds on a relayout.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 30,
+          "assertion_label": "no attempt reset",
+          "exact_statement": "require([x['attempt'] for x in starts] == list(range(1,len(starts)+1)), 'no attempt reset')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 31,
+          "assertion_label": "shared ceiling, never A6",
+          "exact_statement": "require(len(starts)<=5, 'shared ceiling, never A6')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-F08-shared-pagination-budget"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-oscillating_set",
+      "predicate_index": 0,
+      "original_predicate": {
+        "assertion": "exact_attempt_numbers",
+        "value": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 91,
+          "assertion_label": "exact attempt sequence",
+          "exact_statement": "require([x['attempt'] for x in starts]==expected['attempts'], 'exact attempt sequence')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-oscillating_set",
+      "predicate_index": 1,
+      "original_predicate": {
+        "assertion": "counter_read_values_by_attempt",
+        "value": [
+          0,
+          1,
+          0,
+          1,
+          0
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 97,
+          "assertion_label": "actual read counter projections",
+          "exact_statement": "require([at('AttemptStarted',k)['counter_values'][key] for k in expected['attempts']]==expected['counter_values_read'], 'actual read counter projections')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-oscillating_set",
+      "predicate_index": 2,
+      "original_predicate": {
+        "assertion": "produced_counter_values_by_attempt",
+        "value": [
+          1,
+          0,
+          1,
+          0,
+          1
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 94,
+          "assertion_label": "actual produced counter projections",
+          "exact_statement": "require([at('CandidateBuilt',k)['counter_values'][key] for k in expected['attempts']]==expected['counter_values_produced'], 'actual produced counter projections')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-oscillating_set",
+      "predicate_index": 3,
+      "original_predicate": {
+        "assertion": "returned_metadata_value",
+        "value": [
+          [
+            0
+          ]
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 101,
+          "assertion_label": "actual final metadata",
+          "exact_statement": "require(final['metadata_values']==expected['final_metadata'], 'actual final metadata')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-oscillating_set",
+      "predicate_index": 4,
+      "original_predicate": "Return the identical document D5 produced while reading I4; no A6 BodyStarted and no exported output from replay on I5; do not return D4.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 57,
+          "assertion_label": "V3-return-at-A5",
+          "exact_statement": "require(final['attempt'] == 5, 'V3-return-at-A5')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 56,
+          "assertion_label": "V3-no-A6-body",
+          "exact_statement": "require(not any(b['attempt'] > 5 for b in rows('BodyStarted')), 'V3-no-A6-body')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 85,
+          "assertion_label": "return actual current Dk",
+          "exact_statement": "require(final['document_id']==at('CandidateBuilt',final['attempt'])['document_id'], 'return actual current Dk')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 38,
+          "assertion_label": "Ak reads I(k-1)",
+          "exact_statement": "require(start['read_snapshot_id']==at('CandidateBuilt',k-1)['snapshot_id'], 'Ak reads I(k-1)')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-F08-shared-pagination-budget"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-oscillating_set",
+      "predicate_index": 5,
+      "original_predicate": "Each I1..I5 has exactly one current manual Set event for c and zero automatic heading events; old attempt updates are absent. I0 has no c updates.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 58,
+          "assertion_label": "V3-one-current-Set-zero-automatic-events",
+          "exact_statement": "require(all(len(c['counter_events']) == 1 and c['counter_events'][0]['action']['kind'] == 'Set' for c in candidates), 'V3-one-current-Set-zero-automatic-events')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 36,
+          "assertion_label": "I0 observational stores empty",
+          "exact_statement": "require(start['observational_stores_empty'] is True, 'I0 observational stores empty')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 43,
+          "assertion_label": "no stale update generation",
+          "exact_statement": "require(event['producer_generation_id'] in candidate['current_generation_ids'], 'no stale update generation')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-oscillating_set",
+      "predicate_index": 6,
+      "original_predicate": {
+        "assertion": "final_request_historical_counter_projection_I0_to_I5",
+        "value": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ]
+      },
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 55,
+          "assertion_label": "V3-exact-historical-counter-projection-I0-I5",
+          "exact_statement": "require(history == [expected['counter_values_read'][0]] + expected['counter_values_produced'], 'V3-exact-historical-counter-projection-I0-I5')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-final-request-diagnostic-lineage"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-oscillating_set",
+      "predicate_index": 7,
+      "original_predicate": "Each final diagnostic corresponds to a request actually recorded by the final retained generation; preserve the public vanilla warning order, full history and source spans via the separately pinned CLI oracle. Unrelated requests receive no invented detail.",
+      "typed_assertions": [],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-final-request-diagnostic-lineage"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-oscillating_set",
+      "predicate_index": 8,
+      "original_predicate": "Attempt budget is shared with actual pagination/position invalidations; the transcript must not restart numbering or add five inner rounds on a relayout.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 30,
+          "assertion_label": "no attempt reset",
+          "exact_statement": "require([x['attempt'] for x in starts] == list(range(1,len(starts)+1)), 'no attempt reset')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 31,
+          "assertion_label": "shared ceiling, never A6",
+          "exact_statement": "require(len(starts)<=5, 'shared ceiling, never A6')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-F08-shared-pagination-budget"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-nested_producer",
+      "predicate_index": 0,
+      "original_predicate": "The outer non-demanding producer retains its ordinary contribution; its real nested context/update is discovered by Content traversal, not source scanning.",
+      "typed_assertions": [],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-ordinary-nested-producer"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-nested_producer",
+      "predicate_index": 1,
+      "original_predicate": "Consumer selected attempt A1 reads empty counter (0,) and may fail its assert; after incorporating ordinary nested producer, candidate counter is (12,). Its next necessary evaluation succeeds with metadata (12,).",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 36,
+          "assertion_label": "I0 observational stores empty",
+          "exact_statement": "require(start['observational_stores_empty'] is True, 'I0 observational stores empty')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 101,
+          "assertion_label": "actual final metadata",
+          "exact_statement": "require(final['metadata_values']==expected['final_metadata'], 'actual final metadata')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-nested-counter-transition"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-nested_producer",
+      "predicate_index": 2,
+      "original_predicate": "Actual returned metadata is [(12,)]; final has no assertion error. New descendant discovery never resets the attempt budget and exactly one current update contributes 12, not duplicated 24.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 101,
+          "assertion_label": "actual final metadata",
+          "exact_statement": "require(final['metadata_values']==expected['final_metadata'], 'actual final metadata')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 60,
+          "assertion_label": "V3-stable-success-not-error",
+          "exact_statement": "require(final['result']['kind'] == 'Ok', 'V3-stable-success-not-error')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 30,
+          "assertion_label": "no attempt reset",
+          "exact_statement": "require([x['attempt'] for x in starts] == list(range(1,len(starts)+1)), 'no attempt reset')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 43,
+          "assertion_label": "no stale update generation",
+          "exact_statement": "require(event['producer_generation_id'] in candidate['current_generation_ids'], 'no stale update generation')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-ordinary-nested-producer",
+        "SW-LC-nested-counter-transition"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-fresh_callback_stable",
+      "predicate_index": 0,
+      "original_predicate": "The producer of c.update(n => n + 10) does not demand c, so its ordinary output and callback Func identity are retained; no reconstruction solely for equality.",
+      "typed_assertions": [],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-ordinary-func-retention"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-fresh_callback_stable",
+      "predicate_index": 1,
+      "original_predicate": "Consumer final metadata is [(12,)]; retained callback is folded only by actual demanded counter readings, with no comparison-driven function invocation.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 101,
+          "assertion_label": "actual final metadata",
+          "exact_statement": "require(final['metadata_values']==expected['final_metadata'], 'actual final metadata')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 136,
+          "assertion_label": "no function invocation for equality/category",
+          "exact_statement": "require(not any(x['origin']=='comparator_category_test' for x in rows('FunctionInvoked')), 'no function invocation for equality/category')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-invocation-origin-completeness",
+        "SW-LC-ordinary-func-retention"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-fresh_callback_stable",
+      "predicate_index": 2,
+      "original_predicate": "The current snapshot contains the two actual automatic heading events and one current manual Func update in document order; no historical duplication.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 43,
+          "assertion_label": "no stale update generation",
+          "exact_statement": "require(event['producer_generation_id'] in candidate['current_generation_ids'], 'no stale update generation')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-fresh-event-order"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-nan_key_stable_zero",
+      "predicate_index": 0,
+      "original_predicate": "The selected consumer reads (0,) against I0 and the produced candidate. Its NaN-containing request validates reflexively by identical IEEE bits, while language key association does not attach update12.",
+      "typed_assertions": [],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-nan-language-vs-request"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-nan_key_stable_zero",
+      "predicate_index": 1,
+      "original_predicate": "First selected attempt validates and returns metadata [(0,)] without nonconvergence diagnostics; no force-repeat merely because request contains NaN.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 91,
+          "assertion_label": "exact attempt sequence",
+          "exact_statement": "require([x['attempt'] for x in starts]==expected['attempts'], 'exact attempt sequence')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 101,
+          "assertion_label": "actual final metadata",
+          "exact_statement": "require(final['metadata_values']==expected['final_metadata'], 'actual final metadata')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 60,
+          "assertion_label": "V3-stable-success-not-error",
+          "exact_statement": "require(final['result']['kind'] == 'Ok', 'V3-stable-success-not-error')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 61,
+          "assertion_label": "V3-stable-no-published-warning",
+          "exact_statement": "require(not any(d['severity'] == 'Warning' for s in rows('SinkDisposition') if s['disposition'] == 'published' for d in s['diagnostics']), 'V3-stable-no-published-warning')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-nan-language-vs-request"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-provisional-assert-final-panic",
+      "predicate_index": 0,
+      "original_predicate": "Ordinary update producer remains nonselected and contributes 12 only to produced snapshots, never artificially to empty I0.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 36,
+          "assertion_label": "I0 observational stores empty",
+          "exact_statement": "require(start['observational_stores_empty'] is True, 'I0 observational stores empty')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-provisional-error-transition"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-provisional-assert-final-panic",
+      "predicate_index": 1,
+      "original_predicate": "Selected A1 consumer records filtered read (0,) before its assertion Err. Candidate (12,) invalidates that observation; the replaced assertion error and its sink are discarded.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v2.py",
+            "sha256": "b7115b78a61d4b07391f46d50d9b0ffba0244a9571f7b7eb48f617f8c6517209"
+          },
+          "line": 71,
+          "assertion_label": "request during actual body",
+          "exact_statement": "require(start_by[r['execution_id']]['sequence']<r['sequence']<finish_by[r['execution_id']]['sequence'],'request during actual body')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v2.py",
+            "sha256": "b7115b78a61d4b07391f46d50d9b0ffba0244a9571f7b7eb48f617f8c6517209"
+          },
+          "line": 95,
+          "assertion_label": "all actual body and validation sinks have disposition",
+          "exact_statement": "require(required_sinks<=set(dispositions),'all actual body and validation sinks have disposition')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 81,
+          "assertion_label": "discarded sink never published",
+          "exact_statement": "require(not any(x['disposition']=='published' for x in group), 'discarded sink never published')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-provisional-error-transition"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-provisional-assert-final-panic",
+      "predicate_index": 2,
+      "original_predicate": "Reevaluation observes (12,), passes assert and reaches the original P1339_FINAL_PANIC; if that recorded read validates, the original panic Err with its full trace is returned unchanged.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 124,
+          "assertion_label": "exact final message",
+          "exact_statement": "require(expected['final_error_message'] in [d['message'] for d in final['result']['diagnostics']], 'exact final message')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 64,
+          "assertion_label": "V3-final-complete-error-equals-real-body-error",
+          "exact_statement": "require(matches, 'V3-final-complete-error-equals-real-body-error')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-provisional-error-transition",
+        "SW-LC-final-error-trace-preservation"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-provisional-assert-final-panic",
+      "predicate_index": 3,
+      "original_predicate": "Export is false, document return is None; no provisional assertion survives and no nonconvergence warning downgrades the final panic.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 83,
+          "assertion_label": "error is not export success",
+          "exact_statement": "require(final['document_id'] is None and final['export_permitted'] is False, 'error is not export success')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 127,
+          "assertion_label": "transient message discarded",
+          "exact_statement": "require(not set(messages)&set(expected['forbidden_final_messages']),'transient message discarded')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 65,
+          "assertion_label": "V3-error-not-downgraded-by-published-warning",
+          "exact_statement": "require(not any(d['severity'] == 'Warning' for s in rows('SinkDisposition') if s['disposition'] == 'published' for d in s['diagnostics']), 'V3-error-not-downgraded-by-published-warning')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-final-error-trace-preservation"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-legacy-sibling-error",
+      "predicate_index": 0,
+      "original_predicate": "The first context reaches no filtered demand; its P1339_LEGACY_SIBLING error remains the ordinary result. Another selected context does not mark it selected or make its error provisional.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 131,
+          "assertion_label": "legacy sibling not selected",
+          "exact_statement": "require(len(discoveries)==1 and discoveries[0]['selected'] is False,'legacy sibling not selected')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 132,
+          "assertion_label": "legacy sibling not reevaluated",
+          "exact_statement": "require(not any(x['source_context_offset']==offset and x['attempt']>0 for x in rows('BodyStarted')),'legacy sibling not reevaluated')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 124,
+          "assertion_label": "exact final message",
+          "exact_statement": "require(expected['final_error_message'] in [d['message'] for d in final['result']['diagnostics']], 'exact final message')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-final-error-trace-preservation"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-legacy-sibling-error",
+      "predicate_index": 1,
+      "original_predicate": "Compilation remains Err with that original complete diagnostic; export false. No extra evaluation of that legacy context is invented to repair it.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 64,
+          "assertion_label": "V3-final-complete-error-equals-real-body-error",
+          "exact_statement": "require(matches, 'V3-final-complete-error-equals-real-body-error')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 83,
+          "assertion_label": "error is not export success",
+          "exact_statement": "require(final['document_id'] is None and final['export_permitted'] is False, 'error is not export success')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 132,
+          "assertion_label": "legacy sibling not reevaluated",
+          "exact_statement": "require(not any(x['source_context_offset']==offset and x['attempt']>0 for x in rows('BodyStarted')),'legacy sibling not reevaluated')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-final-error-trace-preservation"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-selected-stable-error",
+      "predicate_index": 0,
+      "original_predicate": "The c.at(<missing>) demand marks the context selected before label resolution fails. The recorded error includes the missing label, source span and ordered trace.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 68,
+          "assertion_label": "V3-missing-label-body-selected",
+          "exact_statement": "require(actual and all(completion(b)['selected'] is True for b in actual), 'V3-missing-label-body-selected')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 69,
+          "assertion_label": "V3-missing-label-real-error-requests",
+          "exact_statement": "require(all(requests(b) and all(r['result']['kind'] == 'Err' for r in requests(b)) for b in actual), 'V3-missing-label-real-error-requests')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 124,
+          "assertion_label": "exact final message",
+          "exact_statement": "require(expected['final_error_message'] in [d['message'] for d in final['result']['diagnostics']], 'exact final message')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-selection-before-missing-label"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-selected-stable-error",
+      "predicate_index": 1,
+      "original_predicate": "Revalidation against the same empty label registry may return Ok(true), but the body remains its original Err and export remains false.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 134,
+          "assertion_label": "persistent read error can validate",
+          "exact_statement": "require(any(x['result']=={'kind':'Ok','value':True} for x in rows('ValidationCompleted')), 'persistent read error can validate')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 135,
+          "assertion_label": "validated error remains Err",
+          "exact_statement": "require(final['result']['kind']=='Err','validated error remains Err')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 64,
+          "assertion_label": "V3-final-complete-error-equals-real-body-error",
+          "exact_statement": "require(matches, 'V3-final-complete-error-equals-real-body-error')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+            "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+          },
+          "line": 83,
+          "assertion_label": "error is not export success",
+          "exact_statement": "require(final['document_id'] is None and final['export_permitted'] is False, 'error is not export success')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-final-error-trace-preservation"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    },
+    {
+      "case_id": "lifecycle-selected-stable-error",
+      "predicate_index": 2,
+      "original_predicate": "No callback, successful content contribution or nonconvergence warning is fabricated to replace the persistent error.",
+      "typed_assertions": [
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 70,
+          "assertion_label": "V3-missing-label-no-callback",
+          "exact_statement": "require(not rows('FunctionInvoked'), 'V3-missing-label-no-callback')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 71,
+          "assertion_label": "V3-missing-label-no-success-output",
+          "exact_statement": "require(all(completion(b)['output_id'] is None for b in actual), 'V3-missing-label-no-success-output')"
+        },
+        {
+          "artifact": {
+            "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+            "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+          },
+          "line": 65,
+          "assertion_label": "V3-error-not-downgraded-by-published-warning",
+          "exact_statement": "require(not any(d['severity'] == 'Warning' for s in rows('SinkDisposition') if s['disposition'] == 'published' for d in s['diagnostics']), 'V3-error-not-downgraded-by-published-warning')"
+        }
+      ],
+      "conjunctive_structural_witnesses": [
+        "SW-LC-invocation-origin-completeness"
+      ],
+      "phase": "F_NOT_EXECUTED_PRESEAL_ZERO_CREDIT",
+      "failure_policy": "Every listed assert and case-specific SW is mandatory; unsupported/missing source binding or observed mismatch fails final coverage. No generic check() reference discharges this proposition."
+    }
+  ]
+}

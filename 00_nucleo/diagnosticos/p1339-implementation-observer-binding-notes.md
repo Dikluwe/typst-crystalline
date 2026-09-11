@@ -1,0 +1,13 @@
+# Observer implementation binding notes
+
+This is implementation provenance, not a verifier verdict. Parent authority explicitly permits the lossless source-name mapping described below. Protected harnesses and fixtures remain unchanged.
+
+The frozen style harness `p1339-mutant-closed-state-style-harness.rs` constructs expression Sources in operation order, with `next_id = 3u16`; its World exposes FileId/text but not the construction map's string key. The owner-local test shim reconstructs only that input-provenance mapping from the `eval_expr` operations and `source_id` input fields in `p1339-ab-batch1-same-context-style-fixture.json`. It never reads expected results, sizes or predicates to determine a source identity. Product records contain Span/FileId, not fixture names.
+
+Requests are retained as Arc<ContextRead>; their captured chains are Arc<StyleChain>. Test identities are actual allocation pointers of those retained records/chains and the live context recorder. The replay receives the same retained request allocation and captured chain. No identity determines the productive Same/Different/Unproven relation.
+
+Counter fullfold and lookup-resolution dependencies are separately recorded. The style DTO renders only CounterFinal operations, as its declared operation schema requires, without dropping fullfold from actual validation. Projection callback counts come from actual owner events, not from fixture expectations. StateDisplay records the raw state value before its display callback.
+
+Private/external leaf audit: Datetime's derived Eq is an audited closed leaf over Option<time::Date>/Option<time::Time>, including nanoseconds (public second-only accessors are insufficient). Decimal compares its complete serialized fixed representation, not rounded text. Regex has one deterministic pattern constructor. Lang and VirtualPath accessors expose canonical private data. Paper has private constructors and a closed named table; canonical name plus bitwise exported dimensions distinguishes all constructible values. Module uses its existing Arc-identity equality; setters require unique Arc access, so a retained shared ModuleInner cannot be mutated. Dynamic and Plugin extension services have no general immutability proof and yield Unproven; no dyn_eq, Debug or hidden pointer shortcut certifies them.
+
+First instrumented engineering target: `/tmp/p1339-implementation-observer-instrumented.Y0Zc3f`, separate from ordinary `/tmp/p1339-target.UD8gh7`, with `RUSTFLAGS='--cfg p1339_observation --check-cfg=cfg(p1339_observation)'`. This compile is an engineering check, not phase-F credit. The frozen final entrypoint requires driver-provided independently audited source/binary/config pins.

@@ -1,0 +1,39 @@
+{
+  "schema": "p1339-independent-E-mechanical-hub-acceptance-v1",
+  "utc": "2026-09-10T05:40:25.961204+00:00",
+  "verdict": "ACCEPT_ROOT_THIN_BINDINGS_REEXPORT_ONLY",
+  "seal": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-seal.json",
+    "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"
+  },
+  "RED_acceptance": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-red-acceptance-r1.json",
+    "sha256": "91f3953682384cfe4f195e3462611ca4c1ab328c5ac859eefc0c0398731852c7"
+  },
+  "existing_L0": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/prompts/compiler/eval/bindings.md",
+    "sha256": "4579021845f506f392eaf10d0a34befa8834cc39ed77a51f574ae2355bd14243"
+  },
+  "existing_L0_normative_sha256": "89d311cd5716553acf0294140b88404f4040c61ef9bf25ac177e5937954163d9",
+  "baseline_hub": {
+    "path": "/repos/Antigravity/typst-crystalline/01_core/src/compiler/eval/bindings/mod.rs",
+    "sha256": "c3d2d94c70734fce3f151895a752010f04677b0493657b707c532cbb54b92e39"
+  },
+  "basis": [
+    "Existing bindings L0 fully read: hub is the reexport boundary, contains only mod/use, no logic. Its purpose authorizes transporting owned helpers, not adding dispatch or semantics.",
+    "Sealed value_methods L0 explicitly requires shared pure internal where helper and permits pub(crate)/intermodule visibility; query/counter integration remains owned there.",
+    "Authority manifest operator permits productive consumers after seal+RED. Sealed implementation supplement root_retained_writes explicitly includes integration. No delegated executor allowlist is expanded."
+  ],
+  "permitted": [
+    "Root-only thin use/reexport of the already approved internal shared owner helper, with narrow visibility needed by actual consumers.",
+    "Record exact names/use sites and before/after hub hashes as downstream E implementation evidence; include this32nd mechanical consumer in final ownership/lineage/build review.",
+    "Preserve normative bytes of existing bindings L0 and all31sealed L0. Any necessary canonical Hash do Codigo-only metadata refresh must preserve the pinned normative hash and be recorded; no semantic L0 edits."
+  ],
+  "forbidden": [
+    "No hub function body, dispatch, normalization, formula, observer or new default behavior.",
+    "No exposing value_methods module broadly, new public API, reverse dependency, new module or duplicate cause.",
+    "No mutation of seal/contract/oracles/baseline or reclassification; no new C/focal/RED run is required by this pure integration step."
+  ],
+  "limits": "This is a downstream mechanical integration finding under existing root authority, not a semantic scope extension or replacement of sealed input. If implementation needs broader visibility/API/logic or changed L0 meaning, stop that edit for review.",
+  "regime": "executado sem atestacao de isolamento"
+}

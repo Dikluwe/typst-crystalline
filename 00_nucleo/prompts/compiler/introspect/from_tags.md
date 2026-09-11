@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: c5a345f1
+Hash do Código: af056fe1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -202,6 +202,84 @@ atualizado por `(a, b) => (a + 1, b + 2)`, resultando em `(3, 5)`. Portanto,
 separados, não como `Value::Array` único. O retorno continua a aceitar inteiro
 ou array de inteiros não-negativos e é gravado na location do update.
 
+## P1339 — resolução sob demanda de contador filtrado (fase aprovada; gates de integração pendentes)
+
+### Medição anterior à decisão
+
+Em HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`,
+`compiler/introspect/from_tags.rs:85-136` calcula Func só no pós-walk e
+acrescenta Set sem recalcular Steps posteriores. Produção expande contextos
+antes desse runtime (`03_infra/src/pipeline.rs:644-666`). Os recibos
+`diagnosticos/p1339-where-counter-phase-probe-runs.json` e
+`diagnosticos/p1339-where-counter-phase-file-runs.json` registram:
+vanilla aceita assert de valor 12 em Step/Func/Step no contexto; sem consulta
+ao contador, panic do contexto precede panic no callback anterior. Portanto
+executar antecipadamente todas as Func para preparar contextos é refutado.
+O controle bare no cristalino falha assert; o filtro vazio falha antes, na
+construção where. Não atribuir a esta última falha prova de runtime.
+
+Medição focal posterior, anterior à decisão abaixo: o recibo
+`diagnosticos/p1339-where-counter-runtime-probe-runs.json`, SHA-256
+`178a8637df7eb75d21131a46ad68005b9f7e35670644c9cb9b7eeb93031d5ae3`,
+registra no mesmo HEAD, em 2026-09-10 às 01:36:19.991799–01:36:23.537105 UTC,
+get anterior a callback com panic produzindo esse erro posterior. O callback
+que lê outro counter falha por ausência de contexto, mesmo criado dentro de
+context. A fonte vanilla `introspection/counter.rs:797-798` resolve a sequência
+antes do prefixo; `:612` chama Func com Context::none(). Updates gerados em
+context e assert dependente passam nos controles com uma página. Os estados
+da árvore, entradas e canais integrais estão no recibo; não há teste GREEN
+cristalino nesta medição.
+
+### Decisão de fase aprovada — somente chaves contendo Element
+
+Permitir resolução de CounterUpdate::Func **sob demanda de leitura contextual**
+da nova chave filtrada, com Engine/Scopes já disponíveis ao despacho. O
+algoritmo é interno pub(crate), retorna estado owned via SourceResult e lê
+o log imutável da iteração. Não mudar assinatura pública existente nem trait.
+Não executar callback no field access que apenas descobre um método, em
+entities, no walk puro, em query(selector) ou no layouter.
+
+Fazer replay dos eventos relevantes em ordem: automáticos cujo elemento
+capturado casa o seletor, mais manuais da chave com igualdade da linguagem,
+não PartialEq/Hash derivados (ordem dos fields distingue; int/float equivalem;
+NaN não é reflexivo). Aplicar Step/Set reais;
+quando a sequência alcança Func, passar componentes do estado
+anterior como posicionais separados e validar o retorno pelo contrato P1149.
+Prosseguir com ações posteriores; não usar snapshots calculados antes da Func
+como se já refletissem seu efeito. Resolver a sequência completa da chave
+antes de selecionar o estado até a Location em at/get; final usa seu estado
+final. Erro em callback posterior da mesma chave é observável em get anterior.
+Update de chave não demandada não é executado
+por uma varredura global de preparação.
+
+Para estas chaves, o pós-processador global apply_counter_funcs não executa
+Func avidamente; consumidores efetivos, incluindo display, delegam à mesma
+resolução. Preservar as chaves antigas sem Element, callbacks de state,
+numbering e equação nos seus pontos vigentes. Não alterar a ordem global da
+pipeline nem antecipar todo introspect_with_runtime.
+
+O estado intermediário de replay é local à demanda, não uma mutação do
+snapshot público de eval. O log original não vira Set artificial e não é
+reescrito durante consulta. Otimização/cache não pode mudar ordem de erros,
+capturas, warnings ou reexecutar efeito observado; sua necessidade e política
+devem ser medidas antes de selo. Executar o corpo de Func sem contexto
+introspectivo disponível, preservando capturas lexicais e Engine: capturar
+Counter é válido, consultá-lo dentro desse callback deve produzir o erro
+contextual, não iniciar resolução recursiva. Não herdar o contexto da leitura
+nem da criação da closure. Eventos nascidos em context exigem controle com
+assert dependente, não só contagem de páginas; ausência no snapshot não prova
+estado zero nem convergência. A estabilização desses contextos foi incluída
+no escopo pelo dono em `diagnosticos/p1339-stabilization-approval.json`; sua
+orquestração e observações pertencem a `infra/pipeline.md` e
+`compiler/eval.md`. O gate público foi aprovado em
+`diagnosticos/p1339-observation-interface-approval.json`; a integração e os
+gates independentes permanecem pendentes.
+
+Mudança de fase autorizada pelo dono em
+`diagnosticos/p1339-where-counter-phase-approval.json` (ADR-0127 ponto 3).
+Esta autorização não equivale a solução demonstrada nem dispensa contrato,
+selo, RED e validação independente do P1339.
+
 ## P1140.4-C — materialização de suplementos de equação
 
 ### Medição antes da decisão
@@ -230,3 +308,24 @@ base e os valores capturados/materializados em uma visão pública por Location.
 Preserva função/pattern de numbering quando esse é o field da linguagem,
 default de number-align, supplement sintetizado, `alt` efetivo e body/block.
 É chamada nos mesmos orquestradores runtime/fixpoint antes de expor query.
+
+## P1342 — replay do callback ligado ao carrier real
+
+### Medição anterior à decisão
+
+A auditoria P1342 mede que `resolve_filtered_counter` seleciona a ação real por
+Location, cria um `EvalContext` filho e aplica o `Func`; sem propagação explícita,
+o ledger do produtor não alcança o dispatch/corpo/Dict.
+
+### Decisão vigente
+
+Sob `cfg(p1339_observation)`, ao alcançar `CounterUpdate::Func`, obter somente
+do próprio Func o carrier P1342 preservado. Antes de `apply_func`, instalar no
+`EvalContext` filho o mesmo ledger/célula/id de ocorrência e anexar o snapshot
+prévio e a Location do evento real. Depois da aplicação, anexar resultado/erro e
+snapshot posterior efetivo. O dispatch e o body escrevem no mesmo handle.
+
+Carrier ausente em fixture obrigatória é Violated no harness, nunca fabricado
+ou Unknown. A resolução normal, `Context::none`, Args posicionais, ordem das
+ações, erro e estado continuam iguais; nenhum callback adicional é executado.
+Sem o cfg não há branch ou estado novo. O recorte é só o replay focal P1342.

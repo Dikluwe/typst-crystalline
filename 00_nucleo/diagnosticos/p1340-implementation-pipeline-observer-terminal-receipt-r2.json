@@ -1,0 +1,123 @@
+{
+  "schema": "p1340-implementation-pipeline-observer-terminal-receipt-r2",
+  "executor": "/root/p1339_observation_design",
+  "role": "implementation of frozen terminal R2 late binding only; not oracle or verifier",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "TERMINAL_BINDING_WRITTEN_AWAITING_BUILD_AND_INDEPENDENT_AUDIT",
+  "predecessor": "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer-receipt-r1.json",
+  "predecessor_scope": "Earlier lifecycle pause remains intact; this successor implements only the separately resumed terminal R2 subset.",
+  "utc": "2026-09-10 14:45:36 UTC",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "working_tree": "uncommitted concurrent",
+  "diff_head_stat": " 00_nucleo/prompts/compiler/eval.md                 |  232 +-\n .../prompts/compiler/eval/bindings/field_access.md |   75 +\n .../compiler/eval/bindings/value_methods.md        |  160 +\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  188 +-\n .../prompts/compiler/eval/operators/equality.md    |   67 +\n 00_nucleo/prompts/compiler/eval/repr.md            |   38 +\n 00_nucleo/prompts/compiler/eval/rules.md           |   34 +\n .../prompts/compiler/eval/selector_matching.md     |   78 +\n 00_nucleo/prompts/compiler/introspect.md           |  123 +\n .../prompts/compiler/introspect/extract_payload.md |   27 +\n 00_nucleo/prompts/compiler/introspect/from_tags.md |   78 +\n 00_nucleo/prompts/compiler/introspect/locatable.md |   26 +-\n 00_nucleo/prompts/compiler/layout.md               |   29 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   33 +-\n 00_nucleo/prompts/compiler/stdlib/counter.md       |   80 +\n .../prompts/compiler/stdlib/foundations/float.md   |  120 +-\n .../prompts/compiler/stdlib/foundations/query.md   |   66 +\n .../compiler/stdlib/foundations/selector.md        |   37 +-\n .../compiler/stdlib/primitives-constructors.md     |   39 +-\n .../stdlib/primitives-constructors/version.md      |   76 +-\n 00_nucleo/prompts/compiler/stdlib/state.md         |   45 +\n 00_nucleo/prompts/entities/counter_registry.md     |   35 +\n 00_nucleo/prompts/entities/element_payload.md      |   88 +\n 00_nucleo/prompts/entities/elements/emph.md        |   27 +-\n 00_nucleo/prompts/entities/elements/strong.md      |   28 +-\n 00_nucleo/prompts/entities/introspector.md         |   31 +\n 00_nucleo/prompts/entities/layout_types.md         |   27 +\n 00_nucleo/prompts/entities/selector.md             |   82 +\n 00_nucleo/prompts/entities/show.md                 |   48 +\n 00_nucleo/prompts/entities/style_chain.md          |    2 +-\n 00_nucleo/prompts/entities/version.md              |   44 +-\n 00_nucleo/prompts/infra/pipeline.md                |   34 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |    7 +-\n 01_core/src/compiler/eval/bindings/mod.rs          |    6 +-\n .../src/compiler/eval/bindings/value_methods.rs    |  295 +-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/mod.rs                   | 6248 +++++++++++++++++++-\n 01_core/src/compiler/eval/operators/equality.rs    |  126 +-\n 01_core/src/compiler/eval/repr.rs                  |   42 +-\n 01_core/src/compiler/eval/rules.rs                 |    6 +-\n 01_core/src/compiler/eval/selector_matching.rs     |  377 +-\n 01_core/src/compiler/introspect.rs                 |  389 +-\n 01_core/src/compiler/introspect/extract_payload.rs |    4 +-\n 01_core/src/compiler/introspect/from_tags.rs       |   71 +-\n 01_core/src/compiler/introspect/locatable.rs       |   14 +-\n 01_core/src/compiler/layout/mod.rs                 |    2 +-\n 01_core/src/compiler/stdlib/counter.rs             |  261 +-\n 01_core/src/compiler/stdlib/foundations/float.rs   |  313 +-\n 01_core/src/compiler/stdlib/foundations/query.rs   |   16 +-\n .../src/compiler/stdlib/foundations/selector.rs    |   23 +-\n 01_core/src/compiler/stdlib/mod.rs                 |    6 +-\n .../src/compiler/stdlib/primitives_constructors.rs |    5 +-\n .../stdlib/primitives_constructors/version.rs      |  125 +-\n 01_core/src/compiler/stdlib/state.rs               |   39 +-\n 01_core/src/entities/counter_registry.rs           |   24 +-\n 01_core/src/entities/element_payload.rs            |    4 +-\n 01_core/src/entities/elements/emph.rs              |    6 +-\n 01_core/src/entities/elements/strong.rs            |    6 +-\n 01_core/src/entities/introspector.rs               |  340 +-\n 01_core/src/entities/layout_types.rs               |    2 +-\n 01_core/src/entities/selector.rs                   |    5 +-\n 01_core/src/entities/show.rs                       |    4 +-\n 01_core/src/entities/style_chain.rs                |    7 +\n 01_core/src/entities/version.rs                    |    2 +-\n 03_infra/src/pipeline.rs                           |  319 +-\n crystalline.toml                                   |    1 +\n 66 files changed, 10574 insertions(+), 823 deletions(-)\n",
+  "tracked_changed_paths": [
+    "00_nucleo/prompts/compiler/eval.md",
+    "00_nucleo/prompts/compiler/eval/bindings/field_access.md",
+    "00_nucleo/prompts/compiler/eval/bindings/value_methods.md",
+    "00_nucleo/prompts/compiler/eval/call_dispatch.md",
+    "00_nucleo/prompts/compiler/eval/operators/equality.md",
+    "00_nucleo/prompts/compiler/eval/repr.md",
+    "00_nucleo/prompts/compiler/eval/rules.md",
+    "00_nucleo/prompts/compiler/eval/selector_matching.md",
+    "00_nucleo/prompts/compiler/introspect.md",
+    "00_nucleo/prompts/compiler/introspect/extract_payload.md",
+    "00_nucleo/prompts/compiler/introspect/from_tags.md",
+    "00_nucleo/prompts/compiler/introspect/locatable.md",
+    "00_nucleo/prompts/compiler/layout.md",
+    "00_nucleo/prompts/compiler/stdlib/_comum.md",
+    "00_nucleo/prompts/compiler/stdlib/counter.md",
+    "00_nucleo/prompts/compiler/stdlib/foundations/float.md",
+    "00_nucleo/prompts/compiler/stdlib/foundations/query.md",
+    "00_nucleo/prompts/compiler/stdlib/foundations/selector.md",
+    "00_nucleo/prompts/compiler/stdlib/primitives-constructors.md",
+    "00_nucleo/prompts/compiler/stdlib/primitives-constructors/version.md",
+    "00_nucleo/prompts/compiler/stdlib/state.md",
+    "00_nucleo/prompts/entities/counter_registry.md",
+    "00_nucleo/prompts/entities/element_payload.md",
+    "00_nucleo/prompts/entities/elements/emph.md",
+    "00_nucleo/prompts/entities/elements/strong.md",
+    "00_nucleo/prompts/entities/introspector.md",
+    "00_nucleo/prompts/entities/layout_types.md",
+    "00_nucleo/prompts/entities/selector.md",
+    "00_nucleo/prompts/entities/show.md",
+    "00_nucleo/prompts/entities/style_chain.md",
+    "00_nucleo/prompts/entities/version.md",
+    "00_nucleo/prompts/infra/pipeline.md",
+    "01_core/src/compiler/eval/bindings/field_access.rs",
+    "01_core/src/compiler/eval/bindings/mod.rs",
+    "01_core/src/compiler/eval/bindings/value_methods.rs",
+    "01_core/src/compiler/eval/call_dispatch.rs",
+    "01_core/src/compiler/eval/mod.rs",
+    "01_core/src/compiler/eval/operators/equality.rs",
+    "01_core/src/compiler/eval/repr.rs",
+    "01_core/src/compiler/eval/rules.rs",
+    "01_core/src/compiler/eval/selector_matching.rs",
+    "01_core/src/compiler/introspect.rs",
+    "01_core/src/compiler/introspect/extract_payload.rs",
+    "01_core/src/compiler/introspect/from_tags.rs",
+    "01_core/src/compiler/introspect/locatable.rs",
+    "01_core/src/compiler/layout/mod.rs",
+    "01_core/src/compiler/stdlib/counter.rs",
+    "01_core/src/compiler/stdlib/foundations/float.rs",
+    "01_core/src/compiler/stdlib/foundations/query.rs",
+    "01_core/src/compiler/stdlib/foundations/selector.rs",
+    "01_core/src/compiler/stdlib/mod.rs",
+    "01_core/src/compiler/stdlib/primitives_constructors.rs",
+    "01_core/src/compiler/stdlib/primitives_constructors/version.rs",
+    "01_core/src/compiler/stdlib/state.rs",
+    "01_core/src/entities/counter_registry.rs",
+    "01_core/src/entities/element_payload.rs",
+    "01_core/src/entities/elements/emph.rs",
+    "01_core/src/entities/elements/strong.rs",
+    "01_core/src/entities/introspector.rs",
+    "01_core/src/entities/layout_types.rs",
+    "01_core/src/entities/selector.rs",
+    "01_core/src/entities/show.rs",
+    "01_core/src/entities/style_chain.rs",
+    "01_core/src/entities/version.rs",
+    "03_infra/src/pipeline.rs",
+    "crystalline.toml"
+  ],
+  "authoritative_inputs": {
+    "delegation": {
+      "path": "00_nucleo/diagnosticos/p1340-pipeline-observer-delegation.json",
+      "sha256": "781dca3f165a5e99ad32da2c326bb2ac1895dfec56d843eb6016caa03dd0d3e7"
+    },
+    "seal": {
+      "path": "00_nucleo/diagnosticos/p1340-verifier-seal-r3.json",
+      "sha256": "82ceda880adef9a6ba2f0330f71badcfea084af64168510501cb4c4a939ea9f4"
+    },
+    "binding": {
+      "path": "00_nucleo/diagnosticos/p1340-contract-binding-r2.md",
+      "sha256": "4d9426025cbc986b79793658e99a20203216089eb9951d9ece759cb962027f8c"
+    },
+    "harness": {
+      "path": "00_nucleo/diagnosticos/p1340-contract-terminal-harness-r2.rs",
+      "sha256": "85c3f151cbf1e88c241acea0b68df1f6c468ba0a1a956e5a3f6af91cd0a19e7d"
+    }
+  },
+  "artifact": {
+    "path": "00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs",
+    "sha256": "7b9ad460a1bbfcd25abc164941c3798828f43cbfab77d81b82b49b36c8394eca"
+  },
+  "integration_source_snapshot": {
+    "03_infra/src/pipeline/context_stabilization.rs": "be5fe625382790e26ee3bdc545ea67a4df04c8e0aaac28a27745df705031c323",
+    "03_infra/src/pipeline.rs": "9a11c974d0ced19abdbdd4c43e053d7e4271bbf8cd39bbe1052bf6989899ead1"
+  },
+  "production_writes": [],
+  "protected_oracle_writes": [],
+  "commands_run": [
+    "rustfmt --edition 2021 00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs"
+  ],
+  "semantic_test_runs_by_delegate": [],
+  "pending_root_build_receipt": "00_nucleo/diagnosticos/p1340-terminal-binding-build-r4.json",
+  "binding_audit": "pending_independent_review",
+  "limitations": [
+    "No lifecycle collector, lifecycle DTO, FunctionInvoked or CounterEvent span binding; prior lifecycle gaps remain open.",
+    "First-root sentinel targeting is explicitly restricted to frozen R2 source inputs and checked against actual discovery selection; it does not implement general future-source discovery.",
+    "T05 constructs the normed proven-impossible private state and calls the same terminal operation; it does not prove the topology-producing branch.",
+    "VALIDATION warning is input to actual discarded replay sinks, including reflection and diagnostics, without claiming each is a validation event.",
+    "Carrier pointer projection witnesses reuse of the retained opaque input only; it is not language equality or proof of contextual stability.",
+    "Terminal suite writes raw per-invocation observations; passing it does not itself establish binding acceptance or whole-step F."
+  ]
+}

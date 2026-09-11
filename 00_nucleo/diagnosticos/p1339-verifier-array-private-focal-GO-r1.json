@@ -1,0 +1,13 @@
+{
+  "verdict": "GO_ARRAY_PRIVATE_FOCAL_3",
+  "manifest_sha256": "e2f86c1df604fd3775e57440901efb9dbab2493cd398f5c4669899d96e9af74d",
+  "executor_sha256": "47c0f9425189e368eae935238cecd6030c820c9cbc9734318ecdba5471e14335",
+  "binary_sha256": "0923895542af8db56be9f8b6cff33255ae48a10109b0bfb6f22051292468cb7e",
+  "build_receipt_sha256": "f10ab259c7c29161ab1c7310da622eaabd30fb9516e9bcee9301ca12b701ff51",
+  "verifier": "/root/p1311_review",
+  "regime": "executado sem atestacao de isolamento",
+  "checks": "Build exit0 with actual isolated typst-core compilation; build source maps equal; raw channels, binary, eight runtime input pins and528 source pins verified. Full runtime executor read: real exact test filter, control completion10 enforced before two negatives, pins checked each invocation, no inferred mutation score.",
+  "scope": "Exactly three processes, modes0,9,13,30 seconds each, canonical ten-call owner harness. Stop on positive-control failure. No broad CLI, implementation or overall seal authorized.",
+  "budget": "Array corrective focal cycle2 of2, one actual isolated compilation. Historical full C1 of2 unchanged. No automatic retries or Unknown credit.",
+  "pending": "Independent judgment of actual results, followed by already-declared affected expansion before narrow successor seal."
+}

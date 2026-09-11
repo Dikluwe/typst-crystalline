@@ -1,0 +1,27 @@
+{
+  "schema": "p1340-oracle-policy-coverage-r6b-result",
+  "status": "GREEN_NO_PRODUCT_CREDIT",
+  "utc": "2026-09-10T16:36:00Z",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1340-oracle-policy-coverage-r6b.py",
+  "exit": 0,
+  "cases": {
+    "coherent_omissions": {"count": 3, "before": "Preserved", "after": "Violated"},
+    "malformed_plus_opaque": {"count": 5, "before": "Unknown", "after": "Violated"}
+  },
+  "coherent_omission_ids": [
+    "coherent-callback-omission",
+    "coherent-dict-omission",
+    "coherent-counter-event-omission"
+  ],
+  "malformed_opaque_ids": [
+    "malformed-feature-plus-opaque",
+    "malformed-Func-plus-opaque",
+    "malformed-dispatch-plus-opaque",
+    "malformed-counter-plus-opaque",
+    "malformed-Dict-plus-opaque"
+  ],
+  "delta": {"survived_or_unknown_before": 8, "violated_after": 8},
+  "candidate_reads": 0,
+  "product_runs": 0,
+  "verdict": null
+}

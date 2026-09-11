@@ -1,0 +1,439 @@
+{
+  "at": "2026-09-09T23:37:26.749010+00:00",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "status_short": "?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+  "diff_stat": "",
+  "input_sha256": {
+    "00_nucleo/materialization/typst-passo-1339.md": "817c3a1476897fb0a847c90183e9a9fe690994f60023126997c8022c4e8b86a9",
+    "00_nucleo/diagnosticos/p1339-resume-r1.json": "657f6eeeee2aa8a30a5443f930125231af38ce0088c63956ce17d38bb112fa02",
+    "00_nucleo/diagnosticos/p1339-authority-manifest-r1.json": "074ec7a3cfeea34f0f6a230dcd4cc4b9b2777a860ce439bdad8c774c034f38fc",
+    "00_nucleo/diagnosticos/p1339-a0.json": "c70ca7d1f22aa7df222a081da4feddbc056b628eca505449eedb153acd71c361",
+    "00_nucleo/diagnosticos/p1339-probe-manifest.json": "712fb949a5ed8725c6322157bbe06a8ef1cd3313007d02eb92fabeeb95bd8e21"
+  },
+  "runner_sha256": "45bc7cd558283cb1c3e36ab0d44e2bbabec224ed010df7540dbe8a161f60e37b",
+  "stage": "boundaries",
+  "regime": "executado sem atesta\u00e7\u00e3o de isolamento",
+  "executor": "/root/p1339_measure_r1",
+  "context": "fresh delegated task; no crystalline source or L0 read",
+  "reads": [
+    "00_nucleo/materialization/typst-passo-1339.md",
+    "00_nucleo/diagnosticos/p1339-resume-r1.json",
+    "00_nucleo/diagnosticos/p1339-authority-manifest-r1.json",
+    "00_nucleo/diagnosticos/p1339-a0.json",
+    "00_nucleo/diagnosticos/p1339-probe-manifest.json",
+    "old focal runner",
+    "skill and references",
+    "pinned binaries"
+  ],
+  "writes": [
+    "p1339-full-*"
+  ],
+  "profiles": {
+    "default": [],
+    "html": [
+      "--features",
+      "html"
+    ],
+    "a11y": [
+      "--features",
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "--features",
+      "html,a11y-extras"
+    ]
+  },
+  "cases": [
+    {
+      "id": "angle-construction-deg-nan-multiply",
+      "route": "angle.deg",
+      "expression": "{ let a = float(\"nan\") * 1deg; repr((type(a),a,a==0deg,a/1deg,(a/1deg)==(a/1deg))) }",
+      "obligation": "bilateral construction control: distinguish real NaN Angle from normalized zero",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "angle-construction-deg-infinite",
+      "route": "angle.deg",
+      "expression": "{ let a = float(\"inf\") * 1deg; repr((type(a),a,a==0deg,a/1deg,(a/1deg)==(a/1deg))) }",
+      "obligation": "bilateral construction control: distinguish real NaN Angle from normalized zero",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "angle-construction-deg-zero-infinite",
+      "route": "angle.deg",
+      "expression": "{ let a = 0deg * float(\"inf\"); repr((type(a),a,a==0deg,a/1deg,(a/1deg)==(a/1deg))) }",
+      "obligation": "bilateral construction control: distinguish real NaN Angle from normalized zero",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "angle-construction-deg-inf-minus-inf",
+      "route": "angle.deg",
+      "expression": "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a),a,a==0deg,a/1deg,(a/1deg)==(a/1deg))) }",
+      "obligation": "bilateral construction control: distinguish real NaN Angle from normalized zero",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "angle-construction-rad-nan-multiply",
+      "route": "angle.rad",
+      "expression": "{ let a = float(\"nan\") * 1rad; repr((type(a),a,a==0deg,a/1deg,(a/1deg)==(a/1deg))) }",
+      "obligation": "bilateral construction control: distinguish real NaN Angle from normalized zero",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "angle-construction-rad-infinite",
+      "route": "angle.rad",
+      "expression": "{ let a = float(\"inf\") * 1rad; repr((type(a),a,a==0deg,a/1deg,(a/1deg)==(a/1deg))) }",
+      "obligation": "bilateral construction control: distinguish real NaN Angle from normalized zero",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "angle-construction-rad-zero-infinite",
+      "route": "angle.rad",
+      "expression": "{ let a = 0rad * float(\"inf\"); repr((type(a),a,a==0deg,a/1deg,(a/1deg)==(a/1deg))) }",
+      "obligation": "bilateral construction control: distinguish real NaN Angle from normalized zero",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "angle-construction-rad-inf-minus-inf",
+      "route": "angle.rad",
+      "expression": "{ let a = float(\"inf\") * 1rad - float(\"inf\") * 1rad; repr((type(a),a,a==0deg,a/1deg,(a/1deg)==(a/1deg))) }",
+      "obligation": "bilateral construction control: distinguish real NaN Angle from normalized zero",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding-0.1-little",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(0.1,size:4,endian:\"little\"); let x = float.from-bytes(b,endian:\"little\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding-0.1-big",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(0.1,size:4,endian:\"big\"); let x = float.from-bytes(b,endian:\"big\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding--0.1-little",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(-0.1,size:4,endian:\"little\"); let x = float.from-bytes(b,endian:\"little\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding--0.1-big",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(-0.1,size:4,endian:\"big\"); let x = float.from-bytes(b,endian:\"big\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding-1e-46-little",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(1e-46,size:4,endian:\"little\"); let x = float.from-bytes(b,endian:\"little\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding-1e-46-big",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(1e-46,size:4,endian:\"big\"); let x = float.from-bytes(b,endian:\"big\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding-1e-45-little",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(1e-45,size:4,endian:\"little\"); let x = float.from-bytes(b,endian:\"little\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding-1e-45-big",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(1e-45,size:4,endian:\"big\"); let x = float.from-bytes(b,endian:\"big\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding-1e40-little",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(1e40,size:4,endian:\"little\"); let x = float.from-bytes(b,endian:\"little\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding-1e40-big",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(1e40,size:4,endian:\"big\"); let x = float.from-bytes(b,endian:\"big\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding--1e40-little",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(-1e40,size:4,endian:\"little\"); let x = float.from-bytes(b,endian:\"little\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-rounding--1e40-big",
+      "route": "float.to-bytes",
+      "expression": "{ let b = float.to-bytes(-1e40,size:4,endian:\"big\"); let x = float.from-bytes(b,endian:\"big\"); repr((array(b),x)) }",
+      "obligation": "binary32 rounding,subnormal,underflow,overflow",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-cast-1.0,size:4294967296",
+      "route": "float.to-bytes",
+      "expression": "repr(float.to-bytes(1.0,size:4294967296))",
+      "obligation": "size/endian cast boundaries",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-cast-1.0,size:true",
+      "route": "float.to-bytes",
+      "expression": "repr(float.to-bytes(1.0,size:true))",
+      "obligation": "size/endian cast boundaries",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "bytes-cast-1.0,endian:none",
+      "route": "float.to-bytes",
+      "expression": "repr(float.to-bytes(1.0,endian:none))",
+      "obligation": "size/endian cast boundaries",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "where-field-priority-static-level:\"bad\"",
+      "route": "function.where",
+      "expression": "repr(function.where(heading,level:\"bad\"))",
+      "obligation": "where field values are not cast; argument evaluation precedes field-name validation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "where-field-priority-static-level:panic(\"field\"),not-a-field:1",
+      "route": "function.where",
+      "expression": "repr(function.where(heading,level:panic(\"field\"),not-a-field:1))",
+      "obligation": "where field values are not cast; argument evaluation precedes field-name validation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "where-field-priority-static-not-a-field:panic(\"field\"),level:1",
+      "route": "function.where",
+      "expression": "repr(function.where(heading,not-a-field:panic(\"field\"),level:1))",
+      "obligation": "where field values are not cast; argument evaluation precedes field-name validation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "where-field-priority-static-not-a-field:1,level:panic(\"later\")",
+      "route": "function.where",
+      "expression": "repr(function.where(heading,not-a-field:1,level:panic(\"later\")))",
+      "obligation": "where field values are not cast; argument evaluation precedes field-name validation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "where-field-priority-bound-level:\"bad\"",
+      "route": "function.where",
+      "expression": "repr(heading.where(level:\"bad\"))",
+      "obligation": "where field values are not cast; argument evaluation precedes field-name validation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "where-field-priority-bound-level:panic(\"field\"),not-a-field:1",
+      "route": "function.where",
+      "expression": "repr(heading.where(level:panic(\"field\"),not-a-field:1))",
+      "obligation": "where field values are not cast; argument evaluation precedes field-name validation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "where-field-priority-bound-not-a-field:panic(\"field\"),level:1",
+      "route": "function.where",
+      "expression": "repr(heading.where(not-a-field:panic(\"field\"),level:1))",
+      "obligation": "where field values are not cast; argument evaluation precedes field-name validation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "where-field-priority-bound-not-a-field:1,level:panic(\"later\")",
+      "route": "function.where",
+      "expression": "repr(heading.where(not-a-field:1,level:panic(\"later\")))",
+      "obligation": "where field values are not cast; argument evaluation precedes field-name validation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "version-remaining-version(1).at()",
+      "route": "version.at",
+      "expression": "repr(version(1).at())",
+      "obligation": "bound missing,type,named and static self positional diagnostics",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "version-remaining-version(1).at(index:0)",
+      "route": "version.at",
+      "expression": "repr(version(1).at(index:0))",
+      "obligation": "bound missing,type,named and static self positional diagnostics",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "version-remaining-version(1).at(\"0\")",
+      "route": "version.at",
+      "expression": "repr(version(1).at(\"0\"))",
+      "obligation": "bound missing,type,named and static self positional diagnostics",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "version-remaining-version.at(self:version(1),0)",
+      "route": "version.at",
+      "expression": "repr(version.at(self:version(1),0))",
+      "obligation": "bound missing,type,named and static self positional diagnostics",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "version-remaining-version.at(version(1),index:0,other:1)",
+      "route": "version.at",
+      "expression": "repr(version.at(version(1),index:0,other:1))",
+      "obligation": "bound missing,type,named and static self positional diagnostics",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "named-required-angle.rad",
+      "route": "angle.rad",
+      "expression": "repr(angle.rad(self:90deg))",
+      "obligation": "declared positional parameter provided by name",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "named-required-float.from-bytes",
+      "route": "float.from-bytes",
+      "expression": "repr(float.from-bytes(bytes:bytes((0,0,192,63))))",
+      "obligation": "declared positional parameter provided by name",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "named-required-function.with",
+      "route": "function.with",
+      "expression": "repr(function.with(self:calc.abs))",
+      "obligation": "declared positional parameter provided by name",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "named-required-function.where",
+      "route": "function.where",
+      "expression": "repr(function.where(self:heading))",
+      "obligation": "declared positional parameter provided by name",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "version-eval-order-1,0,other:panic(\"arg\")",
+      "route": "version.at",
+      "expression": "repr(version.at(1,0,other:panic(\"arg\")))",
+      "obligation": "index/receiver casts happen after argument evaluation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    },
+    {
+      "id": "version-eval-order-version(1),panic(\"index\"),other:panic(\"other\")",
+      "route": "version.at",
+      "expression": "repr(version.at(version(1),panic(\"index\"),other:panic(\"other\")))",
+      "obligation": "index/receiver casts happen after argument evaluation",
+      "kind": "source-informed-exploratory",
+      "preclassification": "Unknown",
+      "preclassification_basis": "public boundary discovered before any L0 or candidate; no result presumed"
+    }
+  ],
+  "budget": "at most two corrective runner slices per cause; Unknown mandatory blocks seal; no final PASS",
+  "binaries": {
+    "candidate": {
+      "path": "/tmp/p1338-target.vlNAmp/release/typst",
+      "expected_sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1"
+    },
+    "vanilla": {
+      "path": "/usr/local/bin/typst",
+      "expected_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8"
+    }
+  }
+}

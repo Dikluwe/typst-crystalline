@@ -1,0 +1,15 @@
+{
+  "verdict": "PASS_ARRAY_EXPANDED_REAL_DISCRIMINATION_SCOPED",
+  "verifier": "/root/p1311_review",
+  "raw_sha256": "71db8d84ee5322547c3db18557b7e2b8090164bc8552ecf543f949e8239aa3af",
+  "manifest_sha256": "2b30a18ffa687493b04ef9318bb8758b296c28d21525b50fa3111447b69ffe61",
+  "executor_sha256": "4b902238124335c119a0f3e5687467416597ac00f3bd8a54948f9160707d4b72",
+  "oracle_sha256": "35c043a82bbfd56b1d9e334355a0acacaed57039bb0c47b02826bdd888b183c0",
+  "counts": {"processes": 660, "literal_controls_preserved": 324, "negative_observed_violations": 276, "negative_early_error_controls_preserved": 24, "E08_control_Unknown": 12, "E08_negative_Unknown": 12, "invalid_mode_Unknown": 12, "family_profile_order_groups_rejected": 144, "stable_noninvalid_groups_across_three_orders": 216},
+  "checks": "Independently rehashed all660 raw files,21 protected inputs, executor/manifest/GO; integrity maps equal. Verified exact plan cells, original sources and hashes, argv/profile flags, modes/environment, binary before/after, complete base64/UTF8/byte hashes. Recomputed literal classifications independently from each measured oracle cell. Every12-family x4-profile x3-order group has a real rejecting witness. All216 noninvalid ID/mode/profile groups have identical exit and complete output bytes across orders.",
+  "Unknown_policy": "24 E08 rows have no expected and no credit.12 invalid-mode exits101 genuinely show invalid-mode panic; they are Unknown transport controls, not valid semantic mutants or kills. No other Unknown. Modes9 and13 private carriers independently discharge mandatory origin/fallback obligations, without relabeling E08.",
+  "timing": {"utc_start": "2026-09-10T11:11:55.981724+00:00", "utc_end": "2026-09-10T11:14:13.775941+00:00"},
+  "discrimination": "Combined with private normal/repeat/reverse, all12 valid families and13 concrete variants are rejected. Default CLI alone is not used to infer other profiles, and compiled-only branches do not count.",
+  "scope": "Independent preimplementation evidence for explicitly authorized narrow Array<-Bytes prerequisite only. Final candidate must still pass actual owner binding, original70 programs/840cells, new Array corpus and all original P1339 W/F and architectural gates.",
+  "regime": "executado sem atestacao de isolamento"
+}

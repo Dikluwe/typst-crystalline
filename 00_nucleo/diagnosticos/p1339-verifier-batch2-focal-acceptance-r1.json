@@ -1,0 +1,57 @@
+{
+  "schema": "p1339-independent-focal-batch2-acceptance-v1",
+  "utc": "2026-09-10T05:09:44.028020+00:00",
+  "verdict": "PASS_FOCAL_BATCH2",
+  "regime": "executado sem atestacao de isolamento",
+  "raw": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-focal-runs.json",
+    "sha256": "b2f5228e1fc5ac8c714ee044ae6a8c3ef8492863e38970d6983d3cde50a0e746"
+  },
+  "derived": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-causal-derived-expectations.json",
+    "sha256": "6560027a09390584ddd690e872ea2471bd1506bb52467fbb5e3b16905bf8a253"
+  },
+  "evaluation": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-focal-evaluation.json",
+    "sha256": "7733bc6cf293acc584db427360151e24a5322537ee9085bba4752802516bedfa"
+  },
+  "manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-manifest.json",
+    "sha256": "b8a80d79122785bb089ff65698ce5e0225cc0ed2e114db149ccdde7ef7cfb465"
+  },
+  "manifest_acceptance": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-batch2-manifest-acceptance-r1.json",
+    "sha256": "0d4f3c619d6d648f54d70e54d8ecd9a5314fa00c56c22c4632789c673e8089f3"
+  },
+  "independent_reproduction": {
+    "predicate_all_672_rows_exact": true,
+    "recipe_all_12_rows_exact": true,
+    "show_effects_matched": 504,
+    "strict_spanless_identity_rows": 12,
+    "source_line_replacements": 0
+  },
+  "classification": {
+    "Preserved": 660,
+    "Violated": 0,
+    "Unknown": 12,
+    "Unknown_credit": 0,
+    "baseline_opaque_controls_preserved_credit_zero": 12
+  },
+  "cost": {
+    "processes": 672,
+    "start_utc": "2026-09-10T05:03:46.444749+00:00",
+    "end_utc": "2026-09-10T05:04:05.567723+00:00",
+    "wall_seconds": 19.12404563499149,
+    "child_seconds_sum": 74.96232028119266,
+    "semantic_retries": 0,
+    "prelaunch_metadata_abort": "KeyError authorized_execution; acceptance field authorized_argv; zero semantic processes, preserved in evaluation"
+  },
+  "budget": {
+    "additional_focal_batches_used": 2,
+    "additional_focal_batches_limit": 2,
+    "full_C_used_before_start": 0,
+    "full_C_limit": 2,
+    "third_focal_authorized": false
+  },
+  "decision": "Authorize prepared first complete C matrix. No seal or candidate authorized by this focal receipt alone. Future 119 definitions/1428 cells remain NotDue C with zero runtime credit. Preserve failed batch1 and all costs."
+}

@@ -1,0 +1,42 @@
+{
+  "schema": "p1339-array-adversary-prospective-budget-v1",
+  "status": "CompilerPreparationAuthorizedByCoordinator_IndependentOracleAndFocalPending",
+  "author": "/root/p1336_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "inherited_context": "P1336 and earlier P1339 adversary/harness work; no technical isolation attestation",
+  "authority_manifest_sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b",
+  "proposal_sha256": "8134bbb78a389847d865f93e255db3d8afeb0810b0284a29fa00c065213b109b",
+  "baseline_source_commit": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "isolated_area": "/tmp/p1339-mutant-array.jrXHiv",
+  "source_acquisition": "git archive of explicit build paths only; no live productive patch or restricted directories copied",
+  "input_pin_gap": {
+    "path": "00_nucleo/diagnosticos/p1339-contract-array-inputs-r1.json",
+    "received": "56efd2067f8fb19f6553de5085880fe079844d4e2baabec6159f9d46ccc2d3c5",
+    "observed": "8a0c77118c80d220b58dd8070fe0da2399353c4ae0f46610b245224b389bb3a0",
+    "policy": "Coordinator and oracle notified; no focal/expectation freeze credited until canonical causal successor"
+  },
+  "compiler_budget": {
+    "intended_builds": 1,
+    "architecture": "One real executable, mode0 limited isolated control, exclusive mode1..12 real negative causes; invalid modes fail closed",
+    "jobs": 3,
+    "timeout_seconds_per_build": 2700,
+    "maximum_attempts_for_same_instrumental_cause_before_pause": 2,
+    "record_failed_builds": true,
+    "cache_policy": "Optional separate copy/reflink of existing target cache; never shared writable target; source/config/archive/file pins and copy provenance recorded",
+    "control_not_solution": true
+  },
+  "focal_budget": {
+    "new_array_cycles_maximum": 2,
+    "used_at_publication": 0,
+    "scope": "New direct Bytes/Array cases, excludes70 old float-dependent public cases until real candidate F",
+    "prerequisite": "Canonical independent oracles plus compile-valid artifacts plus independent eligibility",
+    "unknown_policy": "Missing raw, crash, unsupported construction or ambiguous identity blocks due gate; no default success",
+    "global_history_not_reset": "Old20families, contract revisions, C and focal receipts remain immutable and separately mandatory"
+  },
+  "negative_causes": [
+    "RejectBytes", "WrongResultType", "SignedOctets", "ReverseOrder",
+    "DropLast", "Deduplicate", "UnicodeCharacters", "IgnoreSurplus",
+    "LoseOccurrenceOrigin", "BroadArrayVersionGuard", "FindLaterBytes", "ReevaluateCallee"
+  ],
+  "no_credit": ["No build yet", "No focal yet", "No semantic verdict", "No source candidate read", "No control adoption as product"]
+}

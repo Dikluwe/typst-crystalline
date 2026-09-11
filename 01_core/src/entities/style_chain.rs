@@ -291,6 +291,13 @@ struct StyleNode {
 pub struct StyleChain(Option<Arc<StyleNode>>);
 
 impl StyleChain {
+    /// Passive test instrumentation. A retained clone pins this allocation;
+    /// the empty chain has no backing allocation and therefore no address.
+    #[cfg(p1339_observation)]
+    pub fn p1339_observation_identity(&self) -> Option<usize> {
+        self.0.as_ref().map(|node| Arc::as_ptr(node) as usize)
+    }
+
     /// Cadeia vazia — resolve para os defaults codificados em cada accessor.
     pub const fn empty() -> Self {
         StyleChain(None)

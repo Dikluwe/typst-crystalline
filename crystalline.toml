@@ -39,6 +39,7 @@ rustfmt_toml = "rustfmt.toml"
 contributing = "CONTRIBUTING.md"
 dockerfile   = "Dockerfile"
 p1286_contract = "04_wiring/tests/p1286_contract.rs" # artefato de verificação congelado, não consumer produtivo
+p1339_historical_syntax_incident = "00_nucleo/diagnosticos/p1339-ab-batch1-prepare-coverage-map.py" # rascunho não executável preservado pelo selo; sucessor r2 e aceite a445e071
 
 # Rust module name → layer
 [module_layers]

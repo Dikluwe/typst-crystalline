@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: b3c5878b
+Hash do Código: d1f8068c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/locatable.rs`
@@ -138,6 +138,30 @@ vtable-driven (scope-out cristalino).
   (parallel to `pub mod extract_payload;` existente).
 
 ---
+
+## P1339 — classificação de Strong/Emph próprios
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
+`compiler/introspect/locatable.rs:157-159` exclui Strong/Emph junto de
+Styled. A sonda `diagnosticos/p1339-where-integration-probe-runs.json`
+(vanilla ratificado `a51e02804`, estado/UTC/comandos no recibo) encontra
+ocorrências de strong/emph; text.where é rejeitado como não localizável.
+
+### Decisão
+
+Classificar `Content::Strong(_)` e `Content::Emph(_)` como true, em conjunto
+com a delegação de `compiler/introspect/extract_payload.md`. Preservar match
+exaustivo e assinatura pública. Styled continua false, inclusive quando
+envolve estes nós; sua descida normal não é outra ocorrência. Text, flags
+visuais, variantes dinâmicas e todos os demais casos conservam sua regra
+vigente. Não promover famílias por nome ou por serem aceitas pelo where.
+
+O invariante is_locatable ↔ extract_payload.is_some permanece obrigatório.
+Aceitação deve incluir corpo vazio, aninhamento, Styled exterior e controle
+textual bold/italic; sincronização de Location é testada com walk e layout,
+não deduzida apenas de dois testes unitários verdes.
 
 ## Histórico de Revisões
 

@@ -174,3 +174,31 @@ pub enum CounterUpdate {
 Esta é mudança de enum público e, portanto, fica parada no ponto 3 do
 protocolo de nucleação até confirmação do dono. Nenhum teste ou código P1148
 é autorizado por esta proposta antes do gate.
+
+## P1344 — acesso owner-local ao carrier da ação `Func`
+
+### Medição anterior à decisão
+
+O enum vigente já materializado contém `CounterUpdate::Func(Func)`. O blocker
+P1343 R3 demonstrou que o helper dessa unidade não pode ser declarado dentro
+de `impl Func`: além de ser Rust inválido naquela posição, colocaria lógica de
+`CounterUpdate` no owner errado. `entities/counter_update.rs` já é o consumer
+1:1 desta especificação e contém o `impl CounterUpdate` real.
+
+### Decisão vigente
+
+Somente sob `cfg(p1339_observation)`, `CounterUpdate` expõe ao crate um helper
+owner-local read-only que:
+
+- casa exclusivamente a variante real `CounterUpdate::Func(function)`;
+- consulta e devolve por clone/borrow o mesmo carrier privado já anexado ao
+  `Func`, sem criar ocorrência ou executar callback;
+- permite aos callsites H10/H12 provar continuidade da ação real;
+- devolve ausência para `Set` e `Step`, sem inventar identidade;
+- não altera variantes, construtores, Eq, Hash, Debug ou API normal;
+- não usa side table, trait de extensão, macro, impl não local, nome, output,
+  igualdade ou endereço para reconstrução.
+
+Sem `p1339_observation`, o helper e qualquer referência aos tipos de
+observação não existem. É transporte interno de teste, sem mudança pública,
+default, compatibilidade ou fase conforme ADR-0127.

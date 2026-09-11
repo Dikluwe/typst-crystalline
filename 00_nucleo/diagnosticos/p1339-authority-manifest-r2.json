@@ -1,0 +1,22 @@
+{
+  "protocol": "P1339-full-segregated-r2",
+  "regime": "executado sem atestação de isolamento",
+  "predecessor": {"path": "00_nucleo/diagnosticos/p1339-authority-manifest-r1.json", "sha256": "074ec7a3cfeea34f0f6a230dcd4cc4b9b2777a860ce439bdad8c774c034f38fc"},
+  "phase_b": {"path": "00_nucleo/diagnosticos/p1339-l0-freeze.json", "sha256": "397c136fc8710d44b2f7537193fe5b9c44ab89d40a99bf6b994296e05e7c4d04"},
+  "step": {"path": "00_nucleo/materialization/typst-passo-1339.md", "sha256": "817c3a1476897fb0a847c90183e9a9fe690994f60023126997c8022c4e8b86a9"},
+  "contract_path": "00_nucleo/diagnosticos/p1339-contract.json",
+  "baseline_identity": "HEAD 2f42d64253547734564513a1159ee6b584c1c4b4, A0 inventory, and binary hashes pinned in phase_b",
+  "obligations": ["angle.deg", "angle.rad", "float.inf", "float.nan", "float.signum", "float.from-bytes", "float.to-bytes", "function.with", "function.where", "version.at"],
+  "unknown_policy": "Never Preserved by default. Mandatory Unknown blocks seal and closure; explicit opaque controls remain Unknown. Conditional Angle NaN exception retains its historical decision without success credit.",
+  "budget": {"contract_revisions": 3, "preseal_full_runs": 2, "no_gain_revisions_before_redesign": 2},
+  "environment": "Shared repository and filesystem; allowlists are procedural, not enforced capabilities. No attestation of isolation.",
+  "roles": {
+    "operator_implementer": {"executor": "/root", "inherited_context": "Full user conversation, intent and design work; no candidate exists yet", "read": ["frozen L0", "baseline", "public diagnostics", "sealed contract and oracles"], "write": ["phase B receipt", "authority manifests", "productive consumers only after seal and independent RED", "implementation evidence"], "forbidden": ["contract or oracle authorship", "editing protected artifacts", "own verification verdict"]},
+    "contract_author": {"executor": "/root/p1316_review", "inherited_context": "Earlier completed P1316 independent review, unrelated to P1339 candidate; current assignment supplies allowlist", "read": ["phase B receipt and pinned L0", "P1339 step", "baseline and exploratory P1339 diagnostic probes/runs", "protocol skill"], "write": ["p1339-contract.json", "p1339-contract-design.md", "p1339-contract tooling under diagnostics"], "forbidden": ["productive source mutation", "candidate source inspection", "oracle, adversary or verdict output correction"]},
+    "oracle_author_ab": {"executor": "/root/p1319_tests", "inherited_context": "Earlier completed independent P1319 tests, unrelated to P1339 candidate", "read": ["frozen L0", "contract candidate", "vanilla binary and existing baseline measurements", "P1339 step", "protocol skill"], "write": ["p1339-positive-oracles.json", "p1339-opaque-oracles.json", "p1339-ab-* fixtures and runner", "p1339-red.json after seal"], "forbidden": ["candidate code inspection before tests freeze", "productive source mutation", "contract or verifier correction"]},
+    "adversary": {"executor": "/root/p1336_tests", "inherited_context": "Earlier completed independent P1336 tests, unrelated to P1339 candidate", "read": ["frozen L0", "contract candidate", "baseline source and binaries", "P1339 step", "protocol skill"], "write": ["p1339-negative-oracles.json", "p1339-mutation-registry.json", "p1339-mutant-* isolated patches, programs and runs"], "forbidden": ["implementation correction or choice", "contract or verifier output correction", "live productive source mutation"]},
+    "verifier": {"executor": "/root/p1311_review", "inherited_context": "Earlier completed P1311 independent review, unrelated to P1339 candidate", "read": ["authority manifest", "frozen and sealed artifacts", "candidate outputs", "immutable mutation artifacts"], "write": ["p1339-discrimination-runs.json", "p1339-seal.json", "p1339-verification.json", "p1339-final-report.md", "p1339-closure.json", "p1339-verifier-* receipts and runner"], "forbidden": ["correction of verified inputs", "productive source or contract/oracle/mutant mutation"]}
+  },
+  "input_hash_policy": "Each role records exact hashes of additional received canonical inputs and output artifacts in its own receipt; every receipt references this manifest hash.",
+  "ordering": "Phase B freeze precedes contract and oracles; valid discrimination seal and independent RED precede candidate implementation. Changed protected input invalidates successors."
+}

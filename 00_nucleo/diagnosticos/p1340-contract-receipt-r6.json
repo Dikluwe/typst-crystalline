@@ -1,0 +1,72 @@
+{
+  "schema": "p1340-contract-receipt-r6",
+  "status": "DELIVERED_NOT_SEALED",
+  "regime": "executado sem atestacao de isolamento",
+  "author": "/root/p1340_contract_r6",
+  "utc": "2026-09-10T16:22:31Z",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "working_tree": "nao commitado; baseline metadata pin 6e53e353f438bdac11610f70f32911f3adc3af6944e100352ccefe29555c8c8d; no candidate content read",
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1340-contract-successor-r6.json",
+    "sha256": "40d45851407dcd4baa68036b68e1ea012fe0081e5ffb3e19e1e557fa9437479b"
+  },
+  "artifacts": {
+    "00_nucleo/diagnosticos/p1340-contract-observability-r6.md": "b8eee67fadd748e362affdc81dca62d24a80449fa7ae1125717383e6baf83b65",
+    "00_nucleo/diagnosticos/p1340-contract-observability-r6.py": "16c80c5b4cf2e753b7edd0a65f189c28782239fd0e2acb9cae8d5efa699be6fd",
+    "00_nucleo/diagnosticos/p1340-contract-predicate-r6.py": "dec2582671c06c321795c740c4fb103502061c70e4864e05eacb5cc6346f8918",
+    "00_nucleo/diagnosticos/p1340-oracle-focal-r6.py": "40917e2f0f300a83df2a9dd29d6e0d3fca105245bd415055f4039501b9bdf2f8",
+    "00_nucleo/diagnosticos/p1340-oracle-focal-r6.json": "d5b2cd2553ff410bb82a9a4f3cd59c9f8467f811190dae7524134fd109ac70a5"
+  },
+  "validation": [
+    {
+      "command": "python3 -c import-ast-parse-three-r6-scripts",
+      "exit": 0,
+      "result": "syntax-ok:3",
+      "writes": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1340-contract-predicate-r6.py --help",
+      "exit": 0,
+      "result": "entrypoint imports and CLI arguments valid",
+      "writes": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1340-oracle-focal-r6.py",
+      "exit": 0,
+      "result": "16/16 expected classifications; Preserved 2, Violated 10, Unknown 4",
+      "mutation_score": "10/10",
+      "writes": 0
+    }
+  ],
+  "calibration": {
+    "initial": "14/16; two fixture defects, not product/contract-semantic survivors",
+    "correction": "deep-copied event Span; made nested-Dict mutation actually remove the required wrapper",
+    "delta": "+2 correct, zero regressions",
+    "remaining_synthetic_mutant_failures": [],
+    "attempts_by_failure_class": {"span_fixture_alias": 1, "dict_mutant_shape": 1}
+  },
+  "budget": {
+    "contract_revisions_used": "1/2",
+    "focal_corrections": "1/2 in each of two fixture-only classes",
+    "full_corpus_runs": 0,
+    "product_runs": 0,
+    "candidate_reads": 0
+  },
+  "capability_record": {
+    "role": "independent contract and oracle author",
+    "writes": "only new p1340-contract-*-r6.* and p1340-oracle-*-r6.*",
+    "forbidden_inputs_respected": true,
+    "technical_isolation_attested": false,
+    "seal_authority": false,
+    "product_verdict_authority": false
+  },
+  "open_limits": [
+    "No actual binding audit or candidate/product observation was performed",
+    "No 144-cell lifecycle/profile corpus was run",
+    "No NT01-NT06 real branch attacks were run",
+    "No build, regression, V15/V26 or lint gate was run",
+    "A verifier must prove causal-witness completeness; passive DTO assertions alone cannot do so"
+  ],
+  "seal": null,
+  "product_verdict": null
+}

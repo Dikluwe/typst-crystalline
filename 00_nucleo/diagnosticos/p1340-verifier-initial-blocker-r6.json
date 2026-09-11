@@ -1,0 +1,51 @@
+{
+  "schema": "p1340-verifier-initial-blocker-r6",
+  "utc": "2026-09-10T16:28:50.240612098Z",
+  "verdict": "BLOCK_SEAL_INCOMPLETE_R4_R3_INHERITANCE",
+  "regime": "executado sem atestacao de isolamento",
+  "role": "/root/p1340_verifier_r6",
+  "scope": "initial contract audit only; no candidate sources, adapter, candidate outputs or receipts read; no seal issued",
+  "pins_checked": {
+    "00_nucleo/diagnosticos/p1340-closing-authority-r6.json": "c3e14f9b591b5670d8a1114888f0f1e405d25b462b199e3b06ced1c11a5ea9b0",
+    "00_nucleo/diagnosticos/p1340-closing-baseline-r6.json": "6e53e353f438bdac11610f70f32911f3adc3af6944e100352ccefe29555c8c8d",
+    "00_nucleo/diagnosticos/p1340-contract-successor-r6.json": "40d45851407dcd4baa68036b68e1ea012fe0081e5ffb3e19e1e557fa9437479b",
+    "00_nucleo/diagnosticos/p1340-contract-predicate-r6.py": "dec2582671c06c321795c740c4fb103502061c70e4864e05eacb5cc6346f8918",
+    "00_nucleo/diagnosticos/p1340-contract-base-r4.py": "86ea70da06a55b8c91824cd638378bd12e05ce44503a82dc2fddaac69f693909",
+    "00_nucleo/diagnosticos/p1340-contract-predicate-r4.py": "4cf8df636db54b5b6b4b632fd4e4e1ce4c90ae3fe3d1e23e98c14ca4707296d2",
+    "00_nucleo/diagnosticos/p1340-verifier-gate-pause-r1.json": "446a2b0907344787520d23aac387dd40f03129e1dffa0ed2f98f4c57a526fa10",
+    "00_nucleo/diagnosticos/p1340-verifier-terminal-r5-candidate-verdict.json": "4a8533a98129d2c527e18ef9075535ba7ece8ccf498291a488d16f8634196683"
+  },
+  "finding": {
+    "id": "R6-INHERITANCE-001",
+    "severity": "blocking",
+    "claim_audited": "p1340-contract-successor-r6.json states that all public/lifecycle R4/R3 obligations continue through the base predicate",
+    "measured": [
+      "p1340-contract-predicate-r6.py:19 loads p1340-contract-base-r4.py and classify calls only prior.check at line 28",
+      "p1340-contract-base-r4.py:5-8 loads p1339-ab-batch1-lifecycle-predicate.py directly",
+      "p1340-contract-predicate-r4.py:24-85 contains additional R4/R3 scenario checks that are absent from p1340-contract-base-r4.py and are not reached by the R6 entrypoint"
+    ],
+    "omitted_examples": [
+      "V3-final-published-sink-bijection",
+      "V3-stable-complete-fold-final-pair",
+      "V3-child-request-capture-resources-at-boundary",
+      "V3-exact-historical-counter-projection-I0-I5",
+      "V3-final-complete-error-equals-real-body-error",
+      "V3-missing-label-no-callback"
+    ],
+    "classification": "The executable R6 conjunction is a strict weakening of the claimed R4/R3 lifecycle contract. A candidate observation can satisfy the called base while violating omitted scenario-specific obligations, so the successor cannot be sealed.",
+    "refutation": "A new immutable successor entrypoint must demonstrably invoke the full intended predecessor chain, or an independently justified replacement must reproduce every omitted obligation and discriminate mutants for them. The verifier does not prescribe or apply that correction."
+  },
+  "other_initial_results": {
+    "declared_input_pins": "matched for authority, baseline, R4 pause/contract, terminal R5 verdict, eight named L0s and ADR-0107/0108/0127/0129",
+    "unknown_policy": "declaratively fail-closed and blocking; no contrary default observed in the R6 classifier before this blocker",
+    "seal": null,
+    "candidate_execution": 0,
+    "candidate_reads": 0
+  },
+  "provenance": {
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "state": "working tree nao commitado",
+    "status_porcelain_z_sha256_at_finding": "d4891ea843181a363f27e12ee54fbc0a30d6dcf28eea1a41c9e9ca5baf6ca6e5"
+  },
+  "required_action": "Do not seal and do not execute candidate. Return contract authorship to an independent authority for an immutable successor, then provide adversarial artifacts to the verifier only after publication."
+}

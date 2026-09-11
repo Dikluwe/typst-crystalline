@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/selector` — construtor e parsing
-Hash do Código: 38a8528f
+Hash do Código: 7ac9904b
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/selector.rs`  
@@ -72,3 +72,38 @@ paridade do constructor já exposto.
 
 Aceitação: selector composto preserva `repr`; os três vazios falham com as
 mensagens medidas; regex válida não vazia produz `Value::Selector`.
+
+## P1339 — transporte do seletor de elemento aprovado
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
+`selector.rs:31` e `:285` já clonam Value::Selector integralmente no
+constructor/parser. O recibo `p1339-where-integration-probe-runs.json`,
+UTC `2026-09-10T00:18:55.842594+00:00`–`00:18:59.537177+00:00`, mede
+selector(heading.where()) preservando o filtro vazio e sua diferença do
+elemento nu; strong/text e filtros não vazios também atravessam o constructor.
+O recibo fixa working tree e binário vanilla ratificado `a51e02804`.
+Fonte: `foundations/selector.rs:167-174`, constructor retorna o seletor recebido.
+
+### Decisão de integração
+
+Preservar Element inteiro em native_selector e parse_selector_arg: função,
+grupo vazio, ordem e Values. Não reconstruir Kind pelo nome da função nem
+extrair só o primeiro filtro. O caminho já baseado em clone deve continuar
+assim; não requer algoritmo novo apenas para suportar a nova variante.
+
+Construção de um selector não exige que seu elemento seja localizável:
+text.where é um valor válido para show, embora query/counter o rejeitem.
+A validação de locatability pertence ao consumidor contextual, não a este
+transporte comum. Os constructors legados de strings, funções nuas e regex
+mantêm sua disponibilidade e diagnósticos; P1339 não promove todas as
+funções nuas a selectors por efeito colateral.
+
+Aceitação: clone/transporte de grupo vazio e não vazio, alias, ordem e
+identidade; text permanece construível. Filtros descartados ou rejeição
+antecipada de text refutam o contrato. Não confundir preservação dos dados
+com implementação de query/counter: esses owners e a indexação ainda exigem
+seu desenho antes de código. Gate público aprovado no recibo
+p1339-where-approval.json; contrato, selo e RED permanecem anteriores à
+materialização.

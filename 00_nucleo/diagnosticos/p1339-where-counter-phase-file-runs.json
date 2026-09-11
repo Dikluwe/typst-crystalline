@@ -1,0 +1,203 @@
+{
+  "start": {
+    "current_time": "2026-09-10 01:15:47 UTC"
+  },
+  "end": {
+    "current_time": "2026-09-10 01:15:50 UTC"
+  },
+  "git_state": {
+    "chunk_id": "b0eee5",
+    "wall_time_seconds": 0.000004178,
+    "exit_code": 0,
+    "original_token_count": 349,
+    "output": "2f42d64253547734564513a1159ee6b584c1c4b4\n .../prompts/compiler/eval/bindings/field_access.md |  43 +++++++++\n .../compiler/eval/bindings/value_methods.md        |  89 ++++++++++++++++++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 +++++++++++\n .../prompts/compiler/eval/operators/equality.md    |  44 +++++++++\n 00_nucleo/prompts/compiler/eval/repr.md            |  38 ++++++++\n 00_nucleo/prompts/compiler/eval/rules.md           |  34 +++++++\n .../prompts/compiler/eval/selector_matching.md     |  78 ++++++++++++++++\n 00_nucleo/prompts/compiler/introspect.md           | 100 +++++++++++++++++++++\n .../prompts/compiler/introspect/extract_payload.md |  27 ++++++\n 00_nucleo/prompts/compiler/introspect/locatable.md |  24 +++++\n 00_nucleo/prompts/compiler/layout.md               |  27 ++++++\n .../prompts/compiler/stdlib/foundations/query.md   |  31 +++++++\n .../compiler/stdlib/foundations/selector.md        |  35 ++++++++\n 00_nucleo/prompts/entities/element_payload.md      |  88 ++++++++++++++++++\n 00_nucleo/prompts/entities/elements/emph.md        |  25 ++++++\n 00_nucleo/prompts/entities/elements/strong.md      |  26 ++++++\n 00_nucleo/prompts/entities/introspector.md         |  31 +++++++\n 00_nucleo/prompts/entities/selector.md             |  82 +++++++++++++++++\n 00_nucleo/prompts/entities/show.md                 |  48 ++++++++++\n 19 files changed, 923 insertions(+)\n"
+  },
+  "fixture_directory": "/tmp/p1339-counter-phase.iDnXW5",
+  "role": "L0 author exploratory measurement; not independent oracle",
+  "runs": [
+    {
+      "binary": "vanilla",
+      "case": "bare_first_context_assert",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "source": "#set heading(numbering: \"1\")\n= A\n#counter(heading).update(n => n + 10)\n= B\n#context { assert(counter(heading).get() == (12,)); metadata(\"passed\") }",
+      "command": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-counter-phase.iDnXW5/bare_first_context_assert.typ",
+        "/tmp/p1339-counter-phase.iDnXW5/vanilla-bare_first_context_assert.pdf"
+      ],
+      "start": {
+        "current_time": "2026-09-10 01:15:47 UTC"
+      },
+      "end": {
+        "current_time": "2026-09-10 01:15:48 UTC"
+      },
+      "chunk_id": "3116ee",
+      "wall_time_seconds": 0.173695088,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "binary": "vanilla",
+      "case": "filtered_first_context_assert",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "source": "#set heading(numbering: \"1\")\n= A\n#counter(heading.where()).update(n => n + 10)\n= B\n#context { assert(counter(heading.where()).get() == (12,)); metadata(\"passed\") }",
+      "command": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-counter-phase.iDnXW5/filtered_first_context_assert.typ",
+        "/tmp/p1339-counter-phase.iDnXW5/vanilla-filtered_first_context_assert.pdf"
+      ],
+      "start": {
+        "current_time": "2026-09-10 01:15:48 UTC"
+      },
+      "end": {
+        "current_time": "2026-09-10 01:15:48 UTC"
+      },
+      "chunk_id": "7feb42",
+      "wall_time_seconds": 0.168396582,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "binary": "vanilla",
+      "case": "legacy_named_filter_assert",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "source": "#set heading(numbering: \"1\")\n= A\n#counter(heading.where(level: 1)).update(n => n + 10)\n= B\n#context { assert(counter(heading.where(level: 1)).get() == (12,)); metadata(\"passed\") }",
+      "command": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-counter-phase.iDnXW5/legacy_named_filter_assert.typ",
+        "/tmp/p1339-counter-phase.iDnXW5/vanilla-legacy_named_filter_assert.pdf"
+      ],
+      "start": {
+        "current_time": "2026-09-10 01:15:48 UTC"
+      },
+      "end": {
+        "current_time": "2026-09-10 01:15:49 UTC"
+      },
+      "chunk_id": "e49170",
+      "wall_time_seconds": 0.17512097,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "binary": "vanilla",
+      "case": "legacy_named_error_priority",
+      "sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "source": "#counter(heading.where(level: 1)).update(n => panic(\"callback-first\"))\n#context panic(\"context-first\")",
+      "command": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-counter-phase.iDnXW5/legacy_named_error_priority.typ",
+        "/tmp/p1339-counter-phase.iDnXW5/vanilla-legacy_named_error_priority.pdf"
+      ],
+      "start": {
+        "current_time": "2026-09-10 01:15:49 UTC"
+      },
+      "end": {
+        "current_time": "2026-09-10 01:15:49 UTC"
+      },
+      "chunk_id": "96da33",
+      "wall_time_seconds": 0.000005169,
+      "exit_code": 1,
+      "original_token_count": 51,
+      "output": "error: panicked with: context-first\n  ┌─ ../../../tmp/p1339-counter-phase.iDnXW5/legacy_named_error_priority.typ:2:9\n  │\n2 │ #context panic(\"context-first\")\n  │          ^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "binary": "crystalline",
+      "case": "bare_first_context_assert",
+      "sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "source": "#set heading(numbering: \"1\")\n= A\n#counter(heading).update(n => n + 10)\n= B\n#context { assert(counter(heading).get() == (12,)); metadata(\"passed\") }",
+      "command": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-counter-phase.iDnXW5/bare_first_context_assert.typ",
+        "/tmp/p1339-counter-phase.iDnXW5/crystalline-bare_first_context_assert.pdf"
+      ],
+      "start": {
+        "current_time": "2026-09-10 01:15:49 UTC"
+      },
+      "end": {
+        "current_time": "2026-09-10 01:15:49 UTC"
+      },
+      "chunk_id": "9f9a3e",
+      "wall_time_seconds": 0.000005861,
+      "exit_code": 1,
+      "original_token_count": 61,
+      "output": "error: assertion failed\n  ┌─ /tmp/p1339-counter-phase.iDnXW5/bare_first_context_assert.typ:5:17\n  │\n5 │ #context { assert(counter(heading).get() == (12,)); metadata(\"passed\") }\n  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "binary": "crystalline",
+      "case": "filtered_first_context_assert",
+      "sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "source": "#set heading(numbering: \"1\")\n= A\n#counter(heading.where()).update(n => n + 10)\n= B\n#context { assert(counter(heading.where()).get() == (12,)); metadata(\"passed\") }",
+      "command": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-counter-phase.iDnXW5/filtered_first_context_assert.typ",
+        "/tmp/p1339-counter-phase.iDnXW5/crystalline-filtered_first_context_assert.pdf"
+      ],
+      "start": {
+        "current_time": "2026-09-10 01:15:49 UTC"
+      },
+      "end": {
+        "current_time": "2026-09-10 01:15:50 UTC"
+      },
+      "chunk_id": "972aac",
+      "wall_time_seconds": 0.000004027,
+      "exit_code": 1,
+      "original_token_count": 58,
+      "output": "error: heading.where() requer pelo menos um argumento nomeado\n  ┌─ /tmp/p1339-counter-phase.iDnXW5/filtered_first_context_assert.typ:3:22\n  │\n3 │ #counter(heading.where()).update(n => n + 10)\n  │                       ^^\n\n"
+    },
+    {
+      "binary": "crystalline",
+      "case": "legacy_named_filter_assert",
+      "sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "source": "#set heading(numbering: \"1\")\n= A\n#counter(heading.where(level: 1)).update(n => n + 10)\n= B\n#context { assert(counter(heading.where(level: 1)).get() == (12,)); metadata(\"passed\") }",
+      "command": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-counter-phase.iDnXW5/legacy_named_filter_assert.typ",
+        "/tmp/p1339-counter-phase.iDnXW5/crystalline-legacy_named_filter_assert.pdf"
+      ],
+      "start": {
+        "current_time": "2026-09-10 01:15:50 UTC"
+      },
+      "end": {
+        "current_time": "2026-09-10 01:15:50 UTC"
+      },
+      "chunk_id": "9fbc4f",
+      "wall_time_seconds": 0.000003877,
+      "exit_code": 1,
+      "original_token_count": 69,
+      "output": "error: assertion failed\n  ┌─ /tmp/p1339-counter-phase.iDnXW5/legacy_named_filter_assert.typ:5:17\n  │\n5 │ #context { assert(counter(heading.where(level: 1)).get() == (12,)); metadata(\"passed\") }\n  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "binary": "crystalline",
+      "case": "legacy_named_error_priority",
+      "sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "source": "#counter(heading.where(level: 1)).update(n => panic(\"callback-first\"))\n#context panic(\"context-first\")",
+      "command": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-counter-phase.iDnXW5/legacy_named_error_priority.typ",
+        "/tmp/p1339-counter-phase.iDnXW5/crystalline-legacy_named_error_priority.pdf"
+      ],
+      "start": {
+        "current_time": "2026-09-10 01:15:50 UTC"
+      },
+      "end": {
+        "current_time": "2026-09-10 01:15:50 UTC"
+      },
+      "chunk_id": "bc9d2c",
+      "wall_time_seconds": 0.000004709,
+      "exit_code": 1,
+      "original_token_count": 49,
+      "output": "error: panicked with: context-first\n  ┌─ /tmp/p1339-counter-phase.iDnXW5/legacy_named_error_priority.typ:2:9\n  │\n2 │ #context panic(\"context-first\")\n  │          ^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    }
+  ]
+}

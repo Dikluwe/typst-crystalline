@@ -1,0 +1,78 @@
+{
+  "id": "ARR-P01-empty",
+  "family": null,
+  "role": "invalid_mode",
+  "mode": 255,
+  "profile": "default",
+  "order": "normal",
+  "source": "{ let a = array(bytes(())); repr((type(a), a)) }",
+  "source_sha256": "7cd9a6a084e2b1c80afb553ee62de8cec0551bce7be81657a050bf2adab8500b",
+  "argv": [
+    "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+    "eval",
+    "{ let a = array(bytes(())); repr((type(a), a)) }"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "stdin_base64": "",
+  "utc_start": "2026-09-10T11:12:07.265147+00:00",
+  "utc_end": "2026-09-10T11:12:07.363680+00:00",
+  "environment_delta": {
+    "NO_COLOR": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "P1339_ARRAY_MUTANT": "255",
+    "RUST_BACKTRACE": "0"
+  },
+  "effective_relevant_environment": {
+    "XDG_CONFIG_DIRS": "/etc/xdg/xdg-cinnamon:/etc/xdg",
+    "XDG_SESSION_PATH": "/org/freedesktop/DisplayManager/Session0",
+    "XDG_SEAT": "seat0",
+    "XDG_SESSION_DESKTOP": "cinnamon",
+    "XDG_SESSION_TYPE": "x11",
+    "XDG_GREETER_DATA_DIR": "/var/lib/lightdm-data/dikluwe",
+    "HOME": "/home/dikluwe",
+    "LANG": "pt_BR.UTF-8",
+    "XDG_CURRENT_DESKTOP": "X-Cinnamon",
+    "XDG_SEAT_PATH": "/org/freedesktop/DisplayManager/Seat0",
+    "XDG_SESSION_CLASS": "user",
+    "XDG_VTNR": "7",
+    "XDG_SESSION_ID": "c2",
+    "NO_COLOR": "1",
+    "LC_CTYPE": "C.UTF-8",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "LC_ALL": "C.UTF-8",
+    "XDG_DATA_DIRS": "/usr/share/cinnamon:/home/dikluwe/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share",
+    "PATH": "/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.codex/tmp/arg0/codex-arg0OjL0Km:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.bun/bin:/home/dikluwe/.kimi-code/bin:/home/dikluwe/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/dikluwe/.lmstudio/bin:/opt/zig:/home/dikluwe/go/bin:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "P1339_ARRAY_MUTANT": "255",
+    "RUST_BACKTRACE": "0"
+  },
+  "core_limit": 0,
+  "timeout_seconds": 30,
+  "binary_before": {
+    "path": "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+    "sha256": "fe0c60f17f67748480c78ccc8a2c5e7a42a738c808f29b901c44f3e177b4a055"
+  },
+  "binary_after": {
+    "path": "/tmp/p1339-mutant-array.jrXHiv/typst-array-multiplex-r1",
+    "sha256": "fe0c60f17f67748480c78ccc8a2c5e7a42a738c808f29b901c44f3e177b4a055"
+  },
+  "transport": "AbnormalExit",
+  "exit": 101,
+  "signal": null,
+  "spawn_error": null,
+  "channels": {
+    "stdout": {
+      "utf8": "",
+      "base64": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stderr": {
+      "utf8": "\nthread 'main' (100) panicked at 01_core/src/compiler/eval/p1339_mutant_array.rs:8:5:\ninvalid isolated Array mutant mode\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "base64": "CnRocmVhZCAnbWFpbicgKDEwMCkgcGFuaWNrZWQgYXQgMDFfY29yZS9zcmMvY29tcGlsZXIvZXZhbC9wMTMzOV9tdXRhbnRfYXJyYXkucnM6ODo1OgppbnZhbGlkIGlzb2xhdGVkIEFycmF5IG11dGFudCBtb2RlCm5vdGU6IHJ1biB3aXRoIGBSVVNUX0JBQ0tUUkFDRT0xYCBlbnZpcm9ubWVudCB2YXJpYWJsZSB0byBkaXNwbGF5IGEgYmFja3RyYWNlCg==",
+      "sha256": "4644a0421a61e923b9844253a793f6aebb85fb5c05c55bae7bdec1fe63b8a10b",
+      "bytes": 199
+    }
+  },
+  "comparison": "UnknownInvalidModeRaw"
+}

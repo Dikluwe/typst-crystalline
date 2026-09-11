@@ -1,0 +1,148 @@
+{
+  "schema": "p1340-contract-successor-v3",
+  "status": "FROZEN_CANDIDATE_FOR_INDEPENDENT_REVIEW_NOT_SEALED",
+  "author": "/root/p1340_contract_correction",
+  "role": "independent contract and test author",
+  "regime": "executado sem atestacao de isolamento",
+  "utc": "2026-09-10T13:57:04.049Z",
+  "baseline_head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "state": "working tree nao commitado",
+  "diff_head_stat": " 00_nucleo/prompts/compiler/eval.md                 |  232 +-\n .../prompts/compiler/eval/bindings/field_access.md |   75 +\n .../compiler/eval/bindings/value_methods.md        |  160 +\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  188 +-\n .../prompts/compiler/eval/operators/equality.md    |   67 +\n 00_nucleo/prompts/compiler/eval/repr.md            |   38 +\n 00_nucleo/prompts/compiler/eval/rules.md           |   34 +\n .../prompts/compiler/eval/selector_matching.md     |   78 +\n 00_nucleo/prompts/compiler/introspect.md           |  123 +\n .../prompts/compiler/introspect/extract_payload.md |   27 +\n 00_nucleo/prompts/compiler/introspect/from_tags.md |   78 +\n 00_nucleo/prompts/compiler/introspect/locatable.md |   26 +-\n 00_nucleo/prompts/compiler/layout.md               |   29 +-\n 00_nucleo/prompts/compiler/stdlib/_comum.md        |   33 +-\n 00_nucleo/prompts/compiler/stdlib/counter.md       |   80 +\n .../prompts/compiler/stdlib/foundations/float.md   |  120 +-\n .../prompts/compiler/stdlib/foundations/query.md   |   66 +\n .../compiler/stdlib/foundations/selector.md        |   37 +-\n .../compiler/stdlib/primitives-constructors.md     |   39 +-\n .../stdlib/primitives-constructors/version.md      |   76 +-\n 00_nucleo/prompts/compiler/stdlib/state.md         |   45 +\n 00_nucleo/prompts/entities/counter_registry.md     |   35 +\n 00_nucleo/prompts/entities/element_payload.md      |   88 +\n 00_nucleo/prompts/entities/elements/emph.md        |   27 +-\n 00_nucleo/prompts/entities/elements/strong.md      |   28 +-\n 00_nucleo/prompts/entities/introspector.md         |   31 +\n 00_nucleo/prompts/entities/layout_types.md         |   27 +\n 00_nucleo/prompts/entities/selector.md             |   82 +\n 00_nucleo/prompts/entities/show.md                 |   48 +\n 00_nucleo/prompts/entities/style_chain.md          |    2 +-\n 00_nucleo/prompts/entities/version.md              |   44 +-\n 00_nucleo/prompts/infra/pipeline.md                |   34 +-\n 01_core/src/compiler/eval/bindings/field_access.rs |    7 +-\n 01_core/src/compiler/eval/bindings/mod.rs          |    6 +-\n .../src/compiler/eval/bindings/value_methods.rs    |  295 +-\n 01_core/src/compiler/eval/call_dispatch.rs         |  205 +-\n 01_core/src/compiler/eval/mod.rs                   | 5932 +++++++++++++++++++-\n 01_core/src/compiler/eval/operators/equality.rs    |  126 +-\n 01_core/src/compiler/eval/repr.rs                  |   42 +-\n 01_core/src/compiler/eval/rules.rs                 |    6 +-\n 01_core/src/compiler/eval/selector_matching.rs     |  377 +-\n 01_core/src/compiler/introspect.rs                 |  389 +-\n 01_core/src/compiler/introspect/extract_payload.rs |    4 +-\n 01_core/src/compiler/introspect/from_tags.rs       |   71 +-\n 01_core/src/compiler/introspect/locatable.rs       |   14 +-\n 01_core/src/compiler/layout/mod.rs                 |    2 +-\n 01_core/src/compiler/stdlib/counter.rs             |  261 +-\n 01_core/src/compiler/stdlib/foundations/float.rs   |  313 +-\n 01_core/src/compiler/stdlib/foundations/query.rs   |   16 +-\n .../src/compiler/stdlib/foundations/selector.rs    |   23 +-\n 01_core/src/compiler/stdlib/mod.rs                 |    6 +-\n .../src/compiler/stdlib/primitives_constructors.rs |    5 +-\n .../stdlib/primitives_constructors/version.rs      |  125 +-\n 01_core/src/compiler/stdlib/state.rs               |   39 +-\n 01_core/src/entities/counter_registry.rs           |   24 +-\n 01_core/src/entities/element_payload.rs            |    4 +-\n 01_core/src/entities/elements/emph.rs              |    6 +-\n 01_core/src/entities/elements/strong.rs            |    6 +-\n 01_core/src/entities/introspector.rs               |  340 +-\n 01_core/src/entities/layout_types.rs               |    2 +-\n 01_core/src/entities/selector.rs                   |    5 +-\n 01_core/src/entities/show.rs                       |    4 +-\n 01_core/src/entities/style_chain.rs                |    7 +\n 01_core/src/entities/version.rs                    |    2 +-\n 03_infra/src/pipeline.rs                           |   22 +-\n crystalline.toml                                   |    1 +\n 66 files changed, 10097 insertions(+), 687 deletions(-)\n",
+  "predecessor": {
+    "path": "00_nucleo/diagnosticos/p1340-contract-r2.json",
+    "sha256": "9ea5ecc71e26e1ee707fe4eecdf6d5cd2768f2e2be8cd6e6d0605b1ef38ae434"
+  },
+  "pins": [
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-r2.json",
+      "sha256": "9ea5ecc71e26e1ee707fe4eecdf6d5cd2768f2e2be8cd6e6d0605b1ef38ae434"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-correction-authority.json",
+      "sha256": "ae55fed7edca50c110b2ebc50975691dc321f470f562aff6196ef2efbd46c317"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-baseline.json",
+      "sha256": "0869202e774bd7b76278365aac7292d45a1c930be42cf83270845c985cb5000a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1339-ab-batch1-retention-lifecycle-typed-r3.json",
+      "sha256": "6d8c257997631133fb1a7a55816daaa50e1633c129fafd17f6d1ddeb378ca541"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate.py",
+      "sha256": "8cae4f1719a9310d4e627bc85bfe5d2589bb411af1f1527d8a872e2a7a94ed14"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v2.py",
+      "sha256": "b7115b78a61d4b07391f46d50d9b0ffba0244a9571f7b7eb48f617f8c6517209"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1339-ab-batch1-lifecycle-predicate-v3.py",
+      "sha256": "715adff3a42c6be12aaedf582c4c7846d30c226c7be45afbfaa432889dfbf60f"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-terminal-harness-r2.rs",
+      "sha256": "85c3f151cbf1e88c241acea0b68df1f6c468ba0a1a956e5a3f6af91cd0a19e7d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-binding-r2.md",
+      "sha256": "4d9426025cbc986b79793658e99a20203216089eb9951d9ece759cb962027f8c"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-correction-predicate-v2-r3.py",
+      "sha256": "1a23c05af0ed187b233fb9f8afe1198f9d7712a327619bee32bbd24c06bd414c"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-correction-predicate-r3.py",
+      "sha256": "873a408dc935e3d3c543301a0019a8f5d4a26d887d95f8affca4095a85e8e5ad"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1340-contract-correction-r3.md",
+      "sha256": "e87fb6bacf19f71e67978f21e06fd4fa38585f8763efd70e5fc0103aeff8bd4a"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "321d6747749a72488e13ee4f4996ae0d8b8a3c7df1c227a521431f02ae4a0cb1"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline.md",
+      "sha256": "e69691e7ced9e1cc26ddc0b752ff64a418322cad68c21a4b5bc68bbae6f66c1d"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "sha256": "3094bd8cda8d1971e765cf91cbb110d376ff713e4348ae8f4bf8214e33b45b9b"
+    },
+    {
+      "path": "01_core/src/compiler/eval/mod.rs",
+      "sha256": "8cac57e3d1d1f1401a8e0d63ede40d4fc0772d1df60134478a73f37d37b47e6a"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/counter.rs",
+      "sha256": "31dfc8413e5b90901c6c8fc313bc254c2d0794df87b2d7df61661f6166d65f62"
+    }
+  ],
+  "inheritance": "All R2 requirements, twelve lifecycle fixtures, forty public cases, all profiles/orders, structural witnesses, Unknown policy and T01-T06 terminal tests remain. Only universal stable RequestRecorded Ok[0] and universal negative replay completeness are superseded explicitly.",
+  "corrections": [
+    {
+      "id": "R3-typed-dependency-and-projection",
+      "old": "All actual stable-body requests must return Ok[0]",
+      "new": "Exactly CounterFold Ok[] then CounterFinal Ok[0] for each of the four frozen stable fixture bodies; keep every original operation/result in transcript. Nonempty folds elsewhere remain integral typed location/value sequences and errors.",
+      "basis": [
+        "compiler/eval.md:382-412",
+        "compiler/stdlib/counter.rs:326-333,385-388"
+      ]
+    },
+    {
+      "id": "R3-witnessed-negative-prefix",
+      "old": "Every validation replays all recorded requests",
+      "new": "True: full original sequence and every actual relation Same. False: exact nonempty prefix, preceding Same and final real Different or Unproven. Err: full actual mechanism diagnostic witness, with completed preceding Same prefix.",
+      "basis": [
+        "compiler/eval.md:398-406,441-445,527-530",
+        "eval/mod.rs:5796-5804"
+      ],
+      "inference": "L0 requires complete positive proof and negative result for changed reads; no obligation to execute post-refutation replays found. This is a logical inference explicitly subject to independent review, not authority inferred from baseline behavior."
+    }
+  ],
+  "dto_extension": {
+    "RequestReplay": "Add relation: Same|Different|Unproven observed from actual existing private comparator call. Preserve every original result field without alteration.",
+    "ValidationCompleted_Err": "Add mechanism_error: complete actual mechanism Err, separate from an observed read Err.",
+    "binding_gate": "Independent cfg-only actual-path observation audit mandatory. No JSON equality, false-to-Unproven deduction, test expectations, replay construction or filtering."
+  },
+  "entrypoint": "00_nucleo/diagnosticos/p1340-contract-correction-predicate-r3.py",
+  "chain": [
+    "p1340-contract-correction-predicate-r3.py",
+    "p1340-contract-correction-predicate-v2-r3.py",
+    "p1339-ab-batch1-lifecycle-predicate.py"
+  ],
+  "execution": {
+    "production_builds": 0,
+    "production_tests": 0,
+    "seal": null,
+    "independent_verdict": null
+  },
+  "budget": {
+    "semantic_revision": "R3 final remaining semantic revision",
+    "full_product_matrix_runs": 0
+  },
+  "forbidden": [
+    "candidate implementation read",
+    "L0 edits",
+    "production edits",
+    "historical oracle edits",
+    "fabricated observations",
+    "author issuing verifier verdict"
+  ],
+  "required_focal_discrimination": [
+    "valid fold/final pair",
+    "true full Same sequence",
+    "false exact prefix with final Different",
+    "false exact prefix with final Unproven",
+    "reject truncated true",
+    "reject prefix gap or reorder",
+    "reject false empty or all Same",
+    "reject positive Unproven",
+    "reject dropped fold or altered fold payload",
+    "reject missing replay result"
+  ]
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/selector.md
-//! @prompt-hash d7297d6f
+//! @prompt-hash 33bb30f8
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -27,6 +27,9 @@ use crate::entities::value::Value;
 pub enum Selector {
     /// Selector de kind — matches todos os elementos de um tipo.
     Kind(ElementKind),
+    /// P1339 — native element identity with an explicitly present, ordered filter.
+    /// An empty group remains distinct from a bare Kind selector.
+    Element { function: crate::entities::func::Func, fields: EcoVec<(EcoString, Value)> },
     /// **P209B (M9c)** — Selector de label específica.
     Label(Label),
     /// **P209B (M9c)** — Selector de Location específica (singleton).

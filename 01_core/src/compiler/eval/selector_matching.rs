@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching.md
-//! @prompt-hash 557abd0a
+//! @prompt-hash 7c41ed84
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -11,16 +11,21 @@
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;
+use crate::entities::func::Func;
 use crate::entities::selector::Selector as QuerySelector;
 use crate::entities::show::{NodeKind, Selector};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
-use crate::entities::value::Value;
+use crate::entities::value::{IntrospectedContent, Value};
+
+pub(crate) use super::operators::equality::{
+    counter_keys_eq, selector_contains_element, selectors_eq, values_eq,
+};
 
 /// **P417 (M)** — Converte um `entities::selector::Selector` (query)
-/// para um `entities::show::Selector` (show rule). Apenas `Kind` e
-/// `Where` sobre `Kind` de elementos nativos suportados são convertidos;
-/// outros selectors são scope-out com erro claro.
+/// para um `entities::show::Selector` (show rule). P1339 transporta a
+/// identidade nativa de `Element` e seu grupo ordenado, além das rotas
+/// legadas Kind/Where/And/Or. Outros selectors conservam seu erro anterior.
 pub(crate) fn query_selector_to_show_selector(
     sel: QuerySelector,
     span: Span,
@@ -40,6 +45,17 @@ pub(crate) fn query_selector_to_show_selector(
     }
 
     match sel {
+        QuerySelector::Element { function, fields } => {
+            let mut selector = Selector::NativeElement(function);
+            for (field, value) in fields {
+                selector = Selector::Where {
+                    base: Box::new(selector),
+                    field,
+                    value: Box::new(value),
+                };
+            }
+            Ok(selector)
+        }
         QuerySelector::Kind(kind) => match kind_to_node(kind) {
             Some(node) => Ok(Selector::NodeKind(node)),
             None => Err(vec![SourceDiagnostic::error(
@@ -85,7 +101,7 @@ pub(crate) fn query_selector_to_show_selector(
     }
 }
 
-/// Casa um nó contra um selector de element rule (`NodeKind`/`DynKind`).
+/// Casa um nó contra um selector de element rule (`NodeKind`/`NativeElement`/`DynKind`).
 /// **Partilhado** (P352) pelo loop α (transformação func/content) e pela passagem
 /// de show-set: ambos usam exatamente o mesmo critério de match. `Selector::Text`
 /// nunca casa aqui (tratado por `map_text`).
@@ -96,6 +112,7 @@ pub(crate) fn selector_matches(work: &Content, selector: &Selector) -> bool {
     // um `Content::Styled` com `Bold { from_strong: true }` casa `show strong`,
     // mas `Bold { from_strong: false }` (de `#set text(bold)`) não casa.
     match selector {
+        Selector::NativeElement(function) => native_element_matches(work, function),
         Selector::NodeKind(kind) => {
             matches!(
                 (work, kind),
@@ -157,11 +174,16 @@ pub(crate) fn selector_matches(work: &Content, selector: &Selector) -> bool {
         // `it` = corpo, não o wrapper).
         Selector::Label(_) => false,
         Selector::Where { base, field, value } => {
-            selector_matches(work, base)
-                && work
-                    .get_field(field.as_str())
-                    .map(|actual| values_eq_semantic(&actual, value.as_ref()))
-                    .unwrap_or(false)
+            if !selector_matches(work, base) {
+                return false;
+            }
+            if native_element_base(base).is_some() {
+                native_element_field(work, field.as_str())
+                    .is_some_and(|actual| values_eq(&actual, value.as_ref()))
+            } else {
+                work.get_field(field.as_str())
+                    .is_some_and(|actual| values_eq_semantic(&actual, value.as_ref()))
+            }
         }
         // **P423 (S-M)** — combinadores And/Or com curto-circuito.
         // And/Or vazios retornam `false` (Opção A fixada em P209C/P423).
@@ -172,6 +194,141 @@ pub(crate) fn selector_matches(work: &Content, selector: &Selector) -> bool {
             !sels.is_empty() && sels.iter().any(|s| selector_matches(work, s))
         }
     }
+}
+
+fn native_element_base(selector: &Selector) -> Option<&Func> {
+    match selector {
+        Selector::NativeElement(function) => Some(function),
+        Selector::Where { base, .. } => native_element_base(base),
+        _ => None,
+    }
+}
+
+/// Preserve the special paragraph path, including filters over its new base.
+pub(crate) fn is_par_rule(selector: &Selector) -> bool {
+    matches!(selector, Selector::NodeKind(NodeKind::Par))
+        || native_element_base(selector)
+            .and_then(Func::native_fn_addr)
+            .is_some_and(|addr| {
+                std::ptr::fn_addr_eq(
+                    addr,
+                    crate::compiler::stdlib::native_par as fn(_, _, _, _) -> _,
+                )
+            })
+}
+
+/// Recognize represented native element identities by executable, never by alias name.
+/// NodeKind remains authoritative for semantic style origins and list morphology.
+pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool {
+    use crate::compiler::stdlib::*;
+    if let crate::entities::func::FuncRepr::NativeWithEngine(native) = function.0.as_ref()
+    {
+        return matches!(content, Content::PageRun(_))
+            && std::ptr::fn_addr_eq(
+                native.call,
+                native_page as fn(_, _, _, _, _, _) -> _,
+            );
+    }
+    let Some(addr) = function.native_fn_addr() else { return false };
+    macro_rules! native {
+        ($function:ident) => {
+            std::ptr::fn_addr_eq(addr, $function as fn(_, _, _, _) -> _)
+        };
+    }
+    macro_rules! node_kinds {
+        ($($function:ident => $kind:ident),* $(,)?) => {
+            $(if native!($function) {
+                return selector_matches(content, &Selector::NodeKind(NodeKind::$kind));
+            })*
+        };
+    }
+    node_kinds! {
+        native_heading => Heading, native_figure => Figure,
+        native_strong => Strong, native_emph => Emph, native_raw => Raw,
+        native_par => Par, native_link => Link, native_quote => Quote,
+        native_footnote => Footnote, native_list => List, native_enum => Enum,
+        native_underline => Underline, native_overline => Overline,
+        native_strike => Strike, native_smallcaps => Smallcaps,
+        native_subscript => Subscript, native_superscript => Superscript,
+        native_highlight => Highlight,
+    }
+    match content {
+        Content::Text(_) => native!(native_text),
+        Content::Table(_) => native!(native_table),
+        Content::Grid(_) => native!(native_grid),
+        Content::Metadata(_) => native!(native_metadata),
+        Content::Terms(_) => native!(native_terms),
+        Content::Outline(_) => native!(native_outline),
+        Content::Cite(_) => native!(native_cite),
+        Content::Bibliography(_) => native!(native_bibliography),
+        Content::Ref(_) => native!(native_ref),
+        Content::Image(_) => native!(native_image),
+        Content::Align(_) => native!(native_align),
+        Content::Block(_) => native!(native_block),
+        Content::Boxed(_) => native!(native_box),
+        Content::Columns(_) => native!(native_columns),
+        Content::Pad(_) => native!(native_pad),
+        Content::Place(_) => native!(native_place),
+        Content::Hide(_) => native!(native_hide),
+        Content::Repeat(_) => native!(native_repeat),
+        Content::Stack(_) => native!(native_stack),
+        Content::HSpace(_) => native!(native_h),
+        Content::VSpace(_) => native!(native_v),
+        Content::Pagebreak(_) => native!(native_pagebreak),
+        Content::Colbreak(_) => native!(native_colbreak),
+        Content::Linebreak(_) => native!(native_linebreak),
+        Content::Parbreak => native!(native_parbreak),
+        Content::SmartQuote(_) => native!(native_smartquote),
+        // These names overlap in the public namespace: executable identity is required.
+        Content::TableHeader(_) => native!(native_table_header),
+        Content::TableFooter(_) => native!(native_table_footer),
+        Content::TableHLine(_) => native!(native_table_hline),
+        Content::TableVLine(_) => native!(native_table_vline),
+        Content::TableCell(_) => native!(native_table_cell),
+        Content::GridHeader(_) => native!(native_grid_header),
+        Content::GridFooter(_) => native!(native_grid_footer),
+        Content::GridHLine(_) => native!(native_grid_hline),
+        Content::GridVLine(_) => native!(native_grid_vline),
+        Content::GridCell(_) => native!(native_grid_cell),
+        // The antecedent erased constructor identity in these representations.
+        // P1339 does not infer square/rect, circle/ellipse or transforms from geometry.
+        Content::Shape(_) | Content::Transform(_) => false,
+        _ => false,
+    }
+}
+
+/// Linguistic fields for native filters; the legacy Where projector stays unchanged.
+fn native_element_field(content: &Content, field: &str) -> Option<Value> {
+    match (content, field) {
+        (Content::Text(text), "text") => Some(Value::Str(text.clone())),
+        (Content::Raw(raw), "text") => Some(Value::Str(raw.text.clone())),
+        (Content::Raw(raw), "lang") => {
+            Some(raw.lang.clone().map(Value::Str).unwrap_or(Value::None))
+        }
+        (Content::Raw(raw), "block") => Some(Value::Bool(raw.block)),
+        (Content::Styled(body, _), "body")
+            if is_styled_origin(content, true, true, true, true, true) =>
+        {
+            Some(Value::Content(body.as_ref().clone()))
+        }
+        _ => content.get_field(field),
+    }
+}
+
+/// A present occurrence snapshot is authoritative, including a missing field.
+pub(crate) fn element_selector_matches(
+    entry: &IntrospectedContent,
+    function: &Func,
+    fields: &[(ecow::EcoString, Value)],
+) -> bool {
+    native_element_matches(entry.content(), function)
+        && fields.iter().all(|(name, expected)| match entry.fields() {
+            Some(snapshot) => {
+                snapshot.get(name).is_some_and(|actual| values_eq(actual, expected))
+            }
+            None => native_element_field(entry.content(), name)
+                .is_some_and(|actual| values_eq(&actual, expected)),
+        })
 }
 
 /// **P417 (M)** — Igualdade semântica de `Value` para matching de `Where`.
@@ -191,7 +348,7 @@ fn values_eq_semantic(actual: &Value, expected: &Value) -> bool {
 /// devem ser node-like).
 pub(crate) fn is_node_rule(selector: &Selector) -> bool {
     match selector {
-        Selector::NodeKind(_) | Selector::DynKind(_) => true,
+        Selector::NodeKind(_) | Selector::NativeElement(_) | Selector::DynKind(_) => true,
         Selector::Where { base, .. } => is_node_rule(base.as_ref()),
         // **P423 (S-M)** — combinadores viajam pela travessia de nós sse
         // todos os sub-selectors forem node-like.
@@ -311,6 +468,202 @@ mod tests {
     use crate::entities::show::Selector;
     use crate::entities::value::Value;
     use ecow::EcoString;
+
+    #[test]
+    fn p1339_snapshot_is_authoritative_and_absence_differs_from_none() {
+        let function = Func::native("heading", crate::compiler::stdlib::native_heading);
+        let content = Content::heading(1, Content::text("Intro"));
+        let fields = [("level".into(), Value::Float(2.0))];
+        let snapshot =
+            [("level".into(), Value::Int(2)), ("numbering".into(), Value::None)]
+                .into_iter()
+                .collect();
+        let captured = IntrospectedContent::new(content.clone(), Some(snapshot));
+        assert!(element_selector_matches(&captured, &function, &fields));
+        assert!(element_selector_matches(
+            &captured,
+            &function,
+            &[("numbering".into(), Value::None)]
+        ));
+        let missing = IntrospectedContent::new(content.clone(), Some(Default::default()));
+        assert!(!element_selector_matches(
+            &missing,
+            &function,
+            &[("level".into(), Value::Int(1))]
+        ));
+        assert!(!element_selector_matches(
+            &missing,
+            &function,
+            &[("numbering".into(), Value::None)]
+        ));
+        let projected = IntrospectedContent::new(content, None);
+        assert!(element_selector_matches(
+            &projected,
+            &function,
+            &[("level".into(), Value::Float(1.0))]
+        ));
+    }
+
+    #[test]
+    fn p1339_native_text_is_a_whole_node_and_names_do_not_spoof_identity() {
+        let text = Func::native("text", crate::compiler::stdlib::native_text);
+        let query = QuerySelector::Element {
+            function: text,
+            fields: [("text".into(), Value::Str("ab".into()))].into_iter().collect(),
+        };
+        let show = query_selector_to_show_selector(query, Span::detached()).unwrap();
+        assert!(is_node_rule(&show));
+        assert!(selector_matches(&Content::text("ab"), &show));
+        assert!(!selector_matches(&Content::text("abc"), &show));
+        let fake = Func::native("text", crate::compiler::stdlib::native_heading);
+        assert!(!native_element_matches(&Content::text("ab"), &fake));
+        let alias = Func::native("alias", crate::compiler::stdlib::native_text);
+        assert!(native_element_matches(&Content::text("ab"), &alias));
+    }
+
+    #[test]
+    fn p1339_native_par_filter_keeps_the_paragraph_path() {
+        let query = QuerySelector::Element {
+            function: Func::native("par", crate::compiler::stdlib::native_par),
+            fields: [("body".into(), Value::Content(Content::text("ab")))]
+                .into_iter()
+                .collect(),
+        };
+        let show = query_selector_to_show_selector(query, Span::detached()).unwrap();
+        assert!(is_par_rule(&show));
+        assert!(!is_par_rule(&Selector::And(vec![show])));
+    }
+
+    #[test]
+    fn p1339_equal_native_names_do_not_confuse_table_and_grid_occurrences() {
+        let table = Content::TableHeader(std::sync::Arc::new(
+            crate::entities::elements::table_header::TableHeaderElem {
+                body: Content::text("body"),
+                repeat: true,
+            },
+        ));
+        let grid = Content::GridHeader(std::sync::Arc::new(
+            crate::entities::elements::grid_header::GridHeaderElem {
+                body: Content::text("body"),
+                repeat: true,
+            },
+        ));
+        let table_function =
+            Func::native("header", crate::compiler::stdlib::native_table_header);
+        let grid_function =
+            Func::native("header", crate::compiler::stdlib::native_grid_header);
+        assert!(native_element_matches(&table, &table_function));
+        assert!(!native_element_matches(&grid, &table_function));
+        assert!(native_element_matches(&grid, &grid_function));
+        assert!(!native_element_matches(&table, &grid_function));
+    }
+
+    #[test]
+    fn p1339_native_body_and_raw_fields_match_without_legacy_projection_changes() {
+        let body = Content::text("body");
+        for (function, content) in [
+            (
+                Func::native("strong", crate::compiler::stdlib::native_strong),
+                Content::strong(body.clone()),
+            ),
+            (
+                Func::native("emph", crate::compiler::stdlib::native_emph),
+                Content::emph(body.clone()),
+            ),
+        ] {
+            let show = query_selector_to_show_selector(
+                QuerySelector::Element {
+                    function,
+                    fields: [("body".into(), Value::Content(body.clone()))]
+                        .into_iter()
+                        .collect(),
+                },
+                Span::detached(),
+            )
+            .unwrap();
+            assert!(selector_matches(&content, &show));
+            assert!(!selector_matches(&body, &show));
+        }
+        let raw = Content::raw("body", None, true);
+        let function = Func::native("raw", crate::compiler::stdlib::native_raw);
+        let filters = [
+            ("text".into(), Value::Str("body".into())),
+            ("lang".into(), Value::None),
+            ("block".into(), Value::Bool(true)),
+        ];
+        assert!(element_selector_matches(
+            &IntrospectedContent::new(raw.clone(), None),
+            &function,
+            &filters
+        ));
+        let show = query_selector_to_show_selector(
+            QuerySelector::Element { function, fields: filters.into_iter().collect() },
+            Span::detached(),
+        )
+        .unwrap();
+        assert!(selector_matches(&raw, &show));
+        assert!(!selector_matches(&Content::raw("body", None, false), &show));
+        let legacy = Selector::Where {
+            base: Box::new(Selector::NodeKind(NodeKind::Raw)),
+            field: "lang".into(),
+            value: Box::new(Value::None),
+        };
+        assert!(!selector_matches(&raw, &legacy));
+    }
+
+    #[test]
+    fn p1339_where_public_empty_group_and_numeric_equality() {
+        use crate::contracts::world::World;
+        use crate::entities::world_types::{Bytes, FileError, FileResult, Font, Library};
+        use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+        struct TestWorld {
+            library: Library,
+            book: FontBook,
+            source: Source,
+        }
+        impl World for TestWorld {
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                self.source.id()
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                Ok(self.source.clone())
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                Err(FileError::NotFound)
+            }
+            fn font(&self, _: usize) -> Option<Font> {
+                None
+            }
+            fn today(
+                &self,
+                _: Option<crate::entities::duration::Duration>,
+            ) -> Option<crate::entities::world_types::Datetime> {
+                None
+            }
+        }
+        let source = Source::new(
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+            "#let a = strong.where()\n#let printed = repr(a)\n#let same = heading.where(level: 1) == heading.where(level: 1.0)".into(),
+        );
+        let world = TestWorld {
+            library: Library::new(),
+            book: FontBook::new(),
+            source,
+        };
+        let module = super::super::tests::eval_for_test(&world, &world.source)
+            .expect("P1339 public where accepts an explicitly empty element filter");
+        assert_eq!(
+            module.scope().get("printed"),
+            Some(&Value::Str("strong.where(:)".into()))
+        );
+        assert_eq!(module.scope().get("same"), Some(&Value::Bool(true)));
+    }
 
     fn where_selector(field: &str, value: Value) -> Selector {
         Selector::Where {

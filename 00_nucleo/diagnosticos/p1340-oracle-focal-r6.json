@@ -1,0 +1,55 @@
+{
+  "schema": "p1340-oracle-focal-r6-result",
+  "status": "CONTRACT_UNIT_GREEN_NO_PRODUCT_CREDIT",
+  "regime": "executado sem atestacao de isolamento",
+  "utc": "2026-09-10T16:19:44Z",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/p1340-oracle-focal-r6.py",
+  "exit": 0,
+  "scope": "synthetic-contract-unit-only-no-product-credit",
+  "totals": {"cases": 16, "preserved": 2, "violated": 10, "unknown": 4},
+  "expected_matches_actual": 16,
+  "mutation_score": "10/10",
+  "positive_controls": [
+    "positive-complete-causal-witnesses",
+    "context-body-entry-without-callback-is-valid"
+  ],
+  "negative_controls": [
+    "features-requested-instead-of-actual",
+    "wrong-Func-identity",
+    "missing-callback-projection",
+    "ContextBlock-entry-misclassified-as-callback",
+    "comparison-dispatch-is-forbidden",
+    "read-span-substituted-for-counter-origin",
+    "equal-action-wrong-occurrence",
+    "untagged-Dict-collides-with-Func",
+    "nested-Dict-wrapper-removed",
+    "Dict-entry-order-changed"
+  ],
+  "opaque_controls": [
+    "feature-origin-explicitly-opaque",
+    "Func-origin-explicitly-opaque",
+    "counter-origin-explicitly-opaque",
+    "Dict-coverage-explicitly-opaque"
+  ],
+  "calibration_history": [
+    {
+      "run": 1,
+      "exit": 1,
+      "matched": "14/16",
+      "survivors": ["read-span-substituted-for-counter-origin", "nested-Dict-wrapper-removed"],
+      "cause": "synthetic fixture alias kept origin/event Span coupled; Dict mutation still retained a valid tag",
+      "product_or_contract_semantics_changed": false
+    },
+    {
+      "run": 2,
+      "exit": 0,
+      "matched": "16/16",
+      "delta": "+2 correctly classified; no regression",
+      "dominant_reason": null
+    }
+  ],
+  "full_corpus_runs": 0,
+  "product_runs": 0,
+  "candidate_inputs_read": 0,
+  "verdict": null
+}

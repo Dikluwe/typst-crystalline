@@ -1,0 +1,197 @@
+{
+  "author": "/root/p1319_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "batch": 1,
+  "status": "COMPONENT_OF_BATCH_1_NOT_A_RUN_MANIFEST",
+  "authority_manifest": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+    "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+  },
+  "contract": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-r3.json",
+    "sha256": "c0cd1826679ddaf77e937a677839c5cbe64fdae6ec71bfa34e635d584d9c3e17"
+  },
+  "l0_freeze": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-l0-freeze.json",
+    "sha256": "397c136fc8710d44b2f7537193fe5b9c44ab89d40a99bf6b994296e05e7c4d04"
+  },
+  "budget_redesign": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-budget-redesign-r1.json",
+    "sha256": "4bdd984d7b9d482d68ebb787e98eeed8333a1d4447c637615d4ceb9c78ed6c19"
+  },
+  "budget_acceptance": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-budget-redesign-acceptance-r1.md",
+    "sha256": "0552cdbfb02e18496ac3c07121e0640fad2a772aa32e678a0b7062344286bafd"
+  },
+  "phase": {
+    "freeze": "C",
+    "execute": "F",
+    "preseal_state": "NOT_EXECUTED_PRESEAL",
+    "runtime_credit": 0
+  },
+  "candidate_access": "No candidate or productive source read. Inputs derived from frozen L0 and public historical sources/signature DTOs.",
+  "schema": "p1339-same-context-request-chain-fixture-v1",
+  "private_interface": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-private-interface.md",
+    "sha256": "f91cd79149fc5801af203e0aa13941ce9b7cd7b20a0e75addd78076e3e1f3d7a"
+  },
+  "style_signatures": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-mutant-closed-state-style-signatures.md",
+    "sha256": "87ecc9b326766b5810f365b3b33c91c02ad39ccf984daada1ae8a12fdaba8539"
+  },
+  "id": "api-same-record-request-chains-10-20-final30",
+  "matrix_ids": [
+    "F05-projections",
+    "F07-retention",
+    "F09-errors-sinks"
+  ],
+  "setup": {
+    "snapshot": "TagIntrospector::empty()",
+    "current_location": "one Locator::next retained throughout",
+    "ctx": "one actual EvalContext::new, in_context=true,target=paged,profile features",
+    "engine": "one Engine, immutable memory World, FixedMetrics, default chain, distinct product and validation sinks",
+    "setup_code": "let c = counter(heading.where())"
+  },
+  "operations": [
+    {
+      "op": "set_engine_chain",
+      "chain_id": "chain10",
+      "construction": "default_chain.push(StyleDelta { size: Some(10.0), ..StyleDelta::empty() })"
+    },
+    {
+      "op": "eval_expr",
+      "source_id": "request10.typ",
+      "source": "c.final()",
+      "same_ctx": true,
+      "expected_result": {
+        "kind": "Ok",
+        "value": [
+          0
+        ]
+      }
+    },
+    {
+      "op": "set_engine_chain",
+      "chain_id": "chain20",
+      "construction": "default_chain.push(StyleDelta { size: Some(20.0), ..StyleDelta::empty() })"
+    },
+    {
+      "op": "eval_expr",
+      "source_id": "request20.typ",
+      "source": "c.final()",
+      "same_ctx": true,
+      "expected_result": {
+        "kind": "Ok",
+        "value": [
+          0
+        ]
+      }
+    },
+    {
+      "op": "set_engine_chain",
+      "chain_id": "chain30",
+      "construction": "default_chain.push(StyleDelta { size: Some(30.0), ..StyleDelta::empty() })"
+    },
+    {
+      "op": "call_actual_has_filtered_counter_reads",
+      "expected": true
+    },
+    {
+      "op": "call_actual_context_reads_valid_for",
+      "candidate": "clone of same actual empty snapshot",
+      "same_ctx": true,
+      "expected_result": {
+        "kind": "Ok",
+        "value": true
+      }
+    }
+  ],
+  "dto": {
+    "recorded_requests": "ordered [{actual_request_id:Identity,actual_ctx_id:Identity,source_id:string,chain_identity:Identity,chain_size_pt_bits:hex16,operation:CounterFinal,result:{kind:Ok,value:[0]}}]",
+    "replayed_requests": "ordered [{actual_request_id:Identity,actual_ctx_id:Identity,chain_identity:Identity,chain_size_pt_bits:hex16,operation:CounterFinal,result:{kind:Ok,value:[0]}}]",
+    "engine_chain_at_validation": "{chain_identity:Identity,chain_size_pt_bits:hex16}",
+    "selection": "boolean",
+    "validation": "Result",
+    "validation_sink_publications": "integer"
+  },
+  "typed_predicates": [
+    {
+      "op": "length_equal",
+      "path": "recorded_requests",
+      "expected": 2
+    },
+    {
+      "op": "length_equal",
+      "path": "replayed_requests",
+      "expected": 2
+    },
+    {
+      "op": "project_equal",
+      "path": "recorded_requests",
+      "field": "source_id",
+      "expected": [
+        "request10.typ",
+        "request20.typ"
+      ]
+    },
+    {
+      "op": "project_equal",
+      "path": "recorded_requests",
+      "field": "chain_size_pt_bits",
+      "expected": [
+        "4024000000000000",
+        "4034000000000000"
+      ]
+    },
+    {
+      "op": "project_equal",
+      "path": "replayed_requests",
+      "field": "chain_size_pt_bits",
+      "expected": [
+        "4024000000000000",
+        "4034000000000000"
+      ]
+    },
+    {
+      "op": "pointwise_identity_equal",
+      "left": "recorded_requests",
+      "right": "replayed_requests",
+      "fields": [
+        "actual_request_id",
+        "actual_ctx_id",
+        "chain_identity"
+      ]
+    },
+    {
+      "op": "all_same_identity",
+      "paths": [
+        "recorded_requests[*].actual_ctx_id",
+        "replayed_requests[*].actual_ctx_id"
+      ]
+    },
+    {
+      "op": "equal",
+      "path": "engine_chain_at_validation.chain_size_pt_bits",
+      "expected": "403e000000000000"
+    },
+    {
+      "op": "equal",
+      "path": "selection",
+      "expected": true
+    },
+    {
+      "op": "equal",
+      "path": "validation",
+      "expected": {
+        "kind": "Ok",
+        "value": true
+      }
+    },
+    {
+      "op": "equal",
+      "path": "validation_sink_publications",
+      "expected": 0
+    }
+  ],
+  "limits": "The existing direct eval_expr fixture sequence constructs inputs to one real record; it does not emulate a pipeline cycle. Hooks observe actual request capture/replay. They cannot fill chains from fixture labels or final Engine.styles."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash ea0a25b7
+//! @prompt-hash 4fcd1614
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -77,6 +77,7 @@ pub(crate) use crate::compiler::stdlib::calc::calc_abs;
 pub use crate::compiler::stdlib::calc::make_calc_module;
 pub use crate::compiler::stdlib::eval::native_eval;
 pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};
+pub(crate) use crate::compiler::stdlib::foundations::float::dispatch_float_method_spanned;
 pub use crate::compiler::stdlib::foundations::{
     datetime_type_field, int_type_field, native_bytes, native_cmyk, native_datetime,
     native_float, native_here, native_hsl, native_hsv, native_int, native_linear_rgb,
@@ -90,6 +91,9 @@ pub(crate) use crate::compiler::stdlib::foundations::{
     is_float_instance_method, is_int_instance_method,
 };
 pub use crate::compiler::stdlib::html::{make_html_module, native_html_elem};
+pub(crate) use crate::compiler::stdlib::primitives_constructors::{
+    dispatch_version_method, native_array_bytes, version_type_field,
+};
 // P506 — state/counter/context como valores de primeira classe.
 pub use crate::compiler::stdlib::context::native_context;
 pub use crate::compiler::stdlib::counter::{

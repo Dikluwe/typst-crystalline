@@ -1,0 +1,197 @@
+{
+  "schema": "p1339-array-originals-executable-envelope-v1",
+  "utc": "2026-09-10T10:56:34.651933+00:00",
+  "status": "PREPARED_NOT_EXECUTED_PENDING_SUCCESSOR_SEAL_AND_CANDIDATE_GO",
+  "author": "/root/p1319_tests",
+  "regime": "executado sem atestacao de isolamento",
+  "inputs": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-authorization.md",
+      "sha256": "34a4842adb3f78e52af0927ed0ac378447e104fed3664b4a7460787aa28902f4"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-supplement-r2.json",
+      "sha256": "3f6050dbd7b3373d7972f58e1343860697d2af7c672845cc06033cd5383767fc"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-inputs-r2.json",
+      "sha256": "8a0c77118c80d220b58dd8070fe0da2399353c4ae0f46610b245224b389bb3a0"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-verifier-array-prerequisite-gap-r1.json",
+      "sha256": "1f8c66dd50aa592d0e1924580b5569458bde971d13ee8b6395301e788a34957e"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-authority-manifest-r2.json",
+      "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-r3.json",
+      "sha256": "c0cd1826679ddaf77e937a677839c5cbe64fdae6ec71bfa34e635d584d9c3e17"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-seal.json",
+      "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-cli-plan.json",
+      "sha256": "e36f89070d5de5c9ac9e340f443255797aea109a42b8cfe71e448bc34dcb380b"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-positive-oracles.json",
+      "sha256": "2d33aac0f559d377b4275b07a1cdc77997cc90b9d887fdabf5ff9bccf28ab55f"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-opaque-oracles.json",
+      "sha256": "dc612c50cf80e7eedd6072d8956ed3534f09c0c0eba5a16edbce7b95256db182"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-public-predicate.py",
+      "sha256": "1a7f3ba6759080ef59f6987f5418c3518eb918efaa1ce7e1423d7ff78960b08d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-focal-runs.json",
+      "sha256": "b2f5228e1fc5ac8c714ee044ae6a8c3ef8492863e38970d6983d3cde50a0e746"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-causal-derived-expectations.json",
+      "sha256": "6560027a09390584ddd690e872ea2471bd1506bb52467fbb5e3b16905bf8a253"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-executor-v4.py",
+      "sha256": "0f4353a9b2b6ebb66b2ff918cae7580681b7d83308d4801b2d4924a6d6759c97"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-selection-r1.json",
+      "sha256": "82dc33fc417c72fc650a629f197c133eed7ab41438eaa46caf800a865ccc281d"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-prior-cost-r1.json",
+      "sha256": "1a3bfc2df96a24544f40e6e1de0be0203223d6652cdc053bc4d7e1afbc0286f3"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-manifest-r1.json",
+      "sha256": "d6f1db14127ae67dfddd49d53383516968f25a25a597754e5c4b6b98812a2979"
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-executor-r1.py",
+      "sha256": "15168c3a2c71bfb90bf5d0dd939a19e46bc4a6e18b020dc65d845d4b9ef731de"
+    }
+  ],
+  "executor": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-executor-r1.py",
+    "sha256": "15168c3a2c71bfb90bf5d0dd939a19e46bc4a6e18b020dc65d845d4b9ef731de"
+  },
+  "ancestor_seal": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-seal.json",
+    "sha256": "35f00c4b9e15a010692017f5083ea4f451f4104a3730022136972e151ac0a8ee"
+  },
+  "supplement": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract-array-supplement-r2.json",
+    "sha256": "3f6050dbd7b3373d7972f58e1343860697d2af7c672845cc06033cd5383767fc"
+  },
+  "plan": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-cli-plan.json",
+    "sha256": "e36f89070d5de5c9ac9e340f443255797aea109a42b8cfe71e448bc34dcb380b"
+  },
+  "selection": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-selection-r1.json",
+    "sha256": "82dc33fc417c72fc650a629f197c133eed7ab41438eaa46caf800a865ccc281d"
+  },
+  "frozen_executor": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-executor-v4.py",
+    "sha256": "0f4353a9b2b6ebb66b2ff918cae7580681b7d83308d4801b2d4924a6d6759c97"
+  },
+  "predicate": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-public-predicate.py",
+    "sha256": "1a7f3ba6759080ef59f6987f5418c3518eb918efaa1ce7e1423d7ff78960b08d"
+  },
+  "positive": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-positive-oracles.json",
+    "sha256": "2d33aac0f559d377b4275b07a1cdc77997cc90b9d887fdabf5ff9bccf28ab55f"
+  },
+  "opaque": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-opaque-oracles.json",
+    "sha256": "dc612c50cf80e7eedd6072d8956ed3534f09c0c0eba5a16edbce7b95256db182"
+  },
+  "focal_reference": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-focal-runs.json",
+    "sha256": "b2f5228e1fc5ac8c714ee044ae6a8c3ef8492863e38970d6983d3cde50a0e746"
+  },
+  "derived": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-batch2-causal-derived-expectations.json",
+    "sha256": "6560027a09390584ddd690e872ea2471bd1506bb52467fbb5e3b16905bf8a253"
+  },
+  "counts": {
+    "original_IDs": 70,
+    "focal_default_normal": 70,
+    "expanded_four_profiles_three_orders": 840,
+    "if_both_authorized_total_processes": 910,
+    "automatic_retries": 0,
+    "executed_now": 0
+  },
+  "prospective_commands": [
+    [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-executor-r1.py",
+      "--manifest",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-envelope-r1.json",
+      "--manifest-sha256",
+      "MANIFEST_SHA256_FROM_PUBLICATION",
+      "--successor-seal",
+      "ACCEPTED_SUCCESSOR_SEAL_PATH",
+      "--successor-seal-sha256",
+      "ACCEPTED_SUCCESSOR_SEAL_SHA256",
+      "--go",
+      "INDEPENDENT_GO_PATH",
+      "--go-sha256",
+      "INDEPENDENT_GO_SHA256",
+      "--binary",
+      "RELEASED_CANDIDATE_PATH",
+      "--binary-sha256",
+      "RELEASED_CANDIDATE_SHA256",
+      "--mode",
+      "focal"
+    ],
+    [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-executor-r1.py",
+      "--manifest",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-envelope-r1.json",
+      "--manifest-sha256",
+      "MANIFEST_SHA256_FROM_PUBLICATION",
+      "--successor-seal",
+      "ACCEPTED_SUCCESSOR_SEAL_PATH",
+      "--successor-seal-sha256",
+      "ACCEPTED_SUCCESSOR_SEAL_SHA256",
+      "--go",
+      "INDEPENDENT_GO_PATH",
+      "--go-sha256",
+      "INDEPENDENT_GO_SHA256",
+      "--binary",
+      "RELEASED_CANDIDATE_PATH",
+      "--binary-sha256",
+      "RELEASED_CANDIDATE_SHA256",
+      "--mode",
+      "expanded"
+    ]
+  ],
+  "late_binding_boundary": "Only accepted successor seal identity, independent GO identity and released executable identity may fill placeholders; no IDs/cases/oracles/expectations/profile/timeouts change. Independent verifier/root checks seal verdict and applicability, as with original frozen executor. Expanded invocation only after70 green and explicit GO.",
+  "integrity_policy": "Preserve ancestral checked_inputs byte-identically, without invoking it against knowingly superseded normative L0 or monkeypatching it. Separate explicit preflight hashes all ancestral immutable inputs except L0s; checks31 ancestral normative L0 pins replaced only for exact4 supplemented paths (three old +one new =>32), excluding sole canonical Hash do Codigo metadata line. Also hashes prepared inputs, successor seal, GO, candidate and all named source fixtures before/after. Raw records each exact/normative check and current raw hashes. Failed postflight retains raw before rejecting judgment.",
+  "observation_policy": "Original plan case objects selected via JSON IDs in original plan order. Frozen execute unchanged, candidate label truthful,4workers, original env/timeouts/argv. Expanded uses unchanged sealed check; focal uses same evaluate against original per-profile vanilla references plus exact cell/source/argv/bin/cwd checks, no fabrication of nondefault rows. All classifications explicitly judged; Unknown not green.",
+  "historical_cost": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-prior-cost-r1.json",
+    "sha256": "1a3bfc2df96a24544f40e6e1de0be0203223d6652cdc053bc4d7e1afbc0286f3"
+  },
+  "retained_preparation": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-array-originals-manifest-r1.json",
+    "sha256": "d6f1db14127ae67dfddd49d53383516968f25a25a597754e5c4b6b98812a2979"
+  },
+  "new_semantic_processes": 0,
+  "no_claims": [
+    "No productive source read or implementation edited.",
+    "No old seal/oracle/fixture rewrite.",
+    "No isolated Array RED or global/F-internal coverage from70 originals.",
+    "No candidate run until explicit GO."
+  ]
+}

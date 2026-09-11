@@ -1,0 +1,399 @@
+{
+  "schema": "p1340-adversary-direct-confirmation-r2",
+  "mode": "control",
+  "command": "/tmp/p1340-adversary-target.DvNoJ7/debug/deps/typst_core-9a71a057a2e7b625 p1340_adversary_focal_actual_apis --nocapture",
+  "cwd": "/tmp/p1340-adversary-baseline.IqcW7q",
+  "reason": "Resolve contradictory Node spawnSync error metadata without altering prior evidence",
+  "baseline_sha256": "0869202e774bd7b76278365aac7292d45a1c930be42cf83270845c985cb5000a",
+  "exit": 0,
+  "wall_time_seconds": 0.000003787,
+  "output": "\nrunning 1 test\nP1340_ADVERSARY {\"id\":\"A01-mixed-counter-first\",\"selected\":true,\"body\":{\"result\":\"Ok\",\"type\":\"content\",\"value\":{\"type\":\"content\",\"repr\":\"dynamic\"},\"repr\":\"dynamic\"},\"observed\":{\"self_validation\":false,\"candidate_validation\":false,\"relations\":[{\"self_relation\":\"Same\",\"candidate_relation\":\"Different\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Different\"},{\"self_relation\":\"Unproven\",\"candidate_relation\":\"Unproven\"}],\"details\":[{\"severity\":\"Warning\",\"message\":\"value of `counter(strong.where(:))` did not converge\",\"span\":{\"raw\":\"576375569086783\",\"detached\":false,\"source_key\":\"body\",\"file_id\":2,\"byte_range\":[7,9],\"line_col\":[1,7]},\"hints\":[\"the following values were observed:\\n- run 1: 0\\n- final: 1\"],\"trace\":[]}]},\"construction_sink\":[],\"body_sink\":[],\"validation_sink\":[]}\nP1340_ADVERSARY {\"id\":\"A01-mixed-opaque-first\",\"selected\":true,\"body\":{\"result\":\"Ok\",\"type\":\"array\",\"value\":[0],\"repr\":\"(0,)\"},\"observed\":{\"self_validation\":false,\"candidate_validation\":false,\"relations\":[{\"self_relation\":\"Unproven\",\"candidate_relation\":\"Unproven\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Different\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Different\"}],\"details\":[{\"severity\":\"Warning\",\"message\":\"value of `counter(strong.where(:))` did not converge\",\"span\":{\"raw\":\"613411750232913\",\"detached\":false,\"source_key\":\"body\",\"file_id\":2,\"byte_range\":[18,20],\"line_col\":[1,18]},\"hints\":[\"the following values were observed:\\n- run 1: 0\\n- final: 1\"],\"trace\":[]}]},\"construction_sink\":[],\"body_sink\":[],\"validation_sink\":[]}\nP1340_ADVERSARY {\"id\":\"A01-opaque-only\",\"selected\":true,\"body\":{\"result\":\"Ok\",\"type\":\"content\",\"value\":{\"type\":\"content\",\"repr\":\"dynamic\"},\"repr\":\"dynamic\"},\"observed\":{\"self_validation\":false,\"candidate_validation\":false,\"relations\":[{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Unproven\",\"candidate_relation\":\"Unproven\"}],\"details\":[]},\"construction_sink\":[],\"body_sink\":[],\"validation_sink\":[]}\nP1340_ADVERSARY {\"id\":\"A02-position-different\",\"selected\":true,\"body\":{\"result\":\"Ok\",\"type\":\"dictionary\",\"value\":{\"ordered_dict\":[[\"page\",1],[\"x\",{\"type\":\"length\",\"repr\":\"0pt\"}],[\"y\",{\"type\":\"length\",\"repr\":\"0pt\"}]]},\"repr\":\"(page: 1, x: 0pt, y: 0pt)\"},\"observed\":{\"self_validation\":true,\"candidate_validation\":false,\"relations\":[{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Different\"}],\"details\":[]},\"construction_sink\":[],\"body_sink\":[],\"validation_sink\":[]}\nP1340_ADVERSARY {\"id\":\"C-closed-different\",\"selected\":true,\"body\":{\"result\":\"Ok\",\"type\":\"int\",\"value\":7,\"repr\":\"7\"},\"observed\":{\"self_validation\":true,\"candidate_validation\":false,\"relations\":[{\"self_relation\":\"Same\",\"candidate_relation\":\"Different\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Different\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"}],\"details\":[{\"severity\":\"Warning\",\"message\":\"value of `counter(strong.where(:))` did not converge\",\"span\":{\"raw\":\"576375569086783\",\"detached\":false,\"source_key\":\"body\",\"file_id\":2,\"byte_range\":[7,9],\"line_col\":[1,7]},\"hints\":[\"the following values were observed:\\n- run 1: 0\\n- final: 1\"],\"trace\":[]}]},\"construction_sink\":[],\"body_sink\":[],\"validation_sink\":[]}\nP1340_ADVERSARY {\"id\":\"C-closed-same\",\"selected\":true,\"body\":{\"result\":\"Ok\",\"type\":\"int\",\"value\":7,\"repr\":\"7\"},\"observed\":{\"self_validation\":true,\"candidate_validation\":true,\"relations\":[{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"}],\"details\":[]},\"construction_sink\":[],\"body_sink\":[],\"validation_sink\":[]}\nP1340_ADVERSARY {\"id\":\"C-retained-closure\",\"selected\":true,\"body\":{\"result\":\"Ok\",\"type\":\"function\",\"value\":{\"type\":\"function\",\"repr\":\"(..) => ..\"},\"repr\":\"(..) => ..\"},\"observed\":{\"self_validation\":true,\"candidate_validation\":true,\"relations\":[{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"}],\"details\":[]},\"construction_sink\":[],\"body_sink\":[],\"validation_sink\":[]}\nP1340_ADVERSARY {\"id\":\"C-persistent-error\",\"selected\":true,\"body\":{\"result\":\"Err\",\"diagnostics\":[{\"severity\":\"Error\",\"message\":\"panicked with: original error\",\"span\":{\"raw\":\"609517504715347\",\"detached\":false,\"source_key\":\"body\",\"file_id\":2,\"byte_range\":[11,34],\"line_col\":[1,11]},\"hints\":[],\"trace\":[]}]},\"observed\":{\"self_validation\":true,\"candidate_validation\":true,\"relations\":[{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"},{\"self_relation\":\"Same\",\"candidate_relation\":\"Same\"}],\"details\":[]},\"construction_sink\":[],\"body_sink\":[],\"validation_sink\":[]}\ntest compiler::eval::p1340_adversary_focal_binding::p1340_adversary_focal_actual_apis ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5668 filtered out; finished in 0.05s\n\n",
+  "pins_and_utc": "d4334a142ee88ca4a3d1ed4d4d9d02c8d8b3e373a447274bb490cccf6e66f17e  /tmp/p1340-adversary-target.DvNoJ7/debug/deps/typst_core-9a71a057a2e7b625\n1fc8ceacb962b492a4cce180e54137d8f231461df5df1b9bb4c95f402108b6e5  /tmp/p1340-adversary-baseline.IqcW7q/01_core/src/compiler/eval/mod.rs\n2026-09-10T13:45:39Z\n",
+  "rows": [
+    {
+      "id": "A01-mixed-counter-first",
+      "selected": true,
+      "body": {
+        "result": "Ok",
+        "type": "content",
+        "value": {
+          "type": "content",
+          "repr": "dynamic"
+        },
+        "repr": "dynamic"
+      },
+      "observed": {
+        "self_validation": false,
+        "candidate_validation": false,
+        "relations": [
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Different"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Different"
+          },
+          {
+            "self_relation": "Unproven",
+            "candidate_relation": "Unproven"
+          }
+        ],
+        "details": [
+          {
+            "severity": "Warning",
+            "message": "value of `counter(strong.where(:))` did not converge",
+            "span": {
+              "raw": "576375569086783",
+              "detached": false,
+              "source_key": "body",
+              "file_id": 2,
+              "byte_range": [
+                7,
+                9
+              ],
+              "line_col": [
+                1,
+                7
+              ]
+            },
+            "hints": [
+              "the following values were observed:\n- run 1: 0\n- final: 1"
+            ],
+            "trace": []
+          }
+        ]
+      },
+      "construction_sink": [],
+      "body_sink": [],
+      "validation_sink": []
+    },
+    {
+      "id": "A01-mixed-opaque-first",
+      "selected": true,
+      "body": {
+        "result": "Ok",
+        "type": "array",
+        "value": [
+          0
+        ],
+        "repr": "(0,)"
+      },
+      "observed": {
+        "self_validation": false,
+        "candidate_validation": false,
+        "relations": [
+          {
+            "self_relation": "Unproven",
+            "candidate_relation": "Unproven"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Different"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Different"
+          }
+        ],
+        "details": [
+          {
+            "severity": "Warning",
+            "message": "value of `counter(strong.where(:))` did not converge",
+            "span": {
+              "raw": "613411750232913",
+              "detached": false,
+              "source_key": "body",
+              "file_id": 2,
+              "byte_range": [
+                18,
+                20
+              ],
+              "line_col": [
+                1,
+                18
+              ]
+            },
+            "hints": [
+              "the following values were observed:\n- run 1: 0\n- final: 1"
+            ],
+            "trace": []
+          }
+        ]
+      },
+      "construction_sink": [],
+      "body_sink": [],
+      "validation_sink": []
+    },
+    {
+      "id": "A01-opaque-only",
+      "selected": true,
+      "body": {
+        "result": "Ok",
+        "type": "content",
+        "value": {
+          "type": "content",
+          "repr": "dynamic"
+        },
+        "repr": "dynamic"
+      },
+      "observed": {
+        "self_validation": false,
+        "candidate_validation": false,
+        "relations": [
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Unproven",
+            "candidate_relation": "Unproven"
+          }
+        ],
+        "details": []
+      },
+      "construction_sink": [],
+      "body_sink": [],
+      "validation_sink": []
+    },
+    {
+      "id": "A02-position-different",
+      "selected": true,
+      "body": {
+        "result": "Ok",
+        "type": "dictionary",
+        "value": {
+          "ordered_dict": [
+            [
+              "page",
+              1
+            ],
+            [
+              "x",
+              {
+                "type": "length",
+                "repr": "0pt"
+              }
+            ],
+            [
+              "y",
+              {
+                "type": "length",
+                "repr": "0pt"
+              }
+            ]
+          ]
+        },
+        "repr": "(page: 1, x: 0pt, y: 0pt)"
+      },
+      "observed": {
+        "self_validation": true,
+        "candidate_validation": false,
+        "relations": [
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Different"
+          }
+        ],
+        "details": []
+      },
+      "construction_sink": [],
+      "body_sink": [],
+      "validation_sink": []
+    },
+    {
+      "id": "C-closed-different",
+      "selected": true,
+      "body": {
+        "result": "Ok",
+        "type": "int",
+        "value": 7,
+        "repr": "7"
+      },
+      "observed": {
+        "self_validation": true,
+        "candidate_validation": false,
+        "relations": [
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Different"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Different"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          }
+        ],
+        "details": [
+          {
+            "severity": "Warning",
+            "message": "value of `counter(strong.where(:))` did not converge",
+            "span": {
+              "raw": "576375569086783",
+              "detached": false,
+              "source_key": "body",
+              "file_id": 2,
+              "byte_range": [
+                7,
+                9
+              ],
+              "line_col": [
+                1,
+                7
+              ]
+            },
+            "hints": [
+              "the following values were observed:\n- run 1: 0\n- final: 1"
+            ],
+            "trace": []
+          }
+        ]
+      },
+      "construction_sink": [],
+      "body_sink": [],
+      "validation_sink": []
+    },
+    {
+      "id": "C-closed-same",
+      "selected": true,
+      "body": {
+        "result": "Ok",
+        "type": "int",
+        "value": 7,
+        "repr": "7"
+      },
+      "observed": {
+        "self_validation": true,
+        "candidate_validation": true,
+        "relations": [
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          }
+        ],
+        "details": []
+      },
+      "construction_sink": [],
+      "body_sink": [],
+      "validation_sink": []
+    },
+    {
+      "id": "C-retained-closure",
+      "selected": true,
+      "body": {
+        "result": "Ok",
+        "type": "function",
+        "value": {
+          "type": "function",
+          "repr": "(..) => .."
+        },
+        "repr": "(..) => .."
+      },
+      "observed": {
+        "self_validation": true,
+        "candidate_validation": true,
+        "relations": [
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          }
+        ],
+        "details": []
+      },
+      "construction_sink": [],
+      "body_sink": [],
+      "validation_sink": []
+    },
+    {
+      "id": "C-persistent-error",
+      "selected": true,
+      "body": {
+        "result": "Err",
+        "diagnostics": [
+          {
+            "severity": "Error",
+            "message": "panicked with: original error",
+            "span": {
+              "raw": "609517504715347",
+              "detached": false,
+              "source_key": "body",
+              "file_id": 2,
+              "byte_range": [
+                11,
+                34
+              ],
+              "line_col": [
+                1,
+                11
+              ]
+            },
+            "hints": [],
+            "trace": []
+          }
+        ]
+      },
+      "observed": {
+        "self_validation": true,
+        "candidate_validation": true,
+        "relations": [
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          },
+          {
+            "self_relation": "Same",
+            "candidate_relation": "Same"
+          }
+        ],
+        "details": []
+      },
+      "construction_sink": [],
+      "body_sink": [],
+      "validation_sink": []
+    }
+  ],
+  "verdict": null
+}

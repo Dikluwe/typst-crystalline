@@ -1,0 +1,42 @@
+{
+  "schema": "p1340-terminal-source-authority-r5",
+  "utc": "2026-09-10T15:31:45Z",
+  "regime": "executado sem atestação de isolamento",
+  "authorization": {
+    "actor": "user",
+    "verbatim": "Autorizo",
+    "scope": "Corrigir somente as fontes inválidas T01/T02/T03, preservando seus objetivos, leituras, inputs opacos, sinks e política terminal, com novo contrato e revalidação focal independente."
+  },
+  "predecessors": [
+    {"path": "00_nucleo/diagnosticos/p1340-authority-successor-r4.json", "sha256": "c40afbbe590c4cd344c8beeca53492d63de981aa3a57b8e5ac55006a082ce9d6"},
+    {"path": "00_nucleo/diagnosticos/p1340-verifier-terminal-input-gate-r4.json", "sha256": "0d459964fa19954d8614cb2762917dab5ec5fdc25b4ca6177381bf8a255aefbb"},
+    {"path": "00_nucleo/diagnosticos/p1340-terminal-input-diagnosis-r4.json", "sha256": "38417781ada0f8bb74c52226b53d312671353562e3a02e8f4bc6a87fdd205d8b"}
+  ],
+  "protected_inputs": [
+    {"path": "00_nucleo/diagnosticos/p1340-contract-terminal-harness-r2.rs", "sha256": "85c3f151cbf1e88c241acea0b68df1f6c468ba0a1a956e5a3f6af91cd0a19e7d"},
+    {"path": "00_nucleo/diagnosticos/p1340-contract-binding-r2.md", "sha256": "4d9426025cbc986b79793658e99a20203216089eb9951d9ece759cb962027f8c"},
+    {"path": "00_nucleo/prompts/infra/pipeline/context_stabilization.md", "sha256": "09b8da4367f1e37e65a6ae596cebecc8815dcbdb50b28a414d79dae99f8977be"}
+  ],
+  "required_preservation": [
+    "T01/T02/T03 retain the same reached counter/query operations, order, opaque carrier injection boundary and terminal expectations.",
+    "Only expression-result discard syntax necessary to prevent array/content joining may change.",
+    "T04/T05/T06, all expected results, diagnostics, sink policy, attempt budget and terminal product policy remain byte-identical by inheritance.",
+    "The R2 original remains immutable; the successor is a new artifact.",
+    "No compiler semantics, production source, normal API/entity/default, lifecycle contract or R4 observability requirement is changed by this authority."
+  ],
+  "unknown_policy": "Any uncertainty that the replacement still executes an original read, preserves order, or reaches the intended terminal condition blocks the seal; it is not treated as success.",
+  "budget": {"oracle_revisions": 1, "focal_iterations": 2, "full_terminal_suite_runs_before_focal_success": 0, "elapsed_minutes": 45},
+  "stop_conditions": [
+    "A proposed source changes any value read or expected terminal outcome.",
+    "The focal reference still reports an unrelated language error.",
+    "Two focal iterations have the same failure cause.",
+    "A production compiler change appears necessary."
+  ],
+  "roles": {
+    "p1340_contract_correction": {"role": "independent successor-contract author", "reads": "L0, R2 contract/binding, R4 diagnosis and this authority; no candidate implementation or terminal adapter", "writes": "new p1340-terminal-contract-r5 artifacts only", "forbidden": "production code, adapter, verdict"},
+    "p1340_terminal_oracle_r5": {"role": "fresh independent oracle author", "reads": "sealed intent/contract inputs and vanilla; no candidate implementation or adapter", "writes": "new p1340-terminal-harness-r5 and oracle receipts only", "forbidden": "production code, expected outcome changes, verdict"},
+    "p1311_review": {"role": "independent verifier", "reads": "protected inputs, R5 contract/oracle and focal outputs", "writes": "new p1340-verifier-terminal-r5 artifacts only", "forbidden": "editing contract, oracle or implementation"},
+    "root": {"role": "integration and candidate execution after seal", "writes": "adapter include switch only after seal, receipts and report", "forbidden": "editing independent R5 source/expectations or issuing own verdict"}
+  },
+  "closure": "This authority reopens only R2 input validity for T01/T02/T03. It does not reopen or require approval of the already-approved terminal policy."
+}

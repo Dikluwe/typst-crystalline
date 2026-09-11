@@ -107,6 +107,33 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 
 ---
 
+## P1339 — roteamento estático de Strong/Emph
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
+`compiler/introspect/extract_payload.rs:20-94` delega payloads ao Element
+proprietário; Strong/Emph caem em None. `compiler/introspect.rs:1278`
+condiciona a ocorrência ao resultado desta função. O recibo
+`diagnosticos/p1339-where-integration-probe-runs.json` fixa a aceitação
+vanilla de query/counter dessas famílias, antes desta decisão.
+
+### Decisão
+
+Adicionar somente braços `Content::Strong(e) => e.to_payload()` e
+`Content::Emph(e) => e.to_payload()`. O payload unit vem dos owners
+`entities/elements/strong.md` e `entities/elements/emph.md`, não de uma
+segunda fórmula neste dispatcher. Styled, Text, Sequence e demais braços
+preservam a classificação anterior. Não descer em Styled para extrair o
+payload do filho: isso duplicaria sua Location na descida normal do walk.
+Não fabricar payload a partir de bold/italic ou flags históricas de show.
+
+Aceitação: presença de payload coincide com is_locatable para os dois nós,
+inclusive body vazio/aninhado; Styled envolvendo Strong continua sem
+payload próprio e a recursão descobre somente o nó real. Nenhuma assinatura
+pública, Kind ou fase é alterada. As tabelas M1 acima são históricas e não
+limitam os braços posteriores já materializados.
+
 ## Histórico de Revisões
 
 | Data | Motivo | Arquivos afetados |

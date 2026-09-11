@@ -413,3 +413,55 @@ Closures sintéticas sem AST continuam detached; nenhuma origem é inventada.
 Testes devem distinguir funções iguais/aliased com origens preservadas,
 With, chamadas repetidas e ausência legítima de Source. É transporte interno
 de diagnóstico autorizado em P1308, sem nova API pública ou fase.
+
+## P1342 — carrier privado da ocorrência de callback
+
+### Medição anterior à decisão
+
+`diagnosticos/p1342-topology-audit-r1.md` mede que o Func exterior With é
+transportado intacto dentro de `CounterUpdate::Func` e que o alvo interno é o
+mesmo `Func` clonado no dispatch. Esse é o carrier real mínimo; não é necessário
+alterar `ContextBlockElem`, `CounterRegistry`, `Value` ou `ElementPayload`.
+
+### Decisão vigente
+
+Sob `cfg(p1339_observation)`, `Func` possui um terceiro campo privado opcional
+com carrier P1342. O carrier contém handle append-only compartilhado, célula,
+id de ocorrência e span de origem. Construtores começam em None; clone/alias
+preservam o handle; o owner counter o anexa somente ao Func efetivamente
+classificado como callback da ocorrência focal. `Func::with` conserva qualquer
+carrier anterior, mas a anexação ao wrapper exterior não altera o inner.
+
+Helpers cfg-only expõem ao crate instalar/consultar o carrier e atribuir IDs
+locais aos objetos reais. O campo não participa de Eq, Hash, Debug, repr, nome,
+namespace, `diagnostic_span`, identidade do Arc, dispatch ou serialização
+normal. Sem o cfg o campo e os helpers não existem. Não usar endereço como
+expectativa estável, side table global, nome ou output para reconstrução.
+
+Este carrier é entidade somente de observação e não constitui contrato público
+normal conforme ADR-0127. Seu escopo termina no binding real P1342; não autoriza
+rastreio geral de Func, retenção P1340, NT01–NT06 ou nova política de produto.
+
+## P1344 — ownership local dos helpers de observação de `Func`
+
+### Medição anterior à decisão
+
+O blocker P1343 R3 mediu que a fronteira candidata fica entre o fim de
+`Func::namespace` e o `}` que fecha `impl Func`. Nessa posição Rust aceita
+somente associated items de `Func`; tentar declarar `impl Content` ou
+`impl CounterUpdate` produz `implementation is not supported in traits or
+impls`. Fechar/reabrir braces ou usar container não enumerado não é uma
+materialização válida da cápsula.
+
+### Decisão vigente
+
+Sob `cfg(p1339_observation)`, o owner `entities/func.rs` declara somente os
+tipos privados do carrier/ledger e associated methods cujo receiver/retorno é
+de `Func` ou do próprio carrier. Ele não declara inherent impls, métodos ou
+reexports pertencentes a `Content` ou `CounterUpdate`.
+
+As projeções owner-local dessas duas entidades pertencem respectivamente a
+`entities/content.md` e `entities/counter_update.md`. A separação não muda o
+terceiro campo privado P1342, clone/alias, Eq, Hash, Debug, repr, name,
+namespace, dispatch, API normal ou comportamento sem o cfg. Não usar trait de
+extensão, macro, impl não local ou helper genérico para contornar ownership.

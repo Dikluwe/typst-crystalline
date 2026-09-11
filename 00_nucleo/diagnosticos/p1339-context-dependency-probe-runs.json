@@ -1,0 +1,245 @@
+{
+  "start": "2026-09-10T01:41:58.226479+00:00",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "diff_stat": " .../prompts/compiler/eval/bindings/field_access.md |  43 +++++++\n .../compiler/eval/bindings/value_methods.md        | 111 +++++++++++++++++++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 +++++++++\n .../prompts/compiler/eval/operators/equality.md    |  44 ++++++++\n 00_nucleo/prompts/compiler/eval/repr.md            |  38 +++++++\n 00_nucleo/prompts/compiler/eval/rules.md           |  34 ++++++\n .../prompts/compiler/eval/selector_matching.md     |  78 +++++++++++++\n 00_nucleo/prompts/compiler/introspect.md           | 123 +++++++++++++++++++++\n .../prompts/compiler/introspect/extract_payload.md |  27 +++++\n 00_nucleo/prompts/compiler/introspect/from_tags.md |  74 +++++++++++++\n 00_nucleo/prompts/compiler/introspect/locatable.md |  24 ++++\n 00_nucleo/prompts/compiler/layout.md               |  27 +++++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  42 +++++++\n .../prompts/compiler/stdlib/foundations/query.md   |  31 ++++++\n .../compiler/stdlib/foundations/selector.md        |  35 ++++++\n 00_nucleo/prompts/entities/counter_registry.md     |  35 ++++++\n 00_nucleo/prompts/entities/element_payload.md      |  88 +++++++++++++++\n 00_nucleo/prompts/entities/elements/emph.md        |  25 +++++\n 00_nucleo/prompts/entities/elements/strong.md      |  26 +++++\n 00_nucleo/prompts/entities/introspector.md         |  31 ++++++\n 00_nucleo/prompts/entities/selector.md             |  82 ++++++++++++++\n 00_nucleo/prompts/entities/show.md                 |  48 ++++++++\n 22 files changed, 1119 insertions(+)\n",
+  "status": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/repr.md\n M 00_nucleo/prompts/compiler/eval/rules.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/compiler/introspect.md\n M 00_nucleo/prompts/compiler/introspect/extract_payload.md\n M 00_nucleo/prompts/compiler/introspect/from_tags.md\n M 00_nucleo/prompts/compiler/introspect/locatable.md\n M 00_nucleo/prompts/compiler/layout.md\n M 00_nucleo/prompts/compiler/stdlib/counter.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/query.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/entities/counter_registry.md\n M 00_nucleo/prompts/entities/element_payload.md\n M 00_nucleo/prompts/entities/elements/emph.md\n M 00_nucleo/prompts/entities/elements/strong.md\n M 00_nucleo/prompts/entities/introspector.md\n M 00_nucleo/prompts/entities/selector.md\n M 00_nucleo/prompts/entities/show.md\n?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-probe.py\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-approval-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-integration-design.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-compile-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-file-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-index-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-manifest.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r1.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-payload-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review.md\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+  "runner_sha256": "7fd025bc7ef8befe84d8417408dac392c5a9258b2ec24ef0e5b664d08a33d6b0",
+  "fixtures": "/tmp/p1339-context-dependency.i6a4w4sn",
+  "fixture_creation": {
+    "tool": "apply_patch",
+    "stdout": "Success. Updated the following files:\nA /tmp/p1339-context-dependency.i6a4w4sn/plain_set_control.typ\nA /tmp/p1339-context-dependency.i6a4w4sn/context_set_forward.typ\nA /tmp/p1339-context-dependency.i6a4w4sn/context_set_final_before.typ\nA /tmp/p1339-context-dependency.i6a4w4sn/context_filtered_set.typ\nA /tmp/p1339-context-dependency.i6a4w4sn/context_filtered_func.typ\nA /tmp/p1339-context-dependency.i6a4w4sn/stable_error_control.typ\n",
+    "stderr": ""
+  },
+  "vanilla_upstream": "a51e02804",
+  "cases": {
+    "plain_set_control": "#let c = counter(\"p1339-context\")\n#c.update(12)\n#context assert(c.get() == (12,))\nOK",
+    "context_set_forward": "#let c = counter(\"p1339-context\")\n#context c.update(12)\n#context assert(c.get() == (12,))\nOK",
+    "context_set_final_before": "#let c = counter(\"p1339-context\")\n#context assert(c.final() == (12,))\n#context c.update(12)\nOK",
+    "context_filtered_set": "#let c = counter(heading.where(level: 1))\n#set heading(numbering: \"1\")\n= A\n#context c.update(11)\n= B\n#context assert(c.get() == (12,))",
+    "context_filtered_func": "#let c = counter(heading.where(level: 1))\n#set heading(numbering: \"1\")\n= A\n#context c.update(n => n + 10)\n= B\n#context assert(c.get() == (12,))",
+    "stable_error_control": "#let c = counter(\"p1339-context\")\n#context c.update(12)\n#context { assert(c.get() == (12,)); panic(\"stable-error\") }"
+  },
+  "runs": [
+    {
+      "binary": "vanilla",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "case": "plain_set_control",
+      "source_sha256": "bcbebf383b2b65abdafc1bfb836de4fd040ec6b1bb3bdfcb2dd2dde9e3b9e596",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/plain_set_control.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/vanilla-plain_set_control.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:41:58.302307+00:00",
+      "end": "2026-09-10T01:41:58.579034+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "binary": "vanilla",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "case": "context_set_forward",
+      "source_sha256": "5b551ebd53d847b22f8bbb7b99505897ba74cfe3111c5718bbe40d802a5d7a3d",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/context_set_forward.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/vanilla-context_set_forward.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:41:58.579094+00:00",
+      "end": "2026-09-10T01:41:58.852297+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "binary": "vanilla",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "case": "context_set_final_before",
+      "source_sha256": "169a7ff90b770e97d11ce127ed4472e24e8b3d9d659e175512834d4e62fb5232",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/context_set_final_before.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/vanilla-context_set_final_before.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:41:58.852361+00:00",
+      "end": "2026-09-10T01:41:59.130972+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "binary": "vanilla",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "case": "context_filtered_set",
+      "source_sha256": "050ffa47caff2515c9fb498aa37537b633837d955ffcf0a966c33a31379c9423",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/context_filtered_set.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/vanilla-context_filtered_set.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:41:59.131077+00:00",
+      "end": "2026-09-10T01:41:59.421326+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "binary": "vanilla",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "case": "context_filtered_func",
+      "source_sha256": "b5cdb37de1e6c4d2f0811a869eceba53454c72b00434ae6e926af5e00e78807c",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/context_filtered_func.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/vanilla-context_filtered_func.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:41:59.421404+00:00",
+      "end": "2026-09-10T01:41:59.709854+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "binary": "vanilla",
+      "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+      "case": "stable_error_control",
+      "source_sha256": "c0e976e05711eef6dc677b4d98be9da5cd50a7df3e259e6b8fc6e0a2d6c5e56c",
+      "argv": [
+        "/usr/local/bin/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/stable_error_control.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/vanilla-stable_error_control.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:41:59.709923+00:00",
+      "end": "2026-09-10T01:41:59.716266+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: panicked with: stable-error\n  ┌─ ../../../tmp/p1339-context-dependency.i6a4w4sn/stable_error_control.typ:3:37\n  │\n3 │ #context { assert(c.get() == (12,)); panic(\"stable-error\") }\n  │                                      ^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "binary": "crystalline",
+      "binary_sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "case": "plain_set_control",
+      "source_sha256": "bcbebf383b2b65abdafc1bfb836de4fd040ec6b1bb3bdfcb2dd2dde9e3b9e596",
+      "argv": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/plain_set_control.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/crystalline-plain_set_control.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:41:59.748911+00:00",
+      "end": "2026-09-10T01:41:59.852074+00:00",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "binary": "crystalline",
+      "binary_sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "case": "context_set_forward",
+      "source_sha256": "5b551ebd53d847b22f8bbb7b99505897ba74cfe3111c5718bbe40d802a5d7a3d",
+      "argv": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/context_set_forward.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/crystalline-context_set_forward.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:41:59.852144+00:00",
+      "end": "2026-09-10T01:41:59.954651+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: assertion failed\n  ┌─ /tmp/p1339-context-dependency.i6a4w4sn/context_set_forward.typ:3:15\n  │\n3 │ #context assert(c.get() == (12,))\n  │                ^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "binary": "crystalline",
+      "binary_sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "case": "context_set_final_before",
+      "source_sha256": "169a7ff90b770e97d11ce127ed4472e24e8b3d9d659e175512834d4e62fb5232",
+      "argv": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/context_set_final_before.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/crystalline-context_set_final_before.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:41:59.954717+00:00",
+      "end": "2026-09-10T01:42:00.059291+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: assertion failed\n  ┌─ /tmp/p1339-context-dependency.i6a4w4sn/context_set_final_before.typ:2:15\n  │\n2 │ #context assert(c.final() == (12,))\n  │                ^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "binary": "crystalline",
+      "binary_sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "case": "context_filtered_set",
+      "source_sha256": "050ffa47caff2515c9fb498aa37537b633837d955ffcf0a966c33a31379c9423",
+      "argv": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/context_filtered_set.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/crystalline-context_filtered_set.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:42:00.059363+00:00",
+      "end": "2026-09-10T01:42:00.164592+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: assertion failed\n  ┌─ /tmp/p1339-context-dependency.i6a4w4sn/context_filtered_set.typ:6:15\n  │\n6 │ #context assert(c.get() == (12,))\n  │                ^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "binary": "crystalline",
+      "binary_sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "case": "context_filtered_func",
+      "source_sha256": "b5cdb37de1e6c4d2f0811a869eceba53454c72b00434ae6e926af5e00e78807c",
+      "argv": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/context_filtered_func.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/crystalline-context_filtered_func.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:42:00.164696+00:00",
+      "end": "2026-09-10T01:42:00.265724+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: assertion failed\n  ┌─ /tmp/p1339-context-dependency.i6a4w4sn/context_filtered_func.typ:6:15\n  │\n6 │ #context assert(c.get() == (12,))\n  │                ^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "binary": "crystalline",
+      "binary_sha256": "f7c8085f8453ecb6b10841b698092d41e7fbec64d9d46f9341b9b9b538bfefa1",
+      "case": "stable_error_control",
+      "source_sha256": "c0e976e05711eef6dc677b4d98be9da5cd50a7df3e259e6b8fc6e0a2d6c5e56c",
+      "argv": [
+        "/tmp/p1338-target.vlNAmp/release/typst",
+        "compile",
+        "/tmp/p1339-context-dependency.i6a4w4sn/stable_error_control.typ",
+        "/tmp/p1339-context-dependency.i6a4w4sn/crystalline-stable_error_control.pdf"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline",
+      "start": "2026-09-10T01:42:00.265805+00:00",
+      "end": "2026-09-10T01:42:00.368340+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: assertion failed\n  ┌─ /tmp/p1339-context-dependency.i6a4w4sn/stable_error_control.typ:3:17\n  │\n3 │ #context { assert(c.get() == (12,)); panic(\"stable-error\") }\n  │                  ^^^^^^^^^^^^^^^^^^\n\n"
+    }
+  ],
+  "classification": "exploratory compile assertions, no contract/seal/GREEN claim",
+  "author": "/root; inspected crystalline source, not an independent oracle",
+  "end": "2026-09-10T01:42:00.368356+00:00",
+  "diff_stat_after": " .../prompts/compiler/eval/bindings/field_access.md |  43 +++++++\n .../compiler/eval/bindings/value_methods.md        | 111 +++++++++++++++++++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   |  53 +++++++++\n .../prompts/compiler/eval/operators/equality.md    |  44 ++++++++\n 00_nucleo/prompts/compiler/eval/repr.md            |  38 +++++++\n 00_nucleo/prompts/compiler/eval/rules.md           |  34 ++++++\n .../prompts/compiler/eval/selector_matching.md     |  78 +++++++++++++\n 00_nucleo/prompts/compiler/introspect.md           | 123 +++++++++++++++++++++\n .../prompts/compiler/introspect/extract_payload.md |  27 +++++\n 00_nucleo/prompts/compiler/introspect/from_tags.md |  74 +++++++++++++\n 00_nucleo/prompts/compiler/introspect/locatable.md |  24 ++++\n 00_nucleo/prompts/compiler/layout.md               |  27 +++++\n 00_nucleo/prompts/compiler/stdlib/counter.md       |  42 +++++++\n .../prompts/compiler/stdlib/foundations/query.md   |  31 ++++++\n .../compiler/stdlib/foundations/selector.md        |  35 ++++++\n 00_nucleo/prompts/entities/counter_registry.md     |  35 ++++++\n 00_nucleo/prompts/entities/element_payload.md      |  88 +++++++++++++++\n 00_nucleo/prompts/entities/elements/emph.md        |  25 +++++\n 00_nucleo/prompts/entities/elements/strong.md      |  26 +++++\n 00_nucleo/prompts/entities/introspector.md         |  31 ++++++\n 00_nucleo/prompts/entities/selector.md             |  82 ++++++++++++++\n 00_nucleo/prompts/entities/show.md                 |  48 ++++++++\n 22 files changed, 1119 insertions(+)\n",
+  "status_after": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/repr.md\n M 00_nucleo/prompts/compiler/eval/rules.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/compiler/introspect.md\n M 00_nucleo/prompts/compiler/introspect/extract_payload.md\n M 00_nucleo/prompts/compiler/introspect/from_tags.md\n M 00_nucleo/prompts/compiler/introspect/locatable.md\n M 00_nucleo/prompts/compiler/layout.md\n M 00_nucleo/prompts/compiler/stdlib/counter.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/query.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/entities/counter_registry.md\n M 00_nucleo/prompts/entities/element_payload.md\n M 00_nucleo/prompts/entities/elements/emph.md\n M 00_nucleo/prompts/entities/elements/strong.md\n M 00_nucleo/prompts/entities/introspector.md\n M 00_nucleo/prompts/entities/selector.md\n M 00_nucleo/prompts/entities/show.md\n?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-context-dependency-probe.py\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-approval-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-integration-design.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-compile-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-file-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-phase-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-counter-runtime-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-index-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-index-runtime-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-manifest.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r1.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-payload-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review.md\n?? 00_nucleo/materialization/typst-passo-1339.md\n"
+}

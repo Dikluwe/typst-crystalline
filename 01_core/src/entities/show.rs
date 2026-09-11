@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/show.md
-//! @prompt-hash e228e7dd
+//! @prompt-hash 9e8dec82
 //! @layer L1
 //! @updated 2026-04-19
 
@@ -66,6 +66,8 @@ pub enum Selector {
     /// Interceta nós de um tipo específico.
     /// Ex: `#show heading: it => ...`
     NodeKind(NodeKind),
+    /// P1339 — native element identity, without invoking the constructor.
+    NativeElement(Func),
     /// **Lote F-3 inc-2** — interceta `Content::Dynamic` de um **kind dinâmico**
     /// (elemento de utilizador, fronteira E1). Ex: `#show callout: it => ...`.
     /// O kind é o nome do elemento (`dyn_kind`), não um endereço de função (que

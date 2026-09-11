@@ -1,0 +1,18 @@
+{
+  "schema": "p1340-verifier-final-r6",
+  "utc": "2026-09-10T16:57:49.990810746Z",
+  "verdict": "NO_SEAL_STOP_REQUIRES_PROTOCOL_REDESIGN",
+  "regime": "executado sem atestacao de isolamento",
+  "pins": {
+    "contract_r6b": "90c4898a06f76b0b0446a34761222c360aa9a9fb9729f5c649ca9d08b2844594",
+    "adversary_result_r6b": "b62b3be96d8148d5d739152ac94d143f39e1bce514cd2f55bc3a6a39bdef81a0",
+    "expectations_authorability_r6b": "86fd8a6c6d1e3ac41155b01cabd795a198fc122c3f6186e1e69ff5fa9071dd30"
+  },
+  "reason": "The adversarial gate killed 19/41 valid negatives and left 22 survivors in 8 new classes; the required external expectations are NOT_AUTHORABLE_EX_ANTE because they depend on dynamic candidate-bound identities and one case row cannot bind 144 fresh cells.",
+  "budget": "2/2 exhausted; no silent R6c",
+  "candidate_reads": 0,
+  "candidate_runs": 0,
+  "product_runs": 0,
+  "seal": null,
+  "F": "NOT_EXECUTED_NOT_ACCEPTED"
+}

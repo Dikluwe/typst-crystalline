@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags.md
-//! @prompt-hash a2f4386c
+//! @prompt-hash 40b375f6
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -31,6 +31,70 @@ use crate::entities::introspector::{Introspector, TagIntrospector};
 use crate::entities::source_result::SourceResult;
 use crate::entities::state_update::StateUpdate;
 use crate::entities::tag::Tag;
+
+/// Resolve o log inteiro demandado. O prefixo é uma projeção posterior,
+/// portanto um callback inválido depois do ponto consultado também falha.
+pub(crate) fn resolve_filtered_counter(
+    key: &crate::entities::counter::CounterKey,
+    intr: &TagIntrospector,
+    scopes: &mut Scopes<'_>,
+    engine: &mut Engine<'_>,
+    span: crate::entities::span::Span,
+    observer: &EvalContext,
+) -> SourceResult<Vec<(crate::entities::location::Location, Vec<usize>)>> {
+    use crate::entities::counter::CounterKey;
+    use crate::entities::value::Value;
+    use crate::compiler::eval::operators::equality::counter_keys_eq;
+    let automatic = match key {
+        CounterKey::Selector(selector) => intr.query(selector),
+        _ => Vec::new(),
+    };
+    let mut events: Vec<_> = intr.counters.actions().iter().filter(|event| {
+        match &event.key {
+            Some(manual) => counter_keys_eq(manual, key),
+            None => automatic.contains(&event.location),
+        }
+    }).collect();
+    events.sort_by_key(|event| event.location.as_u128());
+    let mut state = vec![0usize];
+    let mut history = Vec::new();
+    for event in events {
+        match &event.action {
+            CounterUpdate::Step(level) => {
+                let level = level.get();
+                state.resize(level, 0);
+                state[level - 1] += 1;
+            }
+            CounterUpdate::Set(values) => state = values.clone(),
+            CounterUpdate::Func(function) => {
+                let mut context = EvalContext::new();
+                context.target = observer.target;
+                context.features = observer.features.clone();
+                // Context::none: lexicais são da closure; introspecção não é
+                // herdada do corpo que demandou a sequência.
+                #[cfg(p1339_observation)]
+                observer.p1339_observe_callback(crate::compiler::eval::ContextCallbackKind::CounterFold);
+                let arguments = Args::from_parts(
+                    state.iter().map(|n| Value::Int(*n as i64)).collect(),
+                    indexmap::IndexMap::default(), span,
+                );
+                let value = apply_func(function.clone(), arguments, scopes, &mut context, engine)?;
+                state = match value {
+                    Value::Int(n) if n >= 0 => vec![n as usize],
+                    Value::Array(values) => values.into_iter().map(|value| match value {
+                        Value::Int(n) if n >= 0 => Ok(n as usize),
+                        other => Err(vec![crate::entities::source_result::SourceDiagnostic::error(span,
+                            format!("counter update function returned {} instead of integer", other.type_name()))]),
+                    }).collect::<SourceResult<Vec<_>>>()?,
+                    other => return Err(vec![crate::entities::source_result::SourceDiagnostic::error(span,
+                        format!("counter update function returned {} instead of integer or array", other.type_name()))]),
+                };
+            }
+        }
+        history.push((event.location, state.clone()));
+    }
+    Ok(history)
+}
 
 /// **P191B (ADR-0071)** — slim post-pass para `StateUpdate::Func`.
 ///
@@ -98,6 +162,11 @@ pub fn apply_counter_funcs(
         else {
             continue;
         };
+
+        if matches!(key, crate::entities::counter::CounterKey::Selector(selector)
+            if crate::compiler::eval::operators::equality::selector_contains_element(selector)) {
+            continue;
+        }
 
         let current = intr.counters.value_at(key, *loc).unwrap_or(&[0]);
         let inputs = current.iter().map(|value| Value::Int(*value as i64)).collect();

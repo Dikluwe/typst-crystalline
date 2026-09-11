@@ -1,0 +1,34 @@
+{
+  "schema": "p1339-independent-array-mutant-focal-GO-v1",
+  "verdict": "GO_ARRAY_MUTANT_FOCAL_55",
+  "verifier": "/root/p1311_review",
+  "regime": "executado sem atestacao de isolamento",
+  "executor_sha256": "7ed3dd412191d53fc47511cd642e016fe87c4e570d2131c32115ab51fbc4c8ec",
+  "manifest_sha256": "8fc5798211ebb619d0fcbce6d21c5fc72b4799e7d718a01d9660f6018a04e236",
+  "manifest_path": "00_nucleo/diagnosticos/p1339-mutant-array-focal-manifest-r1.json",
+  "registry_sha256": "d48373e9944f1f1cc9e8417a7379d71d00016d2e3a1f38fa46a9e2d1c61df9ee",
+  "oracle_sha256": "9fde62b1664bdda6d83aece3580f9acbebeb2768113a204ebeb8889117b3c533",
+  "build_receipt_sha256": "b972819d26f9f1465484dc0f3cfece79ea4e5a11d8dedfa1f84345594906bad6",
+  "binary_sha256": "fe0c60f17f67748480c78ccc8a2c5e7a42a738c808f29b901c44f3e177b4a055",
+  "independent_static_eligibility": {
+    "all_manifest_protected_pins_checked": true,
+    "source_inventory_files_checked": 528,
+    "only_changes_against_pinned_archive": ["01_core/src/compiler/eval/call_dispatch.rs", "01_core/src/compiler/eval/p1339_mutant_array.rs"],
+    "all_four_workspace_crates_rebuilt_in_real_log": true,
+    "build_raw_bytes_and_hashes_checked": true,
+    "twelve_actual_mutation_branches_read": true,
+    "mode_is_process_configuration_not_fixture_lookup": true,
+    "no_runtime_eligibility_inferred_from_build": true
+  },
+  "approved_scope": "Exactly28 default/normal control processes, then26 declared mutant witnesses only if27 frozen literals match, then1 invalid-mode raw control. Stop and preserve on mismatch. Executor/manifest/oracles/source/binary pins checked before/after; full raw channels retained.",
+  "budget": {"Array_focal_cycle": 1, "new_tranche_max_processes": 55, "prior_same_cycle_reference_processes": 56, "same_cycle_max_total_CLI_processes": 111, "Array_focal_limit": 2, "historical_C_full_used": 1, "historical_C_full_limit": 2, "reset": false},
+  "mandatory_limits": [
+    "E08 remains Unknown with no expected, both in control and mode9; it cannot count as a killed mutant or detached coverage.",
+    "Invalid mode must be judged from actual abnormal raw transport; its label alone does not prove Unknown handling.",
+    "At least one actual normal-exit semantic difference under each eligible family is required. Crash, timeout, missing raw, hash drift or compiled-only branch gives no rejection credit.",
+    "Mode0 is an isolated reference control, never the product implementation or architecture proof.",
+    "Private fallback bridge belongs to separately manifested cycle2. No private build/test, expanded corpus, candidate Array, seal or global P1339 closure is authorized by this GO."
+  ],
+  "Array_implementation_authorized": false,
+  "mutation_score": null
+}

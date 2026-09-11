@@ -1,0 +1,439 @@
+{
+  "regime": "executado sem atestacao de isolamento",
+  "executor": "/root/p1339_strong_emph_occurrence_probe",
+  "baseline_upstream": "a51e02804",
+  "binary": "/usr/local/bin/typst",
+  "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
+  "utc_start": "2026-09-10T01:06:52.262421+00:00",
+  "inputs": {
+    "00_nucleo/diagnosticos/p1339-where-occurrence-probe.py": "8f932e1cb9cfaf11f1c8cc2ed11a8e527a044e5e56b7e0617125d7c34ae0c4fd",
+    "00_nucleo/diagnosticos/p1339-where-integration-probe.py": "7bf09df33ef6f6d55c6b93402d155ba4af7759015e941deac5addb57a9efae76",
+    "00_nucleo/diagnosticos/p1339-where-integration-probe.md": "9a4c5da77740fb73eda167e70f869173a4f281f2ec356f6eb3083d322892c4e9",
+    "00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d",
+    "00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405",
+    "00_nucleo/adr/typst-adr-0121-proveniencia-medicao.md": "00be2575c57efb572b7935ab0ae9da80d62e66c8739bffbb17994b2f7a50d5ef"
+  },
+  "before": {
+    "head": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "shell_command": "git rev-parse HEAD",
+      "stdin": null,
+      "utc_start": "2026-09-10T01:06:52.262733+00:00",
+      "utc_end": "2026-09-10T01:06:52.264747+00:00",
+      "exit_code": 0,
+      "stdout": "2f42d64253547734564513a1159ee6b584c1c4b4\n",
+      "stderr": ""
+    },
+    "diff_stat": {
+      "argv": [
+        "git",
+        "diff",
+        "HEAD",
+        "--stat"
+      ],
+      "shell_command": "git diff HEAD --stat",
+      "stdin": null,
+      "utc_start": "2026-09-10T01:06:52.264756+00:00",
+      "utc_end": "2026-09-10T01:06:52.280126+00:00",
+      "exit_code": 0,
+      "stdout": " .../prompts/compiler/eval/bindings/field_access.md | 43 +++++++++++\n .../compiler/eval/bindings/value_methods.md        | 89 ++++++++++++++++++++++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   | 53 +++++++++++++\n .../prompts/compiler/eval/operators/equality.md    | 44 +++++++++++\n 00_nucleo/prompts/compiler/eval/repr.md            | 38 +++++++++\n 00_nucleo/prompts/compiler/eval/rules.md           | 34 +++++++++\n .../prompts/compiler/eval/selector_matching.md     | 59 ++++++++++++++\n .../compiler/stdlib/foundations/selector.md        | 35 +++++++++\n 00_nucleo/prompts/entities/element_payload.md      | 88 +++++++++++++++++++++\n 00_nucleo/prompts/entities/selector.md             | 82 ++++++++++++++++++++\n 00_nucleo/prompts/entities/show.md                 | 48 ++++++++++++\n 11 files changed, 613 insertions(+)\n",
+      "stderr": ""
+    },
+    "status": {
+      "argv": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "shell_command": "git status --short",
+      "stdin": null,
+      "utc_start": "2026-09-10T01:06:52.280140+00:00",
+      "utc_end": "2026-09-10T01:06:52.302899+00:00",
+      "exit_code": 0,
+      "stdout": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/repr.md\n M 00_nucleo/prompts/compiler/eval/rules.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/entities/element_payload.md\n M 00_nucleo/prompts/entities/selector.md\n M 00_nucleo/prompts/entities/show.md\n?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-approval-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-manifest.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r1.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-payload-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review.md\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+      "stderr": ""
+    }
+  },
+  "cases": [
+    {
+      "id": "call_vs_markup",
+      "source": "#strong[call-S] *syntax-S* #emph[call-E] _syntax-E_\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "same_function_nested",
+      "source": "#strong[outer #strong[inner] tail] #emph[outer #emph[inner] tail]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "mixed_function_nested",
+      "source": "#strong[#emph[inner]] #emph[#strong[inner]]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "markup_nested",
+      "source": "*outer *inner* tail* _outer _inner_ tail_\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "text_style_controls",
+      "source": "#text(weight: \"bold\")[weight-only] #text(style: \"italic\")[style-only] #text(weight: \"bold\")[#strong[semantic]]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "set_strong_delta",
+      "source": "#set strong(delta: 100)\n*style-default* #strong[call-default] #strong(delta: 0)[explicit-zero] #strong(delta: 300)[explicit-default]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "explicit_delta",
+      "source": "#strong(delta: 100)[custom] #strong(delta: 0)[zero] *implicit*\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "label_boundaries",
+      "source": "#strong[outer #strong[inner]<inner-s>]<outer-s> #emph[inner]<inner-e>\n#context metadata((main: (strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))), labels: (label_direct: query(<inner-s>).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_labeled: query(strong.where(label: <inner-s>)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    wrong_label: query(strong.where(label: <inner-e>)).len())))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "reused_content",
+      "source": "#let s = strong[inner]\n#let e = emph[inner]\n#s #s #e #e\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "body_morphology",
+      "source": "#strong[inner] #strong[_inner_] #strong[*inner*] #emph[inner] #emph[*inner*]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ]
+    },
+    {
+      "id": "constructor_projection",
+      "source": null,
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = strong[inner]; let e = emph[inner];\n        (strong: (func: repr(s.func()), fields: repr(s.fields()),\n          delta: s.at(\"delta\", default: \"absent\")),\n        emph: (func: repr(e.func()), fields: repr(e.fields()))) }",
+        "--format",
+        "json"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "id": "call_vs_markup",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#strong[call-S] *syntax-S* #emph[call-E] _syntax-E_\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "utc_start": "2026-09-10T01:06:52.302920+00:00",
+      "utc_end": "2026-09-10T01:06:52.598256+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"strong\":[{\"func\":\"strong\",\"body\":\"[call-S]\",\"fields\":\"(delta: 300, body: [call-S])\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[syntax-S]\",\"fields\":\"(delta: 300, body: [syntax-S])\",\"label\":\"none\",\"delta\":300}],\"emph\":[{\"func\":\"emph\",\"body\":\"[call-E]\",\"fields\":\"(body: [call-E])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"[syntax-E]\",\"fields\":\"(body: [syntax-E])\",\"label\":\"none\",\"delta\":\"absent\"}],\"ordered\":[{\"func\":\"strong\",\"body\":\"[call-S]\",\"fields\":\"(delta: 300, body: [call-S])\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[syntax-S]\",\"fields\":\"(delta: 300, body: [syntax-S])\",\"label\":\"none\",\"delta\":300},{\"func\":\"emph\",\"body\":\"[call-E]\",\"fields\":\"(body: [call-E])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"[syntax-E]\",\"fields\":\"(body: [syntax-E])\",\"label\":\"none\",\"delta\":\"absent\"}],\"strong_empty\":2,\"emph_empty\":2,\"strong_default\":[\"[call-S]\",\"[syntax-S]\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[],\"emph_body\":[]}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "same_function_nested",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#strong[outer #strong[inner] tail] #emph[outer #emph[inner] tail]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "utc_start": "2026-09-10T01:06:52.598274+00:00",
+      "utc_end": "2026-09-10T01:06:52.901577+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"strong\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ], strong(body: [inner]), [ ], [tail])\",\"fields\":\"(\\n  delta: 300,\\n  body: sequence([outer], [ ], strong(body: [inner]), [ ], [tail]),\\n)\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300}],\"emph\":[{\"func\":\"emph\",\"body\":\"sequence([outer], [ ], emph(body: [inner]), [ ], [tail])\",\"fields\":\"(\\n  body: sequence([outer], [ ], emph(body: [inner]), [ ], [tail]),\\n)\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"}],\"ordered\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ], strong(body: [inner]), [ ], [tail])\",\"fields\":\"(\\n  delta: 300,\\n  body: sequence([outer], [ ], strong(body: [inner]), [ ], [tail]),\\n)\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300},{\"func\":\"emph\",\"body\":\"sequence([outer], [ ], emph(body: [inner]), [ ], [tail])\",\"fields\":\"(\\n  body: sequence([outer], [ ], emph(body: [inner]), [ ], [tail]),\\n)\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"}],\"strong_empty\":2,\"emph_empty\":2,\"strong_default\":[\"sequence([outer], [ ], strong(body: [inner]), [ ], [tail])\",\"[inner]\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[\"[inner]\"],\"emph_body\":[\"[inner]\"]}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "mixed_function_nested",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#strong[#emph[inner]] #emph[#strong[inner]]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "utc_start": "2026-09-10T01:06:52.901595+00:00",
+      "utc_end": "2026-09-10T01:06:53.185706+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"strong\":[{\"func\":\"strong\",\"body\":\"emph(body: [inner])\",\"fields\":\"(delta: 300, body: emph(body: [inner]))\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300}],\"emph\":[{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"strong(body: [inner])\",\"fields\":\"(body: strong(body: [inner]))\",\"label\":\"none\",\"delta\":\"absent\"}],\"ordered\":[{\"func\":\"strong\",\"body\":\"emph(body: [inner])\",\"fields\":\"(delta: 300, body: emph(body: [inner]))\",\"label\":\"none\",\"delta\":300},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"strong(body: [inner])\",\"fields\":\"(body: strong(body: [inner]))\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300}],\"strong_empty\":2,\"emph_empty\":2,\"strong_default\":[\"emph(body: [inner])\",\"[inner]\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[\"[inner]\"],\"emph_body\":[\"[inner]\"]}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "markup_nested",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "*outer *inner* tail* _outer _inner_ tail_\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "utc_start": "2026-09-10T01:06:53.185725+00:00",
+      "utc_end": "2026-09-10T01:06:53.464293+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"strong\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ])\",\"fields\":\"(delta: 300, body: sequence([outer], [ ]))\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"sequence([ ], [tail])\",\"fields\":\"(delta: 300, body: sequence([ ], [tail]))\",\"label\":\"none\",\"delta\":300}],\"emph\":[{\"func\":\"emph\",\"body\":\"sequence([outer], [ ])\",\"fields\":\"(body: sequence([outer], [ ]))\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"sequence([ ], [tail])\",\"fields\":\"(body: sequence([ ], [tail]))\",\"label\":\"none\",\"delta\":\"absent\"}],\"ordered\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ])\",\"fields\":\"(delta: 300, body: sequence([outer], [ ]))\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"sequence([ ], [tail])\",\"fields\":\"(delta: 300, body: sequence([ ], [tail]))\",\"label\":\"none\",\"delta\":300},{\"func\":\"emph\",\"body\":\"sequence([outer], [ ])\",\"fields\":\"(body: sequence([outer], [ ]))\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"sequence([ ], [tail])\",\"fields\":\"(body: sequence([ ], [tail]))\",\"label\":\"none\",\"delta\":\"absent\"}],\"strong_empty\":2,\"emph_empty\":2,\"strong_default\":[\"sequence([outer], [ ])\",\"sequence([ ], [tail])\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[],\"emph_body\":[]}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "text_style_controls",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#text(weight: \"bold\")[weight-only] #text(style: \"italic\")[style-only] #text(weight: \"bold\")[#strong[semantic]]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "utc_start": "2026-09-10T01:06:53.464312+00:00",
+      "utc_end": "2026-09-10T01:06:53.746896+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"strong\":[{\"func\":\"strong\",\"body\":\"[semantic]\",\"fields\":\"(delta: 300, body: [semantic])\",\"label\":\"none\",\"delta\":300}],\"emph\":[],\"ordered\":[{\"func\":\"strong\",\"body\":\"[semantic]\",\"fields\":\"(delta: 300, body: [semantic])\",\"label\":\"none\",\"delta\":300}],\"strong_empty\":1,\"emph_empty\":0,\"strong_default\":[\"[semantic]\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[],\"emph_body\":[]}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "set_strong_delta",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#set strong(delta: 100)\n*style-default* #strong[call-default] #strong(delta: 0)[explicit-zero] #strong(delta: 300)[explicit-default]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "utc_start": "2026-09-10T01:06:53.746913+00:00",
+      "utc_end": "2026-09-10T01:06:54.031356+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"strong\":[{\"func\":\"strong\",\"body\":\"[style-default]\",\"fields\":\"(delta: 100, body: [style-default])\",\"label\":\"none\",\"delta\":100},{\"func\":\"strong\",\"body\":\"[call-default]\",\"fields\":\"(delta: 100, body: [call-default])\",\"label\":\"none\",\"delta\":100},{\"func\":\"strong\",\"body\":\"[explicit-zero]\",\"fields\":\"(delta: 0, body: [explicit-zero])\",\"label\":\"none\",\"delta\":0},{\"func\":\"strong\",\"body\":\"[explicit-default]\",\"fields\":\"(delta: 300, body: [explicit-default])\",\"label\":\"none\",\"delta\":300}],\"emph\":[],\"ordered\":[{\"func\":\"strong\",\"body\":\"[style-default]\",\"fields\":\"(delta: 100, body: [style-default])\",\"label\":\"none\",\"delta\":100},{\"func\":\"strong\",\"body\":\"[call-default]\",\"fields\":\"(delta: 100, body: [call-default])\",\"label\":\"none\",\"delta\":100},{\"func\":\"strong\",\"body\":\"[explicit-zero]\",\"fields\":\"(delta: 0, body: [explicit-zero])\",\"label\":\"none\",\"delta\":0},{\"func\":\"strong\",\"body\":\"[explicit-default]\",\"fields\":\"(delta: 300, body: [explicit-default])\",\"label\":\"none\",\"delta\":300}],\"strong_empty\":4,\"emph_empty\":0,\"strong_default\":[\"[explicit-default]\"],\"strong_zero\":[\"[explicit-zero]\"],\"strong_custom\":[\"[style-default]\",\"[call-default]\"],\"strong_body\":[],\"emph_body\":[]}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "explicit_delta",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#strong(delta: 100)[custom] #strong(delta: 0)[zero] *implicit*\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "utc_start": "2026-09-10T01:06:54.031376+00:00",
+      "utc_end": "2026-09-10T01:06:54.317802+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"strong\":[{\"func\":\"strong\",\"body\":\"[custom]\",\"fields\":\"(delta: 100, body: [custom])\",\"label\":\"none\",\"delta\":100},{\"func\":\"strong\",\"body\":\"[zero]\",\"fields\":\"(delta: 0, body: [zero])\",\"label\":\"none\",\"delta\":0},{\"func\":\"strong\",\"body\":\"[implicit]\",\"fields\":\"(delta: 300, body: [implicit])\",\"label\":\"none\",\"delta\":300}],\"emph\":[],\"ordered\":[{\"func\":\"strong\",\"body\":\"[custom]\",\"fields\":\"(delta: 100, body: [custom])\",\"label\":\"none\",\"delta\":100},{\"func\":\"strong\",\"body\":\"[zero]\",\"fields\":\"(delta: 0, body: [zero])\",\"label\":\"none\",\"delta\":0},{\"func\":\"strong\",\"body\":\"[implicit]\",\"fields\":\"(delta: 300, body: [implicit])\",\"label\":\"none\",\"delta\":300}],\"strong_empty\":3,\"emph_empty\":0,\"strong_default\":[\"[implicit]\"],\"strong_zero\":[\"[zero]\"],\"strong_custom\":[\"[custom]\"],\"strong_body\":[],\"emph_body\":[]}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "label_boundaries",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#strong[outer #strong[inner]<inner-s>]<outer-s> #emph[inner]<inner-e>\n#context metadata((main: (strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))), labels: (label_direct: query(<inner-s>).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_labeled: query(strong.where(label: <inner-s>)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    wrong_label: query(strong.where(label: <inner-e>)).len())))\n",
+      "utc_start": "2026-09-10T01:06:54.317818+00:00",
+      "utc_end": "2026-09-10T01:06:54.610171+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"main\":{\"strong\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ], strong(body: [inner]))\",\"fields\":\"(\\n  delta: 300,\\n  body: sequence([outer], [ ], strong(body: [inner])),\\n  label: <outer-s>,\\n)\",\"label\":\"<outer-s>\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300}],\"emph\":[{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner], label: <inner-e>)\",\"label\":\"<inner-e>\",\"delta\":\"absent\"}],\"ordered\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ], strong(body: [inner]))\",\"fields\":\"(\\n  delta: 300,\\n  body: sequence([outer], [ ], strong(body: [inner])),\\n  label: <outer-s>,\\n)\",\"label\":\"<outer-s>\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner], label: <inner-e>)\",\"label\":\"<inner-e>\",\"delta\":\"absent\"}],\"strong_empty\":2,\"emph_empty\":1,\"strong_default\":[\"sequence([outer], [ ], strong(body: [inner]))\",\"[inner]\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[\"[inner]\"],\"emph_body\":[\"[inner]\"]},\"labels\":{\"label_direct\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300}],\"strong_labeled\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300}],\"wrong_label\":0}}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "reused_content",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#let s = strong[inner]\n#let e = emph[inner]\n#s #s #e #e\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "utc_start": "2026-09-10T01:06:54.610191+00:00",
+      "utc_end": "2026-09-10T01:06:54.893475+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"strong\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300}],\"emph\":[{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"}],\"ordered\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"}],\"strong_empty\":2,\"emph_empty\":2,\"strong_default\":[\"[inner]\",\"[inner]\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[\"[inner]\",\"[inner]\"],\"emph_body\":[\"[inner]\",\"[inner]\"]}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "body_morphology",
+      "argv": [
+        "/usr/local/bin/typst",
+        "query",
+        "-",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "shell_command": "/usr/local/bin/typst query - metadata --field value",
+      "stdin": "#strong[inner] #strong[_inner_] #strong[*inner*] #emph[inner] #emph[*inner*]\n#context metadata((strong: query(strong).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    emph: query(emph).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    ordered: query(selector(strong).or(emph)).map(it => (func: repr(it.func()), body: repr(it.body),\n    fields: repr(it.fields()), label: repr(it.at(\"label\", default: none)),\n    delta: it.at(\"delta\", default: \"absent\"))),\n    strong_empty: query(strong.where()).len(),\n    emph_empty: query(emph.where()).len(),\n    strong_default: query(strong.where(delta: 300)).map(it => repr(it.body)),\n    strong_zero: query(strong.where(delta: 0)).map(it => repr(it.body)),\n    strong_custom: query(strong.where(delta: 100)).map(it => repr(it.body)),\n    strong_body: query(strong.where(body: [inner])).map(it => repr(it.body)),\n    emph_body: query(emph.where(body: [inner])).map(it => repr(it.body))))\n",
+      "utc_start": "2026-09-10T01:06:54.893491+00:00",
+      "utc_end": "2026-09-10T01:06:55.174408+00:00",
+      "exit_code": 0,
+      "stdout": "[{\"strong\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"emph(body: [inner])\",\"fields\":\"(delta: 300, body: emph(body: [inner]))\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"strong(body: [inner])\",\"fields\":\"(delta: 300, body: strong(body: [inner]))\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300}],\"emph\":[{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"strong(body: [inner])\",\"fields\":\"(body: strong(body: [inner]))\",\"label\":\"none\",\"delta\":\"absent\"}],\"ordered\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"emph(body: [inner])\",\"fields\":\"(delta: 300, body: emph(body: [inner]))\",\"label\":\"none\",\"delta\":300},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"strong\",\"body\":\"strong(body: [inner])\",\"fields\":\"(delta: 300, body: strong(body: [inner]))\",\"label\":\"none\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner])\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"emph\",\"body\":\"strong(body: [inner])\",\"fields\":\"(body: strong(body: [inner]))\",\"label\":\"none\",\"delta\":\"absent\"},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner])\",\"label\":\"none\",\"delta\":300}],\"strong_empty\":5,\"emph_empty\":3,\"strong_default\":[\"[inner]\",\"emph(body: [inner])\",\"strong(body: [inner])\",\"[inner]\",\"[inner]\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[\"[inner]\",\"[inner]\",\"[inner]\"],\"emph_body\":[\"[inner]\",\"[inner]\"]}]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)'` instead\n\n"
+    },
+    {
+      "id": "constructor_projection",
+      "argv": [
+        "/usr/local/bin/typst",
+        "eval",
+        "{ let s = strong[inner]; let e = emph[inner];\n        (strong: (func: repr(s.func()), fields: repr(s.fields()),\n          delta: s.at(\"delta\", default: \"absent\")),\n        emph: (func: repr(e.func()), fields: repr(e.fields()))) }",
+        "--format",
+        "json"
+      ],
+      "shell_command": "/usr/local/bin/typst eval '{ let s = strong[inner]; let e = emph[inner];\n        (strong: (func: repr(s.func()), fields: repr(s.fields()),\n          delta: s.at(\"delta\", default: \"absent\")),\n        emph: (func: repr(e.func()), fields: repr(e.fields()))) }' --format json",
+      "stdin": null,
+      "utc_start": "2026-09-10T01:06:55.174441+00:00",
+      "utc_end": "2026-09-10T01:06:55.180615+00:00",
+      "exit_code": 0,
+      "stdout": "{\"strong\":{\"func\":\"strong\",\"fields\":\"(body: [inner])\",\"delta\":\"absent\"},\"emph\":{\"func\":\"emph\",\"fields\":\"(body: [inner])\"}}\n",
+      "stderr": ""
+    }
+  ],
+  "after": {
+    "head": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "shell_command": "git rev-parse HEAD",
+      "stdin": null,
+      "utc_start": "2026-09-10T01:06:55.180635+00:00",
+      "utc_end": "2026-09-10T01:06:55.182481+00:00",
+      "exit_code": 0,
+      "stdout": "2f42d64253547734564513a1159ee6b584c1c4b4\n",
+      "stderr": ""
+    },
+    "diff_stat": {
+      "argv": [
+        "git",
+        "diff",
+        "HEAD",
+        "--stat"
+      ],
+      "shell_command": "git diff HEAD --stat",
+      "stdin": null,
+      "utc_start": "2026-09-10T01:06:55.182490+00:00",
+      "utc_end": "2026-09-10T01:06:55.197911+00:00",
+      "exit_code": 0,
+      "stdout": " .../prompts/compiler/eval/bindings/field_access.md | 43 +++++++++++\n .../compiler/eval/bindings/value_methods.md        | 89 ++++++++++++++++++++++\n 00_nucleo/prompts/compiler/eval/call_dispatch.md   | 53 +++++++++++++\n .../prompts/compiler/eval/operators/equality.md    | 44 +++++++++++\n 00_nucleo/prompts/compiler/eval/repr.md            | 38 +++++++++\n 00_nucleo/prompts/compiler/eval/rules.md           | 34 +++++++++\n .../prompts/compiler/eval/selector_matching.md     | 59 ++++++++++++++\n .../compiler/stdlib/foundations/selector.md        | 35 +++++++++\n 00_nucleo/prompts/entities/element_payload.md      | 88 +++++++++++++++++++++\n 00_nucleo/prompts/entities/selector.md             | 82 ++++++++++++++++++++\n 00_nucleo/prompts/entities/show.md                 | 48 ++++++++++++\n 11 files changed, 613 insertions(+)\n",
+      "stderr": ""
+    },
+    "status": {
+      "argv": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "shell_command": "git status --short",
+      "stdin": null,
+      "utc_start": "2026-09-10T01:06:55.197926+00:00",
+      "utc_end": "2026-09-10T01:06:55.221398+00:00",
+      "exit_code": 0,
+      "stdout": " M 00_nucleo/prompts/compiler/eval/bindings/field_access.md\n M 00_nucleo/prompts/compiler/eval/bindings/value_methods.md\n M 00_nucleo/prompts/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/compiler/eval/repr.md\n M 00_nucleo/prompts/compiler/eval/rules.md\n M 00_nucleo/prompts/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/entities/element_payload.md\n M 00_nucleo/prompts/entities/selector.md\n M 00_nucleo/prompts/entities/show.md\n?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-manifest.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution.md\n?? 00_nucleo/diagnosticos/p1339-nan-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-approval-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe-supplement.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.md\n?? 00_nucleo/diagnosticos/p1339-where-integration-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-integration-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-integration-recorder.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-crystalline.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate-receipt.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-manifest.json\n?? 00_nucleo/diagnosticos/p1339-where-l0-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r1.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review-draft-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-review.md\n?? 00_nucleo/diagnosticos/p1339-where-l0-vanilla.json\n?? 00_nucleo/diagnosticos/p1339-where-occurrence-probe.py\n?? 00_nucleo/diagnosticos/p1339-where-payload-approval.json\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-draft-review.md\n?? 00_nucleo/diagnosticos/p1339-where-payload-gate.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review-r2.md\n?? 00_nucleo/diagnosticos/p1339-where-query-design-review.md\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+      "stderr": ""
+    }
+  },
+  "utc_end": "2026-09-10T01:06:55.221414+00:00"
+}

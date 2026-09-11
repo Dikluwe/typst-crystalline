@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/equality.md
-//! @prompt-hash a6705cc2
+//! @prompt-hash fb7b8847
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -10,6 +10,8 @@
 //! do nó `error_formatting`.
 
 use crate::entities::ast::expr::BinOp;
+use crate::entities::counter::CounterKey;
+use crate::entities::selector::Selector;
 use crate::entities::value::Value;
 
 use super::error_formatting::binary_mismatch;
@@ -98,7 +100,7 @@ fn value_eq(a: &Value, b: &Value) -> bool {
 /// `ops.rs:458-460` — P818-f) e `Ratio ↔ Relative` (abs zero, mesma
 /// tolerância do braço dedicado P785b) em posição aninhada, e `Content`
 /// morfológico (P345) aninhado. O resto delega no `PartialEq` derivado.
-fn values_eq(a: &Value, b: &Value) -> bool {
+pub(crate) fn values_eq(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Int(i), Value::Float(f)) | (Value::Float(f), Value::Int(i)) => {
             (*i as f64) == *f
@@ -126,7 +128,68 @@ fn values_eq(a: &Value, b: &Value) -> bool {
         (Value::LocatedContent(x, _), Value::LocatedContent(y, _)) => {
             content_values_eq(x.content(), x.fields(), y.content(), y.fields())
         }
+        (Value::Selector(x), Value::Selector(y)) => selectors_eq(x, y),
+        (Value::Counter(x), Value::Counter(y)) => counter_keys_eq(&x.key, &y.key),
         (a, b) => a == b,
+    }
+}
+
+/// Whether the selector's composition tree uses the P1339 element carrier.
+pub(crate) fn selector_contains_element(selector: &Selector) -> bool {
+    match selector {
+        Selector::Element { .. } => true,
+        Selector::And(items) | Selector::Or(items) => {
+            items.iter().any(selector_contains_element)
+        }
+        Selector::Where { base, .. } => selector_contains_element(base),
+        Selector::Within { base, ancestor } => {
+            selector_contains_element(base) || selector_contains_element(ancestor)
+        }
+        Selector::Kind(_)
+        | Selector::Label(_)
+        | Selector::Location(_)
+        | Selector::Regex(_) => false,
+    }
+}
+
+/// Language equality only refines compositions containing the new carrier.
+/// Old selector pairs retain their historical structural comparison.
+pub(crate) fn selectors_eq(a: &Selector, b: &Selector) -> bool {
+    if !selector_contains_element(a) && !selector_contains_element(b) {
+        return a == b;
+    }
+    match (a, b) {
+        (
+            Selector::Element { function: a, fields: af },
+            Selector::Element { function: b, fields: bf },
+        ) => {
+            a == b
+                && af.len() == bf.len()
+                && af
+                    .iter()
+                    .zip(bf.iter())
+                    .all(|((an, av), (bn, bv))| an == bn && values_eq(av, bv))
+        }
+        (Selector::And(a), Selector::And(b)) | (Selector::Or(a), Selector::Or(b)) => {
+            a.len() == b.len() && a.iter().zip(b.iter()).all(|(a, b)| selectors_eq(a, b))
+        }
+        (
+            Selector::Where { base: a, field: af, value: av },
+            Selector::Where { base: b, field: bf, value: bv },
+        ) => selectors_eq(a, b) && af == bf && values_eq(av, bv),
+        (
+            Selector::Within { base: a, ancestor: aa },
+            Selector::Within { base: b, ancestor: ba },
+        ) => selectors_eq(a, b) && selectors_eq(aa, ba),
+        _ => false,
+    }
+}
+
+/// The same relation identifies demanded filtered counters and their updates.
+pub(crate) fn counter_keys_eq(a: &CounterKey, b: &CounterKey) -> bool {
+    match (a, b) {
+        (CounterKey::Selector(a), CounterKey::Selector(b)) => selectors_eq(a, b),
+        _ => a == b,
     }
 }
 
@@ -181,4 +244,63 @@ fn content_values_eq(
         && a.iter()
             .filter(|(key, _)| key.as_str() != "label")
             .all(|(key, value)| b.get(key).is_some_and(|other| values_eq(value, other)))
+}
+
+#[cfg(test)]
+mod p1339_tests {
+    use super::*;
+
+    fn element(value: Value) -> Selector {
+        Selector::Element {
+            function: crate::entities::func::Func::native(
+                "heading",
+                crate::compiler::stdlib::native_heading,
+            ),
+            fields: [("level".into(), value)].into_iter().collect(),
+        }
+    }
+
+    #[test]
+    fn p1339_element_equality_is_recursive_and_counter_consistent() {
+        let a = element(Value::Array(vec![Value::Int(1)]));
+        let b = element(Value::Array(vec![Value::Float(1.0)]));
+        assert!(selectors_eq(&a, &b));
+        assert!(counter_keys_eq(
+            &CounterKey::Selector(a.clone()),
+            &CounterKey::Selector(b.clone())
+        ));
+        assert!(selectors_eq(
+            &Selector::And(vec![a].into()),
+            &Selector::And(vec![b].into())
+        ));
+        let nan = element(Value::Float(f64::NAN));
+        assert!(!selectors_eq(&nan, &nan));
+    }
+
+    #[test]
+    fn p1339_empty_element_is_not_legacy_kind_and_field_order_is_observable() {
+        let mut a = element(Value::Int(1));
+        let Selector::Element { function, fields } = &mut a else { unreachable!() };
+        let empty = Selector::Element {
+            function: function.clone(),
+            fields: Default::default(),
+        };
+        assert!(!selectors_eq(
+            &empty,
+            &Selector::Kind(crate::entities::element_kind::ElementKind::Heading)
+        ));
+        fields.push(("outlined".into(), Value::Bool(true)));
+        let mut b = a.clone();
+        let Selector::Element { fields, .. } = &mut b else { unreachable!() };
+        fields.make_mut().reverse();
+        assert!(!selectors_eq(&a, &b));
+        let legacy = |value| Selector::Where {
+            base: Box::new(Selector::Kind(
+                crate::entities::element_kind::ElementKind::Heading,
+            )),
+            field: "level".into(),
+            value: Box::new(value),
+        };
+        assert!(!selectors_eq(&legacy(Value::Int(1)), &legacy(Value::Float(1.0))));
+    }
 }

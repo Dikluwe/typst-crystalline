@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/selector.md
-//! @prompt-hash 9bea0284
+//! @prompt-hash f998e709
 //! @layer L1
 //! @updated 2026-08-23
 
@@ -88,6 +88,27 @@ mod tests {
 
     fn ctx() -> EvalContext {
         EvalContext::new()
+    }
+
+    #[test]
+    fn p1339_selector_and_parser_preserve_element_group() {
+        let expected = Selector::Element {
+            function: crate::entities::func::Func::native(
+                "text",
+                crate::compiler::stdlib::native_text,
+            ),
+            fields: [("text".into(), Value::Str("body".into()))].into_iter().collect(),
+        };
+        let input = Value::Selector(expected.clone());
+        let result = native_selector(
+            &mut ctx(),
+            &Args::positional(vec![input.clone()]),
+            &NullWorld::default(),
+            tfid(),
+        )
+        .unwrap();
+        assert_eq!(result, input);
+        assert_eq!(parse_selector_arg(&[input], "query").unwrap(), expected);
     }
     fn tfid() -> FileId {
         FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())

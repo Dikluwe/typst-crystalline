@@ -1,0 +1,100 @@
+{
+  "provenance": {
+    "at": "2026-09-09T23:50:24.518910+00:00",
+    "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+    "status": "?? 00_nucleo/diagnosticos/p1339-a0-recorder.py\n?? 00_nucleo/diagnosticos/p1339-a0.json\n?? 00_nucleo/diagnosticos/p1339-a1-decision-required.md\n?? 00_nucleo/diagnosticos/p1339-authority-manifest-r1.json\n?? 00_nucleo/diagnosticos/p1339-authority-manifest.json\n?? 00_nucleo/diagnosticos/p1339-comparison-before.json\n?? 00_nucleo/diagnosticos/p1339-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-a2.md\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-boundaries.py\n?? 00_nucleo/diagnosticos/p1339-full-catalog.json\n?? 00_nucleo/diagnosticos/p1339-full-cli-capabilities.json\n?? 00_nucleo/diagnosticos/p1339-full-comparison.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-explore-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-probe-explore-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-probe-focal-r1.py\n?? 00_nucleo/diagnosticos/p1339-full-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-receipt.json\n?? 00_nucleo/diagnosticos/p1339-full-receipt.py\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-compile.py\n?? 00_nucleo/diagnosticos/p1339-full-show-final-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-final-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-emph-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-strong-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-bound-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-empty.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-match.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-fixture-text-static-miss.typ\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-r1-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-focal-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-show-probe-r0.py\n?? 00_nucleo/diagnosticos/p1339-full-show-probe.py\n?? 00_nucleo/diagnosticos/p1339-full-summarize.py\n?? 00_nucleo/diagnosticos/p1339-full-where-early-crystalline-before-runs.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-manifest.json\n?? 00_nucleo/diagnosticos/p1339-full-where-early-vanilla-runs.json\n?? 00_nucleo/diagnosticos/p1339-nan-resolution-probe.py\n?? 00_nucleo/diagnosticos/p1339-preflight-blocker.md\n?? 00_nucleo/diagnosticos/p1339-probe-manifest.json\n?? 00_nucleo/diagnosticos/p1339-probe.py\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1-addendum.md\n?? 00_nucleo/diagnosticos/p1339-protocol-review-r1.md\n?? 00_nucleo/diagnosticos/p1339-resume-r1.json\n?? 00_nucleo/diagnosticos/p1339-resume.py\n?? 00_nucleo/diagnosticos/p1339-retification-check.json\n?? 00_nucleo/diagnosticos/p1339-retification-check.py\n?? 00_nucleo/diagnosticos/p1339-review-check.cjs\n?? 00_nucleo/diagnosticos/p1339-review-preliminary.md\n?? 00_nucleo/diagnosticos/p1339-review-receipt.json\n?? 00_nucleo/diagnosticos/p1339-step-before-angle-retification.md\n?? 00_nucleo/diagnosticos/p1339-vanilla-runs.json\n?? 00_nucleo/materialization/typst-passo-1339.md\n",
+    "diff_stat": ""
+  },
+  "cases": [
+    {
+      "id": "multiply-nan",
+      "expression": "{ let a = float(\"nan\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "multiply-zero-infinity",
+      "expression": "{ let a = 0deg * float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "subtract-infinities",
+      "expression": "{ let a = float(\"inf\") * 1deg - float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "add-opposite-infinities",
+      "expression": "{ let a = float(\"inf\") * 1deg + -float(\"inf\") * 1deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "divide-by-nan",
+      "expression": "{ let a = 1deg / float(\"nan\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "divide-infinities",
+      "expression": "{ let a = (float(\"inf\") * 1deg) / float(\"inf\"); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "atan-nan",
+      "expression": "{ let a = calc.atan(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "atan2-nan-y",
+      "expression": "{ let a = calc.atan2(float(\"nan\"), 1.0); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "atan2-nan-x",
+      "expression": "{ let a = calc.atan2(1.0, float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "asin-nan",
+      "expression": "{ let a = calc.asin(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "acos-nan",
+      "expression": "{ let a = calc.acos(float(\"nan\")); repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "control-positive-infinity",
+      "expression": "{ let a = float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "control-negative-infinity",
+      "expression": "{ let a = -float(\"inf\") * 1rad; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "control-negative-zero",
+      "expression": "{ let a = -0deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "control-finite",
+      "expression": "{ let a = 90deg; repr((type(a), a, a == a, a / 1deg, (a / 1deg) == (a / 1deg))) }"
+    },
+    {
+      "id": "control-float-nan",
+      "expression": "{ let n = float(\"nan\"); repr((type(n), n, n == n)) }"
+    }
+  ],
+  "profiles": {
+    "default": [],
+    "html": [
+      "--features",
+      "html"
+    ],
+    "a11y": [
+      "--features",
+      "a11y-extras"
+    ],
+    "html+a11y": [
+      "--features",
+      "html,a11y-extras"
+    ]
+  },
+  "source_hashes": {
+    "lab/typst-original/crates/typst-utils/src/scalar.rs": "e3b7bcf23af0ae7fedd312c74fa21b0a65cc14f1cfd62bec556155f75c902891",
+    "lab/typst-original/crates/typst-library/src/layout/angle.rs": "76edf90e5c2e38c61189644d77ef78655486230723ad1fdce6b624f8259182d5",
+    "lab/typst-original/crates/typst-library/src/foundations/calc.rs": "0eb0836dc8bf17ba214d04be2c14f137350766ec44b6f5afe238cf467f78f484",
+    "00_nucleo/materialization/typst-passo-1339.md": "817c3a1476897fb0a847c90183e9a9fe690994f60023126997c8022c4e8b86a9",
+    "00_nucleo/diagnosticos/p1339-retification-check.json": "aebacc955da740e54c5df954e20927fb48ece1af34cfa63ab5a58aa799518ed6"
+  },
+  "script_sha256": "51dcf7503646ba98fbe3e734dbc601c1a6561878dff7527a05365a1b3053266f",
+  "purpose": "Test additional public Angle producers and distinguish unreachable domain from a mere missed fixture; not an oracle or seal",
+  "authority": "User: Tente resolver o problema; no presumed permission to weaken gates",
+  "budget": "One focal corpus, normal/reverse, four profiles; no complete P1339 rerun"
+}

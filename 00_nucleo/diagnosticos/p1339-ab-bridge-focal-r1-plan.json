@@ -1,0 +1,339 @@
+{
+  "schema": "p1339-ab-bridge-focal-v1",
+  "authority_manifest_sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b",
+  "contract_sha256": "e062fb551fcffd78d21c1ae2a0a185aa376dd790c3e0825cec045a7f1e65b509",
+  "input_sha256": {
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-contract.json": "e062fb551fcffd78d21c1ae2a0a185aa376dd790c3e0825cec045a7f1e65b509",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json": "178a8637df7eb75d21131a46ad68005b9f7e35670644c9cb9b7eeb93031d5ae3",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json": "5f76638911404da4569c45719b0670e7ab53d873966fc34f49059f1653300d78",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json": "bdf16ebfb94c8ab085311902b3e9786fba18b2aa117e4cabebf56e375e34444a"
+  },
+  "cases": [
+    {
+      "id": "bridge-r1-oscillating_set-equal",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-oscillating_set-equal.typ",
+      "source_sha256": "c7f77b462c612ce784f83284dde09f72a1dbefcff28af0dd74d8a8e3183f6a4e",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+        "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241",
+        "row_index": 0,
+        "case_id": "oscillating_set",
+        "source_sha256": "ad391d7e935c0757576b97cd709d67bd12edaea38718766607b36334525fc1b0"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[0]",
+      "assertion": "equal",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) == \"[0]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-oscillating_set-different",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-oscillating_set-different.typ",
+      "source_sha256": "f67c88a31e6626544a61d455a8136d89de4d97291dcdad37d031e78652122a34",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+        "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241",
+        "row_index": 0,
+        "case_id": "oscillating_set",
+        "source_sha256": "ad391d7e935c0757576b97cd709d67bd12edaea38718766607b36334525fc1b0"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[0]",
+      "assertion": "different",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) != \"[0]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-increasing_set-equal",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-increasing_set-equal.typ",
+      "source_sha256": "3a952fe3d8834213c7298f280fd09afe4fec15c4826625fb348db27738b9714b",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+        "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241",
+        "row_index": 1,
+        "case_id": "increasing_set",
+        "source_sha256": "eb84f004ff40a72cbbf1909b2e35fd6f640db8fff9a728e556f8b2afc37d5984"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[4]",
+      "assertion": "equal",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) == \"[4]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-increasing_set-different",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-increasing_set-different.typ",
+      "source_sha256": "22d98bcc7fa5f4658a30743c748a826bff122726ebcf482d3292a4a7419c1de2",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+        "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241",
+        "row_index": 1,
+        "case_id": "increasing_set",
+        "source_sha256": "eb84f004ff40a72cbbf1909b2e35fd6f640db8fff9a728e556f8b2afc37d5984"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[4]",
+      "assertion": "different",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) != \"[4]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-fresh_callback_stable-equal",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-fresh_callback_stable-equal.typ",
+      "source_sha256": "bfdcd34d99b06c42938aff4e7f9a82f6bfa7281855ca2a3e43a9ea912ce3d601",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+        "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241",
+        "row_index": 3,
+        "case_id": "fresh_callback_stable",
+        "source_sha256": "863e5ab6da6714bcf7b1f7851d635d889bfaa301fc70c648afe5335c209e08e4"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[12]",
+      "assertion": "equal",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) == \"[12]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-fresh_callback_stable-different",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-fresh_callback_stable-different.typ",
+      "source_sha256": "99ebcd4c598de8f04114f9f404e29550f5167221f6818f53a8acd04863b2c89b",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-stabilization-boundaries-runs.json",
+        "sha256": "4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241",
+        "row_index": 3,
+        "case_id": "fresh_callback_stable",
+        "source_sha256": "863e5ab6da6714bcf7b1f7851d635d889bfaa301fc70c648afe5335c209e08e4"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[12]",
+      "assertion": "different",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) != \"[12]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-int_float_keys-equal",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-int_float_keys-equal.typ",
+      "source_sha256": "b3e81407f7f717af911d76faf089941cf6dcbc0b3b150b0fbb2519e53ad25086",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json",
+        "sha256": "178a8637df7eb75d21131a46ad68005b9f7e35670644c9cb9b7eeb93031d5ae3",
+        "row_index": 1,
+        "case_id": "int_float_keys",
+        "source_sha256": "8bcc24af0a852e5ed1bb84858afe556e65d6726f60da56c685d7a537b7902a7c"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[true,[12],[12],2]",
+      "assertion": "equal",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) == \"[true,[12],[12],2]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-int_float_keys-different",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-int_float_keys-different.typ",
+      "source_sha256": "a134ace73ad04c3d50c021a5322feaac374cf4d9218a5106d7bef0ca43106689",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-counter-runtime-probe-runs.json",
+        "sha256": "178a8637df7eb75d21131a46ad68005b9f7e35670644c9cb9b7eeb93031d5ae3",
+        "row_index": 1,
+        "case_id": "int_float_keys",
+        "source_sha256": "8bcc24af0a852e5ed1bb84858afe556e65d6726f60da56c685d7a537b7902a7c"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[true,[12],[12],2]",
+      "assertion": "different",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) != \"[true,[12],[12],2]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-counter_strong_filtered-equal",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-counter_strong_filtered-equal.typ",
+      "source_sha256": "a97eb429c3c37e77da9fe81118c84386faf0c3614c8e8e7d46efd19693bb7525",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json",
+        "sha256": "5f76638911404da4569c45719b0670e7ab53d873966fc34f49059f1653300d78",
+        "row_index": 1,
+        "case_id": "counter_strong_filtered",
+        "source_sha256": "fdf107030dcfb9049080f14673bd9a6408c1e174b966a1cb66e9bcf2efee8d6d"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[[1],[1],[1],[0],\"1\"]",
+      "assertion": "equal",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) == \"[[1],[1],[1],[0],\\\"1\\\"]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-counter_strong_filtered-different",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-counter_strong_filtered-different.typ",
+      "source_sha256": "c86be9df2cb0e5ba5fc5ade38505c0ceaf85b1ccf08531a4df4a96db184df8aa",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-integration-probe-supplement-runs.json",
+        "sha256": "5f76638911404da4569c45719b0670e7ab53d873966fc34f49059f1653300d78",
+        "row_index": 1,
+        "case_id": "counter_strong_filtered",
+        "source_sha256": "fdf107030dcfb9049080f14673bd9a6408c1e174b966a1cb66e9bcf2efee8d6d"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "[[1],[1],[1],[0],\"1\"]",
+      "assertion": "different",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) != \"[[1],[1],[1],[0],\\\"1\\\"]\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-label_boundaries-equal",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-label_boundaries-equal.typ",
+      "source_sha256": "5c1966b8a0e9b7bcc1c31f7f9611c05a2b052b1cd9c8882ed349b08d59917238",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json",
+        "sha256": "bdf16ebfb94c8ab085311902b3e9786fba18b2aa117e4cabebf56e375e34444a",
+        "row_index": 7,
+        "case_id": "label_boundaries",
+        "source_sha256": "42d518ef10a9461a9bed100fcedfc71543b62d8a35e087008063c8c521791aa3"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "{\"main\":{\"strong\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ], strong(body: [inner]))\",\"fields\":\"(\\n  delta: 300,\\n  body: sequence([outer], [ ], strong(body: [inner])),\\n  label: <outer-s>,\\n)\",\"label\":\"<outer-s>\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300}],\"emph\":[{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner], label: <inner-e>)\",\"label\":\"<inner-e>\",\"delta\":\"absent\"}],\"ordered\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ], strong(body: [inner]))\",\"fields\":\"(\\n  delta: 300,\\n  body: sequence([outer], [ ], strong(body: [inner])),\\n  label: <outer-s>,\\n)\",\"label\":\"<outer-s>\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner], label: <inner-e>)\",\"label\":\"<inner-e>\",\"delta\":\"absent\"}],\"strong_empty\":2,\"emph_empty\":1,\"strong_default\":[\"sequence([outer], [ ], strong(body: [inner]))\",\"[inner]\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[\"[inner]\"],\"emph_body\":[\"[inner]\"]},\"labels\":{\"label_direct\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300}],\"strong_labeled\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300}],\"wrong_label\":0}}",
+      "assertion": "equal",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) == \"{\\\"main\\\":{\\\"strong\\\":[{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"sequence([outer], [ ], strong(body: [inner]))\\\",\\\"fields\\\":\\\"(\\\\n  delta: 300,\\\\n  body: sequence([outer], [ ], strong(body: [inner])),\\\\n  label: <outer-s>,\\\\n)\\\",\\\"label\\\":\\\"<outer-s>\\\",\\\"delta\\\":300},{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(delta: 300, body: [inner], label: <inner-s>)\\\",\\\"label\\\":\\\"<inner-s>\\\",\\\"delta\\\":300}],\\\"emph\\\":[{\\\"func\\\":\\\"emph\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(body: [inner], label: <inner-e>)\\\",\\\"label\\\":\\\"<inner-e>\\\",\\\"delta\\\":\\\"absent\\\"}],\\\"ordered\\\":[{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"sequence([outer], [ ], strong(body: [inner]))\\\",\\\"fields\\\":\\\"(\\\\n  delta: 300,\\\\n  body: sequence([outer], [ ], strong(body: [inner])),\\\\n  label: <outer-s>,\\\\n)\\\",\\\"label\\\":\\\"<outer-s>\\\",\\\"delta\\\":300},{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(delta: 300, body: [inner], label: <inner-s>)\\\",\\\"label\\\":\\\"<inner-s>\\\",\\\"delta\\\":300},{\\\"func\\\":\\\"emph\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(body: [inner], label: <inner-e>)\\\",\\\"label\\\":\\\"<inner-e>\\\",\\\"delta\\\":\\\"absent\\\"}],\\\"strong_empty\\\":2,\\\"emph_empty\\\":1,\\\"strong_default\\\":[\\\"sequence([outer], [ ], strong(body: [inner]))\\\",\\\"[inner]\\\"],\\\"strong_zero\\\":[],\\\"strong_custom\\\":[],\\\"strong_body\\\":[\\\"[inner]\\\"],\\\"emph_body\\\":[\\\"[inner]\\\"]},\\\"labels\\\":{\\\"label_direct\\\":[{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(delta: 300, body: [inner], label: <inner-s>)\\\",\\\"label\\\":\\\"<inner-s>\\\",\\\"delta\\\":300}],\\\"strong_labeled\\\":[{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(delta: 300, body: [inner], label: <inner-s>)\\\",\\\"label\\\":\\\"<inner-s>\\\",\\\"delta\\\":300}],\\\"wrong_label\\\":0}}\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    },
+    {
+      "id": "bridge-r1-label_boundaries-different",
+      "mode": "compile",
+      "adapter": "causal_successor",
+      "source_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-ab-bridge-r1-label_boundaries-different.typ",
+      "source_sha256": "2044561f62dcdb2e3d45d6deb360e46009e276e01b30b47960f324084ce144c7",
+      "historical": {
+        "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1339-where-occurrence-probe-runs.json",
+        "sha256": "bdf16ebfb94c8ab085311902b3e9786fba18b2aa117e4cabebf56e375e34444a",
+        "row_index": 7,
+        "case_id": "label_boundaries",
+        "source_sha256": "42d518ef10a9461a9bed100fcedfc71543b62d8a35e087008063c8c521791aa3"
+      },
+      "hypothesis": "Observe same already-evaluated metadata argument and return original. Positive equal assertion should survive invalid generations; complementary different assertion proves evaluated-path coverage.",
+      "expected_metadata_json": "{\"main\":{\"strong\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ], strong(body: [inner]))\",\"fields\":\"(\\n  delta: 300,\\n  body: sequence([outer], [ ], strong(body: [inner])),\\n  label: <outer-s>,\\n)\",\"label\":\"<outer-s>\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300}],\"emph\":[{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner], label: <inner-e>)\",\"label\":\"<inner-e>\",\"delta\":\"absent\"}],\"ordered\":[{\"func\":\"strong\",\"body\":\"sequence([outer], [ ], strong(body: [inner]))\",\"fields\":\"(\\n  delta: 300,\\n  body: sequence([outer], [ ], strong(body: [inner])),\\n  label: <outer-s>,\\n)\",\"label\":\"<outer-s>\",\"delta\":300},{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300},{\"func\":\"emph\",\"body\":\"[inner]\",\"fields\":\"(body: [inner], label: <inner-e>)\",\"label\":\"<inner-e>\",\"delta\":\"absent\"}],\"strong_empty\":2,\"emph_empty\":1,\"strong_default\":[\"sequence([outer], [ ], strong(body: [inner]))\",\"[inner]\"],\"strong_zero\":[],\"strong_custom\":[],\"strong_body\":[\"[inner]\"],\"emph_body\":[\"[inner]\"]},\"labels\":{\"label_direct\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300}],\"strong_labeled\":[{\"func\":\"strong\",\"body\":\"[inner]\",\"fields\":\"(delta: 300, body: [inner], label: <inner-s>)\",\"label\":\"<inner-s>\",\"delta\":300}],\"wrong_label\":0}}",
+      "assertion": "different",
+      "required_observable": [
+        "exit",
+        "stdout",
+        "stderr",
+        "artifact_presence"
+      ],
+      "fixture_transformation": {
+        "prefix": "#let p1339-original-metadata = metadata\n#let metadata(value) = { assert(json.encode(value, pretty: false) != \"{\\\"main\\\":{\\\"strong\\\":[{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"sequence([outer], [ ], strong(body: [inner]))\\\",\\\"fields\\\":\\\"(\\\\n  delta: 300,\\\\n  body: sequence([outer], [ ], strong(body: [inner])),\\\\n  label: <outer-s>,\\\\n)\\\",\\\"label\\\":\\\"<outer-s>\\\",\\\"delta\\\":300},{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(delta: 300, body: [inner], label: <inner-s>)\\\",\\\"label\\\":\\\"<inner-s>\\\",\\\"delta\\\":300}],\\\"emph\\\":[{\\\"func\\\":\\\"emph\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(body: [inner], label: <inner-e>)\\\",\\\"label\\\":\\\"<inner-e>\\\",\\\"delta\\\":\\\"absent\\\"}],\\\"ordered\\\":[{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"sequence([outer], [ ], strong(body: [inner]))\\\",\\\"fields\\\":\\\"(\\\\n  delta: 300,\\\\n  body: sequence([outer], [ ], strong(body: [inner])),\\\\n  label: <outer-s>,\\\\n)\\\",\\\"label\\\":\\\"<outer-s>\\\",\\\"delta\\\":300},{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(delta: 300, body: [inner], label: <inner-s>)\\\",\\\"label\\\":\\\"<inner-s>\\\",\\\"delta\\\":300},{\\\"func\\\":\\\"emph\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(body: [inner], label: <inner-e>)\\\",\\\"label\\\":\\\"<inner-e>\\\",\\\"delta\\\":\\\"absent\\\"}],\\\"strong_empty\\\":2,\\\"emph_empty\\\":1,\\\"strong_default\\\":[\\\"sequence([outer], [ ], strong(body: [inner]))\\\",\\\"[inner]\\\"],\\\"strong_zero\\\":[],\\\"strong_custom\\\":[],\\\"strong_body\\\":[\\\"[inner]\\\"],\\\"emph_body\\\":[\\\"[inner]\\\"]},\\\"labels\\\":{\\\"label_direct\\\":[{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(delta: 300, body: [inner], label: <inner-s>)\\\",\\\"label\\\":\\\"<inner-s>\\\",\\\"delta\\\":300}],\\\"strong_labeled\\\":[{\\\"func\\\":\\\"strong\\\",\\\"body\\\":\\\"[inner]\\\",\\\"fields\\\":\\\"(delta: 300, body: [inner], label: <inner-s>)\\\",\\\"label\\\":\\\"<inner-s>\\\",\\\"delta\\\":300}],\\\"wrong_label\\\":0}}\"); p1339-original-metadata(value) }\n",
+        "terminal_newline": true
+      }
+    }
+  ],
+  "purpose": "First contract-derived semantic bridge calibration, focal only; no canonical RED or seal. Positive equal + complementary expected-error controls. Histories remain immutable."
+}

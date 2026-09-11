@@ -1,0 +1,16 @@
+{
+  "kind": "prospective-test-adapter-authority-supplement",
+  "authority_manifest": {"path": "00_nucleo/diagnosticos/p1339-authority-manifest-r2.json", "sha256": "842d6526739014022c073800148a47b3c886831e2198ab65bbfdbe73ce59411b"},
+  "stage": "Before seal, oracle fixture freeze and productive candidate",
+  "regime": "executado sem atestação de isolamento",
+  "executor": "/root/p1336_tests",
+  "role": "Mechanical compiled-harness adapter author in addition to adversary",
+  "read": ["Frozen L0 and contract", "Baseline productive source signatures and carriers", "Frozen independent closed-state fixtures and predicates from /root/p1319_tests; exact hashes must be recorded before adapter generation"],
+  "write": ["00_nucleo/diagnosticos/p1339-mutant-closed-state-*", "Task-specific isolated /tmp harness directories"],
+  "forbidden": ["Writing productive source", "Implementing or substituting the future observation algorithm", "Choosing or correcting expectations", "Changing independent fixtures/predicates/oracles", "Reading the productive candidate before harness freeze", "Issuing own verification verdict"],
+  "oracle_author": "/root/p1319_tests retains exclusive independent fixture/predicate authority; it does not gain baseline-source read access",
+  "verifier": "/root/p1311_review audits actual API calls, carriers, source and mappings before accepting the harness; no self-certification",
+  "phase_policy": "Harness and fixtures are frozen before candidate. New-API execution gates are explicitly NOT_EXECUTED_PRESEAL with no positive coverage credit, then mandatory compilation/execution against the real product in the final gate. No mock or reimplemented relation may satisfy them.",
+  "input_output_pins": "Each adapter receipt records manifest, this supplement, contract, fixture/predicate hashes, baseline signature/source hashes, generated source hashes and commands. Future seal must pin this supplement and completed adapter artifacts.",
+  "basis": "Independent verifier accepted this narrow translation role on 2026-09-10 after reporting the phase-precondition circularity; no normative product obligation is waived."
+}

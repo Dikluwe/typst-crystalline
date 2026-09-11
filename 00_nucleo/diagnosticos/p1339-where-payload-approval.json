@@ -1,0 +1,25 @@
+{
+  "status": "APPROVED_ADR0127_PENDING_INTEGRATION_GATES",
+  "recorded_at_utc": "2026-09-10T01:03:58Z",
+  "authority": "Dono, mensagem Autorizo nesta continuação",
+  "head": "2f42d64253547734564513a1159ee6b584c1c4b4",
+  "state": "working tree não commitado; estado precedente integral no recibo abaixo",
+  "approved_prompt": {
+    "path": "00_nucleo/prompts/entities/element_payload.md",
+    "sha256_before_status_update": "3e5071128e9a6c42ba7b75abf88659d33e6e712b0614e7c2b88ff228a4a66628"
+  },
+  "gate": {
+    "path": "00_nucleo/diagnosticos/p1339-where-payload-gate.md",
+    "sha256": "08cbfd8cc6e01d6066122200cd496f90600b077a64093d8bc94e6123eddd239b"
+  },
+  "predecessor_receipt": {
+    "path": "00_nucleo/diagnosticos/p1339-where-integration-receipt.json",
+    "sha256": "8a0befbb221fb2745f3a18496923fa3f7ba955b59089b626e4a6b4b3a4202631"
+  },
+  "scope": "ElementPayload::NativeElement unit para ocorrências próprias Strong/Emph; sem novo ElementKind, campo adicional, método de trait ou fase. Representações Styled dependem da medição e nucleação de ocorrência previstas na minuta aprovada.",
+  "preserved_authority": "Selector::Element e ShowSelector::NativeElement previamente aprovados",
+  "does_not_waive": ["L0 dos consumers de integração", "contrato e oráculos independentes", "mutantes válidos compilados e selo", "RED anterior ao candidato", "gates finais do P1339"],
+  "implementation_started": false,
+  "commit_created": false,
+  "regime": "executado sem atestação de isolamento"
+}
