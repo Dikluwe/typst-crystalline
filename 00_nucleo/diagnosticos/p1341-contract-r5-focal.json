@@ -1,9 +1,0 @@
-{
-  "schema":"p1341-contract-r5-focal-v1",
-  "base_contract":["00_nucleo/diagnosticos/p1341-contract-r4.json","fbc08c118e10f957ca02cd714dbfb4c0f0784bd7ca7791f85407d3e8b64e4195"],
-  "base_focal":["00_nucleo/diagnosticos/p1341-contract-r4-focal.json","6bfe5c8e0a1a9e64682672fad0e527ce76eb2ecbb97022c8b6577bc6c1ae3a4f"],
-  "base_checker":["00_nucleo/diagnosticos/p1341-contract-r4-checker.py","5998f90cab2cf85f5039eb389ecc9a48c08204894d548d8ea94b36d9899ec97e"],
-  "materializer_r3":["00_nucleo/diagnosticos/p1341-adversary-materialized-mutations-r3.py","13a8aaf74234e5c1fe422bf0a93036a176c98b70fa6a4c5bd0f43e60332cab9b"],
-  "controls":{"positive":"Preserved","opaque":"Unknown","opaque_reason_code":"payload-deliberately-opaque"},
-  "frozen_corpus":{"protected":41,"r1_additional":10,"r2_new":16,"r3_boundary":17,"total":84,"orders":["normal","repeat","reverse"],"score":1.0}
-}
