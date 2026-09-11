@@ -1,0 +1,134 @@
+{
+  "schema": "p1350-nonbypass-supervisor-causal-journal-contract-binding-r2",
+  "step": 1350,
+  "revision": 2,
+  "role": "independent_contract_author",
+  "executor": "/root/p1346_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "CONTRACT_BINDING_REFINED_NOT_VERIFIED_NOT_SEALED",
+  "protected_inputs": {
+    "step_p1350": ["00_nucleo/materialization/typst-passo-1350.md", "e09cf72e1e81c414343f8ec400e8d1e242910ed9a8a56ed7aaa96308a36d9ebf"],
+    "p1349_verifier_blocker_r2": ["00_nucleo/diagnosticos/p1349-verifier-blocker-r2.json", "16780a65c46ba958b6e1535184ea039d022f558a01fb384cc0c110c261d55417"],
+    "p1350_contract_spec_r1": ["00_nucleo/diagnosticos/p1350-contract-spec-r1.json", "bdc3f3c0a6ef7baec3b2cb2e31c88c099dc5a49b18e97ae0a0fcc86535286e82"],
+    "p1350_contract_binding_r1": ["00_nucleo/diagnosticos/p1350-contract-binding-r1.json", "257114e18af3ef0d968294e5e9b8326bd963eb7fa92a1d2c489c6e05f388fcfb"],
+    "p1350_contract_receipt_r1": ["00_nucleo/diagnosticos/p1350-contract-receipt-r1.json", "e741751e0641c46be2e8aa634cc96b0ee400cd3b6d5693b25eec66cba283008d"],
+    "p1350_adapter_integration_blocker_r1": ["00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r1.json", "3f2494f92d10eed22a9d8d0d3647ca9fa532f82f235415fcca93074174c2e341"],
+    "p1350_contract_spec_r2": ["00_nucleo/diagnosticos/p1350-contract-spec-r2.json", "17c3b02d2f98ca12d6f89b369b78983663a8f8af6becf08daf47227b8cb42b90"]
+  },
+  "composition": {
+    "rule": "P1350 R2 composes P1350 R1 and changes exactly three measured bindings: distinct identity-domain parameters, exact dynamic boundary experiment contract and post-adapter execution delivery. Every other R1 clause remains exact.",
+    "no_implementation_input": "No P1350 checker, supervisor, journal parser, caller, adversary suite or adapter implementation was read by this authority for R2.",
+    "semantic_delta": "NONE"
+  },
+  "language_id_sequence_binding": {
+    "schema_value": "p1350-language-id-sequence-r2",
+    "namespace": "LANGUAGE_ID",
+    "keys_exact_sorted": ["closed_world", "count", "ids", "schema", "sequence_sha256"],
+    "count_exact": 122,
+    "sequence_sha256_exact": "e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907",
+    "ids_rule": "Exactly the inherited ordered P1349/P1347 language IDs: distinct, nonempty ASCII strings. No operation or boundary attack ID is accepted.",
+    "consumers": ["protected language/case-sequence validation", "focal operation route-map derivation", "execution delivery"],
+    "forbidden_consumers": ["boundary attack selection", "route-map cardinality check as a 60-entry list"]
+  },
+  "focal_operation_route_map_binding": {
+    "schema_value": "p1350-focal-operation-route-map-r2",
+    "namespace": "FOCAL_OPERATION",
+    "keys_exact_sorted": ["closed_world", "entries", "inherited_count", "language_id_sequence_sha256", "local_count", "operation_ids_sha256", "schema", "total_count"],
+    "entry_keys_exact_sorted": ["operation_id", "route"],
+    "route_enum": ["INHERITED_P1348_P1347_P1346", "P1350_LOCAL"],
+    "counts_exact": {"total_count": 60, "local_count": 12, "inherited_count": 48},
+    "operation_ids_formula": "SHA-256(RFC8785([\"p1350-focal-operation-ids-r2\", ordered operation_id strings]))",
+    "route_map_formula": "SHA-256(RFC8785([\"p1350-focal-operation-route-map-r2\", language_id_sequence_sha256, ordered entries]))",
+    "ordering": "Entries are strictly ascending by bytewise ASCII operation_id, unique and exactly equal to the independently frozen focal operation allowlist. No case/language ID or boundary attack ID is an operation_id.",
+    "authorship": "Adversary freezes operation IDs without routes. Adapter, after oracle and adversary freeze, binds each operation exactly once to one route and emits the canonical map. Adapter authorship receipt pins artifact whole-file SHA-256, operation_ids_sha256 and focal_operation_route_map_sha256.",
+    "coverage": "total=60, local=12, inherited=48, supervised=60, unbound=0, duplicate=0 and direct inherited edges=0."
+  },
+  "boundary_attack_manifest_binding": {
+    "schema_value": "p1350-boundary-attack-manifest-r2",
+    "namespace": "BOUNDARY_ATTACK",
+    "keys_exact_sorted": ["category_counts", "closed_world", "entries", "manifest_sha256", "schema", "total_count"],
+    "entry_tuple_exact": ["attack_id", "category", "injection_boundary", "expected_blocker_code"],
+    "total_count_exact": 36,
+    "category_counts_exact": {"STATIC_BYPASS": 4, "DYNAMIC_SUPERVISOR": 21, "JOURNAL": 8, "FRESHNESS": 3},
+    "manifest_sha256_exact": "d2e85d5936557936120754b647d41e88349ab19169ee4dd3fc967151bb68d8d8",
+    "digest_formula": "SHA-256(RFC8785([\"p1350-boundary-attack-manifest-r2\", ordered entry tuples]))",
+    "entries_authority": "Exactly p1350-contract-spec-r2.json#/boundary_attack_entries in stated order. IDs, categories, boundaries and expected blockers are immutable.",
+    "consumer": "Verifier-owned exercise_boundary only; never focal route map, semantic classifier or meta gate."
+  },
+  "domain_separation_binding": {
+    "required_digest_parameters_exact": ["boundary_attack_manifest_sha256", "focal_operation_route_map_sha256", "language_id_sequence_sha256"],
+    "forbidden_parameter_names": ["exact_ids", "exact_ids_sha256"],
+    "disjoint_predicate": "All three schema values, namespaces, counts, entry shapes and digests differ. A request is rejected before execution if a digest is absent, used in the wrong named field, equals a different-domain digest or does not match the execution delivery.",
+    "no_translation": "Caller, adapter, checker, corpus and verifier may not truncate 122 to 60, expand 60 to 122, derive boundary IDs from either list or coerce one domain into another."
+  },
+  "api_request_binding": {
+    "bind_verified_run": "bind_verified_run(execution_delivery_path, execution_delivery_whole_file_sha256) -> opaque RunContext",
+    "focal_api": "exercise_focal(case, targets, language_id_sequence_sha256, focal_operation_route_map_sha256, run_context) -> classification_result | terminal integration_blocker",
+    "focal_request_keys_exact_sorted": ["case", "focal_operation_route_map_sha256", "language_id_sequence_sha256", "operation_id", "run_context", "schema", "targets"],
+    "meta_api": "exercise_meta(case, targets, language_id_sequence_sha256, run_context) -> meta_result | terminal integration_blocker",
+    "meta_request_keys_exact_sorted": ["case", "language_id_sequence_sha256", "run_context", "schema", "targets"],
+    "boundary_api": "exercise_boundary(attack, targets, boundary_attack_manifest_sha256, run_context) -> boundary_result | terminal integration_blocker",
+    "boundary_request_keys_exact_sorted": ["attack", "boundary_attack_manifest_sha256", "run_context", "schema", "targets"],
+    "run_context": "Opaque, checker-created only after externally anchored execution delivery validation. It binds all three domain digests, authority root, run_id and journal writer; caller or adapter cannot construct or alter it.",
+    "public_surface": "Exactly one focal API, one preserved meta API and one verifier-owned test-only boundary API. No raw inherited runtime, route selector, private checker injection, supervisor-disable or unverified context is public."
+  },
+  "boundary_result_binding": {
+    "schema_value": "p1350-boundary-result-r2",
+    "keys_exact_sorted": ["attack_id", "closed_world", "dynamic_evidence", "expected_blocker_code", "observed_blocker", "schema", "status"],
+    "status_enum": ["FAIL", "PASS"],
+    "dynamic_evidence_keys_exact_sorted": ["attack_nonce_sha256", "case_journal_sha256", "cleanup", "executor", "injection", "supervisor"],
+    "cleanup_keys_exact_sorted": ["descriptors_closed", "group_absent", "patches_restored", "registry_destroyed", "shm_removed", "zombies_absent"],
+    "injection_keys_exact_sorted": ["boundary", "challenge_sha256", "observed", "oracle_owned"],
+    "observed_blocker": "Exact closed integration_blocker produced by the real parent-owned supervisor/checker boundary. It is nested evidence for this isolated experiment, not a main-run blocker, classification, reason or score operand.",
+    "pass_predicate": "attack_id is the exact manifest entry; expected and observed blocker codes match; nonce/challenge bind the declared injection; oracle_owned=true; a real executor/refusal path is observed; journal is canonical and durable; group_absent=true; zombies_absent=true; all restoration booleans true.",
+    "failure_rule": "Missing dynamic evidence, static-only proof, fabricated cleanup, private monkeypatch, wrong blocker, attack ID/digest mismatch, exception outside planned boundary or residual resource yields FAIL or terminal integration_blocker and stops G07.",
+    "forbidden_keys": ["classification", "focal_correctly_violated", "meta_status", "mutation_score", "reason_code"]
+  },
+  "execution_delivery_schema": {
+    "schema_value": "p1350-execution-delivery-receipt-r2",
+    "keys_exact_sorted": ["adapter", "adapter_authorship_receipt", "adversary", "adversary_authorship_receipt", "authority_root_sha256", "boundary_attack_manifest", "checker", "focal_operation_route_map", "journal_parser", "language_id_sequence", "oracle_authorship_receipt", "oracle_caller", "schema", "supervisor"],
+    "pin_value": "Every artifact field is exactly [repository-relative path, lowercase whole-file SHA-256]. Domain fields also contain their independently recomputed canonical domain digest and exact count.",
+    "language_domain": "language_id_sequence carries count=122 and sequence_sha256=e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907.",
+    "route_domain": "focal_operation_route_map carries whole-file SHA-256, operation_ids_sha256, derived route-map SHA-256 and counts 60=12+48.",
+    "boundary_domain": "boundary_attack_manifest carries whole-file or contract-spec pin, manifest_sha256=d2e85d5936557936120754b647d41e88349ab19169ee4dd3fc967151bb68d8d8 and counts 36=4+21+8+3.",
+    "execution_ready": "Only this schema with all pins and the recomputed authority root is execution-ready. Oracle authorship delivery is explicitly rejected by bind_verified_run.",
+    "self_pin_forbidden": "No execution_delivery_sha256, composer receipt, verifier artifact, result, score or successor appears in this receipt."
+  },
+  "delivery_composer_binding": {
+    "role": "non_judging_delivery_composer",
+    "inputs_exact": ["P1350 R2 contract receipt", "oracle artifacts and authorship receipt", "adversary operation allowlist, boundary manifest, suite and authorship receipt", "adapter, 60-entry route map and adapter authorship receipt"],
+    "outputs_exact": ["p1350-execution-delivery-receipt-r2.json", "p1350-delivery-composer-receipt-r2.json"],
+    "capabilities": "Read frozen files and hashes; validate strict schemas/pins; canonicalize domain entries; compute digests and authority root; write only the two delivery artifacts. No imports/execution, classification, adaptation, mutation, repair, waiver or preseal.",
+    "composer_receipt_order": "Execution delivery is written and hashed first. Composer receipt pins its whole-file SHA-256 and all composer inputs. Execution delivery does not pin composer receipt.",
+    "adapter_rule": "Adapter and its authorship receipt pin contract, oracle, adversary and route map, never the future execution delivery or composer receipt.",
+    "verifier_rule": "Verifier receives execution-delivery whole-file SHA-256 out of band, validates the entire predecessor DAG, then calls bind_verified_run. It never creates, completes or repairs the delivery."
+  },
+  "authority_root_and_dag_binding": {
+    "contract_root_formula": "SHA-256(RFC8785([\"p1350-contract-root-r2\", step_p1350_sha256, p1349_blocker_r2_sha256, p1350_r1_spec_sha256, p1350_r1_binding_sha256, p1350_r1_receipt_sha256, adapter_blocker_r1_sha256, p1350_r2_spec_sha256, p1350_r2_binding_sha256]))",
+    "execution_authority_root_formula": "SHA-256(RFC8785([\"p1350-execution-authority-root-r2\", contract_root_sha256, oracle_artifact_hashes, oracle_authorship_receipt_sha256, adversary_artifact_hashes, adversary_authorship_receipt_sha256, adapter_sha256, focal_operation_route_map_whole_file_sha256, adapter_authorship_receipt_sha256, language_id_sequence_sha256, focal_operation_route_map_sha256, boundary_attack_manifest_sha256]))",
+    "causal_edges": ["R1 + blockers -> R2 spec", "R2 spec -> R2 binding", "R2 spec + binding -> R2 contract receipt", "R2 receipt -> independent oracle", "R2 receipt -> independent adversary", "oracle + adversary -> adapter + route map", "adapter + route map + all authorship receipts -> delivery composer", "execution delivery -> composer receipt", "execution delivery whole-file SHA out-of-band -> verifier", "verifier -> bind_verified_run -> boundary/meta/focal", "closed journals -> journal receipts -> verifier report/attestation", "report/attestation -> limited preseal or blocker"],
+    "acyclicity": "Every edge points from an already frozen whole-file SHA-256 to a later artifact. Adapter does not pin delivery; delivery does not self-pin or consume composer receipt; composer receipt follows delivery; verifier only consumes. No predecessor consumes a successor.",
+    "classification_owner": "Only independent verifier derives gate status, counts and final verdict. Boundary harness derives PASS solely from oracle-owned raw evidence and frozen expected blocker; adapter, composer, delivery and receipts never self-judge."
+  },
+  "preserved_r1_transport_binding": {
+    "coverage": "Every 60-route focal and every 36-entry boundary experiment traverses one fresh parent supervisor and disposable executor. Static coverage requires supervised=60, local=12, inherited=48, unbound=duplicate=direct inherited=0.",
+    "process": "Exact PID/starttime, pidfd or ENOSYS-only fallback, SID=PGID=PID, CLOEXEC pipes, one-time capability, descendant registration before continuation and parent-only process authority.",
+    "deadline_cleanup": "monotonic maximum 12000000000 ns; TERM grace 250000000 ns; KILL/reap/group ESRCH/FD and state restoration before durable result; external cleanup terminal.",
+    "journal": "Exact R1 canonical line schema, SHA-256 chain and state machine remain unchanged. Parent-only write and fdatasync precede handshake release, next case and result release; independent parser cannot invent classification.",
+    "unknown": "Exactly one authenticated opaque Unknown/OPAQUE_PAYLOAD and zero transport Unknown. Every other ambiguity or failure is blocker.",
+    "semantic_reasons": "Exact P1349 reason precedence and P1350 R1 blocker precedence remain unchanged."
+  },
+  "counts_gates_and_stop_binding": {
+    "domain_counts_exact": {"language_ids": 122, "focal_operations": 60, "local_routes": 12, "inherited_routes": 48, "boundary_attacks": 36, "static_bypass": 4, "dynamic_supervisor": 21, "journal": 8, "freshness": 3},
+    "verification_counts_exact": {"boundary_attacks_passed": 36, "boundary_attacks_total": 36, "meta_tests_passed": 2, "meta_tests_total": 2, "focal_correctly_violated": 254, "focal_valid_negatives": 254, "p1347_regressions": 39, "p1346_replays": 181, "controls": 11},
+    "score": "mutation_score=1.0 using only 254/254 focal valid negatives. Boundary 36/36, meta 2/2, controls and blockers are separate.",
+    "gate_order_exact": ["G01_FREEZE_R1_AND_BLOCKERS", "G02_CONTRACT_R2", "G03_ORACLE_R2_AND_ADVERSARY_R2_INDEPENDENT", "G04_ADAPTER_R2_AND_ROUTE_MAP_AFTER_BOTH", "G05_EXECUTION_DELIVERY_COMPOSER_AFTER_ADAPTER", "G06_STATIC_THREE_DOMAIN_PINS_AND_SUPERVISION_60_OF_60", "G07_DYNAMIC_BOUNDARY_36_OF_36", "G08_META_2_OF_2_X14_AND_11_VARIANTS", "G09_REMAINING_P1348_P1347_39_P1346_181_CONTROLS_11", "G10_NORMAL_REPEAT_REVERSE_FRESH", "G11_SCORE_REASONS_UNKNOWN_STATIC_GATES", "G12_LIMITED_PRESEAL_OR_BLOCKER"],
+    "release_rule": "Each exact gate releases only the next. Missing/wrong domain digest, execution delivery before adapter, non-dynamic boundary proof, boundary below 36/36, supervision below 60/60, blocker, survivor, wrong reason, residual resource or journal ambiguity stops.",
+    "budget": {"contract_revisions_remaining": 0, "oracle_revisions_after_initial": 2, "adversary_revisions_after_initial": 1, "adapter_revisions_after_initial": 1, "complete_execution_max": 2, "contract_author_runs": 0, "full_runs": 0, "candidate_runs": 0},
+    "forbidden": ["exact_ids or exact_ids_sha256 shared parameter", "route map with 122 entries or language sequence with 60 entries", "boundary attack without exact ID/digest/dynamic evidence", "adapter-authored blocker or cleanup evidence", "oracle-only delivery accepted as execution ready", "adapter or receipt pinning future delivery", "execution delivery self-pin", "gate relaxation, blocker score credit or expanded Unknown", "productive full corpus, RED, candidate, 38 capsules, L0/consumer change, final certificate or general-equivalence claim"]
+  },
+  "closed_metadata": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "protected_inputs", "composition", "language_id_sequence_binding", "focal_operation_route_map_binding", "boundary_attack_manifest_binding", "domain_separation_binding", "api_request_binding", "boundary_result_binding", "execution_delivery_schema", "delivery_composer_binding", "authority_root_and_dag_binding", "preserved_r1_transport_binding", "counts_gates_and_stop_binding", "closed_metadata"],
+    "rule": "Exactly these top-level keys in this order. Domain schemas/pins, distinct APIs, boundary evidence/result, post-adapter delivery composer, DAG, inherited transport, counts, gates and exhausted budget are closed. Duplicate/unknown keys, exact_ids reuse or alternate causal order is invalid."
+  }
+}

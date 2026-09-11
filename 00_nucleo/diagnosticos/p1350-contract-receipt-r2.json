@@ -1,0 +1,112 @@
+{
+  "schema": "p1350-nonbypass-supervisor-causal-journal-contract-receipt-r2",
+  "step": 1350,
+  "revision": 2,
+  "role": "independent_contract_author",
+  "executor": "/root/p1346_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-11T16:39:44,026454175-03:00",
+  "verdict": "P1350_CONTRACT_R2_AUTHORED_NOT_VERIFIED_NOT_SEALED",
+  "verdict_scope": "Contract refinement only. Three disjoint identity domains and pins, an exact dynamically evidenced boundary experiment domain, and an acyclic execution-delivery composer after adapter/route-map freeze are specified but not executed.",
+  "causal_predecessor": {
+    "r1_verdict": "P1350_CONTRACT_AUTHORED_NOT_VERIFIED_NOT_SEALED",
+    "adapter_blocker_verdict": "BLOCKED_NOT_EXECUTABLE",
+    "adapter_blocker": ["00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r1.json", "3f2494f92d10eed22a9d8d0d3647ca9fa532f82f235415fcca93074174c2e341"],
+    "measured_failures": 3,
+    "adapter_created": false,
+    "boundary_cases_run": 0,
+    "focal_cases_run": 0,
+    "full_runs": 0,
+    "candidate_runs": 0
+  },
+  "repository": {
+    "head": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted shared tree",
+    "status_porcelain_v1_z_sha256_before_receipt": "8bd769cbdd38a0b9733bdda02daed413b9a56461a28fdf8e95d76dc5ec4b0e5c",
+    "status_porcelain_entries_before_receipt": 87,
+    "tracked_diff_binary_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tracked_diff_stat_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tracked_diff_stat": "empty"
+  },
+  "protected_inputs": {
+    "step_p1350": ["00_nucleo/materialization/typst-passo-1350.md", "e09cf72e1e81c414343f8ec400e8d1e242910ed9a8a56ed7aaa96308a36d9ebf"],
+    "p1349_verifier_blocker_r2": ["00_nucleo/diagnosticos/p1349-verifier-blocker-r2.json", "16780a65c46ba958b6e1535184ea039d022f558a01fb384cc0c110c261d55417"],
+    "p1350_contract_spec_r1": ["00_nucleo/diagnosticos/p1350-contract-spec-r1.json", "bdc3f3c0a6ef7baec3b2cb2e31c88c099dc5a49b18e97ae0a0fcc86535286e82"],
+    "p1350_contract_binding_r1": ["00_nucleo/diagnosticos/p1350-contract-binding-r1.json", "257114e18af3ef0d968294e5e9b8326bd963eb7fa92a1d2c489c6e05f388fcfb"],
+    "p1350_contract_receipt_r1": ["00_nucleo/diagnosticos/p1350-contract-receipt-r1.json", "e741751e0641c46be2e8aa634cc96b0ee400cd3b6d5693b25eec66cba283008d"],
+    "p1350_adapter_integration_blocker_r1": ["00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r1.json", "3f2494f92d10eed22a9d8d0d3647ca9fa532f82f235415fcca93074174c2e341"]
+  },
+  "outputs": {
+    "contract_spec": ["00_nucleo/diagnosticos/p1350-contract-spec-r2.json", "17c3b02d2f98ca12d6f89b369b78983663a8f8af6becf08daf47227b8cb42b90"],
+    "contract_binding": ["00_nucleo/diagnosticos/p1350-contract-binding-r2.json", "c341b0db70cebe933bbf6dea9fc19b2122f66534c4488ca4dc00ac9f3ab8f4dd"]
+  },
+  "contract_decision": {
+    "language_domain": "language_id_sequence is a 122-entry LANGUAGE_ID sequence pinned independently by e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907.",
+    "route_domain": "focal_operation_route_map is a distinct 60-entry FOCAL_OPERATION artifact with 12 local and 48 inherited routes. Its operation-ID and route-map digests have explicit RFC8785 formulas and are frozen/pinned by adapter authorship and execution delivery.",
+    "boundary_domain": "boundary_attack_manifest is a distinct 36-entry BOUNDARY_ATTACK manifest with exact IDs, 4+21+8+3 categories and digest d2e85d5936557936120754b647d41e88349ab19169ee4dd3fc967151bb68d8d8.",
+    "apis": "No exact_ids parameter remains. Focal, meta and verifier-owned test-only boundary requests carry only their named domain digests; boundary_result is disjoint from classification_result and meta_result.",
+    "dynamic_evidence": "All 36 boundary attacks require nonce/challenge-bound oracle-owned injection, a real supervised attempt/refusal, canonical durable journal and parent-owned cleanup with absent group/zombies. Static proof alone cannot pass.",
+    "delivery": "Adapter and route map freeze before a non-judging composer creates execution delivery. Adapter never pins its future delivery. The delivery has no self-pin; verifier receives its whole-file SHA out of band and only then invokes bind_verified_run.",
+    "preservation": "P1350 R1 supervision/journal, P1349 reasons/Unknown/meta/focal semantics, all counts and all release gates remain exact and are not weakened.",
+    "semantic_delta": "NONE"
+  },
+  "domain_pins": {
+    "language_id_sequence_sha256": "e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907",
+    "focal_operation_route_map_sha256": "derived after adapter freeze by the exact contract formula; a concrete lowercase 64-hex value is mandatory in adapter receipt and execution delivery",
+    "boundary_attack_manifest_sha256": "d2e85d5936557936120754b647d41e88349ab19169ee4dd3fc967151bb68d8d8",
+    "shared_exact_ids_parameter_allowed": false
+  },
+  "validation": {
+    "protected_hashes": "PASS",
+    "strict_duplicate_key_json": "PASS for spec, binding and receipt",
+    "closed_top_level_order": "PASS for spec, binding and receipt",
+    "binding_pins_spec": "PASS",
+    "receipt_pins_outputs": "PASS",
+    "canonical_schema_key_orders": "PASS",
+    "language_id_count_and_digest": "PASS: 122 and e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907",
+    "route_map_schema_formula_and_counts": "PASS: distinct domain, 60=12+48",
+    "boundary_manifest_recomputed": "PASS: 36=4+21+8+3 and d2e85d5936557936120754b647d41e88349ab19169ee4dd3fc967151bb68d8d8",
+    "distinct_api_parameters_and_result_domains": "PASS",
+    "dynamic_boundary_evidence_required": "PASS",
+    "post_adapter_delivery_dag_acyclic": "PASS",
+    "unknown_reasons_and_gates_preserved": "PASS",
+    "git_diff_check": "PASS",
+    "boundary_runs": 0,
+    "meta_runs": 0,
+    "focal_runs": 0,
+    "full_runs": 0,
+    "ptrace_runs": 0,
+    "candidate_runs": 0,
+    "p1350_implementation_or_future_r2_oracle_adversary_adapter_read_or_written": false,
+    "productive_code_modified": false,
+    "seal_created": false
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "shared_filesystem": true,
+    "inherited_context": true,
+    "read_allowlist": ["00_nucleo/materialization/typst-passo-1350.md", "00_nucleo/diagnosticos/p1349-verifier-blocker-r2.json", "00_nucleo/diagnosticos/p1350-contract-spec-r1.json", "00_nucleo/diagnosticos/p1350-contract-binding-r1.json", "00_nucleo/diagnosticos/p1350-contract-receipt-r1.json", "00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r1.json", "public P1349 contract hashes/schema inherited from prior contract authorship", "segregated-materialization skill and required references"],
+    "write_allowlist_observed": ["00_nucleo/diagnosticos/p1350-contract-spec-r2.json", "00_nucleo/diagnosticos/p1350-contract-binding-r2.json", "00_nucleo/diagnosticos/p1350-contract-receipt-r2.json"],
+    "forbidden_work_not_performed": "No P1350 R2 oracle, adversary, adapter, checker, supervisor, journal parser, caller, implementation, focal, ptrace, test, seal, L0, consumer or candidate artifact was read, written or executed."
+  },
+  "budget": {
+    "contract_revision_consumed": 1,
+    "contract_revisions_remaining": 0,
+    "oracle_revisions_after_initial": 2,
+    "adversary_revisions_after_initial": 1,
+    "adapter_revisions_after_initial": 1,
+    "complete_executions_max": 2,
+    "complete_executions_consumed_by_contract_author": 0
+  },
+  "limitations": [
+    "Shared filesystem and inherited context prevent technical isolation attestation; segregation is authority/input/write-scope/order based.",
+    "The 60-entry route-map digest cannot exist before independent operation-ID freeze and post-oracle/adversary adapter mapping; the contract freezes its exact derivation and downstream pin locations instead of inventing a value.",
+    "No supervisor, journal, boundary injection, delivery composer, bind_verified_run or runtime behavior was executed by the contract author.",
+    "No discrimination, implementation, seal, productive-candidate or general-equivalence claim is made."
+  ],
+  "next_state": "P1350_R2_ORACLE_AND_ADVERSARY_AUTHORSHIP_MAY_BEGIN_FROM_THESE_EXACT_CONTRACT_HASHES; ADAPTER_AND_ROUTE_MAP_WAIT_FOR_BOTH_FREEZES; EXECUTION_DELIVERY_WAITS_FOR_ADAPTER; ALL_EXECUTION_PRESEAL_PRODUCTIVE_FULL_RED_CANDIDATE_AND_CERTIFICATE_REMAIN_BLOCKED",
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "generated_at", "verdict", "verdict_scope", "causal_predecessor", "repository", "protected_inputs", "outputs", "contract_decision", "domain_pins", "validation", "segregation", "budget", "limitations", "next_state", "closed_world"],
+    "rule": "Exactly these top-level keys in this order. This receipt intentionally does not self-pin and authorizes only independent downstream R2 authorship from the exact output hashes."
+  }
+}

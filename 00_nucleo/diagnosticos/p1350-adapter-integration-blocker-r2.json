@@ -1,0 +1,142 @@
+{
+  "schema": "p1350-adapter-integration-blocker-r2",
+  "step": 1350,
+  "revision": 2,
+  "role": "adapter_author",
+  "executor": "/root/p1347_adapter",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-11T17:09:25-03:00",
+  "verdict": "BLOCKED_NOT_EXECUTABLE",
+  "verdict_scope": "P1350 adapter R2 integration authorship only. No adapter, route map, successful authorship receipt, execution delivery, classification, score, survivor count, preseal or candidate claim is produced.",
+  "public_cause": "The frozen P1350 R2 adversary and Oracle disagree on the binding and closed shape of boundary experiment evidence and on the exact meta_evidence projection. An adapter can neither reconcile those disagreements through the published APIs nor rewrite Oracle-owned evidence.",
+  "protected_inputs": {
+    "step_p1350": ["00_nucleo/materialization/typst-passo-1350.md", "e09cf72e1e81c414343f8ec400e8d1e242910ed9a8a56ed7aaa96308a36d9ebf"],
+    "adapter_integration_blocker_r1": ["00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r1.json", "3f2494f92d10eed22a9d8d0d3647ca9fa532f82f235415fcca93074174c2e341"],
+    "contract_spec_r2": ["00_nucleo/diagnosticos/p1350-contract-spec-r2.json", "17c3b02d2f98ca12d6f89b369b78983663a8f8af6becf08daf47227b8cb42b90"],
+    "contract_binding_r2": ["00_nucleo/diagnosticos/p1350-contract-binding-r2.json", "c341b0db70cebe933bbf6dea9fc19b2122f66534c4488ca4dc00ac9f3ab8f4dd"],
+    "contract_receipt_r2": ["00_nucleo/diagnosticos/p1350-contract-receipt-r2.json", "667e268009baf59cc7fe9f43df2dca55bfa69fbe2484ee06e7175d8165994d7f"],
+    "adversary_suite_r2": ["00_nucleo/diagnosticos/p1350-adversary-suite-r2.py", "7b34c0ca03649a68a06bc88c27ec955a1fddcf1a62829397e7da068c91f68cdb"],
+    "adversary_authorship_receipt_r2": ["00_nucleo/diagnosticos/p1350-adversary-authorship-receipt-r2.json", "7769675ad8c0efd44379075e581361d74281dace1701148fbc132784ef7158d7"],
+    "oracle_checker_r2": ["00_nucleo/diagnosticos/p1350-oracle-checker-r2.py", "d8c8eae84c0843f1b530caa15098d724695194e135b5201e7f53abeaad936024"],
+    "oracle_supervisor_r2": ["00_nucleo/diagnosticos/p1350-oracle-supervisor-r2.py", "dc61799da0d71d73c43be0a9251289e94365979de4fc5809d7a359ef1e4adb1d"],
+    "oracle_boundary_harness_r2": ["00_nucleo/diagnosticos/p1350-oracle-boundary-harness-r2.py", "ed687b6320780b7bc536417514929bb2388eb48d72df4b6151accff9dcd9408d"],
+    "oracle_delivery_composer_r2": ["00_nucleo/diagnosticos/p1350-oracle-delivery-composer-r2.py", "4a4969f3da9d7851affc9ae72ab5694964975ff83e99148ce0dfd3d022d0abd2"],
+    "oracle_caller_r2": ["00_nucleo/diagnosticos/p1350-oracle-caller-r2.py", "f94d78c94859a1b25492dbe2fd2c20fd7d273c56cc57bed44b5c79e4fa65791c"],
+    "oracle_authorship_receipt_r2": ["00_nucleo/diagnosticos/p1350-oracle-authorship-receipt-r2.json", "39c6fb24c589724b1fe192e324808ba1cd9639a946c6e4704480b0d61edc4eb4"],
+    "oracle_delivery_receipt_r2": ["00_nucleo/diagnosticos/p1350-oracle-delivery-receipt-r2.json", "c10c3b81321b62f63c104174b3c9e844026dcaf16020dea86bf970af9065abb6"],
+    "oracle_journal_parser_r2": ["00_nucleo/diagnosticos/p1350-oracle-journal-parser-r2.py", "24632052d47dc42368040b4e2476b689295f4c89d43b0fee64418e8f0d7f39e8"],
+    "oracle_boundary_manifest_r2": ["00_nucleo/diagnosticos/p1350-oracle-boundary-manifest-r2.json", "8b46f6903854710f0117fdf704ae9161c479928c941ac0d83bbbaa8412c1d4c1"],
+    "oracle_language_id_sequence_r2": ["00_nucleo/diagnosticos/p1350-oracle-language-id-sequence-r2.json", "5bf7ebfef7457636594d20eeba449986b6a42214b0608112d6e7dce86459c569"]
+  },
+  "repaired_r1_bindings_observed": {
+    "identity_domains": "The R2 public APIs now separate language_id_sequence_sha256, focal_operation_route_map_sha256 and boundary_attack_manifest_sha256.",
+    "route_domain": "The supervisor now validates a canonical 60-entry operation route map independently of the 122-language-ID sequence.",
+    "delivery_order": "The composer is explicitly post-adapter and the Oracle delivery remains non-execution-ready.",
+    "effect_on_verdict": "These repairs remove the three R1 blockers but do not resolve the two independently measured R2 incompatibilities below."
+  },
+  "measured_incompatibilities": [
+    {
+      "id": "P1350-ADAPTER-R2-BLOCK-001-BOUNDARY-EXPERIMENT-BINDING",
+      "measurement": "For every boundary case, the adversary creates fresh raw attack_nonce and challenge values and requires the returned attack_nonce_sha256 and challenge_sha256 to equal hashes of those exact values. The driver API receives that full attack object. The checker, however, accepts only a string attack ID and passes only the frozen manifest row to the harness. The harness independently creates new nonce and challenge values, so its returned hashes are unrelated to the adversary-created experiment values.",
+      "file_lines": [
+        "00_nucleo/diagnosticos/p1350-adversary-suite-r2.py:270-287",
+        "00_nucleo/diagnosticos/p1350-adversary-suite-r2.py:298-329",
+        "00_nucleo/diagnosticos/p1350-oracle-checker-r2.py:258-263",
+        "00_nucleo/diagnosticos/p1350-oracle-boundary-harness-r2.py:134-149",
+        "00_nucleo/diagnosticos/p1350-oracle-boundary-harness-r2.py:244-252"
+      ],
+      "additional_closed_shape_conflicts": [
+        "The adversary requires observed.closed_world to be the boolean true at p1350-adversary-suite-r2.py:306, while the harness returns a closed_world object at p1350-oracle-boundary-harness-r2.py:252.",
+        "The adversary requires supervisor keys attempt_finished_ns, attempt_started_ns, journal_fdatasync_observed, parent_pid, public_invocation_observed and run_id at p1350-adversary-suite-r2.py:336-347; the harness returns deadline_expired, executor_pid, kill_sent, pidfd_available, session_id and term_sent at p1350-oracle-boundary-harness-r2.py:243-250.",
+        "The adversary requires executor keys path_kind, pgid, pid, sid, starttime_ticks and terminal_wait_observed at p1350-adversary-suite-r2.py:349-361; the harness returns the process identity projection with pgid, pid, ppid, sid and starttime_ticks at p1350-oracle-boundary-harness-r2.py:146 and :250."
+      ],
+      "impact": "A faithful adapter that transports attack_id to checker.exercise_boundary necessarily receives a dynamically real boundary_result that fails the frozen adversary predicate. All 36 boundary cases are terminally unreleasable before meta or focal gates.",
+      "forbidden_workarounds": [
+        "Rewriting nonce, challenge, closed_world, executor or supervisor evidence in the adapter would make the adapter the author of Oracle-owned dynamic evidence.",
+        "Calling or monkeypatching the private harness directly would violate the published checker-created RunContext and boundary ownership.",
+        "Returning a synthetic PASS or expected blocker would fabricate cleanup and is expressly rejected by the frozen contract."
+      ]
+    },
+    {
+      "id": "P1350-ADAPTER-R2-BLOCK-002-META-EVIDENCE-PROJECTION",
+      "measurement": "The adversary accepts meta only when observed.meta_evidence is exactly equal to the inherited P1349 expected_meta_evidence object. The checker unconditionally copies every valid meta result and adds a parent_supervisor member to meta_evidence before returning it.",
+      "file_lines": [
+        "00_nucleo/diagnosticos/p1350-adversary-suite-r2.py:397-404",
+        "00_nucleo/diagnosticos/p1350-oracle-checker-r2.py:246-255"
+      ],
+      "impact": "Even if execute_meta_in_executor returns the exact frozen P1349 meta result, checker.exercise_meta changes its meta_evidence shape. Both X06 and X15 therefore fail the exact equality gate. Removing the field after the checker call in the adapter would rewrite checker-owned evidence and the adapter cannot prevent the checker from inserting it.",
+      "forbidden_workarounds": [
+        "Pre-inserting or masking parent_supervisor cannot preserve exact equality because the checker overwrites that key with fresh parent evidence.",
+        "Calling inherited meta runtime outside checker.exercise_meta would bypass the mandatory P1350 supervisor.",
+        "Relaxing meta_matches would edit a frozen adversarial expectation."
+      ]
+    }
+  ],
+  "impact": {
+    "static_route_map_authorship_possible": true,
+    "operational_adapter_authorship_possible": false,
+    "boundary_gate_releasable": false,
+    "meta_gate_releasable": false,
+    "focal_gate_reached": false,
+    "reason_or_classification_relaxed": false,
+    "why_route_map_not_emitted": "A route map without an executable adapter would be a partial success artifact that cannot enter the post-adapter composer DAG. It is withheld with the adapter and success receipt rather than mislabeled as 60/60 integration."
+  },
+  "marked_inferences": [
+    {
+      "inference": "The boundary mismatch most likely arose because the adversary treats nonce and challenge as verifier-originated challenges while the Oracle treats them as harness-originated secrets.",
+      "used_for_verdict": false,
+      "refuters": [
+        "A frozen public checker call that accepts the exact adversary experiment nonce and challenge and binds them without adapter rewriting",
+        "A revised adversary predicate that validates independently Oracle-originated freshness through a compatible public witness"
+      ]
+    },
+    {
+      "inference": "The meta mismatch most likely arose because parent_supervisor evidence was added for transport auditing without updating the inherited exact-equality projection.",
+      "used_for_verdict": false,
+      "refuters": [
+        "A frozen adversary meta projection that explicitly includes and validates parent_supervisor",
+        "A revised checker result domain that carries transport evidence outside the exact inherited meta_evidence object"
+      ]
+    }
+  ],
+  "minimum_compatible_revision": {
+    "boundary": "The frozen boundary API must bind one common experiment identity end to end. Checker and harness must either consume the adversary-provided nonce/challenge or return a separately specified Oracle-originated challenge accepted by the adversary. The exact closed_world, executor and supervisor evidence schemas must also agree.",
+    "meta": "The frozen meta predicate and checker projection must agree on whether parent_supervisor is present and how it is validated, without weakening the inherited X06/X15 semantic evidence.",
+    "preserved": "Keep the three distinct domain digests, post-adapter composer order, 60=12+48 route count, mandatory outer supervisor, 36 dynamic boundary experiments, exact P1349 classifications/reasons, meta 2/2, 39 regressions, 181 replays, 11 controls and denominator 254."
+  },
+  "execution": {
+    "adapter_created": false,
+    "route_map_created": false,
+    "successful_adapter_authorship_created": false,
+    "execution_delivery_composed": false,
+    "boundary_cases_run": 0,
+    "meta_cases_run": 0,
+    "focal_cases_run": 0,
+    "ptrace_runs": 0,
+    "full_runs": 0,
+    "candidate_runs": 0,
+    "classification": null,
+    "mutation_score": null,
+    "survivors": null
+  },
+  "provenance": {
+    "repository_head": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted shared tree",
+    "status_porcelain_v1_z_sha256_before_blocker": "16fa919059cb135dc0513a17192c7d97e3c39cb34a503954e84eeb0b0ca9126e",
+    "measurement_time": "2026-09-11T17:09:25-03:00"
+  },
+  "validation": {
+    "protected_hashes": "PASS",
+    "file_line_review": "PASS",
+    "json_parse": "PASS",
+    "duplicate_key_rejection": "PASS",
+    "closed_top_level_order": "PASS",
+    "git_diff_check": "PASS",
+    "cases_executed": 0
+  },
+  "next_state": "P1350_ORACLE_AND_OR_ADVERSARY_COMPATIBILITY_REVISION_REQUIRED_BEFORE_ADAPTER_R2_AUTHORSHIP; COMPOSER_EXECUTION_VERIFICATION_PRESEAL_RED_CANDIDATE_AND_FULL_REMAIN_BLOCKED",
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "generated_at", "verdict", "verdict_scope", "public_cause", "protected_inputs", "repaired_r1_bindings_observed", "measured_incompatibilities", "impact", "marked_inferences", "minimum_compatible_revision", "execution", "provenance", "validation", "next_state", "closed_world"],
+    "rule": "Exactly these top-level keys in this order. This is a public P1350 R2 adapter-integration blocker, not an adapter, route map, success receipt, execution delivery, verifier result, attestation, preseal, classification, score or general-equivalence claim."
+  }
+}

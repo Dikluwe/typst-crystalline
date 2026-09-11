@@ -1,0 +1,124 @@
+{
+  "schema": "p1350-nonbypass-supervisor-causal-journal-contract-r1",
+  "step": 1350,
+  "revision": 1,
+  "role": "independent_contract_author",
+  "executor": "/root/p1346_contract",
+  "regime": "executado sem atestacao de isolamento",
+  "status": "CONTRACT_CANDIDATE_NOT_VERIFIED_NOT_SEALED",
+  "revision_budget": "Initial P1350 contract. One further contract revision is allowed only for a newly measured contract failure class. This authority runs focal=0, full=0, ptrace=0 and candidate=0.",
+  "protected_inputs": {
+    "step_p1350": ["00_nucleo/materialization/typst-passo-1350.md", "e09cf72e1e81c414343f8ec400e8d1e242910ed9a8a56ed7aaa96308a36d9ebf"],
+    "p1349_verifier_blocker_r2": ["00_nucleo/diagnosticos/p1349-verifier-blocker-r2.json", "16780a65c46ba958b6e1535184ea039d022f558a01fb384cc0c110c261d55417"],
+    "p1349_contract_spec_r1": ["00_nucleo/diagnosticos/p1349-contract-spec-r1.json", "9b3363fe2c60d634a7547357217299a2fc610e04f3c0116b667ce23caf555335"],
+    "p1349_contract_binding_r1": ["00_nucleo/diagnosticos/p1349-contract-binding-r1.json", "3db25f33a5af2716b432788cd06e8ec527567584b803def215bd45cad06e29bd"],
+    "p1349_contract_receipt_r1": ["00_nucleo/diagnosticos/p1349-contract-receipt-r1.json", "6baf1c42baaea917035e0d54729dba9430c5799c5cd61212f5f31dbce33b6ef6"]
+  },
+  "measured_blocker": {
+    "observation": "The P1349 R2 normal entrypoint remained active for at least 869 seconds, returned no result, score or per-case journal, and left six p1348-opaque-probe children of the main Python executor simultaneously stopped in ptrace_stop under the external SID/PGID.",
+    "measured_route_gap": "Twelve new operations entered the P1349 R2 supervisor, while 48 inherited operations were delegated through the P1349 R1/P1348 adapter path in the batch process. The checker deadline existed only on routes that actually entered supervise.",
+    "causal_class": "Inherited focal routing could bypass the disposable supervisor boundary, accumulate stopped descendants in the batch process and erase case-level causal localization because results were buffered until entrypoint return.",
+    "decision": "Supervision becomes a mandatory, unselectable boundary for every one of the 60 focal operations. Routing to local or inherited logic occurs only inside a disposable executor, and an append-only causal journal becomes durable before handshake release and before the next case."
+  },
+  "normative_composition": {
+    "failed_baseline": "P1349 R2 is a failed immutable execution baseline identified transitively by the P1349 blocker. P1349 public result domains, meta X06/X15 semantics, reason precedence, process authenticity, trace lifecycle, protected cases and all P1348/P1347/P1346/P1345 semantic obligations remain normative.",
+    "preserved": [
+      "meta_result, classification_result and integration_blocker remain pairwise-disjoint closed domains",
+      "X06 and X15 remain the exact two-case meta allowlist and never enter mutation score",
+      "X14 and its eleven variants, remaining P1348 cases, 39 P1347 regressions, 181 P1346 replays and eleven controls retain exact classifications and reasons",
+      "exact 122 protected case sequence digest e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907",
+      "strict canonical JSON, answer-free authority DAG, external delivery anchor and single authenticated opaque Unknown"
+    ],
+    "replaced_only": ["optional or route-local supervision", "direct inherited adapter edge from batch process", "result-only progress with no durable per-case journal", "cleanup evidence authored outside the supervising parent"],
+    "semantic_scope_delta": "NONE"
+  },
+  "nonbypassable_boundary": {
+    "public_surface": "There is exactly one public focal execution entry. It accepts a frozen case, targets, exact operation allowlist and parent-owned run context; it exposes no route, inherited-runtime handle, supervisor toggle, timeout override, raw adapter or unchecked callable.",
+    "operation_cardinality": {"declared_focal_operations": 60, "new_p1349_operations": 12, "inherited_operations": 48, "supervised_operations_required": 60, "unsupervised_operations_allowed": 0},
+    "route_placement": "The adapter maps each frozen operation to exactly one closed internal route. Route selection and any import/call into P1349/P1348/P1347/P1346 runtime occur only after the disposable executor completes its authenticated handshake inside its own session.",
+    "batch_process_prohibitions": ["direct call or import edge to inherited exercise/runtime entrypoints", "fallback execution when supervisor setup fails", "flag, environment variable, case field or default that disables supervision", "reuse of executor, SID, PGID, capability, pipe, journal writer or mutable runtime state across cases"],
+    "static_coverage_gate": "A closed call-graph inventory binds every one of the 60 operation IDs to the single public focal entry, one disposable-executor edge and one internal route. Counts must be declared=60, supervised=60, inherited_direct_edges=0 and unbound=0 before any dynamic case executes.",
+    "return_gate": "The batch receives no classification or blocker until the supervising parent has durably journaled case_result after exact terminal wait, group absence, descriptor closure and restoration evidence."
+  },
+  "parent_supervisor_contract": {
+    "preflight_order": ["validate protected hashes and authority root", "validate domain, case_id, operation and exact sequence membership", "allocate per-case /dev/shm root and CLOEXEC control/stdout/stderr pipes", "fork exactly one disposable executor", "bind PID/starttime and pidfd or explicit fallback", "authenticate SID/PGID/capability handshake", "arm and durably journal deadline", "release operation"],
+    "process_binding": "The parent records the positive fork PID, /proc starttime, PPID, SID and PGID from its own observations. Executor calls setsid; parent requires SID == PGID == PID. A mismatch, substitution, reuse or inability to prove the tuple is terminal SUPERVISOR_AUTHORITY.",
+    "pidfd_policy": "Parent calls pidfd_open(PID,0) immediately. Success retains the exact descriptor through terminal wait. Fallback is allowed only when pidfd_open returns ENOSYS, is journaled explicitly, and binds every signal/wait observation to child ownership plus unchanged PID/starttime. EINVAL, EPERM, ESRCH or any other error is terminal AUTHORITY_UNAVAILABLE, not fallback.",
+    "capability": "Parent samples a fresh 32-byte secret and nonce and derives capability = HMAC-SHA256(secret, RFC8785([\"p1350-executor-capability-r1\", run_id, order, case_id, operation, PID, starttime, nonce])). The executor receives the opaque capability through the control pipe and must return it once in the handshake. Missing, replayed, cross-case or mismatched capability is terminal SUPERVISOR_AUTHORITY. Secret and raw nonce never enter executor output or journal.",
+    "descriptor_policy": "All protocol pipes are created CLOEXEC. Before handshake, executor closes the journal FD and every descriptor not explicitly assigned to control/stdout/stderr or the selected internal route. Parent closes opposite pipe ends and proves EOF on every retained read end before result release.",
+    "deadline": {"clock": "monotonic_ns", "maximum_case_duration_ns": 12000000000, "term_grace_ns": 250000000, "cleanup_deadline_ns_after_kill": 2000000000},
+    "frame": "Executor may emit exactly one LF-terminated canonical JSON frame of at most 65536 bytes on stdout and zero bytes on stderr. Missing LF, zero, partial, duplicate, trailing, noncanonical, oversized frame or nonempty stderr is terminal FRAME_AUTHORITY.",
+    "cleanup": "On success, failure, crash or deadline, parent targets only the authenticated case process group: send TERM when any member is live, wait at most 250 ms, send KILL if necessary, obtain exact terminal waitpid and pidfd/waitid agreement when pidfd exists, reap every registered descendant, require killpg(PGID,0) to return ESRCH, close all descriptors and remove the per-case /dev/shm root.",
+    "result_ownership": "Only the supervising parent authors deadline, signal, wait, group-absence and cleanup evidence. Executor cannot classify its own isolation or cleanup. Adapter authors only the frozen operation-to-internal-route mapping.",
+    "no_escape": "Any failure to establish or complete the supervisor boundary returns a terminal integration_blocker after best-effort cleanup. It never triggers direct execution in the batch process."
+  },
+  "executor_contract": {
+    "lifetime": "One executor serves exactly one case, route and capability, then terminates. It cannot start the next case or retain a registry, FD, child, monkeypatch or route object.",
+    "handshake": "Executor calls setsid, closes forbidden FDs, reports PID/starttime/SID/PGID and echoes its one-time capability. It waits for parent ACK; no local or inherited operation may import, fork, ptrace, patch or execute before ACK.",
+    "descendants": "Every descendant is registered to the parent before leaving its creation stop/barrier. The record binds PID, PPID, starttime, SID and PGID; parent ACK is required before continuation. Unregistered continuation is terminal SUPERVISOR_AUTHORITY.",
+    "routes": "After ACK, executor selects exactly one adapter-declared internal route from the closed operation map. Both new and inherited runtime execute inside the same disposable session boundary.",
+    "output": "Executor catches boundary exceptions only to emit one closed integration_blocker frame. Otherwise it emits one closed classification_result frame. No exception crosses the boundary and no cleanup, deadline, signal, wait or group-absence assertion supplied by the executor is authoritative.",
+    "forbidden": ["open writable journal descriptor", "call a raw inherited public runtime from batch context", "spawn unregistered descendant", "change SID/PGID after binding", "emit meta outcome through focal frame", "promote timeout, crash, frame failure, PID mismatch or residual process to semantic reason"]
+  },
+  "causal_journal_contract": {
+    "ownership": "Verifier creates a fresh /dev/shm journal with O_CREAT|O_EXCL|O_APPEND|O_CLOEXEC and supplies the already-open FD to the supervising parent. Only that parent PID writes. Executor and descendants must close and never receive a duplicate writable journal descriptor.",
+    "line_envelope_keys_exact_sorted": ["closed_world", "current_sha256", "line_core", "previous_sha256", "schema"],
+    "line_core_keys_exact_sorted": ["capability_sha256", "case_id", "deadline_ns", "domain", "event", "event_ordinal", "operation", "order", "pgid", "pid", "pidfd_available", "pidfd_fallback_errno", "result_kind", "run_id", "sid", "signal_result", "starttime_ticks", "wait_result", "writer_pid"],
+    "event_allowlist_order": ["case_start", "executor_bound", "deadline_armed", "frame_received", "term_sent", "kill_sent", "terminal_wait", "group_absent", "case_result", "run_complete"],
+    "hash_chain": "Genesis previous_sha256 is 64 lowercase zeroes. current_sha256 = SHA-256(RFC8785([\"p1350-journal-line-r1\", previous_sha256, line_core])). The next line uses the exact prior current_sha256. Hashes are lowercase 64-hex and neither digest may be omitted or replaced.",
+    "write_durability": "Each envelope plus LF is at most 4096 bytes. Parent completes all bytes with write, calls fdatasync, rereads or independently parses the appended canonical line, and only then may ACK the executor handshake, release an operation or start the next case.",
+    "state_machine": {
+      "run": "Exactly one run_id. At most one active case. case_start increments order by one; the next case_start is forbidden until the prior case_result is durable.",
+      "case_prefix": ["case_start", "executor_bound", "deadline_armed"],
+      "case_middle": "frame_received occurs zero or one time. term_sent occurs zero or one time when a live group needs termination. kill_sent occurs zero or one time only after term_sent and grace expiry.",
+      "case_suffix": ["terminal_wait", "group_absent", "case_result"],
+      "completion": "run_complete occurs exactly once after every expected case has one case_result, no case is active, the group is absent and aggregate result cardinalities match returned frames."
+    },
+    "parser": "An independently authored parser consumes bytes only after FD closure and rejects duplicate/unknown keys, noncanonical JSON, line over limit, truncation, non-LF termination, hash mismatch, writer PID mismatch, run/order/event discontinuity, two active cases, absent prefix/suffix, case without result, result before cleanup, premature/duplicate run_complete or any executor journal writer.",
+    "epistemic_limit": "Journal proves the parent-observed causal process and cleanup sequence and locates an active case after failure. Final semantic reports are derived only from authenticated returned results; missing classification is never reconstructed from journal events."
+  },
+  "result_unknown_and_blocker_policy": {
+    "classification_result": "Preserved, Violated or Unknown is accepted only from one canonical executor frame followed by complete parent cleanup and matching journal case_result. Exact P1349 classification and reason precedence is unchanged.",
+    "unknown_allowlist": ["authenticated canonical opaque probe -> Unknown/OPAQUE_PAYLOAD"],
+    "unknown_cardinality": {"transport_unknown_allowed": 0, "semantic_unknown_allowed": 1},
+    "unknown_forbidden": "Missing frame, unsupported supervisor primitive, ambiguous PID, timeout, crash, interrupted wait, journal gap, cleanup uncertainty, inherited-route bypass or budget exhaustion is never Unknown or Preserved.",
+    "blocker_codes_closed": ["ADAPTER_EXCEPTION", "AUTHORITY_UNAVAILABLE", "CHECKER_ERROR", "CLEANUP_FAILURE", "EXTERNAL_CLEANUP_REQUIRED", "FRAME_AUTHORITY", "INTERRUPTED", "JOURNAL_AUTHORITY", "ORPHAN_PROCESS", "SUPERVISOR_AUTHORITY", "SUPERVISOR_TIMEOUT"],
+    "blocker_precedence": ["PROTECTED_INPUT", "AUTHORITY_ROOT", "JOURNAL_AUTHORITY", "SUPERVISOR_AUTHORITY", "AUTHORITY_UNAVAILABLE", "EXTERNAL_CLEANUP_REQUIRED", "SUPERVISOR_TIMEOUT", "ORPHAN_PROCESS", "CLEANUP_FAILURE", "FRAME_AUTHORITY", "ADAPTER_EXCEPTION", "CHECKER_ERROR", "semantic classification precedence inherited from P1349"],
+    "terminality": "Every integration_blocker is terminal for the verification run, increments unexpected_integration_blockers unless it is being observed in the exact isolated X06/X15 meta contract, and contributes neither numerator nor denominator. Partial semantic output cannot override an earlier blocker.",
+    "meta_exception": "X06/X15 remain the only planned blocker observations and are converted to meta PASS only inside their disposable meta API after exact state, restoration, journal and cleanup postconditions. They remain outside focal counts."
+  },
+  "attacks_controls_and_cardinalities": {
+    "static_bypass_attacks": ["raw inherited entry callable from batch", "supervision-disable flag or fallback", "operation absent or duplicated in coverage map", "route chosen before executor handshake"],
+    "dynamic_supervisor_attacks": ["executor stopped before handshake", "executor stopped after handshake", "deadline ignored", "TERM ignored", "descendant left in ptrace_stop", "SID/PGID divergence", "PID/starttime divergence", "pidfd divergence", "additional fork", "orphan child", "wrong PID reaped", "missing frame", "partial frame", "duplicate frame", "noncanonical frame", "oversized frame", "missing capability", "replayed capability", "cross-case capability", "adapter exception", "checker error"],
+    "journal_attacks": ["truncated line", "broken previous/current hash", "event out of order", "two active cases", "case without closure", "result before group_absent", "premature run_complete", "executor writes journal"],
+    "freshness_attacks": ["repeat reuses registry", "reverse reuses FD", "process or monkeypatch survives between cases"],
+    "closed_cardinalities": {"focal_operation_routes": 60, "p1349_new_routes": 12, "inherited_routes": 48, "meta_cases": 2, "x14_plus_variants": 12, "p1347_regressions": 39, "p1346_replays": 181, "controls": 11, "protected_case_sequence": 122, "focal_valid_negatives": 254},
+    "acceptance": "All independently frozen valid attacks are rejected with exact domain and reason/blocker; every positive control preserves its exact result; normal/repeat/reverse have fresh run_id, processes, journals and registries yet identical normalized result vectors."
+  },
+  "authority_receipts_and_dag": {
+    "roles": ["intention author writes only P1350 step", "contract author reads only step, P1349 blocker and public P1349 contracts and writes only P1350 contract trio", "oracle author receives frozen contract and baseline and writes supervisor/checker/caller/journal parser and authorship/delivery receipts without attacks", "adversary freezes attacks and controls before reading P1350 oracle", "adapter author receives both freezes and writes only the bridge", "verifier validates and executes without correcting inputs"],
+    "required_receipts": ["contract receipt", "oracle authorship receipt", "adversary authorship receipt", "adapter authorship receipt", "oracle delivery receipt", "per-run journal receipt", "verifier report and attestation on success", "limited preseal or reproducible blocker"],
+    "journal_receipt_fields": ["run_id", "journal_path_identity", "journal_sha256", "genesis_sha256", "final_line_sha256", "line_count", "case_start_count", "case_result_count", "run_complete_count", "writer_pid", "parser_sha256", "process_groups_absent", "unexpected_integration_blockers"],
+    "causal_order": ["step + P1349 blocker + public P1349 contract", "P1350 contract spec", "P1350 contract binding", "P1350 contract receipt", "independent oracle and adversary freezes", "adapter after both", "caller and delivery receipt", "out-of-band delivery SHA-256", "independent verifier runs and journal receipts", "report + attestation", "limited preseal or blocker"],
+    "acyclicity": "Every receipt pins only already frozen predecessors. Contract receipt does not self-pin. Authorship receipts do not pin delivery artifacts that consume them. Delivery receipt is externally anchored by whole-file SHA-256. Per-run journal receipt pins the closed journal after run completion and is then consumed by verifier report; journal never pins its receipt or verdict.",
+    "no_self_judgment": "Contract, oracle, adversary, adapter, executor, journal and receipts do not decide their own acceptance. Only the independent verifier derives final counts and verdict from protected artifacts, authenticated frames and independently parsed journal receipts."
+  },
+  "gates_budget_and_stop": {
+    "gate_order_exact": ["G01 freeze P1350 step, P1349 blocker and public contract baselines", "G02 independent P1350 contract spec/binding/receipt", "G03 independent oracle and adversary authorship", "G04 adapter only after both freezes", "G05 static 60-of-60 supervisor coverage and zero direct inherited edges", "G06 focal bypass/hang/ptrace-stop/journal attacks plus boundary controls", "G07 meta X06/X15 2-of-2 then X14 plus eleven variants", "G08 remaining P1348 cases then 39 P1347 regressions then 181 P1346 replays and eleven controls", "G09 normal/repeat/reverse with fresh processes, registries and journals", "G10 score 1.0, zero survivors/regressions/unexpected blockers and exact Unknown policy", "G11 strict JSON, source syntax, pins/DAG, V5/V15/V26, full linter and diff-check", "G12 limited transport preseal or reproducible blocker"],
+    "release_rule": "Each gate releases only the next gate. Static coverage must be exactly 60/60 before dynamic execution. Any blocker, survivor, wrong reason, journal/parser failure, residual process/FD/state or inability to name the active case stops the chain.",
+    "budget": {"contract_revisions_after_r1": 1, "oracle_revisions_after_initial": 2, "adversary_revisions_after_initial": 1, "adapter_revisions_after_initial": 1, "complete_execution_max": 2, "author_focal_runs": 0, "author_full_runs": 0, "candidate_runs": 0},
+    "diminishing_returns": "Run affected bypass, hang, stopped-descendant and journal slices before any complete repetition. Two attempts on the same cause without discriminatory gain require architectural review; they do not permit relaxation or another complete run.",
+    "stop": "External cleanup required, residual process/zombie/FD/patch/registry, journal unable to identify the active case, incomplete 60/60 coverage, unexpected blocker, survivor, reason relaxation, protected drift or two causally identical failures blocks P1350 without waiver.",
+    "forbidden_progress": "No productive full corpus, RED, candidate, 38-capsule implementation, L0/consumer change, final certificate or general-equivalence claim is authorized."
+  },
+  "scope": {
+    "claim": "Only the diagnostic transport refinement that makes supervision non-bypassable for all focal operations and durably journals parent-observed causality and cleanup.",
+    "excluded": ["Prompt L0 or productive consumer change", "productive full corpus", "RED", "productive candidate", "38 capsules", "final certificate", "general functional equivalence", "closure of P1339/P1340"],
+    "l0_change_required": false,
+    "adr_0127_stop_required": false
+  },
+  "closed_world": {
+    "top_level_keys": ["schema", "step", "revision", "role", "executor", "regime", "status", "revision_budget", "protected_inputs", "measured_blocker", "normative_composition", "nonbypassable_boundary", "parent_supervisor_contract", "executor_contract", "causal_journal_contract", "result_unknown_and_blocker_policy", "attacks_controls_and_cardinalities", "authority_receipts_and_dag", "gates_budget_and_stop", "scope", "closed_world"],
+    "rule": "Exactly these top-level keys in this order. P1350 changes only mandatory supervision coverage and causal journaling. Any unsupervised focal route, direct inherited edge, optional supervisor, executor-owned cleanup claim, non-durable or forgeable journal, alternate Unknown/blocker policy, cardinality drift, receipt cycle or gate reordering is invalid."
+  }
+}

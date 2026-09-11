@@ -1,0 +1,144 @@
+{
+  "schema": "p1350-adversary-authorship-receipt-r2",
+  "step": 1350,
+  "revision": 2,
+  "role": "independent_adversary",
+  "executor": "/root/p1346_adversary",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-11T16:48:51-03:00",
+  "verdict": "AUTHORED_NOT_EXECUTED",
+  "verdict_scope": "Frozen adversarial authorship only. No P1350 R2 oracle, checker, caller, supervisor, journal parser, adapter, case, ptrace, candidate or full execution was read or run.",
+  "artifacts": {
+    "suite": ["00_nucleo/diagnosticos/p1350-adversary-suite-r2.py", "7b34c0ca03649a68a06bc88c27ec955a1fddcf1a62829397e7da068c91f68cdb"],
+    "authorship_report": ["00_nucleo/diagnosticos/p1350-adversary-authorship-r2.md", "90e8222bbe1faefb5a6019fe0d78677365abbdbc67cc2d262beefc380ddff6ec"]
+  },
+  "protected_inputs": {
+    "step_p1350": ["00_nucleo/materialization/typst-passo-1350.md", "e09cf72e1e81c414343f8ec400e8d1e242910ed9a8a56ed7aaa96308a36d9ebf"],
+    "contract_spec_p1350_r2": ["00_nucleo/diagnosticos/p1350-contract-spec-r2.json", "17c3b02d2f98ca12d6f89b369b78983663a8f8af6becf08daf47227b8cb42b90"],
+    "contract_binding_p1350_r2": ["00_nucleo/diagnosticos/p1350-contract-binding-r2.json", "c341b0db70cebe933bbf6dea9fc19b2122f66534c4488ca4dc00ac9f3ab8f4dd"],
+    "contract_receipt_p1350_r2": ["00_nucleo/diagnosticos/p1350-contract-receipt-r2.json", "667e268009baf59cc7fe9f43df2dca55bfa69fbe2484ee06e7175d8165994d7f"],
+    "adapter_integration_blocker_p1350_r1": ["00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r1.json", "3f2494f92d10eed22a9d8d0d3647ca9fa532f82f235415fcca93074174c2e341"],
+    "adversary_suite_p1350_r1": ["00_nucleo/diagnosticos/p1350-adversary-suite-r1.py", "f6cbd4badd8ae824aec3b73f03fac2fdb169922341ba408c9297ae0ab66f6382"],
+    "adversary_authorship_p1350_r1": ["00_nucleo/diagnosticos/p1350-adversary-authorship-r1.md", "d830e822d99f807d73b95b7278d06bf209725eb87e00adf2766bdeefc0296b8e"],
+    "adversary_receipt_p1350_r1": ["00_nucleo/diagnosticos/p1350-adversary-authorship-receipt-r1.json", "7ef1d7e894e25b17647929ef28086e138d0c1ad84e8a5ef900eb3454f652b4e6"],
+    "adversary_suite_p1349": ["00_nucleo/diagnosticos/p1349-adversary-suite-r1.py", "9f7320db878b16f7be0436b364b34a2f3fdc7ea6a8b34cfb50da0a38930a1703"],
+    "adversary_authorship_p1349": ["00_nucleo/diagnosticos/p1349-adversary-authorship-r1.md", "ea364c7194fa2c3f9b15da2b53cac261cb4576e925713a2329e3d7b7484818b9"],
+    "adversary_receipt_p1349": ["00_nucleo/diagnosticos/p1349-adversary-authorship-receipt-r1.json", "ec08d9406e3fbd993d750236e454b6d3f7210c11a1eddc31b1770f558af7b6a2"]
+  },
+  "identity_domains": {
+    "language_id_sequence": {
+      "namespace": "LANGUAGE_ID",
+      "count": 122,
+      "sequence_sha256": "e958b9c5e939a4b06b9e8594966001004de814e49e0141034d5351f1dbf4a907"
+    },
+    "focal_operation_allowlist": {
+      "namespace": "FOCAL_OPERATION",
+      "count": 60,
+      "local_count": 12,
+      "inherited_count": 48,
+      "operation_ids_sha256": "997e107d263c2ffa4b649ac9a7f8320dc673f56956800b06cb4316bab3baabd1",
+      "route_map_sha256": null,
+      "route_map_state": "AWAITS_POST_ORACLE_AND_ADVERSARY_ADAPTER_AUTHORSHIP"
+    },
+    "boundary_attack_manifest": {
+      "namespace": "BOUNDARY_ATTACK",
+      "count": 36,
+      "manifest_sha256": "d2e85d5936557936120754b647d41e88349ab19169ee4dd3fc967151bb68d8d8",
+      "category_counts": {
+        "STATIC_BYPASS": 4,
+        "DYNAMIC_SUPERVISOR": 21,
+        "JOURNAL": 8,
+        "FRESHNESS": 3
+      }
+    },
+    "shared_exact_ids_parameter_allowed": false
+  },
+  "boundary_result_contract": {
+    "schema": "p1350-boundary-result-r2",
+    "all_attacks_require_fresh_dynamic_execution": true,
+    "static_source_evidence_sufficient": false,
+    "required_unique_witnesses": ["attack_nonce_sha256", "challenge_sha256", "case_journal_sha256", "run_id", "executor_pid_plus_starttime_when_spawned"],
+    "required_parent_observations": ["public_invocation", "oracle_owned_injection", "journal_fdatasync", "terminal_wait", "group_absence", "zombie_absence", "fd_registry_patch_and_shm_cleanup"],
+    "bare_status_or_expected_blocker_accepted": false,
+    "forbidden_result_fields": ["classification", "focal_correctly_violated", "meta_status", "mutation_score", "reason_code"]
+  },
+  "inherited_retests": {
+    "meta_tests": 2,
+    "x14_plus_supervisor_variants": 12,
+    "other_p1348_focals": 22,
+    "p1347_regressions": 39,
+    "p1346_replays": 181,
+    "controls": 11,
+    "focal_valid_negatives": 254,
+    "mutation_score_denominator": 254
+  },
+  "cost": {
+    "case_deadline_ns": 12000000000,
+    "term_grace_ns": 250000000,
+    "cleanup_deadline_ns": 2000000000,
+    "single_executor_wall_ns_max": 14250000000,
+    "boundary_sequential_wall_ns_max": 598500000000,
+    "author_check_measured": {
+      "wall_seconds": 0.13,
+      "user_seconds": 0.10,
+      "sys_seconds": 0.02,
+      "max_rss_kib": 22324
+    },
+    "target_processes_during_authorship": 0
+  },
+  "execution": {
+    "author_check_executed": true,
+    "boundary_runs": 0,
+    "meta_runs": 0,
+    "focal_runs": 0,
+    "ptrace_runs": 0,
+    "full_runs": 0,
+    "candidate_runs": 0,
+    "target_entrypoint_invoked": false,
+    "mutation_score": null,
+    "survivors": null
+  },
+  "segregation": {
+    "technical_isolation_attested": false,
+    "shared_filesystem": true,
+    "inherited_context": true,
+    "p1350_r2_oracle_checker_caller_supervisor_journal_parser_adapter_read_or_executed": false,
+    "write_allowlist_observed": [
+      "00_nucleo/diagnosticos/p1350-adversary-suite-r2.py",
+      "00_nucleo/diagnosticos/p1350-adversary-authorship-r2.md",
+      "00_nucleo/diagnosticos/p1350-adversary-authorship-receipt-r2.json"
+    ]
+  },
+  "provenance": {
+    "head": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted shared tree",
+    "status_porcelain_v1_z_sha256_before_receipt": "df01e811e49fee0b1bf0d2888137cd12a9848e23ad0652cf46ac3fe19020d1b3",
+    "status_porcelain_entries_before_receipt": 95,
+    "tracked_diff_binary_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tracked_diff_stat_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "validation": {
+    "protected_hashes": "PASS",
+    "r1_whole_file_hashes_preserved": "PASS",
+    "strict_duplicate_key_json": "PASS",
+    "python_compile_without_bytecode": "PASS",
+    "language_id_count_and_digest": "PASS: 122",
+    "focal_operation_count_and_digest": "PASS: 60=12+48",
+    "boundary_manifest_count_categories_and_digest": "PASS: 36=4+21+8+3",
+    "inherited_retest_cardinalities": "PASS",
+    "semantic_denominator": "PASS: 254",
+    "dynamic_evidence_rejects_static_answers": "PASS BY SUITE CONSTRUCTION; NOT EXECUTED",
+    "git_diff_check_including_untracked_outputs": "PASS",
+    "crystalline_lint": "NOT_RUN_TO_PRESERVE_P1350_R2_INPUT_FIREWALL"
+  },
+  "limitations": [
+    "No P1350 R2 implementation artifact was inspected, imported or executed.",
+    "No boundary PASS, blocker, score, survivor, cleanup or journal claim exists before independent execution.",
+    "The focal route-map digest is intentionally absent until adapter authorship freezes the complete map.",
+    "This receipt is authorship only and cannot serve as execution delivery, verifier result, preseal or certificate."
+  ],
+  "next_state": "P1350_R2_ORACLE_AND_ADVERSARY_FREEZES_MAY_FEED_ADAPTER_AUTHORSHIP; ADAPTER_AND_ROUTE_MAP_PRECEDE_EXECUTION_DELIVERY; ALL_EXECUTION_REMAINS_BLOCKED",
+  "closed_world": {
+    "rule": "This receipt intentionally does not self-pin and cannot serve as dynamic evidence, execution delivery, score, preseal or certificate."
+  }
+}

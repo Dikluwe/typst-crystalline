@@ -1,0 +1,230 @@
+{
+  "schema": "p1350-adapter-integration-blocker-r3",
+  "step": 1350,
+  "revision": 3,
+  "role": "adapter_author",
+  "executor": "/root/p1347_adapter",
+  "regime": "executado sem atestacao de isolamento",
+  "generated_at": "2026-09-11T17:27:24-03:00",
+  "verdict": "BLOCKED_NOT_EXECUTABLE",
+  "verdict_scope": "P1350 adapter R3 integration authorship only. No adapter, route map, successful authorship record or receipt, execution delivery, boundary result, classification, score, survivor count, preseal or candidate claim is produced.",
+  "public_cause": "The frozen Oracle R3 boundary harness emits executor.path_kind in a transport-mechanism vocabulary that is disjoint from the frozen Adversary R2 boundary predicate. The checker returns that Oracle-owned dynamic evidence unchanged. The adapter cannot translate the field without becoming the author of evidence that the Contract reserves to the Oracle boundary experiment.",
+  "protected_inputs": {
+    "step_p1350": [
+      "00_nucleo/materialization/typst-passo-1350.md",
+      "e09cf72e1e81c414343f8ec400e8d1e242910ed9a8a56ed7aaa96308a36d9ebf"
+    ],
+    "adapter_integration_blocker_r1": [
+      "00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r1.json",
+      "3f2494f92d10eed22a9d8d0d3647ca9fa532f82f235415fcca93074174c2e341"
+    ],
+    "adapter_integration_blocker_r2": [
+      "00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r2.json",
+      "9ed548a8e36bf89815bdce5de0ee9625f57c76c371c88a459c2f055ad442e629"
+    ],
+    "contract_spec_r2": [
+      "00_nucleo/diagnosticos/p1350-contract-spec-r2.json",
+      "17c3b02d2f98ca12d6f89b369b78983663a8f8af6becf08daf47227b8cb42b90"
+    ],
+    "contract_binding_r2": [
+      "00_nucleo/diagnosticos/p1350-contract-binding-r2.json",
+      "c341b0db70cebe933bbf6dea9fc19b2122f66534c4488ca4dc00ac9f3ab8f4dd"
+    ],
+    "contract_receipt_r2": [
+      "00_nucleo/diagnosticos/p1350-contract-receipt-r2.json",
+      "667e268009baf59cc7fe9f43df2dca55bfa69fbe2484ee06e7175d8165994d7f"
+    ],
+    "adversary_suite_r2": [
+      "00_nucleo/diagnosticos/p1350-adversary-suite-r2.py",
+      "7b34c0ca03649a68a06bc88c27ec955a1fddcf1a62829397e7da068c91f68cdb"
+    ],
+    "adversary_authorship_receipt_r2": [
+      "00_nucleo/diagnosticos/p1350-adversary-authorship-receipt-r2.json",
+      "7769675ad8c0efd44379075e581361d74281dace1701148fbc132784ef7158d7"
+    ],
+    "oracle_manifest_r3": [
+      "00_nucleo/diagnosticos/p1350-authority-manifest-r3.json",
+      "0f95a9097d41b60cfe7c0be6cfb874a4098416d57832c0d0fabe84e6eac31876"
+    ],
+    "oracle_supervisor_r3": [
+      "00_nucleo/diagnosticos/p1350-oracle-supervisor-r3.py",
+      "1d662c6fa98f0b00fdf8a56c4112c9be1863469a1b1d2eb1de1fdf3d8bb032c6"
+    ],
+    "oracle_boundary_harness_r3": [
+      "00_nucleo/diagnosticos/p1350-oracle-boundary-harness-r3.py",
+      "7de050f2f86612306e4dac934fee8f4f2730a98f75103551233a9139f8e6500e"
+    ],
+    "oracle_delivery_composer_r3": [
+      "00_nucleo/diagnosticos/p1350-oracle-delivery-composer-r3.py",
+      "3888ae81248a81bedd90f3fd6d295a9a13d8c346491b3ac3b5be90af115e2af5"
+    ],
+    "oracle_checker_r3": [
+      "00_nucleo/diagnosticos/p1350-oracle-checker-r3.py",
+      "06ba8291746116d36809a85773f8b4945fb479fbdfa7c13aa3e10e5bea9e153d"
+    ],
+    "oracle_caller_r3": [
+      "00_nucleo/diagnosticos/p1350-oracle-caller-r3.py",
+      "4000f6d8bec61d10cf52c260db62a7456c34f418fe3012b033b2479644c16744"
+    ],
+    "oracle_authorship_receipt_r3": [
+      "00_nucleo/diagnosticos/p1350-oracle-authorship-receipt-r3.json",
+      "e92c88ecc467e3ce6323bf13cf72fe6716264953ea0b0576249618879ddecd5d"
+    ],
+    "oracle_delivery_receipt_r3": [
+      "00_nucleo/diagnosticos/p1350-oracle-delivery-receipt-r3.json",
+      "dddcbc3dc1bbb073b7505cace8ee09dffd963a3782f64402cc66668769ef5dee"
+    ]
+  },
+  "revision_history_and_gains": {
+    "r1": "The R1 blocker measured three contract-level incompatibilities: shared identity parameters, pre-adapter execution-delivery ordering and the absence of a closed dynamic boundary API.",
+    "r2": "Contract, Oracle and Adversary R2 separated language, focal-route and boundary domains and introduced the post-adapter composer. The R2 adapter blocker then measured end-to-end nonce/challenge and closed boundary-shape disagreement plus mutation of exact meta_evidence.",
+    "r3_repairs_confirmed_statically": [
+      "p1350-oracle-checker-r3.py:158-174 accepts a verifier-originated attack request, binds its nonce/challenge through the harness and validates the returned hashes.",
+      "p1350-oracle-boundary-harness-r3.py:198-211 returns closed_world=true, the requested cleanup/executor/injection/supervisor key sets and nonce/challenge-bound evidence.",
+      "p1350-oracle-checker-r3.py:146-155 returns the inherited meta object unchanged, preserving exact meta_evidence."
+    ],
+    "remaining_failure": "One closed enum mismatch remains in the R3 boundary evidence projection; therefore the gains do not release the mandatory 36-of-36 boundary gate."
+  },
+  "measured_incompatibilities": [
+    {
+      "id": "P1350-ADAPTER-R3-BLOCK-001-BOUNDARY-EXECUTOR-PATH-KIND",
+      "measurement": "The R3 harness constructs dynamic_evidence.executor.path_kind as exactly `PIDFD` when pidfd_open succeeds or `WAITPID_ENOSYS` on its ENOSYS fallback. The frozen adversary accepts exactly `EXECUTOR` or `PUBLIC_REFUSAL`; it returns false for either Oracle value before evaluating executor identity.",
+      "file_lines": [
+        "00_nucleo/diagnosticos/p1350-oracle-boundary-harness-r3.py:202",
+        "00_nucleo/diagnosticos/p1350-oracle-checker-r3.py:168-175",
+        "00_nucleo/diagnosticos/p1350-adversary-suite-r2.py:349-360",
+        "00_nucleo/diagnosticos/p1350-contract-spec-r2.json:78-80"
+      ],
+      "produced_values_exact": [
+        "PIDFD",
+        "WAITPID_ENOSYS"
+      ],
+      "accepted_values_exact": [
+        "EXECUTOR",
+        "PUBLIC_REFUSAL"
+      ],
+      "set_intersection": [],
+      "checker_behavior": "The checker validates the closed executor key set and nonce/challenge hashes but does not project or translate path_kind; it returns the harness result unchanged.",
+      "ownership_barrier": "Contract R2 makes exercise_boundary verifier-owned and the dynamic evidence Oracle-owned. The adapter may transport the exact suite request to the public checker API, but cannot rewrite executor evidence, patch private checker/supervisor state, or author cleanup/blocker evidence.",
+      "impact": "Every dynamically successful harness result still fails boundary_result_matches at its path_kind predicate. The first boundary attempt would cause BOUNDARY_TERMINAL_STOP, so 36/36 cannot be claimed and meta/focal execution cannot be released.",
+      "forbidden_workarounds": [
+        "Mapping PIDFD or WAITPID_ENOSYS to EXECUTOR in the adapter would reauthor Oracle-owned evidence.",
+        "Returning PUBLIC_REFUSAL is not a label-only workaround: the adversary additionally requires all PID/PGID/SID/starttime fields to be null for that branch, while the harness has created a real executor.",
+        "Calling the private harness or supervisor through an alternate path would violate the checker-created RunContext and the one public boundary API.",
+        "Relaxing the adversary predicate, synthesizing PASS or crediting a blocker would edit or weaken frozen expectations."
+      ]
+    }
+  ],
+  "impact": {
+    "adapter_authorship_possible": false,
+    "canonical_route_map_authorship_withheld": true,
+    "boundary_request_end_to_end_transport_possible": true,
+    "boundary_gate_releasable": false,
+    "boundary_attacks_statically_bound": 36,
+    "boundary_attacks_executable_under_joint_predicate": 0,
+    "supervised_focal_routes_plannable": 60,
+    "supervised_focal_routes_claimed": 0,
+    "local_routes_plannable": 12,
+    "inherited_routes_plannable": 48,
+    "meta_cases_reached": 0,
+    "focal_cases_reached": 0,
+    "semantic_denominator_reached": 0,
+    "reason_or_classification_relaxed": false,
+    "why_success_outputs_are_withheld": "An adapter and route map cannot enter the post-adapter composer DAG as successful integration artifacts while the mandatory prior boundary gate is structurally unreleasable. No partial 60/60 or 36/36 coverage is fabricated."
+  },
+  "budget_state": {
+    "contract_declared_at": "00_nucleo/diagnosticos/p1350-contract-binding-r2.json:121-128",
+    "contract_revisions_remaining": 0,
+    "oracle_revisions_after_initial_authorized": 2,
+    "oracle_revisions_consumed": [
+      "R2",
+      "R3"
+    ],
+    "oracle_revisions_remaining": 0,
+    "adversary_revisions_after_initial_authorized": 1,
+    "adversary_revisions_consumed": [
+      "R2"
+    ],
+    "adversary_revisions_remaining": 0,
+    "adapter_revisions_after_initial_authorized": 1,
+    "adapter_revision_attempt_consumed": "R2 integration blocker",
+    "adapter_revisions_remaining": 0,
+    "complete_execution_max": 2,
+    "complete_executions_consumed_by_this_authorship": 0,
+    "conclusion": "All declared artifact revision allowances capable of repairing this mismatch are exhausted. The unused execution maximum cannot repair incompatible frozen schemas and was not exercised."
+  },
+  "marked_inference": {
+    "inference": "The mismatch most likely comes from using path_kind for two different concepts: the harness records the OS wait authority mechanism, while the adversary records whether a real executor or a public refusal path was observed.",
+    "used_for_verdict": false,
+    "refuters": [
+      "A frozen Oracle successor whose public boundary evidence emits EXECUTOR for the real forked path and retains pidfd availability in a separately contracted field",
+      "A frozen Adversary successor that explicitly accepts PIDFD and WAITPID_ENOSYS with an exact predicate consistent with the Contract's process evidence",
+      "A contract-authorized checker-owned projection that maps transport mechanism to path semantics without adapter-authored evidence"
+    ]
+  },
+  "minimum_compatible_change": {
+    "required": "Freeze one common executor.path_kind vocabulary at the Oracle/Adversary boundary. For the current real forked harness path, the Oracle projection would need to satisfy the exact EXECUTOR branch, or the adversary and contract would need to define and validate the transport-mechanism enum instead.",
+    "preserve": "Preserve verifier-originated nonce/challenge binding, exact meta_evidence, closed_world=true, public supervisor evidence, complete cleanup, three separate digest APIs, 60=12+48 route coverage, 36 dynamic boundary attacks, denominator 254, 39 regressions, 181 replays, 11 controls and exact P1349 classifications/reasons.",
+    "authorization": "No such successor revision is authorized by the frozen R2 budget; a new owner decision or explicit waiver would be required before another adapter authorship attempt."
+  },
+  "execution": {
+    "adapter_created": false,
+    "route_map_created": false,
+    "successful_adapter_authorship_created": false,
+    "successful_adapter_receipt_created": false,
+    "execution_delivery_composed": false,
+    "boundary_cases_run": 0,
+    "meta_cases_run": 0,
+    "focal_cases_run": 0,
+    "supervisor_runs": 0,
+    "ptrace_runs": 0,
+    "full_runs": 0,
+    "candidate_runs": 0,
+    "classification": null,
+    "mutation_score": null,
+    "survivors": null
+  },
+  "provenance": {
+    "repository_head": "496c45ac6279d4298079f848b24b5e97ba88edc1",
+    "working_tree": "uncommitted shared tree",
+    "status_porcelain_v1_z_sha256_before_blocker": "8915db5d47920d119f697098424168708da2e3bfab70e85b8e2298b299987cea",
+    "measurement_time": "2026-09-11T17:27:24-03:00"
+  },
+  "validation": {
+    "protected_hashes": "PASS",
+    "file_line_review": "PASS",
+    "json_parse": "PASS",
+    "duplicate_key_rejection": "PASS",
+    "closed_top_level_order": "PASS",
+    "git_diff_check": "PASS",
+    "cases_executed": 0
+  },
+  "next_state": "P1350_FROZEN_ORACLE_R3_AND_ADVERSARY_R2_REQUIRE_OWNER_AUTHORIZED_COMPATIBILITY_REVISION; ADAPTER_ROUTE_MAP_COMPOSER_EXECUTION_VERIFICATION_PRESEAL_RED_CANDIDATE_AND_FULL_REMAIN_BLOCKED",
+  "closed_world": {
+    "top_level_keys": [
+      "schema",
+      "step",
+      "revision",
+      "role",
+      "executor",
+      "regime",
+      "generated_at",
+      "verdict",
+      "verdict_scope",
+      "public_cause",
+      "protected_inputs",
+      "revision_history_and_gains",
+      "measured_incompatibilities",
+      "impact",
+      "budget_state",
+      "marked_inference",
+      "minimum_compatible_change",
+      "execution",
+      "provenance",
+      "validation",
+      "next_state",
+      "closed_world"
+    ],
+    "rule": "Exactly these top-level keys in this order. This is a public P1350 R3 adapter-integration blocker, not an adapter, route map, success authorship artifact or receipt, execution delivery, verifier result, attestation, preseal, classification, score or general-equivalence claim."
+  }
+}
