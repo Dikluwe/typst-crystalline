@@ -1,5 +1,0 @@
-run	population	primary_sha256	reproduction	status
-general-first-semantic	192 fixtures	af22533c7cc477a6ce52f5ff04ff26b20fa9e504dc087cb52914986f919e0827	matched-final	DISCARDED-AS-FINAL: stale M20 schema only
-general-final	192 fixtures + 56 invalid + 384 determinism	af22533c7cc477a6ce52f5ff04ff26b20fa9e504dc087cb52914986f919e0827	matched-first-semantic	ACCEPTED
-focal-direct	48 groups / 336 observations	f6dabe249c0d5c3a27d4296961a37c0428f1842c1e6cb3928e5eaddae3771992	matched-inverse	ACCEPTED
-focal-inverse	48 groups / 336 observations	f6dabe249c0d5c3a27d4296961a37c0428f1842c1e6cb3928e5eaddae3771992	matched-direct	ACCEPTED

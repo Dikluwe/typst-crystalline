@@ -1,6 +1,0 @@
-issue	state_checked	baseline_reproduction	crystalline	class	owner_risk	decision	what_would_refute
-4702	open on 2026-08-26	vanilla emits glyph paths	crystalline emits glyph paths	product option	new CLI/default and font portability	candidate; not selected; ADR-0127 gate	existing public opt-in contract
-6035	open on 2026-08-26	requires external SVG text reimport into PDF	not isolated in SVG exporter	import/PDF pipeline	wrong owner for current parity gap	rejected for P1222	reproduction proving loss originates in export/svg.rs
-6858	open on 2026-08-26	nested external SVG href requires coordinated parser/resource loading	not supported	input SVG/security	I/O, recursion and sanitization risk	candidate; not selected	safe existing resource resolver with bounded recursion
-8678	open on 2026-08-26	SVG/PNG document metadata absent	absent	product metadata	public metadata/default policy	candidate; not selected; ADR-0127 gate	metadata already present and silently discarded by current owner
-selection	current execution	n/a	n/a	n/a	n/a	NO EXTENSION SELECTED; all candidates require public/product or cross-pipeline decision	a candidate satisfying continuous internal parity gate

@@ -1,9 +1,0 @@
-field	value
-protocol	tekt-materializacao-segregada/full; execution without isolation attestation
-head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
-timestamp	2026-08-26T18:11:32-03:00
-prompt	typst-passo-1226.md sha256 87d15fd7a62c6ec81ac44415bb70cfbcc625e3ad597e1774667dce60beac94a7
-baseline	vanilla a51e02804 sha256 7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
-lens	../tekt-cargo-dsm/target/release/lente sha256 6eac85581b292ec5d0bea41a7d991dd246a34acd41b892ae1a96c871a51c915a
-unknown_policy	unsupported or mathematically unproved constructions remain Unknown
-roles	shared authority and writable tree; no isolation claim

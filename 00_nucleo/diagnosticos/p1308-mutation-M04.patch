@@ -1,8 +1,0 @@
-*** Begin Patch
-*** Update File: /dev/shm/p1308-mutant-source.PmokqQ/01_core/src/compiler/stdlib/collections.rs
-@@
-                 return Err(vec![SourceDiagnostic::error(
--                    test.diagnostic_span(),
-+                    Span::detached(),
-                     format!("expected boolean, found {}", vanilla_type_name(&other)),
-*** End Patch

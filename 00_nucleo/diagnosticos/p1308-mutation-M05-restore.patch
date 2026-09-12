@@ -1,8 +1,0 @@
-*** Begin Patch
-*** Update File: /dev/shm/p1308-mutant-source.PmokqQ/01_core/src/compiler/eval/mod.rs
-@@
-         if id == self.source.id() {
--            self.inner.source(id)
-+            Ok(self.source.clone())
-         } else {
-*** End Patch

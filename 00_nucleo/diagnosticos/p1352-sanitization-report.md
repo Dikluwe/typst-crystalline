@@ -106,3 +106,34 @@ Não foi criado novo passo, ledger, manifesto ou recibo. O diff do commit desta
 correção é o inventário exato e o histórico Git conserva integralmente os
 artefatos retirados. Prompts L0, ADRs, materialização e código não foram
 alterados.
+
+## Limpeza global dos diagnósticos e resíduos de compilação
+
+Em `2026-09-12T09:32:11-03:00`, sobre o estado-base
+`28af08c836c6b03d19aa15890581145c70a0ff44`, a mesma regra foi aplicada à
+pasta inteira. Antes da poda havia 4.989 ficheiros e 891.069.306 bytes
+(849,79 MiB) em `00_nucleo/diagnosticos`.
+
+Foram removidos mais 2.466 artefatos gerados e não referenciados, somando
+778.900.681 bytes (742,82 MiB). Permaneceram 2.523 ficheiros e 112.168.625
+bytes (106,97 MiB): 1.763 documentos Markdown legíveis e 760 artefatos
+conservados por referência nominal ou padrão encontrado fora de
+`diagnosticos`, `materialization` e `context`. As 489 referências nominais e
+os 22 prefixos wildcard relevantes foram revalidados após a poda, sem falta.
+
+Também foram apagados resíduos reconstruíveis e não rastreados pelo Git:
+
+- `target/`, medido por `du -sh` como 16 GiB antes da remoção;
+- `00_nucleo/diagnosticos/__pycache__/`, 1,7 MiB;
+- `lab/parity/matrix/__pycache__/`, 848 KiB;
+- `lab/surface-inventory/__pycache__/`, 48 KiB.
+
+Não foi executado novo build após essa remoção, pois isso recriaria o próprio
+resíduo eliminado. A verificação estrutural usou o linter existente, checagem
+do diff e resolução das referências. Nenhum ficheiro fora de
+`00_nucleo/diagnosticos` integra o diff rastreado desta fase.
+
+O ledger detalhado de P1352 mencionado na primeira fase também foi removido
+nesta poda global: ele era evidência gerada, não autoridade arquitetural. Sua
+versão integral permanece recuperável em
+`61a56c7c7de3e073f30a009acd2c59ffa9568d65` pelo histórico Git.

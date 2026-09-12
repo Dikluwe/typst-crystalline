@@ -1,6 +1,0 @@
-role	executor	environment	read_allowlist	write_allowlist	context	verdict
-owner-decision	human owner	conversation	P1265 options;P1264 certificate	option B response	current task	explicit and authoritative
-decision-recorder	/root	repository	owner response;P1264 receipts;current L0s	P1265 decision/report/manifest/certificate;P1266 planning artifacts	full current task	not independent, performs no productive implementation
-productive-implementer	not assigned	NONE	NONE	NONE	NONE	no productive action authorized
-future-contract-author	/root planning authority	repository	owner option B;current L0s;P1264 fragment	P1266 contract/matrix/policy	full current task	not eligible to attest future verification
-future-verifier	unassigned	separate read-only environment	future sealed P1266 artifacts	future verifier receipt	must not inherit candidate-private context	pending

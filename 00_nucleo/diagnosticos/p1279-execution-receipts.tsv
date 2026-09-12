@@ -1,6 +1,0 @@
-run	population	primary_sha256	reproduction	status
-general-direct	192 fixtures + 56 invalid + 384 determinism	524faea0210ae18eb46178d77230f13ee0d5428fb414cff98e96dfdde17f87ef	matched-general-repro	ACCEPTED
-general-repro	192 fixtures + 56 invalid + 384 determinism	524faea0210ae18eb46178d77230f13ee0d5428fb414cff98e96dfdde17f87ef	matched-general-direct	ACCEPTED
-offset-direct	5 stopsets / 6 mutants	4fe5f2d221add5bfc9eba29879d229b8b88cccd578b0c443c93a2cdd625a0313	matched-offset-inverse	ACCEPTED
-offset-inverse	5 stopsets / 6 mutants	4fe5f2d221add5bfc9eba29879d229b8b88cccd578b0c443c93a2cdd625a0313	matched-offset-direct	ACCEPTED
-focal-inherited-P1278	48 groups / 336 observations	f6dabe249c0d5c3a27d4296961a37c0428f1842c1e6cb3928e5eaddae3771992	immutable predecessor evidence	ACCEPTED-NO-PRODUCT-CODE-CHANGE

@@ -1,7 +1,0 @@
-role	executor	environment	read_allowlist	write_allowlist	inherited_context	isolation_verdict
-intent-author	human + typst-passo-1264.md	repository working tree	typst-passo-1264.md;P1255 baseline;P1261-P1263 receipts	NONE	current task	frozen input, not independently re-authored
-contract-author	/root	repository working tree	P1264 step;P1234/P1236/P1237 contracts;P1261-P1263 receipts	p1264-contract.tsv;lab/parity/matrix/p1264_consolidate.py	full current task	not isolated from verifier
-oracle-author	P1231 frozen oracle + /root integration	/tmp frozen oracle;repository runner	fixtures;budgets;build.py;ratified vanilla	P1234/P1236/P1237 transient outputs	full current task	frozen oracle inputs, integration not isolated
-adversary	/root	repository runner	P1264 contract;pair rows;focal attack receipts	p1264-attacks.tsv; p1264-opaque.tsv	full current task	not isolated from contract author
-implementer	not applicable	NONE	NONE	NONE	NONE	P1264 has no productive implementation
-verifier	deterministic runners under /root	repository working tree	sealed inputs;direct/inverse outputs;workspace gates	P1264 receipts;summary;certificate	full current task	cannot attest authority isolation

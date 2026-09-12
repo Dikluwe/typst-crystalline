@@ -1,9 +1,0 @@
-field	value
-contract_sha256	3a458af70ebb94aab13261d762228b881dc483c9170b6027da6d4679918bfedc
-baseline_head	697eaf31e8ce6aaa4eef7d61d7808e377005c3c5
-vanilla_sha256	7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
-metric	sRGB codificado premultiplicado; alpha separado
-color_max	max(0.001, vanilla_max)+0.000001
-color_p95	vanilla_p95+0.000001
-coincident	ordem e multiplicidade estruturais; malha numérica epsilon-direita
-classification	por combinação espaço/variante; falha conserva Unknown

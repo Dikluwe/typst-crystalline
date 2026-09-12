@@ -1,7 +1,0 @@
-mutant_id	status	witness
-F01-drop-pair	REJECTED	eight pair-local focal verdicts
-F02-drop-scenario	REJECTED	48 groups x seven positions
-F03-raw-hue-subtraction	REJECTED	seam cases use modular hue delta
-F04-ignore-alpha	REJECTED	alpha delta on every observation
-F05-drop-luma-extreme	REJECTED	Luma primary extremes present
-F06-drop-endpoint-epsilon	REJECTED	seven frozen positions include epsilon neighbours

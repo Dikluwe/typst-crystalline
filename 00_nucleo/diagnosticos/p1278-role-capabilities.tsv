@@ -1,5 +1,0 @@
-role	artifact	write_scope	read_scope	isolation
-oracle	p1278-oracle-budgets.tsv + temporary vanilla masks	oracle artifacts before candidate	frozen inputs, vanilla binary, generated fixtures	logical-order-only
-implementation	adaptive.rs + svg.rs + P1278 probe	L0, owner code, tests and adapter observations	L0, vanilla source, P1277 evidence and oracle artifacts	not isolated
-attacker	p1278-attacks-executed.tsv + p1278-focal-attacks.tsv	attack receipts	contract and execution outputs	not isolated
-judge	p1278-final-pairs.tsv + certificate	adjudication	all P1278 evidence	not isolated

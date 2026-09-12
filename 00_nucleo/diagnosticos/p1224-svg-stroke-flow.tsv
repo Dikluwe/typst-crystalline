@@ -1,6 +1,0 @@
-stage	owner	state	evidence
-language-constructor	compiler/stdlib/layout.rs	GREEN unit	p1224_native_stroke_preserva_campos_complexos
-entity	entities/geometry.rs	GREEN unit	p1224_stroke_complex_defaults_e_ordem_do_dash
-frame	FrameItem::Shape	GREEN structural	Stroke transported without field duplication
-svg	infra/export/svg.rs	GREEN unit	p1224_svg_emite_stroke_complexo_sem_perder_ordem_ou_phase
-public-eval-json	shell/cli.rs	GATED	L0 currently rejects non-JSON Stroke; proposed exception awaits approval

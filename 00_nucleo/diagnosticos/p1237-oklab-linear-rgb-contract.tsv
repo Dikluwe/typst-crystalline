@@ -1,8 +1,0 @@
-id	obligation	adjudication
-C01	Exactly four independent pairs and six fixtures each	Missing, extra or inferred sibling rejects execution
-C02	Reuse frozen vanilla budget	Read only V_* plus fixed 1e-6; candidate_* is forbidden input
-C03	Preserve graph, geometry and role independently	All six rows required per pair
-C04	Use dense 4096 numeric mesh with opacity-aware SVG stops	Any budget excess keeps pair Unknown
-C05	Reduce each Linear/Radial pair separately	No cross-geometry promotion
-ATTACKS	No executable mutation suite in this sanitation	No mutation score or Tekt seal may be claimed
-FINAL	No pair promotion unless graph and numeric are 6/6	No production or whitelist edit

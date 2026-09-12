@@ -1,7 +1,0 @@
-role	executor	environment	read_allowlist	write_allowlist	context_policy	status
-intent-author	typst-passo-1267.md + repository owner	repository	P1266 final certificate;P1267 objective;ADRs 0107/0108/0121	NONE	frozen predecessor correction intent	FROZEN
-contract-author	/root current session	repository	P1267 step;immutable P1266 receipts;current SVG/adaptive L0;ratified baseline source;named ADRs	p1267 delta,contract-v2,Unknown-v2,observables,decisions,roles,manifest,report	shared current task context;no future correction patch or private P1268 result	EXECUTED-NOT-ISOLATED
-oracle-author	P1268 independent authority	future isolated or capability-restricted environment	P1267 manifest and frozen v2 contract;vanilla a51e02804	P1268 vanilla-first oracles,budgets,masks,landmarks,interval costs	must not read future candidate output before freezing oracles	NOT-STARTED
-adversary	P1268 independent authority	future isolated or capability-restricted environment	P1267 frozen v2 inputs;vanilla baseline	P1268 negative and opaque mutations	must not repair or choose product solution	NOT-STARTED
-implementer	future post-seal authority	future environment	sealed P1268 contract only	future candidate code	cannot edit contract,baseline or sealed oracles	OUT-OF-SCOPE
-verifier	P1268 independent authority	future read-only verification environment	sealed inputs and authored suites	P1268 preseal receipt only	cannot edit judged artifacts	NOT-STARTED

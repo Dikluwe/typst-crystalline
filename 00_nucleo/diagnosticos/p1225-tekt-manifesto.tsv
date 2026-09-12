@@ -1,9 +1,0 @@
-field	value
-protocol	tekt-materializacao-segregada/full
-execution	single session; no isolation attestation
-approval	Stroke-only JSON allowlist approved; generic repr fallback prohibited unless measured in vanilla
-head	0a0fabe05cd001802c6dfcfffb183f7651ab17d1
-timestamp	2026-08-26T17:59:45-03:00
-baseline	vanilla a51e02804 sha256 7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
-spec	typst-passo-1225.md sha256 b628703012971e7ccee165260b55e6ce8e31ab7444bcbee4ba6738174a35931c
-unknown_policy	non-allowlisted JSON types and unnormalized paths remain prohibited/Unknown

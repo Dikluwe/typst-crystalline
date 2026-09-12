@@ -1,4 +1,0 @@
-mutant_id	mutation	executed_gate	witness	status
-P1274-M01	promote Hsv in Linear and Radial	cargo test -p typst-infra p1274_ --offline	negative fallback test failed for Hsv	REJECTED
-P1274-M02	remove Oklab from Linear and Radial native predicate	cargo test -p typst-infra p1274_ --offline	Linear/Oklab and Radial/Oklab positive tests failed	REJECTED
-P1274-M03	classify Oklab and LinearRgb as native stops and bypass svg_adaptive_stops	cargo test -p typst-infra p1274_ --offline	all four positive tests rejected two-stop output	REJECTED

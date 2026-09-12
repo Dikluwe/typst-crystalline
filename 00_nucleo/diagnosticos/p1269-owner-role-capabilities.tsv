@@ -1,5 +1,0 @@
-role	identity	workspace	can_read_product	can_write_product	can_write_oracle	isolation_attestation
-obligation-owner	/root	shared	true	true	false	causal-process-only; no technical read isolation available
-implementer	/root	shared	true	true	false	causal-process-only; sealed P1268/P1269 oracle inputs are read-only
-attacker	/root	shared	true	false	false	causal-process-only; attacks execute after candidate materialization
-verifier	/root	shared	true	false	false	causal-process-only; verdict uses sealed oracle and fresh receipts

@@ -1,5 +1,0 @@
-mutant	cluster	mutation	witness	status
-M01-wrong-d65-z	C2	replace D65 Z 1.08883 by 1.0	both P1271 Luma→Oklab tests fail; public a=0.0015152692794799805 and b=0.014762520790100098	REJECTED
-M02-repeat-input-f32	C3a	reintroduce effective_offsets Vec<f32> at repeat input	P1271 repeat test exposes 0.1666666716337204 instead of 1/6	REJECTED
-M03-stops-output-f32	C3b	reintroduce Vec<f32> in gradient.stops accessor	P1271 repeat test exposes 0.3333333432674408 instead of 1/3	REJECTED
-M04-radial-t-f32	C4	reintroduce Ratio(f64) to f32 before precise Radial sample	P1271 Radial LinearRgb channel becomes 0.6287654638290405 instead of 0.6287654042243958	REJECTED

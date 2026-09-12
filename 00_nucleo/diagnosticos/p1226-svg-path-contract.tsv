@@ -1,5 +1,0 @@
-state	contract
-Preserved	absolute analytic path geometry, closure, winding and ordered paints agree within 1e-8pt
-Violated	a modeled public geometry or paint differs beyond tolerance
-Unknown	unsupported vocabulary, malformed path, invalid arc flag or unproved arc-to-Bezier equivalence
-arc	endpoint arcs normalize to transformed center, ellipse basis vectors, start angle and oriented delta

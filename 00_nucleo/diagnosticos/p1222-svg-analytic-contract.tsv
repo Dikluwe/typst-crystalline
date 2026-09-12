@@ -1,5 +1,0 @@
-state	contract
-Preserved	page dimensions and ordered paints agree; primitive/path representations reduce to equal absolute analytic geometry within 1e-8pt
-Violated	modeled coordinate, curve control, radius, transform order, fill, stroke or paint order differs beyond tolerance
-Unknown	unsupported command/tag/transform/paint server/clip/image/link, malformed construction or broken reference
-tolerance	1e-8pt, below the 9-decimal SVG serialization quantum; differences above it remain observable

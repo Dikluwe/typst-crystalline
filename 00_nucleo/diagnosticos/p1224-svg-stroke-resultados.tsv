@@ -1,6 +1,0 @@
-case	result	scope
-entity-defaults	GREEN	cap/join/dash/miter defaults
-native-constructor	GREEN	complex fields accepted in direct L1 test
-svg-serialization	GREEN	cap/join/miter/dash/phase/alpha
-public-eval-json	RED-GATED	default CLI behavior requires new ADR-0127 confirmation
-general-paths	NOT-EXECUTED	blocked after new public gate

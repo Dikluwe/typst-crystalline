@@ -1,9 +1,0 @@
-observable	rows	status
-public_samples	84	measured
-paired_boundaries	42	measured
-alpha_divergent	14	Known-Upstream-Bug under P1252
-luminance_violated	0	none in current execution
-preserved	28	Preserved
-unknown	0	none at B03
-alpha_max	0.6	measured
-luma_max	0.0	measured

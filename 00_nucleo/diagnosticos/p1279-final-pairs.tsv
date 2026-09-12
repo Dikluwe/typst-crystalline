@@ -1,9 +1,0 @@
-pair	scope	p1278	p1279	valid	numeric	raster	invalid_rejected	product_fallback	final_classification	productive_promotion
-linear/oklch	polar	Unknown-generalization	Generalization-Preserved	24/24	24/24	24/24	6/6	Preserved	Generalization-Preserved	false
-radial/oklch	polar	Unknown-generalization	Generalization-Preserved	24/24	24/24	24/24	8/8	Preserved	Generalization-Preserved	false
-linear/hsl	polar	Unknown-generalization	Generalization-Preserved	24/24	24/24	24/24	6/6	Preserved	Generalization-Preserved	false
-radial/hsl	polar	Unknown-generalization	Generalization-Preserved	24/24	24/24	24/24	8/8	Preserved	Generalization-Preserved	false
-linear/hsv	polar	Unknown-generalization	Generalization-Preserved	24/24	24/24	24/24	6/6	Preserved	Generalization-Preserved	false
-radial/hsv	polar	Unknown-generalization	Generalization-Preserved	24/24	24/24	24/24	8/8	Preserved	Generalization-Preserved	false
-linear/luma	luma-negative-control	Unknown-generalization	Unknown-generalization	7/24	7/24	9/24	6/6	Preserved	Unknown-generalization	false
-radial/luma	luma-negative-control	Unknown-generalization	Unknown-generalization	7/24	7/24	9/24	8/8	Preserved	Unknown-generalization	false

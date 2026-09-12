@@ -1,6 +1,0 @@
-case	vanilla_exit	crystalline_exit	verdict	owner	next_action
-paint-only	0	1	PARTIAL	Value serialization	outside first causal complex-stroke gap
-cap-round	0	1	Violated	entities/geometry::Stroke	ADR-0127 confirmation
-join-bevel	0	1	Violated	entities/geometry::Stroke	ADR-0127 confirmation
-dash-dashed	0	1	Violated	entities/geometry::Stroke	ADR-0127 confirmation
-miter-limit-2	0	1	Violated	entities/geometry::Stroke	ADR-0127 confirmation

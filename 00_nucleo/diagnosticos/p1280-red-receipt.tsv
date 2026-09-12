@@ -1,2 +1,0 @@
-phase	measured_at	head	consumer_sha256	pre_candidate_sha256	command	exit	witness	status
-RED	2026-08-29T21:26:21-03:00	ad93af9e80213fc410ffeda1f4916b031b088474	856d1b0f25864eed55da9828f3a017ce2b2b5ff013d98ba777a811bf88f90e93	a0b41bd355724f8f067371ec4028ba2fff9f43a06a514bff553005e179a158cc	cargo test -p typst-infra p1280_seis_pares_polares_usam_servidor_adaptativo_em_fill_e_stroke -- --nocapture	101	linear/Oklch retained fallback before predicate promotion	EXPECTED-FAILURE

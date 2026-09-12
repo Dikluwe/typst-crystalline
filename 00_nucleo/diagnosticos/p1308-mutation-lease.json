@@ -1,9 +1,0 @@
-{
-  "granted_by": "/root",
-  "exclusive": true,
-  "no_other_builds": true,
-  "candidate_root": "/dev/shm/p1308-mutant-source.PmokqQ",
-  "target_dir": "/dev/shm/p1308-mutant-target.NV7BUV",
-  "expires_at": "2026-09-07T21:40:00+00:00",
-  "authority": "Root explicitly granted exclusive six-mutant build window; root only runs read-only release CLI matrices. No materialization/context copied."
-}

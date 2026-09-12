@@ -1,9 +1,0 @@
-field	value
-verdict	ACCEPTED_WITH_CONTRACTUAL_UNKNOWN
-contract	SEALED
-mutation_score	35/35=1.0
-fixtures	20 Preserved locais; 1 CMYK Unknown
-candidate_binary_sha256	769116ac7cbd288324a61a8d8697cef9be2108b0847d5476c97da19edbf02e03
-verifier_receipt_sha256	1c75b5a94fba0cbba872631515bc569261ff5473e4f30162e7fcc20b6206faca
-architecture	PDF/L1/ICC/dependencies sem delta atribuível a P1230
-limitation	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

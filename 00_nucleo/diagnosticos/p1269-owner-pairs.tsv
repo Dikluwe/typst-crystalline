@@ -1,5 +1,0 @@
-pair	population	all_gates	numeric	nonnumeric_failures	invalid_rejected	direct_inverse_repeat	mutation_score	opaque_successes	productive_promotion	classification
-linear/oklab	24/24	19/24	19/24		6/6	192/192	24/24	0/10	false	Numeric-Failures-Frozen
-radial/oklab	24/24	17/24	17/24		8/8	192/192	24/24	0/10	false	Numeric-Failures-Frozen
-linear/linear-rgb	24/24	18/24	18/24		6/6	192/192	24/24	0/10	false	Numeric-Failures-Frozen
-radial/linear-rgb	24/24	18/24	18/24		8/8	192/192	24/24	0/10	false	Numeric-Failures-Frozen

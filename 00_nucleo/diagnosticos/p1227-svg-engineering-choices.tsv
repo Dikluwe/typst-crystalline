@@ -1,8 +1,0 @@
-choice	decision	reason
-paint-transport	FrameItem Shape fill is Option Paint	Prevents irreversible L1 collapse before exporters
-svg-id	local deterministic pN with semantic dedup	ID spelling and defs order are mechanical
-native-gradient	linear and radial only when interpolation space is sRGB	SVG native interpolation otherwise does not preserve language morphology
-unsupported-fallback	retain first-color fallback and annotate data-crystalline-*-fallback	Avoids deleting geometry while preventing the lens from claiming Preserved
-conic	Unknown with explicit marker	No sealed geometric/chromatic approximation contract
-tiling	resolved size plus Color body only	Other bodies are opaque in the current L1 model
-other-exporters	receive Paint intact and retain their existing explicit fallback paths	P1227 changes transport and SVG; it does not silently redefine PDF/raster policy

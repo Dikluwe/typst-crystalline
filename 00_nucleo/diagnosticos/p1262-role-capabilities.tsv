@@ -1,7 +1,0 @@
-role	executor	environment	read_allowlist	write_allowlist	inherited_context	isolation_verdict
-intent-author	human + typst-passo-1262.md	repository working tree	typst-passo-1262.md;P1260 frontiers	NONE	current task	frozen input, not independently re-authored
-contract-author	/root	repository working tree	P1262 step;P1260 frontiers;P1231 budgets;P1261 receipts;vanilla source;adaptive and SVG L0	03_infra/src/export/gradients/adaptive.rs tests;03_infra/src/export/svg.rs tests;lab/parity/matrix/p1262_saturated.py	full current task	not isolated from later implementation
-oracle-author	P1231 frozen oracle + /root integration	/tmp frozen oracle;repository runner	P1231 build.py;fixtures;budgets;ratified vanilla	P1262 diagnostic outputs	full current task	frozen oracle inputs, integration not isolated
-adversary	/root	repository runner	frozen contract;boundary matrix;candidate and vanilla probes	p1262-attacks.tsv	full current task	not isolated from contract author
-implementer	/root	repository working tree	adaptive and SVG L0;GREEN contract	00_nucleo/prompts/infra/export/gradients/adaptive.md;00_nucleo/prompts/infra/export/svg.md;03_infra/src/export/gradients/adaptive.rs;03_infra/src/export/svg.rs	full current task	not isolated from contract or verifier
-verifier	deterministic runners under /root	repository working tree	all frozen inputs;candidate outputs	P1262 receipts and summary	full current task	cannot attest authority isolation

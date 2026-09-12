@@ -1,9 +1,0 @@
-field	value
-regime	protocolo-completo-em-modo-ensaio
-manifest_sha256	25e4ae42bb55f3e0747ca2e7f68a85ad146f1c9fba20ddc14d88ac7ff9dac980
-contract_authority	p1229_contract
-oracle_authority	p1229_oracle
-attack_authority	p1229_adversary
-verdict_authority	p1229_verifier
-shared_filesystem	true
-isolation_attested	false

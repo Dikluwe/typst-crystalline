@@ -1,8 +1,0 @@
-observable	direct	inverse	verdict
-scale-1-sha256	b34af9e8467e0f54ba547cb8ca66ff49771512bfb293579129cfdb60890f5cd0	b34af9e8467e0f54ba547cb8ca66ff49771512bfb293579129cfdb60890f5cd0	Preserved
-scale-2-sha256	162360722b31fd1ab6b4883b05537b92d719f8d8fd55ff642db93199aaa0145c	162360722b31fd1ab6b4883b05537b92d719f8d8fd55ff642db93199aaa0145c	Preserved
-scale-4-sha256	0cf8c4a4547e75ba1b9ff72db3009f94a3d5ca4bcfd882764fa3731cf6a1fc42	0cf8c4a4547e75ba1b9ff72db3009f94a3d5ca4bcfd882764fa3731cf6a1fc42	Preserved
-unit-controls	7/7	7/7	PASS
-mutation-score	-	NOT_CLAIMED	No executable mutation suite
-unsupported-or-broken	Unknown	Unknown	No implicit success
-svg-promotion	none	none	Unchanged

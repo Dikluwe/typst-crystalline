@@ -1,7 +1,0 @@
-round	unary_total	unary_exact	p1216_p1217_total	p1216_p1217_exact	compile_positive_green	compile_error_message_region_green	classification
-1	16	16	58	58	3/3	3/3	GREEN
-2	16	16	58	58	3/3	3/3	GREEN
-
-# provenance: HEAD=3f0a2638fffd8cddc0fde6e83058f69dedc7d838; working tree non-committed; measurement 2026-08-26 America/Sao_Paulo
-# vanilla_sha256=7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
-# compile path presentation differs (vanilla ../../..FILE, crystalline FILE); message, exit and highlighted region are equal.

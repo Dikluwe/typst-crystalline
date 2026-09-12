@@ -1,6 +1,0 @@
-control	basis	artifact	sha256	result	status
-P1234	P1271 receipt plus byte-identical candidate	p1234-precision-summary.json	1240006fabb97b9e904c5af7f3320c1b9035f381e35c1b149bf586a3cc95a77c	15 fixtures;30 probes;public_divergences=0	Preserved-by-identity
-P1236	P1271 receipt plus byte-identical candidate	p1236-alpha-summary.json	ea14d76b78b7455f920112842c6d5cf272fa67c5b46a24147c51d4557cf1fb78	42 pairs;luma_max=0;unknown=0	Preserved-by-identity
-P1237	frozen recompute identity retained	p1237-oklab-linear-rgb-summary.json	3fa9ed98deecdc4152a1e9b43e59928a14086d8425b4df33a830bae8db44dd9d	frozen pre-correction baseline reproduced by P1271	Preserved-by-identity
-P1264	P1271 receipt plus unchanged frozen certificate	p1264-summary.json	f2955ad649543b895da928975f577b0b2faa5e3ca306ff41cc97ed3fdce7a574	four pair-local Preserved-fragment;7/7 mutants	Preserved-by-identity
-sRGB	current workspace tests plus unchanged candidate binary from P1271	target/debug/typst	f152d0dead810054996bdc8e1450022746b7dd2405d73d3237baa024297ae555	workspace PASS;candidate byte-identical to P1271	Preserved-by-identity

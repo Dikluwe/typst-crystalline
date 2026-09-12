@@ -1,7 +1,0 @@
-field	value
-mutants	18
-rejected	18
-mutation_score	1.0
-attacks_sha256	4c4b6a94d9bb5b85ae3d08e081fb44d9a710be0fdf9696d031a31fd2436c57ba
-discrimination_sha256	b5e8dc500dc2b69dce54fe44de9e4eb3ae8b5721f349a43a88dc4e373d4d243f
-seal_sha256	695092467ebd54d575189579eb3346b6a0ffeb5477ff9c5525d02e59fc4cf0c2

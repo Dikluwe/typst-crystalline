@@ -1,9 +1,0 @@
-fixture_id	pair	seed	role	box	expected_support	positive_pixels	bbox	alpha_digest	graph_closed	status
-S20-linear-oklab	linear/oklab	S20	stroke	zero-width	positive-stroke	1920	234,120,246,280	5194dcd22f53b6e646e965ebfb88a9788bbc1b01dd4165937cbc7e3bd6379e05	true	Measured
-S20-radial-oklab	radial/oklab	S20	stroke	zero-width	positive-stroke	1920	234,120,246,280	5194dcd22f53b6e646e965ebfb88a9788bbc1b01dd4165937cbc7e3bd6379e05	true	Measured
-S20-linear-linear-rgb	linear/linear-rgb	S20	stroke	zero-width	positive-stroke	1920	234,120,246,280	5194dcd22f53b6e646e965ebfb88a9788bbc1b01dd4165937cbc7e3bd6379e05	true	Measured
-S20-radial-linear-rgb	radial/linear-rgb	S20	stroke	zero-width	positive-stroke	1920	234,120,246,280	5194dcd22f53b6e646e965ebfb88a9788bbc1b01dd4165937cbc7e3bd6379e05	true	Measured
-S21-linear-oklab	linear/oklab	S21	fill	zero-height	zero-fill	0	none	ea0787f65f73b0013d03b359490e3125211b28ad5c1502ffb1544c0ded4192f5	true	Measured
-S21-radial-oklab	radial/oklab	S21	fill	zero-height	zero-fill	0	none	ea0787f65f73b0013d03b359490e3125211b28ad5c1502ffb1544c0ded4192f5	true	Measured
-S21-linear-linear-rgb	linear/linear-rgb	S21	fill	zero-height	zero-fill	0	none	ea0787f65f73b0013d03b359490e3125211b28ad5c1502ffb1544c0ded4192f5	true	Measured
-S21-radial-linear-rgb	radial/linear-rgb	S21	fill	zero-height	zero-fill	0	none	ea0787f65f73b0013d03b359490e3125211b28ad5c1502ffb1544c0ded4192f5	true	Measured

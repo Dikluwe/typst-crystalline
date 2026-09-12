@@ -1,9 +1,0 @@
-case	input_relation	expected	witness
-alpha-id	same symbol/path; IDs differ	Preserved	test_alpha_renames_ids_and_resolves_references
-path-whitespace	same path tokens; whitespace differs	Preserved	test_alpha_renames_ids_and_resolves_references
-neutral-group-split	equal composed matrix; group boundary differs	Preserved	test_neutral_group_split_is_preserved
-paint-order	two glyph paints reversed	Violated	test_child_order_is_observable
-transform	different composed translation	Violated	test_transform_difference_is_violated
-broken-reference	use points to absent ID	Unknown	test_broken_reference_is_unknown
-unsupported-paint	circle/shape outside focal vocabulary	Unknown	test_unsupported_paint_is_unknown
-canvas-tolerance	delta <= 1e-9 pt	Preserved	P1138-X-001 width 1.812e-10; height 4.724e-10; raster 0 differing channels

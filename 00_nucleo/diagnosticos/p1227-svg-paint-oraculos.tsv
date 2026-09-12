@@ -1,7 +1,0 @@
-field	value
-canonical_fixtures	/tmp/p1227-isolation/oracles/fixtures.tsv sha256 b467bac40f5b9ffc218d7d117d1f7d623fdd31aebb05f61ecd640595ffdbfe4d
-canonical_results	/tmp/p1227-isolation/oracles/oracles.tsv sha256 59aa66b7e017f834f27041285362a37a9c79fb6e335e8af728be83b148586a89
-public_accepted	9 fixtures deterministic twice
-public_rejected	out-of-order stops: offsets must be in monotonic order
-modeled	linear fill; radial focal; gradient stroke; reuse; transforms/relative; tiling fill/stroke; nested tiling
-unknown	conic without budget; eight color spaces without conversion contract

@@ -1,5 +1,0 @@
-attempt	class	result	used_for_verdict
-A01	counterfactual-loader	first repr-all import omitted dataclass module registration	false
-A02	build-network	probe build attempted unavailable registry; offline retry used	false
-A03	build-storage	separate probe target filled volume and linker aborted; generated target removed	false
-A04	verdict-rounding	ten p95-only violations retained as Unknown; no budget widening	false

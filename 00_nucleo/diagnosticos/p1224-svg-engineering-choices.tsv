@@ -1,6 +1,0 @@
-choice	decision	reason
-legacy-literals	struct update with Stroke::default()	mechanical compatibility for 147 constructors
-dash-dot	LineWidth domain variant	preserve information until thickness is effective
-svg-attributes	late serialization from Stroke	avoid reconstructing discarded data
-cli-repr	gated, not implemented	changes public default eval JSON behavior
-paths	deferred	new ADR-0127 gate interrupts execution before readjudication

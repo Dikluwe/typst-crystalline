@@ -1,8 +1,0 @@
-surface	graph_pass	numeric_pass	classification	witness
-Luma/Linear-Radial	42/42 luminance	28 Preserved;14 Known-Upstream-Bug	LUMINANCE_PRESERVED_ALPHA_UPSTREAM_BUG	P1236 summary
-Oklab-public-L1	30/30 probes	public divergences 0	PRESERVED_FOCAL	P1234 summary
-Linear/Oklab	6/6	0/6	Unknown-native-approximation	regression-linear-oklab-base-square-fill
-Radial/Oklab	6/6	0/6	Unknown-fallback	candidate-radial-oklab-base-square-fill
-Linear/LinearRgb	6/6	3/6	Unknown-native-approximation	regression-linear-linear-rgb-two-wide-stroke
-Radial/LinearRgb	6/6	3/6	Unknown-fallback	candidate-radial-linear-rgb-two-wide-stroke
-SVG-total	24/24	6/24	NO_PROMOTION	four pair-local failures retained

@@ -1,4 +1,0 @@
-run	command	elapsed_seconds	exit	result	provenance
-1	cargo test --workspace p1137_watch_dependencias_recuperacao_e_filtro -- --exact	2.18	0	GREEN	HEAD 0a0fabe05cd001802c6dfcfffb183f7651ab17d1; working tree uncommitted; 2026-08-26
-2	cargo test --workspace p1137_watch_dependencias_recuperacao_e_filtro -- --exact	2.29	0	GREEN	HEAD 0a0fabe05cd001802c6dfcfffb183f7651ab17d1; working tree uncommitted; 2026-08-26
-3	cargo test --workspace p1137_watch_dependencias_recuperacao_e_filtro -- --exact	2.12	0	GREEN	HEAD 0a0fabe05cd001802c6dfcfffb183f7651ab17d1; working tree uncommitted; 2026-08-26

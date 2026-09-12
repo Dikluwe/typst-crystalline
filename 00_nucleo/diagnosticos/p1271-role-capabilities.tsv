@@ -1,6 +1,0 @@
-role	executor	environment	read_allowlist	write_allowlist	context	attestation
-obligation-owner	/root	shared workspace	P1271; sealed P1270 receipts	P1271 manifest and L0 proposals	full inherited conversation	process/causal segregation only
-contract-and-test-author	/root	shared workspace	P1271; frozen L0; P1270 causes; vanilla baseline	test-only owners and diagnostic receipts	full inherited conversation	no independent technical isolation
-implementer	/root	shared workspace	sealed contract; L0; productive owners	productive owners only	full inherited conversation	cannot claim A/B blindness
-attacker	/root	shared workspace	sealed contract; baseline; candidate outputs	attack receipts only	full inherited conversation	cannot edit budgets/baseline/oracles
-verifier	/root	shared workspace	manifest; seal; receipts; candidate outputs	verdict/report only	full inherited conversation	same authority; no independent attestation

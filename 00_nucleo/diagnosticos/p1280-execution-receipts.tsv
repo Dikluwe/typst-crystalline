@@ -1,5 +1,0 @@
-run	population	primary_sha256	reproduction	status
-preseal	14 contract claims / 18 attacks	2ee310e37634432eb98ca9fb74f7c10aa60e90509cd03e5b20365ab8ac313cf8	sealed inputs reverified at materialization	ACCEPTED
-product-direct	192 product + 56 invalid + 384 determinism	1f12d336b7196c8a7d986f4ee9a14c0da7ed6af6605710c0a394bfcd0f2e54ef	matched product-repro	ACCEPTED
-product-repro-reverse	192 product + 56 invalid + 384 determinism	1f12d336b7196c8a7d986f4ee9a14c0da7ed6af6605710c0a394bfcd0f2e54ef	matched product-direct	ACCEPTED
-language-envelope-inherited-P1279	144 polar fixtures / numeric + raster + graph + cost	8f44e3ac8da2b9f75ee075f0656a7917f8039c39734e1cef12951ca21916c1a3	immutable predecessor manifest and certificate reverified	ACCEPTED-ROUTING-DELTA-ONLY

@@ -1,6 +1,0 @@
-id	mutation	expected_gate	result	witness
-M01	force alpha 1.0 in every conversion to Luma	p1252 unit and E2E tests fail	KILLED	three P1252 tests rejected alpha 1
-M02	preserve alpha only for directly constructed Luma; luma(color) opaque	public luma(color) test fails	KILLED	p1252_luma_color_preserva_alpha_known_upstream_bug
-M03	use the alpha adjudication to forgive or hide any luminance delta	P1239 exact luminance corpus fails independently	KILLED	P1239 records 42/42 zero luminance deltas while P1252 tests continue checking alpha
-M04	promote Linear/Radial Luma in SVG whitelist	P1231 closed-whitelist test fails	KILLED	missing explicit fallback for Luma
-M05	turn absence of issue into Preserved	contract C07 rejects classification	KILLED	C07 requires Unknown and bounded-search wording

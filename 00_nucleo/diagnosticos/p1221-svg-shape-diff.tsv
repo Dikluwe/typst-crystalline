@@ -1,5 +1,0 @@
-rank	fixture	before	after	category	source_file_line	inference	what_would_refute	next_action
-1	rect-fill	Preserved	Preserved	control	lab/parity/matrix/svg_morphology.py	path-vs-rect is mechanical for focal rectangle	different canonical corner	keep
-2	rect-stroke	Violated	Preserved	stroke paint/width	01_core/src/compiler/stdlib/shapes.rs:109	stdlib discarded Value::Stroke	post-patch public SVG mismatch	closed P1221
-3	line-stroke	Violated	Preserved	stroke paint/width	01_core/src/compiler/stdlib/shapes.rs:359	same causal parser gap	post-patch public SVG mismatch	closed P1221
-4	ellipse/rounded/complex-path	Unknown	Unknown	unsupported canonical geometry	lab/parity/matrix/svg_morphology.py	comparator scope remains partial	a sealed analytic canonicalizer	P1222 candidate

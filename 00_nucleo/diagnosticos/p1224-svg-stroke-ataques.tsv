@@ -1,8 +1,0 @@
-mutant	witness	status
-cap-round-to-square	S01	rejected
-join-bevel-to-miter	S02	rejected
-force-miter-default	S03	rejected
-sort-dash	S04	rejected
-LineWidth-to-zero	S04	rejected
-zero-negative-phase	S04	rejected
-discard-alpha	S05	rejected

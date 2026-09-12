@@ -1,5 +1,0 @@
-role	artifact	write_scope	read_scope	isolation
-oracle	p1279-oracle-budgets.tsv + temporary vanilla SVG/masks	oracle before candidate	frozen P1278 inputs and vanilla binary	logical-order-only
-harness-implementation	p1279_generalize.py	diagnostic transport only	P1278 harness, public metadata and frozen contract	not isolated
-adversary	p1279-offset-attacks.tsv	attack receipts	five oracle stopsets and product boundary	not isolated
-judge	p1279-final-pairs.tsv + certificate	adjudication only	all P1279 receipts	not isolated

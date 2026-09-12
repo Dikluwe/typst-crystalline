@@ -1,6 +1,0 @@
-role	executor	read_scope	write_scope	context	attestation
-intent-owner	dono humano	P1273 approved L0 and four named pairs	approval only	shared conversation	owner;not verifier
-sealed-contract	P1272/P1268 frozen artifacts	96-fixture contract;oracles;attacks	none	preexisting artifacts	protected hashes unchanged
-implementation	/root	approved L0;sealed contract	P1274 code and receipts	full shared context	not isolated
-verification	/root plus deterministic tools	P1272;P1274;candidate;run2 outputs	P1275 receipts	full shared context	not independent from implementation
-certificate	/root	all P1275 receipts	P1275 certificate and manifest	full shared context	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

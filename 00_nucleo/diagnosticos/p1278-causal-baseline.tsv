@@ -1,9 +1,0 @@
-pair	scope	p1277_valid	p1278_valid	valid_delta	p1277_numeric	p1278_numeric	p1277_raster	p1278_raster	population_stable
-linear/oklch	polar-refinement	14/24	22/24	8	15/24	22/24	23/24	24/24	true
-radial/oklch	polar-refinement	15/24	22/24	7	15/24	22/24	24/24	24/24	true
-linear/hsl	polar-refinement	14/24	23/24	9	14/24	23/24	24/24	24/24	true
-radial/hsl	polar-refinement	14/24	23/24	9	14/24	23/24	24/24	24/24	true
-linear/hsv	polar-refinement	13/24	22/24	9	13/24	22/24	24/24	24/24	true
-radial/hsv	polar-refinement	13/24	22/24	9	13/24	22/24	24/24	24/24	true
-linear/luma	negative-control	7/24	7/24	0	7/24	7/24	9/24	9/24	true
-radial/luma	negative-control	7/24	7/24	0	7/24	7/24	9/24	9/24	true

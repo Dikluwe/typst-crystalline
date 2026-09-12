@@ -1,4 +1,0 @@
-round	matrix_cases	byte_identical	known_semantic_diffs	result_sha256
-1	24	20	fraction;decimal-int;ratio-relative;datetime	08d015c40515a216a4fd046382facd930966071377b037666e716c775a1cf39a
-2	24	20	fraction;decimal-int;ratio-relative;datetime	08d015c40515a216a4fd046382facd930966071377b037666e716c775a1cf39a
-compile	4	4 message+line+column+extent	path display differs: relative vanilla vs absolute crystalline	n/a

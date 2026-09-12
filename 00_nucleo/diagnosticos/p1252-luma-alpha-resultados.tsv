@@ -1,9 +1,0 @@
-observable	vanilla_ratified	crystalline	classification
-source-red-transparentize-60	alpha 40%	alpha 40%	Preserved
-non-luma-to-luma	54.02% alpha 100%	54.02% alpha 40% after P1239	Known-Upstream-Bug only for alpha; luminance Preserved in measured fragment
-direct-luma-alpha	54.02% alpha 40%	54.02% alpha 40%	Preserved
-linear-stop-to-luma	54.02% alpha 100%	54.02% alpha 40% after P1239	Known-Upstream-Bug only for alpha; luminance Preserved in measured fragment
-radial-stop-to-luma	54.02% alpha 100%	54.02% alpha 40% after P1239	Known-Upstream-Bug only for alpha; luminance Preserved in measured fragment
-conic-stop-to-luma	54.02% alpha 100%	54.02% alpha 40% after P1239	Known-Upstream-Bug only for alpha; P1239 public focal witness updated
-luminance-delta	baseline 54.02%	54.02% after P1239	Resolved-by-P1239; 42/42 Linear/Radial P1236 pairs without luminance delta
-svg-whitelist	no claim from P1252	unchanged sRGB-only Linear/Radial	Unknown for Luma

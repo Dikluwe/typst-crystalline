@@ -1,7 +1,0 @@
-role	authority	artifact	sha256	capability
-contract	p1228_contract	/tmp/p1228-isolation/contract/contract.tsv	009fb653d9258208a68fe4ca9c92f9964b6df17531a459c097197db2db80a5a8	contract-only; no candidate patch
-oracle	p1228_oracles	/tmp/p1228-isolation/oracles/oracles.tsv	cfb00cf041cfa0d9365d244a464162227b79d42d6a7f001dcfffed5ef6cac06b	vanilla A-H; no candidate implementation
-adversary	p1228_adversary	/tmp/p1228-isolation/attacks/attacks.tsv	41b852fc6fc74212771c15f74df10921a2fa64685a4c0bef7eebf62b4bb396d6	mutants from sealed contract; no candidate implementation
-implementation	root	01_core/src/compiler/layout/shape.rs	pending-working-tree	L0/test/implementation; no verdict authority
-verification	p1228_verifier	/tmp/p1228-isolation/verify/results.tsv	433551e3d234495fbedf053ea8629fdfbdcf5f6a02878c896e7b21d1dc1d7338	read-only candidate adjudication
-isolation	shared-filesystem	N/A	N/A	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

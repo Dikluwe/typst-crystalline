@@ -1,6 +1,0 @@
-budget	regra
-color_max	candidate <= max(0.001, vanilla) + 0.000001
-color_p95	candidate <= vanilla + 0.000001
-alpha_max_p95	candidate <= envelope vanilla correspondente + 0.000001
-cost	cap 64; máximo estrutural 129 stops para dois intervalos
-mask	grafo e geometria local; proibido derivar de cor, alpha ou erro

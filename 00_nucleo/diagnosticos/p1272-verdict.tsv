@@ -1,8 +1,0 @@
-scope	verdict	evidence	boundary
-linear/oklab	Generalization-Preserved	24/24 G01-G13;6/6 invalid;24/24 mutants;zero necessary Unknown	Frozen 24-fixture pair-local fragment only
-radial/oklab	Generalization-Preserved	24/24 G01-G13;8/8 invalid;24/24 mutants;zero necessary Unknown	Frozen 24-fixture pair-local fragment only
-linear/linear-rgb	Generalization-Preserved	24/24 G01-G13;6/6 invalid;24/24 mutants;zero necessary Unknown	Frozen 24-fixture pair-local fragment only
-radial/linear-rgb	Generalization-Preserved	24/24 G01-G13;8/8 invalid;24/24 mutants;zero necessary Unknown	Frozen 24-fixture pair-local fragment only
-aggregate	Generalization-Preserved	96/96 fixtures;384/384 numeric metrics;1224/1224 interval costs;192/192 determinism	No general SVG equivalence claim
-productive-default	UNCHANGED	96/96 product-boundary rows preserve fallback	No promotion authorized;P1273 is next route
-P1272	EXECUTED	build/tests/fmt/diff/lint PASS	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

@@ -1,6 +1,0 @@
-id	input	expected
-S01	cap round	LineCap::Round and stroke-linecap round
-S02	join bevel	LineJoin::Bevel and stroke-linejoin bevel
-S03	miter-limit 2	2.0 and stroke-miterlimit 2
-S04	dash [3pt, dot], phase -0.5, width 2	ordered [3,2], dashoffset -0.5
-S05	paint rgba alpha 128	rgba alpha preserved

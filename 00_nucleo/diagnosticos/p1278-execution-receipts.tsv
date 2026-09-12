@@ -1,5 +1,0 @@
-run	population	primary_sha256	reproduction	status
-general-direct	192 fixtures + 56 invalid + 384 determinism	4172653e3198a7d9756288b52c1fe6c64caf8054ff079082235fafffe55d5d94	matched-general-repro	ACCEPTED
-general-repro	192 fixtures + 56 invalid + 384 determinism	4172653e3198a7d9756288b52c1fe6c64caf8054ff079082235fafffe55d5d94	matched-general-direct	ACCEPTED
-focal-direct	48 groups / 336 observations	f6dabe249c0d5c3a27d4296961a37c0428f1842c1e6cb3928e5eaddae3771992	matched-focal-inverse	ACCEPTED
-focal-inverse	48 groups / 336 observations	f6dabe249c0d5c3a27d4296961a37c0428f1842c1e6cb3928e5eaddae3771992	matched-focal-direct	ACCEPTED

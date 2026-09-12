@@ -1,8 +1,0 @@
-id	boundary	obligation	adjudication
-C01	public-source	red.transparentize(60%) exposes alpha 40%	Preserved in both systems
-C02	non-luma-to-luma	conversion preserves alpha in crystalline	Known-Upstream-Bug; not vanilla parity
-C03	direct-luma	luma(lightness, alpha) preserves explicit alpha	Preserved public construction
-C04	gradient-normalization	Linear Radial Conic keep source alpha with space luma	Known-Upstream-Bug in crystalline
-C05	luminance-gap	original 54.01% versus vanilla 54.02% stays independent from alpha; P1239 later closes the measured delta	Resolved-by-P1239 for 42/42 Linear/Radial P1236 pairs; never forgiven by alpha decision
-C06	svg-boundary	no Linear or Radial Luma promotion	Unknown with explicit gradient-color-space fallback
-C07	issue-search	no specific issue found by bounded official search	Unknown; absence is not proof

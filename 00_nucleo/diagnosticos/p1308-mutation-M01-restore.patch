@@ -1,7 +1,0 @@
-*** Begin Patch
-*** Update File: /dev/shm/p1308-mutant-source.PmokqQ/01_core/src/compiler/eval/operators/arithmetic.rs
-@@
-         (BinOp::Add, a @ Value::Args(_), b @ Value::Args(_)) => super::join::join(a, b),
-+        (BinOp::Add, a @ Value::Args(_), Value::None) => Ok(a),
-         (BinOp::Add, Value::None, a @ Value::Args(_)) => Ok(a),
-*** End Patch

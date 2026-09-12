@@ -1,9 +1,0 @@
-pair	scope	general	general_valid	focal	focal_preserved	invalid_rejected	product_fallback	final_classification	productive_promotion
-linear/oklch	polar-refinement	Unknown-generalization	22/24	Focal-Preserved	42/42	6/6	Preserved	Unknown-generalization	false
-radial/oklch	polar-refinement	Unknown-generalization	22/24	Focal-Preserved	42/42	8/8	Preserved	Unknown-generalization	false
-linear/hsl	polar-refinement	Unknown-generalization	23/24	Focal-Preserved	42/42	6/6	Preserved	Unknown-generalization	false
-radial/hsl	polar-refinement	Unknown-generalization	23/24	Focal-Preserved	42/42	8/8	Preserved	Unknown-generalization	false
-linear/hsv	polar-refinement	Unknown-generalization	22/24	Focal-Preserved	42/42	6/6	Preserved	Unknown-generalization	false
-radial/hsv	polar-refinement	Unknown-generalization	22/24	Focal-Preserved	42/42	8/8	Preserved	Unknown-generalization	false
-linear/luma	negative-control	Unknown-generalization	7/24	Focal-Preserved	42/42	6/6	Preserved	Unknown-generalization	false
-radial/luma	negative-control	Unknown-generalization	7/24	Focal-Preserved	42/42	8/8	Preserved	Unknown-generalization	false

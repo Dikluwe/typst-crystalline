@@ -1,7 +1,0 @@
-scenario	stops	purpose
-seam-forward	Oklch rgb(230,0,140)->rgb(255,80,120); Hsl/Hsv rgb(255,0,43)->rgb(255,43,0)	short route across 360 in increasing direction
-seam-reverse	reverse seam-forward endpoints	short route across 360 in decreasing direction
-no-wrap	rgb(255,128,0)->rgb(0,255,128)	control whose hue separation is below 180deg
-low-chroma	rgb(128,128,128)->rgb(255,43,0)	undefined or degenerate hue at first endpoint
-alpha-first	first endpoint transparentize(60%)	alpha interpolation and first endpoint
-alpha-last	last endpoint transparentize(60%)	alpha interpolation and last endpoint

@@ -1,6 +1,0 @@
-observable	preserved	violated	unknown
-cap	same butt/round/square	value changed or discarded	input not evaluated
-join	same miter/round/bevel	value changed or discarded	input not evaluated
-miter-limit	same positive finite value	default forced or value changed	nonconstructible input
-dash	ordered lengths/LineWidth and phase equal	order/phase/item changed	paint server or unresolved external context
-alpha	same paint alpha	alpha discarded	unsupported paint server

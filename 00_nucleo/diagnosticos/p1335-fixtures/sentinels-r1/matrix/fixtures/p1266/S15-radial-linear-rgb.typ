@@ -1,5 +1,0 @@
-#set page(width: 360pt, height: 300pt, margin: 0pt, fill: none)
-#let g = (gradient.radial((red.transparentize(100%), 0%), (rgb(46, 204, 64), 0.291545189504373%), (blue.transparentize(70%), 2.33236151603499%), (yellow, 7.87172011661808%), (rgb(255, 0, 255).transparentize(35%), 18.6588921282799%), (red.transparentize(100%), 36.4431486880466%), (rgb(46, 204, 64), 62.9737609329446%), (blue.transparentize(70%), 100%), space: color.linear-rgb, center: (50%, 50%), radius: 60%, focal-center: (40%, 50%), focal-radius: 15%)).sharp(8)
-#let body = rect(width: 80pt, height: 220pt, fill: g)
-#let transformed = scale(x: 100%, y: -100%, body)
-#align(center + horizon, transformed)

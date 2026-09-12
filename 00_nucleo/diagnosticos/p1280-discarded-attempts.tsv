@@ -1,4 +1,0 @@
-attempt	class	result	used_for_verdict
-D01	auxiliary-probe-build	discarded after target-dir build exhausted disk; exact residue removed	false
-D02	auxiliary-probe-build-retry	discarded after shared target retry exhausted disk; exact residue removed	false
-D03	evidence-substitution	no substitution: immutable P1279 numeric/raster certificate was reverified by SHA-256	true

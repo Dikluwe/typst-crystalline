@@ -1,9 +1,0 @@
-pair	graph	numeric	raster	cost	valid	invalid_rejected	unknown	classification	productive_promotion
-linear/oklch	24/24	22/24	24/24	24/24	22/24	6/6	0	Unknown-generalization	false
-radial/oklch	24/24	22/24	24/24	24/24	22/24	8/8	0	Unknown-generalization	false
-linear/hsl	24/24	23/24	24/24	24/24	23/24	6/6	0	Unknown-generalization	false
-radial/hsl	24/24	23/24	24/24	24/24	23/24	8/8	0	Unknown-generalization	false
-linear/hsv	24/24	22/24	24/24	24/24	22/24	6/6	0	Unknown-generalization	false
-radial/hsv	24/24	22/24	24/24	24/24	22/24	8/8	0	Unknown-generalization	false
-linear/luma	24/24	7/24	9/24	24/24	7/24	6/6	0	Unknown-generalization	false
-radial/luma	24/24	7/24	9/24	24/24	7/24	8/8	0	Unknown-generalization	false

@@ -1,2 +1,0 @@
-population_fixtures	failed_metrics	contract_error_metrics	product_divergence_metrics	unknown_metrics	budget_changes	baseline_changes	product_changes	adaptive_owner_status	gate	status
-24	28	16	12	0	0	0	0	exonerated under equivalent inputs	OPEN-FOR-MATERIALIZATION-IN-ORDER-C1-C2-C3-C4	CAUSALLY-DECOMPOSED

@@ -1,5 +1,0 @@
-choice	current_gap	output_before	output_after	upstream_issue_helped	immediate_consumer	public_surface_change	rejected_alternative	verdict
-ordered canonical path parser	Unknown ellipse/rounded/transforms	Unknown	Preserved/Violated discriminated	4702/6858 future SVG vocabulary analysis	svg morphology comparator	none	bbox/raster equivalence	accepted
-separate rounded fill/stroke writer	outer radius grew by half stroke	Violated	Preserved	future independent paint/text strategies	rounded stroke correction	none	force all shapes to vanilla path bytes	accepted
-private paint helper	duplicated rounded operations	combined paint	ordered fill then stroke	future metadata/paint hooks	current rounded exporter	none	public renderer registry	accepted
-select upstream feature	none causally eligible	vanilla-compatible default	unchanged	all candidates triaged	none	n/a	speculative flag or unsafe embedding	NO EXTENSION SELECTED
