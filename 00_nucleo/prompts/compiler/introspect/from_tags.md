@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: af056fe1
+Hash do Código: 8db50518
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -329,3 +329,15 @@ Carrier ausente em fixture obrigatória é Violated no harness, nunca fabricado
 ou Unknown. A resolução normal, `Context::none`, Args posicionais, ordem das
 ações, erro e estado continuam iguais; nenhum callback adicional é executado.
 Sem o cfg não há branch ou estado novo. O recorte é só o replay focal P1342.
+
+## P1353 — retirada do hook de observação
+
+A obrigação P1342 de alimentar o ledger condicionado por
+`p1339_observation` foi sucedida por P1353. O hook de observação do callback e
+seu carrier deixam de ser materializáveis. As medições antigas permanecem
+históricas, não fonte de linhagem para instrumentação residual.
+
+O fold produtivo do contador, sua ordenação, `Context::none`, argumentos,
+aplicação real da função, propagação de erro e atualização de estado permanecem
+inalterados. Não executar callback extra nem fabricar evento para substituir o
+hook retirado. Instrumentação futura requer nova medição, L0 e `cfg` declarado.

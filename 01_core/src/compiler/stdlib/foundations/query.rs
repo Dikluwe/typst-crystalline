@@ -62,7 +62,11 @@ pub fn native_query(
             None => Value::Location(loc),
         })
         .collect();
-    ctx.observe_context_read(crate::compiler::eval::ContextReadRequest::Query { selector }, args.span, Ok(Value::Array(values)))
+    ctx.observe_context_read(
+        crate::compiler::eval::ContextReadRequest::Query { selector },
+        args.span,
+        Ok(Value::Array(values)),
+    )
 }
 
 /// **P208C (M9c)** — `locate(kind)` — retorna a **primeira** Location
@@ -81,7 +85,11 @@ pub fn native_locate(
         Some(loc) => Value::Location(loc),
         None => Value::None,
     });
-    ctx.observe_context_read(crate::compiler::eval::ContextReadRequest::Locate { selector }, args.span, result)
+    ctx.observe_context_read(
+        crate::compiler::eval::ContextReadRequest::Locate { selector },
+        args.span,
+        result,
+    )
 }
 
 /// **P208B (M9c)** — `here()` — retorna a Location "actual" disponível
@@ -106,7 +114,11 @@ pub fn native_here(
              captura automática no walk é deferred)"
             .to_string()),
     };
-    ctx.observe_context_read(crate::compiler::eval::ContextReadRequest::Here, args.span, result)
+    ctx.observe_context_read(
+        crate::compiler::eval::ContextReadRequest::Here,
+        args.span,
+        result,
+    )
 }
 
 /// **P772w** — `target()` — devolve o alvo de exportação actual.

@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 8976361b
+Hash do Código: 03ed7777
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -259,3 +259,15 @@ Ownership 1:1: este prompt legitima somente
 e default-preserving de um literal exaustivo, mas depende de novo campo público
 em entidade; integra o mesmo gate humano ADR-0127 categoria 1 e não autoriza
 código antes da confirmação.
+
+## P1353 — retirada da identidade de telemetria
+
+O método de endereço de alocação exposto somente sob
+`p1339_observation` está aposentado e deixa de ser obrigação deste L0. As
+identidades runtime registradas em P1341/P1342 eram observações locais à célula
+e continuam apenas como evidência histórica; não legitimam API residual.
+
+A estrutura persistente, os defaults, `Arc`, clonagem O(1), resolução e APIs
+produtivas de `StyleChain` permanecem inalterados. Não fabricar outra
+identidade para substituir a retirada. Instrumentação futura exige nova
+medição, L0 e `cfg` formalizado em Cargo/check-cfg.

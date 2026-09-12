@@ -706,8 +706,12 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
         // P685 — Field access em valor-tipo
         Value::Type(t) => match (t, field) {
             (Type::Version, _) => crate::compiler::stdlib::version_type_field(field)
-                .ok_or_else(|| vec![SourceDiagnostic::error(span,
-                    format!("type version does not contain field \"{field}\""))]),
+                .ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        span,
+                        format!("type version does not contain field \"{field}\""),
+                    )]
+                }),
             (Type::Float, _) => crate::compiler::stdlib::float_type_field(field)
                 .ok_or_else(|| {
                     vec![SourceDiagnostic::error(

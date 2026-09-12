@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags.md
-//! @prompt-hash 40b375f6
+//! @prompt-hash 1bc222be
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -42,19 +42,22 @@ pub(crate) fn resolve_filtered_counter(
     span: crate::entities::span::Span,
     observer: &EvalContext,
 ) -> SourceResult<Vec<(crate::entities::location::Location, Vec<usize>)>> {
+    use crate::compiler::eval::operators::equality::counter_keys_eq;
     use crate::entities::counter::CounterKey;
     use crate::entities::value::Value;
-    use crate::compiler::eval::operators::equality::counter_keys_eq;
     let automatic = match key {
         CounterKey::Selector(selector) => intr.query(selector),
         _ => Vec::new(),
     };
-    let mut events: Vec<_> = intr.counters.actions().iter().filter(|event| {
-        match &event.key {
+    let mut events: Vec<_> = intr
+        .counters
+        .actions()
+        .iter()
+        .filter(|event| match &event.key {
             Some(manual) => counter_keys_eq(manual, key),
             None => automatic.contains(&event.location),
-        }
-    }).collect();
+        })
+        .collect();
     events.sort_by_key(|event| event.location.as_u128());
     let mut state = vec![0usize];
     let mut history = Vec::new();
@@ -72,13 +75,18 @@ pub(crate) fn resolve_filtered_counter(
                 context.features = observer.features.clone();
                 // Context::none: lexicais são da closure; introspecção não é
                 // herdada do corpo que demandou a sequência.
-                #[cfg(p1339_observation)]
-                observer.p1339_observe_callback(crate::compiler::eval::ContextCallbackKind::CounterFold);
                 let arguments = Args::from_parts(
                     state.iter().map(|n| Value::Int(*n as i64)).collect(),
-                    indexmap::IndexMap::default(), span,
+                    indexmap::IndexMap::default(),
+                    span,
                 );
-                let value = apply_func(function.clone(), arguments, scopes, &mut context, engine)?;
+                let value = apply_func(
+                    function.clone(),
+                    arguments,
+                    scopes,
+                    &mut context,
+                    engine,
+                )?;
                 state = match value {
                     Value::Int(n) if n >= 0 => vec![n as usize],
                     Value::Array(values) => values.into_iter().map(|value| match value {
@@ -164,7 +172,8 @@ pub fn apply_counter_funcs(
         };
 
         if matches!(key, crate::entities::counter::CounterKey::Selector(selector)
-            if crate::compiler::eval::operators::equality::selector_contains_element(selector)) {
+            if crate::compiler::eval::operators::equality::selector_contains_element(selector))
+        {
             continue;
         }
 

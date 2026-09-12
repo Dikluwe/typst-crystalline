@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/state` — objeto `state` e métodos
-Hash do Código: b4929ec0
+Hash do Código: cbb13196
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/state/language-semantics.toml sha256:27acb21a5e0b2e0cb3b65de61bba5266158f3e9828392fe92a1a3b160e9d61a4
@@ -266,3 +266,15 @@ value_to_content(&Value::Dict({"width": Length::pt(42.85), "height": Length::pt(
 value_to_content(&Value::Dict(IndexMap::default()))
   -> Content::text("(:)")   // dict vazio, paridade com repr_value (P695)
 ```
+
+## P1353 — retirada do hook temporário de `state.display`
+
+A chamada destinada exclusivamente ao ledger condicionado por
+`p1339_observation` foi sucedida por P1353 e deixa de ser obrigação
+materializável. A evidência P1342 permanece histórica, sem legitimar código de
+telemetria residual.
+
+Continuam vigentes a leitura contextual produtiva, a aplicação única do
+callback real, seus argumentos, resultado, erro e conversão em conteúdo.
+Nenhum callback adicional nem evento fabricado substitui o hook removido.
+Instrumentação futura requer nova medição, atualização L0 e `cfg` formalizado.

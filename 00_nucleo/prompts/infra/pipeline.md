@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 818d4bcb
+Hash do Código: 2d97726a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -688,3 +688,15 @@ estabilidade de páginas que não produziram. HTML mantém caminho semântico
 separado. A individualização não corrige show rules/P1037 incidentalmente,
 não altera features/defaults nem fecha o P1339. Os L0s de leituras e de eval
 permanecem proprietários da semântica e de sua revalidação.
+
+## P1353 — aposentadoria dos hooks de fronteira
+
+Os hooks `post_eval`, `compilation_returned` e `exporter_dispatched`, bem como o
+`include!` de testes externos condicionados por `p1339_observation`, foram
+sucedidos por P1353 e deixam de ser obrigação materializável. Seus registros
+anteriores continuam históricos, não fonte de linhagem para instrumentação.
+
+O pipeline produtivo preserva avaliação, introspecção, preparação contextual,
+layout, shaping e exportação nas mesmas fases e com os mesmos defaults. Não
+executar callback adicional nem fabricar observações de fronteira. Qualquer
+instrumentação futura exige nova medição, atualização L0 e `cfg` formalizado.

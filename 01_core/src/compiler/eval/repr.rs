@@ -1222,8 +1222,11 @@ mod tests {
             "heading.where(level: 1, outlined: true)"
         );
         let long = "a".repeat(60);
-        let rendered =
-            render([("body".into(), Value::Str(long.clone().into()))].into_iter().collect());
+        let rendered = render(
+            [("body".into(), Value::Str(long.clone().into()))]
+                .into_iter()
+                .collect(),
+        );
         assert!(rendered.starts_with("heading.where(\n"));
         assert!(rendered.contains(&long));
     }

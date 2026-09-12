@@ -23,9 +23,9 @@
 //! parâmetros engine/ctx (Funcs continuam ignoradas neste path
 //! coerente com semântica P171 pré-P191B).
 
-use std::collections::HashMap;
-use ecow::EcoString;
 use crate::entities::bib_entry::BibEntry;
+use ecow::EcoString;
+use std::collections::HashMap;
 
 pub mod convergence;
 pub mod extract_payload;
@@ -360,8 +360,14 @@ impl Introspector for TagIntrospector {
 
     fn query(&self, selector: &Selector) -> Vec<Location> {
         let mut result = match selector {
-            Selector::Element { function, fields } => self.elements.iter()
-                .filter(|(_, entry)| crate::compiler::eval::selector_matching::element_selector_matches(entry, function, fields))
+            Selector::Element { function, fields } => self
+                .elements
+                .iter()
+                .filter(|(_, entry)| {
+                    crate::compiler::eval::selector_matching::element_selector_matches(
+                        entry, function, fields,
+                    )
+                })
                 .map(|(location, _)| *location)
                 .collect(),
             Selector::Kind(kind) => self.query_by_kind(*kind),
@@ -440,7 +446,8 @@ impl Introspector for TagIntrospector {
                     .collect()
             }
         };
-        if crate::compiler::eval::operators::equality::selector_contains_element(selector) {
+        if crate::compiler::eval::operators::equality::selector_contains_element(selector)
+        {
             result.sort_by_key(|location| location.as_u128());
             result.dedup();
         }
@@ -1142,13 +1149,21 @@ fn populate_intr_from_tag_start(
     // Guardar a ação efetiva, antes de materializar snapshots. Escritas
     // auxiliares (figure:kind) não são novas ocorrências automáticas.
     let automatic = match &info.payload {
-        ElementPayload::NativeElement | ElementPayload::Footnote { .. }
+        ElementPayload::NativeElement
+        | ElementPayload::Footnote { .. }
         | ElementPayload::Citation { .. } => Some(CounterUpdate::step()),
-        ElementPayload::Heading { depth, numbering_active: true, .. } =>
-            Some(CounterUpdate::Step(std::num::NonZeroUsize::new((*depth as usize).max(1)).unwrap())),
+        ElementPayload::Heading { depth, numbering_active: true, .. } => {
+            Some(CounterUpdate::Step(
+                std::num::NonZeroUsize::new((*depth as usize).max(1)).unwrap(),
+            ))
+        }
         ElementPayload::Figure { is_counted: true, counter_update, .. }
-        | ElementPayload::Table { is_counted: true, counter_update, .. } => Some(counter_update.clone()),
-        ElementPayload::Equation { block: true, numbering_active: true, .. } => Some(CounterUpdate::step()),
+        | ElementPayload::Table { is_counted: true, counter_update, .. } => {
+            Some(counter_update.clone())
+        }
+        ElementPayload::Equation { block: true, numbering_active: true, .. } => {
+            Some(CounterUpdate::step())
+        }
         _ => None,
     };
     if let Some(action) = automatic {

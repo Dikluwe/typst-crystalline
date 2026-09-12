@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash d7dc17f7
+//! @prompt-hash fab9c64a
 //! @layer L3
 //! @updated 2026-09-10
 //!
@@ -10,14 +10,6 @@ use super::*;
 use typst_core::entities::compiler_features::Features;
 use typst_core::entities::introspector::TagIntrospector;
 use typst_core::entities::location::Location;
-
-#[cfg(all(test, p1339_observation))]
-pub(super) mod observation {
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../00_nucleo/diagnosticos/p1340-implementation-pipeline-observer.rs"
-    ));
-}
 
 pub(super) struct Prepared {
     pub content: Content,
@@ -190,8 +182,6 @@ impl<'a> Session<'a> {
         let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
         let mut active_guards = Vec::new();
         let mut sink = TypstSink::new();
-        #[cfg(all(test, p1339_observation))]
-        observation::body_started(self, index, &mut sink);
         let route = Route::root().with_id(self.source.id());
         let result = {
             let mut tracked = sink.track_mut();
@@ -229,12 +219,6 @@ impl<'a> Session<'a> {
         node.selected |= selected;
         node.invalid = false;
         if let Some(previous) = node.current.replace(execution) {
-            #[cfg(all(test, p1339_observation))]
-            let previous = {
-                let mut previous = previous;
-                observation::execution_invalidated(self.source, &mut previous);
-                previous
-            };
             self.retired.push(previous);
         }
     }
@@ -248,8 +232,6 @@ impl<'a> Session<'a> {
                 .copied()
             {
                 self.execute(index, &self.original_intr.clone(), location);
-                #[cfg(all(test, p1339_observation))]
-                observation::discovery_completed(self, index);
             }
         }
         self.nodes.iter().any(|n| n.selected)
@@ -324,12 +306,6 @@ impl<'a> Session<'a> {
             self.discard_descendants(child);
             self.nodes[child].active = false;
             if let Some(old) = self.nodes[child].current.take() {
-                #[cfg(all(test, p1339_observation))]
-                let old = {
-                    let mut old = old;
-                    observation::execution_invalidated(self.source, &mut old);
-                    old
-                };
                 self.retired.push(old);
             }
         }
@@ -396,8 +372,6 @@ impl<'a> Session<'a> {
         let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
         let mut active_guards = Vec::new();
         let mut sink = TypstSink::new();
-        #[cfg(all(test, p1339_observation))]
-        observation::replay_started(self.source, &mut sink);
         let route = Route::root().with_id(self.source.id());
         let mut tracked = sink.track_mut();
         let mut local = TrackedMut::reborrow_mut(&mut tracked);
@@ -429,14 +403,10 @@ impl<'a> Session<'a> {
         }
         let mut history = vec![TagIntrospector::empty()];
         for attempt in 1..=5 {
-            #[cfg(all(test, p1339_observation))]
-            observation::attempt_started(attempt);
             let input = history.last().unwrap();
             for root in self.roots.clone() {
                 self.realize(root, input);
                 if self.impossible {
-                    #[cfg(all(test, p1339_observation))]
-                    observation::before_decision(self);
                     return (terminal(self.source, self.errors()), self.warnings());
                 }
             }
@@ -486,8 +456,6 @@ impl<'a> Session<'a> {
                 candidate.inject_pages(pages);
                 document = Some(doc);
             }
-            #[cfg(all(test, p1339_observation))]
-            observation::candidate_built(&candidate);
             // P1159 participates in this same budget even when selected reads
             // are page-independent. The first D cannot consume its own newly
             // realized numbering views: they belong to the next layout.
@@ -523,8 +491,6 @@ impl<'a> Session<'a> {
             }
             history.push(candidate.clone());
             if valid || attempt == 5 {
-                #[cfg(all(test, p1339_observation))]
-                observation::before_decision(self);
                 let mut warnings = self.warnings();
                 let errors = self.errors();
                 if !errors.is_empty() {
@@ -586,8 +552,6 @@ pub(super) fn prepare(
     let mut session = Session::new(content, intr, world, source, full_error, features);
     if session.discover() {
         if session.impossible {
-            #[cfg(all(test, p1339_observation))]
-            observation::before_decision(&session);
             (terminal(source, session.errors()), session.warnings())
         } else {
             session.stabilize(module)

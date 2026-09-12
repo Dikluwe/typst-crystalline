@@ -1,5 +1,5 @@
 # Prompt L0 — conversão limitada `array(bytes)`
-Hash do Código: 11f935ba
+Hash do Código: 6508a7d5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736
@@ -54,3 +54,15 @@ de float.to-bytes. Ordem/sinal/comprimento incorretos, descarte de sobras ou
 aceitação de Version refutam o recorte. Exigir sucessão discriminatória antes
 do código, ownership 1:1, V15/V26, build/testes e lint. Não afirmar paridade
 geral do construtor array ou conclusão do P1339 a partir deste pré-requisito.
+
+## P1353 — retirada do harness condicionado
+
+O módulo `include!` e o teste-oráculo externos condicionados por
+`p1339_observation` estão aposentados. P1353 sucede somente essa obrigação
+temporária; os resultados históricos conservam valor documental, mas não
+legitimam o harness após a sanitização.
+
+`native_array_bytes` e seus testes produtivos continuam regidos integralmente
+pelas cláusulas acima, sem mudança de conversão, ordem, sobras, diagnóstico ou
+avaliação. Nenhum callback ou observação substituta será criado. Instrumentação
+futura exige nova medição, L0 e `cfg` formalizado.

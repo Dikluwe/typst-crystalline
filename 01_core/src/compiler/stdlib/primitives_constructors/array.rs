@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/primitives-constructors/array.md
-//! @prompt-hash 15391e08
+//! @prompt-hash 7062ef75
 //! @layer L1
 //! @updated 2026-09-10
 
@@ -47,25 +47,6 @@ mod tests {
     use super::super::test_support::null_world;
     use crate::compiler::eval::eval_expression;
     use crate::entities::value::Value;
-
-    #[cfg(p1339_observation)]
-    mod independent_owner {
-        include!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../00_nucleo/diagnosticos/p1339-contract-array-owner-harness-r2.rs"
-        ));
-    }
-
-    #[cfg(p1339_observation)]
-    #[test]
-    fn p1339_array_frozen_owner_oracle() {
-        let world = null_world();
-        let mut ctx = crate::compiler::eval::EvalContext::new();
-        let file = super::super::test_support::test_file_id();
-        independent_owner::assert_array_owner(file, |args| {
-            super::native_array_bytes(&mut ctx, args, &world, file)
-        });
-    }
 
     #[test]
     fn p1339_array_bytes_preserves_unsigned_order_and_empty() {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash a49a7e39
+//! @prompt-hash ab3e7ac3
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -26,11 +26,11 @@ use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::layout::FixedMetrics;
 use crate::compiler::scopes::Scopes;
 use crate::contracts::world::{SysInputs, World};
-use crate::entities::ast::AstNode;
 #[cfg(test)]
 use crate::entities::ast::expr::UnOp;
 use crate::entities::ast::expr::{ArrayItem, BinOp, Expr};
 use crate::entities::ast::markup::Label as AstLabel;
+use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 #[cfg(test)]
 use crate::entities::counter_update::CounterUpdate as CounterAction;
@@ -62,7 +62,7 @@ pub(crate) mod cast;
 pub(crate) mod font_dict;
 mod math;
 pub(crate) mod operators;
-pub use cast::{CastError, cast_length};
+pub use cast::{cast_length, CastError};
 pub(crate) mod flow;
 pub use flow::FlowEvent;
 pub(crate) mod call_dispatch;
@@ -130,7 +130,7 @@ mod p1339_observer_local_tests {
     }
 
     #[test]
-    fn p1339_observation_real_state_replay_uses_captured_context() {
+    fn context_read_replay_uses_captured_context() {
         let world = MemoryWorld { library: Library::new(), book: FontBook::new() };
         let metrics = FixedMetrics;
         let route = Route::root().with_id(world.main());
@@ -181,7 +181,7 @@ mod p1339_observer_local_tests {
     }
 
     #[test]
-    fn p1339_observation_ieee_and_recursive_fields() {
+    fn observation_relation_ieee_and_recursive_fields() {
         let nan = Value::Float(f64::from_bits(0x7ff8000000001234));
         assert_eq!(nan.observation_relation(&nan.clone()), ObservationRelation::Same);
         assert_eq!(
@@ -196,63 +196,8 @@ mod p1339_observer_local_tests {
         assert_eq!(a.observation_relation(&b), ObservationRelation::Different);
     }
 
-    #[cfg(p1339_observation)]
     #[test]
-    fn p1340_binding_actual_relation_prefix_and_lossless_payloads() {
-        let world = MemoryWorld { library: Library::new(), book: FontBook::new() };
-        let metrics = FixedMetrics;
-        let route = Route::root().with_id(world.main());
-        let mut styles = StyleChain::default_chain();
-        let mut rules: Arc<[ShowRule]> = Arc::from([]);
-        let mut guards = Vec::new();
-        let mut sink = Sink::new();
-        let mut tracked = sink.track_mut();
-        let mut engine = Engine {
-            world: &world, font_metrics: &metrics, route: route.track(),
-            styles: &mut styles, show_rules: &mut rules, active_guards: &mut guards,
-            current_file: world.main(), sink: &mut tracked,
-        };
-        let mut ctx = EvalContext::new();
-        let location = crate::entities::locator::Locator::new().next();
-        ctx.in_context = true;
-        ctx.current_location = Some(location);
-        ctx.replace_context_read_styles(engine.styles.clone());
-        let state = crate::entities::state::State { key: "observed".into(), init: Box::new(Value::Int(1)) };
-        for _ in 0..2 {
-            crate::compiler::stdlib::state::state_get(&state, &ctx, Span::detached()).unwrap();
-        }
-        let mut candidate = crate::entities::introspector::TagIntrospector::empty();
-        assert!(ctx.context_reads_valid_for(&candidate, &mut engine).unwrap());
-        let first = ctx.p1340_observation_replays();
-        assert_eq!(first.as_array().unwrap().len(), 2);
-        assert!(first.as_array().unwrap().iter().all(|row| row["relation"] == "Same" && row["phase"] == "validation"));
-        candidate.state.init("observed".into(), Value::Int(2), location);
-        assert!(!ctx.context_reads_valid_for(&candidate, &mut engine).unwrap());
-        let second = ctx.p1340_observation_replays();
-        assert_eq!(second.as_array().unwrap().len(), 3);
-        assert_eq!(second[2]["relation"], "Different");
-        assert_eq!(second[2]["result"], serde_json::json!({"kind":"Ok","value":2}));
-        let recorded = ctx.p1340_observation_requests();
-        assert_eq!(recorded.as_array().unwrap().len(), 2);
-        assert_eq!(recorded[0]["request_id"], second[2]["request_id"]);
-        assert_eq!(recorded[0]["chain_id"], second[2]["chain_id"]);
-        assert_eq!(recorded[0]["result"], serde_json::json!({"kind":"Ok","value":1}));
-        assert!(comemo::internal::to_parts_mut_ref(engine.sink).0.is_empty());
-
-        let high = crate::entities::location::Location::from_raw(u128::MAX);
-        let fold = Value::Array(vec![Value::Array(vec![Value::Location(high), Value::Array(vec![Value::Int(9)])])]);
-        assert_eq!(p1340_observation_value(&fold), serde_json::json!([[{"Location":u128::MAX.to_string()},[9]]]));
-        let span = Span::from_raw(std::num::NonZeroU64::new(u64::MAX).unwrap());
-        assert_eq!(p1340_observation_span(span)["raw_span"], u64::MAX.to_string());
-        let mut diagnostic = SourceDiagnostic::error(span, "original").with_hint("ordered hint");
-        diagnostic.trace.push(crate::entities::span::Spanned::new(crate::entities::source_result::Tracepoint::Call(None), span));
-        let projected = p1340_observation_diagnostics(&[diagnostic]);
-        assert_eq!(projected[0]["trace"][0]["span"]["raw_span"], u64::MAX.to_string());
-        assert!(projected[0]["trace"][0]["payload"].is_null());
-    }
-
-    #[test]
-    fn p1339_observation_records_before_selection_and_preserves_error() {
+    fn context_read_records_before_selection_and_preserves_error() {
         let ctx = EvalContext::new();
         let result = Err(vec![SourceDiagnostic::error(Span::detached(), "read failed")]);
         let returned = ctx.observe_context_read(
@@ -266,197 +211,6 @@ mod p1339_observer_local_tests {
     }
 }
 
-#[cfg(all(test, p1339_observation))]
-mod p1339_frozen_observation_binding {
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../00_nucleo/diagnosticos/p1339-implementation-observer-core-wrapper-r3.rs"
-    ));
-
-    fn actual_relation(a: &Value, b: &Value) -> relation_harness::ActualDiscriminant {
-        match a.observation_relation(b) {
-            ObservationRelation::Same => relation_harness::ActualDiscriminant::Same,
-            ObservationRelation::Different => {
-                relation_harness::ActualDiscriminant::Different
-            }
-            ObservationRelation::Unproven => {
-                relation_harness::ActualDiscriminant::Unproven
-            }
-        }
-    }
-
-    struct StyleHooks {
-        sources: BTreeMap<u16, String>,
-    }
-    impl StyleHooks {
-        fn new() -> Self {
-            // Lossless rendering of the input provenance established by the
-            // frozen style harness: source IDs start at three, in operation
-            // order. This mapping reads only construction inputs, never
-            // expected results, styles, predicates, or a case classification.
-            let input: Json = serde_json::from_slice(include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/../00_nucleo/diagnosticos/p1339-ab-batch1-same-context-style-fixture.json"))).unwrap();
-            let sources = input["operations"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .filter(|operation| operation["op"] == "eval_expr")
-                .enumerate()
-                .map(|(index, operation)| {
-                    (
-                        u16::try_from(index + 3).unwrap(),
-                        operation["source_id"].as_str().unwrap().to_owned(),
-                    )
-                })
-                .collect();
-            Self { sources }
-        }
-
-        fn request(
-            &self,
-            ctx: &EvalContext,
-            read: &Arc<ContextRead>,
-            actual_styles: &StyleChain,
-            result: &SourceResult<Value>,
-        ) -> Json {
-            let file = read
-                .span
-                .id()
-                .expect("actual request span lacks source")
-                .into_raw()
-                .get();
-            json!({"actual_request_id":format!("{:p}", Arc::as_ptr(read)),
-                "actual_ctx_id":format!("{:p}", &ctx.context_reads),
-                "source_id":self.sources.get(&file).expect("actual request file is not in construction provenance"),
-                "chain_identity":match actual_styles.p1339_observation_identity() {Some(identity)=>format!("{identity:#x}"),None=>"empty".to_owned()},
-                "chain_size_pt_bits":format!("{:016x}",actual_styles.size().to_bits()),
-                "operation":"CounterFinal",
-                "result":match result {Ok(value)=>json!({"kind":"Ok","value":data_json(value)}),Err(ds)=>json!({"kind":"Err","diagnostic_count":ds.len()})}})
-        }
-    }
-    impl style_harness::ActualStyleHooks for StyleHooks {
-        fn begin(&mut self, ctx: &mut EvalContext, _: &mut Engine<'_>) {
-            ctx.context_reads.borrow_mut().observation =
-                ContextObservationTrace::default();
-        }
-        fn finish(&mut self, ctx: &EvalContext, engine: &Engine<'_>) -> Json {
-            let log = ctx.context_reads.borrow();
-            let recorded: Vec<_> = log
-                .reads
-                .iter()
-                .filter(|r| matches!(r.request, ContextReadRequest::CounterFinal { .. }))
-                .map(|r| self.request(ctx, r, &r.styles, &r.result))
-                .collect();
-            let replayed: Vec<_> = log
-                .observation
-                .replays
-                .iter()
-                .filter(|replay| {
-                    matches!(replay.read.request, ContextReadRequest::CounterFinal { .. })
-                })
-                .map(|replay| {
-                    self.request(ctx, &replay.read, &replay.actual_styles, &replay.result)
-                })
-                .collect();
-            json!({"recorded_requests":recorded,"replayed_requests":replayed,
-                "engine_chain_at_validation":{"chain_identity":match engine.styles.p1339_observation_identity() {Some(identity)=>format!("{identity:#x}"),None=>"empty".to_owned()},"chain_size_pt_bits":format!("{:016x}",engine.styles.size().to_bits())},
-                // Read the real caller's validation sink through comemo's
-                // read-only test surface; never synthesize an empty count.
-                "validation_sink_publications":comemo::internal::to_parts_mut_ref(engine.sink).0.clone().into_diagnostics().len()})
-        }
-    }
-
-    struct ProjectionHooks;
-    impl projection_harness::ActualProjectionHooks for ProjectionHooks {
-        fn begin(&mut self, ctx: &mut EvalContext) {
-            ctx.context_reads.borrow_mut().observation =
-                ContextObservationTrace::default();
-        }
-        fn phase(&mut self, ctx: &mut EvalContext, phase: &str) {
-            ctx.context_reads.borrow_mut().observation.phase = match phase {
-                "body" => ContextObservationPhase::Body,
-                "validation" => ContextObservationPhase::Validation,
-                "diagnostics" => ContextObservationPhase::Diagnostics,
-                _ => panic!("unknown test phase"),
-            };
-        }
-        fn finish(&mut self, ctx: &EvalContext) -> Json {
-            let log = ctx.context_reads.borrow();
-            let count = |phase, kind| {
-                log.observation
-                    .callbacks
-                    .iter()
-                    .filter(|entry| **entry == (phase, kind))
-                    .count()
-            };
-            let operations: Vec<_> = log
-                .reads
-                .iter()
-                .filter_map(|read| match read.request {
-                    ContextReadRequest::StateDisplay { .. } => {
-                        Some("state_display_value")
-                    }
-                    ContextReadRequest::CounterFinal { .. } => Some("counter_final"),
-                    _ => None,
-                })
-                .collect();
-            json!({"display_callback_invocations_during_body":count(ContextObservationPhase::Body,ContextCallbackKind::StateDisplay),
-                "display_callback_invocations_during_validation":count(ContextObservationPhase::Validation,ContextCallbackKind::StateDisplay),
-                "display_callback_invocations_during_diagnostics":count(ContextObservationPhase::Diagnostics,ContextCallbackKind::StateDisplay),
-                "numbering_callback_invocations_body":count(ContextObservationPhase::Body,ContextCallbackKind::PageNumbering),
-                "numbering_callback_invocations_validation":count(ContextObservationPhase::Validation,ContextCallbackKind::PageNumbering),
-                "numbering_callback_invocations_diagnostics":count(ContextObservationPhase::Diagnostics,ContextCallbackKind::PageNumbering),
-                "recorded_operations_in_order":operations,"counter_request_selector_contains_element":log.selected,
-                "retained_body_error_not_replaced_by_validation_success":matches!(log.observation.body_result,Some(Err(_)))})
-        }
-    }
-
-    #[test]
-    fn p1339_frozen_style_bound_matrix() {
-        style_harness::run_style_matrix(|| Box::new(StyleHooks::new()));
-    }
-
-    #[test]
-    fn p1339_frozen_core_bound_matrix() {
-        // Only the test harness consumes driver provenance. No environment
-        // access, executable identity or oracle reaches the productive relation.
-        let audit: Json = serde_json::from_str(
-            &std::env::var("P1339_BINDING_AUDIT_JSON")
-                .expect("independent binding audit required"),
-        )
-        .unwrap();
-        let source = audit["port_source_pins"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .find(|pin| {
-                pin["path"]
-                    .as_str()
-                    .unwrap()
-                    .ends_with("01_core/src/compiler/eval/mod.rs")
-            })
-            .expect("observer source pin missing");
-        let source_line = include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/compiler/eval/mod.rs"
-        ))
-        .lines()
-        .position(|line| {
-            line.starts_with("impl ObservationEq for crate::entities::value::Value")
-        })
-        .expect("actual productive Value relation missing")
-            + 1;
-        let identity = json!({"source_path":source["path"],"source_sha256":source["sha256"],
-            "source_line":source_line,"operation":"ObservationEq::observation_relation for Value",
-            "binary_sha256":std::env::var("P1339_TEST_BINARY_SHA256").unwrap(),
-            "config_sha256":std::env::var("P1339_COMPILED_CONFIGURATION_SHA256").unwrap()});
-        run_bound_core(
-            actual_relation,
-            &identity,
-            || Box::new(StyleHooks::new()),
-            || Box::new(ProjectionHooks),
-        );
-    }
-}
 // Mechanical declaration expansion: exhaustive matches and all-field destructuring.
 impl ObservationEq for crate::entities::content::Content {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
@@ -5248,8 +5002,6 @@ struct ContextReads {
     active_guards: Vec<RuleId>,
     current_file: Option<FileId>,
     reads: Vec<Arc<ContextRead>>,
-    #[cfg(p1339_observation)]
-    observation: ContextObservationTrace,
 }
 
 impl ContextReads {
@@ -5262,50 +5014,8 @@ impl ContextReads {
             active_guards: Vec::new(),
             current_file: None,
             reads: Vec::new(),
-            #[cfg(p1339_observation)]
-            observation: ContextObservationTrace::default(),
         }
     }
-}
-
-#[cfg(p1339_observation)]
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ContextCallbackKind {
-    StateDisplay,
-    PageNumbering,
-    CounterFold,
-}
-
-#[cfg(p1339_observation)]
-#[derive(Clone, Copy, PartialEq, Eq, Default)]
-enum ContextObservationPhase {
-    #[default]
-    Body,
-    Validation,
-    Diagnostics,
-}
-
-#[cfg(p1339_observation)]
-struct ContextReplayObservation {
-    read: Arc<ContextRead>,
-    // Clone retains the actual dispatch resource, including its Arc backing,
-    // so subsequent formatting cannot report the requested but unused chain
-    // or confuse a reused allocation address with the observed resource.
-    actual_styles: StyleChain,
-    result: SourceResult<Value>,
-    phase: ContextObservationPhase,
-    relation: Option<ObservationRelation>,
-    actual_context: serde_json::Value,
-}
-
-#[cfg(p1339_observation)]
-#[derive(Default)]
-struct ContextObservationTrace {
-    phase: ContextObservationPhase,
-    callbacks: Vec<(ContextObservationPhase, ContextCallbackKind)>,
-    replays: Vec<ContextReplayObservation>,
-    expression_depth: usize,
-    body_result: Option<SourceResult<Value>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -5324,7 +5034,11 @@ impl ObservationRelation {
         }
     }
     fn exact(same: bool) -> Self {
-        if same { Self::Same } else { Self::Different }
+        if same {
+            Self::Same
+        } else {
+            Self::Different
+        }
     }
 }
 
@@ -5628,252 +5342,7 @@ impl ObservationEq for dyn crate::entities::elements::dynamic::DynElement {
     }
 }
 
-#[cfg(p1339_observation)]
-use serde_json::Value as ObservationJson;
-
-/// Raw numbered spans stay decimal strings; the L3 binding resolves them against
-/// its actual retained Source, not a reconstructed source or expected location.
-#[cfg(p1339_observation)]
-fn p1340_observation_span(span: Span) -> ObservationJson {
-    serde_json::json!({"raw_span": span.into_raw().get().to_string(),
-        "file_id": span.id().map(|id| id.into_raw().get().to_string())})
-}
-
-#[cfg(p1339_observation)]
-pub fn p1340_observation_diagnostics(diagnostics: &[SourceDiagnostic]) -> ObservationJson {
-    use crate::entities::source_result::{Severity, Tracepoint};
-    ObservationJson::Array(diagnostics.iter().map(|diagnostic| {
-        let trace: Vec<_> = diagnostic.trace.iter().map(|point| {
-            let (kind, payload) = match &point.v {
-                Tracepoint::Call(name) => ("Call", name.clone()),
-                Tracepoint::Show(name) => ("Show", Some(name.clone())),
-                Tracepoint::Import(name) => ("Import", Some(name.clone())),
-                Tracepoint::Include(name) => ("Include", Some(name.clone())),
-            };
-            serde_json::json!({"kind":kind,"payload":payload,"span":p1340_observation_span(point.span)})
-        }).collect();
-        serde_json::json!({"severity": match diagnostic.severity {Severity::Error=>"Error",Severity::Warning=>"Warning"},
-            "span":p1340_observation_span(diagnostic.span),"message":diagnostic.message,
-            "hints":diagnostic.hints,"trace":trace})
-    }).collect())
-}
-
-/// The caller must retain the actual Func/producer until its transcript ends.
-/// Identity reports existing allocations; it never executes or compares a Func.
-#[cfg(p1339_observation)]
-pub fn p1340_observation_func(func: &Func) -> ObservationJson {
-    use crate::entities::func::FuncRepr;
-    let (kind, capture, body) = match &*func.0 {
-        FuncRepr::Closure(closure) => ("Closure", Some(format!("{:p}",Arc::as_ptr(&closure.captured))), Some(closure.body.span())),
-        FuncRepr::Native(_) => ("Native", None, None),
-        FuncRepr::NativeWithEngine(_) => ("NativeWithEngine", None, None),
-        FuncRepr::Element(_) => ("Element", None, None),
-        FuncRepr::Plugin(_) => ("Plugin", None, None),
-        FuncRepr::With(_) => ("With", None, None),
-    };
-    let mut value = serde_json::json!({"func_id":format!("{:p}",Arc::as_ptr(&func.0)),"kind":kind,
-        "capture_id":capture,"diagnostic_span_raw":func.diagnostic_span().into_raw().get().to_string(),
-        "body_span_raw":body.map(|span|span.into_raw().get().to_string())});
-    if let FuncRepr::With(partial) = &*func.0 {
-        value["target"] = p1340_observation_func(&partial.0);
-        value["arguments"] = p1340_observation_args(&partial.1);
-    }
-    value
-}
-
-#[cfg(p1339_observation)]
-fn p1340_observation_args(args: &crate::entities::args::Args) -> ObservationJson {
-    let named: Vec<_> = args.named.iter().map(|(name,value)|serde_json::json!([name.as_str(),p1340_observation_value(value)])).collect();
-    let occurrences = args.occurrences.as_ref().map(|items|items.iter().map(|item|serde_json::json!({
-        "name":item.name.as_ref().map(|name|name.as_str()),"value":p1340_observation_value(&item.value),
-        "span":p1340_observation_span(item.span),"value_span":p1340_observation_span(item.value_span)
-    })).collect::<Vec<_>>());
-    serde_json::json!({"items":args.items.iter().map(p1340_observation_value).collect::<Vec<_>>(),
-        "named":named,"span":p1340_observation_span(args.span),"occurrences":occurrences})
-}
-
-#[cfg(p1339_observation)]
-fn p1340_observation_selector(selector: &crate::entities::selector::Selector) -> ObservationJson {
-    use crate::entities::selector::Selector;
-    match selector {
-        Selector::Kind(kind) => serde_json::json!({"Kind":kind.as_str()}),
-        Selector::Element{function,fields} => serde_json::json!({"Element":{
-            "function":p1340_observation_func(function),
-            "fields":fields.iter().map(|(name,value)|serde_json::json!([name.as_str(),p1340_observation_value(value)])).collect::<Vec<_>>()}}),
-        Selector::Label(label) => serde_json::json!({"Label":label.0}),
-        Selector::Location(location) => serde_json::json!({"Location":location.as_u128().to_string()}),
-        Selector::And(items) => serde_json::json!({"And":items.iter().map(p1340_observation_selector).collect::<Vec<_>>()}),
-        Selector::Or(items) => serde_json::json!({"Or":items.iter().map(p1340_observation_selector).collect::<Vec<_>>()}),
-        Selector::Regex(regex) => serde_json::json!({"Regex":regex.pattern()}),
-        Selector::Where{base,field,value} => serde_json::json!({"Where":{"base":p1340_observation_selector(base),"field":field.as_str(),"value":p1340_observation_value(value)}}),
-        Selector::Within{base,ancestor} => serde_json::json!({"Within":{"base":p1340_observation_selector(base),"ancestor":p1340_observation_selector(ancestor)}}),
-    }
-}
-
-#[cfg(p1339_observation)]
-fn p1340_observation_counter_key(key: &crate::entities::counter::CounterKey) -> ObservationJson {
-    use crate::entities::counter::CounterKey;
-    match key {
-        CounterKey::Page => serde_json::json!({"Page":null}),
-        CounterKey::Str(text) => serde_json::json!({"Str":text.as_str()}),
-        CounterKey::Selector(selector) => serde_json::json!({"Selector":p1340_observation_selector(selector)}),
-    }
-}
-
-#[cfg(p1339_observation)]
-fn p1340_observation_content(content: &Content) -> ObservationJson {
-    match content {
-        Content::Empty => serde_json::json!({"Empty":null}),
-        Content::Text(text) => serde_json::json!({"Text":text.as_str()}),
-        Content::Space => serde_json::json!({"Space":null}),
-        Content::Parbreak => serde_json::json!({"Parbreak":null}),
-        Content::Sequence(items) => serde_json::json!({"Sequence":items.iter().map(p1340_observation_content).collect::<Vec<_>>()}),
-        Content::Metadata(metadata) => serde_json::json!({"Metadata":p1340_observation_value(&metadata.value)}),
-        Content::Label(label) => serde_json::json!({"Label":{"name":label.name.as_str(),"body":p1340_observation_content(&label.body),"auto":label.auto}}),
-        _ => serde_json::json!({"binding_gap":{"type":"Content","variant":content.elem_name()}}),
-    }
-}
-
-/// Ordered actions already recorded in the actual snapshot. Source spans and
-/// producer generations are owned by the L3 tag provenance, not this registry.
-#[cfg(p1339_observation)]
-pub fn p1340_observation_counter_events(registry: &crate::entities::counter_registry::CounterRegistry) -> ObservationJson {
-    use crate::entities::counter_update::CounterUpdate;
-    ObservationJson::Array(registry.actions().iter().map(|event| {
-        let action = match &event.action {
-            CounterUpdate::Set(values) => serde_json::json!({"kind":"Set","values":values}),
-            CounterUpdate::Step(level) => serde_json::json!({"kind":"Step","level":level.get()}),
-            CounterUpdate::Func(func) => serde_json::json!({"kind":"Func","func_id":format!("{:p}",Arc::as_ptr(&func.0))}),
-        };
-        serde_json::json!({"key":event.key.as_ref().map(p1340_observation_counter_key),
-            "location":event.location.as_u128().to_string(),"action":action})
-    }).collect())
-}
-
-/// Direct typed projection, not equality, repr, or an alternative evaluator.
-/// Unintegrated variants are explicit binding gaps rather than invented data.
-#[cfg(p1339_observation)]
-pub fn p1340_observation_value(value: &Value) -> ObservationJson {
-    match value {
-        Value::None => ObservationJson::Null,
-        Value::Bool(value) => serde_json::json!(value),
-        Value::Int(value) => serde_json::json!(value),
-        Value::Float(value) => serde_json::json!({"Float":{"bits":format!("{:016x}",value.to_bits())}}),
-        Value::Str(value) => serde_json::json!(value.as_str()),
-        Value::Array(items) => ObservationJson::Array(items.iter().map(p1340_observation_value).collect()),
-        Value::Dict(items) => ObservationJson::Object(items.iter().map(|(key,value)|
-            (key.to_string(),p1340_observation_value(value))).collect()),
-        Value::Func(func) => serde_json::json!({"Func":format!("{:p}",Arc::as_ptr(&func.0))}),
-        Value::Length(length) => serde_json::json!({"Length":{"abs_pt_bits":format!("{:016x}",length.abs.to_pt().to_bits()),"em_bits":format!("{:016x}",length.em.to_bits())}}),
-        Value::Location(location) => serde_json::json!({"Location":location.as_u128().to_string()}),
-        Value::Label(label) => serde_json::json!({"Label":label.0}),
-        Value::Auto => serde_json::json!({"Auto":null}),
-        Value::Selector(selector) => serde_json::json!({"Selector":p1340_observation_selector(selector)}),
-        Value::Counter(counter) => serde_json::json!({"Counter":p1340_observation_counter_key(&counter.key)}),
-        Value::State(state) => serde_json::json!({"State":{"key":state.key.as_str(),"init":p1340_observation_value(&state.init)}}),
-        Value::Args(args) => serde_json::json!({"Args":p1340_observation_args(args)}),
-        Value::Content(content) => serde_json::json!({"Content":p1340_observation_content(content)}),
-        Value::LocatedContent(content,location) => serde_json::json!({"LocatedContent":{
-            "location":location.as_u128().to_string(),"content":p1340_observation_content(content.content()),
-            "fields":content.fields().map(|fields|fields.iter().map(|(key,value)|serde_json::json!([key.as_str(),p1340_observation_value(value)])).collect::<Vec<_>>())}}),
-        _ => serde_json::json!({"binding_gap":{"type":value.type_name()}}),
-    }
-}
-
-#[cfg(p1339_observation)]
-fn p1340_observation_result(result: &SourceResult<Value>) -> ObservationJson {
-    match result {
-        Ok(value) => serde_json::json!({"kind":"Ok","value":p1340_observation_value(value)}),
-        Err(diagnostics) => serde_json::json!({"kind":"Err","diagnostics":p1340_observation_diagnostics(diagnostics)}),
-    }
-}
-
-#[cfg(p1339_observation)]
-fn p1340_observation_context(
-    location: Option<crate::entities::location::Location>, in_context: bool,
-    target: EvalTarget, features: crate::entities::compiler_features::Features,
-    current_file: Option<FileId>,
-) -> ObservationJson {
-    use crate::entities::compiler_features::Feature;
-    let enabled: Vec<_> = [(Feature::Html,"html"),(Feature::A11yExtras,"a11y-extras")]
-        .into_iter().filter_map(|(feature,name)|features.contains(feature).then_some(name)).collect();
-    serde_json::json!({"context_location":location.map(|location|location.as_u128().to_string()),
-        "in_context":in_context,"target":match target{EvalTarget::Paged=>"paged",EvalTarget::Html=>"html"},
-        "features":enabled,"current_file":current_file.map(|file|file.into_raw().get().to_string())})
-}
-
-#[cfg(p1339_observation)]
-fn p1340_observation_request(request: &ContextReadRequest) -> (&'static str, ObservationJson) {
-    use ContextReadRequest::*;
-    match request {
-        CounterFold{key} => ("CounterFold",serde_json::json!({"key":p1340_observation_counter_key(key)})),
-        CounterAt{key,location} => ("CounterAt",serde_json::json!({"key":p1340_observation_counter_key(key),"location":location.as_u128().to_string()})),
-        CounterLabelAt{key,label} => ("CounterLabelAt",serde_json::json!({"key":p1340_observation_counter_key(key),"label":label.0})),
-        CounterFinal{key} => ("CounterFinal",serde_json::json!({"key":p1340_observation_counter_key(key)})),
-        CounterTotal{key} => ("CounterTotal",serde_json::json!({"key":p1340_observation_counter_key(key)})),
-        CounterResolve{value} => ("CounterResolve",serde_json::json!({"value":p1340_observation_value(value)})),
-        CounterLegacyAt{key,label} => ("CounterLegacyAt",serde_json::json!({"key":key,"label":label.0})),
-        CounterLegacyFinal{key} => ("CounterLegacyFinal",serde_json::json!({"key":key})),
-        StateGet{state} => ("StateGet",serde_json::json!({"key":state.key.as_str(),"init":p1340_observation_value(&state.init)})),
-        StateDisplay{state} => ("StateDisplay",serde_json::json!({"key":state.key.as_str(),"init":p1340_observation_value(&state.init)})),
-        StateAt{state,location} => ("StateAt",serde_json::json!({"key":state.key.as_str(),"init":p1340_observation_value(&state.init),"location":location.as_u128().to_string()})),
-        StateFinal{state} => ("StateFinal",serde_json::json!({"key":state.key.as_str(),"init":p1340_observation_value(&state.init)})),
-        StateResolveLabel{label} => ("StateResolveLabel",serde_json::json!({"label":label.0})),
-        StateLegacyAt{key,label} => ("StateLegacyAt",serde_json::json!({"key":key,"label":label.0})),
-        StateLegacyFinal{key} => ("StateLegacyFinal",serde_json::json!({"key":key})),
-        Query{selector} => ("Query",serde_json::json!({"selector":p1340_observation_selector(selector)})),
-        Locate{selector} => ("Locate",serde_json::json!({"selector":p1340_observation_selector(selector)})),
-        Here => ("Here",serde_json::json!({})),
-        LocationPage{location} => ("LocationPage",serde_json::json!({"location":location.as_u128().to_string()})),
-        LocationPosition{location} => ("LocationPosition",serde_json::json!({"location":location.as_u128().to_string()})),
-        LocationPageNumbering{location} => ("LocationPageNumbering",serde_json::json!({"location":location.as_u128().to_string()})),
-    }
-}
-
-#[cfg(p1339_observation)]
-fn p1340_observation_row(read: &Arc<ContextRead>, styles: &StyleChain, context: ObservationJson, result: &SourceResult<Value>) -> ObservationJson {
-    let (operation, arguments) = p1340_observation_request(&read.request);
-    let mut row = context;
-    let fields = row.as_object_mut().expect("actual context projection is an object");
-    fields.insert("request_id".into(),serde_json::json!(format!("{:p}",Arc::as_ptr(read))));
-    fields.insert("operation".into(),serde_json::json!(operation));
-    fields.insert("typed_arguments".into(),arguments);
-    fields.insert("span".into(),p1340_observation_span(read.span));
-    fields.insert("chain_id".into(),serde_json::json!(match styles.p1339_observation_identity(){Some(identity)=>format!("{identity:#x}"),None=>"empty".into()}));
-    fields.insert("chain_size_pt_bits".into(),serde_json::json!(format!("{:016x}",styles.size().to_bits())));
-    fields.insert("result".into(),p1340_observation_result(result));
-    row
-}
-
-#[cfg(p1339_observation)]
 impl EvalContext {
-    pub fn p1340_observation_requests(&self) -> ObservationJson {
-        ObservationJson::Array(self.context_reads.borrow().reads.iter().map(|read| {
-            p1340_observation_row(read,&read.styles,p1340_observation_context(
-                read.location,read.in_context,read.target,read.features,read.current_file),&read.result)
-        }).collect())
-    }
-
-    /// Append-only replay transcript. Callers select actual phase and the suffix
-    /// since their boundary; this port never drops an early fail-fast witness.
-    pub fn p1340_observation_replays(&self) -> ObservationJson {
-        ObservationJson::Array(self.context_reads.borrow().observation.replays.iter().map(|replay| {
-            let mut row=p1340_observation_row(&replay.read,&replay.actual_styles,replay.actual_context.clone(),&replay.result);
-            row["phase"]=serde_json::json!(match replay.phase{ContextObservationPhase::Body=>"body",ContextObservationPhase::Validation=>"validation",ContextObservationPhase::Diagnostics=>"diagnostics"});
-            row["relation"]=serde_json::json!(replay.relation.map(|relation|match relation{ObservationRelation::Same=>"Same",ObservationRelation::Different=>"Different",ObservationRelation::Unproven=>"Unproven"}));
-            row
-        }).collect())
-    }
-}
-
-impl EvalContext {
-    #[cfg(p1339_observation)]
-    pub(crate) fn p1339_observe_callback(&self, kind: ContextCallbackKind) {
-        let mut log = self.context_reads.borrow_mut();
-        let phase = log.observation.phase;
-        log.observation.callbacks.push((phase, kind));
-    }
-
     pub(crate) fn replace_context_read_styles(&self, styles: StyleChain) -> StyleChain {
         std::mem::replace(&mut self.context_reads.borrow_mut().styles, styles)
     }
@@ -5974,11 +5443,6 @@ impl EvalContext {
         ctx.max_loop_iterations = self.max_loop_iterations;
         ctx.context_reads.borrow_mut().replaying = true;
         ctx.replace_context_read_styles((*read.styles).clone());
-        #[cfg(p1339_observation)]
-        {
-            ctx.context_reads.borrow_mut().observation.phase =
-                self.context_reads.borrow().observation.phase;
-        }
         let mut styles = (*read.styles).clone();
         let mut rules = read.show_rules.clone();
         let mut guards = read.active_guards.clone();
@@ -5995,16 +5459,6 @@ impl EvalContext {
             sink: &mut sink_tracked,
         };
         use ContextReadRequest::*;
-        // Passive snapshot of the resource actually supplied to the read owner.
-        // Deliberately not read.styles: substituting transaction.styles must
-        // change the telemetry even when the request's result stays unchanged.
-        #[cfg(p1339_observation)]
-        let actual_dispatch_styles = transaction.styles.clone();
-        #[cfg(p1339_observation)]
-        let actual_dispatch_context = p1340_observation_context(
-            ctx.current_location, ctx.in_context, ctx.target, ctx.features,
-            Some(transaction.current_file),
-        );
         let result = match &read.request {
             CounterFold { .. }
             | CounterAt { .. }
@@ -6069,21 +5523,6 @@ impl EvalContext {
                 read.span,
             ),
         };
-        #[cfg(p1339_observation)]
-        {
-            let mut log = self.context_reads.borrow_mut();
-            log.observation
-                .callbacks
-                .extend(ctx.context_reads.borrow().observation.callbacks.iter().copied());
-            log.observation.replays.push(ContextReplayObservation {
-                read: read.clone(),
-                actual_styles: actual_dispatch_styles,
-                result: result.clone(),
-                phase: ctx.context_reads.borrow().observation.phase,
-                relation: None,
-                actual_context: actual_dispatch_context,
-            });
-        }
         result
     }
 
@@ -6092,36 +5531,14 @@ impl EvalContext {
         candidate: &crate::entities::introspector::TagIntrospector,
         engine: &mut Engine<'_>,
     ) -> SourceResult<bool> {
-        #[cfg(p1339_observation)]
-        let previous_phase = std::mem::replace(
-            &mut self.context_reads.borrow_mut().observation.phase,
-            ContextObservationPhase::Validation,
-        );
         let reads = self.context_reads.borrow().reads.clone();
         let mut valid = true;
         for read in &reads {
             let result = self.replay_context_read(read, candidate, engine);
-            if {
-                #[cfg(not(p1339_observation))]
-                { read.result.observation_relation(&result) != ObservationRelation::Same }
-                #[cfg(p1339_observation)]
-                {
-                    let relation = read.result.observation_relation(&result);
-                    let mut log = self.context_reads.borrow_mut();
-                    let observed = log.observation.replays.last_mut()
-                        .expect("actual replay must precede validation comparison");
-                    assert!(Arc::ptr_eq(&observed.read, read));
-                    observed.relation = Some(relation);
-                    relation != ObservationRelation::Same
-                }
-            } {
+            if read.result.observation_relation(&result) != ObservationRelation::Same {
                 valid = false;
                 break;
             }
-        }
-        #[cfg(p1339_observation)]
-        {
-            self.context_reads.borrow_mut().observation.phase = previous_phase;
         }
         Ok(valid)
     }
@@ -6134,11 +5551,6 @@ impl EvalContext {
         if history.len() < 2 {
             return Ok(Vec::new());
         }
-        #[cfg(p1339_observation)]
-        let previous_phase = std::mem::replace(
-            &mut self.context_reads.borrow_mut().observation.phase,
-            ContextObservationPhase::Diagnostics,
-        );
         let reads = self.context_reads.borrow().reads.clone();
         let mut diagnostics = Vec::new();
         for read in &reads {
@@ -6223,10 +5635,6 @@ impl EvalContext {
                     .with_hint("see https://typst.app/help/state-convergence for help");
             }
             diagnostics.push(diagnostic);
-        }
-        #[cfg(p1339_observation)]
-        {
-            self.context_reads.borrow_mut().observation.phase = previous_phase;
         }
         Ok(diagnostics)
     }
@@ -7078,7 +6486,11 @@ pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
         // vanilla `Value::display`, `entities/version.md` §8b).
         Value::Version(v) => {
             let text = v.to_string();
-            if text.is_empty() { None } else { Some(Content::Text(text.into())) }
+            if text.is_empty() {
+                None
+            } else {
+                Some(Content::Text(text.into()))
+            }
         }
         // Valores primitivos convertem-se para texto. Int, Float, Bool,
         // Array, Dict, Length, Datetime, etc. usam repr_value.
@@ -7094,7 +6506,11 @@ pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
                 Value::Decimal(d) => d.to_string(),
                 _ => crate::compiler::eval::repr::repr_value(&other),
             };
-            if text.is_empty() { None } else { Some(Content::Text(text.into())) }
+            if text.is_empty() {
+                None
+            } else {
+                Some(Content::Text(text.into()))
+            }
         }
     }
 }
@@ -7106,10 +6522,6 @@ pub(crate) fn eval_expr(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let span = expr.span();
-    #[cfg(p1339_observation)]
-    {
-        ctx.context_reads.borrow_mut().observation.expression_depth += 1;
-    }
     let previous = ctx.replace_context_read_styles(engine.styles.clone());
     let previous_file = ctx.replace_context_read_file(Some(engine.current_file));
     let previous_rules = ctx.replace_context_read_rules(
@@ -7123,16 +6535,6 @@ pub(crate) fn eval_expr(
     ctx.replace_context_read_styles(previous);
     ctx.replace_context_read_file(previous_file);
     ctx.replace_context_read_rules(previous_rules.0, previous_rules.1);
-    #[cfg(p1339_observation)]
-    {
-        let mut log = ctx.context_reads.borrow_mut();
-        log.observation.expression_depth -= 1;
-        if log.observation.expression_depth == 0
-            && log.observation.phase == ContextObservationPhase::Body
-        {
-            log.observation.body_result = Some(result.clone());
-        }
-    }
     result
 }
 

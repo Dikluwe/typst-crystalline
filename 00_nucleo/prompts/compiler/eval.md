@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: c8173f60
+Hash do Código: e1b27745
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -624,3 +624,21 @@ id e closure reais; o ContextBlock raiz preexistente é vinculado no ponto real
 `Session::execute`, sem carrier novo no elemento. Esta cláusula revoga no
 fragmento P1342 a construção post-hoc de callbacks/Dicts de P1341 e não cobre
 a matriz lifecycle/profile ou a política geral de opacidade.
+
+## P1353 — aposentadoria da telemetria temporária
+
+P1353 sucede exclusivamente as obrigações P1341/P1342 que mandavam
+materializar o ledger, DTOs, projeções JSON, hooks e harnesses condicionados
+por `p1339_observation`. Esses componentes deixam de ser obrigação deste L0 e
+devem ser removidos. As medições históricas continuam válidas como registro do
+que foi observado, mas não legitimam código de instrumentação após P1353.
+
+Permanece integralmente vigente o contrato produtivo P1339: `ContextRead`,
+`ContextReads`, a relação exaustiva `Same/Different/Unproven`, seleção e replay
+causais e os métodos `has_filtered_counter_reads`,
+`context_reads_valid_for` e `context_nonconvergence_diagnostics`. A retirada
+não executa callback adicional nem fabrica observação substituta.
+
+Instrumentação futura exige nova medição, atualização L0 e nome de `cfg`
+formalizado em Cargo/check-cfg; `p1339_observation` não pode ser ressuscitado
+silenciosamente.

@@ -1,5 +1,5 @@
 # Prompt L0 — estabilização contextual seletiva
-Hash do Código: 55f9f007
+Hash do Código: 49eccf73
 
 **Camada:** L3
 **Consumer único:** `03_infra/src/pipeline/context_stabilization.rs`
@@ -302,3 +302,18 @@ objetos, ordinais, spans, Locations, snapshots, Dicts ou relações ausentes.
 Identidades runtime são locais à célula e nunca valores do oráculo. Sem o cfg
 não há campo, alocação, branch nem mudança de resultado. P1342 não fecha a
 matriz lifecycle/profile P1340, NT01–NT06, retenção geral ou política terminal.
+
+## P1353 — retirada do módulo de observação temporário
+
+O módulo privado de observação e seus hooks condicionados por
+`p1339_observation` — início de corpo/replay/tentativa, descoberta, candidato,
+invalidação e fronteira de decisão — estão aposentados. P1353 sucede somente
+essas obrigações P1340–P1342; a evidência produzida permanece histórica, mas
+não legitima código do ledger após a sanitização.
+
+Permanecem integrais a descoberta, seleção causal, contribuições, retenção e
+descarte, invalidação, replay, comparação de leituras, orçamento de cinco
+tentativas, decisão terminal, sinks, layout e numeração de páginas. A remoção
+não muda a fase do pipeline, não executa callback adicional e não fabrica
+evento substituto. Instrumentação futura requer nova medição, L0 e `cfg`
+formalizado em Cargo/check-cfg.

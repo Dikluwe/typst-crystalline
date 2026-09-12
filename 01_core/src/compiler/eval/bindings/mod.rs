@@ -37,6 +37,6 @@ pub(super) use value_methods::{
     eval_version_method_value, value_to_query_selector,
 };
 pub(crate) use value_methods::{
-    eval_element_where, native_element_fields, native_function_where, validate_element_locatability,
-    resolve_state_label,
+    eval_element_where, native_element_fields, native_function_where,
+    resolve_state_label, validate_element_locatability,
 };

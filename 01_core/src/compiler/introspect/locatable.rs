@@ -232,7 +232,10 @@ mod tests {
     fn p1339_own_emphasis_occurrences_are_locatable() {
         for content in [Content::strong(Content::Empty), Content::emph(Content::Empty)] {
             assert!(is_locatable(&content));
-            assert!(crate::compiler::introspect::extract_payload::extract_payload(&content).is_some());
+            assert!(crate::compiler::introspect::extract_payload::extract_payload(
+                &content
+            )
+            .is_some());
         }
         assert!(!is_locatable(&Content::text("plain")));
     }

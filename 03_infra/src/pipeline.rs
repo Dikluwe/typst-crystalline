@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 703e89bc
+//! @prompt-hash 49c71764
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -587,18 +587,6 @@ fn compile_to_paged_document_full_error_and_features(
         typst_core::compiler::introspect::convert_bib_refs_to_cites(intr_content);
     let content =
         typst_core::compiler::introspect::convert_bib_refs_to_cites(content.clone());
-    #[cfg(all(test, p1339_observation))]
-    let (content, intr_content) = {
-        let mut content = content;
-        let mut intr_content = intr_content;
-        context_stabilization::observation::post_eval(
-            &mut content,
-            &mut intr_content,
-            source,
-            &mut warnings,
-        );
-        (content, intr_content)
-    };
     // Preservado para reexpandir `context` depois de o PageStore existir.
     let contextual_content = content.clone();
 
@@ -1017,12 +1005,6 @@ fn compile_to_pdf_bytes_impl(
     let (doc_result, warnings) = compile_to_paged_document_full_error_and_features(
         world, source, full_error, features, timings,
     );
-    #[cfg(all(test, p1339_observation))]
-    context_stabilization::observation::compilation_returned(
-        source,
-        &doc_result,
-        &warnings,
-    );
     let doc = match doc_result {
         Ok(d) => d,
         Err(errors) => {
@@ -1096,8 +1078,6 @@ fn compile_to_pdf_bytes_impl(
     }
 
     let t_render = Instant::now();
-    #[cfg(all(test, p1339_observation))]
-    context_stabilization::observation::exporter_dispatched();
     // **P980** — caminho oráculo: mesma resolução de fontes, emissão com
     // as transformações de paridade de operador (`export/oracle.rs`).
     let (pdf, subset_ms) = if oracle {
@@ -1825,14 +1805,6 @@ mod tests {
     use typst_core::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
-
-    #[cfg(p1339_observation)]
-    mod p1342_implementation_tests {
-        include!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../00_nucleo/diagnosticos/p1342-implementation-tests.rs"
-        ));
-    }
 
     #[test]
     fn p1247_contexto_svg_filtra_pagina_e_posicao_homologa() {
