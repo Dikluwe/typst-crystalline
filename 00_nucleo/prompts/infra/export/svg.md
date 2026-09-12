@@ -288,18 +288,14 @@ promover Oklch/Hsl/Hsv em Linear/Radial. A proibição de promover Luma, CMYK ou
 pares não certificados permanece normativa. O certificado cobre apenas este
 fragmento e não prova equivalência SVG geral.
 
-Plano RED→GREEN pós-confirmação: antes do predicate, testes do owner exigem,
-para os seis pares, referência local resolvida, variante Linear/Radial correta,
-ausência do marcador de fallback, stops/offsets/ordem/descontinuidades/alpha e
-papéis fill/stroke preservados; com o predicate atual devem falhar. Depois,
-amplia-se somente os dois braços Linear/Radial do predicate. Testes negativos
+Os testes do owner exigem, para os seis pares, referência local resolvida,
+variante Linear/Radial correta, ausência do marcador de fallback,
+stops/offsets/ordem/descontinuidades/alpha e papéis fill/stroke preservados.
+Testes negativos
 exigem que Luma e CMYK continuem fallback e que nenhum wildcard promova Conic
-ou Tiling. A matriz completa é readjudicada com 144/144 polares nativos, 48/48
-Luma ainda fallback, 56/56 inválidos rejeitados e 384/384 recibos
-determinísticos; numeric/raster/grafo/custo polares permanecem 144/144 sem
-alargar nenhum envelope. Ataques devem discriminar subpromoção, sobrepromoção,
-referência pendente, solid disfarçado, bypass do sampler, mudança de budget e
-aceitação por bytes/IDs; `mutation_score` exigido é `1.0`.
+ou Tiling. A aceitação cobre subpromoção, sobrepromoção, referência pendente,
+solid disfarçado, bypass do sampler e mudança de budget; bytes e IDs não são
+critério de paridade.
 
 #### P1273 — promoção dos quatro pares certificados
 
@@ -341,12 +337,9 @@ certificado também permanece `Unknown`; opacidade nunca é convertida em
 `Preserved` por default. Conic e Tiling conservam os seus contratos e reasons
 próprios, sem promoção por arrasto.
 
-A evidência P1272 limita-se ao envelope congelado de 96 fixtures, com 24 por
-par: 96/96 no grafo e raster, 384/384 métricas numéricas, 28/28 entradas
-inválidas rejeitadas, 192/192 recibos determinísticos e 24/24 mutantes
-rejeitados (`mutation_score=1.0`). Esse envelope autoriza somente a mudança de
-rota identificada acima; não prova equivalência SVG geral, não cobre espaços
-não listados e não autoriza ampliar budgets ou reinterpretar `Unknown`.
+O contrato limita-se aos quatro pares identificados acima; não prova
+equivalência SVG geral, não cobre espaços não listados e não autoriza ampliar
+budgets ou reinterpretar casos fora do envelope.
 
 Plano RED→GREEN autorizado: primeiro substituir os testes de regressão
 P1231/P1235 dos quatro pares por testes que exijam referência local resolvida,
@@ -478,10 +471,7 @@ SVG recursa nos filhos de `FrameItem::Semantic` sem desenhar `alt`. Expor
 acessibilidade SVG requer medição própria; nesta fase o contrato é preservar o
 render e não transformar a descrição de PDF em `<text>` ou tooltip inventado.
 
-## P1246 — clip geométrico local proposto
-
-**Gate ADR-0127:** arquitetura aprovada pelo dono em 2026-08-28. L0 pré-código;
-implementação somente após preseal segregado válido.
+## Clip geométrico local
 
 ### Medição que precede a proposta
 
@@ -492,7 +482,7 @@ definição `clipPath`, referencia-a no grupo e aplica a geometria no espaço do
 grupo. A obrigação é o recorte observável, não a ortografia do ID, a ordem de
 `defs` ou a estrutura Rust da deduplicação.
 
-### Contrato proposto
+### Contrato vigente
 
 - Quando `clip_mask` é `None`, o grupo mantém exatamente a semântica atual sem
   recorte adicional.
@@ -516,17 +506,12 @@ grupo. A obrigação é o recorte observável, não a ortografia do ID, a ordem 
   `Unknown`/`CONTRACT-GAP`; nunca remove silenciosamente o conteúdo nem promove
   ausência de clip a equivalência.
 
-### Verificação exigida após confirmação
+### Verificação
 
-Contrato e oráculos independentes devem cobrir rect, rounded rect, ellipse,
-path, transform, nesting, referência pendente, chave de deduplicação e casos
-opacos. Somente mutações semanticamente negativas executadas entram no mutation
-score. Nenhum score ou preseal é declarado por esta proposta documental.
+Os testes cobrem rect, rounded rect, ellipse, path, transform, nesting,
+referência pendente, chave de deduplicação e casos opacos.
 
-## P1247 — destinos internos SVG na página corrente
-
-**Gate ADR-0127:** arquitetura aprovada pelo dono em 2026-08-28. L0 pré-código;
-implementação somente após contrato/oráculos/ataques segregados e preseal válido.
+## Destinos internos SVG na página corrente
 
 ### Medição anterior à decisão
 
@@ -559,10 +544,7 @@ Cross-page e bundle permanecem fora deste owner até o caller fornecer uma rota
 explícita. A expansão pública de `link()` para label, location ou page/x/y é
 outro contrato e não é autorizada por P1247.
 
-## P1249 — glifos matemáticos diretos SVG proposto
-
-**Gate ADR-0127:** arquitetura aprovada pelo dono em 2026-08-28. L0 pré-código;
-implementação exige posterior preseal segregado válido.
+## Glifos matemáticos diretos SVG
 
 ### Medição anterior à proposta
 

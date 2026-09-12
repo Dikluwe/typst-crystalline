@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: a929ee00
+Hash do Código: 0e9227bb
 
 ## P1339 — adapter ligado de version.at sem parser duplicado
 
@@ -26,10 +26,6 @@ Demais métodos de state/counter/color/selector não migram para este adapter.
 Campos de Version, constructor, componentes e PARITY_VERSION ficam intactos.
 Sucedem somente a localização anterior do parser ligado e suas divergências
 diagnósticas, sem API externa nova nem segunda causa semântica.
-
-**Extensão P1339:** direção aprovada no gate público Selector/ShowSelector;
-recibo `diagnosticos/p1339-where-approval.json`. A implementação depende ainda
-dos L0 de integração, contrato, selo e RED do P1339.
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/value_methods.rs`
@@ -298,9 +294,8 @@ as chamadas ligadas cuja chave contenha Element delegam aos helpers internos
 owned com esses recursos já disponíveis. Preservar consumo/validação de Args
 e suas origens; os demais counters seguem os helpers anteriores. Não alterar
 assinaturas públicas para transportar Engine nem executar Func na simples
-descoberta do método. A resolução contextual foi autorizada no recibo
-`diagnosticos/p1339-where-counter-phase-approval.json`; continuam obrigatórios
-contrato, selo e RED antes da implementação.
+descoberta do método. A resolução contextual pertence ao owner de counter;
+este consumer apenas transporta os recursos já disponíveis.
 
 ### P1339 — resolução de label é uma entrada contextual
 

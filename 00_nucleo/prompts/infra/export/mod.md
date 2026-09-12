@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — fachada pública dos exporters
-Hash do Código: 4ee50bcb
+Hash do Código: adf060ba
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`
@@ -139,38 +139,10 @@ solicita a estrutura completa descrita em `builder.md` e `stream.md`;
 `Disabled` omite BDC/EMC, MCID, StructTreeRoot, ParentTree e MarkInfo marcado.
 Esta opção não promete nem valida PDF/UA.
 
-## P1293.reopen-C — fachada pública do modo de serialização HTML
+## Fachada do modo de serialização HTML
 
-### Medição anterior à decisão
-
-No estado não commitado medido em 2026-09-02T14:18:28-03:00, sobre HEAD
-`7dd25ff0e222b6c7c640d6bc7957b98f94227507`,
-`03_infra/src/export/mod.rs:24` declara `mod html;`, portanto o submódulo é
-privado, e `:534` reexporta somente `export_html`. O consumer
-`03_infra/src/pipeline.rs:168,181,189,213` precisa nomear
-`HtmlSerializationMode` e `export_html_with_serialization`; usar
-`crate::export::html::*` atravessaria a privacidade do submódulo irmão.
-
-Os owners vigentes já fecham a substância: `infra/export/html.md` define o
-enum, as duas entry points, o default cristalino e o escaping de cada modo;
-`infra/pipeline.md` define o transporte do modo no pipeline HTML. Faltava
-somente a obrigação de exposição na fachada dona de `export/mod.rs`.
-
-Hashes da medição: este L0 antes da decisão
-`bdf4ec679daede866f8f1f303cd17389f6e5f3c2cc0d06849132903870eaa6ce`;
-`export/mod.rs`
-`56d2484579e26715fa870b66cdbfb6aaca8aa88a674d1ab9b9efefda2490632c`;
-`export/html.md`
-`505895669df4a1d7ce39f4c3236d6ac4e39fc9c61ce14d8cf578b0d394a2d237`;
-`pipeline.md`
-`ce6da4f623a0270869606bdf42d07dae0283f3f9e5a593258609b219424e63a8`.
-A working tree tinha 61 ficheiros alterados no `git diff HEAD --stat`; esta
-medição não atribui essas alterações a um único executor.
-
-### Decisão
-
-Manter `html` como submódulo privado e expor pela fachada pública, sem wrapper
-nem lógica adicional:
+`html` permanece submódulo privado. A fachada pública expõe, sem wrapper ou
+lógica adicional:
 
 ```rust
 pub use self::html::{
@@ -180,22 +152,9 @@ pub use self::html::{
 };
 ```
 
-`export/mod.rs` é dono exclusivamente da visibilidade e do caminho público.
-`export/html.md` continua dono único da definição do enum, comportamento das
-funções, default, escaping e morfologia HTML. `pipeline.rs` e demais callers
-devem consumir a fachada `crate::export::{HtmlSerializationMode,
-export_html_with_serialization}` e não o submódulo privado.
+O owner `export/html.md` define enum, comportamento, default, escaping e
+morfologia. Callers usam `crate::export::{HtmlSerializationMode,
+export_html_with_serialization}`, nunca o submódulo privado.
 
-Preservar byte-conceitualmente todas as APIs e dispatches PDF, PNG e SVG.
-Não duplicar o enum, não criar função de forwarding, não mover lógica de
-serialização para `mod.rs` e não alterar feature, target, default, fase,
-`Content`, `HtmlElem` ou outro exporter. Esta é a closure operacional da API
-L3 já confirmada no gate P1293/C, não um novo contrato público.
-
-### Critérios de verificação
-
-- ownership permanece `infra/export/mod.md` ↔ `export/mod.rs` em 1:1;
-- V15 e V26 continuam verdes;
-- o resselo posterior altera somente o header de `export/mod.rs`;
-- callers L3/L4 conseguem nomear o enum e a entry point pela fachada;
-- nenhuma lógica HTML, API PDF/PNG/SVG ou entrada protegida muda nesta fase.
+APIs e dispatches PDF, PNG e SVG permanecem inalterados. Não duplicar o enum,
+criar forwarding ou mover lógica de serialização para `mod.rs`.

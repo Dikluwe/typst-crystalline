@@ -451,10 +451,6 @@ ocultar os nomes vanilla.
 
 ## P1307-R3 — transformação causal de arguments
 
-**Estado**: `DRAFT_L0_AWAITING_ADR0127`. As decisões abaixo são alterações
-explícitas de transporte e, nos casos de ordem/ocorrências, de comportamento;
-não são uma extensão automática do fluxo contínuo histórico P1284.
-
 ### Medição anterior à decisão
 
 No HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais P1306,
@@ -467,13 +463,10 @@ conserva nome/arg-span e cria value-span detached. `:485-491` deixa o
 span agregado dos dois resultados detached. Não inferir span de valor novo
 da igualdade do resultado com o anterior.
 
-As origens de Args/sink foram medidas na matriz independente
-`00_nucleo/diagnosticos/p1307-r2-measurement.json`, SHA-256
-`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`.
-Esta extensão de filter/map deriva da fonte acima; sua cobertura binária
-adversarial adicional permanece obrigação futura, não PASS já medido.
+Essa medição estabelece que filter/map devem conservar ordem e origens, sem
+usar a igualdade do resultado como substituta do carrier.
 
-### Decisão sujeita à confirmação humana
+### Decisão vigente
 
 O owner usa `entities/args.md`; não redefine seu tipo. Na delegação estática,
 retirar o receiver por `remove_positional(0)`, preservando a sequência dos

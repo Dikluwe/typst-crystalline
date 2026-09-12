@@ -1,10 +1,7 @@
 # Prompt L0 — `entities/element_payload`
-Hash do Código: d3882e3e
+Hash do Código: 7de6c8cb
 
-**Extensão P1339:** `APPROVED_ADR0127_PENDING_INTEGRATION_GATES` para NativeElement.
-A aprovação específica do dono está registrada em
-`diagnosticos/p1339-where-payload-approval.json`; os gates de integração,
-contrato, selo e RED do P1339 continuam obrigatórios antes de código.
+`NativeElement` integra o contrato vigente desta entidade.
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_payload.rs`

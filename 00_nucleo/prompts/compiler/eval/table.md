@@ -1,8 +1,7 @@
 # Prompt L0 — `rules/eval/table` — `#set table(numbering:)` e namespace `table.*`
-Hash do Código: c650f66c
+Hash do Código: d3dcb76f
 
-**Camada**: L1 · **Owner futuro exclusivo P1288**: `01_core/src/compiler/eval/table.rs`
-**Estado P1288:** PROPOSTO — não materializável antes da confirmação humana.
+**Camada**: L1 · **Ficheiro alvo exclusivo**: `01_core/src/compiler/eval/table.rs`
 **Prompt pai**: `00_nucleo/prompts/compiler/eval.md`
 **P459**: materializar numeração automática de tables via chain léxica, análoga a `figure.numbering` (P454) e `equation.numbering` (P456).
 **P493b**: namespace anexado em `table` para `table.header`, `table.footer`, `table.cell`.
@@ -122,9 +121,9 @@ sem violar ADR-0129. A fonte vanilla mede o cast `TableCell` a partir de
 `Content` em `model/table.rs:781-784` e as duas funções usando-o em
 `pdf/accessibility.rs:203-220,264-272`.
 
-### Decisão proposta
+### Decisão vigente
 
-Após o gate, este prompt passa a possuir exclusivamente um helper puro novo em
+Este prompt possui exclusivamente o helper puro em
 `compiler/eval/table.rs`. Ele normaliza o argumento de `pdf.header-cell` e
 `pdf.data-cell`: conteúdo cru vira célula default; `Content::TableCell`
 existente é clonado preservando todos os campos; outro tipo produz o cast
@@ -138,5 +137,4 @@ nível zero/negativo → `number must be positive`; nível float → `expected
 integer, found float`; scope inválido → `expected "both", "column", or
 "row"`, com `, found none` para none explícito. `pdf.table-summary` aceita
 summary string apenas quando fornecido; omissão produz `None`, mas none
-explícito produz `expected string, found none`. Até a confirmação humana,
-nenhum consumer é criado e este L0 não alega ownership materializado.
+explícito produz `expected string, found none`.

@@ -123,10 +123,8 @@ da entidade e suas operações não mudam.
 
 ## P1245 — contrato declarativo aprovado para conteúdo arbitrário
 
-**Gate ADR-0127 (histórico):** o dono confirmou esta mudança pública no P1245.
-O P1254 pré-selou contrato/oráculos/ataques e materializou o consumer de layout
-sem introduzir `ResolvedTiling` público. A decisão abaixo é vigente; os limites
-de stroke e targets não cobertos permanecem `Unknown` explícito.
+A decisão abaixo é vigente e não introduz `ResolvedTiling` público. Os limites
+de stroke e targets não cobertos permanecem explicitamente fora do contrato.
 
 ### Medição que precede a decisão
 

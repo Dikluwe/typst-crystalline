@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/selector` — construtor e parsing
-Hash do Código: 7ac9904b
+Hash do Código: 5479f91a
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/selector.rs`  
@@ -103,7 +103,4 @@ funções nuas a selectors por efeito colateral.
 Aceitação: clone/transporte de grupo vazio e não vazio, alias, ordem e
 identidade; text permanece construível. Filtros descartados ou rejeição
 antecipada de text refutam o contrato. Não confundir preservação dos dados
-com implementação de query/counter: esses owners e a indexação ainda exigem
-seu desenho antes de código. Gate público aprovado no recibo
-p1339-where-approval.json; contrato, selo e RED permanecem anteriores à
-materialização.
+com implementação de query/counter, que pertence aos seus próprios owners.

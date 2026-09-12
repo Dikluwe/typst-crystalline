@@ -1,9 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/equality` — igualdade e pertença
-Hash do Código: 0bbf6281
-
-**Extensão P1339:** direção aprovada no gate público de Selector, conforme
-`diagnosticos/p1339-where-approval.json`. A implementação depende ainda dos
-L0 de integração, contrato, selo e RED do P1339.
+Hash do Código: bdb7e0c7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24

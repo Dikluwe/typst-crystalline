@@ -4,10 +4,8 @@ Hash do Código: 9dbe99eb
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 
-**Estado:** PROPOSTO — PARAGEM OBRIGATÓRIA ADR-0127; não materializável até
-confirmação humana.
 **Camada:** L1
-**Owner futuro exclusivo:** `01_core/src/entities/compiler_features.rs`
+**Ficheiro alvo exclusivo:** `01_core/src/entities/compiler_features.rs`
 **Vanilla ratificado:** `a51e02804`
 **ADRs:** ADR-0029, ADR-0107, ADR-0108, ADR-0127, ADR-0128, ADR-0129
 
@@ -26,9 +24,9 @@ confirmação humana.
   workspace. Um inventário de dependentes externos que demonstre ausência de
   uso refutaria a necessidade do re-export, mas não existe nesta fase.
 
-## Decisão proposta após o gate humano
+## Decisão vigente
 
-O owner futuro define os dados públicos puros e fechados:
+O owner define os dados públicos puros e fechados:
 
 ```rust
 pub enum Feature {
@@ -56,12 +54,11 @@ compatibilidade por re-export explícito dos dois tipos; não mantém cópia,
 wrapper nem segundo set. `entities/html.rs` continua exclusivamente dono de
 `HtmlElem`, `HtmlBody` e `HtmlAttrs`.
 
-Este prompt e `compiler/eval/table.md` são entradas ex-ante pré-gate sem
-consumer presente por imposição da Fase C4. Não alegam ownership materializado.
-Após confirmação, criar exatamente o consumer acima, remover qualquer exceção
-transitória de órfão e ressellar a relação 1:1 antes de novo código dependente.
+Este prompt possui exclusivamente `01_core/src/entities/compiler_features.rs`.
+O re-export em `entities/html.rs` preserva compatibilidade sem criar segundo
+owner ou segunda identidade de tipo.
 
-## Aceitação pós-confirmação
+## Aceitação
 
 - default/empty não contêm `Html` nem `A11yExtras`;
 - habilitar uma não habilita a outra;

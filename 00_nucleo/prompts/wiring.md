@@ -377,216 +377,48 @@ Esta correção materializa comportamento já anunciado pelo argumento `-` e o
 formato público confirmado em L2; não cria flag, default ou assinatura pública
 nova.
 
-## P1288 — transporte ortogonal de `a11y-extras` (PROPOSTO; gate ADR-0127)
+## Transporte ortogonal de `a11y-extras`
 
-### Medição anterior à decisão
+L4 encaminha o mesmo `Features` canônico de L2 aos entrypoints de compile e
+eval, inclusive PDF. Não interpreta nem ativa o set. Formato, target,
+`PdfTags` e `StreamMode` permanecem eixos ortogonais.
 
-`04_wiring/src/main.rs:238-250` já desestrutura `features` do compile intent e
-`:373-382` o encaminha somente ao caminho HTML. `main.rs:162` reporta hoje
-apenas `html: false, bundle: false`; o caminho PDF não recebe o set. Logo o
-wiring ainda não consegue exercitar `a11y-extras` em eval/compile PDF.
+`InfoData.features` reporta `a11y_extras` como estado efetivo. Incapacidade
+de pipeline permanece erro; L4 não a converte em sucesso ou feature desligada.
 
-### Decisão proposta
+## Modo de serialização HTML
 
-L4 encaminha o mesmo `Features` canônico de L2 aos entrypoints apropriados de
-L3 para compile e eval, inclusive no target PDF. Não interpreta, completa nem
-ativa o set. Formato PDF/HTML, `PdfTags` e `StreamMode` permanecem eixos
-ortogonais.
-
-`InfoData.features` passa a reportar também `a11y_extras`, com `false` no
-snapshot sem configuração explícita. `bundle` permanece false/scope-out. O
-report é estado efetivo, não capacidade compilada.
-
-Uma incapacidade devolvida pelo pipeline com `a11y-extras` ativo permanece
-erro/Unknown para o harness; L4 não a converte em sucesso nem em feature
-desligada.
-
-## P1293.reopen-C — mapping do modo de serialização HTML (PROPOSTO; STOP ADR-0127)
-
-### Medição anterior à decisão
-
-O recibo residual P1293/C SHA-256
-`4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
-mede duas serializações HTML válidas: a cristalina conservadora vigente e a
-forma vanilla contextual. Busca read-only não encontrou tipo ou mapping de
-modo; `04_wiring/src/main.rs:384` contém o único braço
-`OutputFormat::Html`, e `:390` chama a pipeline com features, sem escolha de
-serialização. O target já é semântico e separado do layout paginado, conforme
-ADR-0128.
-
-### Decisão proposta
-
-No braço `OutputFormat::Html` de `RunIntent::Compile`, L4 faz o único mapping:
+No braço HTML, L4 faz somente o mapping:
 
 ```text
-typst_shell::cli::HtmlSerialization::Crystalline
-    -> typst_infra::export::html::HtmlSerializationMode::Crystalline
-typst_shell::cli::HtmlSerialization::Vanilla
-    -> typst_infra::export::html::HtmlSerializationMode::Vanilla
+shell::HtmlSerialization::Crystalline -> infra::HtmlSerializationMode::Crystalline
+shell::HtmlSerialization::Vanilla     -> infra::HtmlSerializationMode::Vanilla
 ```
 
-O valor mapeado é passado à nova entry point L3 de compilação HTML. L4 não
-inspeciona conteúdo, não implementa escaping, não altera DOM e não transforma
-modo em feature/target. Nos braços PDF/PNG/SVG, o dado cru é ignorado e todo o
-dispatch vigente permanece byte-conceitualmente igual. A ausência já chega de
-L2 como `Crystalline`; L4 não mantém segundo default oculto.
+O valor segue para a entrypoint L3. L4 não inspeciona conteúdo, implementa
+escaping ou altera DOM. PDF, PNG e SVG ignoram esse dado. O default já chega de
+L2 como `Crystalline`.
 
-Esta ligação materializa flag/campo/enums públicos e, por isso, permanece
-bloqueada pelo novo gate humano ADR-0127. Após confirmação, os dois mappings,
-o default e a neutralidade fora de HTML são testes obrigatórios. Qualquer
-necessidade de tipo próprio em L4, branch de exporter fora de HTML ou alteração
-de ordem eval→export refuta esta decisão e exige nova autoria.
+## Composição de `watch`
 
-## P1295/W2 — histórico confirmado e materializado, não certificado
+Depois de `run_compile_observed` produzir exit code e dependências, L4:
 
-O gate ADR-0127 de W1/W2/W3/B1 foi confirmado pelo dono em
-`2026-09-02T22:57:37-03:00`, o contrato foi selado e o código foi
-materializado. A decisão e a medição abaixo permanecem como proveniência
-histórica, não como obrigação ativa. P1295 não foi certificado: o receipt
-independente `00_nucleo/diagnosticos/p1295-verification-receipt.json`, SHA-256
-`06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573`,
-é `BLOCKED` por falha da primeira suíte CLI integral na recuperação P1137.
-
-### Medição anterior à decisão
-
-No HEAD `76fb7336311bdb6497456ab5fdc0a8ce355ff39b`, `run_watch` recebe staging e
-dependências em `04_wiring/src/main.rs:95`, publica o staging no destino em
-`:97`, normaliza o fallback somente em `:111-115` e chama L3 para capturar o
-baseline em `:117-120`. O owner L3 vigente captura a fingerprint dentro dessa
-última chamada (`03_infra/src/watch.rs:37-41`). Logo uma alteração entre a
-publicação e `:117` pode tornar-se o baseline e não provocar recompilação.
-
-Medição: em erro de compilação, `:107-109` descarta staging antes de formar o
-conjunto observado; em sucesso, falha de `commit_output` já é fatal e preserva
-a disciplina de publicação atómica. `:116` mantém `evict(10)` entre iterações.
-
-Classificação ADR-0107/0108: a sequência de funções é mecânica, mas a perda de
-uma alteração é comportamento persistente do produto. Inferência: transportar
-um snapshot opaco de L3 permite armar a observação sem trazer fingerprint ou
-filesystem para L4. Refutador: se o snapshot não puder ser criado antes dos
-dois ramos de publicação/descarte, ou se a solução exigir lógica de I/O em L4,
-esta decisão deve ser reaberta.
-
-### Decisão histórica de composição P1295
-
-Depois de `run_compile_observed` produzir `(exit_code, dependencies)`, L4:
-
-1. normaliza o conjunto: quando vazio, usa exatamente o input principal;
-2. chama `typst_infra::watch::snapshot(&dependencies)`;
-3. somente então torna o resultado da iteração observável: em sucesso chama
-   `commit_output(staging, destination)`; em erro chama `discard_output`;
-4. preserva falha de publicação como fatal com exit 2;
-5. chama `crystalline_evict(10)`;
-6. consome exatamente o snapshot já capturado em
-   `wait_for_change_since(snapshot, 100 ms)`.
-
-A ordem de uma iteração bem-sucedida é obrigatoriamente:
-
-```text
-compile staging + dependencies
--> normalize dependency set
--> snapshot(dependencies)
--> commit_output(staging, destination)
--> evict(10)
--> wait_for_change_since(snapshot)
-```
-
-No caminho de erro de compilação, o snapshot também é capturado antes de
-descartar staging e aguardar recuperação. O último artefacto válido permanece
-intacto. O conjunto continua transitivo e é renovado pela compilação mais
-recente; o fallback só cobre inventário vazio. L4 não calcula fingerprint, não
-faz polling e não lê filesystem para decidir mudanças.
-
-### Preservações e aceitação históricas
-
-- publicação continua atómica e rename fatal não é convertido em retry;
-- erro transitório preserva o último artefacto e a sessão pode recuperar;
-- ficheiro irrelevante não dispara recompilação e asset observado dispara;
-- `evict(10)` permanece entre publicação/descarte e espera;
-- o snapshot usado na espera é o mesmo valor capturado antes da publicação;
-- timeout maior, sleep de prontidão e repetição-until-pass não constituem
-  correção nem aceitação.
-
-### Estado do gate P1295
-
-O gate ocorreu e autorizou a materialização P1295, mas não autoriza absolver o
-receipt vermelho, certificar P1295 ou tratar sua ordem de chamadas separadas
-como prova discriminatória atual.
-
-## P1296/O1 — histórico refutado e supersedido
-
-P1296 tentou provar a ordem produtiva exclusivamente no harness CLI. Na revisão
-1, o sentinel não matou MO1 (`discard -> snapshot`): score `2/3`, um survivor e
-zero `Unknown`. Na revisão 2, a hipótese FIFO regrediu o primeiro controle
-positivo durante recompilação por asset; MO1 nem foi executado nessa revisão.
-O receipt final `00_nucleo/diagnosticos/p1296-test-receipt.json`, SHA-256
-`be8aaf3537bb068aab8eff1c5b656fe74c56cec8bd144f22e48a12b486d3e8a0`,
-consumiu as duas revisões e restaurou o consumer P1137 byte a byte.
-
-Logo P1296/O1 é evidência histórica insuficiente e está supersedido por
-P1297/R1. Não permanece como obrigação normativa nem autoriza sentinel, FIFO,
-sleep, timeout maior, retry ou carga como prova de prontidão.
-
-## P1297/R1 — composição por capacidade `ArmedWatch` (STOP ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline congelado de P1297, HEAD
-`76fb7336311bdb6497456ab5fdc0a8ce355ff39b`,
-`04_wiring/src/main.rs:95` termina `run_compile_observed`, `:96-100` normaliza
-dependências, `:101` captura o snapshot, `:114-115` descarta staging no erro e
-`:119-122` espera com esse snapshot. A implementação já executa a ordem
-desejada, porém L4 a expressa por operações públicas independentes e o observer
-P1296 não distinguiu sua inversão mínima.
-
-Classificação ADR-0107/0108: a ordem de chamadas é mecânica, mas aqui a mecânica
-é o observável causal que decide se a recuperação futura dispara nova
-compilação. Inferência: receber de L3 uma capacidade já armada e consumi-la na
-finalização torna `publish/abandon` anterior ao armamento inexprimível pelo
-consumer L4. Refutador: L4 conseguir finalizar por helper cru, precisar fazer
-I/O de watch, a capacidade capturar lazy, a espera usar outro snapshot ou o
-contrato externo não matar qualquer inversão mínima R1.
-
-### Única obrigação produtiva ativa no eixo watch
-
-Depois de `run_compile_observed` produzir `(exit_code, dependencies)`, L4 fixa
-uma única sequência:
-
-1. normaliza o conjunto transitivo; quando vazio, usa exatamente o input
-   principal como fallback;
-2. chama `typst_infra::watch::arm(&dependencies)` e recebe `ArmedWatch` já
-   contendo o snapshot capturado;
-3. no sucesso, consome a capacidade com
-   `armed.publish(staging, destination)`; falha de rename é fatal com exit 2;
-4. no erro de compilação, consome a capacidade com
-   `armed.abandon(staging)`, preserva o último destino válido e continua;
-5. ambos os ramos recebem da capacidade exatamente o snapshot capturado por
-   `arm`;
-6. chama `typst_infra::eviction::crystalline_evict(10)`;
-7. entrega esse snapshot, sem troca ou recaptura, a
-   `wait_for_change_since(snapshot, 100 ms)`.
-
-Forma obrigatória:
+1. normaliza o conjunto transitivo, usando apenas o input como fallback quando
+   vazio;
+2. chama `typst_infra::watch::arm` e recebe `ArmedWatch` já com snapshot;
+3. no sucesso, consome a capacidade com `publish`; falha de rename é fatal;
+4. no erro de compilação, consome com `abandon` e preserva o último destino;
+5. executa `crystalline_evict(10)`;
+6. passa o mesmo snapshot a `wait_for_change_since`.
 
 ```text
 compile -> normalize -> arm
-  success: ArmedWatch.publish
-  error:   ArmedWatch.abandon
--> evict -> wait_for_change_since(snapshot)
+  success: publish
+  error:   abandon
+-> evict -> wait(snapshot)
 ```
 
-L4 não cria `ArmedWatch`, `WatchSnapshot` ou qualquer tipo próprio; apenas
-recebe, move e consome valores de L3. L4 não calcula fingerprint, não faz
-rename/unlink, não inspeciona staging para sincronização e não executa I/O de
-watch. Helpers crus de commit/discard não são chamáveis por L4.
-
-O conjunto transitivo, fallback do input, publicação atômica, cleanup de
-staging em falha de rename, fatalidade do erro de publicação, preservação do
-destino no erro de compilação, `crystalline_evict(10)` e liveness P1137
+L4 move a capacidade, mas não calcula fingerprints, não faz polling e não
+executa I/O de watch diretamente. Helpers crus de commit/discard não são sua
+interface. Publicação atômica, cleanup de staging e renovação das dependências
 permanecem obrigatórios.
-
-### Gate P1297/R1
-
-R1 altera API pública L3 e a forma arquitetural de finalização consumida por
-L4. Após autoria e resselo deste L0, P1297 para antes de contrato externo, RED,
-mutante, selo ou corpo Rust até confirmação humana explícita dos bytes R1.

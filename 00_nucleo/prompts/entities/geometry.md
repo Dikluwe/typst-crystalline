@@ -23,10 +23,7 @@ pub struct Stroke {
 ```
 Usa `Color` de `layout_types` (já existente em L1) — sem tipo `RgbaColor` separado.
 
-### P1223 — contrato proposto para stroke complexo (GATE ADR-0127)
-
-> **Estado:** especificação L0 guardada; materialização produtiva bloqueada até
-> confirmação humana porque adiciona campos à entidade pública compartilhada.
+### Stroke complexo
 
 A superfície Typst ratificada aceita e preserva `cap`, `join`, `dash` e
 `miter-limit`. A entidade não pode descartá-los entre eval, layout e exportação.
@@ -218,10 +215,7 @@ os bits `false`; `native_stroke` marca cada named presente. Layout/exportadores
 consomem os valores resolvidos e ignoram `specified`; repr usa os bits para
 distinguir ausência de valor explicitamente igual ao default.
 
-> **Estado:** preparado em P1225 e aguarda confirmação humana, pois acrescenta
-> estado a entidade pública compartilhada. A materialização P1225 para aqui.
-
-## Exposição histórica em `entities/mod.rs`
+## Exposição em `entities/mod.rs`
 ```rust
 pub mod geometry;
 ```

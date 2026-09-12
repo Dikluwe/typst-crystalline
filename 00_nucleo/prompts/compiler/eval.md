@@ -340,78 +340,23 @@ Aceitação exige World mínimo sem Source da expressão, contenção de trace,
 origens externas, aliases/With, inputs e delegação de serviços preservados.
 Nenhuma alteração da regra de trace nem fabricação de mensagens por texto.
 
-## P1339 — observações contextuais seletivas (interface pública aprovada)
+## Observações contextuais seletivas
 
-### Medição anterior à decisão
+Cada `EvalContext` mantém um registro privado, local à avaliação, das
+operações introspectivas efetivamente executadas. O registro é independente do
+introspector e inicia vazio. Não existe estado global, registry reflexivo,
+metadata escondida em warnings ou strings.
 
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumers intactos.
-`eval/mod.rs:124-240` não possui registro de leituras contextuais. O snapshot
-em `:148-155` é read-only no eval. `pipeline.rs:244-278` já conserva acesso
-ao EvalContext depois de apply_func, inclusive quando este devolve Err;
-o retorno atual não identifica se o bloco chegou a consultar um contador
-filtrado. O recibo `diagnosticos/p1339-context-dependency-probe-runs.json`,
-SHA-256 `4da38b499916ed3d5946bb16c904f2eaa268a4ec2f788cc0149927f0d83260d1`,
-registra estado, UTC e compilação bilateral: update criado em context ainda
-não existe no snapshot do assert dependente, que aborta antes da reintrospecção.
+A seleção ocorre quando uma leitura de counter usa Selector cuja árvore contém
+Element. A demanda é marcada antes de resolver Location, label ou callback,
+inclusive se a leitura falhar. Uma vez selecionado o bloco, todas as suas
+entradas introspectivas já observadas participam da validação.
 
-`Func::PartialEq/Hash` usa Arc para closures (`entities/func.rs:384-415`),
-enquanto Debug omite sua captura (`:369-372`) e `hash_content` usa Debug
-(`entities/content_hash.rs:25-29`). Nenhum deles prova estabilidade de uma
-closure recriada. O desenho independente
-`diagnosticos/p1339-stabilization-design.md` também refuta usar apenas o
-resultado de uma leitura Element: outra consulta pode alterar a captura.
+O registro conserva operação, argumentos efetivos, Location, span, StyleChain
+pertinente e resultado ou erro. Não reconstrói por AST, nome, `Value::eq` ou
+texto de diagnóstico.
 
-A fonte ratificada `introspection/convergence.rs:71-116,267-278` valida o
-valor efetivamente observado, distinguindo inclusive tipo, não a igualdade
-da linguagem dos argumentos da consulta. No recibo
-`diagnosticos/p1339-stabilization-boundaries-runs.json`, SHA-256
-`4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241`,
-NaN na chave produz leitura estável zero; closure contextual nova produz
-12 sem aviso; oscilação/crescimento terminam com valores e warnings de
-não convergência, não erro universal. Proveniência integral no recibo.
-
-### Decisão de desenho — validar entradas observadas, não comparar closures
-
-A estabilização seletiva foi autorizada em
-`diagnosticos/p1339-stabilization-approval.json`. Sua realização exige
-registro **privado**, local a cada EvalContext, independente do introspector
-e inicializado vazio por new. O snapshot e seus stores não são alterados por
-uma leitura. Nada global, nenhum registry reflexivo, objeto dyn novo ou
-metadata escondida em FlowEvent, campos de bibliografia, warnings ou strings.
-
-O registro contém uma sequência fechada e tipada de observações das operações
-introspectivas efetivamente executadas. O bit de seleção é marcado somente
-por demanda de counter cuja árvore de Selector contenha Element; construir
-counter/update, descobrir método ou atravessar ramo não executado não marca.
-Registrar a demanda antes de resolver Location/label ou executar callback,
-para que a dependência sobreviva ao Err da leitura. Cada bloco usa seu próprio
-contexto; a marca de um irmão não contamina outro bloco.
-
-Uma vez selecionado o bloco, **todas** as suas entradas introspectivas são
-necessárias à validação, inclusive as lidas antes da primeira demanda Element.
-Portanto o registro é causal desde o começo da avaliação contextual, não
-começa retroativamente na primeira demanda filtrada. Operação, argumentos
-efetivos, Location, span, StyleChain pertinente e resultado/erro observados
-ficam no registro; não reconstruir por AST, nome, equality de Value ou texto
-do diagnóstico. Os producers sem leitura filtrada não ganham nova semântica.
-
-Escolher validação contra o snapshot candidato das requisições registradas,
-reutilizando os owners semânticos das leituras, em vez de introduzir igualdade
-estrutural geral de Func/Content. Capturas, código e World da avaliação
-original permanecem os mesmos; se alguma entrada observada mudou, reavaliar
-o bloco. Se todas permanecem válidas, conservar seu resultado original,
-inclusive closures nele contidas, sem comparar endereço de novas closures.
-Esta inferência pressupõe registro completo e determinismo dos inputs; leitura
-não registrada, serviço opaco ou input fora do snapshot refutam a suficiência.
-Incompletude nunca devolve validação positiva.
-
-Comparar resultados com sua forma/tipo observáveis, não só values_eq; o teste
-de estabilidade precisa ser reflexivo para uma observação idêntica, inclusive
-request contendo NaN. A associação de updates ao contador continua usando
-igualdade da linguagem, separada deste teste. Fold completo demandado e seu
-erro posterior participam da observação, mesmo quando get devolve prefixo.
-
-### Fronteira pública aprovada — única neste owner
+### Interface
 
 ```rust
 impl EvalContext {
@@ -431,214 +376,38 @@ impl EvalContext {
 }
 ```
 
-O getter é puro. Os outros métodos revalidam somente requisições realmente
-observadas, com recursos explícitos, delegando aos owners; não executam o corpo
-do ContextBlock nem callbacks de chaves nunca demandadas. Engine de validação
-é transacional e separado da avaliação produtiva; não publicar seus warnings
-incidentalmente, duplicar updates ou modificar o snapshot fornecido. Recursos
-lexicais/estilos das requisições são os capturados, não defaults inventados.
+O getter é puro. A validação reexecuta somente as requisições observadas contra
+o snapshot candidato, delegando aos owners de query, state, counter e Location.
+Não reexecuta o corpo do bloco nem callbacks nunca demandadas. Engine, estilos,
+capturas e recursos são os da avaliação original.
 
-Validação positiva exige todas as observações completas e preservadas perante
-candidate. Observação alterada, inclusive sucesso que vira erro ou vice-versa,
-produz false para que o corpo seja reavaliado; falha do próprio mecanismo de
-validação propaga SourceDiagnostic, nunca true. Um erro igual e persistente
-da leitura pode ser validado como estável, mas o Err do corpo continua erro:
-true não significa que o bloco ou documento teve sucesso.
+Todas as observações completas e preservadas produzem `true`; mudança,
+sucesso que vira erro ou erro que vira sucesso produz `false`; falha do
+mecanismo propaga `SourceDiagnostic`. Erro estável não transforma o corpo em
+sucesso.
 
-Diagnose recebe a história de snapshots efetivamente usada pelo orquestrador,
-em ordem, sem fabricar passagens nem observar contador alheio. Devolve apenas
-os diagnósticos próprios de não convergência medidos, com span e histórico da
-consulta; não decide exportação, não transforma erros em avisos e não declara
-convergência por ter esgotado o teto. O formato da CLI continua no seu owner.
+### Comparação fechada
 
-Não acrescentar campos públicos, variantes públicas ou trait nesta proposta.
-As assinaturas existentes ficam. Entretanto a inclusão de armazenamento
-privado em EvalContext pode quebrar sua construção por literal fora do crate:
-o baseline tem somente campos públicos. A busca dirigida nas quatro camadas
-encontrou definição/construtor, não initializer externo; isso não prova ausência
-de consumidores externos. **Os três métodos públicos e essa restrição de
-compatibilidade foram aprovados pelo dono**, conforme
-`diagnosticos/p1339-observation-interface-approval.json`. Essa aprovação
-específica sucede a autorização de estabilização; não dispensa os gates de
-integração, contrato, selo e RED anteriores ao código.
+O comparador privado retorna `Same`, `Different` ou `Unproven` e não muda
+`PartialEq` ou `Hash` públicos.
 
-### Integração dos owners e limite de completude
+- folhas comparam variante e dados observáveis; float usa bits IEEE para
+  preservar sinal de zero e comparar uma observação NaN consigo própria;
+- containers percorrem ordem, presença, conteúdo e metadata causal;
+- `LocatedContent` inclui Location, carrier, fields e Content;
+- funções e módulos só são `Same` quando sua identidade causal imutável foi
+  preservada; closures recriadas não são comparadas por body ou execução;
+- resultado e diagnóstico integral distinguem sucesso e erro.
 
-O recibo `diagnosticos/p1339-observation-integration-receipt.json` fixa a
-auditoria dos acessos ao snapshot nos owners de eval/stdlib. As obrigações
-de registro/replay ficam individualizadas em stdlib/counter, stdlib/state,
-stdlib/foundations/query, eval/call_dispatch (Location) e
-eval/bindings/value_methods (resolução de label antes da leitura de state).
-O armazenamento e o despacho fechado de revalidação pertencem a este owner;
-os helpers internos delegam a semântica aos owners de cada operação. Não
-introduzir um novo módulo sem proprietário nem funções públicas adicionais.
+`Unproven` nunca certifica estabilidade. Serviço opaco exige identidade
+causal preservada; falta de prova invalida a reutilização.
 
-Observar o retorno do produtor da entrada, não reexecutar consumidores desse
-retorno. Assim query registra carriers completos, state.display registra o
-valor antes da callback e Location registra a projeção efetivamente pedida.
-Callbacks de display executadas no corpo usam o mesmo registro causal. O
-replay do fold CounterUpdate::Func é distinto: pertence à própria leitura
-de counter e continua obrigatório, com contexto isolado conforme from_tags.
+### Não convergência
 
-Medição adicional no HEAD acima: `entities/engine.rs:43-57` fornece World e
-StyleChain por referência; `pipeline.rs:244-268` cria ctx/Engine por bloco e
-clona sua chain; `call_dispatch.rs:1416-1419,1476-1504` usa estilos/métricas
-em measure/layout; `field_access.rs:486-500` lê text.size/lang. Essas entradas
-não vêm de TagIntrospector. Sua preservação não pode ser demonstrada pelo
-argumento candidate dos métodos aprovados.
+A história é a sequência real de snapshots do orquestrador. O diagnóstico usa
+as requisições da tentativa final projetadas sobre essa sequência, sem afirmar
+que o corpo as executou em todas as rodadas. Não fabrica detalhe para consulta
+opaca ou para leitura alheia.
 
-Portanto a revalidação pressupõe a mesma instância lógica de bloco/captura,
-Location contextual, chain de entrada, target/features e recursos de Engine
-da tentativa original. O orquestrador só reaproveita um registro enquanto
-mantém esses inputs por construção; se substitui o produtor/captura/chain,
-descarta o registro descendente e avalia novamente. Não considerar estilos
-imutáveis durante todo o corpo: Engine.styles é mutável, e uma requisição
-captura a chain do ponto efetivo em que foi executada. Replay não usa a chain
-final do corpo como substituta. Não alterar os accessors de estilo nem as
-fases measure/layout incidentalmente. Mudança/opacidade de World ou recursos
-não coberta pelo contrato impede certificar a tentativa.
-
-Este contrato não afirma já existir rastreio completo. Antes do selo, fixar
-a cobertura do comparador de resultados, inclusive Func/Content/valores
-opacos provenientes de query/state/page-numbering, e demonstrar as
-precondições de preservação dos inputs externos ao snapshot. A auditoria de
-acessos diretos não é prova dessa cobertura. Não materializar um predicado
-que retorna true ignorando categoria não integrada. Registro, replay,
-diagnóstico e teste de completude são obrigações do mesmo P1339, não
-sucessores implicitamente considerados prontos.
-
-Gates: erro antes/depois da demanda; irmão legado; leitura não Element antes
-de Element; captura alterada sem alteração de páginas; NaN; get anterior a
-callback inválida; callback nunca demandada; tentativas com warnings; aliases
-e chamadas estáticas/ligadas; validado-com-erro não vira sucesso. Segregação,
-contrato, selo e RED continuam anteriores à implementação.
-
-### P1339 — comparação fechada e retenção causal
-
-Medição anterior à decisão: `entities/content.rs:3495-3500` deixa Metadata,
-State e StateUpdate fora de PartialEq, portanto nem reflexividade existe
-para todas as entradas; `entities/value.rs:26-44` conserva Content e fields
-separadamente. `entities/func.rs:65-75,384-395` conserva captura eager mas
-usa identidade para closures na igualdade atual. O diagnóstico
-`diagnosticos/p1339-observation-design-resolution.md`, com hashes/UTC e
-fontes desse HEAD, refuta tanto usar PartialEq/Debug como teste geral quanto
-substituir identidade observável por igualdade estrutural de closures novas.
-
-O comparador privado de observações distingue Same, Different e Unproven.
-Não modifica igualdade/hash públicos de Value, Func, Content ou CounterKey.
-Same é prova suficiente para reutilizar; Different invalida; Unproven não
-certifica estabilidade nem se converte em warning vanilla de oscilação.
-
-- Folhas fechadas comparam variante e todos os dados observáveis. Float e
-  folhas geométricas usam bits IEEE, preservando sinal de zero e tornando
-  reflexiva uma observação com o mesmo NaN. Isso não muda associação de
-  updates, que continua com igualdade de linguagem não reflexiva para NaN.
-- Arrays, dicts, Args, Selector, State e Counter percorrem conteúdo/ordem,
-  presença e metadata causal que afete diagnóstico. LocatedContent inclui
-  Location, carrier Some/None, fields completos e Content, sem canonização
-  morfológica nem preenchimento de defaults.
-- Content fechado percorre seus variants e dados, filhos, estilos e callbacks.
-  Igualdade pronta só pode ser usada em folhas auditadas sem Value/Func/floats
-  ocultos. A desestruturação explícita e o match exaustivo impedem um novo
-  campo/variant silenciosamente aceito. Retenção da MESMA instância imutável
-  é atalho suficiente apenas quando sua geração causal foi preservada.
-- Func/Module retidos pelo mesmo produtor imutável preservam sua identidade.
-  Nativas conservam variante, executável, nome e namespace; With conserva
-  função e Args. Função recriada não é declarada idêntica só por body/capturas
-  iguais. Não executar função para decidir sua categoria ou comparar saída.
-  Um produtor selecionado cujas leituras continuam válidas conserva a saída
-  original; não recriar sua closure durante a validação.
-- Resultado e diagnóstico integral da operação distinguem sucesso/erro.
-  Mesmo erro pode ser estável sem fazer o corpo passar. Traces posteriores
-  da chamada permanecem no erro retido do corpo, sem reconstrução textual.
-
-Serviços opacos exigem preservação de identidade/imutabilidade causal, não
-apenas dyn_eq, nome ou endereço de um estado mutável. O pipeline CLI injeta
-ElementRegistry vazio (`pipeline.rs:140-142`), e o caminho de Element/Dynamic
-externo depende desse registro (`eval/mod.rs:653-658`). Esse acesso por
-extensão Rust não é promovido à equivalência pelo P1339. Plugin específico
-permanece a fronteira opcional explicitada na sonda; se um caso obrigatório
-real alcançar Unproven, o selo é bloqueado em vez de excluir o caso ou
-inventar erro de produto. O contrato deve exercer opacidade deliberada
-separadamente dos casos que exigem Preserved.
-
-A história usada por context_nonconvergence_diagnostics é a sequência
-[I0,...,Ik] do orquestrador. Usar somente as requisições efetivas da tentativa
-final com seus próprios argumentos/capturas/estilos; projetá-las sobre os
-snapshots anteriores não significa que o corpo as executou em cada rodada.
-Comparar as duas últimas projeções decide os detalhes de não convergência;
-não fabricar detalhe para consulta opaca ou só porque outra leitura mudou.
-I0 corresponde a run 1; no teto I4 corresponde a run 5 e I5 a final.
-
-## P1341 — projeções tipadas para o ledger de teste
-
-### Medição anterior à decisão
-
-No baseline P1341, a projeção privada de `Value::Dict` era um objeto JSON e o
-registro de callbacks conservava apenas fase e espécie. Essa forma perde ordem,
-não distingue identidade/produção das funções e permitiu omissões coerentes no
-ataque materializado R2. O pré-selo P1341 R5 exige lista ordenada de pares e
-binding causal verificável, sem IDs runtime congelados no oráculo.
-
-### Decisão
-
-Somente sob `cfg(p1339_observation)`, projetar todo valor em variante fechada e
-tipada. `Dict` é `{"Dict": [[chave, valor-tipado], ...]}` na ordem real de
-iteração, recursivamente; não converter em mapa JSON, ordenar ou deduplicar.
-Callbacks registram o `Func` efetivamente despachado, carrier/origem e fase no
-ponto da chamada, usando identidades runtime apenas dentro da célula. O ledger
-verifica domínios e não-alias entre runtime/func/carrier/value/location/snapshot;
-essas identidades são evidência de continuidade local, nunca expectativas ex
-ante nem nova igualdade pública.
-
-O schema de observação é fechado e fail-closed, inclusive para tipos inválidos;
-`bool` não satisfaz campo inteiro. `Unknown` é posterior a todos os predicados.
-Não mudar `Value`, `Func`, `EvalContext` público, avaliação, igualdade ou output
-normal; nenhum callback é repetido para observar.
-
-## P1342 — carrier de execução e produção real de Dict
-
-### Medição anterior à decisão
-
-`diagnosticos/p1342-topology-audit-r1.md` mede `EvalContext` como o contexto
-comum do dispatch, da closure e do produtor `Expr::Dict`; o Dict nasce como
-`IndexMap`, enquanto a projeção JSON final P1341 perde binding e ordem tipada.
-
-### Decisão vigente
-
-Sob `cfg(p1339_observation)`, `EvalContext` transporta opcionalmente o handle
-do ledger P1342 e o id da ocorrência de callback ativa. `new()` começa sem
-handle. Helpers internos instalam/clonam esse estado a partir da sessão ou do
-carrier do `Func`; appends sem handle são no-op. Nenhuma API normal, trait,
-igualdade, diagnóstico, fluxo ou resultado é alterado.
-
-Na conclusão bem-sucedida do braço real `Expr::Dict`, depois de avaliar uma
-vez os itens e antes de devolver `Value::Dict`, registrar o próprio valor:
-pares na ordem do `IndexMap`, chaves/valores em projeção fechada e tipada,
-span/kind do nó e ocorrência ativa. Não ordenar, deduplicar, converter primeiro
-em objeto JSON ou reconstruir do output. O Dict pré-ligado e o Dict `witness`
-são eventos distintos; o body escolhe causalmente o segundo, sem ordinal fixo.
-
-Um `Expr::Contextual` criado dentro de execução instrumentada pode registrar
-id e closure reais; o ContextBlock raiz preexistente é vinculado no ponto real
-`Session::execute`, sem carrier novo no elemento. Esta cláusula revoga no
-fragmento P1342 a construção post-hoc de callbacks/Dicts de P1341 e não cobre
-a matriz lifecycle/profile ou a política geral de opacidade.
-
-## P1353 — aposentadoria da telemetria temporária
-
-P1353 sucede exclusivamente as obrigações P1341/P1342 que mandavam
-materializar o ledger, DTOs, projeções JSON, hooks e harnesses condicionados
-por `p1339_observation`. Esses componentes deixam de ser obrigação deste L0 e
-devem ser removidos. As medições históricas continuam válidas como registro do
-que foi observado, mas não legitimam código de instrumentação após P1353.
-
-Permanece integralmente vigente o contrato produtivo P1339: `ContextRead`,
-`ContextReads`, a relação exaustiva `Same/Different/Unproven`, seleção e replay
-causais e os métodos `has_filtered_counter_reads`,
-`context_reads_valid_for` e `context_nonconvergence_diagnostics`. A retirada
-não executa callback adicional nem fabrica observação substituta.
-
-Instrumentação futura exige nova medição, atualização L0 e nome de `cfg`
-formalizado em Cargo/check-cfg; `p1339_observation` não pode ser ressuscitado
-silenciosamente.
+Não há neste owner obrigação de ledger, DTO, JSON, hook ou harness de
+instrumentação. Observação adicional exige owner próprio.

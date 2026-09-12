@@ -1,10 +1,9 @@
 # Prompt L0 — observação de filesystem do `typst watch`
-Hash do Código: 67a936f2
+Hash do Código: 49fbb038
 
 **Camada:** L3
 **Ficheiro alvo exclusivo:** `03_infra/src/watch.rs`
 **ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129
-**Estado:** P1297/R1 — L0 concreto; aguarda confirmação humana ADR-0127
 
 ## Propriedade e fronteira
 
@@ -16,27 +15,7 @@ externa do binário pertence a `wiring/tests/cli.md`.
 L3 concentra todo o acesso ao filesystem, relógio de polling, fingerprint e
 finalização do staging. Nenhum desses mecanismos atravessa para L1 ou L4.
 
-## Histórico causal reconciliado
-
-P1295 teve seu gate ADR-0127 confirmado, seu contrato selado e sua
-implementação materializada. Isso não o certificou: o receipt independente
-`00_nucleo/diagnosticos/p1295-verification-receipt.json`, SHA-256
-`06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573`,
-permanece `BLOCKED` porque a primeira suíte CLI integral falhou na recuperação
-P1137. O verde posterior não absolve esse RED.
-
-P1296/O1 tentou usar a remoção de um sentinel de staging como prova externa de
-armamento. A revisão 1 preservou MO1 (`discard -> snapshot`) e obteve score
-`2/3`; a revisão 2 com FIFO regrediu o controle positivo de recompilação por
-asset. O receipt final
-`00_nucleo/diagnosticos/p1296-test-receipt.json`, SHA-256
-`be8aaf3537bb068aab8eff1c5b656fe74c56cec8bd144f22e48a12b486d3e8a0`,
-esgotou as duas revisões. P1296/O1 é histórico refutado e supersedido por
-P1297/R1; não é obrigação vigente nem autorização para outra variação local.
-
-No eixo watch, a única obrigação produtiva ativa deste Prompt é P1297/R1.
-
-## Medição anterior à decisão — P1297/R1
+## Medição anterior à decisão
 
 No baseline congelado de P1297, HEAD
 `76fb7336311bdb6497456ab5fdc0a8ce355ff39b`,
@@ -60,7 +39,7 @@ provocar nova compilação. Inferência: tornar finalização uma operação que
 consome uma capacidade já armada impede L4 de publicar ou abandonar antes da
 captura. Refutador: a capacidade guardar paths para captura lazy, algum helper
 cru de finalização continuar chamável por L4, a inversão mínima sobreviver ao
-contrato externo, ocorrer recaptura na espera ou um controle positivo regredir.
+teste de integração, ocorrer recaptura na espera ou um controle positivo regredir.
 
 ## Decisão P1297/R1 — capacidade de ciclo já armado
 
@@ -145,12 +124,9 @@ espera; não participa da finalização produtiva do ciclo L4.
 Aceitação é a transição de filesystem já congelada e observável. Igualdade
 estrutural Rust, algoritmo de hash e número de polls permanecem mecânica.
 
-## Gate ADR-0127
+## Contratos de integração
 
-R1 adiciona `ArmedWatch`/`arm`, altera a fronteira pública de finalização e
-retira helpers crus da superfície chamável por L4. Após este L0 e o resselo de
-seu consumer, P1297 deve parar antes de contrato externo, RED, mutante, selo ou
-corpo Rust até confirmação humana explícita dos bytes concretos R1.
-
-O owner/consumer externo exclusivo de R1 será criado somente por P2 após o
-gate. Não pertence a este Prompt e não deve existir durante esta parada.
+As propriedades de snapshot pertencem a
+`infra/tests/p1295_watch_contract.md`; o consumo de `ArmedWatch` pertence a
+`infra/tests/p1297_watch_capability_contract.md`. Cada prompt possui
+exclusivamente seu integration test e não altera o ownership deste módulo.

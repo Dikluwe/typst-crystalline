@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/compiler_features.md
-//! @prompt-hash 1d4b316b
+//! @prompt-hash 200ce965
 //! @layer L1
 
 /// Funcionalidades experimentais habilitáveis pelo utilizador.

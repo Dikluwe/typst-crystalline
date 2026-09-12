@@ -3,8 +3,7 @@ Hash do Código: a54b14b9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/func.rs`
-**Estado P1307-R3**: `DRAFT_L0_AWAITING_ADR0127`; redação de contrato, sem
-aprovação de materialização. Args é propriedade de `entities/args.md`.
+Args é propriedade de `entities/args.md`.
 **ADRs relevantes**: ADR-0016 (adiamento Routines), ADR-0017 (adiamento eval completo), ADR-0107 (paridade linguagem), ADR-0109 (atomização)
 
 ## Contexto

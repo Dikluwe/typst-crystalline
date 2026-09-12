@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html.md
-//! @prompt-hash 041cf55e
+//! @prompt-hash 2637355b
 //! @layer L3
 
 use typst_core::entities::content::Content;

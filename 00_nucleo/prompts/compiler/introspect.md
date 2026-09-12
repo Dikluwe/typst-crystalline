@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 386047f7
+Hash do Código: 747224df
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -145,7 +145,7 @@ legados do impl transferido passam no novo owner. Hash final distingue body
 alterado; campos de snapshot derivados de chain precisam de captura causal
 explicitada, não são provados pelo hash do Content nu.
 
-### P1339 — captura de ações para runtime filtrado (fase aprovada; integração pendente)
+### Captura de ações para runtime filtrado
 
 Medição: `populate_intr_from_tag_start` alimenta snapshots sob chaves Kind
 (`compiler/introspect.rs:793-834,953-1040`), sem registrar a ação causal em

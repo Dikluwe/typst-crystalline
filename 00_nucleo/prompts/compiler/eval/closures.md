@@ -77,8 +77,6 @@ as regras vigentes; argumentos excedentes continuam `unexpected argument`.
 
 ## P1307-R3 — consumo e sink preservam ocorrências
 
-**Estado**: `DRAFT_L0_AWAITING_ADR0127`; sem aprovação de implementação.
-
 ### Medição anterior à decisão
 
 Baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais P1306:
@@ -91,7 +89,7 @@ ao sink e factory no vanilla. A fonte
 `lab/typst-original/crates/typst-eval/src/call.rs` aplica closures consumindo
 Args, sem recriar origens a partir da AST da chamada final.
 
-### Decisão condicionada
+### Contrato
 
 Usar o contrato `entities/args.md` sem mudar assinatura deste módulo.
 O binding mantém seus critérios vigentes P708/P724/P733/P1160: ao consumir

@@ -4,9 +4,6 @@ Hash do Código: 13bc8f39
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/args.rs`
 **ADRs**: ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130
-**Estado P1307-R3**: `DRAFT_L0_AWAITING_ADR0127`; contrato redigido, campos/API
-e compatibilidade ainda sem aprovação humana. Não materializar antes do gate.
-
 ## Medição anterior à decisão
 
 Baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, mais working tree

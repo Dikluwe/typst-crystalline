@@ -649,189 +649,56 @@ callback e o número lógico corrente selado; estes campos públicos exatos ser�
 materializados somente após o gate. Geometria e ordem de páginas não mudam.
 # P1226 — `FrameItem::Shape.fill_rule`
 
-Medição pública: o frame cristalino perde `curve(fill-rule: "even-odd")`
-antes do export SVG. Adicionar `fill_rule: FillRule` ao variant público
+Medição pública: o frame cristalino perdia `curve(fill-rule: "even-odd")`
+antes do export SVG. `fill_rule: FillRule` pertence ao variant público
 `FrameItem::Shape`. Layout propaga o valor de `ShapeElem`; todos os emissores
 existentes que não expõem regra usam `NonZero`. Exportadores consomem o campo,
-sem derivá-lo da orientação dos segmentos. Esta mudança de contrato público
-fica bloqueada pelo gate ADR-0127 até confirmação humana.
+sem derivá-lo da orientação dos segmentos.
 
-## P1288 — vocabulário semântico de tabela (PROPOSTO; gate ADR-0127)
+## Vocabulário semântico de tabela
 
-### Medição anterior à decisão
+`SemanticKind` representa Table com summary, Row, HeaderCell com
+level/scope/rowspan/colspan e DataCell com rowspan/colspan. O carrier também
+representa THead e TBody e admite TR direta sob Table para linhas
+explicitamente mistas.
 
-`01_core/src/entities/layout_types.rs:300-310` mede `SemanticKind` restrito a
-Formula, Artifact e boundaries; `PagedDocument:891-930` não possui árvore de
-tabela separada. A estrutura atual já permite envelope transparente com filhos
-em `FrameItem::Semantic:323-330`. A fonte vanilla mede Table/TR/TH/TD e spans
-em `typst-pdf/src/tags/context/table.rs:289-353`.
-
-### Decisão proposta
-
-Estender o vocabulário fechado de `SemanticKind` (ou carrier público fechado
-equivalente) para representar Table com summary, Row, HeaderCell com
-level/scope/rowspan/colspan e DataCell com rowspan/colspan. O carrier representa
-`THead` e `TBody` para header automático uniforme e também permite `TR` direta
-sob `Table` para linha explicitamente mista, sem fabricar grupos da posição
-visual. Preserva uma identidade lógica única para headers repetidos em várias
-páginas e vínculos físicos por página para MCID/ParentTree. `level` é dado
-relacional transitório, nunca atributo numérico de saída.
+Headers repetidos em páginas distintas preservam uma identidade lógica única,
+com vínculos físicos por página destinados ao exporter. `level` é dado
+relacional transitório e não atributo numérico de saída.
 
 Todo carrier é visualmente transparente: bounds, plain text, visitors,
-shaping, transforms e layers descem nos filhos e preservam metadata. L1 não
-aloca object IDs/MCIDs nem escreve PDF. Variantes públicas novas permanecem
-bloqueadas pela confirmação ADR-0127.
+shaping, transforms e layers descem nos filhos. L1 não aloca object IDs ou
+MCIDs e não escreve PDF.
 
-## P1293 — proveniência `TextItem` ortogonal ao modo matemático (PROPOSTO; gate ADR-0127)
+## Proveniência `TextItem`
 
-### Medição anterior à decisão
-
-O recibo B público SHA-256
-`bab06da4eb0db5dd0a37d2c679a6b51bef0d321c64128e56c536e5ba46bba6ce`,
-medido em `2026-09-01T21:02:48-03:00` sobre HEAD
-`7dd25ff0e222b6c7c640d6bc7957b98f94227507`, refutou o uso de
-`TextStyle.math=false` como representação completa de `TextItem`: sete dos
-oito vetores B-P07 ficaram GREEN, mas o attach inline qualificado passou de um
-excesso de `+0,0473pt` para um défice de `-0,6160pt`. A mudança retirou
-`0,6633pt`, embora a causa bloqueante fosse somente a IC residual. Logo o eixo
-`math` decide simultaneamente seleção/fallback/shaping matemático e IC; ele não
-pode também representar, sem colisão, a proveniência `TextItem`.
-
-Na entidade vigente, `TextStyle` é o estilo resolvido público transportado em
-`FrameItem::Text`/`TextShaped`
-(`01_core/src/entities/layout_types.rs:155-170,215-248,347-385`). A extensão
-final recebe somente texto e esse estilo: `FontMetrics::line_content_right`
-remede `FrameItem::Text` por `text_width(text, style.size, style)`
-(`01_core/src/compiler/layout/metrics.rs:265-295`). Depois de apagado o
-discriminante `Content::Text`, não existe carrier privado que atravesse essa
-fronteira.
-
-A fonte vanilla ratificada separa os eixos antes do layout: texto não numérico
-vira `TextItem` com os styles ativos
-(`lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:271-305`) e
-segue o hbox inline (`typst-layout/src/math/text.rs:15-40`), enquanto símbolos
-viram `GlyphItem` (`resolve.rs:327-355`) e usam `GlyphFragment`, que soma IC ao
-glifo não extensível (`typst-layout/src/math/fragment/glyph.rs:207-215`). O
-shaper math força script OpenType `math`
-(`typst-layout/src/math/shaping.rs:168-212`); o inline conserva os styles e
-infere o script (`typst-layout/src/inline/shaping.rs:784-815,954-991`). A
-morfologia `TextItem` não implica abandonar a família/fallback matemático
-resolvido pelo contexto.
-
-Alternativas auditadas:
-
-1. `math=false`: refutada numericamente e troca dois eixos de uma vez;
-2. reutilizar `math_script`, `cramped`, `subscript` ou outro booleano: colisão
-   com semânticas independentes já materializadas;
-3. parâmetro novo em `FontMetrics::advance`: altera trait público e não
-   atravessa por si só `FrameItem::Text` até toda remedição;
-4. campo/variante em `FrameItem`: contrato público maior, duplicando a
-   proveniência fora do carrier de estilo já transportado;
-5. tabela lateral por identidade de item: não sobrevive clones/transforms e
-   introduziria estado ou acoplamento fora da entidade.
-
-Inferência: o menor carrier causal é um discriminante ortogonal no próprio
-`TextStyle`. Refutadores: existir um carrier privado já propagado até
-`line_content_right`, o bit alterar a fonte/shaping, ou a IC continuar
-divergente com `math=true` preservado. Qualquer refutador reabre a decisão; não
-autoriza sobrecarga de outro eixo.
-
-### Contrato público proposto
-
-Adicionar a `TextStyle`:
+`TextStyle` contém:
 
 ```rust
 pub math_text_item: bool
 ```
 
-- default `false`, inclusive em `TextStyle::default`, `regular`, `bold` e
-  `italic`; assim todo constructor e consumer pré-existente continua a
-  representar prosa ou glifo matemático sem alterar comportamento;
-- `true` somente quando um `Content::Text` direto, já dentro de contexto math,
-  corresponde ao `TextItem` vanilla. O estado válido P1293 é
-  `math=true && math_text_item=true`: `math` conserva fonte/fallback/shaping e
-  o novo bit suprime exclusivamente a IC de `GlyphFragment`;
-- não é propriedade de utilizador, não entra em `StyleDelta`, `StyleChain`,
-  parsing, eval ou defaults de linguagem;
-- é preservado no `TextStyle` carregado por `FrameItem::Text` e por qualquer
-  reconstrução/merge de estilo, mas não cria campo novo em `FrameItem`;
-- `MathIdent`, `MathText`, números, `GlyphFragment`, formas extensíveis e
-  `MathClassOverride` promovido a glifo mantêm `math_text_item=false`.
+O default é `false`, inclusive nos construtores regulares. `true` é usado
+somente quando `Content::Text` direto em contexto matemático corresponde à
+morfologia TextItem. O estado válido é
+`math=true && math_text_item=true`: `math` conserva família, fallback,
+tamanho e shaping; o novo bit separa propriedades exclusivas da rota de glifo.
 
-ADR-0107: o bit é mecânica interna para preservar uma distinção morfológica da
-linguagem; não torna a estrutura Rust parte da paridade. ADR-0127 categoria 1:
-é um novo campo público de entidade. A proposta fica **bloqueada antes de
-código** até confirmação humana explícita; o default preservado não elimina o
-gate de contrato/compatibilidade.
+O campo não é configurável pelo utilizador, não entra em `StyleDelta`,
+`StyleChain`, parsing ou eval. Ele é preservado em `FrameItem::Text`,
+`TextShaped` e merges de `TextStyle`, sem criar campo em `FrameItem`.
 
-## P1293 — reabertura do contrato de proveniência para excluir `ssty` de `TextItem` (PROPOSTO; novo gate ADR-0127)
+MathIdent, MathText, números, GlyphFragment, formas extensíveis e
+MathClassOverride promovido a glifo mantêm `math_text_item=false`.
 
-### Medição anterior à decisão
+## Efeito morfológico
 
-O recibo causal independente
-`00_nucleo/diagnosticos/p1293-textitem-ic-residual-measurement-receipt.md`,
-SHA-256 `f727ddfbc4130e3f1941a67f0493d6ab69c3e52b130133e0b29a0197b772120d`,
-mediu em `2026-09-01T21:54:05-03:00`–`22:01:14-03:00`, sobre HEAD
-`7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não commitado,
-que o carrier confirmado chegou intacto aos sete `FrameItem::Text`, mas o
-attach inline qualificado ainda divergiu: vanilla `19,7681 × 9,6041pt`,
-candidato `19,8682 × 9,6041pt`, residual exclusivamente horizontal
-`+0,1001pt`.
+Quando `math_text_item=true`:
 
-A decomposição `file:line` isolou o `tr: [R]`: posição da base e de `R`
-coincidem, mas `03_infra/src/shaper.rs:525-585` pede `ssty=1` e força o script
-OpenType `math` para todo texto math singular sem consultar
-`math_text_item`. NewCMMath mede `R=736du` e `R.st=829du`; ao tamanho de script
-`7,7pt`, a extensão extra líquida é
-`(829−736)×7,7/1000 − 56×11/1000 = 0,1001pt`. Os refutadores independentes
-`K` e `W` reproduziram exatamente a fórmula; `[RR]`, inelegível para `ssty`,
-deu delta zero. O fallback de métricas em
-`03_infra/src/font_metrics.rs:455-463` mantém a mesma lacuna latente porque
-`ssty_level_of` também ignora a proveniência.
+- mantém `math=true` e todos os eixos não exclusivos de GlyphFragment;
+- exclui a correção itálica de glifo singular;
+- exclui a substituição OpenType `ssty` no shaping e no fallback métrico,
+  mesmo em Script ou ScriptScript.
 
-Na fonte vanilla ratificada, `resolve_text` separa texto não numérico em
-`TextItem` (`math/ir/resolve.rs:271-305`) e símbolos em `GlyphItem`
-(`:327-355`). `TextItem` usa o hbox inline (`math/text.rs:15-40`): a feature
-`ssty` pode constar dos styles (`text/mod.rs:1457-1462`), mas o shaper inline
-não força o script `math`, logo a GSUB math-only fica inerte. `GlyphItem` e
-cada dígito de `NumberItem` usam `GlyphFragment` (`math/text.rs:44-63,67-124`)
-e o shaper math força o script `math` (`math/shaping.rs:168-212`). Isto prova
-uma distinção de morfologia, não uma heurística por texto ou nome.
-
-A confirmação humana de `2026-09-01T21:28:22-03:00` autorizou explicitamente
-o consumo do campo apenas para `IC/cache`. O contrato vigente acima também
-diz “suprime exclusivamente a IC” e tratava alteração de shaping como
-refutador. Portanto fazer o bit controlar `ssty` é ampliação material do campo
-público, não mero detalhe escondido pela aprovação anterior.
-
-### Ampliação pública proposta, bloqueada
-
-Se e somente se houver nova confirmação humana, `math_text_item=true` passa a
-significar que o conteúdo conserva a rota morfológica de `TextItem` nos dois
-termos que pertencem exclusivamente a `GlyphFragment`:
-
-- mantém `math=true`, família/fallback matemático, tamanho, cramped, variações,
-  idioma e todos os eixos não-`ssty` do shaping;
-- exclui a IC de glifo singular, como já confirmado;
-- não pede a substituição OpenType `ssty` e não aplica a variante `.st/.sts`
-  no fallback métrico, mesmo quando o texto tem um carácter e o math-size é
-  Script/ScriptScript;
-- mantém `math_text_item=false` e o comportamento P975/P977 completo em
-  MathIdent, MathText, NumberItem/dígitos, GlyphFragment, formas extensíveis e
-  `MathClassOverride` promovido a glifo;
-- não cria outro campo, trait, `FrameItem`, default, fase, lista de caracteres
-  ou heurística nominal. O default do campo continua `false`.
-
-Inferência: o mesmo carrier tipado já confirmado é a menor forma de conservar
-a proveniência até shaping e fallback métrico. Refutadores: mudança de
-família/fonte; qualquer eixo de shaping além de `ssty`; perda de `.st/.sts` em
-MathIdent/MathText/números; colisão de cache; ou residual B-P07. Qualquer um
-reabre a cadeia e bloqueia o lote.
-
-ADR-0107 classifica `TextItem`/`GlyphItem` como morfologia da linguagem e o
-booleano como mecânica de transporte. ADR-0108: esta proposta sucede a
-medição `file:line` e lista refutadores. ADR-0127 categoria 1: apesar de não
-adicionar outro membro, amplia materialmente a semântica do campo público além
-do gate anterior; exige **novo gate humano antes de código ou resselo**.
-Ownership 1:1: este prompt legitima apenas
-`01_core/src/entities/layout_types.rs`.
+Quando `false`, IC e `.st/.sts` permanecem ativas nas rotas matemáticas que
+as definem. Não criar outro campo, heurística nominal ou lista de caracteres.

@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1289_float_is_infinite.md
-//! @prompt-hash 58174302
+//! @prompt-hash 16eb6650
 
 use std::path::PathBuf;
 use std::process::Command;

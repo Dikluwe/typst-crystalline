@@ -1,10 +1,7 @@
 # Prompt L0 — Entidade `ShowRule` (Passo 68-70; atualizado P352)
-Hash do Código: d610960a
+Hash do Código: cf18af0c
 
-**Estado da extensão P1339:** `APPROVED_ADR0127_PENDING_INTEGRATION_GATES`.
-NativeElement foi aprovado junto com Element; recibo
-`diagnosticos/p1339-where-approval.json`. L0 de integração, contrato, selo e
-RED continuam obrigatórios antes do código.
+`NativeElement` e o grupo de filtros integram o contrato vigente de show rules.
 
 ## Propósito
 

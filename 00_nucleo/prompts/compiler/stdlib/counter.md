@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: 002feaca
+Hash do Código: 2c22c4e8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -295,7 +295,7 @@ assinatura Rust pública, default novo ou fase nova. Fluxo contínuo ADR-0127.
 - `counter.display(pattern)` (#53): o stub "Pattern minimal" foi removido; usa `structural::format_pattern` (P793) — estilos romano/alfabético/circled (`①`), descarte de tokens extra e repetição do último token, paridade medida (`II B ii ② 2` para counter=2).
 - `counter.display()` sem argumento (#52): usa o numbering activo do contexto via custom `"{key}.numbering.pattern"` da chain (canal `rules.rs`); sem pattern na chain, mantém o join hierárquico.
 
-## P1339 — chave filtrada e leitura owned (fase aprovada; integração pendente)
+## Chave filtrada e leitura owned
 
 ### Medição anterior à decisão
 

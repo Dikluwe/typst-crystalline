@@ -1,9 +1,5 @@
 # Prompt L0 — `compiler/eval/selector_matching` — matching de selectores de show rule
-Hash do Código: 1a98d04a
-
-**Extensão P1339:** direção aprovada junto com as variantes públicas de
-Selector/ShowSelector, conforme `diagnosticos/p1339-where-approval.json`.
-L0 de integração, contrato, selo e RED permanecem pendentes antes do código.
+Hash do Código: 06c60a65
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/selector_matching.rs`

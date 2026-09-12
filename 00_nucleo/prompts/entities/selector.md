@@ -1,11 +1,5 @@
 # Prompt L0 — `entities/selector`
-Hash do Código: 83fa0a63
-
-**Estado da extensão P1339:** `APPROVED_ADR0127_PENDING_INTEGRATION_GATES`.
-O dono aprovou Element + NativeElement em resposta à proposta P1339;
-`diagnosticos/p1339-where-approval.json` fixa as minutas aprovadas. A aprovação
-não dispensa os L0 de integração, contrato, selo e RED anteriores ao código.
-O hash de código continua identificando o antecedente.
+Hash do Código: 65ca5013
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/selector.rs`
@@ -232,11 +226,10 @@ P1284 pode expor na linguagem `selector.and`, `selector.or` e
 `selector.within` sobre as variantes públicas já existentes, sem alterar este
 consumer. Este L0 não autoriza qualquer edição de `entities/selector.rs`.
 
-Materializar `selector.before(self,end,inclusive:true)` ou
+Adicionar `selector.before(self,end,inclusive:true)` ou
 `selector.after(self,start,inclusive:true)` exigiria novas variantes públicas,
 semântica de query e revisão de matches consumidores. Ambos permanecem
-`BLOCKED_ADR0127_PUBLIC_CONTRACT` até novo L0 com desenho explícito e
-confirmação humana. Ausência é `Blocked`, não `Unknown`; simular por
+fora do contrato vigente até novo L0 com desenho explícito. Simular por
 `Within`/`And`/`Or`/`Where` é `Violated`.
 
 ## P1339 — identidade de elemento e grupo de filtros

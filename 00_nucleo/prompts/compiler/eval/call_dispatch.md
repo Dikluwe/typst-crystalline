@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 45775311
+Hash do Código: 663708f6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -77,7 +77,7 @@ sintéticos sem AST conservam origem legitimamente ausente.
 Traces continuam causais, incluindo retornos antecipados de intercepções.
 Não alterar is-nan/is-infinite certificados, Int, constructors, outros
 namespaces, PARITY_VERSION, defaults ou fases. Esta seção completa a ligação
-das outras rotas P1339; não dispensa contrato, selo, RED e verificação final.
+das outras rotas do mesmo contrato.
 
 ## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
 
@@ -428,199 +428,42 @@ sem campo/variante/trait/assinatura Rust pública ou mudança de fase. É parida
 em fluxo contínuo ADR-0127. Mutação que omita o braço, descarte named, reordene
 ou recrie `Args` sem os metadados disponíveis viola o contrato.
 
-## P1293.reopen-A — preservar âncoras sintáticas de `float.is-nan`
+## Âncoras privadas de diagnósticos especializados
 
-### Medição anterior à decisão
+Antes de `eval_args`, o dispatch preserva transitoriamente span da chamada,
+spans dos positionals, spans completos e de valor dos named e presença de
+spread. Depois da avaliação única e ordenada dos argumentos, ele ajusta somente
+`Args.span` para as identidades fechadas abaixo.
 
-Em `2026-09-01T15:13:15-03:00`, sobre HEAD
-`7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não commitida, o
-recibo segregado `p1293-implementation-receipt-a.md` de SHA-256
-`14ca51a7b440ce65e46eda9dadd7b47a21e15dd7a991b193e5d103beac42ced1`
-registou quatro positivos verdes e cinco REDs end-to-end. Valores, tipos,
-`repr` e mensagens já coincidem; somente os ranges UTF-8 half-open divergem:
+### `float.is-nan`
 
-| Forma em modo code | Candidato | Vanilla ratificado / contrato |
-|---|---:|---:|
-| `float.is-nan()` | `12..14` | `0..14` |
-| `float.is-nan(0.0, 1.0)` | `12..22` | `18..21` |
-| `float("NaN").is-nan(other: true)` | `19..32` | `20..31` |
-| `float.is-nan("x")` | `12..17` | `13..16` |
+Para a nativa estática e a chamada ligada em Float:
 
-No consumer vigente e ainda sem patch P1293 para esta reabertura,
-`call_dispatch.rs:899-909` avalia a chamada ligada de `Value::Float` e só
-depois entrega o `Args` agregado ao owner. O caminho genérico faz o mesmo em
-`call_dispatch.rs:1213-1240`. Já o precedente interno medido em
-`call_dispatch.rs:964-985` recolhe `call.span()`, cada positional e cada named
-completo antes de `eval_args`; `call_dispatch.rs:1215-1235` demonstra ainda o
-override pontual de `args.span` para `eval`. Logo a AST contém as quatro
-âncoras exigidas antes de `Args` as colapsar, e o owner deste nó é o ponto
-causal que ainda as possui.
+- self ausente usa a chamada inteira;
+- positional extra usa o positional ofensivo;
+- named desconhecido usa o named completo;
+- cast inválido usa o primeiro positional;
+- acesso ligado sem chamada pertence a `field_access`.
 
-### Classificação e decisão
+### `math.attach`, `binom`, `mono` e `script`
 
-O range do diagnóstico é observável da linguagem quando o erro o expõe
-(ADR-0107), não detalhe de layout Rust. Como P1293 já congelou mensagem e span
-exatos, esta é correção interna de paridade em fluxo contínuo ADR-0127: não
-adiciona campo, trait ou assinatura Rust pública, não altera default e não
-move avaliação entre eval/layout.
+Missing usa a chamada inteira; casts e excesso usam o valor ofensivo; named
+desconhecido usa o named completo. `script.cramped` inválido usa o valor do
+named. O dispatch reconhece a identidade nativa resolvida, não o texto do
+callee.
 
-Somente para a chamada cuja identidade resolvida é a nativa estática
-`float.is-nan`, e para a chamada ligada de `Value::Float` com método
-`is-nan`, `eval_func_call` deve preservar antes de `eval_args`:
+### Constructors HTML residuais
 
-- o span da chamada inteira;
-- o span de cada positional na ordem sintática;
-- o span completo de cada named, por nome.
+Para `html.button`, `col`, `iframe`, `select`, `template`, `video`
+e `wbr`: named desconhecido, cross-tag, `data-*` e body named usam o named
+completo; cast/domínio inválido usa o valor; body em void e segundo body usam o
+positional ofensivo.
 
-Esses metadados privados selecionam o `args.span` entregue ao owner sem mudar
-valores, nomes ou ordem: chamada inteira para `missing self`; segundo
-positional para `unexpected argument`; named completo para named desconhecido;
-primeiro positional para falha de cast. A precedência diagnóstica vigente
-permanece soberana quando mais de uma forma inválida coexistir. A extração
-segue o precedente `CollectionCallSpans`, mas fica restrita a `is-nan`; não
-cria fallback genérico por nome, parsing de texto ou armazenamento permanente.
-
-É proibido alterar `entities::Args`, qualquer API pública, a ordem/quantidade
-de avaliações, `trace_call`, mensagens, semântica booleana, defaults ou fase.
-Caminhos sintéticos sem AST conservam o fallback agregado atual. Este Prompt
-continua proprietário 1:1 apenas de
-`01_core/src/compiler/eval/call_dispatch.rs`; o owner
-`stdlib/foundations/float` conserva fórmula e validação semântica.
-
-## P1293.reopen-B-spans — âncoras privadas das quatro identidades math
-
-### Medição anterior à decisão
-
-Em `2026-09-01T16:38:33-03:00`, sobre
-`HEAD 7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não
-commitada identificada no recibo de implementação B SHA-256
-`7ebff1e223ceebe789224ed18f2c0518990aae787d7f3e48c3f96bbfb3d792dd`,
-os dez testes próprios de semântica, morfologia e layout ficaram GREEN:
-`10 passed / 0 failed / 5375 filtered`. Os consumers B naquele bloqueio
-tinham SHA-256
-`437980d9843ed9159b7312efe47a09d9336d13c74d182ccc9d6c4d268554867d`
-(`structural/math.rs`),
-`9a24894c3341371a42afe782ad39c505aeea25d689f590cd0a6c9d60b5bbd80b`
-(`eval/math.rs`),
-`e9aad3461a6d0dc3152a1349f4f83fcb988e51666016b6ef4aa23e29ac05d21b`
-(`repr.rs`) e
-`5e3ed835337affe7aa8399d6ad8dc895ad1fe9f34344d23f7d367682f395241f`
-(`layout/attach.rs`). Nenhum consumer desta secção tinha recebido escrita B.
-
-As sondas black-box do mesmo recibo conservaram as mensagens, mas refutaram os
-spans: `math.attach(1)` ancorou o argumento agregado em `1:11`, contra o valor
-vanilla em `1:12`; `math.attach([x], t: 1)` ancorou em `1:11`, contra o valor
-ofensivo em `1:20`; `math.mono(1)` não emitiu source/range porque o owner usa
-`Span::detached()`, contra `1:10`; `math.script` compartilha a mesma causa.
-Attach/binom qualificados entregam somente `args.span` agregado ao owner e,
-portanto, seus missing/extra/cast/named não distinguem a âncora sintática.
-
-Medição direta repetida em `2026-09-01T16:44:26-03:00`: o consumer
-vigente deste owner, SHA-256
-`ceb021c1f9ec0edc5480005e61dc0cb24dcfd8f2ed0efc6e4c8c1499afeb54d5`,
-preserva `FloatIsNanCallSpans` em
-`01_core/src/compiler/eval/call_dispatch.rs:60-113`; captura a chamada ligada
-antes de `eval_args` em `:953-960`; e captura a identidade nativa estática
-antes do `eval_args` genérico em `:1274-1303`. A AST expõe também
-`NamedArg::expr()`, além do span completo do named, logo consegue distinguir
-valor ofensivo de argumento named desconhecido sem mudar `entities::Args`.
-
-### Decisão estreita
-
-O precedente privado P1293-A é estendido somente quando a identidade
-**resolvida** da função nativa é `attach`, `binom`, `mono` ou `script`. Não se
-reconhece texto do callee, nome de binding do usuário ou conteúdo-testemunha.
-Antes de `eval_args`, o dispatch preserva transitoriamente:
-
-- span da chamada inteira;
-- span da expressão de cada positional, em ordem;
-- para cada named, tanto o span completo quanto o span da expressão-valor;
-- presença de spread, para impedir falsa precisão quando a expansão destrói
-  a correspondência sintática simples.
-
-Depois de avaliar callee e argumentos exatamente uma vez, o selector privado
-substitui somente `args.span` antes de delegar ao owner existente. A tabela é
-fechada pela assinatura já congelada:
-
-| identidade | classe diagnóstica vigente | âncora privada |
-|---|---|---|
-| `attach` | base ausente | chamada inteira |
-| `attach` | base/slot com cast inválido | valor do positional/named ofensivo |
-| `attach` | segundo positional | segundo valor positional |
-| `attach` | named fora de `t,b,tl,bl,tr,br` | named completo |
-| `binom` | upper ou lower ausente | chamada inteira |
-| `binom` | upper/lower com cast inválido | valor positional/named ofensivo |
-| `binom` | named fora de `upper` | named completo |
-| `mono` | body ausente | chamada inteira |
-| `mono` | body inválido / segundo positional / qualquer named | primeiro valor / segundo valor / named completo, respectivamente |
-| `script` | body ausente | chamada inteira |
-| `script` | body inválido / segundo positional | primeiro / segundo valor positional |
-| `script` | `cramped` não bool / outro named | valor de `cramped` / named completo |
-
-O selector preserva a precedência diagnóstica vigente do owner downstream;
-ele não muda qual erro ou mensagem vence quando coexistem invalidades, não
-curto-circuita avaliação e não reimplementa casts ou constructors. Em caso
-de spread ou ausência da correspondência estrutural esperada, conserva o
-fallback agregado existente; não inventa span por heurística.
-
-O owner `compiler/stdlib/structural/math.md` continua dono das mensagens,
-assinaturas, casts e constructors de attach/binom. O owner
-`compiler/stdlib/math_style.md` continua dono das mensagens e estilos de
-mono/script e passa a consumir `args.span` somente nessas duas identidades.
-Este owner continua 1:1 com `call_dispatch.rs`; os metadados não sobrevivem à
-chamada e nenhum owner 1:N é criado.
-
-Spans de erro são observáveis da linguagem (ADR-0107). Como o contrato P1293
-já exige mensagem e intervalo exatos, esta é correção interna de paridade em
-fluxo contínuo ADR-0127. É proibido alterar `entities::Args`, API pública,
-ordem/quantidade de avaliações, mensagens, precedência, valores, morfologia,
-layout, defaults, `trace_call` ou fase eval/layout. Refutam a decisão qualquer
-regressão nos dez GREENs, qualquer mensagem/precedência diferente, captura
-fora das quatro identidades, ou span que não seja chamada/positional/named
-medido. Nenhum novo gate humano é necessário; novo owner ou contrato público
-reabriria essa classificação e obriga parada.
-
-## P1293.reopen-C — âncoras privadas das sete identidades HTML
-
-### Medição anterior à decisão
-
-O recibo residual P1293/C SHA-256
-`4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
-mede `37/37` negativos com polaridade preservada e span agregado divergente;
-em 29, a mensagem já é idêntica. `html.rs:819-843,859-862` recebe somente
-`args.span`, enquanto `call_dispatch.rs:139-189` ainda possui, antes de
-`eval_args`, spans de positional, named completo e valor named; a identidade
-resolvida já é selecionada em `:1450-1489`. `entities::Args` deliberadamente
-não conserva span por argumento e permanece fora do escopo.
-
-### Decisão estreita
-
-Estender o precedente privado de spans somente às identidades nativas
-resolvidas `html.button`, `html.col`, `html.iframe`, `html.select`,
-`html.template`, `html.video` e `html.wbr`. Antes de `eval_args`, preservar
-transitoriamente chamada inteira, expressão de cada positional, named completo,
-expressão-valor de cada named e presença de spread. Depois de avaliar tudo uma
-única vez, selecionar apenas o `args.span` entregue ao owner HTML:
-
-- named desconhecido, `data-*`, atributo cross-tag ou body named: named completo;
-- cast/domain inválido de atributo: expressão-valor do named ofensivo;
-- body em `col`/`wbr`: primeiro positional ofensivo;
-- segundo body em tag normal: segundo positional ofensivo;
-- forma sem correspondência segura ou com spread: fallback agregado vigente.
-
-O owner HTML continua decidindo mensagem e precedência. Este nó não
-reimplementa casts, atributos, aridade ou constructor, não reconhece texto do
-callee e não persiste metadata em `Args`. Trata-se de span observável já
-congelado, correção interna em fluxo contínuo ADR-0127. São proibidos API/campo
-público, mudança de ordem/quantidade de avaliações, mensagem, default, fase ou
-captura de outras identidades. Qualquer necessidade disso refuta a decisão.
+Spread ou ausência de correspondência estrutural segura conserva o span
+agregado. Este owner não decide mensagens, casts, aridade ou precedência, não
+persiste metadata em `Args` e não altera a quantidade ou ordem de avaliações.
 
 ## P1307-R3 — transporte causal antes da perda de argumentos
-
-**Estado**: `DRAFT_L0_AWAITING_ADR0127`. Esta redação não autoriza Rust,
-headers ou testes. As proibições de campo/API nas revisões privadas P1215 e
-P1293 continuam limitando aqueles seletores; o carrier abaixo é uma
-reabertura pública distinta, condicionada ao novo gate humano.
 
 ### Medição anterior à decisão
 
@@ -896,8 +739,7 @@ existente, inclusive quando a intercepção toma retorno antecipado.
 Esta seção sucede apenas a preservação do antigo caminho de where e estende
 a whitelist de agregado somente por sua nova identidade. With, outros métodos,
 math e nativas anteriores conservam seus contratos; nenhum novo campo público
-de Args, assinatura externa, default ou fase é autorizado. O gate de Selector
-foi aprovado; contrato, selo e RED continuam obrigatórios antes do código.
+de Args, assinatura externa, default ou fase é autorizado.
 
 Aceitação: estática/ligada, aliases, receiver com efeito contado uma vez,
 homônimos ordinários, named/spreads/duplicados, panic, missing/casts/extra,

@@ -31,7 +31,7 @@ As cláusulas conservam a intenção aprovada no P1339. Não muda assinaturas,
 modo por defeito, fases ou políticas para opacidade. Mudança dessas dimensões
 exige nova decisão. Sem seleção efetiva, não introduzir ciclo novo no legado.
 
-## P1339 — estabilização contextual seletiva (escopo aprovado; integração pendente)
+## Estabilização contextual seletiva
 
 ### Medição anterior à decisão
 
@@ -134,16 +134,11 @@ um número de passagens sem reproduzir seus valores e diagnósticos. Não reinic
 orçamento a cada relayout e assim mascarar não convergência. O ciclo P1291 de
 math permanece separado e só fornece documentos Complete ao caminho paginado.
 
-### Gate e obrigações restantes no P1339
+### Limite do contrato
 
-A interface pública concreta de observações em `compiler/eval.md` foi aprovada
-em `diagnosticos/p1339-observation-interface-approval.json`. Antes da
-materialização, terminar a nucleação de registro/replay dos owners de
-leitura e demonstrar completude nos testes. Esta seção não declara finalizado
-esse trabalho nem autoriza fallback permissivo enquanto falta observabilidade.
-Assinaturas públicas existentes ficam; novos contratos públicos não definidos
-neste lote exigem gate próprio. Nenhum código é legitimado por este texto
-isolado antes do contrato, selo e RED independentes.
+Registro e replay pertencem aos owners das leituras; este módulo coordena as
+tentativas e não autoriza fallback permissivo quando falta observabilidade.
+Assinaturas públicas existentes permanecem nos seus owners.
 
 ### P1339 — seed seletivo e correspondência final de tentativas
 
@@ -215,11 +210,7 @@ como convergência, mas não escolhem retorno para corpo Ok sem estabilidade
 comprovável. A auditoria adversarial permite investigar autorreflexividade
 com as APIs existentes; não demonstrou necessidade de assinatura nova.
 
-### Decisão aprovada pelo dono
-
-A resposta `Faça as correções` aprovou esta política após a pausa específica;
-`diagnosticos/p1340-terminal-policy-approval.json` identifica a proposta
-integral anterior. A autorização não dispensa contrato, selo e testes.
+### Decisão vigente
 
 Se, esgotadas as tentativas permitidas, os corpos atuais não têm erro próprio
 mas permanece impossível comprovar a estabilidade exigida, devolver pelo
@@ -244,76 +235,19 @@ preservados; sinks de validação e de tentativas substituídas são descartados
 contribuições finais retidas publicam seus warnings uma vez, mesmo no retorno
 Err, sem adicionar warning de não convergência para a incapacidade.
 
-Esta política só sucede o ramo de comprovação insuficiente. Mudança comprovada
+Esta política aplica-se somente ao ramo de comprovação insuficiente. Mudança comprovada
 no fragmento fechado conserva a política linguística anterior D5/I4 e seus
 diagnósticos. Não acrescenta API, enum público, flag ou correção de semântica
-alheia. É decisão de comportamento terminal do produto, não paridade inferida;
-teve confirmação humana e exige sucessor de contrato e ataques focais antes do selo.
+alheia. É comportamento terminal do produto, não paridade inferida.
 
-## P1341 — ledger privado do ciclo de estabilização
-
-### Medição anterior à decisão
-
-O protocolo R6b do P1340 não pôde ser selado porque congelava nas expectativas
-identidades que só existem durante cada execução. O contrato segregado P1341 R5,
-pinado pelo seu certificado de pré-selo, separa expectativa semântica, manifesto
-estático de binding e ledger runtime; o corpus materializado congelado rejeita
-84 de 84 corrupções em ordem normal, repetida e reversa.
-
-### Decisão
-
-Sob `cfg(all(test, p1339_observation))`, esta sessão emite um ledger append-only
-das execuções reais. Cada célula tem identidade local não vazia; objetos runtime
-têm IDs tipados por domínio e um único papel estável; eventos fechados registram
-início/fim, origem de features, dispatch/invocação/início do body, ocorrência de
-counter, projeção Dict e as arestas causais correspondentes. Início e fim têm
-como sujeito a execução; origem de features precede callback; dispatch precede
-invocação, que precede body, counter, Dict e fim. Invalidação registra causa e
-execução descartada; validação registra sua decisão sem transformar `Unproven`
-em sucesso.
-
-O manifesto de papéis é externo ao DTO e pinado pelo harness. O ledger não
-autodeclara cobertura, não fabrica Location/span e não executa callback extra.
-Payload opaco só pode resultar em `Unknown` depois de schema, cardinalidade,
-binding, identidades, testemunhos semânticos, temporalidade e causalidade terem
-passado. Esta instrumentação é privada/test-only: o build normal, fachadas,
-defaults, fases e resultados permanecem inalterados.
-
-## P1342 — sessão real do ledger vinculante
-
-### Medição anterior à decisão
-
-`diagnosticos/p1342-topology-audit-r1.md` mede que `Session::execute` possui
-simultaneamente o `Arc<ContextBlockElem>` real, a closure real e o
-`EvalContext` entregue a `apply_func`. O candidato P1341 rejeitado criava
-objetos e arestas depois da compilação, fora desses pontos.
-
-### Decisão vigente
-
-Esta seção sucede P1341 somente no fragmento vinculante P1342. Sob
-`cfg(all(test, p1339_observation))`, `Session` cria um ledger append-only por
-execução focal e abre uma célula por descoberta/tentativa. `execute` registra
-o `ContextBlockElem.id`, a identidade local da closure real e a célula antes
-de `apply_func`, instala o mesmo handle no `EvalContext` e registra o resultado
-real. Retenção e descarte apenas referenciam identidades já observadas.
-
-O DTO final serializa exclusivamente eventos presentes no ledger; não cria
-objetos, ordinais, spans, Locations, snapshots, Dicts ou relações ausentes.
-Identidades runtime são locais à célula e nunca valores do oráculo. Sem o cfg
-não há campo, alocação, branch nem mudança de resultado. P1342 não fecha a
-matriz lifecycle/profile P1340, NT01–NT06, retenção geral ou política terminal.
-
-## P1353 — retirada do módulo de observação temporário
-
-O módulo privado de observação e seus hooks condicionados por
-`p1339_observation` — início de corpo/replay/tentativa, descoberta, candidato,
-invalidação e fronteira de decisão — estão aposentados. P1353 sucede somente
-essas obrigações P1340–P1342; a evidência produzida permanece histórica, mas
-não legitima código do ledger após a sanitização.
+## Fronteira de instrumentação
 
 Permanecem integrais a descoberta, seleção causal, contribuições, retenção e
 descarte, invalidação, replay, comparação de leituras, orçamento de cinco
 tentativas, decisão terminal, sinks, layout e numeração de páginas. A remoção
 não muda a fase do pipeline, não executa callback adicional e não fabrica
-evento substituto. Instrumentação futura requer nova medição, L0 e `cfg`
-formalizado em Cargo/check-cfg.
+evento substituto.
+
+Não existe neste owner obrigação de módulo de observação, ledger, DTO ou hooks
+condicionados por `p1339_observation`. Instrumentação futura requer obrigação
+L0 própria e `cfg` formalizado em Cargo/check-cfg.

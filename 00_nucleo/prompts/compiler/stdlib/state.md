@@ -47,7 +47,7 @@ paridade incidental. Criação de state/update/display diferido não é leitura.
 Aceitação: state antes/depois de Element, at com label movido/ausente,
 fallback init versus None e callback de display com leitura/erro. Comparar
 valor opaco por repr ou ignorá-lo não certifica estabilidade; a cobertura do
-comparador é obrigação de eval antes do selo. Contrato/RED seguem pendentes.
+comparador pertence ao owner de eval.
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/state.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).

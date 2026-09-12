@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/query` — query, localização e metadados
-Hash do Código: e97b8512
+Hash do Código: 80ed15e4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -137,7 +137,7 @@ Revalidar pela mesma seleção/projeção contra candidate, sem executar corpos
 contextuais nem chamar constructors. Valores Func/Content dentro do resultado
 não podem ser certificados por Debug, repr ou apenas igualdade de Location;
 o comparador de observações de eval deve cobrir a entrada ou declarar sua
-incompletude antes do selo. Um resultado vazio também é uma observação.
+incompletude. Um resultado vazio também é uma observação.
 
 Here registra a Location contextual ou sua ausência. Como current_location
 não é parte do snapshot candidato, sua estabilidade é precondição da

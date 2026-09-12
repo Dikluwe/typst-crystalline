@@ -1,5 +1,5 @@
 ---
-Hash do Código: de355de7
+Hash do Código: f90a6a90
 prompt: infra/shaper
 layer: L3
 created: 2026-06-27
@@ -912,61 +912,27 @@ documento cujo body selecionou Cidfont perde o texto no artefacto PDF, embora
 o `PagedDocument` pré-shaping esteja correto. A ordem das camadas e dos items
 dentro de cada camada é preservada.
 
-## P1293 — `TextItem` não pede a feature `ssty` (PROPOSTO; novo gate ADR-0127)
+## Proveniência `TextItem` no shaping matemático
 
-### Medição anterior à decisão
+`TextStyle.math_text_item=true` preserva a rota morfológica de texto inline
+matemático. O shaper mantém `style.math=true`, a família e fallback
+matemáticos, tamanho, idioma, direção, tracking, variações e todas as features
+não relacionadas a `ssty`.
 
-O recibo independente
-`00_nucleo/diagnosticos/p1293-textitem-ic-residual-measurement-receipt.md`,
-SHA-256 `f727ddfbc4130e3f1941a67f0493d6ab69c3e52b130133e0b29a0197b772120d`,
-mediu sobre HEAD `7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não commitado
-que o bit `math_text_item=true` chega ao `FrameItem::Text` e é clonado para
-`TextShaped`, mas não é consultado pelo shaper. Em
-`03_infra/src/shaper.rs:525-535`, o nível `ssty` depende apenas de
-`style.math`, `math_size` e `ssty_eligible_text`; em `:567-585`, o buffer usa
-script `math` e aplica a feature. O `tr: [R]` do attach inline mede
-`+0,1001pt`: `R=736du`, `R.st=829du`, script `7,7pt` e
-`SpaceAfterScript=56du` a `11pt` produzem exatamente
-`(829−736)×7,7/1000−56×11/1000`.
+Para essa proveniência, o nível `ssty` é zero e a feature não é pedida,
+mesmo em Script ou ScriptScript e mesmo para texto singular ou numérico. Isso
+evita aplicar a variante `.st/.sts` que pertence às rotas de glifo e número.
 
-Os contraprobes `K`, `W` e `[RR]` distinguem a causa: os dois glifos singulares
-seguem a diferença da tabela GSUB; o texto multi-caractere inelegível dá delta
-zero. `hb-shape` confirma que `ssty=1` sem script `math` mantém o glifo base e
-com script `math` escolhe `.st`. Não é padding, kern, IC nem diferença de
-posição.
+Quando `math_text_item=false`, permanece o contrato de `ssty` já definido:
+MathIdent, MathText, NumberItem, GlyphFragment e formas extensíveis pedem a
+variante compatível com o tamanho quando `ssty_eligible_text` aceitar o
+conteúdo. O predicado numérico continua equivalente ao de `NumberItem`.
 
-No vanilla, `TextItem` segue `math/text.rs:15-40` para o shaper inline; este
-preserva styles e infere script. `GlyphItem` segue `math/text.rs:67-124` e
-`math/shaping.rs:168-212`, que força o script `math`. `NumberItem` chama
-`GlyphFragment::synthetic` por carácter (`math/text.rs:44-63`). A feature
-`ssty` declarada em `text/mod.rs:1457-1462` fica inerte para `TextItem`, mas é
-efetiva para as rotas de glifo/número.
+A chave de `ShapeCache` distingue o nível efetivamente calculado. Não há
+exceção por caractere, família ou fixture, nem alteração de `attach`, fonte,
+fallback ou outra feature OpenType.
 
-### Decisão proposta após novo gate humano
+## Aceitação
 
-- O cálculo do nível/feature `ssty` devolve zero/ausente quando
-  `style.math_text_item=true`, antes de consultar comprimento ou o predicado
-  numérico. O shaper não pede `ssty` para esse item.
-- `style.math` permanece `true`: resolução de família, fallback matemático,
-  tamanho, variações, linguagem, direção, tracking e demais features não são
-  alterados. Não se desliga nem se troca a fonte e não se prescreve constante
-  de fixture.
-- Quando `math_text_item=false`, P977 permanece integral: MathIdent, MathText,
-  NumberItem/dígitos, GlyphFragment e formas extensíveis continuam a pedir
-  `.st/.sts` em Script/ScriptScript sob a elegibilidade vigente.
-- A chave existente do `ShapeCache` continua coerente pelo nível `ssty`
-  calculado: `TextItem` sela nível zero, glifo/número sela 1 ou 2. Não se
-  acrescenta outro bit salvo uma medição futura que prove colisão real.
-- Nenhum script OpenType, outra feature GSUB, família, fallback ou reconciliação
-  de posição muda neste reparo; `attach.rs` permanece fora do escopo.
-
-Aceitação linguística: o oitavo B-P07 perde somente a variante `.st` indevida
-e converge, os sete vetores já GREEN permanecem, e guardas de MathIdent,
-MathText e números demonstram `.st/.sts` preservado. `Unknown` bloqueia.
-
-ADR-0107: a escolha entre rota textual e de glifo é morfologia; o predicado
-Rust é mecânica. ADR-0108: decisão posterior à medição e aos contraprobes.
-Esta obrigação depende da ampliação pública proposta em
-`entities/layout_types.md`; o gate anterior limitava o campo a IC/cache.
-ADR-0127 categoria 1 exige **novo gate humano antes de código ou resselo**.
-Ownership 1:1: este prompt legitima somente `03_infra/src/shaper.rs`.
+TextItem em script não recebe `.st/.sts`; glifos e números continuam a
+recebê-la. Família, posições, tamanho e shaping não-`ssty` permanecem iguais.

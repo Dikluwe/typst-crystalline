@@ -944,7 +944,7 @@ consumer L4.
 - sem flag, ambos permanecem false;
 - nome desconhecido falha no parser e não alcança L1/L3/L4 como valor parcial.
 
-## P1293.reopen-C — seleção explícita de serialização HTML (PROPOSTO; STOP ADR-0127)
+## Seleção explícita de serialização HTML
 
 ### Medição anterior à decisão
 
@@ -959,7 +959,7 @@ seleção contextual de escapes. Busca read-only no estado recebido não encontr
 forma vanilla como alternativa explícita; portanto é incorreto chamar qualquer
 uma das duas de “não padrão”.
 
-### Contrato público proposto
+### Contrato público vigente
 
 Somente o subcomando `compile` aceita
 `--html-serialization crystalline|vanilla`. L2 representa o dado cru com enum
@@ -986,12 +986,9 @@ conhece `HtmlSerializationMode` de L3, não serializa HTML e não ativa feature 
 target. Valor diferente termina como erro de argumentos; formato HTML continua
 dependente de `Feature::Html`, e selecionar qualquer modo não habilita feature.
 
-### Gate e aceitação
+### Aceitação
 
-Esta proposta acrescenta flag, enum e campo públicos e preserva deliberadamente
-um comportamento por defeito próprio. É categoria 1 e 2 do ADR-0127: nenhuma
-implementação ou resselo de lineage é autorizado antes de confirmação humana
-explícita. Após confirmação, REDs devem provar default `crystalline`, igualdade
+Os testes provam default `crystalline`, igualdade
 entre default e flag explícita, seleção distinta de `vanilla`, rejeição de valor
 alheio e ausência da flag nos outros comandos. Refutam este owner qualquer
 necessidade de lógica de escaping em L2, efeito fora de HTML ou alteração do

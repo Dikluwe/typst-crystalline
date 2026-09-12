@@ -88,8 +88,6 @@ join(Content([a]), Symbol("👩‍💻"))         == Content("a👩‍💻")
 
 ## P1307-R3 — Args+Args não é a fusão With
 
-**Estado**: `DRAFT_L0_AWAITING_ADR0127`; não materializar nesta rodada.
-
 ### Medição anterior à decisão
 
 No baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais P1306,

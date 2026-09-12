@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_registry`
-Hash do Código: 2984caae
+Hash do Código: bd98f345
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter_registry.rs`
@@ -169,7 +169,7 @@ pública adicional descoberta na materialização volta ao gate ADR-0127.
 
 ---
 
-## P1339 — log de ações para chaves filtradas (fase aprovada; integração pendente)
+## Log de ações para chaves filtradas
 
 ### Medição anterior à decisão
 
@@ -183,7 +183,7 @@ Os recibos `diagnosticos/p1339-where-counter-phase-probe-runs.json` e
 Step/Func/Step com chave filtrada resultando em 12, não apenas tamanho da query.
 Estado, UTC e binários estão nos recibos; não existe candidato implementado.
 
-### Decisão proposta
+### Contrato
 
 Adicionar armazenamento **privado** de eventos ordenados, somente dados L1:
 Location, origem automática/manual e ação CounterUpdate verdadeira; evento

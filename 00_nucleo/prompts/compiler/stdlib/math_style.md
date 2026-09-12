@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/math_style` — 14 funções math style
-Hash do Código: 56b9e300
+Hash do Código: 2cfdff8a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/math_style.rs`
@@ -153,106 +153,24 @@ continuam a compor; um wrapper de tamanho como `inline` não apaga a variante
 de glyph exterior/interior e o seu `cramped` continua local ao subtree.
 Não-objectivos: Greek+dígitos completos (Latin priorizado).
 
-## P1293.reopen-B-spans — diagnósticos de `mono` e `script`
+## Diagnósticos de `mono` e `script`
 
-### Medição anterior à decisão
+`wrap_math_style` usa o span da chamada recebido em `Args` para os
+diagnósticos de `mono` e `script`: body ausente ou inválido, positional
+extra, named desconhecido e `cramped` não booleano. As demais funções
+preservam sua política de span.
 
-O recibo de implementação B SHA-256
-`7ebff1e223ceebe789224ed18f2c0518990aae787d7f3e48c3f96bbfb3d792dd`,
-medido em `2026-09-01T16:38:33-03:00` sobre
-`HEAD 7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não
-commitada, registra `10/10` testes próprios GREEN para semântica, morfologia
-e layout, mas bloqueia o lote pelos spans negativos. `math.mono(1)` conserva
-a mensagem `expected content, found integer`, porém não emite source/range;
-o vanilla ratificado ancora o valor em `1:10`. `math.script` reutiliza o mesmo
-helper e apresenta a mesma causa para body, extra, named e `cramped` inválido.
-
-Medição direta em `2026-09-01T16:44:26-03:00`: o consumer vigente e ainda
-sem escrita P1293-B-spans, SHA-256
-`439729b339dadd12cce1c7d7223c7b7aa6306ff2273cac4c645f21c378d651a4`,
-usa `Span::detached()` para named desconhecido, `cramped` não bool, excesso,
-cast de body e body ausente em
-`01_core/src/compiler/stdlib/math_style.rs:32-101`. `native_mono` em
-`:181-187` e `native_script` em `:211-217` já passam os nomes fechados
-`"mono"`/`"script"` ao mesmo helper. O owner `call_dispatch` possui a AST
-individual e pode selecionar privadamente `args.span` antes da delegação;
-não é necessário campo novo em `Args`.
-
-### Decisão estreita
-
-No helper `wrap_math_style`, somente quando o parâmetro de identidade
-existente é exatamente `"mono"` ou `"script"`, todos os diagnósticos usam
-`args.span` recebido do call dispatch em vez de `Span::detached()`. A troca
-cobre, sem mudar mensagem ou precedência:
-
-- body ausente;
-- segundo positional;
-- body não convertível a Content;
-- named desconhecido;
-- para `script`, `cramped` não booleano.
-
-As outras doze funções deste owner conservam byte-conceitualmente a política
-vigente, inclusive `Span::detached()`; P1293 não as promove implicitamente a
-paridade. A função global e o binding `math` continuam a reutilizar a mesma
-function pointer, sem wrapper namespace-específico. O helper não seleciona a
-âncora nem conhece AST: apenas consome o `args.span` privado já escolhido
-pelo owner `call_dispatch` para a identidade resolvida.
-
-Esta correção preserva kind/body/cramped, casts, defaults, ordem de validação,
-mensagens, morfologia e layout. Spans diagnósticos são observáveis da língua
-(ADR-0107) e a obrigação já pertence ao contrato P1293; logo é correção
-interna em fluxo contínuo ADR-0127, sem API pública, campo, entidade, default,
-compatibilidade ou fase nova. É proibido alterar `Args`, aplicar esta regra a
-outra identidade, duplicar `native_mono`/`native_script` ou mudar a ordem de
-avaliação. Este Prompt permanece owner 1:1 somente de `math_style.rs`.
-
-Refutam a decisão: mensagem ou precedência diferente; span detached em
-mono/script quando a chamada possui AST; mudança de span nas outras doze
-funções; perda de reuso direto; ou regressão nos dez GREENs do lote. Qualquer
-necessidade de outro owner ou de contrato público obriga parada antes do
-código.
-
-## P1293.reopen-B-independent-RED — `body:` posicional em mono/script
-
-### Medição anterior à decisão
-
-O julgamento independente posterior ao recibo final B SHA-256
-`d677c0b1e6d8796c6680787d27b3409c100ff13653ab8ff89d7154813866720c`
-rejeitou `math.mono(body: ...)` e `math.script(body: ...)`: o candidato emitia
-`unexpected argument: body`, enquanto o vanilla/contrato exige a mensagem
-`the argument body is positional` e o hint separado
-`try removing body:`. O recibo vanilla independente SHA-256
-`39f11f324677885ba093178fd5bc9cc40187a6dcceb67fa28fd55b247531c9a7`
-mede em `p1293-vanilla-measurement-receipt.md:188-197` body posicional para
-ambas as funções. Este owner, em `:107-126`, tratava todo named não aceito
-como desconhecido; `:183-199` já restringe o comportamento P1293 às
-identidades fechadas `mono`/`script`.
-
-Medido: mensagem e hint são transcript diagnóstico observável. Inferência: o
-helper comum possui identidade e argumento suficientes para distinguir o campo
-posicional reconhecido de named realmente desconhecido. Refutam-na mudança no
-vanilla para essas duas formas, perda do span já preservado, alteração de
-precedência/avaliação ou necessidade de `Args`/API/payload novo.
-
-### Decisão estreita
-
-Somente quando a identidade existente é exatamente `mono` ou `script` e o named
-é exatamente `body`, `wrap_math_style` emite:
+Quando a identidade é `mono` ou `script` e o named é exatamente `body`,
+o diagnóstico é:
 
 ```text
 the argument body is positional
 hint: try removing body:
 ```
 
-O hint é campo diagnóstico separado; `hint:` acima identifica sua classe e não
-faz parte do texto armazenado, que é exatamente `try removing body:`. Outro
-named continua `unexpected argument: <nome>`; `script.cramped` continua o
-único named válido. As outras doze funções permanecem fora do escopo e
-byte-conceitualmente sob a política anterior, inclusive mensagens e spans.
+O hint é campo separado. Outro named continua `unexpected argument: <nome>`;
+`script.cramped` é o único named válido dessa dupla.
 
-Mensagem/hint são observáveis da linguagem (ADR-0107) e a correção é interna
-e contínua (ADR-0127), sem novo gate humano. Kind/body/cramped, casts,
-defaults, function pointer compartilhado, spans, precedência, ordem/quantidade
-de avaliação, morfologia, layout e fase permanecem inalterados. É proibido
-alterar `Args`, duplicar wrappers/nativas ou estender a exceção a outra
-identidade.
+Kind, body, cramped, defaults, ordem de avaliação, morfologia e layout não
+mudam. O helper continua comum; não duplicar wrappers nem estender a exceção a
+outra identidade.

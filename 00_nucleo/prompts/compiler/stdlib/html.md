@@ -1,5 +1,5 @@
 # Prompt L0 — módulo público `html` feature-gated
-Hash do Código: 33e187a1
+Hash do Código: 3c9cdb86
 
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  
@@ -68,7 +68,7 @@ vazia e não são void/raw. Sondas ratificadas confirmaram `function`, repr
 `elem(tag: "TAG", body: none)`, body content, casts estritos, erro de named
 desconhecido e DOM aninhado.
 
-### Contrato público proposto para P1168
+### Contrato público
 
 Sob `Feature::Html`, acrescentar exatamente:
 
@@ -163,7 +163,7 @@ Sondas no vanilla ratificado confirmaram:
   `unexpected argument`;
 - nesting produz `ol`/`li` explícitos sem wrapper adicional.
 
-### Contrato público proposto
+### Contrato público
 
 Sob `Feature::Html`, acrescentar exatamente:
 
@@ -242,7 +242,7 @@ os tipos acima são medição binária, não atribuição de `file:line` à tabe
 pin é provado pelo lockfile. Uma futura disponibilidade da fonte que divirja
 dos casts medidos refuta a caracterização da tabela, não o observável medido.
 
-### Contrato público proposto
+### Contrato público
 
 Sob `Feature::Html`, acrescentar exatamente `html.a` com os oito named acima,
 os mesmos 76 globais P1168 e body content posicional opcional. Todos os named
@@ -285,7 +285,7 @@ desconhecido e `data-*` também são rejeitados.
 `HTML void elements must not have children`. Sem filho, o DOM é `<br>` — sem
 slash e sem `</br>`. A classificação é derivada da tag e não exige campo novo.
 
-### Contrato público proposto
+### Contrato público
 
 Sob `Feature::Html`, acrescentar exatamente
 `html.br(..76 atributos globais P1168)`, todos opcionais/unset, zero atributos
@@ -356,9 +356,9 @@ byte-idênticas: `mark` no topo recebeu wrapper `<p>` e as outras onze foram
 boundaries block. `dd` e `legend` isolados foram aceitos, portanto as regras
 contextuais de conteúdo não pertencem ao constructor neste recorte.
 
-### Contrato público proposto
+### Contrato público
 
-Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+Sob `Feature::Html`, expor exatamente:
 
 ```text
 html.dd html.dl html.dt html.figcaption html.figure html.footer html.header
@@ -397,9 +397,9 @@ byte-idêntica. `pre` não introduziu body raw: o whitespace do Content Typst j�
 estava normalizado da mesma forma nos dois caminhos. `picture` aceita vazio e
 texto sem regra própria de constructor.
 
-### Contrato público proposto
+### Contrato público
 
-Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+Sob `Feature::Html`, expor exatamente:
 
 ```text
 html.nav html.picture html.pre html.s html.samp html.search html.section
@@ -439,9 +439,9 @@ parágrafo, enquanto dentro de `div` ele participa do contexto inline.
 classifica `summary` block. As divergências encontradas são regras L3 de
 parágrafo/whitespace, não de assinatura.
 
-### Contrato público proposto
+### Contrato público
 
-Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+Sob `Feature::Html`, expor exatamente:
 
 ```text
 html.datalist html.noscript html.summary
@@ -480,9 +480,9 @@ vazios e top-level: `ruby` entra em `<p>`; `rp` e `rt` isolados são boundaries.
 A única divergência foi whitespace entre filhos consecutivos `rp`/`rt` dentro
 de `ruby`, especificada separadamente no L0 L3.
 
-### Contrato público proposto
+### Contrato público
 
-Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+Sob `Feature::Html`, expor exatamente:
 
 ```text
 html.ruby html.rp html.rt
@@ -497,26 +497,9 @@ existente é suficiente.
 P1177.1 materializa somente estes três bindings pelo dispatcher estático
 existente e a correção L3 explicitada no seu próprio L0. Documento/raw,
 tabela, outros constructors, frame, CSS, MathML e positions permanecem fora.
-O dono aprovou exatamente este contrato em 2026-08-25.
 
-## P1293 — sete constructors tipados residuais (GATE ADR-0127)
 
-### Medição anterior à decisão
-
-Em `2026-09-01T13:24:01-03:00`, sobre o baseline
-`7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não commitada
-registrada em `p1293-baseline-status.txt`, o recibo independente mediu 203
-casos, 624 tentativas de cast sobre 48 atributos específicos, 5 vetores DOM e
-zero `Unknown`. A fonte pinada `typst-html/src/typed.rs:30-160,162-247` define
-o dispatcher único, casts, ordem e body; `tag.rs:123-141` classifica `col` e
-`wbr` como void; `convert.rs:165-245` e `encode.rs:111-167` confirmam DOM,
-escaping e ausência de end tag. O consumer baseline
-`01_core/src/compiler/stdlib/html.rs:23-29,39-210,212-237,546-590` já possui
-dispatcher estático, `AttrKind`, os 76 globais e os dois caminhos normal/void.
-`entities/html.rs` já representa `HtmlBody::{Unset,None,Content}`; não foi
-medida necessidade de novo campo, entidade, default ou fase.
-
-### Superfície e body
+## Sete constructors tipados residuais\n\n### Superfície e body
 
 Sob `Feature::Html`, acrescentar exatamente as funções de nomes curtos:
 
@@ -589,8 +572,7 @@ ou tag fora da lista.
 Aceitação cobre as sete funções, 48 casts específicos, globais representativos,
 body/void, ordem, escaping, nesting e os quatro quadrantes feature/target.
 `Unknown` nunca é sucesso; crash, timeout, cast ambíguo ou DOM não observado
-bloqueia o lote. A nova superfície pública fica bloqueada pelo gate humano
-P1293 antes do código.
+é falha.
 
 ## P1178 — família de documento (MATERIALIZADO EM P1178.1)
 
@@ -616,9 +598,9 @@ A validação e composição documentais acontecem depois, no exporter. `html` e
 exigem classificações L3 descritas no L0 do exporter. A representação
 `HtmlElem` atual preservou todos os estados necessários.
 
-### Contrato público proposto
+### Contrato público
 
-Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+Sob `Feature::Html`, expor exatamente:
 
 ```text
 html.html html.head html.body html.title
@@ -633,24 +615,9 @@ uma via especial: texto/string convertido em Content segue o contrato normal.
 P1178.1 materializa somente estes quatro bindings pelo dispatcher estático e
 as correções L3 explicitadas no próprio L0. Tabela, `script`/`style`, outros
 constructors, frame, CSS, MathML e positions permanecem fora.
-O dono aprovou exatamente este contrato em 2026-08-25.
 
-## P1293.reopen-C — casts, mensagens e união exata de `video.preload`
 
-### Medição anterior à decisão
-
-O recibo residual independente P1293/C SHA-256
-`4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
-mede oito divergências textuais locais em `html.rs:864-910,969-999,1044-1052`:
-nomes curtos Rust `int`/`str` onde o observável vanilla usa
-`integer`/`string`, fusão indevida entre tipo e domínio positivo/não-negativo,
-e formatters que não distinguem valores de linguagem de strings. A fonte
-pinada `data.rs:1445-1449,1846` e `typed.rs:176-206,466-475` fecha
-`video.preload` como `none | auto | "metadata"`. Sondas bilaterais mostram:
-valores `none`/`auto` têm sucesso e serializam `"none"`/`"auto"`; strings
-`"none"`/`"auto"` falham; string `"metadata"` tem sucesso. `Unknown=0`.
-
-### Decisão estreita
+## Casts, mensagens e união exata de `video.preload`\n\n### Decisão estreita
 
 Os casts P1293 usam nomes públicos completos nos erros locais: `string`,
 `integer` e `boolean`. Falha de tipo permanece `expected <tipo>, found

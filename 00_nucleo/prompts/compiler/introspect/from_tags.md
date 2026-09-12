@@ -202,7 +202,7 @@ atualizado por `(a, b) => (a + 1, b + 2)`, resultando em `(3, 5)`. Portanto,
 separados, não como `Value::Array` único. O retorno continua a aceitar inteiro
 ou array de inteiros não-negativos e é gravado na location do update.
 
-## P1339 — resolução sob demanda de contador filtrado (fase aprovada; gates de integração pendentes)
+## Resolução sob demanda de contador filtrado
 
 ### Medição anterior à decisão
 

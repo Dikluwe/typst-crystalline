@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: a4267e57
+Hash do Código: f204b94e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -844,44 +844,16 @@ O braço `Value::Type(Type::Float)` delega a descoberta ao owner
 reflexão para `Value::Float` e não intercepta a chamada ligada. Field
 desconhecido mantém `type float does not contain field "<field>"`.
 
-## P1293.reopen-A — span do campo ligado `is-nan` sem chamada
+## Span do acesso ligado `is-nan`
 
-### Medição anterior à decisão
+Quando `eval_field_access` recebe `Value::Float` e o campo `is-nan` sem
+chamada, o erro `cannot access fields on type float` usa
+`access.field().span()`. Mensagem, severidade, hints e ausência do valor
+ligado permanecem iguais.
 
-Em `2026-09-01T15:13:15-03:00`, sobre HEAD
-`7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não commitida, o
-recibo segregado `p1293-implementation-receipt-a.md` de SHA-256
-`14ca51a7b440ce65e46eda9dadd7b47a21e15dd7a991b193e5d103beac42ced1`
-mediu `float("NaN").is-nan` com a mensagem pública correta, mas range
-cristalino `0..19` contra `13..19` no vanilla ratificado e no contrato.
-
-No consumer vigente e ainda sem patch desta reabertura,
-`field_access.rs:106` entrega `access.span()` ao lookup comum e
-`field_access.rs:441-446` reutiliza esse span total no diagnóstico. A própria
-AST já expõe `access.field().span()` — precedente local em
-`field_access.rs:99-101` —, que corresponde exatamente ao identificador
-`is-nan` medido. Esse erro não atravessa a nativa nem `Args`; portanto este nó
-é o owner causal da quinta âncora.
-
-### Classificação e decisão
-
-O span publicado pelo diagnóstico é linguagem sob ADR-0107. A intenção P1293
-já exige o range exato; trocar somente a âncora interna é correção de paridade
-em fluxo contínuo ADR-0127, sem contrato Rust público, default ou mudança de
-fase.
-
-Quando `eval_field_access` recebe exatamente `Value::Float` e o campo
-`is-nan` como acesso ligado sem chamada, o erro vigente
-`cannot access fields on type float` deve usar `access.field().span()`, nunca
-o span total do acesso. Mensagem, severidade, hints e ausência do valor ligado
-permanecem idênticos. Todos os outros targets, fields e erros conservam a
-âncora atual; não generalizar esta regra, não criar reflexão e não fabricar um
-método como valor.
-
-É proibido alterar `entities::Args`, API pública, entidade, default, ordem de
-avaliação ou fase. Este Prompt continua proprietário 1:1 apenas de
-`01_core/src/compiler/eval/bindings/field_access.rs`; `call_dispatch` possui as
-quatro âncoras de chamadas e `stdlib/foundations/float` possui a função.
+Todos os outros targets, fields e erros conservam sua âncora. Não generalizar
+a regra, criar reflexão ou fabricar o método como valor. Fórmula e chamada
+pertencem ao owner de float; spans de chamadas pertencem a `call_dispatch`.
 
 ## P1301 — diagnóstico de field ausente em `Module`
 
@@ -952,11 +924,9 @@ L0. Não alterar `Module`, `Scope`, assinatura pública, entidade, default,
 ordem de avaliação ou fase; não criar wrapper, fallback reflexivo, blacklist
 por field nem correção de `repr(std)` neste passo.
 
-Classificação: correção de paridade em fluxo contínuo ADR-0127. O dono ainda
-autorizou explicitamente a reabertura dedicada em `2026-09-03`, após o
-veredito `P1300_BLOCKED_IMPLEMENTATION`. O gate funcional é RED→GREEN contra o
-oracle vanilla, seguido de nova cadeia segregada e resselo; a cadeia P1300 não
-é reutilizada.
+Classificação: correção de paridade em fluxo contínuo ADR-0127. O gate
+funcional é RED→GREEN contra o vanilla ratificado, seguido de resselo da
+linhagem.
 
 ## P1303 — span dos fields `pdf.*` bloqueados por `a11y-extras`
 
@@ -1198,6 +1168,5 @@ receba conteúdo consultado. Não criar API pública nova.
 Aceitação: descoberta/type/repr/chamada real, alias, rejeição de extração
 ligada e preservação dos demais lookups. Refutam a suficiência outra
 identidade que ganhe campo ou necessidade de novo carrier público.
-Correção de namespace em fluxo contínuo ADR-0127 dentro do gate aprovado;
-contrato, selo e RED ainda precedem implementação. Este recorte não completa
-os L0 das demais rotas P1339.
+Correção de namespace em fluxo contínuo ADR-0127. Este recorte não completa
+os contratos das demais rotas.

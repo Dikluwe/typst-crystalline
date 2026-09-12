@@ -4,9 +4,8 @@ Hash do Código: ac225f13
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 
-**Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  
-**Owner candidato:** `01_core/src/entities/html.rs`
+**Ficheiro alvo exclusivo:** `01_core/src/entities/html.rs`
 
 ## Medição anterior à decisão
 
@@ -86,7 +85,7 @@ para `None` e o conteúdo para `Content`. Exporter/plain-text/walkers tratam
 Esta substituição foi aprovada pelo dono antes da materialização. Não usar
 tag, conteúdo vazio nem booleano oculto como codificação implícita.
 
-## P1288 — retirar ownership do set de features (PROPOSTO; gate ADR-0127)
+## Features do compilador
 
 ### Medição anterior à decisão
 
@@ -96,10 +95,9 @@ A fonte vanilla pinada mede `A11yExtras` como feature irmã de `Html` em
 `typst-library/src/lib.rs:272-305`; portanto a coleção deixou de ser uma
 responsabilidade HTML.
 
-### Decisão proposta
+### Decisão vigente
 
-Após confirmação humana, mover a definição canônica para o owner
-`entities/compiler_features.md`. Este consumer continua dono somente de
+O owner canônico é `entities/compiler_features.md`. Este consumer é dono somente de
 `HtmlAttrs`, `HtmlBody`, `HtmlElem` e suas operações puras. Preservar
 `entities::html::{Feature, Features}` como re-export explícito da identidade
 canônica enquanto o path público anterior exigir compatibilidade; não manter

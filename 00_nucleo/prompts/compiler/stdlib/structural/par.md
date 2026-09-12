@@ -67,8 +67,7 @@ A nativa retorna exactamente `Value::Content(Content::Parbreak)`. O binding glob
 `std.parbreak` têm kind `function`. A linha vazia em markup continua pelo caminho
 sintático existente; múltiplas quebras continuam a colapsar no consumer vigente.
 
-Esta adição é contrato público e comportamento por defeito. O código só pode ser escrito
-depois da confirmação humana exigida por ADR-0127.
+Esta adição é o contrato público e o comportamento por defeito vigente.
 
 ## Restrições Estruturais
 

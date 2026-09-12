@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 261b3d13
+Hash do Código: c4032d3b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -72,18 +72,7 @@ esta string. A fachada pública de repr conserva assinatura.
 
 ## Contrato
 
-### P1293 — projeção dos três estados de slot
-
-#### Medição anterior à decisão
-
-`01_core/src/compiler/eval/repr.rs:496-514` hoje omite `None` e converte
-`Some(Content::Empty)` em `none`. O recibo causal SHA-256
-`80a9543c9450f2350a42fa48df2e42cac63109bd074ebb37c2ec424cba473d5c`
-mede que isso torna impossível representar `Present(Content::Empty)` como
-markup vazio, embora o vanilla distinga `attach(base:[x], br:none)` de
-`attach(base:[x], br:[])`.
-
-#### Decisão
+### Projeção dos três estados de slot
 
 Nos seis campos, `Omitted` não emite named; `ExplicitNone` emite exatamente
 `<slot>: none`; `Present(content)` usa `repr_p1293_math_field(content)`, de
@@ -289,200 +278,31 @@ heurística textual ou especialização nominal. P1290 não autoriza mudar a fas
 de resolução, editar outro owner ou ampliar contrato público para recuperar
 essa proveniência; tal mudança seria novo escopo e gate humano ADR-0127.
 
-## P1293.reopen-B — projeção morfológica de `attach` e `binom`
+## Projeção morfológica de `attach`, `binom` e estilos math
 
-### Medição anterior à decisão
+`MathAttach` usa sempre os seis campos na ordem `t,b,tl,bl,tr,br`: omite
+`Omitted`, imprime `none` para `ExplicitNone` e delega `Present` à
+projeção normal de conteúdo. `binom` representa upper e lower na ordem,
+preservando o lower variádico.
 
-Em `2026-09-01T15:51:21-03:00`, sobre
-`HEAD 7dd25ff0e222b6c7c640d6bc7957b98f94227507` e working tree não
-commitada discriminada no recibo
-`00_nucleo/diagnosticos/p1293-implementation-receipt-b.md` SHA-256
-`ae74fa392fcb1b3b93d209347ba211bc207da72fb0ed6a0f1d14c1584937d8f1`,
-o implementador executou os cinco REDs próprios do lote B antes de qualquer
-implementação produtiva: `0 passed / 5 failed / 5375 filtered`, exit `101`.
-As cinco falhas eram exclusivamente bindings ausentes. O consumer
-`structural/math.rs`, que transportava os REDs, tinha SHA-256
-`07b26199e1fe03f4fcab51591c1ded7da45f462156fcbb8c08bc983dbb446a88`;
-o consumer deste owner permanecia baseline, SHA-256
-`6582446811b7469bb5e632d1c4f130417d27ad30388138a22027ee3add083eb4`.
+`MathStyled` usa a identidade pública canônica do kind. `mono(body)` e
+`script(body, cramped: ...)` tratam body como positional e mantêm a
+morfologia das folhas de conteúdo, inclusive texto, símbolo e conteúdo vazio.
+A projeção não infere presença por `Content::Empty` nem reescreve payload.
 
-Medição direta do baseline, repetida em `2026-09-01T15:55:55-03:00` no
-mesmo `HEAD` e estado não commitado: `repr_content` começa em
-`01_core/src/compiler/eval/repr.rs:503`; `Content::Sequence` é projetado em
-`repr.rs:558-565`; `MathSequence` em `repr.rs:583`; `MathText` em
-`repr.rs:584`; `MathFrac` em
-`repr.rs:585-587` ignora `line`; `MathAttach` em `repr.rs:588-614` projeta
-scripts; e `MathDelimited` em `repr.rs:617-619` projeta apenas delimitador e
-body. Logo os owners B já legitimados conseguem construir os payloads
-canônicos, mas este owner ainda não consegue observar
-`attach(base: ..., t: none)` nem
-`binom(upper: ..., lower: (...,))` exigidos pelo contrato congelado.
+## Forma de `HtmlElem`
 
-O baseline do caminho sintático em `HEAD:01_core/src/compiler/eval/math.rs:963-1002`
-mostra a forma causal preservada: cada lower ocupa uma posição par de
-`Content::MathSequence`; entre lowers, e somente nas posições ímpares, o
-constructor insere `Content::MathText(", ")`; o conjunto torna-se `den` de
-`MathFrac(line:false)` e é envolvido por `MathDelimited('(', ..., ')')`.
-Os owners P1293 de sintaxe e função qualificada obrigam ambos os caminhos a
-delegar ao mesmo constructor puro. A conclusão histórica de que `Option` já
-distinguia `none` de markup vazio foi refutada pelo recibo causal do carrier;
-a decisão triestatal pinada no topo deste prompt substitui somente esse trecho.
-
-### Decisão estreita
-
-`Content::MathAttach` projeta-se como
-`attach(base: <repr da base>[, <slot>: <repr>...])`. Somente slots presentes
-são emitidos, na ordem pública fixa `t`, `b`, `tl`, `bl`, `tr`, `br`.
-`ExplicitNone` projeta-se como `none`; `Omitted` é omitido; e
-`Present(content)` usa sua `repr` canônica, inclusive `[]` para conteúdo
-vazio. A forma
-curta ou multilinha e o escaping pertencem aos formatters canônicos vigentes,
-não a concatenação textual ad hoc.
-
-`Content::MathDelimited` projeta-se como `binom` somente quando a estrutura é
-exatamente `open == '('`, `close == ')'` e `body == Content::MathFrac` com
-`line == false`, cujo `den` é a `MathSequence` canônica de cardinalidade
-ímpar não vazia: lowers nas posições pares e exatamente
-`Content::MathText(", ")` nas posições ímpares. Essa forma projeta
-`binom(upper: <repr num>, lower: (<repr lower 0>, ...))`; singleton conserva a
-vírgula final, e múltiplos lowers conservam cardinalidade e ordem. Os
-separadores estruturais não viram itens do tuple. A forma fechada é a
-construção canônica única autorizada pelos owners de `binom`; a decisão não
-reconhece nome de função, texto do upper/lower ou identidade de testemunha.
-
-Qualquer `MathFrac` com `line == true`, qualquer delimitador diferente,
-qualquer body que não seja essa fração, e qualquer denominador que não
-satisfaça integralmente a alternância estrutural conservam a representação
-genérica vigente; não há recuperação permissiva nem heurística nominal.
-Sintaxe e chamada qualificada convergem porque chegam ao mesmo payload, não
-porque `repr` consulta a origem da chamada.
-
-Esta correção é de morfologia da linguagem (ADR-0107) e corrige owner gap
-interno em fluxo contínuo (ADR-0127). Não altera API pública, payload,
-`Args`, casts, default, fase de eval/layout, igualdade, hash, traversal ou
-render. Refutam a decisão: perda de `none` explícito; emissão de slot omitido;
-troca de ordem/cardinalidade dos lowers; barra em binom; classificação de
-fração/delimitador genérico como binom; diferença sintaxe/qualificada; ou
-qualquer mudança de frame/SVG. Formas fora da estrutura fechada permanecem
-`Unknown` para P1293, nunca sucesso implícito.
-
-## P1293.reopen-B-independent-RED — `MathStyled` e folhas diretas
-
-### Medição anterior à decisão
-
-O julgamento independente recebido depois do recibo final B SHA-256
-`d677c0b1e6d8796c6680787d27b3409c100ff13653ab8ff89d7154813866720c`
-rejeitou a morfologia candidata em dois eixos já congelados pelo contrato:
-
-- `MathStyled` produzido por `mono`/`script` era projetado apenas como `[x]`,
-  apagando o wrapper público `styled(child: [x], ..)`;
-- nos quatro pares P1293, folhas do caminho sintático apareciam como
-  `x`/`T`/equivalentes, enquanto os mesmos campos no caminho qualificado
-  apareciam como `[x]`/`[T]`/equivalentes.
-
-O recibo vanilla independente SHA-256
-`39f11f324677885ba093178fd5bc9cc40187a6dcceb67fa28fd55b247531c9a7`
-mede em `p1293-vanilla-measurement-receipt.md:195-204` que `mono`/`script`
-preservam `styled(child: [x], ..)` e que sintaxe/chamada qualificada convergem.
-Este owner, em `:248-272`, já reconhece as formas estruturais fechadas de
-attach/binom, mas ainda delega cada campo à `repr` genérica sem fixar a projeção
-da folha direta. O precedente interno medido em `:84-97` já resolve a mesma
-fronteira para filhos diretos de `MathVec`: `MathIdent`/`MathText` usam o
-formatter canônico de conteúdo textual sem mudar o payload.
-
-Medido: wrapper e colchetes são morfologia pública; variantes/campos existentes
-identificam integralmente os locais. Inferência: a causa cabe somente na
-projeção deste owner. Refutam-na necessidade de provenance bit/payload novo,
-mudança de entidade/fase/layout, folha aninhada que exija projeção recursiva ou
-forma qualificada que continue divergente depois da projeção canônica.
-
-### Decisão estreita
-
-`Content::MathStyled` nas formas estruturais fechadas de `mono`
-(`kind == Monospace`) e `script` (`kind == Script`, preservando o `cramped`
-presente) mantém obrigatoriamente o constructor público `styled(...)`; nunca
-se reduz à `repr` do body. O campo `child` é emitido primeiro pelo formatter
-canônico de campos/construtores e os demais campos de estilo presentes
-conservam seus nomes, valores e ordem canônicos. A forma observável inclui
-`styled(child: [x], ..)` para a testemunha medida; `..` aqui denota os campos
-de estilo canônicos presentes, não texto literal nem licença para omiti-los.
-
-Somente nestes campos P1293, uma folha direta `Content::MathIdent` ou
-`Content::MathText` projeta a sequência visível pelo formatter canônico de
-conteúdo textual, obtendo `[<texto escapado>]` sem concatenar colchetes crus:
-
-- `MathAttach.base` e cada slot presente `t,b,tl,bl,tr,br`;
-- `binom.upper` e cada item real de `binom.lower`, excluindo os separadores
-  estruturais `MathText(", ")`;
-- `MathStyled.child` das formas mono/script acima.
-
-`Content::Text` e qualquer variante estruturada conservam sua própria `repr`;
-não há double-wrap, projeção recursiva ou regra para outros campos/elementos.
-A seleção usa exclusivamente variantes, campos e valores estruturais
-existentes: é proibido reconhecer nome/origem da função, texto da testemunha,
-span ou forma sintática/qualificada.
-
-Esta é morfologia da linguagem (ADR-0107) e correção interna de paridade em
-fluxo contínuo (ADR-0127), sem novo gate humano. Payload, API pública,
-entidade, `Args`, defaults, igualdade/hash/traversal, fase eval/layout e render
-permanecem inalterados. Refutam a aceitação: wrapper `styled` apagado,
-folha direta sem formatter textual, diferença sintaxe/qualificada, projeção
-fora dos campos enumerados ou qualquer alteração de frame/SVG.
+A forma curta é usada apenas quando o valor cabe integralmente nela. Caso
+contrário, `HtmlElem` é bloco multiline com `tag`, `attrs` e `body`
+nessa ordem, indentação estrutural e vírgula por campo. Ordem de atributos,
+escaping e morfologia do body são preservados; não normalizar whitespace para
+aceitar ambas as formas.
 
 ## Restrições e aceitação
 
-P1224: `Stroke` simples conserva a forma histórica `thickness + paint`.
-Quando qualquer dimensão complexa diverge do default, usa dict morfológico com
-campos explícitos `paint`, `thickness` quando não-default, `cap`, `join`,
-`dash: (array:, phase:)` e `miter-limit`. A ordem do dash é preservada;
-`DashLength::LineWidth` usa `"dot"`. Não usar `Debug` dos enums.
-
-P1225 permite que o módulo pai exponha o formatter de `Stroke` por uma função
-pública estreita para o serializer L2. P1285 mede que o contrato de
-serialização do vanilla usa `repr` para todo `Value` não estruturado
-(`lab/typst-original/crates/typst-library/src/foundations/value.rs:343-362`)
-e, conforme gate ADR-0127 confirmado pelo dono em 2026-08-30, autoriza o módulo pai a expor uma
-fachada pública total `repr_value_for_serialization(&Value) -> String`.
-`repr_value` permanece implementado neste owner e o módulo continua privado;
-a fachada não autoriza `Debug` nem dependência de formato neste formatter.
-A classificação dos encoders L1 pertence exclusivamente a loading, conforme
-o contrato P1307-R3 pendente abaixo; não é implementada na fachada.
-
-L1 puro, sem I/O. Toda nova variante pública exige medição anterior contra o
-vanilla e branch explícito; não usar `Debug` como fallback. Testes focais
-cobrem escaping, labels, conteúdo matemático, selectors e symbols.
-
-O constructor nativo `native_repr` pertence a
-`compiler/stdlib/foundations/repr.md`; este owner especifica a serialização
-efetiva chamada por ele.
-
-## P1293.reopen-C — forma curta/multiline de `HtmlElem`
-
-### Medição anterior à decisão
-
-O recibo residual independente P1293/C SHA-256
-`4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
-mede sete positivos com campos, valores e ordem corretos, mas forma linear onde
-o vanilla usa multiline. Em `01_core/src/compiler/eval/repr.rs:580-597`, o
-`HtmlElem` une campos com `", "`; a disciplina canônica já existe em
-`:1087-1140`. Contraprovas curtas permanecem iguais nos dois binários:
-`col(span:2,id:"c")`, `wbr(id:"w")` e `button(value:"v")` continuam numa
-linha. A divergência é morfologia pública de `repr`, não payload nem layout.
-
-### Decisão estreita
-
-`Content::HtmlElem` usa a mesma disciplina canônica de listas/campos já
-aplicada por este owner: forma curta enquanto a representação integral cabe na
-fronteira canônica e nenhum campo é multiline; caso contrário, um campo por
-linha, indentação por nível e vírgula final. Tag, attrs e body conservam nomes,
-valores e ordem; nesting reindenta sem achatar o filho. A decisão não torna todo
-HtmlElem multiline e não especializa as sete testemunhas, tags ou quantidade
-de atributos.
-
-É correção de morfologia da linguagem em fluxo contínuo ADR-0127. Não altera
-entidade, API, default, fase, escaping do target HTML, igualdade ou render.
-Refutam-na qualquer forma curta medida que passe a quebrar, perda/reordenação de
-campo, escolha por nome de tag ou divergência persistente na mesma largura.
+A representação textual é observável de `repr`, mas não autoriza mudar
+payload, API, eval, layout ou export. Testes cobrem os três estados de slot,
+lower variádico, mono/script e formas curta/multiline de HTML.
 
 ## P1305-r2 — arrays longos e módulos nomeados
 
@@ -637,10 +457,9 @@ Args com occurrences presentes conserva ordem causal e todos os valores,
 usando o pretty-printer de sequência sem vírgula de singleton, largura de
 50 bytes e forma multiline quando excedida; não elide argumentos. Args
 sintético sem occurrences conserva a projeção legada já especificada.
-Autoriza-se explicitamente a regra longa e sua propagação aos fallbacks.
-Não se pede nova implementação quando o baseline já a cumpre.
-O autor independente migra a expectativa histórica de Location neste
-consumer para `location(..)`. Nenhum outro expected é relaxado.
+A regra longa e sua propagação aos fallbacks são vigentes. Quando o baseline
+já a cumpre não há mudança produtiva. A expectativa de Location neste consumer
+é `location(..)`; nenhum outro expected é relaxado.
 
 ## P1339 — grupo público de filtros de elemento
 
@@ -677,5 +496,3 @@ Aceitação: vazio, campo único, ordem oposta, spread com sobrescrita, alias,
 filhos multiline, valores escapados e projeção em Counter/fallback. Refuta a
 decisão qualquer perda de grupo, ordem ou valor, ou alteração do repr de
 variantes anteriores. Morfologia é linguagem; escolher um helper é mecânica.
-O gate público está aprovado (`p1339-where-approval.json`); contrato, selo e
-RED permanecem anteriores à implementação.
