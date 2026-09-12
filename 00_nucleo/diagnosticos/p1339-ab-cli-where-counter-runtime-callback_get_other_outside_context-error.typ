@@ -1,5 +1,0 @@
-#let a = counter(heading.where())
-#let b = counter("other")
-#b.update(7)
-#a.update(n => n + b.get().first())
-#context metadata(a.get())

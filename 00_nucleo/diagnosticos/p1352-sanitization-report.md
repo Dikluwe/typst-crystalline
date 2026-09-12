@@ -87,3 +87,22 @@ git show e5d0ca402a21ae19ad2dfab64ad0b5960623bd6b:<path> > <destino>
 O passo de execução P1352, este relatório e o ledger são os únicos documentos
 novos. A sanitização não altera contrato público, comportamento do produto,
 fase do pipeline, Prompts L0 nem código das camadas L1–L4.
+
+## Correção de escopo — P1322 em diante
+
+Em `2026-09-12`, o recorte anterior foi corrigido: a acumulação danosa começa
+em P1322, não em P1328. A partir do estado-base
+`61a56c7c7de3e073f30a009acd2c59ffa9568d65`, havia 1.899 artefatos de
+P1322–P1351, com 757.666.018 bytes (722,57 MiB).
+
+Foram retirados 1.558 artefatos gerados — matrizes, recibos, executores,
+corpora e resultados intermediários — com 727.578.137 bytes (693,87 MiB).
+Permaneceram 341 ficheiros e 30.087.881 bytes (28,69 MiB): todos os 286
+diagnósticos Markdown legíveis por humanos e 55 evidências não-Markdown ainda
+referenciadas por Prompts L0, ADRs ou código. Todas as referências ativas
+extraídas continuam resolvendo para ficheiros existentes.
+
+Não foi criado novo passo, ledger, manifesto ou recibo. O diff do commit desta
+correção é o inventário exato e o histórico Git conserva integralmente os
+artefatos retirados. Prompts L0, ADRs, materialização e código não foram
+alterados.

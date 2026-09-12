@@ -1,5 +1,0 @@
-{
-  "target": "/tmp/p1334-target.Ujq0xU",
-  "cache_from": "/tmp/p1333-target.MDDkou",
-  "method": "cp -a --reflink=auto, no hardlinks"
-}
