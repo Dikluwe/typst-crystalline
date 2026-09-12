@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1293_contract.md
-//! @prompt-hash e262f4dd
+//! @prompt-hash 79219a69
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -26,7 +26,7 @@ use typst_infra::export::{
 const BIN: &str = env!("CARGO_BIN_EXE_typst");
 const VANILLA: &str = "/usr/local/bin/typst";
 const VANILLA_SHA256: &str =
-    "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8";
+    "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct Transcript {

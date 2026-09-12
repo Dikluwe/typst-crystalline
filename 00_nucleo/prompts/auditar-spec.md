@@ -56,13 +56,13 @@ estrutura interna do cristalino):
   (`typst.app/docs/`) ou, na ausência de página de documentação para o caso, uma medição
   directa contra o binário vanilla com proveniência (`file:line` ou comando+resultado).
 - **Qual binário é o vanilla** (armadilha medida em 2026-08-13, ver `CLAUDE.md`
-  §"Referência de paridade"): o alvo é upstream/main **`a51e02804`**, pinado. Os binários
+  §"Referência de paridade"): o alvo é upstream/main **`586e1bd43`**, pinado. Os binários
   de referência são `lab/typst-original/target/release/typst` e `/usr/local/bin/typst`;
-  ambos reportam `typst 0.15.1 (e0e8ca4d)`, que é main+93 com o hash **do nosso repo** (o
-  lab não tem `.git` próprio). O `./target/release/typst` da raiz é o **cristalino** e
-  reporta `typst 0.15.0 (…)` a partir de `PARITY_VERSION` — usá-lo como oráculo é medir o
-  cristalino contra si mesmo. Confirmar qual binário se está a correr antes de citar a
-  medição; e citar o **hash pinado**, não uma tag.
+  ambos reportam `typst 0.15.1 (586e1bd4)` porque o build recebe o pin completo por
+  `TYPST_COMMIT_SHA`. O `./target/release/typst` da raiz é o **cristalino** — usá-lo como
+  oráculo é medir o cristalino contra si mesmo. Confirmar qual binário se está a correr
+  antes de citar a medição; e citar o **hash pinado**, a árvore e o SHA-256 do binário,
+  não uma tag nem apenas `--version`.
 - Afirmações **sem nenhuma das duas fontes** — nem citação, nem medição — são achado de
   fundamentação em falta, independentemente de estarem certas ou erradas.
 - **Cuidado com generalizações não suportadas pela própria citação**: se o prompt cita a

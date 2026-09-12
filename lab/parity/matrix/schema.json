@@ -5,7 +5,7 @@
   "required": ["schema_version", "vanilla_revision", "cases"],
   "properties": {
     "schema_version": { "const": 1 },
-    "vanilla_revision": { "const": "a51e02804" },
+    "vanilla_revision": { "const": "586e1bd43" },
     "cases": {
       "type": "array",
       "items": { "$ref": "#/$defs/case" }

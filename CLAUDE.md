@@ -40,22 +40,6 @@ de dúvida sobre a classe: parar. Ver **ADR-0127**.
 
 ---
 
-## ⚠️ Restrição de leitura — pastas de materialização e context
-
-```text
-00_nucleo/materialization/
-00_nucleo/context/
-```
-
-- Não ler estas pastas por iniciativa própria.
-- Só aceder quando explicitamente indicado com o path completo.
-- Nunca varrer ou listar o conteúdo destas pastas.
-- Se uma tarefa parece exigir este contexto mas não referencia um ficheiro explícito: **perguntar antes de agir**.
-
-**Motivo:** estes ficheiros contêm instruções sequenciais históricas. Lê-los fora de contexto injeta estado passado e gera alucinações arquiteturais.
-
----
-
 ## A Arquitetura Cristalina (Tekt)
 
 O código original do compilador está em `lab/typst-original/` (quarentena). A migração acontece gradualmente para as camadas cristalinas. O critério de sucesso primário é `crystalline-lint .` com zero violations.
@@ -80,10 +64,10 @@ O código original do compilador está em `lab/typst-original/` (quarentena). A 
 | Pasta | Propósito | Exemplo |
 |-------|-----------|---------|
 | `adr/` | Decisões arquiteturais formais (ADRs). | `adr/ADR-0109.md` |
-| `context/` | Materialização sequencial — **não ler sem path explícito**. | `context/passo-146.md` |
+| `context/` | Materialização sequencial e contexto histórico. | `context/passo-146.md` |
 | `diagnosticos/` | Análises, inventários, varreduras, métricas e documentos de estado. | `diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` |
 | `debt-anexos/` | Anexos técnicos de débito arquitetural. | `debt-anexos/DEBT-001.md` |
-| `materialization/` | Passos de execução e rascunhos de materialização — **não ler sem path explícito**. | `materialization/typst-passo-423.md` |
+| `materialization/` | Passos de execução e rascunhos de materialização. | `materialization/typst-passo-423.md` |
 | `prompts/` | **Prompts L0 vinculados a código L1–L4**. Especificações arquiteturais puras e perenes que legitimam código. | `prompts/compiler/layout.md` |
 | `prompts/_nuclei/` | **Núcleos Tekt TOML**. Claims normativas compartilhadas por prompts; não materializam nem legitimam código diretamente. | `prompts/_nuclei/path-identity.toml` |
 
@@ -129,27 +113,30 @@ objeto da linguagem (texto, markup, estilo semântico `*bold*`), distinta do est
 
 ---
 
-## Referência de paridade — qual binário, qual fonte (ratificado 2026-08-11)
+## Referência de paridade — qual binário, qual fonte (ratificado 2026-09-12)
 
-O alvo de paridade é o **vanilla ratificado**: upstream/main **`a51e02804`**, hash
-**pinado** — re-sync futuro exige passo explícito. Decisão registada no adendo do dono à
-retificação P990-P992 (`diagnosticos/typst-retificacao-p990-p992-lab-sync.md`). **Não** é a
-tag 0.15.0 nem a 0.15.1.
+O alvo de paridade é o **vanilla ratificado**: upstream/main **`586e1bd43`**, hash
+**pinado** — re-sync futuro exige passo explícito. A ratificação anterior de
+`a51e02804` permanece registada no adendo do dono à retificação P990-P992
+(`diagnosticos/typst-retificacao-p990-p992-lab-sync.md`); a substituição explícita pelo
+novo pin está registada em `diagnosticos/p1355-resync-relatorio.md`. **Não** é a tag
+0.15.0 nem a 0.15.1.
 
 Quatro armadilhas, todas medidas em 2026-08-13:
 
-1. **A string de versão do lab engana.** `lab/typst-original` não tem `.git` próprio, logo o
-   build estampa o hash do **nosso** repo: `typst 0.15.1 (e0e8ca4d)` é main+93 com o nosso
-   hash, não a tag 0.15.1.
+1. **A string de versão só é evidência auxiliar.** `lab/typst-original` não tem `.git`
+   próprio. O build ratificado recebe
+   `TYPST_COMMIT_SHA=586e1bd43fae6c9a973218163d3165c53ab8d16d` explicitamente e reporta
+   `typst 0.15.1 (586e1bd4)`, mas a proveniência continua a ser provada pelo pin, árvore,
+   receita e SHA-256 do binário — nunca pela string sozinha.
 2. **`./target/release/typst` na raiz é o cristalino, não o vanilla.** `04_wiring` declara
    `[[bin]] name = "typst"`; o seu `typst 0.15.0 (…)` é a constante `PARITY_VERSION`
    (`entities/version.rs`) + o hash do nosso HEAD. Confundir os dois foi o erro do Passo
    1024. Os binários de referência são `lab/typst-original/target/release/typst` e
    `/usr/local/bin/typst` — ambos o mesmo build ratificado.
-3. **`sys.version` diverge do baseline.** Medido: cristalino → `version(0, 15, 0)`;
-   vanilla ratificado → `version(0, 15, 1)`. É superfície de linguagem, logo paridade
-   (ADR-0107) — mudar é comportamento por defeito, gate ADR-0127. Registado em
-   `prompts/entities/version.md`.
+3. **`sys.version` continua em paridade.** Medido no novo vanilla ratificado e no
+   cristalino: `version(0, 15, 1)`. É superfície de linguagem (ADR-0107); uma futura
+   mudança exige nova medição e o gate ADR-0127 descrito em `prompts/entities/version.md`.
 4. **`--version` do cristalino pode ficar preso a um HEAD antigo.** Antes do Passo 1033,
    `02_shell/build.rs` só declarava `rerun-if-env-changed=TYPST_COMMIT_SHA`; o cargo não
    reexecutava o script quando o HEAD mudava, logo a string `--version` refletia o primeiro

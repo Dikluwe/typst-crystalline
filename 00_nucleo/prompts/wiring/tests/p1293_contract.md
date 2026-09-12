@@ -1,10 +1,10 @@
 # Prompt L0 — contrato black-box integrado de linguagem e exportação
-Hash do Código: 58d73bce
+Hash do Código: 594b21b4
 
 **Camada:** L4 — teste de integração
 **Ficheiro alvo exclusivo:** `04_wiring/tests/p1293_contract.rs`
 **Vanilla ratificado:** `/usr/local/bin/typst`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`
+`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`
 **ADRs:** ADR-0107, ADR-0108, ADR-0128, ADR-0129
 
 ## Propriedade

@@ -65,7 +65,13 @@ fn main() {
         "html" => [Feature::Html].into_iter().collect(),
         other => panic!("unknown profile {other:?}; expected default or html"),
     };
-    let library = typst::Library::default();
+    let library = typst::Library::new([
+        typst_html::FORMAT,
+        typst_pdf::FORMAT,
+        typst_svg::FORMAT,
+        typst_render::FORMAT,
+        typst_bundle::FORMAT,
+    ]);
     let guard = SilentBindingGuard::new(features);
     let mut catalog = BTreeMap::new();
     walk_module(&library.global, "", None, &guard, &mut catalog, 0);
@@ -75,7 +81,7 @@ fn main() {
         profile: &profile,
         features: if profile == "html" { vec!["html"] } else { vec![] },
         product_sha256: sha256sum(&product_binary),
-        vanilla_revision: "a51e02804",
+        vanilla_revision: "586e1bd43",
         entries: &catalog,
     };
     let json = serde_json::to_string_pretty(&envelope).expect("serialize catalog");

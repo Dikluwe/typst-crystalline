@@ -192,9 +192,10 @@ fonte de valor, não prova de proveniência do hash impresso. A medição anteri
 `#repr(sys.version)` continua a confirmar `version(0, 15, 0)` vs
 `version(0, 15, 1)`.
 
-O baseline de paridade é upstream/main `a51e02804` (ratificado 2026-08-11), cujo
-`sys.version` reporta `(0, 15, 1)`. A constante daqui reporta `(0, 15, 0)` — e já estava
-atrás antes do sync, porque o baseline anterior era a **tag 0.15.1**.
+O baseline de paridade usado nesta medição histórica era upstream/main `a51e02804`
+(ratificado 2026-08-11), cujo `sys.version` reportava `(0, 15, 1)`. A constante daqui
+reportava `(0, 15, 0)` — e já estava atrás antes do sync, porque o baseline anterior era
+a **tag 0.15.1**.
 
 `sys.version` é **superfície de linguagem**: qualquer documento a pode imprimir, comparar
 (`sys.version >= version(0, 15, 1)`) ou usar para ramificar. Logo isto é paridade no sentido
@@ -206,6 +207,12 @@ Typst ratificado mais novo deste projeto; `(0, 15, 0)` era esquecimento, não mo
 compatibilidade. A constante **não acompanha automaticamente** `upstream/main`, uma tag ou
 a versão mais recente da rede: só muda num passo explícito de re-sync que substitua o hash
 pinado e volte a medir `sys.version`. Isso preserva a reprodutibilidade do oráculo.
+
+**Ressincronização P1355 (2026-09-12):** o alvo corrente passa a upstream/main
+`586e1bd43`, árvore `2847920eeaa98d26a41dc6fb0f9c02334b9d593b`. A sonda direta do
+novo binário ratificado devolve `version(0, 15, 1)`, portanto `PARITY_VERSION` permanece
+inalterada. Esta troca atualiza a autoridade do oráculo; não reescreve as medições
+históricas de `a51e02804` nem concede crédito automático às novas superfícies.
 
 Impacto público deliberado da correção:
 

@@ -147,7 +147,7 @@ class ProfileAndDeterminismTests(unittest.TestCase):
             "profile": profile,
             "features": features,
             "product_sha256": sha,
-            "vanilla_revision": "a51e02804" if side_name == "vanilla" else None,
+            "vanilla_revision": "586e1bd43" if side_name == "vanilla" else None,
             "entries": {"same": side(kind="module", params=None)},
         }
 

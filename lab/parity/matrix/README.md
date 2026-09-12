@@ -2,7 +2,7 @@
 
 Este diretório contém casos versionados, não uma alegação de paridade. `manifest.yaml` é JSON válido e YAML 1.2 válido; essa forma permite validação reproduzível apenas com a biblioteca padrão do Python. `schema.json` documenta o contrato completo em JSON Schema.
 
-O alvo vanilla é exclusivamente `upstream/main a51e02804`, materializado em `lab/typst-original/target/release/typst`. A string impressa por `--version` não prova a revisão porque a cópia em `lab/` não possui `.git` próprio. A proveniência ratificada vem do pin do repositório; o relatório registra também caminho, versão observada, HEAD e estado integral da árvore.
+O alvo vanilla é exclusivamente `upstream/main 586e1bd43`, materializado em `lab/typst-original/target/release/typst`. A string impressa por `--version` não prova sozinha a revisão. A proveniência ratificada vem do pin e da árvore do upstream, da receita com `TYPST_COMMIT_SHA` explícito e do SHA-256 do binário; o relatório registra também caminho, versão observada, HEAD e estado integral da árvore.
 
 ## Reprodução
 

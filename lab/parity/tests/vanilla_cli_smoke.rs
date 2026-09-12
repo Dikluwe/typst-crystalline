@@ -2,7 +2,7 @@
 //!
 //! Sentinel de runtime: confirma que o binário vanilla
 //! `typst` está acessível via PATH e reporta versão
-//! compatível com o vanilla ratificado `upstream/main a51e02804`.
+//! idêntico ao vanilla ratificado `upstream/main 586e1bd43`.
 //!
 //! **Skip graceful**: se vanilla CLI ausente (CI sem
 //! install step ou ambiente local sem typst), o test
@@ -17,8 +17,9 @@
 
 use std::process::Command;
 
-/// Versão pública do vanilla ratificado em `upstream/main a51e02804`.
-const VANILLA_EXPECTED_VERSION_PREFIX: &str = "0.15.1";
+/// Identidade pública esperada do binário construído com o pin explícito.
+/// A prova completa continua a exigir fonte, árvore, receita e SHA-256.
+const VANILLA_EXPECTED_VERSION: &str = "typst 0.15.1 (586e1bd4)";
 
 #[test]
 fn p206b_vanilla_cli_disponivel_e_versao_compativel() {
@@ -49,11 +50,11 @@ fn p206b_vanilla_cli_disponivel_e_versao_compativel() {
     let stdout_trim = stdout.trim();
 
     assert!(
-        stdout_trim.contains(VANILLA_EXPECTED_VERSION_PREFIX),
-        "vanilla CLI versão incompatível: esperado prefixo \
+        stdout_trim == VANILLA_EXPECTED_VERSION,
+        "vanilla CLI incompatível: esperado exatamente \
          `{}`, output `{}`. Pinning per vanilla ratificado \
-         `upstream/main a51e02804`.",
-        VANILLA_EXPECTED_VERSION_PREFIX,
+         `upstream/main 586e1bd43`.",
+        VANILLA_EXPECTED_VERSION,
         stdout_trim
     );
 
