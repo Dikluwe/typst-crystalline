@@ -1,0 +1,161 @@
+{
+  "schema": "tekt-segregated-materialization-manifest/v1",
+  "protocol_version": "1.0",
+  "step": "P1363",
+  "created_at": "2026-09-13T08:30:42-03:00",
+  "regime": {
+    "kind": "full",
+    "attestation": "executado sem atestacao de isolamento",
+    "reason": "O prefixo HH:MM:SS altera o envelope padrao do watch; contrato, ataques, implementacao e veredito devem ter autoridades separadas. O workspace e partilhado e nao prova isolamento tecnico."
+  },
+  "baseline": {
+    "repository_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree": "nao commitado",
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+  },
+  "normative_digest_algorithm": "sha256 dos bytes integrais depois de remover exclusivamente a linha que comeca exatamente por 'Hash do Código:' e a sua quebra de linha; nenhuma outra normalizacao",
+  "frozen_inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1363.md",
+      "role": "execution_step",
+      "raw_sha256": "7b2afb581df789843ef8952f0ccb321ce9e8c4e24f7aa6e75036e3e7e5c82c1c"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1363-watch-timestamp-preflight.md",
+      "role": "measurement",
+      "raw_sha256": "536080636448ec007b79953c4342efb408041847db753b1d23f9b4e2f548d755"
+    },
+    {
+      "path": "00_nucleo/prompts/shell/duration.md",
+      "role": "productive_l0",
+      "raw_sha256": "ae02d8b69e1b4aa4f4c9ed08c8e6ecfcf62cf1c63b1e2042ac4576f117cac8ee",
+      "normative_sha256": "558e6cf3e01c9f6a175adc1f1d0caec5d8cc5597fa739b4d65cd77a2c52e8d3a"
+    },
+    {
+      "path": "00_nucleo/prompts/shell/tests/p1361-duration.md",
+      "role": "test_l0",
+      "raw_sha256": "4c4d432ede32f8631cb310c150bb01fcb46133eb12e59901246c3d493d32504e",
+      "normative_sha256": "c14ad8fe99c930a8c075b4519a012a31ea79249afb0073896a61ca534df3764f"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring.md",
+      "role": "productive_l0",
+      "raw_sha256": "1f629828286a1c634fcf2cfb8535f73fa75c9dba9ae8404f1f03b7173fc4e152",
+      "normative_sha256": "1db54618efd9b38368b9adb3d5fe80cbdbb8966a2fd00434963bc3ef991d8573"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-cli/src/watch.rs",
+      "role": "ratified_vanilla_source",
+      "raw_sha256": "3d5ee88a01513902055881b8cd4245540327ef33a4d10a6788bcabce17cdb585"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-cli/src/terminal.rs",
+      "role": "ratified_vanilla_channel_source",
+      "raw_sha256": "0fbde0a28d5f7842d2c0b692b6710d422784f8df1b61ee7c77d74bf40d2f04a5"
+    },
+    {
+      "path": "Cargo.toml",
+      "role": "workspace_dependency_identity",
+      "raw_sha256": "e594f6eb560ba88be6e59abfcb0a8cde363e24dbe383c4b2bfbeb9d75c6238ed"
+    },
+    {
+      "path": "04_wiring/Cargo.toml",
+      "role": "strict_baseline_and_authorized_target",
+      "raw_sha256": "dbc8a208f247b5ca46767892d3cb974071a444e673ba6a06c7a83d29ec3e94ef",
+      "authorized_delta": "adicionar somente time = { workspace = true } em [dependencies]; qualquer outra mudanca invalida o contrato"
+    }
+  ],
+  "artifact_paths": {
+    "manifest": "00_nucleo/diagnosticos/p1363-manifest.json",
+    "contract": "00_nucleo/diagnosticos/p1363-contract.json",
+    "oracles": "00_nucleo/diagnosticos/p1363-oracles.json",
+    "mutants": "00_nucleo/diagnosticos/p1363-mutants.json",
+    "seal": "00_nucleo/diagnosticos/p1363-seal.json",
+    "verification": "00_nucleo/diagnosticos/p1363-verification.json",
+    "report": "00_nucleo/diagnosticos/p1363-report.md"
+  },
+  "mandatory_observables": [
+    "quatro linhas exatas para 03:04:05",
+    "padding decimal de dois digitos em hora, minuto e segundo",
+    "exatamente um espaco entre o colchete final e o corpo",
+    "format_watch_line devolve String sem newline",
+    "L4 termina cada linha por eprintln! em stderr",
+    "watch_line_at(status, Time) e deterministico e nao le relogio",
+    "watch_line_now tenta hora local e usa UTC somente como fallback",
+    "compile normal permanece silencioso quanto a status",
+    "somente run_watch usa os dois pontos de emissao"
+  ],
+  "unknown_policy": {
+    "default": "fail_closed",
+    "rule": "Unknown nao conta como Preserved nem como rejeicao de mutante; somente casos explicitamente opacos podem esperar Unknown. Unknown inesperado bloqueia selo e PASS."
+  },
+  "roles": [
+    {
+      "role": "contract_author",
+      "executor": "/root/contrato_p1363",
+      "read_allowlist": [
+        "00_nucleo/materialization/typst-passo-1363.md",
+        "00_nucleo/diagnosticos/p1363-watch-timestamp-preflight.md",
+        "00_nucleo/prompts/shell/duration.md",
+        "00_nucleo/prompts/shell/tests/p1361-duration.md",
+        "00_nucleo/prompts/wiring.md",
+        "lab/typst-original/crates/typst-cli/src/watch.rs",
+        "lab/typst-original/crates/typst-cli/src/terminal.rs",
+        "Cargo.toml",
+        "04_wiring/Cargo.toml"
+      ],
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1363-manifest.json",
+        "00_nucleo/diagnosticos/p1363-contract.json"
+      ],
+      "forbidden": ["candidate_patch", "cargo", "product_execution", "watch", "w"]
+    },
+    {
+      "role": "oracle_and_adversary",
+      "executor": "separate_authority",
+      "inputs": ["manifest", "contract", "frozen_prompts", "baseline"],
+      "writes": ["oracles", "mutants"],
+      "forbidden": ["productive_code", "verdict"]
+    },
+    {
+      "role": "implementer",
+      "executor": "separate_authority",
+      "inputs": ["sealed_manifest", "sealed_contract"],
+      "writes": ["authorized_product_targets"],
+      "forbidden": ["manifest", "contract", "oracles", "mutants", "seal", "verdict"]
+    },
+    {
+      "role": "ab_tester",
+      "executor": "separate_authority",
+      "inputs": ["frozen_prompts", "sealed_contract"],
+      "writes": ["authorized_test_targets"],
+      "forbidden": ["candidate_patch_before_test_freeze", "contract", "verdict"]
+    },
+    {
+      "role": "verifier",
+      "executor": "separate_authority",
+      "inputs": ["sealed_artifacts", "candidate_outputs", "receipts"],
+      "writes": ["verification", "report"],
+      "forbidden": ["repair_of_verified_artifacts", "productive_code", "tests"]
+    }
+  ],
+  "memory_safety": {
+    "forbidden_processes": ["typst watch", "typst w", "external wiring suite", "broad test suite"],
+    "test_mode": "dois testes exatos, sequenciais e in-process",
+    "cargo_build_jobs": 1,
+    "timeout_seconds_per_command_max": 120,
+    "stdout_limit_bytes_per_stream": 4194304,
+    "stderr_limit_bytes_per_stream": 4194304,
+    "receipt_total_limit_bytes": 16777216,
+    "required_red_green_conditions": ["test_count_nonzero", "exit_expected", "no_timeout", "no_oom", "no_unexpected_unknown"]
+  },
+  "invalidation": [
+    "mudanca de digest normativo de qualquer dos tres prompts",
+    "mudanca raw de passo, preflight, fonte vanila, Cargo.toml raiz ou baseline HEAD",
+    "mudanca em 04_wiring/Cargo.toml fora do delta unico autorizado",
+    "leitura do patch candidato pelo autor do contrato",
+    "execucao de watch/w ou suite externa",
+    "Unknown tratado como sucesso"
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "schema": "tekt-segregated-manifest/v1",
+  "protocol_version": "full-segregated-v1",
+  "step": "P1362",
+  "created_at": "2026-09-13T08:00:23-03:00",
+  "regime": {
+    "kind": "full",
+    "reason": "P1362 changes the default public watch transcript and requires an independently authored observable contract before candidate implementation.",
+    "isolation_attestation": "not_attested",
+    "required_delivery_language": "executado sem atestacao de isolamento",
+    "limitation": "All roles share one working directory; identity and ordering are recorded, but filesystem and conversational isolation are not technically enforced."
+  },
+  "baseline": {
+    "repository_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree": "uncommitted",
+    "working_tree_receipts": {
+      "diff_stat": {
+        "path": "/tmp/p1362-preflight-diff-stat.txt",
+        "bytes": 1546,
+        "sha256": "f2713146010dccaa6d7eda08f59224bb6d4b35808d74543b8a118d4938d0d1fd"
+      },
+      "status": {
+        "path": "/tmp/p1362-preflight-status.txt",
+        "bytes": 3884,
+        "sha256": "c7368bfce2f16ce4f7bb3ed28cd1d1e0edf6100d18b867aef973b86bd1ee5b4c"
+      }
+    },
+    "ratified_vanilla": {
+      "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    }
+  },
+  "protected_inputs": [
+    {
+      "kind": "step",
+      "path": "00_nucleo/materialization/typst-passo-1362.md",
+      "sha256_raw": "ffeec61dc1fc9d95838eb6dee3e3f68233b1099900c53e07c9215ddc2c757792"
+    },
+    {
+      "kind": "preflight",
+      "path": "00_nucleo/diagnosticos/p1362-watch-status-preflight.md",
+      "sha256_raw": "08df5c612b38d99599ee60e2ddb58f23efcc9bc81efd69036fc3b801e3295c60"
+    },
+    {
+      "kind": "prompt",
+      "path": "00_nucleo/prompts/shell/duration.md",
+      "sha256_raw": "e2e71db117dff24bcd3b44950b6a852bbb8de94eccf69c735387da0845462468",
+      "sha256_normative": "02bb6aa40c3fd936d786ee20ecdbd3d078c41dc23bbbf547a7608db0c3c3499b"
+    },
+    {
+      "kind": "prompt",
+      "path": "00_nucleo/prompts/shell/tests/p1361-duration.md",
+      "sha256_raw": "ccae170c7c936cf71673bad190929a4eb7e84552ad63c93df2d795fb4a67e3e9",
+      "sha256_normative": "14216054705c8f2b0cee0e3f8b17677d37065c7dd706a49086d1ed9206ba1ded"
+    },
+    {
+      "kind": "prompt",
+      "path": "00_nucleo/prompts/wiring.md",
+      "sha256_raw": "e5d89873da3dc03d8429f014762f35316197c18eb3ce21704964c14f15351944",
+      "sha256_normative": "e9907dedd503cbc2e82829632b0a6996342ea67cffe5545fffb23a6cda76ab1e"
+    },
+    {
+      "kind": "vanilla_source",
+      "path": "lab/typst-original/crates/typst-cli/src/watch.rs",
+      "sha256_raw": "3d5ee88a01513902055881b8cd4245540327ef33a4d10a6788bcabce17cdb585"
+    },
+    {
+      "kind": "vanilla_source",
+      "path": "lab/typst-original/crates/typst-cli/src/compile.rs",
+      "sha256_raw": "a943a87637dd1f85a95f39c29175225c378cbf6d7a0e8d30645eb5cca7470703"
+    },
+    {
+      "kind": "vanilla_source",
+      "path": "lab/typst-original/crates/typst-cli/src/terminal.rs",
+      "sha256_raw": "0fbde0a28d5f7842d2c0b692b6710d422784f8df1b61ee7c77d74bf40d2f04a5"
+    }
+  ],
+  "prompt_hash_policy": {
+    "raw_hash": "SHA-256 over the exact file bytes.",
+    "normative_canonicalization": "Require exactly one line beginning with the exact prefix `Hash do Código:`. Remove that complete line, including its line terminator, and preserve every other byte and its order unchanged; then compute SHA-256.",
+    "mechanical_reseal_allowance": "A later raw hash may differ only when a byte-level diff proves that the sole changed complete line is `Hash do Código:` and the recorded normative digest is unchanged.",
+    "invalidation": "A missing or duplicate hash line, a changed normative digest, or any change outside that one complete line invalidates the seal and restarts the chain from the affected phase."
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1362-contract.json",
+    "status": "candidate_until_discriminatory_gate_and_seal"
+  },
+  "mandatory_observables": [
+    "the four exact uncoloured status bodies",
+    "status selection from exit success and typed has_warnings",
+    "Compiling on stderr before each watched compilation",
+    "one newline for every emitted status body",
+    "ordinary compile emits no watch status",
+    "Error has no duration",
+    "watch duration is measured with Instant without a performance guarantee",
+    "no warning inference from stderr text"
+  ],
+  "unknown_policy": {
+    "default": "fail_closed",
+    "rule": "Unknown receives zero success credit and blocks PASS unless the case is explicitly declared opaque and the expected classification is Unknown.",
+    "unexpected_zero_tests_timeout_oom": "block_pass"
+  },
+  "mutation_policy": {
+    "required": true,
+    "minimum_valid_mutations": 16,
+    "required_mutation_score": 1.0,
+    "survivor_policy": "Any valid surviving negative mutation blocks sealing."
+  },
+  "execution_safety": {
+    "forbidden_processes": ["typst watch", "typst w", "watch", "w"],
+    "forbidden_test_targets": ["04_wiring/tests/cli.rs"],
+    "forbidden_runs": ["broad test suite", "substring test filter", "watch corpus", "external watch process"],
+    "cargo_build_jobs": 1,
+    "test_selection": "one exact fully-qualified test per command",
+    "timeout_seconds_max": 120,
+    "stream_capture": "redirect stdout and stderr to files",
+    "max_bytes_per_stream": 4194304,
+    "max_bytes_all_receipt_streams": 16777216,
+    "fail_closed_events": ["zero matched tests", "timeout", "OOM", "unexpected Unknown", "stream limit exceeded", "total receipt limit exceeded"]
+  },
+  "roles": {
+    "contract_author": {
+      "executor": "/root/contrato_p1362",
+      "read_allowlist": [
+        "00_nucleo/materialization/typst-passo-1362.md",
+        "00_nucleo/diagnosticos/p1362-watch-status-preflight.md",
+        "00_nucleo/prompts/shell/duration.md",
+        "00_nucleo/prompts/shell/tests/p1361-duration.md",
+        "00_nucleo/prompts/wiring.md",
+        "lab/typst-original/crates/typst-cli/src/watch.rs",
+        "lab/typst-original/crates/typst-cli/src/compile.rs",
+        "lab/typst-original/crates/typst-cli/src/terminal.rs",
+        "baseline identity commands"
+      ],
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1362-manifest.json",
+        "00_nucleo/diagnosticos/p1362-contract.json"
+      ],
+      "candidate_patch_access": false,
+      "context_inheritance": "Task-scoped instructions were inherited; technical isolation is not attested."
+    },
+    "oracle_adversary": {
+      "required_inputs": ["protected prompts", "manifest", "contract candidate", "baseline sources"],
+      "forbidden_inputs": ["candidate implementation"],
+      "allowed_outputs": ["P1362 positive, negative, opaque oracle suite", "P1362 valid mutants"]
+    },
+    "implementer": {
+      "required_inputs": ["protected prompts", "sealed contract"],
+      "forbidden_writes": ["manifest", "contract", "oracles", "mutants", "seal"]
+    },
+    "ab_tester": {
+      "required_inputs": ["protected prompts", "sealed contract"],
+      "candidate_patch_access_before_test_freeze": false,
+      "forbidden_processes": ["watch", "w"]
+    },
+    "verifier": {
+      "required_inputs": ["sealed artifacts", "candidate outputs", "bounded receipts"],
+      "forbidden_writes": ["artifacts under verification"],
+      "verdict_scope": "Only the frozen P1362 observable fragment."
+    }
+  }
+}

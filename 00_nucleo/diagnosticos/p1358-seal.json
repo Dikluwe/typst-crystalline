@@ -1,0 +1,149 @@
+{
+  "schema": "p1358-preimplementation-seal-v2",
+  "revision": 2,
+  "created_utc": "2026-09-12T23:36:09Z",
+  "regime": "full_segregated_materialization_protocol",
+  "attestation": "executado sem atestação de isolamento",
+  "role": "preimplementation_verifier",
+  "executor": "/root/verificador_p1356",
+  "verdict": "PASS",
+  "sealed": true,
+  "implementation_authorized_by_this_artifact": true,
+  "claim_boundary": "Abstract pre-implementation contract discrimination for the numeric luma argument protocol and public diagnostics; never total luma parity.",
+  "source": {
+    "head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "tree": "c3c2fa834e6ec318690ddb88e181277ff2e25b27",
+    "working_tree": "uncommitted shared workspace",
+    "candidate_patch_read": false,
+    "candidate_consumer_read": false,
+    "candidate_executed": false
+  },
+  "protected_hashes": {
+    "manifest": "8286a48131b94810623dd53787325dff748888b95d69916ea0fd281f7dc1ea0c",
+    "l0": "c0938544b8fcf20a34b43729bd29a49b945a510fc370b5caa9cbaf1c0a590d3c",
+    "step": "9078953e7c6e9de0082072c858d6d1ce7a007fa150b6df3bec339ee56a52b709",
+    "preflight": "534facef55519ce2aec8a49c47e405a873a0e69740d49caa20e7449ab09bc98f",
+    "contract": "85715abf321c2f5438780999336fcade0bcb685e71b4cd96db61e8726483ea1c",
+    "oracles": "a90ee4b0c2cd19720db1f27239b1e6999222fb2bdb249649effb24e1b2529d8a",
+    "mutants": "9a4ade0e8f9eb1ccb5f37b38b095f93f40d553e71fdb181c101ddef416d4bbfa"
+  },
+  "baseline": {
+    "product": "vanilla",
+    "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+  },
+  "gate": {
+    "script": "00_nucleo/diagnosticos/p1358-contract-gate.py",
+    "script_sha256": "61fd7b74da113a00259ff3444fd96b0d3cb1482cc2834b1587af5b8b5d8bfcb8",
+    "receipt_path": "/tmp/p1358-contract-gate-r2.json",
+    "receipt_sha256": "e00db3b696738e09231f3b88409dfcd0b7d696a86ec1729df0ed5dd6de832e95",
+    "exit_code": 0,
+    "receipt_verdict": "PASS",
+    "seal_eligible": true
+  },
+  "isomorphism": {
+    "passed": true,
+    "values": ["V01", "V02", "V03", "V04", "V05", "V06", "V07", "V08", "V09"],
+    "diagnostics": ["D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10", "D11", "D12", "D13", "D14", "D15", "D16"],
+    "preservation": ["P01_LUMA_COLOR_ALPHA_SCOPE_OUT", "P02_LUMA_PUBLIC_KIND"],
+    "id_sets_exact": true,
+    "expressions_exact": true,
+    "expected_public_observables_exact": true,
+    "diagnostic_message_and_hint_exact": true,
+    "prefix_match_alias_normalized": "contract prefix_or_exact equals the oracle phrase public diagnostic begins with or equals the frozen phrase",
+    "nested_frozen_hashes_exact": true,
+    "issues": []
+  },
+  "controls": {
+    "abstract_positive_observations": 108,
+    "abstract_positive_preserved": 108,
+    "opaque_fixtures": 3,
+    "opaque_unknown": 3,
+    "opaque_parity_credit": 0,
+    "unknown_fail_closed": true
+  },
+  "mutation_gate": {
+    "valid_mutants": 10,
+    "rejected_mutants": 10,
+    "mutation_score": 1.0,
+    "required_mutation_score": 1.0,
+    "scope": "abstract contract observations only; no candidate execution",
+    "results": [
+      {"id": "M01_EMPTY_RETURNS_WHITE", "verdict": "Violated", "witness_cells": 4},
+      {"id": "M02_TYPE_ERROR_RETURNS_WHITE", "verdict": "Violated", "witness_cells": 4},
+      {"id": "M03_RANGE_ERROR_RETURNS_WHITE", "verdict": "Violated", "witness_cells": 4},
+      {"id": "M04_ALPHA_NAMED_ONLY", "verdict": "Violated", "witness_cells": 8},
+      {"id": "M05_ALPHA_NAMED_ALSO_ACCEPTED", "verdict": "Violated", "witness_cells": 4},
+      {"id": "M06_REJECT_INTEGER_ALPHA", "verdict": "Violated", "witness_cells": 4},
+      {"id": "M07_ACCEPT_OUT_OF_RANGE_INTEGER_ALPHA", "verdict": "Violated", "witness_cells": 4},
+      {"id": "M08_OMIT_EMPTY_HINT", "verdict": "Violated", "witness_cells": 4},
+      {"id": "M09_CHANGE_LUMA_COLOR_ALPHA", "verdict": "Violated", "witness_cells": 4},
+      {"id": "M10_MECHANICAL_EQUALITY_ORACLE", "verdict": "Violated", "witness_cells": 4}
+    ]
+  },
+  "determinism": {
+    "physical_orders": ["canonical", "canonical", "reverse", "reverse"],
+    "positive_hashes": [
+      "1618dddbd2ebee316e4aef82738692af1ba28e2495f33ee8a1086c2060108aa2",
+      "1618dddbd2ebee316e4aef82738692af1ba28e2495f33ee8a1086c2060108aa2",
+      "1618dddbd2ebee316e4aef82738692af1ba28e2495f33ee8a1086c2060108aa2",
+      "1618dddbd2ebee316e4aef82738692af1ba28e2495f33ee8a1086c2060108aa2"
+    ],
+    "opaque_hashes": [
+      "3758ebdf93b6917dbaf0fced753f450ad39955ebba7a9e0adbfb1069b0d16ee9",
+      "3758ebdf93b6917dbaf0fced753f450ad39955ebba7a9e0adbfb1069b0d16ee9",
+      "3758ebdf93b6917dbaf0fced753f450ad39955ebba7a9e0adbfb1069b0d16ee9",
+      "3758ebdf93b6917dbaf0fced753f450ad39955ebba7a9e0adbfb1069b0d16ee9"
+    ],
+    "mutant_hashes": [
+      "f99f6c71599b94d1fc2e19c68935d66d0540f07b86d830b77b44c0b544e82bcf",
+      "f99f6c71599b94d1fc2e19c68935d66d0540f07b86d830b77b44c0b544e82bcf",
+      "f99f6c71599b94d1fc2e19c68935d66d0540f07b86d830b77b44c0b544e82bcf",
+      "f99f6c71599b94d1fc2e19c68935d66d0540f07b86d830b77b44c0b544e82bcf"
+    ],
+    "combined_hashes": [
+      "2f4cdd19316eb9b401fba3116d1725c6ef3f4fc827112e869c180f3db7009f02",
+      "2f4cdd19316eb9b401fba3116d1725c6ef3f4fc827112e869c180f3db7009f02",
+      "2f4cdd19316eb9b401fba3116d1725c6ef3f4fc827112e869c180f3db7009f02",
+      "2f4cdd19316eb9b401fba3116d1725c6ef3f4fc827112e869c180f3db7009f02"
+    ],
+    "all_series_four_equal": true
+  },
+  "revision_delta": {
+    "predecessor_verdict": "REJECTED_PREIMPLEMENTATION",
+    "current_verdict": "PASS",
+    "hypothesis": "Align the frozen contract with the already complete canonical oracle ID surface without changing oracle cases or mutant semantics.",
+    "fixed": [
+      "V08 and V09 added to the contract",
+      "D06-D16 aligned without ID rebinding",
+      "canonical preservation IDs aligned",
+      "broad structural preservation moved to explicit structural gates"
+    ],
+    "regressions": [],
+    "mutant_delta": "10/10 before and after; discriminatory power preserved",
+    "consistency_issue_delta": "5 to 0",
+    "cost": "one focal contract-alignment revision and one full abstract rerun"
+  },
+  "commands": [
+    "sha256sum manifest and six protected inputs",
+    "python3 -m py_compile 00_nucleo/diagnosticos/p1358-contract-gate.py",
+    "python3 00_nucleo/diagnosticos/p1358-contract-gate.py --output /tmp/p1358-contract-gate-r2.json",
+    "python3 -m json.tool on gate receipt and seal",
+    "independent receipt rerun and cmp",
+    "git diff --check"
+  ],
+  "read_allowlist": [
+    "00_nucleo/diagnosticos/p1358-manifest.json",
+    "the six protected inputs named by that manifest",
+    "mandatory Tekt segregated-materialization skill instructions"
+  ],
+  "write_allowlist": [
+    "00_nucleo/diagnosticos/p1358-contract-gate.py",
+    "00_nucleo/diagnosticos/p1358-seal.json"
+  ],
+  "limitations": [
+    "No candidate patch or post-reseal consumer was read.",
+    "The shared worktree does not provide an independently attested isolation boundary.",
+    "mutation_score=1.0 establishes only abstract discriminatory power for the frozen fragment."
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "schema": "tekt-segregated-materialization-manifest/v1",
+  "protocol_version": "1.0",
+  "step": "P1364",
+  "created_at": "2026-09-13T08:58:18-03:00",
+  "regime": {
+    "kind": "full",
+    "attestation": "executado sem atestacao de isolamento",
+    "reason": "A terminacao dos blocos altera a morfologia observavel do status watch e exige obrigacao, ataques, implementacao e veredito segregados. O workspace partilhado permite rastrear entradas e capacidades, mas nao atestar isolamento tecnico."
+  },
+  "baseline": {
+    "repository_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree": "nao commitado",
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "candidate_absence": {
+      "main_rs_raw_sha256": "beaafca23a97e86774e8f6d81d2c756575ca0e210a8ea79cb41a2650487d0290",
+      "watch_block_at": "absent",
+      "watch_block_now": "absent",
+      "current_emission": "dois pontos run_watch usam eprintln!, portanto todas as variantes recebem uma unica quebra"
+    }
+  },
+  "normative_digest_algorithm": "sha256 dos bytes integrais depois de remover exclusivamente a linha que comeca exatamente por 'Hash do Código:' e a sua quebra de linha; nenhuma outra normalizacao",
+  "frozen_inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1364.md",
+      "role": "execution_step",
+      "protection": "raw",
+      "raw_sha256": "0b73ad9bd170d6000bac25f673a03b744ab6bdf1f353acd3fafe5eb8bec428b7"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1364-watch-spacing-preflight.md",
+      "role": "measurement",
+      "protection": "raw",
+      "raw_sha256": "f928cfaaf1a46df8b39af50d0a6fe20b23484e2cee3a9deb3f85f77359099fe0"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring.md",
+      "role": "productive_l0",
+      "protection": "normative",
+      "raw_sha256_at_manifest": "e87dea3b0584363f8d2f6475ef57c9e84a9fc1672ed2002992ee808b4629727a",
+      "normative_sha256": "14efe9983549ef437fd719ff786185416c740b79040324b3daad80bf3b5d31ee"
+    },
+    {
+      "path": "04_wiring/src/main.rs",
+      "role": "strict_product_baseline",
+      "protection": "raw_baseline_identity",
+      "raw_sha256": "beaafca23a97e86774e8f6d81d2c756575ca0e210a8ea79cb41a2650487d0290",
+      "authorized_delta": "somente os helpers privados watch_block_at/watch_block_now e a substituicao dos dois pontos de emissao de run_watch pelo bloco pronto, sem API publica nem outra mudanca produtiva"
+    }
+  ],
+  "artifact_paths": {
+    "manifest": "00_nucleo/diagnosticos/p1364-manifest.json",
+    "contract": "00_nucleo/diagnosticos/p1364-contract.json",
+    "oracles": "00_nucleo/diagnosticos/p1364-oracles.json",
+    "mutants": "00_nucleo/diagnosticos/p1364-mutants.json",
+    "seal": "00_nucleo/diagnosticos/p1364-seal.json",
+    "verification": "00_nucleo/diagnosticos/p1364-verification.json",
+    "report": "00_nucleo/diagnosticos/p1364-report.md"
+  },
+  "mandatory_observables": [
+    "watch_line_at permanece uma linha sem CR ou LF",
+    "Compiling forma exatamente [03:04:05] compiling ... seguido de uma unica LF",
+    "Success forma exatamente o corpo temporizado seguido de duas LF",
+    "PartialSuccess forma exatamente o corpo temporizado seguido de duas LF",
+    "Error forma exatamente o corpo de erro seguido de duas LF",
+    "watch_block_at e deterministico a partir de status e Time literais",
+    "watch_block_now preserva a politica local-com-fallback de P1363 e apenas delega",
+    "os dois pontos run_watch emitem blocos prontos sem acrescentar terminador fora do helper",
+    "compile e demais comandos permanecem sem blocos de status watch"
+  ],
+  "unknown_policy": {
+    "default": "fail_closed",
+    "rule": "Unknown nao conta como Preserved nem como rejeicao de mutante. Somente casos declarados opacos podem esperar Unknown; qualquer Unknown inesperado bloqueia selo e PASS."
+  },
+  "roles": [
+    {
+      "role": "contract_author",
+      "executor": "/root/contrato_p1364",
+      "read_allowlist": [
+        "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+        "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+        "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+        "AGENTS.md",
+        "00_nucleo/materialization/typst-passo-1364.md",
+        "00_nucleo/diagnosticos/p1364-watch-spacing-preflight.md",
+        "00_nucleo/prompts/wiring.md",
+        "04_wiring/src/main.rs somente para identidade e ausencia do candidato"
+      ],
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1364-manifest.json",
+        "00_nucleo/diagnosticos/p1364-contract.json"
+      ],
+      "forbidden": ["candidate_patch", "productive_code", "tests", "l0", "step", "preflight", "cargo", "lint", "product_execution", "watch", "w"]
+    },
+    {
+      "role": "oracle_and_adversary",
+      "executor": "separate_authority",
+      "inputs": ["manifest", "contract", "frozen_l0", "raw_baseline"],
+      "writes": ["oracles", "mutants"],
+      "forbidden": ["productive_code", "tests", "verdict"]
+    },
+    {
+      "role": "implementer",
+      "executor": "separate_authority",
+      "inputs": ["sealed_manifest", "sealed_contract"],
+      "writes": ["04_wiring/src/main.rs authorized delta only"],
+      "forbidden": ["manifest", "contract", "oracles", "mutants", "seal", "tests", "verdict"]
+    },
+    {
+      "role": "ab_tester",
+      "executor": "separate_authority",
+      "inputs": ["frozen_l0", "sealed_contract"],
+      "writes": ["authorized in-process exact test target"],
+      "forbidden": ["candidate_patch_before_test_freeze", "productive_code", "contract", "verdict"]
+    },
+    {
+      "role": "verifier",
+      "executor": "separate_authority",
+      "inputs": ["sealed_artifacts", "candidate_outputs", "bounded_receipts"],
+      "writes": ["verification", "report"],
+      "forbidden": ["repair_of_verified_artifacts", "productive_code", "tests"]
+    }
+  ],
+  "memory_safety": {
+    "forbidden_processes": ["typst watch", "typst w", "external wiring suite", "broad test suite"],
+    "test_mode": "um unico teste exato, in-process, seguido de um unico build; execucao estritamente sequencial",
+    "cargo_build_jobs": 1,
+    "timeout_seconds_per_dynamic_command_max": 120,
+    "stdout_limit_bytes_per_stream": 4194304,
+    "stderr_limit_bytes_per_stream": 4194304,
+    "receipt_total_limit_bytes": 16777216,
+    "required_conditions": ["test_count_nonzero", "exit_expected", "no_timeout", "no_oom", "no_unexpected_unknown"]
+  },
+  "invalidation": [
+    "mudanca do digest normativo de wiring.md, descontada exclusivamente a linha Hash do Código",
+    "mudanca raw do passo ou preflight",
+    "identidade baseline de main.rs diferente antes da abertura da materializacao",
+    "delta produtivo fora do fragmento autorizado em main.rs",
+    "leitura do patch candidato pelo autor do contrato",
+    "execucao de watch, w, suite externa ou suite ampla",
+    "mais de um teste exato ou mais de um build dinamico",
+    "Unknown tratado como sucesso",
+    "recibo individual ou agregado acima do budget"
+  ]
+}

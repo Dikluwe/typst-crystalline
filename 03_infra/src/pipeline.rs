@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 25142485
+//! @prompt-hash aff3b4d0
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -59,12 +59,12 @@ use typst_core::entities::value::Value;
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 
 use crate::export::{
-    export_pdf_multifont_and_timings_and_document_id_and_tags,
-    export_pdf_with_document_id_and_tags,
-    export_pdf_with_font_and_timings_and_document_id_and_tags, export_png,
-    export_png_with_fonts, export_svg_with_context, export_svg_with_fonts_and_contexts,
-    FontKey, GlyphFontRequest, PdfTags, StreamMode, SvgDestinationContext,
-    SvgGlyphFontContext,
+    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization,
+    export_pdf_with_document_id_and_tags_and_serialization,
+    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization,
+    export_png, export_png_with_fonts, export_svg_with_context,
+    export_svg_with_fonts_and_contexts, FontKey, GlyphFontRequest, PdfSerializationMode,
+    PdfTags, StreamMode, SvgDestinationContext, SvgGlyphFontContext,
 };
 use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
@@ -190,6 +190,18 @@ pub fn compile_to_html_string_with_features_and_serialization(
     features: typst_core::entities::compiler_features::Features,
     mode: crate::export::HtmlSerializationMode,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_html_string_with_features_and_serialization_and_pretty(
+        world, source, features, mode, false,
+    )
+}
+
+pub fn compile_to_html_string_with_features_and_serialization_and_pretty(
+    world: &dyn World,
+    source: &Source,
+    features: typst_core::entities::compiler_features::Features,
+    mode: crate::export::HtmlSerializationMode,
+    pretty: bool,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     if !features.contains(typst_core::entities::compiler_features::Feature::Html) {
         return (
             Err(vec![SourceDiagnostic::error(
@@ -212,7 +224,7 @@ pub fn compile_to_html_string_with_features_and_serialization(
     );
     let html = result.and_then(|module| {
         let content = module.content().cloned().unwrap_or(Content::Empty);
-        crate::export::export_html_with_serialization(&content, mode)
+        crate::export::export_html_with_serialization_and_pretty(&content, mode, pretty)
             .map_err(|error| vec![error])
     });
     (html, warnings)
@@ -516,6 +528,29 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
     pdf_tags: PdfTags,
     features: typst_core::entities::compiler_features::Features,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        features,
+        PdfSerializationMode::Compact,
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+    serialization: PdfSerializationMode,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
     let result = compile_to_pdf_bytes_impl(
         world,
@@ -525,6 +560,7 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
         stream_mode,
         pdf_tags,
         features,
+        serialization,
         false,
         &mut timings,
     );
@@ -999,6 +1035,7 @@ fn compile_to_pdf_bytes_impl(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
     features: typst_core::entities::compiler_features::Features,
+    serialization: PdfSerializationMode,
     oracle: bool,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
@@ -1081,22 +1118,24 @@ fn compile_to_pdf_bytes_impl(
     // **P980** — caminho oráculo: mesma resolução de fontes, emissão com
     // as transformações de paridade de operador (`export/oracle.rs`).
     let (pdf, subset_ms) = if oracle {
-        let (pdf, subset) = crate::export::export_pdf_oracle(
+        let (pdf, subset) = crate::export::export_pdf_oracle_and_serialization(
             &doc,
             &resolved,
             document_id,
             stream_mode,
             pdf_tags,
+            serialization,
         );
         (pdf, subset)
     } else {
         match resolved.as_slice() {
             [] => (
-                export_pdf_with_document_id_and_tags(
+                export_pdf_with_document_id_and_tags_and_serialization(
                     &doc,
                     document_id,
                     stream_mode,
                     pdf_tags,
+                    serialization,
                 ),
                 0.0,
             ),
@@ -1113,29 +1152,32 @@ fn compile_to_pdf_bytes_impl(
                     )
                     .is_empty()
                 {
-                    export_pdf_multifont_and_timings_and_document_id_and_tags(
+                    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization(
                         &doc,
                         std::slice::from_ref(single),
                         document_id,
                         stream_mode,
                         pdf_tags,
+                        serialization,
                     )
                 } else {
-                    export_pdf_with_font_and_timings_and_document_id_and_tags(
+                    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization(
                         &doc,
                         bytes,
                         document_id,
                         stream_mode,
                         pdf_tags,
+                        serialization,
                     )
                 }
             }
-            many => export_pdf_multifont_and_timings_and_document_id_and_tags(
+            many => export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization(
                 &doc,
                 many,
                 document_id,
                 stream_mode,
                 pdf_tags,
+                serialization,
             ),
         }
     };
@@ -1201,6 +1243,29 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features(
     pdf_tags: PdfTags,
     features: typst_core::entities::compiler_features::Features,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        features,
+        PdfSerializationMode::Compact,
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+    serialization: PdfSerializationMode,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
     compile_to_pdf_bytes_impl(
         world,
@@ -1210,6 +1275,7 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features(
         stream_mode,
         pdf_tags,
         features,
+        serialization,
         false,
         &mut timings,
     )
@@ -1248,6 +1314,28 @@ pub fn compile_to_pdf_bytes_oracle_with_features(
     pdf_tags: PdfTags,
     features: typst_core::entities::compiler_features::Features,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_oracle_with_features_and_serialization(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        features,
+        PdfSerializationMode::Compact,
+    )
+}
+
+pub fn compile_to_pdf_bytes_oracle_with_features_and_serialization(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+    serialization: PdfSerializationMode,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
     compile_to_pdf_bytes_impl(
         world,
@@ -1257,6 +1345,7 @@ pub fn compile_to_pdf_bytes_oracle_with_features(
         stream_mode,
         pdf_tags,
         features,
+        serialization,
         true,
         &mut timings,
     )
@@ -1475,6 +1564,19 @@ pub fn compile_to_svg_string_with_timings_full_error_and_features(
     full_error: bool,
     features: typst_core::entities::compiler_features::Features,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
+        world, source, full_error, features, false,
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: typst_core::entities::compiler_features::Features,
+    pretty: bool,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
     let (doc_result, warnings) = compile_to_paged_document_full_error_and_features(
         world,
@@ -1510,16 +1612,13 @@ pub fn compile_to_svg_string_with_timings_full_error_and_features(
             });
             let destinations = svg_destination_context_for_page(&doc, 1);
             let glyph_fonts = svg_glyph_font_context_for_page(&page, world);
+            let options = crate::export::SvgOptions { pretty, ..Default::default() };
             let svg = if fonts.is_empty() {
-                export_svg_with_context(
-                    &page,
-                    &crate::export::SvgOptions::default(),
-                    &destinations,
-                )
+                export_svg_with_context(&page, &options, &destinations)
             } else {
                 export_svg_with_fonts_and_contexts(
                     &page,
-                    &crate::export::SvgOptions::default(),
+                    &options,
                     &fonts,
                     &destinations,
                     &glyph_fonts,

@@ -1,0 +1,639 @@
+{
+  "attestation": "executado sem atestação de isolamento",
+  "conclusion": "S11 is the only runner-reported HARNESS_GAP, but not the only focal contract blocker; profile and subcase coverage remain incomplete.",
+  "created_utc": "2026-09-12T18:49:25Z",
+  "crystalline_new": {
+    "complete_nonmatch_paths": [
+      "accent",
+      "asset",
+      "bb",
+      "bold",
+      "cal",
+      "calc.deg",
+      "calc.log10",
+      "calc.rad",
+      "cancel",
+      "color.spot",
+      "color.spot.tint",
+      "counter_at",
+      "counter_display",
+      "counter_final",
+      "counter_step",
+      "display",
+      "enum.item",
+      "figure.caption",
+      "footnote.entry",
+      "format",
+      "format.bundle",
+      "format.html",
+      "format.html.a",
+      "format.html.abbr",
+      "format.html.address",
+      "format.html.area",
+      "format.html.article",
+      "format.html.aside",
+      "format.html.audio",
+      "format.html.b",
+      "format.html.base",
+      "format.html.bdi",
+      "format.html.bdo",
+      "format.html.blockquote",
+      "format.html.body",
+      "format.html.br",
+      "format.html.button",
+      "format.html.canvas",
+      "format.html.caption",
+      "format.html.cite",
+      "format.html.code",
+      "format.html.col",
+      "format.html.colgroup",
+      "format.html.data",
+      "format.html.datalist",
+      "format.html.dd",
+      "format.html.del",
+      "format.html.details",
+      "format.html.dfn",
+      "format.html.dialog",
+      "format.html.div",
+      "format.html.dl",
+      "format.html.dt",
+      "format.html.elem",
+      "format.html.em",
+      "format.html.embed",
+      "format.html.fieldset",
+      "format.html.figcaption",
+      "format.html.figure",
+      "format.html.footer",
+      "format.html.form",
+      "format.html.frame",
+      "format.html.h1",
+      "format.html.h2",
+      "format.html.h3",
+      "format.html.h4",
+      "format.html.h5",
+      "format.html.h6",
+      "format.html.head",
+      "format.html.header",
+      "format.html.hgroup",
+      "format.html.hr",
+      "format.html.html",
+      "format.html.i",
+      "format.html.iframe",
+      "format.html.img",
+      "format.html.input",
+      "format.html.ins",
+      "format.html.kbd",
+      "format.html.label",
+      "format.html.legend",
+      "format.html.li",
+      "format.html.link",
+      "format.html.main",
+      "format.html.map",
+      "format.html.mark",
+      "format.html.menu",
+      "format.html.meta",
+      "format.html.meter",
+      "format.html.nav",
+      "format.html.noscript",
+      "format.html.object",
+      "format.html.ol",
+      "format.html.optgroup",
+      "format.html.option",
+      "format.html.output",
+      "format.html.p",
+      "format.html.picture",
+      "format.html.pre",
+      "format.html.progress",
+      "format.html.q",
+      "format.html.rp",
+      "format.html.rt",
+      "format.html.ruby",
+      "format.html.s",
+      "format.html.samp",
+      "format.html.script",
+      "format.html.search",
+      "format.html.section",
+      "format.html.select",
+      "format.html.slot",
+      "format.html.small",
+      "format.html.source",
+      "format.html.span",
+      "format.html.strong",
+      "format.html.style",
+      "format.html.sub",
+      "format.html.summary",
+      "format.html.sup",
+      "format.html.table",
+      "format.html.tbody",
+      "format.html.td",
+      "format.html.template",
+      "format.html.textarea",
+      "format.html.tfoot",
+      "format.html.th",
+      "format.html.thead",
+      "format.html.time",
+      "format.html.title",
+      "format.html.tr",
+      "format.html.track",
+      "format.html.u",
+      "format.html.ul",
+      "format.html.var",
+      "format.html.video",
+      "format.html.wbr",
+      "format.pdf",
+      "format.pdf.artifact",
+      "format.pdf.attach",
+      "format.png",
+      "format.svg",
+      "frak",
+      "grid_cell",
+      "grid_footer",
+      "grid_header",
+      "html",
+      "html.area",
+      "html.audio",
+      "html.base",
+      "html.blockquote",
+      "html.canvas",
+      "html.caption",
+      "html.colgroup",
+      "html.data",
+      "html.del",
+      "html.details",
+      "html.dialog",
+      "html.embed",
+      "html.fieldset",
+      "html.form",
+      "html.frame",
+      "html.hr",
+      "html.img",
+      "html.input",
+      "html.ins",
+      "html.label",
+      "html.link",
+      "html.map",
+      "html.meta",
+      "html.meter",
+      "html.object",
+      "html.optgroup",
+      "html.option",
+      "html.output",
+      "html.progress",
+      "html.q",
+      "html.script",
+      "html.slot",
+      "html.source",
+      "html.style",
+      "html.table",
+      "html.tbody",
+      "html.td",
+      "html.textarea",
+      "html.tfoot",
+      "html.th",
+      "html.thead",
+      "html.time",
+      "html.tr",
+      "html.track",
+      "inline",
+      "italic",
+      "list.item",
+      "lof",
+      "lot",
+      "math.Dif",
+      "math.abs",
+      "math.accent",
+      "math.bold",
+      "math.cal",
+      "math.cases",
+      "math.dif",
+      "math.display",
+      "math.frac",
+      "math.italic",
+      "math.liminf",
+      "math.limits",
+      "math.limsup",
+      "math.lr",
+      "math.mat",
+      "math.mid",
+      "math.norm",
+      "math.overbrace",
+      "math.overbracket",
+      "math.overline",
+      "math.overparen",
+      "math.overshell",
+      "math.primes",
+      "math.quote",
+      "math.quote.double",
+      "math.quote.single",
+      "math.registered",
+      "math.root",
+      "math.round",
+      "math.sans",
+      "math.scr",
+      "math.sscript",
+      "math.stretch",
+      "math.text",
+      "math.underbrace",
+      "math.underbracket",
+      "math.underparen",
+      "math.undershell",
+      "math.upright",
+      "mono",
+      "op",
+      "outline.entry",
+      "outline.entry.body",
+      "outline.entry.indented",
+      "outline.entry.inner",
+      "outline.entry.page",
+      "outline.entry.prefix",
+      "par.line",
+      "pdf",
+      "polygon.regular",
+      "raw.line",
+      "replace",
+      "sans",
+      "scr",
+      "script",
+      "selector.after",
+      "selector.before",
+      "serif",
+      "sscript",
+      "state_at",
+      "state_display",
+      "state_final",
+      "state_update",
+      "state_update_with",
+      "sym.quote",
+      "sym.quote.double",
+      "sym.quote.single",
+      "sym.registered",
+      "table_cell",
+      "table_footer",
+      "table_header",
+      "terms.item",
+      "underover",
+      "upright"
+    ],
+    "nonmatch_cells": 986,
+    "nonmatch_path_count": 269
+  },
+  "executor": "/root/verificador_p1356",
+  "hashes": {
+    "catalog": "13a457696c21724eae6197e5fca3b0b6380c4c9612adbdd6e39c81ed0b4c1a57",
+    "contract": "0f562f0058b0fe392a38888efa60a2aba9da5a0db2bef1042d681a33c53fed27",
+    "delta_r2": "0a675f4a32dd1f11972c30f4d37c0da80dc42523687c8d36950442357ce4eb5c",
+    "gate_r2": "1a7b09cb8b9c1c0d8118470320dacd12e1013368d9d91c1209b7c9b73f974e1b",
+    "harness_r2": "485385d29b47551b85a459175c4088ef612060d6b0c805d5fc37ab0c53297ee3",
+    "manifest": "5fc083ddd885a6567f15ab5cc76ba07ec2b59c4c640996e4731e4a143f7f730c",
+    "mutants": "145c3ea7769c7ddd020d0881e8026e9965e12531ffd2f3e4bdf8f12697f5974e",
+    "oracles": "99c43b8e5ad5ab0600980a0d1c16d8ddc541be3b8b7f528a32efc18652e6e69e",
+    "sentinels_r2": "eff91e88eadaa20fcb01d1edbaca047bec8eae95c4d1a440c40a0939f92c64a2"
+  },
+  "matrix_checks": {
+    "all_four_determinism_hashes_verified": true,
+    "same_catalog": true,
+    "unknown_total": 0
+  },
+  "pairs": {
+    "crystalline_new": {
+      "canonical_sha256": "8ff2aa84da07fedb3bb7bd0568fbe58160faad9ddb80cb9a7d81e284830d081a",
+      "cells": 19368,
+      "counts": {
+        "CRYSTALLINE_ONLY": 538,
+        "DIFFERENT_DIAGNOSTIC": 238,
+        "DIFFERENT_VALUE": 46,
+        "MATCH_DIAGNOSTIC": 268,
+        "MATCH_VALUE": 18114,
+        "UNKNOWN": 0,
+        "VANILLA_ONLY": 164
+      },
+      "counts_recomputed": {
+        "CRYSTALLINE_ONLY": 538,
+        "DIFFERENT_DIAGNOSTIC": 238,
+        "DIFFERENT_VALUE": 46,
+        "MATCH_DIAGNOSTIC": 268,
+        "MATCH_VALUE": 18114,
+        "VANILLA_ONLY": 164
+      },
+      "determinism_hashes": [
+        "8ff2aa84da07fedb3bb7bd0568fbe58160faad9ddb80cb9a7d81e284830d081a",
+        "8ff2aa84da07fedb3bb7bd0568fbe58160faad9ddb80cb9a7d81e284830d081a",
+        "8ff2aa84da07fedb3bb7bd0568fbe58160faad9ddb80cb9a7d81e284830d081a",
+        "8ff2aa84da07fedb3bb7bd0568fbe58160faad9ddb80cb9a7d81e284830d081a"
+      ],
+      "four_hashes_verified": true,
+      "path": "/tmp/p1356-matrix-crystalline-new.json",
+      "recomputed_sha256": "8ff2aa84da07fedb3bb7bd0568fbe58160faad9ddb80cb9a7d81e284830d081a",
+      "sha256": "58c6751b6f6dac0d6666d0b93a8ffb906ccc6022b68638922405749cba57fcb7"
+    },
+    "crystalline_old": {
+      "canonical_sha256": "a36ef4a399cbc6cd2348eac62b8ea682f3613fbbe550e77258b99ea801445092",
+      "cells": 19368,
+      "counts": {
+        "CRYSTALLINE_ONLY": 284,
+        "DIFFERENT_DIAGNOSTIC": 4,
+        "DIFFERENT_VALUE": 40,
+        "MATCH_DIAGNOSTIC": 756,
+        "MATCH_VALUE": 18120,
+        "UNKNOWN": 0,
+        "VANILLA_ONLY": 164
+      },
+      "counts_recomputed": {
+        "CRYSTALLINE_ONLY": 284,
+        "DIFFERENT_DIAGNOSTIC": 4,
+        "DIFFERENT_VALUE": 40,
+        "MATCH_DIAGNOSTIC": 756,
+        "MATCH_VALUE": 18120,
+        "VANILLA_ONLY": 164
+      },
+      "determinism_hashes": [
+        "a36ef4a399cbc6cd2348eac62b8ea682f3613fbbe550e77258b99ea801445092",
+        "a36ef4a399cbc6cd2348eac62b8ea682f3613fbbe550e77258b99ea801445092",
+        "a36ef4a399cbc6cd2348eac62b8ea682f3613fbbe550e77258b99ea801445092",
+        "a36ef4a399cbc6cd2348eac62b8ea682f3613fbbe550e77258b99ea801445092"
+      ],
+      "four_hashes_verified": true,
+      "path": "/tmp/p1356-matrix-crystalline-historical-snapshot.json",
+      "recomputed_sha256": "a36ef4a399cbc6cd2348eac62b8ea682f3613fbbe550e77258b99ea801445092",
+      "sha256": "e9b867e1364bbdd16f33dbbf78130ce3c094c7d87598701f6a2c98d3f315ea6a"
+    },
+    "old_new": {
+      "canonical_sha256": "f5771760dead8906b204481f7abdcf838a8d42c44200c907dc5f26c44f012544",
+      "cells": 19368,
+      "counts": {
+        "CRYSTALLINE_ONLY": 254,
+        "DIFFERENT_DIAGNOSTIC": 234,
+        "DIFFERENT_VALUE": 6,
+        "MATCH_DIAGNOSTIC": 436,
+        "MATCH_VALUE": 18438,
+        "UNKNOWN": 0,
+        "VANILLA_ONLY": 0
+      },
+      "counts_recomputed": {
+        "CRYSTALLINE_ONLY": 254,
+        "DIFFERENT_DIAGNOSTIC": 234,
+        "DIFFERENT_VALUE": 6,
+        "MATCH_DIAGNOSTIC": 436,
+        "MATCH_VALUE": 18438
+      },
+      "determinism_hashes": [
+        "f5771760dead8906b204481f7abdcf838a8d42c44200c907dc5f26c44f012544",
+        "f5771760dead8906b204481f7abdcf838a8d42c44200c907dc5f26c44f012544",
+        "f5771760dead8906b204481f7abdcf838a8d42c44200c907dc5f26c44f012544",
+        "f5771760dead8906b204481f7abdcf838a8d42c44200c907dc5f26c44f012544"
+      ],
+      "four_hashes_verified": true,
+      "path": "/tmp/p1356-matrix-historical-snapshot-vanilla.json",
+      "recomputed_sha256": "f5771760dead8906b204481f7abdcf838a8d42c44200c907dc5f26c44f012544",
+      "sha256": "6e1f8b8b459c77a289134df4f907a7391d18fc4861b9f0e2a3cda2a3710e4323"
+    }
+  },
+  "read_allowlist": [
+    "sealed P1356 manifest/contract/oracles/mutants",
+    "audited p1356-harness.py",
+    "prior inventories/catalog/matrices",
+    "/tmp/p1356-delta-r2.json",
+    "/tmp/p1356-sentinels-r2-final.json",
+    "/tmp/p1356-gate-r2.json",
+    "P1353/P1355 diagnostics and Tekt instructions"
+  ],
+  "revision": 2,
+  "schema": "p1356-matrix-summary-v2",
+  "sentinel_contract_audit": [
+    {
+      "id": "S01",
+      "missing_profiles": [
+        "default",
+        "html",
+        "a11y-extras"
+      ],
+      "observed_profiles": [
+        "html+a11y"
+      ],
+      "reason": "single tuple ended DIAGNOSTIC on both sides, so individual kind/alias tuple was not materialized",
+      "required_profiles": [
+        "default",
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S02",
+      "missing_profiles": [
+        "a11y-extras"
+      ],
+      "observed_profiles": [
+        "default"
+      ],
+      "reason": "document-versus-CLI precedence was not executed",
+      "required_profiles": [
+        "default",
+        "a11y-extras"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S03",
+      "missing_profiles": [
+        "a11y-extras"
+      ],
+      "observed_profiles": [
+        "default"
+      ],
+      "reason": "named args and incompatibility executed; required a11y-extras profile absent",
+      "required_profiles": [
+        "default",
+        "a11y-extras"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S04",
+      "missing_profiles": [
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "observed_profiles": [
+        "default"
+      ],
+      "reason": "combined tuple ended DIAGNOSTIC, so alpha boundary subexpressions after luma() are not independently observed",
+      "required_profiles": [
+        "default",
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S05",
+      "missing_profiles": [
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "observed_profiles": [
+        "default"
+      ],
+      "reason": "invalid-key diagnostic observed; three required profiles absent",
+      "required_profiles": [
+        "default",
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S06",
+      "missing_profiles": [
+        "a11y-extras"
+      ],
+      "observed_profiles": [
+        "default"
+      ],
+      "reason": "composite LTR/RTL/empty/custom SVG witness executed; a11y-extras profile absent",
+      "required_profiles": [
+        "default",
+        "a11y-extras"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S07",
+      "missing_profiles": [
+        "html+a11y"
+      ],
+      "observed_profiles": [
+        "a11y-extras"
+      ],
+      "reason": "PDF observer hashes bbox and Tagged/Pages but does not expose tag morphology; html+a11y profile absent",
+      "required_profiles": [
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S08",
+      "missing_profiles": [
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "observed_profiles": [
+        "default"
+      ],
+      "reason": "one narrow SVG executed, not all pair × start/middle/boundary placements; three profiles absent",
+      "required_profiles": [
+        "default",
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S09",
+      "missing_profiles": [
+        "html+a11y"
+      ],
+      "observed_profiles": [
+        "html"
+      ],
+      "reason": "author meta array observed; html+a11y profile absent",
+      "required_profiles": [
+        "html",
+        "html+a11y"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S10",
+      "missing_profiles": [
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "observed_profiles": [
+        "default"
+      ],
+      "reason": "bare --pretty and bare --pdf-tagged forms absent; three profiles absent",
+      "required_profiles": [
+        "default",
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "runner_status": "DIFFERENCE",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    },
+    {
+      "id": "S11",
+      "missing_profiles": [
+        "default"
+      ],
+      "observed_profiles": [],
+      "reason": "explicit PARSER_UNSUPPORTED gap; no boundary vector executed",
+      "required_profiles": [
+        "default"
+      ],
+      "runner_status": "HARNESS_GAP",
+      "verifier_status": "HARNESS_GAP"
+    },
+    {
+      "id": "S12",
+      "missing_profiles": [
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "observed_profiles": [
+        "default"
+      ],
+      "reason": "exact value/equality observed; three profiles absent",
+      "required_profiles": [
+        "default",
+        "html",
+        "a11y-extras",
+        "html+a11y"
+      ],
+      "runner_status": "MATCH",
+      "verifier_status": "PARTIAL_CONTRACT_COVERAGE"
+    }
+  ],
+  "sentinel_runner": {
+    "raw_directory": "/tmp/p1356-sentinels-r2-final",
+    "totals": {
+      "DIFFERENCE": 10,
+      "HARNESS_GAP": 1,
+      "MATCH": 1
+    },
+    "verdict": "INCONCLUSIVE"
+  },
+  "source": {
+    "head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "tracked_diff_stat": "empty before final outputs; candidate inputs and receipts untracked",
+    "tree": "c3c2fa834e6ec318690ddb88e181277ff2e25b27"
+  },
+  "verdict": "MEASUREMENT_VALID_SENTINEL_SCOPE_PARTIAL",
+  "write_allowlist": [
+    "p1356-harness-seal.json",
+    "p1356-inventory-summary.json",
+    "p1356-matrix-summary.json",
+    "p1356-delta-attribution.json",
+    "p1356-parity-report.md"
+  ]
+}

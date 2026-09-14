@@ -19,18 +19,50 @@ Forma hex: string 3/4/6/8 dígitos, `#` opcional. Mensagens verbatim do vanilla.
 
 ### `native_luma` — `luma(...)`
 
-Aceita as formas públicas `luma()`, `luma(lightness)`,
-`luma(lightness, alpha: alpha)` e `luma(color)`. `lightness` e `alpha` aceitam Int
-[0,255], Ratio ou `Relative` sem parte absoluta. Ausência de argumento e
-componente numérico inválido preservam o fallback branco P705; `alpha` é
-exclusivamente nomeado e dois posicionais continuam erro estrutural.
+#### P1358 — medição anterior à decisão
 
-P1252: `luma(color)` delega em `Color::to_space(ColorSpace::Luma)` e preserva
-o alpha da origem. Esta preservação diverge deliberadamente do vanilla
-ratificado `a51e02804`, que perde alpha ao converter uma cor não-Luma via
-`Luma::from_color`; a divergência é classificada `Known-Upstream-Bug`, não
-paridade fechada. `luma(lightness, alpha: alpha)` permite observar publicamente que
-uma cor que já nasce Luma conserva transparência.
+No único vanilla ratificado `586e1bd43`,
+`lab/typst-original/crates/typst-library/src/visualize/color.rs:341-374`
+declara `lightness: Component`, `alpha: Component` e a alternativa
+`color: Color`. Sem cor, `args.expect("lightness component")` exige o primeiro
+positional; `args.eat()` consome um segundo positional opcional e aplica alpha
+100% quando ausente. Os testes vanilla
+`lab/typst-original/tests/suite/visualize/color.typ:172-177,212-231` congelam
+alpha ratio/inteiro, argumento ausente, tipos inválidos, named arg inesperado
+e positional excedente.
+
+A medição bilateral P1358 confirmou: `luma(128)` coincide; `luma()` agora é
+erro com hint para `white`/`luma(100%)`; `luma(128, 0)`, `luma(128, 255)` e
+`luma(128, 40%)` são valores; `luma(128, alpha: 40%)` é erro; tipos e ranges
+inválidos são diagnósticos, nunca fallback branco. P1357 repetiu o recorte nos
+quatro perfis e encontrou a mesma classificação. Proveniência e tabela
+integral: `00_nucleo/diagnosticos/p1358-luma-preflight.md`.
+
+#### P1358 — decisão
+
+As formas públicas do protocolo numérico são `luma(lightness)` e
+`luma(lightness, alpha)`. `lightness` é obrigatório; `alpha` é o segundo
+positional opcional, default 100%. Ambos usam `Component`: Int no intervalo
+inclusivo 0–255 ou Ratio no intervalo inclusivo 0%–100%. Float, tipo errado e
+valor fora do intervalo propagam os diagnósticos públicos do cast. `luma()`
+produz `missing argument: lightness component` com hint para `white` ou
+`luma(100%)`. Argumentos nomeados, inclusive `alpha:`, são inesperados; um
+terceiro positional também é inesperado.
+
+`Relative` sem parte absoluta pode continuar como compatibilidade interna do
+consumer, mas não é forma pública adicional e não pode reintroduzir fallback
+silencioso. Esta correção de paridade em função existente segue o fluxo
+contínuo do ADR-0127: L0 primeiro, RED→GREEN e revalidação, sem checkpoint
+adicional.
+
+#### Scope-out preservado de `luma(color)`
+
+P1252 permanece vigente neste passo: `luma(color)` delega em
+`Color::to_space(ColorSpace::Luma)` e preserva o alpha da origem. O vanilla
+ratificado ainda perde alpha ao converter uma cor não-Luma via
+`Luma::from_color`; a divergência cristalina continua classificada
+`Known-Upstream-Bug`, não paridade fechada. P1358 não muda essa transformação
+e não a usa para alegar paridade integral de `luma`.
 
 ### `native_oklab` / `native_oklch` / `native_linear_rgb` / `native_cmyk` /
 ### `native_hsl` / `native_hsv`
@@ -44,7 +76,7 @@ assinaturas heterogéneas exatas são normatizadas em P1284-v6 abaixo.
 
 #### Medição antes da decisão
 
-No vanilla ratificado `a51e02804`, `visualize/color.rs:649-680` declara
+No snapshot histórico `a51e02804`, `visualize/color.rs:649-680` declara
 `cmyk` com quatro `RatioComponent`; `RatioComponent` em `:2650-2663` aceita
 somente `Ratio` no intervalo inclusivo 0%–100%. O exemplo público é
 `cmyk(27%, 0%, 3%, 5%)`. A redação L0 anterior agrupava `cmyk` entre os
@@ -161,11 +193,16 @@ rgb(50%, 0%, 0%)              -> rgb("#800000")
 rgb("#FF0000")                -> vermelho opaco
 rgb(300, 0, 0)                -> Err "number must be between 0 and 255"
 rgb("FFFFF")                  -> Err "color string has wrong length"
-luma(128)                     -> cinza 50%
-luma(128, alpha: 40%)         -> cinza 50% com alpha 40%
-luma(rgb(..., 40%))           -> Luma com alpha 40% (Known-Upstream-Bug)
-luma(300)                     -> branco (fallback silencioso)
-luma()                        -> branco
+luma(128)                     -> cinza 50%, alpha 100%
+luma(128, 40%)                -> cinza 50%, alpha 40%
+luma(128, 0)                  -> cinza 50%, alpha 0%
+luma(128, 255)                -> cinza 50%, alpha 100%
+luma(128, alpha: 40%)         -> Err "unexpected argument: alpha"
+luma(300)                     -> Err "number must be between 0 and 255"
+luma(150%)                    -> Err "ratio must be between 0% and 100%"
+luma("bad")                  -> Err "expected integer or ratio, found string"
+luma()                        -> Err "missing argument: lightness component" + hint
+luma(rgb(..., 40%))           -> Luma com alpha 40% (scope-out Known-Upstream-Bug)
 linear_rgb(255, 0, 0)         -> vermelho linear
 linear_rgb(0.5, 0.5, 0.5)     -> Err "expected integer or ratio, found float"
 cmyk(0%, 100%, 0%, 0%)         -> magenta

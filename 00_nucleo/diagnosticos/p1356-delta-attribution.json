@@ -1,0 +1,3231 @@
+{
+  "attestation": "executado sem atestação de isolamento",
+  "candidate_r2": {
+    "catalog_delta": {
+      "current_paths": 4842,
+      "entries_count": 124,
+      "entry_paths": [
+        "format",
+        "format.bundle",
+        "format.html",
+        "format.html.a",
+        "format.html.abbr",
+        "format.html.address",
+        "format.html.area",
+        "format.html.article",
+        "format.html.aside",
+        "format.html.audio",
+        "format.html.b",
+        "format.html.base",
+        "format.html.bdi",
+        "format.html.bdo",
+        "format.html.blockquote",
+        "format.html.body",
+        "format.html.br",
+        "format.html.button",
+        "format.html.canvas",
+        "format.html.caption",
+        "format.html.cite",
+        "format.html.code",
+        "format.html.col",
+        "format.html.colgroup",
+        "format.html.data",
+        "format.html.datalist",
+        "format.html.dd",
+        "format.html.del",
+        "format.html.details",
+        "format.html.dfn",
+        "format.html.dialog",
+        "format.html.div",
+        "format.html.dl",
+        "format.html.dt",
+        "format.html.elem",
+        "format.html.em",
+        "format.html.embed",
+        "format.html.fieldset",
+        "format.html.figcaption",
+        "format.html.figure",
+        "format.html.footer",
+        "format.html.form",
+        "format.html.frame",
+        "format.html.h1",
+        "format.html.h2",
+        "format.html.h3",
+        "format.html.h4",
+        "format.html.h5",
+        "format.html.h6",
+        "format.html.head",
+        "format.html.header",
+        "format.html.hgroup",
+        "format.html.hr",
+        "format.html.html",
+        "format.html.i",
+        "format.html.iframe",
+        "format.html.img",
+        "format.html.input",
+        "format.html.ins",
+        "format.html.kbd",
+        "format.html.label",
+        "format.html.legend",
+        "format.html.li",
+        "format.html.link",
+        "format.html.main",
+        "format.html.map",
+        "format.html.mark",
+        "format.html.menu",
+        "format.html.meta",
+        "format.html.meter",
+        "format.html.nav",
+        "format.html.noscript",
+        "format.html.object",
+        "format.html.ol",
+        "format.html.optgroup",
+        "format.html.option",
+        "format.html.output",
+        "format.html.p",
+        "format.html.picture",
+        "format.html.pre",
+        "format.html.progress",
+        "format.html.q",
+        "format.html.rp",
+        "format.html.rt",
+        "format.html.ruby",
+        "format.html.s",
+        "format.html.samp",
+        "format.html.script",
+        "format.html.search",
+        "format.html.section",
+        "format.html.select",
+        "format.html.slot",
+        "format.html.small",
+        "format.html.source",
+        "format.html.span",
+        "format.html.strong",
+        "format.html.style",
+        "format.html.sub",
+        "format.html.summary",
+        "format.html.sup",
+        "format.html.table",
+        "format.html.tbody",
+        "format.html.td",
+        "format.html.template",
+        "format.html.textarea",
+        "format.html.tfoot",
+        "format.html.th",
+        "format.html.thead",
+        "format.html.time",
+        "format.html.title",
+        "format.html.tr",
+        "format.html.track",
+        "format.html.u",
+        "format.html.ul",
+        "format.html.var",
+        "format.html.video",
+        "format.html.wbr",
+        "format.pdf",
+        "format.pdf.artifact",
+        "format.pdf.attach",
+        "format.png",
+        "format.svg",
+        "png",
+        "svg"
+      ],
+      "exit_paths": [],
+      "exits_count": 0,
+      "historical_paths": 4718,
+      "intersection": 4718
+    },
+    "comparison_cell_intersection": 19368,
+    "counts": {
+      "RETAINED_GAP": 492,
+      "TARGET_DRIFT": 494
+    },
+    "current_nonmatch_cells": 986,
+    "resolved_candidates": {
+      "count": 30,
+      "paths": [
+        "math.gt.tri",
+        "math.gt.tri.eq",
+        "math.gt.tri.eq.not",
+        "math.gt.tri.not",
+        "math.join",
+        "math.join.l",
+        "math.join.l.r",
+        "math.join.r",
+        "math.lt.tri",
+        "math.lt.tri.eq",
+        "math.lt.tri.eq.not",
+        "math.lt.tri.not",
+        "math.tack.b.double",
+        "math.tack.l.double",
+        "math.tack.r.double",
+        "math.tack.r.double.not",
+        "math.tack.t.double",
+        "sym.gt.tri",
+        "sym.gt.tri.eq",
+        "sym.gt.tri.eq.not",
+        "sym.gt.tri.not",
+        "sym.lt.tri",
+        "sym.lt.tri.eq",
+        "sym.lt.tri.eq.not",
+        "sym.lt.tri.not",
+        "sym.tack.b.double",
+        "sym.tack.l.double",
+        "sym.tack.r.double",
+        "sym.tack.r.double.not",
+        "sym.tack.t.double"
+      ],
+      "reason_code": "HISTORICAL_PROFILE_EVIDENCE_MISSING",
+      "refuting_observation": "a P1353 receipt identifying the non-MATCH profiles for each path",
+      "status": "INCONCLUSIVE_PROFILE_GRANULARITY"
+    },
+    "schema": "p1356-delta-v2"
+  },
+  "catalog_entry_paths": [
+    "format",
+    "format.bundle",
+    "format.html",
+    "format.html.a",
+    "format.html.abbr",
+    "format.html.address",
+    "format.html.area",
+    "format.html.article",
+    "format.html.aside",
+    "format.html.audio",
+    "format.html.b",
+    "format.html.base",
+    "format.html.bdi",
+    "format.html.bdo",
+    "format.html.blockquote",
+    "format.html.body",
+    "format.html.br",
+    "format.html.button",
+    "format.html.canvas",
+    "format.html.caption",
+    "format.html.cite",
+    "format.html.code",
+    "format.html.col",
+    "format.html.colgroup",
+    "format.html.data",
+    "format.html.datalist",
+    "format.html.dd",
+    "format.html.del",
+    "format.html.details",
+    "format.html.dfn",
+    "format.html.dialog",
+    "format.html.div",
+    "format.html.dl",
+    "format.html.dt",
+    "format.html.elem",
+    "format.html.em",
+    "format.html.embed",
+    "format.html.fieldset",
+    "format.html.figcaption",
+    "format.html.figure",
+    "format.html.footer",
+    "format.html.form",
+    "format.html.frame",
+    "format.html.h1",
+    "format.html.h2",
+    "format.html.h3",
+    "format.html.h4",
+    "format.html.h5",
+    "format.html.h6",
+    "format.html.head",
+    "format.html.header",
+    "format.html.hgroup",
+    "format.html.hr",
+    "format.html.html",
+    "format.html.i",
+    "format.html.iframe",
+    "format.html.img",
+    "format.html.input",
+    "format.html.ins",
+    "format.html.kbd",
+    "format.html.label",
+    "format.html.legend",
+    "format.html.li",
+    "format.html.link",
+    "format.html.main",
+    "format.html.map",
+    "format.html.mark",
+    "format.html.menu",
+    "format.html.meta",
+    "format.html.meter",
+    "format.html.nav",
+    "format.html.noscript",
+    "format.html.object",
+    "format.html.ol",
+    "format.html.optgroup",
+    "format.html.option",
+    "format.html.output",
+    "format.html.p",
+    "format.html.picture",
+    "format.html.pre",
+    "format.html.progress",
+    "format.html.q",
+    "format.html.rp",
+    "format.html.rt",
+    "format.html.ruby",
+    "format.html.s",
+    "format.html.samp",
+    "format.html.script",
+    "format.html.search",
+    "format.html.section",
+    "format.html.select",
+    "format.html.slot",
+    "format.html.small",
+    "format.html.source",
+    "format.html.span",
+    "format.html.strong",
+    "format.html.style",
+    "format.html.sub",
+    "format.html.summary",
+    "format.html.sup",
+    "format.html.table",
+    "format.html.tbody",
+    "format.html.td",
+    "format.html.template",
+    "format.html.textarea",
+    "format.html.tfoot",
+    "format.html.th",
+    "format.html.thead",
+    "format.html.time",
+    "format.html.title",
+    "format.html.tr",
+    "format.html.track",
+    "format.html.u",
+    "format.html.ul",
+    "format.html.var",
+    "format.html.video",
+    "format.html.wbr",
+    "format.pdf",
+    "format.pdf.artifact",
+    "format.pdf.attach",
+    "format.png",
+    "format.svg",
+    "png",
+    "svg"
+  ],
+  "catalog_exit_paths": [],
+  "closure_limitations": [
+    "30 resolution candidates remain inconclusive due missing historical profile granularity",
+    "sentinel and inventory blockers are outside the corrected delta"
+  ],
+  "created_utc": "2026-09-12T18:49:25Z",
+  "executor": "/root/verificador_p1356",
+  "hashes": {
+    "catalog": "13a457696c21724eae6197e5fca3b0b6380c4c9612adbdd6e39c81ed0b4c1a57",
+    "contract": "0f562f0058b0fe392a38888efa60a2aba9da5a0db2bef1042d681a33c53fed27",
+    "delta_r2": "0a675f4a32dd1f11972c30f4d37c0da80dc42523687c8d36950442357ce4eb5c",
+    "gate_r2": "1a7b09cb8b9c1c0d8118470320dacd12e1013368d9d91c1209b7c9b73f974e1b",
+    "harness_r2": "485385d29b47551b85a459175c4088ef612060d6b0c805d5fc37ab0c53297ee3",
+    "manifest": "5fc083ddd885a6567f15ab5cc76ba07ec2b59c4c640996e4731e4a143f7f730c",
+    "mutants": "145c3ea7769c7ddd020d0881e8026e9965e12531ffd2f3e4bdf8f12697f5974e",
+    "oracles": "99c43b8e5ad5ab0600980a0d1c16d8ddc541be3b8b7f528a32efc18652e6e69e",
+    "sentinels_r2": "eff91e88eadaa20fcb01d1edbaca047bec8eae95c4d1a440c40a0939f92c64a2"
+  },
+  "independent_checks": {
+    "attribution_count": 986,
+    "catalog_delta_recomputed_match": true,
+    "no_current_match_attributed": true,
+    "path_count": 269,
+    "retained_gap_predicates_valid": true,
+    "target_drift_predicates_valid": true
+  },
+  "path_attribution": [
+    {
+      "path": "accent",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "asset",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "bb",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "bold",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "cal",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "calc.deg",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "calc.log10",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "calc.rad",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "cancel",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "color.spot",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "color.spot.tint",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "counter_at",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "counter_display",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "counter_final",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "counter_step",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "display",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "enum.item",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "figure.caption",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "footnote.entry",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.bundle",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.a",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.abbr",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.address",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.area",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.article",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.aside",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.audio",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.b",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.base",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.bdi",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.bdo",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.blockquote",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.body",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.br",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.button",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.canvas",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.caption",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.cite",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.code",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.col",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.colgroup",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.data",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.datalist",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.dd",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.del",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.details",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.dfn",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.dialog",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.div",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.dl",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.dt",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.elem",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.em",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.embed",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.fieldset",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.figcaption",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.figure",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.footer",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.form",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.frame",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.h1",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.h2",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.h3",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.h4",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.h5",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.h6",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.head",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.header",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.hgroup",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.hr",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.html",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.i",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.iframe",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.img",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.input",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.ins",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.kbd",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.label",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.legend",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.li",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.link",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.main",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.map",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.mark",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.menu",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.meta",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.meter",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.nav",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.noscript",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.object",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.ol",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.optgroup",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.option",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.output",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.p",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.picture",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.pre",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.progress",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.q",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.rp",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.rt",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.ruby",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.s",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.samp",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.script",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.search",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.section",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.select",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.slot",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.small",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.source",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.span",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.strong",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.style",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.sub",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.summary",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.sup",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.table",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.tbody",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.td",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.template",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.textarea",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.tfoot",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.th",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.thead",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.time",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.title",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.tr",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.track",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.u",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.ul",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.var",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.video",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.html.wbr",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.pdf",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.pdf.artifact",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.pdf.attach",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.png",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "format.svg",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "frak",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "grid_cell",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "grid_footer",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "grid_header",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.area",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.audio",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.base",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.blockquote",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.canvas",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.caption",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.colgroup",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.data",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.del",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.details",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.dialog",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.embed",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.fieldset",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.form",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.frame",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.hr",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.img",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.input",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.ins",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.label",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.link",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.map",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.meta",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.meter",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.object",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.optgroup",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.option",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.output",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.progress",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.q",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.script",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.slot",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.source",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.style",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.table",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.tbody",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.td",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.textarea",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.tfoot",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.th",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.thead",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.time",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.tr",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "html.track",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "html",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "inline",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "italic",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "list.item",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "lof",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "lot",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.Dif",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.abs",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.accent",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.bold",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.cal",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.cases",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.dif",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.display",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.frac",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.italic",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.liminf",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.limits",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.limsup",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.lr",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.mat",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.mid",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.norm",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.overbrace",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.overbracket",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.overline",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.overparen",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.overshell",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.primes",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.quote",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.quote.double",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.quote.single",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.registered",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.root",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.round",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.sans",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.scr",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.sscript",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.stretch",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.text",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.underbrace",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.underbracket",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.underparen",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.undershell",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "math.upright",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "mono",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "op",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "outline.entry",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "outline.entry.body",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "outline.entry.indented",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "outline.entry.inner",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "outline.entry.page",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "outline.entry.prefix",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "par.line",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "pdf",
+      "profiles_by_attribution": {
+        "TARGET_DRIFT": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "polygon.regular",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "raw.line",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "replace",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "sans",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "scr",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "script",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "selector.after",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "selector.before",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "serif",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "sscript",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "state_at",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "state_display",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "state_final",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "state_update",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "state_update_with",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "sym.quote",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "sym.quote.double",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "sym.quote.single",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "sym.registered",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "table_cell",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "table_footer",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "table_header",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "terms.item",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "underover",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    },
+    {
+      "path": "upright",
+      "profiles_by_attribution": {
+        "RETAINED_GAP": [
+          "default",
+          "html",
+          "a11y-extras",
+          "html+a11y"
+        ]
+      }
+    }
+  ],
+  "read_allowlist": [
+    "sealed P1356 manifest/contract/oracles/mutants",
+    "audited p1356-harness.py",
+    "prior inventories/catalog/matrices",
+    "/tmp/p1356-delta-r2.json",
+    "/tmp/p1356-sentinels-r2-final.json",
+    "/tmp/p1356-gate-r2.json",
+    "P1353/P1355 diagnostics and Tekt instructions"
+  ],
+  "revision": 2,
+  "schema": "p1356-delta-attribution-v2",
+  "source": {
+    "head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "tracked_diff_stat": "empty before final outputs; candidate inputs and receipts untracked",
+    "tree": "c3c2fa834e6ec318690ddb88e181277ff2e25b27"
+  },
+  "verdict": "DELTA_CORRECTED_INTEGRAL_CLAIM_PENDING",
+  "write_allowlist": [
+    "p1356-harness-seal.json",
+    "p1356-inventory-summary.json",
+    "p1356-matrix-summary.json",
+    "p1356-delta-attribution.json",
+    "p1356-parity-report.md"
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "p1359-pdf-tagged-contract-v1",
+  "regime": "full_segregated_materialization_protocol",
+  "attestation": "executado sem atestação de isolamento",
+  "authority": {
+    "role": "contract_author",
+    "executor": "/root",
+    "candidate_implementation_exists": false,
+    "candidate_implementation_read": false
+  },
+  "baseline": {
+    "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+  },
+  "scope": {
+    "included": [
+      "compile/watch/w parsing of --pdf-tagged tri-state",
+      "CompileIntent transport",
+      "L4 precedence over legacy --no-pdf-tags",
+      "PDF tagged versus untagged morphology",
+      "orthogonality with --compact and non-PDF targets"
+    ],
+    "excluded": [
+      "--pretty",
+      "--pages interactions",
+      "PDF standards",
+      "deprecation warning or removal of --no-pdf-tags",
+      "changes to L3 exporters or L1 entities"
+    ],
+    "productive_consumers": [
+      "02_shell/src/cli.rs",
+      "04_wiring/src/main.rs"
+    ]
+  },
+  "profiles": ["default", "html", "a11y-extras", "html+a11y"],
+  "parse_values": [
+    {"id": "V01", "command": "compile in.typ --pdf-tagged", "expected": "Some(true)"},
+    {"id": "V02", "command": "compile in.typ --pdf-tagged=true", "expected": "Some(true)"},
+    {"id": "V03", "command": "compile in.typ --pdf-tagged=false", "expected": "Some(false)"},
+    {"id": "V04", "command": "compile in.typ", "expected": "None"},
+    {"id": "V05", "command": "watch in.typ --pdf-tagged", "expected": "Some(true)", "observer_mode": "in_process_parser_only"},
+    {"id": "V06", "command": "watch in.typ --pdf-tagged=false", "expected": "Some(false)", "observer_mode": "in_process_parser_only"},
+    {"id": "V07", "command": "w in.typ --pdf-tagged=true", "expected": "Some(true)", "observer_mode": "in_process_parser_only"}
+  ],
+  "resolution_values": [
+    {"id": "R01", "pdf_tagged": null, "no_pdf_tags": false, "expected": "Enabled"},
+    {"id": "R02", "pdf_tagged": null, "no_pdf_tags": true, "expected": "Disabled"},
+    {"id": "R03", "pdf_tagged": true, "no_pdf_tags": false, "expected": "Enabled"},
+    {"id": "R04", "pdf_tagged": false, "no_pdf_tags": false, "expected": "Disabled"},
+    {"id": "R05", "pdf_tagged": true, "no_pdf_tags": true, "expected": "Enabled"},
+    {"id": "R06", "pdf_tagged": false, "no_pdf_tags": true, "expected": "Disabled"}
+  ],
+  "diagnostics": [
+    {"id": "D01", "command": "compile in.typ out.pdf --pdf-tagged false", "expected_exit": 2, "message_contains": "unexpected argument 'false'"},
+    {"id": "D02", "command": "compile in.typ --pdf-tagged=maybe", "expected_exit": 2, "message_contains": "invalid value 'maybe'"},
+    {"id": "D03", "command": "compile in.typ out.pdf --pdf-tagged=", "expected_exit": 2, "message_contains": "a value is required"}
+  ],
+  "morphology": [
+    {"id": "M01", "flags": [], "expected": "tagged"},
+    {"id": "M02", "flags": ["--pdf-tagged"], "expected": "tagged"},
+    {"id": "M03", "flags": ["--pdf-tagged=true"], "expected": "tagged"},
+    {"id": "M04", "flags": ["--pdf-tagged=false"], "expected": "untagged"},
+    {"id": "M05", "flags": ["--no-pdf-tags"], "expected": "untagged"},
+    {"id": "M06", "flags": ["--no-pdf-tags", "--pdf-tagged=true"], "expected": "tagged"},
+    {"id": "M07", "flags": ["--compact", "--pdf-tagged=false"], "expected": "untagged_and_compact"}
+  ],
+  "preservation": [
+    {"id": "P01", "claim": "PNG/SVG/HTML semantics are unchanged by --pdf-tagged"},
+    {"id": "P02", "claim": "--compact remains independent from PDF tagging"},
+    {"id": "P03", "claim": "no L3 exporter or L1 entity changes"},
+    {"id": "P04", "claim": "--no-pdf-tags remains accepted"}
+  ],
+  "unknown_policy": {
+    "mode": "fail_closed",
+    "production_unknown_counts_as_success": false,
+    "opaque_fixtures_only": true
+  },
+  "execution_safety": {
+    "forbidden": [
+      "spawn watch or w as an open-ended subprocess",
+      "use blocking output capture for watch or w",
+      "credit a timed-out watch process as a parse observation"
+    ],
+    "required": [
+      "observe V05-V07 with Args::try_parse_from",
+      "use only compile for process morphology",
+      "bound every external process output and lifetime"
+    ]
+  },
+  "acceptance": {
+    "red_before_green": true,
+    "mutation_score": 1.0,
+    "bilateral_profiles": 4,
+    "deterministic_repetitions": 2,
+    "claim_boundary": "--pdf-tagged tri-state only"
+  }
+}

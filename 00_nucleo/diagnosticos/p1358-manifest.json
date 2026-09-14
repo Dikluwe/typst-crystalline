@@ -1,0 +1,30 @@
+{
+  "schema": "p1358-manifest-v1",
+  "regime": "full_segregated_materialization_protocol",
+  "attestation": "executado sem atestação de isolamento",
+  "baseline": {
+    "product": "vanilla",
+    "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+  },
+  "protected_inputs": {
+    "l0": {"path": "00_nucleo/prompts/compiler/stdlib/foundations/color.md", "sha256": "c0938544b8fcf20a34b43729bd29a49b945a510fc370b5caa9cbaf1c0a590d3c"},
+    "step": {"path": "00_nucleo/materialization/typst-passo-1358.md", "sha256": "9078953e7c6e9de0082072c858d6d1ce7a007fa150b6df3bec339ee56a52b709"},
+    "preflight": {"path": "00_nucleo/diagnosticos/p1358-luma-preflight.md", "sha256": "534facef55519ce2aec8a49c47e405a873a0e69740d49caa20e7449ab09bc98f"},
+    "contract": {"path": "00_nucleo/diagnosticos/p1358-contract.json", "sha256": "85715abf321c2f5438780999336fcade0bcb685e71b4cd96db61e8726483ea1c"},
+    "oracles": {"path": "00_nucleo/diagnosticos/p1358-oracles.json", "sha256": "a90ee4b0c2cd19720db1f27239b1e6999222fb2bdb249649effb24e1b2529d8a"},
+    "mutants": {"path": "00_nucleo/diagnosticos/p1358-mutants.json", "sha256": "9a4ade0e8f9eb1ccb5f37b38b095f93f40d553e71fdb181c101ddef416d4bbfa"}
+  },
+  "observable_scope": "numeric luma argument protocol and public diagnostics; luma(color) is preservation-only scope-out",
+  "profile_order": ["default", "html", "a11y-extras", "html+a11y"],
+  "unknown_policy": "fail_closed",
+  "roles": {
+    "contract_author": {"executor": "/root", "candidate_access": false},
+    "oracle_adversary": {"executor": "/root/adversario_p1356", "candidate_access": false},
+    "preimplementation_verifier": {"executor": "/root/verificador_p1356", "candidate_write": false},
+    "implementer": {"executor": "/root/implementador_p1356", "protected_inputs_write": false},
+    "final_verifier": {"executor": "/root/verificador_p1356", "candidate_write": false}
+  },
+  "calibration_budget": {"focal_revisions": 2, "full_final_runs": 1},
+  "required_mutation_score": 1.0
+}

@@ -1,0 +1,189 @@
+{
+  "schema": "tekt-observable-contract/v1",
+  "contract_id": "P1362-watch-status-bodies-v1",
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1362-manifest.json",
+    "sha256": "3216260f0b29fcd3b8dbc2cf483f9749573f4e89975de2b5a20ac809aefbf39e"
+  },
+  "status": "candidate_until_mutation_score_1_and_seal",
+  "authorship": {
+    "role": "independent_contract_author",
+    "executor": "/root/contrato_p1362",
+    "candidate_patch_read": false,
+    "product_code_write": false,
+    "isolation_attestation": "not_attested",
+    "required_delivery_language": "executado sem atestacao de isolamento"
+  },
+  "observable_scope": {
+    "claim": "Only the uncoloured P1362 watch status bodies, their newline/channel envelope, their typed selection, their watch-only activation, and Compiling-before-compilation ordering are frozen.",
+    "public_layer": "language morphology and diagnostic envelope",
+    "not_general_equivalence": true
+  },
+  "closed_status_model": {
+    "variants": ["Compiling", "Success(Duration)", "PartialSuccess(Duration)", "Error"],
+    "literal_duration_fixture": {
+      "seconds": 2,
+      "nanoseconds": 849200000,
+      "formatted": "2.85 s"
+    },
+    "exact_bodies": {
+      "Compiling": "compiling ...",
+      "Success": "compiled successfully in 2.85 s",
+      "PartialSuccess": "compiled with warnings in 2.85 s",
+      "Error": "compiled with errors"
+    },
+    "duration_rule": {
+      "Success": "Append format_duration(duration) after the exact prefix `compiled successfully in `.",
+      "PartialSuccess": "Append format_duration(duration) after the exact prefix `compiled with warnings in `.",
+      "Error": "Contains no duration, separator, or timing suffix.",
+      "Compiling": "Contains no duration."
+    }
+  },
+  "selection": {
+    "inputs": {
+      "exit": "The typed compile outcome/exit code, not diagnostic text.",
+      "has_warnings": "A boolean computed from the typed warning collection before that collection is consumed or rendered.",
+      "elapsed": "Duration from Instant captured immediately before the watched compilation call; its numeric value is not guaranteed."
+    },
+    "matrix": [
+      {"exit": 0, "has_warnings": false, "selected": "Success(elapsed)"},
+      {"exit": 0, "has_warnings": true, "selected": "PartialSuccess(elapsed)"},
+      {"exit": "nonzero", "has_warnings": false, "selected": "Error"},
+      {"exit": "nonzero", "has_warnings": true, "selected": "Error"}
+    ],
+    "early_return_rule": "Compile paths that return before producing a typed warning collection report has_warnings=false; they still select Error when exit is nonzero.",
+    "forbidden_inference": "No parsing, matching, counting, or inspection of stderr strings may determine has_warnings."
+  },
+  "emission": {
+    "watch": {
+      "before_each_compilation": "Write `compiling ...\\n` to stderr before invoking every initial or repeated watched compilation.",
+      "after_outcome": "Write exactly one selected final status body followed by exactly one newline to stderr for each completed watched compilation.",
+      "multiplicity": "Exactly one Compiling and one final status per completed watched compilation; a call that has not returned has no required final status.",
+      "relative_to_diagnostics": "unspecified"
+    },
+    "ordinary_compile": {
+      "status_output": "empty",
+      "rule": "The non-watch compile path emits none of the four watch status bodies. Existing diagnostics remain outside this silence claim."
+    },
+    "stdout": "No P1362 status bytes are written to stdout.",
+    "colour": "Not part of the frozen body; tests observe uncoloured text."
+  },
+  "positive_cases": [
+    {"id": "P01", "given": "WatchStatus::Compiling", "observe": "message", "expected": "compiling ..."},
+    {"id": "P02", "given": "WatchStatus::Success(2.8492 s)", "observe": "message", "expected": "compiled successfully in 2.85 s"},
+    {"id": "P03", "given": "WatchStatus::PartialSuccess(2.8492 s)", "observe": "message", "expected": "compiled with warnings in 2.85 s"},
+    {"id": "P04", "given": "WatchStatus::Error", "observe": "message", "expected": "compiled with errors"},
+    {"id": "P05", "given": "exit=0, typed warnings empty, elapsed=2.8492 s", "observe": "selected final status", "expected": "Success(2.8492 s)"},
+    {"id": "P06", "given": "exit=0, typed warnings nonempty, elapsed=2.8492 s", "observe": "selected final status", "expected": "PartialSuccess(2.8492 s)"},
+    {"id": "P07", "given": "exit=1, typed warnings empty", "observe": "selected final status", "expected": "Error"},
+    {"id": "P08", "given": "exit=2, typed warnings nonempty", "observe": "selected final status", "expected": "Error"},
+    {"id": "P09", "given": "early return exit=2 before typed warnings exist", "observe": "transported has_warnings and selection", "expected": {"has_warnings": false, "status": "Error"}},
+    {"id": "P10", "given": "typed warning collection contains one warning but rendered stderr is empty in the adapter", "observe": "has_warnings", "expected": true},
+    {"id": "P11", "given": "typed warning collection is empty but stderr fixture contains the word warning", "observe": "has_warnings", "expected": false},
+    {"id": "P12", "given": "one watched compilation", "observe": "event prefix", "expected": ["stderr:compiling ...\\n", "invoke_compile"]},
+    {"id": "P13", "given": "two watched compilations", "observe": "Compiling multiplicity and order", "expected": "one Compiling before each invocation"},
+    {"id": "P14", "given": "clean watched success", "observe": "P1362 stderr bytes", "expected": "compiling ...\\ncompiled successfully in <formatted elapsed>\\n"},
+    {"id": "P15", "given": "warned watched success", "observe": "P1362 stderr bytes", "expected": "compiling ...\\ncompiled with warnings in <formatted elapsed>\\n"},
+    {"id": "P16", "given": "watched error", "observe": "P1362 stderr bytes", "expected": "compiling ...\\ncompiled with errors\\n"},
+    {"id": "P17", "given": "any P1362 watch status", "observe": "channel", "expected": "stderr_only"},
+    {"id": "P18", "given": "any emitted P1362 status", "observe": "terminator", "expected": "exactly_one_newline"},
+    {"id": "P19", "given": "ordinary compile clean success", "observe": "occurrences of all four P1362 status prefixes", "expected": 0},
+    {"id": "P20", "given": "ordinary compile with warning or error", "observe": "P1362 status occurrences only", "expected": 0},
+    {"id": "P21", "given": "Error with any elapsed fixture available to selector", "observe": "message", "expected": "compiled with errors"},
+    {"id": "P22", "given": "P01-P21 repeated three times in canonical then reverse order", "observe": "classification and exact outputs", "expected": "byte-identical and classification-identical on every repetition"}
+  ],
+  "negative_cases": [
+    {"id": "N01", "mutation": "Compiling body becomes `compiling...`", "expected": "Violated", "witness": "P01"},
+    {"id": "N02", "mutation": "Compiling body is capitalized", "expected": "Violated", "witness": "P01"},
+    {"id": "N03", "mutation": "Success body says `compilation successful`", "expected": "Violated", "witness": "P02"},
+    {"id": "N04", "mutation": "PartialSuccess omits `with warnings`", "expected": "Violated", "witness": "P03"},
+    {"id": "N05", "mutation": "Error body says `compilation failed`", "expected": "Violated", "witness": "P04"},
+    {"id": "N06", "mutation": "2.8492 s is rendered as `2.8492 s` or `2.84 s`", "expected": "Violated", "witness": "P02,P03"},
+    {"id": "N07", "mutation": "Error appends elapsed duration", "expected": "Violated", "witness": "P04,P21"},
+    {"id": "N08", "mutation": "exit=0 and has_warnings=true selects Success", "expected": "Violated", "witness": "P06"},
+    {"id": "N09", "mutation": "exit=0 and has_warnings=false selects PartialSuccess", "expected": "Violated", "witness": "P05"},
+    {"id": "N10", "mutation": "nonzero exit without warnings selects Success", "expected": "Violated", "witness": "P07"},
+    {"id": "N11", "mutation": "nonzero exit with warnings selects PartialSuccess", "expected": "Violated", "witness": "P08"},
+    {"id": "N12", "mutation": "Compiling is emitted after invoking compilation", "expected": "Violated", "witness": "P12"},
+    {"id": "N13", "mutation": "Compiling is emitted only for the initial watch iteration", "expected": "Violated", "witness": "P13"},
+    {"id": "N14", "mutation": "A status body is written to stdout", "expected": "Violated", "witness": "P17"},
+    {"id": "N15", "mutation": "Status emission omits newline or appends two newlines", "expected": "Violated", "witness": "P18"},
+    {"id": "N16", "mutation": "ordinary compile emits Compiling or a final status", "expected": "Violated", "witness": "P19,P20"},
+    {"id": "N17", "mutation": "has_warnings is inferred by searching rendered stderr", "expected": "Violated", "witness": "P10,P11"},
+    {"id": "N18", "mutation": "has_warnings is computed after the typed warning collection was drained and appears empty", "expected": "Violated", "witness": "P06,P10"},
+    {"id": "N19", "mutation": "an early return transports has_warnings=true without a typed warning collection", "expected": "Violated", "witness": "P09"},
+    {"id": "N20", "mutation": "watch elapsed time uses SystemTime or wall-clock timestamp instead of Instant", "expected": "Violated", "witness": "source-level contract guard"},
+    {"id": "N21", "mutation": "one watched compilation emits zero or two final statuses", "expected": "Violated", "witness": "P14,P15,P16"},
+    {"id": "N22", "mutation": "final status is emitted before the compile outcome exists", "expected": "Violated", "witness": "P14,P15,P16 and selection matrix"}
+  ],
+  "opaque_cases": [
+    {"id": "O01", "question": "What exact `[HH:MM:SS]` timestamp should surround the body?", "expected": "Unknown", "reason": "timestamp is scoped out"},
+    {"id": "O02", "question": "What ANSI colour/style is used?", "expected": "Unknown", "reason": "colour is scoped out"},
+    {"id": "O03", "question": "How fullscreen clearing and cursor movement behave?", "expected": "Unknown", "reason": "fullscreen and terminal clearing are scoped out"},
+    {"id": "O04", "question": "Does the final status appear before or after every diagnostic byte?", "expected": "Unknown", "reason": "exact position relative to diagnostics is scoped out"},
+    {"id": "O05", "question": "What are the content and order of diagnostics?", "expected": "Unknown", "reason": "diagnostic content and order are scoped out"},
+    {"id": "O06", "question": "How polling, arm, publish, abandon, dependency renewal, or eviction work?", "expected": "Unknown", "reason": "watch mechanics are scoped out"},
+    {"id": "O07", "question": "What exact duration or performance bound must a real compilation report?", "expected": "Unknown", "reason": "elapsed numeric value and performance guarantees are scoped out"},
+    {"id": "O08", "question": "How output artifacts, telemetry, or scheduler effects change?", "expected": "Unknown", "reason": "artifacts, telemetry, and scheduler behavior are outside this fragment"}
+  ],
+  "scope_outs": [
+    "timestamp `[HH:MM:SS]`",
+    "ANSI colour and style",
+    "fullscreen mode and terminal clearing",
+    "exact placement of final status relative to diagnostics",
+    "diagnostic content and ordering",
+    "polling and filesystem observation",
+    "dependency normalization or renewal",
+    "arm, publish, abandon, staging, and eviction",
+    "external execution of watch or w",
+    "telemetry and measured-duration performance guarantees",
+    "general watch or compile equivalence"
+  ],
+  "determinism_gate": {
+    "required": true,
+    "orders": ["canonical", "reverse"],
+    "repetitions_per_order": 3,
+    "required_result": "Identical classification, witness, and exact expected bytes across repetitions and orderings."
+  },
+  "mutation_gate": {
+    "required": true,
+    "valid_negative_cases": 22,
+    "required_score": 1.0,
+    "formula": "valid negative mutations classified Violated / 22",
+    "positive_requirement": "All 22 positive cases classify Preserved.",
+    "opaque_requirement": "All 8 explicit opaque cases classify Unknown.",
+    "unexpected_unknown": "Zero credit and blocks sealing.",
+    "survivor": "Any valid survivor blocks sealing."
+  },
+  "execution_gate": {
+    "process_watch_or_w": "forbidden",
+    "wiring_cli_suite": "forbidden",
+    "cargo_build_jobs": 1,
+    "test_invocation": "one exact fully-qualified test name per command; no substring filter and no broad suite",
+    "timeout_seconds_max": 120,
+    "capture": "stdout and stderr redirected to files",
+    "max_bytes_per_stream": 4194304,
+    "max_bytes_total": 16777216,
+    "pass_blockers": ["zero matched tests", "timeout", "OOM", "unexpected Unknown", "stream over 4 MiB", "all streams over 16 MiB"]
+  },
+  "final_acceptance": {
+    "functional": [
+      "22/22 positives Preserved",
+      "22/22 valid negatives Violated",
+      "8/8 explicit opacities Unknown",
+      "mutation score 1.0",
+      "deterministic canonical/reverse repetition",
+      "exact bounded L2 and L4 unit tests pass without spawning a process",
+      "ordinary compile remains free of P1362 status output"
+    ],
+    "architecture": [
+      "WatchStatus remains in L2 and performs no I/O or clock reads",
+      "L4 creates no struct, enum, or trait",
+      "has_warnings comes from the typed warning collection before consumption",
+      "only run_watch activates status",
+      "cargo fmt --check, git diff --check, and crystalline-lint pass"
+    ],
+    "protected_input_check": "Recompute every raw hash. For Prompts, a raw mismatch is acceptable only under the exact mechanical reseal allowance and unchanged normative digest; every other mismatch invalidates the chain.",
+    "verdict_ceiling": "PASS may cover only this frozen fragment and must retain the limitation `executado sem atestacao de isolamento`."
+  }
+}

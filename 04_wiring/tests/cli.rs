@@ -2467,3 +2467,114 @@ fn p1285_query_stdin_transporta_yaml_ate_stdout() {
         String::from_utf8_lossy(&output.stderr)
     );
 }
+
+fn p1359_compile_pdf(name: &str, flags: &[&str]) -> (std::process::Output, Vec<u8>) {
+    let input = temp_typ(name, "$x$");
+    let output = temp_pdf(name);
+    let result = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(flags)
+        .output()
+        .expect("executar compile P1359");
+    let pdf = fs::read(&output).unwrap_or_default();
+    cleanup(&[&input, &output]);
+    (result, pdf)
+}
+
+fn p1359_has_tagged_pdf_morphology(pdf: &[u8]) -> bool {
+    let raw = String::from_utf8_lossy(pdf);
+    raw.contains("/StructTreeRoot")
+        && raw.contains("/MarkInfo")
+        && raw.contains("/Marked true")
+}
+
+#[test]
+fn p1359_pdf_tagged_requires_equals_and_rejects_invalid_values() {
+    let input = temp_typ("p1359-diagnostics", "$x$");
+    let output = temp_pdf("p1359-diagnostics");
+    let cases: &[(&[&str], &str)] = &[
+        (&["--pdf-tagged", "false"], "unexpected argument 'false'"),
+        (&["--pdf-tagged=maybe"], "invalid value 'maybe'"),
+        (&["--pdf-tagged="], "a value is required"),
+    ];
+
+    for (flags, expected) in cases {
+        let result = Command::new(BIN)
+            .args(["compile"])
+            .arg(&input)
+            .arg(&output)
+            .args(*flags)
+            .output()
+            .expect("executar diagnóstico P1359");
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_eq!(result.status.code(), Some(2), "stderr:\n{stderr}");
+        assert!(stderr.contains(expected), "esperava {expected:?}; stderr:\n{stderr}");
+        assert!(!output.exists(), "CLI inválido não pode produzir PDF");
+    }
+
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1359_pdf_tagged_default_moderno_legado_e_precedencia() {
+    let cases: &[(&str, &[&str], bool)] = &[
+        ("p1359-default", &[], true),
+        ("p1359-modern-true", &["--pdf-tagged=true"], true),
+        ("p1359-modern-false", &["--pdf-tagged=false"], false),
+        ("p1359-legacy-false", &["--no-pdf-tags"], false),
+        ("p1359-modern-wins", &["--no-pdf-tags", "--pdf-tagged=true"], true),
+    ];
+
+    for (name, flags, expected_tagged) in cases {
+        let (result, pdf) = p1359_compile_pdf(name, flags);
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_eq!(result.status.code(), Some(0), "flags={flags:?}; stderr:\n{stderr}");
+        assert_eq!(
+            p1359_has_tagged_pdf_morphology(&pdf),
+            *expected_tagged,
+            "morfologia inesperada para flags={flags:?}"
+        );
+    }
+}
+
+#[test]
+fn p1359_pdf_tagged_e_compact_sao_ortogonais() {
+    let (tagged_result, tagged) =
+        p1359_compile_pdf("p1359-compact-tagged", &["--compact", "--pdf-tagged=true"]);
+    let (untagged_result, untagged) =
+        p1359_compile_pdf("p1359-compact-untagged", &["--compact", "--pdf-tagged=false"]);
+    assert_eq!(tagged_result.status.code(), Some(0));
+    assert_eq!(untagged_result.status.code(), Some(0));
+    assert!(p1359_has_tagged_pdf_morphology(&tagged));
+    assert!(!p1359_has_tagged_pdf_morphology(&untagged));
+    for pdf in [&tagged, &untagged] {
+        let raw = String::from_utf8_lossy(pdf);
+        assert!(!raw.contains("/ColorSpace"), "--compact deve permanecer ativo");
+        assert!(!raw.contains("/ICCBased"), "--compact deve permanecer ativo");
+    }
+}
+
+#[test]
+fn p1359_pdf_tagged_e_neutro_para_png() {
+    let input = temp_typ("p1359-png-neutral", "Texto.");
+    let output = temp_output_with_ext("p1359-png-neutral", "png");
+    remove_if_exists(&output);
+    let result = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "png", "--pdf-tagged=false"])
+        .output()
+        .expect("executar PNG P1359");
+    let bytes = fs::read(&output).unwrap_or_default();
+    cleanup(&[&input, &output]);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "stderr:\n{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(bytes.starts_with(&[0x89, 0x50, 0x4e, 0x47]));
+}

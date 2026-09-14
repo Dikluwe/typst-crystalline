@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash b21f15f2
+//! @prompt-hash 33db64be
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -23,6 +23,89 @@ fn format_dim(val: f64) -> String {
         format!("{val:.2}")
     } else {
         s
+    }
+}
+
+#[cfg(test)]
+mod p1360_ab_tests {
+    use super::*;
+    use typst_core::entities::color::Color;
+    use typst_core::entities::geometry::ShapeKind;
+    use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
+    use typst_core::entities::paint::Paint;
+
+    fn page_stream_object(pdf: &[u8]) -> &[u8] {
+        let text = String::from_utf8_lossy(pdf);
+        let page = text.find("/Type /Page ").expect("Page dictionary");
+        let contents = text[page..].find("/Contents ").expect("Page /Contents") + page;
+        let reference = text[contents + "/Contents ".len()..]
+            .split_whitespace()
+            .next()
+            .expect("Contents object id");
+        let object = format!("\n{reference} 0 obj\n");
+        let start = text.find(&object).expect("Contents object") + 1;
+        let end = text[start..].find("\nendobj").expect("Contents end") + start;
+        &pdf[start..end]
+    }
+
+    fn profitable_document() -> PagedDocument {
+        let items = (0..96)
+            .map(|row| FrameItem::Shape {
+                pos: Point { x: Pt(2.0), y: Pt(2.0 + row as f64) },
+                kind: ShapeKind::Rect,
+                width: 90.0,
+                height: 0.5,
+                fill: Some(Paint::solid(Color::rgb(0, 0, 0))),
+                stroke: None,
+                fill_rule: Default::default(),
+                parent_bbox_at_emit: None,
+            })
+            .collect();
+        PagedDocument::new(vec![Page {
+            width: 100.0,
+            height: 100.0,
+            numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items,
+        }])
+    }
+
+    #[test]
+    fn p1360_ab_page_stream_compact_vs_pretty_are_orthogonal_to_operators() {
+        let doc = profitable_document();
+        let compact = super::super::export_pdf_with_tags_and_serialization(
+            &doc,
+            StreamMode::Verbose,
+            super::super::PdfTags::Disabled,
+            PdfSerializationMode::Compact,
+        );
+        let pretty = super::super::export_pdf_with_tags_and_serialization(
+            &doc,
+            StreamMode::Verbose,
+            super::super::PdfTags::Disabled,
+            PdfSerializationMode::Pretty,
+        );
+        let compact = page_stream_object(&compact);
+        let pretty = page_stream_object(&pretty);
+
+        assert!(
+            compact
+                .windows(b"/Filter /FlateDecode".len())
+                .any(|window| window == b"/Filter /FlateDecode"),
+            "a profitable compact page content stream must use FlateDecode"
+        );
+        assert!(
+            !pretty
+                .windows(b"/FlateDecode".len())
+                .any(|window| window == b"/FlateDecode"),
+            "pretty page content streams must remain uncompressed"
+        );
+        assert!(pretty.windows(b"stream\n".len()).any(|w| w == b"stream\n"));
+        assert!(pretty.windows(b"endstream".len()).any(|w| w == b"endstream"));
     }
 }
 
@@ -57,7 +140,8 @@ use super::{
     srgb_icc_profile_bytes,
     subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
     to_unicode_cmap, widths_array, xobject_resources_for_page, GradientObject,
-    GradientObjectKind, ImageFormat, ImageXObject, PageContext, StreamMode,
+    GradientObjectKind, ImageFormat, ImageXObject, PageContext, PdfSerializationMode,
+    StreamMode,
 };
 
 use crate::font_metrics::build_math_glyph_reverse_map;
@@ -486,7 +570,13 @@ fn build_font_stream(stream_subtype: &str, font_stream_data: &[u8]) -> Vec<u8> {
 ///
 /// Para inputs muito pequenos, a compressão pode aumentar o tamanho ou falhar
 /// silenciosamente; neste caso emite-se o stream sem `/Filter`.
-fn build_content_stream(stream_data: &[u8]) -> Vec<u8> {
+fn build_content_stream(
+    stream_data: &[u8],
+    serialization: PdfSerializationMode,
+) -> Vec<u8> {
+    if serialization == PdfSerializationMode::Pretty {
+        return build_uncompressed_content_stream(stream_data);
+    }
     match compress_zlib(stream_data) {
         Ok(compressed) if compressed.len() < stream_data.len() => {
             let len = compressed.len();
@@ -505,6 +595,14 @@ fn build_content_stream(stream_data: &[u8]) -> Vec<u8> {
             stream
         }
     }
+}
+
+fn build_uncompressed_content_stream(stream_data: &[u8]) -> Vec<u8> {
+    let len = stream_data.len();
+    let mut stream = format!("<< /Length {len} >>\nstream\n").into_bytes();
+    stream.extend_from_slice(stream_data);
+    stream.extend_from_slice(b"\nendstream");
+    stream
 }
 
 /// **P760** — métricas do /FontDescriptor a partir de uma face parseada.
@@ -594,6 +692,8 @@ pub(super) struct PdfBuilder {
     /// propagado aos `PageContext` e aos recursos de página (`/ColorSpace`
     /// + ICC sempre embutido em verbose).
     stream_mode: StreamMode,
+    /// **P1360** — compressão física somente dos streams de página.
+    serialization: PdfSerializationMode,
     /// **P1140.6** — estrutura lógica PDF, ortogonal a `stream_mode`.
     pdf_tags: super::PdfTags,
     /// **P980** — modo oráculo de paridade de operador (diagnóstico;
@@ -611,6 +711,7 @@ impl PdfBuilder {
             xmp_id: None,
             document_id: None,
             stream_mode: StreamMode::default(),
+            serialization: PdfSerializationMode::default(),
             pdf_tags: super::PdfTags::default(),
             oracle: false,
         }
@@ -644,6 +745,22 @@ impl PdfBuilder {
     pub(super) fn with_stream_mode(mut self, mode: StreamMode) -> Self {
         self.stream_mode = mode;
         self
+    }
+
+    pub(super) fn with_serialization(mut self, mode: PdfSerializationMode) -> Self {
+        self.serialization = mode;
+        self
+    }
+
+    fn serialize_page_stream(&self, stream_data: &[u8]) -> Vec<u8> {
+        match self.serialization {
+            PdfSerializationMode::Compact => {
+                build_content_stream(stream_data, PdfSerializationMode::Compact)
+            }
+            PdfSerializationMode::Pretty => {
+                build_uncompressed_content_stream(stream_data)
+            }
+        }
     }
 
     pub(super) fn with_pdf_tags(mut self, tags: super::PdfTags) -> Self {
@@ -801,7 +918,8 @@ impl PdfBuilder {
             .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
-            self.add_bytes(stream_id, build_content_stream(&stream_bytes));
+            let stream_object = self.serialize_page_stream(&stream_bytes);
+            self.add_bytes(stream_id, stream_object);
         }
 
         self.add(
@@ -1098,7 +1216,8 @@ impl PdfBuilder {
             .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
-            self.add_bytes(stream_id, build_content_stream(&stream_bytes));
+            let stream_object = self.serialize_page_stream(&stream_bytes);
+            self.add_bytes(stream_id, stream_object);
         }
 
         // P517 — nome com prefixo de subset quando aplicável.
@@ -1587,7 +1706,8 @@ impl PdfBuilder {
             .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
-            self.add_bytes(stream_id, build_content_stream(&stream_bytes));
+            let stream_object = self.serialize_page_stream(&stream_bytes);
+            self.add_bytes(stream_id, stream_object);
         }
 
         // Emit objectos por font (5 cada).

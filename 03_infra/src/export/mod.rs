@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash da131b00
+//! @prompt-hash 8065ec81
 //! @layer L3
 //! @updated 2026-07-23
 
@@ -191,6 +191,16 @@ impl Default for StreamMode {
     }
 }
 
+/// Serialização física dos content streams de página, independente da
+/// escolha de operadores ([`StreamMode`]) e da estrutura lógica
+/// ([`PdfTags`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum PdfSerializationMode {
+    #[default]
+    Compact,
+    Pretty,
+}
+
 /// Presença da estrutura lógica PDF, independente de `StreamMode` (P1140.6).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PdfTags {
@@ -217,7 +227,27 @@ pub fn export_pdf_with_tags(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> Vec<u8> {
-    export_pdf_with_document_id_and_tags(doc, None, stream_mode, pdf_tags)
+    export_pdf_with_tags_and_serialization(
+        doc,
+        stream_mode,
+        pdf_tags,
+        PdfSerializationMode::Compact,
+    )
+}
+
+pub fn export_pdf_with_tags_and_serialization(
+    doc: &PagedDocument,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+) -> Vec<u8> {
+    export_pdf_with_document_id_and_tags_and_serialization(
+        doc,
+        None,
+        stream_mode,
+        pdf_tags,
+        serialization,
+    )
 }
 
 /// **P617** — variant com `DocumentID` externo.
@@ -236,10 +266,27 @@ pub fn export_pdf_with_document_id_and_tags(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> Vec<u8> {
+    export_pdf_with_document_id_and_tags_and_serialization(
+        doc,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        PdfSerializationMode::Compact,
+    )
+}
+
+pub fn export_pdf_with_document_id_and_tags_and_serialization(
+    doc: &PagedDocument,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+) -> Vec<u8> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
+        .with_serialization(serialization)
         .build(doc, None)
         .0
 }
@@ -278,10 +325,29 @@ pub fn export_pdf_with_font_and_document_id_and_tags(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> Vec<u8> {
+    export_pdf_with_font_and_document_id_and_tags_and_serialization(
+        doc,
+        font_data,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        PdfSerializationMode::Compact,
+    )
+}
+
+pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization(
+    doc: &PagedDocument,
+    font_data: &[u8],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+) -> Vec<u8> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
+        .with_serialization(serialization)
         .build(doc, Some(font_data))
         .0
 }
@@ -320,10 +386,29 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> (Vec<u8>, f64) {
+    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization(
+        doc,
+        font_data,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        PdfSerializationMode::Compact,
+    )
+}
+
+pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization(
+    doc: &PagedDocument,
+    font_data: &[u8],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+) -> (Vec<u8>, f64) {
     let builder = PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
-        .with_pdf_tags(pdf_tags);
+        .with_pdf_tags(pdf_tags)
+        .with_serialization(serialization);
     let (pdf, subset_ms) = builder.build(doc, Some(font_data));
     (pdf, subset_ms)
 }
@@ -370,11 +455,30 @@ pub fn export_pdf_multifont_with_document_id_and_tags(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> Vec<u8> {
+    export_pdf_multifont_with_document_id_and_tags_and_serialization(
+        doc,
+        fonts,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        PdfSerializationMode::Compact,
+    )
+}
+
+pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+) -> Vec<u8> {
     if fonts.is_empty() {
         return PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
+            .with_serialization(serialization)
             .build(doc, None)
             .0;
     }
@@ -388,6 +492,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags(
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
+            .with_serialization(serialization)
             .build(doc, None)
             .0;
     }
@@ -395,6 +500,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags(
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
+        .with_serialization(serialization)
         .build_multifont(doc, fonts, &faces)
         .0
 }
@@ -433,11 +539,30 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> (Vec<u8>, f64) {
+    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization(
+        doc,
+        fonts,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        PdfSerializationMode::Compact,
+    )
+}
+
+pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+) -> (Vec<u8>, f64) {
     if fonts.is_empty() {
         let (pdf, _) = PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
+            .with_serialization(serialization)
             .build(doc, None);
         return (pdf, 0.0);
     }
@@ -451,12 +576,14 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags(
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
+            .with_serialization(serialization)
             .build(doc, None);
         return (pdf, 0.0);
     }
     let builder = PdfBuilder::new()
         .with_document_id(document_id)
-        .with_stream_mode(stream_mode);
+        .with_stream_mode(stream_mode)
+        .with_serialization(serialization);
     let builder = builder.with_pdf_tags(pdf_tags);
     let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
     (pdf, subset_ms)
@@ -475,12 +602,31 @@ pub fn export_pdf_oracle(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
 ) -> (Vec<u8>, f64) {
+    export_pdf_oracle_and_serialization(
+        doc,
+        fonts,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        PdfSerializationMode::Compact,
+    )
+}
+
+pub fn export_pdf_oracle_and_serialization(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+) -> (Vec<u8>, f64) {
     if fonts.is_empty() {
         return (
             PdfBuilder::new()
                 .with_document_id(document_id)
                 .with_stream_mode(stream_mode)
                 .with_pdf_tags(pdf_tags)
+                .with_serialization(serialization)
                 .with_oracle(true)
                 .build(doc, None)
                 .0,
@@ -497,6 +643,7 @@ pub fn export_pdf_oracle(
                 .with_document_id(document_id)
                 .with_stream_mode(stream_mode)
                 .with_pdf_tags(pdf_tags)
+                .with_serialization(serialization)
                 .with_oracle(true)
                 .build(doc, None)
                 .0,
@@ -517,6 +664,7 @@ pub fn export_pdf_oracle(
                 .with_document_id(document_id)
                 .with_stream_mode(stream_mode)
                 .with_pdf_tags(pdf_tags)
+                .with_serialization(serialization)
                 .with_oracle(true)
                 .build(doc, Some(bytes));
         }
@@ -525,6 +673,7 @@ pub fn export_pdf_oracle(
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
+        .with_serialization(serialization)
         .with_oracle(true)
         .build_multifont(doc, fonts, &faces)
 }
@@ -532,7 +681,8 @@ pub fn export_pdf_oracle(
 // ── Exportação PNG/SVG (P870) ──────────────────────────────────────────────
 
 pub use self::html::{
-    export_html, export_html_with_serialization, HtmlSerializationMode,
+    export_html, export_html_with_serialization,
+    export_html_with_serialization_and_pretty, HtmlSerializationMode,
 };
 
 #[cfg(test)]

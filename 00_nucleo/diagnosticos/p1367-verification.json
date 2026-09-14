@@ -1,0 +1,267 @@
+{
+  "schema": "tekt-segregated-materialization-verification/v1",
+  "step": "P1367",
+  "verified_at": "2026-09-13T11:44:29-03:00",
+  "verdict": "PASS_WITH_LIMITED_ATTESTATION",
+  "regime": "protocolo completo, executado sem atestacao de isolamento",
+  "claim": "A materializacao preserva somente o fragmento P1367: os dois blocos exclusivos de status watch sao entregues integralmente a write_all e, apos escrita bem-sucedida, a flush; falha de escrita impede flush, falha de flush e propagada e diagnosticos permanecem fora da fronteira.",
+  "verifier": {
+    "executor": "/root/verificador_p1367",
+    "role": "verifier",
+    "shared_workspace": true,
+    "writes": [
+      "00_nucleo/diagnosticos/p1367-verification.json",
+      "00_nucleo/diagnosticos/p1367-report.md"
+    ],
+    "forbidden_actions_observed": {
+      "cargo": 0,
+      "test": 0,
+      "build": 0,
+      "binary": 0,
+      "watch_or_w": 0,
+      "lint_or_gate": 0,
+      "network": 0,
+      "verified_artifact_repairs": 0
+    },
+    "method": "inspecao somente leitura da skill e referencias, AGENTS.md, cadeia selada, L0, candidato, teste e recibos preexistentes"
+  },
+  "provenance": {
+    "repository_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree": "nao commitado e agregado com P1356-P1367 e mudancas anteriores",
+    "preflight_status": {
+      "path": "/tmp/p1367-preflight-status.txt",
+      "bytes": 6304,
+      "sha256": "2b2fada8b12dc542dff20998403345d143430f8b2756281f406c50eb90abf524"
+    },
+    "preflight_diff_stat": {
+      "path": "/tmp/p1367-preflight-diff-stat.txt",
+      "bytes": 1678,
+      "sha256": "475d5ded1374fe9f1b17644d777db3ef871c56e647e389d0492735ceea2fdde8"
+    },
+    "attribution_limit": "O diff contra HEAD agrega varios passos e nao prova sozinho isolamento nem atribuicao exclusiva de P1367."
+  },
+  "protected_inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1367-manifest.json",
+      "expected_sha256": "e8a1a213975dfeabf6349744c09b3062713d78b1181e74beab22e67f9e5369a7",
+      "actual_sha256": "e8a1a213975dfeabf6349744c09b3062713d78b1181e74beab22e67f9e5369a7",
+      "preserved": true
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1367-contract.json",
+      "expected_sha256": "a1e53731a58fd67960efbc76ae5e03a5f301f73f96b886184026b72ac1ceba71",
+      "actual_sha256": "a1e53731a58fd67960efbc76ae5e03a5f301f73f96b886184026b72ac1ceba71",
+      "preserved": true
+    },
+    "oracles": {
+      "path": "00_nucleo/diagnosticos/p1367-oracles.json",
+      "expected_sha256": "a45331ec1761a43bfd122c692679b35fe6c399ba2293a361208bf7b01ee0f04c",
+      "actual_sha256": "a45331ec1761a43bfd122c692679b35fe6c399ba2293a361208bf7b01ee0f04c",
+      "preserved": true
+    },
+    "mutants": {
+      "path": "00_nucleo/diagnosticos/p1367-mutants.json",
+      "expected_sha256": "b4dfc8fd96a97f4c2ddf1439d3319478bb91f272bdf505927211a8240d95b6ad",
+      "actual_sha256": "b4dfc8fd96a97f4c2ddf1439d3319478bb91f272bdf505927211a8240d95b6ad",
+      "preserved": true
+    },
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1367.md",
+      "expected_sha256": "d309456868ca7d76d4c49febad775cc9a40dc5daa484c191c57961e712627bb8",
+      "actual_sha256": "d309456868ca7d76d4c49febad775cc9a40dc5daa484c191c57961e712627bb8",
+      "preserved": true
+    },
+    "preflight": {
+      "path": "00_nucleo/diagnosticos/p1367-watch-flush-preflight.md",
+      "expected_sha256": "750b38647bf228aa707c2fde21976a9e5fcac1cf7276cfff3a9633874c7a7270",
+      "actual_sha256": "750b38647bf228aa707c2fde21976a9e5fcac1cf7276cfff3a9633874c7a7270",
+      "preserved": true
+    },
+    "gate": {
+      "path": "00_nucleo/diagnosticos/p1367-contract-gate.py",
+      "expected_sha256": "e1aeaab1c4d1631fa892db97c08593305c0c4cbf04b01638738423e3be389b28",
+      "actual_sha256": "e1aeaab1c4d1631fa892db97c08593305c0c4cbf04b01638738423e3be389b28",
+      "preserved": true
+    },
+    "l0": {
+      "path": "00_nucleo/prompts/wiring.md",
+      "raw_sha256_at_seal": "9434a96fd7603586a23340a0e11367d820a1141a71df7d9a6eeb261df726d986",
+      "raw_sha256_current": "1965a6bab753e31bddf7e24a229e07ba2ef4528d4210afd3431ec672aabc91c6",
+      "normative_sha256_expected": "26a68f44e4a20e629b75c91ddf7c39bfb7193afcf979c810ef0c387eb1554bec",
+      "normative_sha256_actual": "26a68f44e4a20e629b75c91ddf7c39bfb7193afcf979c810ef0c387eb1554bec",
+      "normalization": "remove exclusivamente a linha iniciada exatamente por Hash do Código: e sua quebra de linha",
+      "normative_preserved": true,
+      "raw_change_classification": "resselo mecanico da linha Hash do Código"
+    },
+    "vanila_watch": {
+      "path": "lab/typst-original/crates/typst-cli/src/watch.rs",
+      "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "expected_sha256": "3d5ee88a01513902055881b8cd4245540327ef33a4d10a6788bcabce17cdb585",
+      "actual_sha256": "3d5ee88a01513902055881b8cd4245540327ef33a4d10a6788bcabce17cdb585",
+      "preserved": true
+    },
+    "vanila_terminal": {
+      "path": "lab/typst-original/crates/typst-cli/src/terminal.rs",
+      "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "expected_sha256": "0fbde0a28d5f7842d2c0b692b6710d422784f8df1b61ee7c77d74bf40d2f04a5",
+      "actual_sha256": "0fbde0a28d5f7842d2c0b692b6710d422784f8df1b61ee7c77d74bf40d2f04a5",
+      "preserved": true
+    },
+    "seal": {
+      "path": "00_nucleo/diagnosticos/p1367-seal.json",
+      "sha256": "feed1b25c67afe3c99a345da6dfe668fb00db80377638c10178f2d51fa2ce0ef",
+      "verdict": "SEALED"
+    }
+  },
+  "discriminatory_gate": {
+    "receipt": "/tmp/p1367-gate.stdout",
+    "receipt_sha256": "890f97046e2a4e394512195c42b13a1ead7d94739b58ad253b77e99669cd9384",
+    "exit_code": 0,
+    "verdict": "SEALABLE",
+    "positive_preserved": "15/15",
+    "negative_violated": "22/22",
+    "opaque_unknown": "8/8",
+    "opaque_credit": 0,
+    "unexpected_unknown": 0,
+    "valid_mutants_rejected": "30/30",
+    "mutation_score": 1.0,
+    "repeat_equal": true,
+    "reverse_equal": true
+  },
+  "candidate": {
+    "path": "04_wiring/src/main.rs",
+    "raw_sha256_current": "5908f9ab6251de3833246c3a76d561c1e9542d17a207a694a5e4460a0c2fb756",
+    "observations": [
+      {
+        "lines": "386-389",
+        "claim": "write_watch_block e privado, chama write_all uma vez com block.as_bytes() integral e somente depois chama flush",
+        "preserved": true
+      },
+      {
+        "lines": "391-395",
+        "claim": "emit_watch_block e privado, obtem stderr, mantem o lock mutavel durante a delegacao unica e usa expect para falha explicita",
+        "preserved": true
+      },
+      {
+        "lines": "346-352",
+        "claim": "ha exatamente dois call sites produtivos de status: Compiling e o status terminal preparado; ambos passam o bloco sem transformacao ao wrapper",
+        "preserved": true
+      },
+      {
+        "lines": "806-820,967-1025",
+        "claim": "warning HTML, warnings, errors, mensagem operacional e os drains de diagnostico conservam suas emissoes anteriores e nao chamam os helpers P1367",
+        "preserved": true
+      },
+      {
+        "lines": "224-311",
+        "claim": "um unico teste P1367 usa FakeWriter em memoria; sucesso prova bytes e ordem write-flush 1/1, BrokenPipe prova write 1 e flush 0, TimedOut prova write 1 e flush 1 com ErrorKind preservado",
+        "preserved": true
+      }
+    ],
+    "private_helpers": true,
+    "public_api_change": false,
+    "write_all_argument": "block.as_bytes() integral",
+    "write_all_then_flush": true,
+    "write_failure_kind_preserved": "BrokenPipe",
+    "flush_after_write_failure": 0,
+    "flush_failure_kind_preserved": "TimedOut",
+    "stderr_lock_covers_delegation": true,
+    "wrapper_failure_policy": "expect",
+    "productive_status_callsites": 2,
+    "diagnostic_helper_callsites": 0,
+    "legacy_status_eprint_callsites": 0,
+    "test_scope_limit": "O FakeWriter nao e um terminal real e aceita todo o slice na primeira chamada de Write::write; repeticoes internas de write_all diante de escrita parcial ou Interrupted e entrega fisica posterior ao flush nao foram exercitadas."
+  },
+  "red_green": {
+    "red": {
+      "command": "CARGO_BUILD_JOBS=1 timeout 120s cargo test -p typst-wiring --bin typst tests::p1367_write_watch_block_writes_then_flushes_and_propagates_failures -- --exact",
+      "command_sha256": "d2296553ed8e48e51b88d463a2daf5ca3e6c348322bcb29b9e147de81abc19c7",
+      "exit_code": 101,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1606219acac613cccfce7d0a4a5bc277f761b6352008369eca0cad5215b1f886",
+      "failure": "E0425 em tres referencias: write_watch_block ainda ausente em super",
+      "expected_red": true
+    },
+    "green": {
+      "command": "CARGO_BUILD_JOBS=1 timeout 120s cargo test -p typst-wiring --bin typst tests::p1367_write_watch_block_writes_then_flushes_and_propagates_failures -- --exact",
+      "command_sha256": "d2296553ed8e48e51b88d463a2daf5ca3e6c348322bcb29b9e147de81abc19c7",
+      "exit_code": 0,
+      "stdout_sha256": "79f8f594c20551f7f5fa0f8d8558bfce0d165da387d5e401b1dae90dc4d299c6",
+      "stderr_sha256": "5da13a1593dda6be3c8c231e9334680e202b5f413d0a865154754893872e6631",
+      "tests_run": 1,
+      "tests_passed": 1,
+      "tests_failed": 0,
+      "filtered_out": 8,
+      "exact_nonzero": true
+    }
+  },
+  "final_gates": {
+    "build": {
+      "command": "CARGO_BUILD_JOBS=1 timeout 120s cargo build -p typst-wiring --bin typst",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 35156,
+      "stderr_sha256": "6da332964bd62b97d486adec623a1b5b00bf859f1d8e7400d9571d1078e4acf9"
+    },
+    "format": {
+      "command": "timeout 60s cargo fmt --all -- --check",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    "diff_check": {
+      "command": "timeout 60s git diff --check",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0
+    },
+    "crystalline_lint": {
+      "command": "timeout 120s crystalline-lint .",
+      "exit_code": 0,
+      "stdout_bytes": 277268,
+      "stdout_sha256": "425e2317c91dc661c22df9409058927b55b7de0b5722f380219470520ec79f79",
+      "stderr_bytes": 0,
+      "blocking_violations": 0,
+      "note": "o recibo contem warnings e infos preexistentes, mas o comando terminou com exit zero"
+    }
+  },
+  "memory_safety": {
+    "cargo_build_jobs": 1,
+    "dynamic_commands_sequential": true,
+    "max_timeout_seconds": 120,
+    "recorded_watch_or_w_executions": 0,
+    "recorded_external_or_broad_suites": 0,
+    "recorded_real_stderr_in_test": 0,
+    "timeout": false,
+    "oom": false,
+    "sigkill": false,
+    "preflight_receipts_bytes": 7982,
+    "sealed_gate_receipts_bytes": 7359,
+    "dynamic_red_green_and_final_gate_receipts_bytes": 384464,
+    "hash_reseal_receipts_bytes": 154,
+    "aggregate_counting_rule": "gate + RED/GREEN + build + fmt-check + diff-check + lint + resselo; preflight registra o estado de entrada mas nao e somado novamente no budget de execucao",
+    "aggregate_receipts_bytes": 391977,
+    "aggregate_limit_bytes": 16777216,
+    "largest_stream_bytes": 277268,
+    "per_stream_limit_bytes": 4194304,
+    "within_budget": true
+  },
+  "attestation_limitations": [
+    "O workspace foi partilhado; hashes, ordem e capacidades foram registrados, mas isolamento tecnico nao pode ser atestado.",
+    "O teste ficou visivel no mesmo arquivo compartilhado ao implementador; portanto a independencia A/B nao e forte.",
+    "O FakeWriter e uma simulacao em memoria, nao um stderr ou terminal real; a entrega fisica apos flush continua opaca.",
+    "O diff contra HEAD agrega outros passos e nao atribui sozinho o delta P1367.",
+    "O gate discriminatorio e estatico e o unico teste dinamico cobre write_watch_block; o wrapper produtivo, seus dois call sites e a exclusao de diagnosticos foram verificados estaticamente.",
+    "A ausencia de watch, OOM, timeout e SIGKILL e afirmada somente para a cadeia e os recibos P1367 registrados."
+  ],
+  "scope_outs": [
+    "cor, fullscreen, cursor, limpeza e deteccao TTY",
+    "buffering interno do sistema operacional e instante de entrega fisica apos flush",
+    "flush e conteudo dos diagnosticos nao-watch",
+    "writers reais com escrita parcial ou Interrupted",
+    "polling, dependencias, staging, publish, abandon, wait e eviction em execucao",
+    "execucao externa de watch ou w",
+    "paridade funcional geral de watch, terminal ou stderr com o vanila"
+  ],
+  "claim_limit": "PASS_WITH_LIMITED_ATTESTATION cobre somente a escrita integral, o flush explicito, a propagacao de falhas e o roteamento dos dois status P1367 conforme os artefatos e recibos registrados; nao prova isolamento tecnico, entrega fisica no terminal nem equivalencia funcional geral com o vanila."
+}

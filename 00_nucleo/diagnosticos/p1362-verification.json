@@ -1,0 +1,241 @@
+{
+  "schema": "tekt-final-verification/v1",
+  "step": "P1362",
+  "created_at": "2026-09-13T08:21:41-03:00",
+  "verifier": "/root/verificador_p1362",
+  "regime": {
+    "kind": "full-segregated-protocol",
+    "attestation": "executado sem atestacao de isolamento",
+    "reason": "Os papeis e a ordem foram registrados, mas todos compartilharam o mesmo workspace; adicionalmente, o implementador viu acidentalmente o teste A/B.",
+    "verifier_product_execution": false,
+    "verifier_test_execution": false,
+    "verifier_watch_or_w_execution": false
+  },
+  "verdict": "PASS_WITH_LIMITED_ATTESTATION",
+  "verdict_scope": "Somente os quatro corpos sem cor, selecao tipada, envelope stderr/newline, ativacao exclusiva por watch e ordem Compiling-antes-da-compilacao congelados em P1362.",
+  "does_not_claim": [
+    "equivalencia funcional geral com o vanila",
+    "equivalencia geral de watch ou compile",
+    "validacao externa do envelope ou do ciclo watch",
+    "timestamp, cor ou ordem perante diagnosticos",
+    "isolamento tecnico entre implementador e testador",
+    "execucao dos mutantes contra o produto"
+  ],
+  "sealed_inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1362-manifest.json",
+      "sha256": "3216260f0b29fcd3b8dbc2cf483f9749573f4e89975de2b5a20ac809aefbf39e",
+      "preserved": true
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1362-contract.json",
+      "sha256": "17ae4ff69097473817b0f3e2d135c85f5aeee854de980286b74cabaf98799bb2",
+      "preserved": true
+    },
+    "oracles": {
+      "path": "00_nucleo/diagnosticos/p1362-oracles.json",
+      "sha256": "4dea845b6f0beb0ed47da423075863d52cba435360658527560cecdc48255663",
+      "preserved": true
+    },
+    "mutants": {
+      "path": "00_nucleo/diagnosticos/p1362-mutants.json",
+      "sha256": "e346091c23e47c4f37671329293a21ef40fd41073e9724e97e9172818655ab85",
+      "preserved": true
+    },
+    "contract_gate": {
+      "path": "00_nucleo/diagnosticos/p1362-contract-gate.py",
+      "sha256": "4a97797d63cd2ef7c855cebdf7977cd0c45b69adcb03c610a19ce2f0b13e3e64",
+      "preserved": true
+    },
+    "seal": {
+      "path": "00_nucleo/diagnosticos/p1362-seal.json",
+      "sha256": "8ad117ae2bb8bfc9ec49a7a60aa252bf9741af59a4b1c748d30ea41a75e805e5"
+    },
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1362.md",
+      "sha256": "ffeec61dc1fc9d95838eb6dee3e3f68233b1099900c53e07c9215ddc2c757792",
+      "preserved": true
+    },
+    "preflight": {
+      "path": "00_nucleo/diagnosticos/p1362-watch-status-preflight.md",
+      "sha256": "08df5c612b38d99599ee60e2ddb58f23efcc9bc81efd69036fc3b801e3295c60",
+      "preserved": true
+    },
+    "prompt_normative_digests": [
+      {
+        "path": "00_nucleo/prompts/shell/duration.md",
+        "raw_post_reseal_sha256": "0bbbf15ae0bafbe7e023263738c723bd6bfa75f06c0c5c6c43898f23e436b5f4",
+        "normative_sha256": "02bb6aa40c3fd936d786ee20ecdbd3d078c41dc23bbbf547a7608db0c3c3499b",
+        "hash_do_codigo_lines": 1,
+        "preserved_under_frozen_reseal_policy": true
+      },
+      {
+        "path": "00_nucleo/prompts/shell/tests/p1361-duration.md",
+        "raw_post_reseal_sha256": "c5b4be4c22a20cc349621b74a7c4b423a1304a45aac099a8eed1b7cc1931aec5",
+        "normative_sha256": "14216054705c8f2b0cee0e3f8b17677d37065c7dd706a49086d1ed9206ba1ded",
+        "hash_do_codigo_lines": 1,
+        "preserved_under_frozen_reseal_policy": true
+      },
+      {
+        "path": "00_nucleo/prompts/wiring.md",
+        "raw_post_reseal_sha256": "e533cc77dea99538445fbee9b81dad8829b56a7ce6944e78060ace22f32326a9",
+        "normative_sha256": "e9907dedd503cbc2e82829632b0a6996342ea67cffe5545fffb23a6cda76ab1e",
+        "hash_do_codigo_lines": 1,
+        "preserved_under_frozen_reseal_policy": true
+      }
+    ],
+    "vanilla_sources_preserved": true
+  },
+  "contract_discrimination": {
+    "model": "binding-free static discrimination; nenhum mutante foi executado contra codigo produtivo",
+    "positives": {
+      "preserved": 22,
+      "total": 22
+    },
+    "valid_mutants": {
+      "violated": 22,
+      "total": 22,
+      "survivors": 0,
+      "mutation_score": 1.0
+    },
+    "explicit_opaque_cases": {
+      "unknown": 8,
+      "total": 8,
+      "success_credit": 0
+    },
+    "unexpected_unknown": 0,
+    "canonical_reverse_repetitions_identical": true
+  },
+  "candidate": {
+    "files": [
+      {
+        "path": "02_shell/src/duration.rs",
+        "sha256": "ad16d1d18d78fdc6829e91e344901beaddd5d45425253a127001ce411035334d"
+      },
+      {
+        "path": "02_shell/tests/p1361_duration.rs",
+        "sha256": "d24171dab5dc9c8b360f66f38adb087f489c84f4ffc947ae1cd5a3852797b63d"
+      },
+      {
+        "path": "04_wiring/src/main.rs",
+        "sha256": "fd74c00b14e75667b36c82a171e12d44a6bf121d13308de89d891e2c974c96b4"
+      }
+    ],
+    "static_source_inspection": {
+      "watch_status_closed_model_in_l2": true,
+      "l2_has_no_io_or_clock_read": true,
+      "ordinary_run_compile_emits_no_p1362_status": true,
+      "run_watch_emits_compiling_to_stderr_before_compile_call": true,
+      "elapsed_uses_instant": true,
+      "final_status_emitted_to_stderr": true,
+      "selection_uses_exit_and_typed_has_warnings": true,
+      "has_warnings_computed_before_warning_collection_is_drained": true,
+      "early_returns_use_has_warnings_false": true,
+      "stderr_text_is_not_parsed_for_warning_selection": true,
+      "poll_arm_publish_abandon_staging_wait_and_eviction_flow_unchanged_by_p1362": true
+    }
+  },
+  "red_receipts": {
+    "causal": true,
+    "shell": {
+      "stdout": {
+        "path": "/tmp/p1362-red-shell.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/p1362-red-shell.stderr",
+        "bytes": 23223,
+        "sha256": "2b6b44a3a41539cb23d0048468a7f355121aa2ad8144457f6b8b09a6b8738cff",
+        "witness": "E0432: typst_shell::duration::WatchStatus inexistente"
+      }
+    },
+    "wiring": {
+      "stdout": {
+        "path": "/tmp/p1362-red-wiring.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/p1362-red-wiring.stderr",
+        "bytes": 36721,
+        "sha256": "18944e3e74bd52ca47171fbb72f96a9e4ca2777b73a144429a78ab6932f69af0",
+        "witness": "E0432 para WatchStatus e E0425 para watch_status_for_outcome"
+      }
+    }
+  },
+  "final_gates": {
+    "reported_exit_statuses": {
+      "shell_exact_test": 0,
+      "wiring_exact_test": 0,
+      "build": 0,
+      "cargo_fmt_check": 0,
+      "git_diff_check": 0,
+      "crystalline_lint": 0,
+      "fix_hashes_check": 0
+    },
+    "receipt_status_limitation": "Os exit-status foram informados pelo executor/orquestrador, mas nao existem em ficheiros separados; o verificador corroborou somente o conteudo e os hashes dos streams.",
+    "shell_exact_test": {
+      "stdout_sha256": "0196855dacf1904c77941215f489ec781e84a9f0346d0fe6e61ae601a508816a",
+      "stderr_sha256": "95ce1640a13a5f81cde064e87e96c59798bb8492d3adc273f6dffa509979a1e9",
+      "observation": "1 passed; 0 failed"
+    },
+    "wiring_exact_test": {
+      "stdout_sha256": "008d8c9602b1c4160495b25fae1ab5b34249bd6bf44e164456318e3f5f4cc23a",
+      "stderr_sha256": "7a90fb25a905e168e3d5e9e71d36eba7c1be791c752cb98b36abb06821d2c157",
+      "observation": "1 passed; 0 failed"
+    },
+    "build": {
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a10089d793074591e065ffd3a450767343e1375f28b2908766b92d6d880547b0",
+      "observation": "Finished dev profile in 2.23s; warnings presentes"
+    },
+    "fmt_and_diff": {
+      "all_streams_empty": true,
+      "empty_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "lint": {
+      "stdout_bytes": 277268,
+      "stdout_sha256": "425e2317c91dc661c22df9409058927b55b7de0b5722f380219470520ec79f79",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observation": "warnings e info; nenhuma linha de erro encontrada"
+    },
+    "fix_hashes": {
+      "stdout_bytes": 15,
+      "stdout_sha256": "bf3511c5c7cb1a9202071d8a2d60204a30f29cc11ee58ff2963a063a9f835b25",
+      "observation": "Nothing to fix"
+    }
+  },
+  "memory_safety": {
+    "accepted_final_test_build_fmt_diff_lint_stream_bytes": 370903,
+    "accepted_bytes_including_fix_hashes_receipt": 370918,
+    "largest_stream_bytes": 277268,
+    "per_stream_limit_bytes": 4194304,
+    "total_limit_bytes": 16777216,
+    "within_limits": true,
+    "watch_or_w_process_receipt": false,
+    "timeout_or_oom_observed_in_receipts": false,
+    "note": "A ausencia de recibo de processo watch/w e a inspecao dos testes sustentam a contencao, mas nao constituem prova de monitoramento externo de processos."
+  },
+  "scope_outs_preserved": [
+    "timestamp [HH:MM:SS]",
+    "cor e estilo ANSI",
+    "fullscreen e limpeza do terminal",
+    "posicao exata perante diagnosticos",
+    "conteudo e ordem dos diagnosticos",
+    "polling e observacao de filesystem",
+    "renovacao de dependencias",
+    "arm, publish, abandon, staging e eviction",
+    "execucao externa de watch ou w",
+    "telemetria e garantia de performance da duracao"
+  ],
+  "limitations": [
+    "Workspace compartilhado; isolamento de leitura nao atestado.",
+    "O implementador viu acidentalmente o teste A/B, reduzindo a independencia pratica.",
+    "Os recibos nao armazenam exit-status em ficheiros separados.",
+    "Nenhum processo externo validou canal, newline, repeticao ou ordem do ciclo watch.",
+    "Timestamp, cor e ordem diagnostica permanecem fora do escopo.",
+    "Os 22 mutantes foram discriminados estaticamente, nao executados contra o produto."
+  ]
+}

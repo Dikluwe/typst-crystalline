@@ -1,0 +1,253 @@
+{
+  "schema": "p1359-pdf-tagged-mutants-v1",
+  "artifact": {
+    "path": "00_nucleo/diagnosticos/p1359-mutants.json",
+    "kind": "negative_mutation_catalog",
+    "status": "CANDIDATE_UNEXECUTED",
+    "created_utc": "2026-09-13T01:09:48Z",
+    "updated_utc": "2026-09-13T01:39:00Z",
+    "revision": 1,
+    "revision_kind": "observer_memory_safety",
+    "predecessor_sha256": "9b8dee6f929cb6a60437c64c7ef524122d4a0ca22ba57779b4fe9e8d4704aea5",
+    "prior_seal_invalidated": true,
+    "revision_reason": "Root-cause evidence adds a pre-execution safety mutant for open-ended watch/w subprocess capture; all prior semantic mutants remain unchanged.",
+    "step": 1359,
+    "authorship_execution_attestation": "executado sem atestação de isolamento",
+    "mutation_execution_performed": false,
+    "candidate_implementation_read": false,
+    "candidate_product_code_read": false,
+    "candidate_verdict_issued": false
+  },
+  "authority": {
+    "regime": "full_segregated_materialization_protocol",
+    "role": "oracle_author_and_adversary",
+    "executor": "/root/adversario_p1356",
+    "environment": "Codex delegated agent in the shared typst-crystalline worktree",
+    "context_inherited": "none",
+    "repository_head_at_authoring": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "isolation_claim": "executado sem atestação de isolamento",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1359-oracles.json",
+      "00_nucleo/diagnosticos/p1359-mutants.json"
+    ],
+    "read_allowlist": [
+      "00_nucleo/diagnosticos/p1359-contract.json",
+      "00_nucleo/materialization/typst-passo-1359.md",
+      "00_nucleo/diagnosticos/p1359-memory-root-cause.md",
+      "00_nucleo/prompts/shell/cli.md",
+      "00_nucleo/prompts/wiring.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md"
+    ],
+    "explicitly_denied_inputs": [
+      "any P1359 candidate implementation",
+      "02_shell/src/cli.rs",
+      "04_wiring/src/main.rs",
+      "any candidate binary or candidate observation"
+    ]
+  },
+  "frozen_inputs": [
+    {"path": "00_nucleo/diagnosticos/p1359-contract.json", "sha256": "a6004e2e759048a8651abe54608110b7b8812cb38b200df58abe5e58a299aedd"},
+    {"path": "00_nucleo/materialization/typst-passo-1359.md", "sha256": "9b9904c638e14fe21d04820807e53396dbeb6b7b3dbba18a1eaaf52973d0fc4d"},
+    {"path": "00_nucleo/diagnosticos/p1359-memory-root-cause.md", "sha256": "ff6175293ef32ad5bf921f828257c181815d46b3bc19b918f0d68219800f43b3"},
+    {"path": "00_nucleo/prompts/shell/cli.md", "sha256": "37dbd1947ba6e1d89eb3598c548401ac922e3028a347e6153dbdc674725393ac"},
+    {"path": "00_nucleo/prompts/wiring.md", "sha256": "5d4dd2773b24f919ff45306bac6a4963eaf1b0683d92cadf2e8c15d136f16514"},
+    {"path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md", "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"},
+    {"path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md", "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"},
+    {"path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md", "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"}
+  ],
+  "mutation_protocol": {
+    "application_model": "Apply one deterministic transformation to an otherwise conforming abstract fixture or receipt and preserve every unnamed field.",
+    "expected_for_every_valid_mutant": "Violated",
+    "unknown_mode": "fail_closed",
+    "unknown_rule": "Every mutation supplies a decisive public or structural witness; Unknown does not reject a negative mutant.",
+    "required_mutation_score": 1.0,
+    "profiles_per_mutant": ["default", "html", "a11y-extras", "html+a11y"],
+    "determinism": "Each injected mutant is evaluated twice in canonical and reverse physical order.",
+    "execution_status": "catalogued_only_not_injected_or_run"
+  },
+  "mutants": [
+    {
+      "id": "A01_COLLAPSE_TRI_STATE",
+      "ordinal": 1,
+      "mutation": "Collapse None and Some(false) into one false boolean before intent transport.",
+      "valid": true,
+      "validity_basis": "V03 and V04 freeze distinct public intent states, and R01/R04 prove they resolve differently.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": ["V03", "V04"], "operation": "serialize both observations as false instead of Some(false) and None"},
+      "witness": {"boundary": "public_and_structural", "predicate": "V03 equals Some(false) while V04 equals None", "expected_observed": "two distinct tri-state cases become indistinguishable"}
+    },
+    {
+      "id": "A02_DISABLE_REQUIRE_EQUALS",
+      "ordinal": 2,
+      "mutation": "Accept a boolean value separated from --pdf-tagged instead of requiring equals syntax.",
+      "valid": true,
+      "validity_basis": "D01 uses an occupied output positional so false is unambiguously an unexpected separated argument.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": "D01", "operation": "replace exit 2 diagnostic with successful Some(false) parse"},
+      "witness": {"boundary": "public", "predicate": "compile in.typ out.pdf --pdf-tagged false exits 2 and reports unexpected argument 'false'", "expected_observed": "separated false is accepted"}
+    },
+    {
+      "id": "A03_BARE_DOES_NOT_DEFAULT_TRUE",
+      "ordinal": 3,
+      "mutation": "Parse bare --pdf-tagged as None rather than Some(true).",
+      "valid": true,
+      "validity_basis": "V01 and V05 independently freeze the bare form for compile and watch.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": ["V01", "V05"], "operation": "replace Some(true) with None"},
+      "witness": {"boundary": "public", "predicate": "bare --pdf-tagged yields Some(true)", "expected_observed": "bare syntax is conflated with absence"}
+    },
+    {
+      "id": "A04_COMPILE_ONLY_NO_WATCH",
+      "ordinal": 4,
+      "mutation": "Implement --pdf-tagged for compile but silently drop it from watch.",
+      "valid": true,
+      "validity_basis": "V05 and V06 require watch to reuse the same tri-state parser as compile.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": ["V05", "V06"], "operation": "replace expected Some(true)/Some(false) with None while leaving V01-V04 unchanged"},
+      "witness": {"boundary": "public", "predicate": "watch transports the same explicit values as compile", "expected_observed": "watch drops both modern forms"}
+    },
+    {
+      "id": "A05_ALIAS_W_DROPS_FLAG",
+      "ordinal": 5,
+      "mutation": "Let watch accept the flag but make alias w lose the tri-state value.",
+      "valid": true,
+      "validity_basis": "V07 freezes w as an alias using the same resolved CompileArgs path.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": "V07", "operation": "replace Some(true) with None while leaving V05/V06 unchanged"},
+      "witness": {"boundary": "public", "predicate": "w in.typ --pdf-tagged=true yields Some(true)", "expected_observed": "alias-specific loss of the flag"}
+    },
+    {
+      "id": "A06_INVERT_EXPLICIT_FALSE",
+      "ordinal": 6,
+      "mutation": "Resolve explicit Some(false) as Enabled.",
+      "valid": true,
+      "validity_basis": "R04 and R06 freeze explicit false as Disabled regardless of the legacy flag.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": ["R04", "R06"], "operation": "replace Disabled with Enabled"},
+      "witness": {"boundary": "public_and_structural", "predicate": "Some(false) always maps to PdfTags::Disabled", "expected_observed": "explicit false enables tag morphology"}
+    },
+    {
+      "id": "A07_LEGACY_OVERRIDES_MODERN",
+      "ordinal": 7,
+      "mutation": "Give --no-pdf-tags precedence over explicit --pdf-tagged=true.",
+      "valid": true,
+      "validity_basis": "R05 and M06 freeze modern explicit true as winning the conflict.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": ["R05", "M06"], "operation": "replace Enabled/tagged with Disabled/untagged when both flags are present"},
+      "witness": {"boundary": "public_and_structural", "predicate": "explicit modern tri-state overrides the legacy disable flag", "expected_observed": "legacy flag wins and qpdf observes no tag tree"}
+    },
+    {
+      "id": "A08_L4_IGNORES_MODERN_FLAG",
+      "ordinal": 8,
+      "mutation": "Transport pdf_tagged through L2 but ignore it in L4, resolving only no_pdf_tags/default.",
+      "valid": true,
+      "validity_basis": "R04 and M04 distinguish transported Some(false) from the default tagged path.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": ["R04", "M04"], "operation": "replace Disabled/untagged with Enabled/tagged while preserving the observed Some(false) intent"},
+      "witness": {"boundary": "public_and_structural", "predicate": "the L2 tri-state changes the PdfTags value passed by L4", "expected_observed": "intent records Some(false) but qpdf still observes tagged morphology"}
+    },
+    {
+      "id": "A09_COUPLE_COMPACT_TO_TAGGING",
+      "ordinal": 9,
+      "mutation": "Make --pdf-tagged=false switch StreamMode away from compact.",
+      "valid": true,
+      "validity_basis": "M07 and P02 freeze compact and tagging as independent axes.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": "M07", "operation": "retain untagged morphology but replace compact-mode receipt with verbose"},
+      "witness": {"boundary": "public_and_structural", "predicate": "--compact --pdf-tagged=false yields untagged_and_compact", "expected_observed": "tagging is correct but compact mode changes"}
+    },
+    {
+      "id": "A10_PROPAGATE_TO_NON_PDF",
+      "ordinal": 10,
+      "mutation": "Let --pdf-tagged alter PNG, SVG or HTML semantics/diagnostics.",
+      "valid": true,
+      "validity_basis": "P01 explicitly freezes neutrality for every non-PDF target in scope.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": "P01 HTML control", "operation": "change canonical semantic/morphological observation only when --pdf-tagged=false is present"},
+      "witness": {"boundary": "public", "predicate": "non-PDF target observation is invariant under absent/true/false pdf-tagged states", "expected_observed": "HTML canonical observation or diagnostic differs solely because of the PDF flag"}
+    },
+    {
+      "id": "A11_REMOVE_LEGACY_FLAG",
+      "ordinal": 11,
+      "mutation": "Reject --no-pdf-tags after adding the modern flag.",
+      "valid": true,
+      "validity_basis": "P04 and M05 preserve legacy syntax and its untagged effect.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": ["P04", "M05"], "operation": "replace successful parse/untagged with exit 2 unknown argument"},
+      "witness": {"boundary": "public", "predicate": "--no-pdf-tags remains accepted and produces untagged PDF morphology", "expected_observed": "legacy compatibility is removed"}
+    },
+    {
+      "id": "A12_COMPARE_RAW_PDF_BYTES",
+      "ordinal": 12,
+      "mutation": "Classify tagging by exact PDF byte equality instead of structural tag morphology.",
+      "valid": true,
+      "validity_basis": "The contract makes tag structure observable and excludes raw byte identity as a language/morphology oracle.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": "M02 comparison receipt", "operation": "set observer=raw_sha256, omit qpdf receipt and emit tagged solely from byte equality"},
+      "witness": {"boundary": "structural", "predicate": "tag verdict has a complete qpdf structural receipt or explicit Unknown", "expected_observed": "verdict has no tag-tree witness"}
+    },
+    {
+      "id": "A13_PROMOTE_UNKNOWN",
+      "ordinal": 13,
+      "mutation": "Promote qpdf-unavailable Unknown to Preserved/tagged.",
+      "valid": true,
+      "validity_basis": "O01 predeclares the unavailable structural fact and fail-closed result.",
+      "expected": "Violated",
+      "deterministic_injection": {"target": "O01_QPDF_UNAVAILABLE", "operation": "replace Unknown(PARSER_UNSUPPORTED) with Preserved/tagged while preserving complete=false"},
+      "witness": {"boundary": "structural", "predicate": "an unavailable structural observer remains Unknown and earns no parity credit", "expected_observed": "Preserved coexists with complete=false and no qpdf evidence"}
+    },
+    {
+      "id": "A14_OPEN_WATCH_SUBPROCESS",
+      "ordinal": 14,
+      "mutation": "Plan V05 as an open-ended watch subprocess with blocking stdout/stderr capture.",
+      "valid": true,
+      "validity_basis": "The revised contract and root-cause diagnostic explicitly require V05-V07 in-process parsing and prohibit open-ended watch/w subprocess capture.",
+      "expected": "Violated",
+      "rejection_phase": "pre_execution",
+      "must_spawn_process": false,
+      "deterministic_injection": {
+        "target": "V05 observer plan",
+        "operation": "replace Args::try_parse_from with spawn_and_blocking_output_capture",
+        "argv": ["watch", "in.typ", "--pdf-tagged"],
+        "safety_assertion": "classify the plan before process creation"
+      },
+      "witness": {
+        "boundary": "structural_safety",
+        "predicate": "V05-V07 observer_mode is in_process_parser_only and process_matrix_commands contains only compile",
+        "expected_observed": "forbidden watch spawn plan is refused as Violated before execution"
+      }
+    }
+  ],
+  "contract_id_isomorphism": {
+    "contract_sha256": "a6004e2e759048a8651abe54608110b7b8812cb38b200df58abe5e58a299aedd",
+    "parse_values": ["V01", "V02", "V03", "V04", "V05", "V06", "V07"],
+    "resolution_values": ["R01", "R02", "R03", "R04", "R05", "R06"],
+    "diagnostics": ["D01", "D02", "D03"],
+    "morphology": ["M01", "M02", "M03", "M04", "M05", "M06", "M07"],
+    "preservation": ["P01", "P02", "P03", "P04"],
+    "status": "CONFIRMED_BY_STATIC_VALIDATION"
+  },
+  "coverage": {
+    "valid_mutant_count": 14,
+    "required_rejection_count_for_score_1_0": 14,
+    "required_mutation_score": 1.0,
+    "covered_risks": [
+      "tri-state", "require_equals", "bare default_missing_value", "compile", "watch", "w alias", "modern-over-legacy precedence", "L4 ignoring flag", "compact coupling", "non-PDF side effect", "legacy preservation", "mechanical byte oracle", "Unknown promotion", "open-ended watch subprocess safety"
+    ]
+  },
+  "calibration_budget": {
+    "focal_revisions": 2,
+    "full_corpus_executions": 1,
+    "stop_rule": "Two consecutive revisions without increased discriminatory power require redesign; budget exhaustion never weakens Unknown or permits a surviving valid mutant."
+  },
+  "limitations": [
+    "No candidate implementation, product source, candidate binary or candidate output was read or executed.",
+    "No mutant was injected or run during authorship.",
+    "qpdf references define a later structural witness and do not report a measurement in this artifact.",
+    "A14 is rejected by static plan validation and must never create a watch/w process.",
+    "No watch or w subprocess, blocking capture, P1359 test filter or candidate was executed during this safety revision.",
+    "No candidate verdict is issued."
+  ]
+}

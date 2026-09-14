@@ -1,0 +1,160 @@
+{
+  "schema": "tekt-segregated-materialization-manifest/v1",
+  "protocol_version": "1.0",
+  "step": "P1366",
+  "created_at": "2026-09-13T10:54:27-03:00",
+  "regime": {
+    "kind": "full",
+    "attestation": "executado sem atestacao de isolamento",
+    "reason": "A ordem entre status terminal e diagnosticos e um observavel de stderr e exige obrigacao, ataques, implementacao e veredito segregados. O workspace partilhado permite registrar entradas, ordem e capacidades, mas nao atestar isolamento tecnico."
+  },
+  "baseline": {
+    "repository_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree": "nao commitado",
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_compile_rs_raw_sha256": "a943a87637dd1f85a95f39c29175225c378cbf6d7a0e8d30645eb5cca7470703",
+    "candidate_absence": {
+      "main_rs_raw_sha256": "fa78bb9f1b91c7b16bb5d564b5c7038b8c8780f0e5b9063b2a6558c5a14206f5",
+      "report_in_order": "absent",
+      "run_compile_observed_status_callback": "absent",
+      "current_order": "run_compile_observed apresenta warnings/errors e mensagens operacionais antes de retornar; run_watch somente depois deriva e emite o status terminal"
+    }
+  },
+  "normative_digest_algorithm": "sha256 dos bytes integrais depois de remover exclusivamente a linha que comeca exatamente por 'Hash do Código:' e a sua quebra de linha; nenhuma outra normalizacao",
+  "frozen_inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1366.md",
+      "role": "execution_step",
+      "protection": "raw",
+      "raw_sha256": "692cfef7a7e85ece42e532792d23a7e2fb9ca4659a17d9279e210e6308e506ff"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1366-watch-diagnostic-order-preflight.md",
+      "role": "measurement",
+      "protection": "raw",
+      "raw_sha256": "31cfa756e2134d6077f1ec31422b252f57235bc7e08b0d8b946c5d955031f40f"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring.md",
+      "role": "productive_l0",
+      "protection": "normative",
+      "raw_sha256_at_manifest": "044b17396a552cbfaa37a52f13dd2d58d52c794077c3706723b07922cb771db7",
+      "normative_sha256": "878b0fdd459b6d9eb86dd08ce013f1bff85cc5761527471567ddeb524d496dc6"
+    },
+    {
+      "path": "04_wiring/src/main.rs",
+      "role": "strict_product_baseline",
+      "protection": "raw_baseline_identity",
+      "raw_sha256": "fa78bb9f1b91c7b16bb5d564b5c7038b8c8780f0e5b9063b2a6558c5a14206f5",
+      "authorized_delta": "somente report_in_order privado, callback privada de status em run_compile_observed, roteamento correspondente em run_compile/run_watch e reordenacao minima das saidas desse fluxo; teste exato independente e linhagem mecanicamente ressellada; sem API publica nem mudanca fora do fragmento"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-cli/src/compile.rs",
+      "role": "ratified_vanilla_intent_reference",
+      "protection": "raw_reference",
+      "raw_sha256": "a943a87637dd1f85a95f39c29175225c378cbf6d7a0e8d30645eb5cca7470703",
+      "use_limit": "somente intencao e baseline de status terminal antes de diagnostics; mecanica Rust nao e obrigatoria"
+    }
+  ],
+  "artifact_paths": {
+    "manifest": "00_nucleo/diagnosticos/p1366-manifest.json",
+    "contract": "00_nucleo/diagnosticos/p1366-contract.json",
+    "oracles": "00_nucleo/diagnosticos/p1366-oracles.json",
+    "mutants": "00_nucleo/diagnosticos/p1366-mutants.json",
+    "seal": "00_nucleo/diagnosticos/p1366-seal.json",
+    "verification": "00_nucleo/diagnosticos/p1366-verification.json",
+    "report": "00_nucleo/diagnosticos/p1366-report.md"
+  },
+  "mandatory_observables": [
+    "report_in_order e privado, recebe duas closures FnOnce e chama status exatamente uma vez antes de diagnostics exatamente uma vez",
+    "report_in_order nao transforma retornos nem intercala outra acao entre as closures",
+    "run_compile_observed recebe callback privada FnMut(ExitCode, bool) e a chama exatamente uma vez em toda saida",
+    "falhas preliminares de input, world ou source reportam Error/false antes da respectiva mensagem operacional",
+    "resultado compilado anuncia status antes de warnings e errors, mantendo warnings antes de errors no segundo estagio",
+    "falha de escrita de artefato ou timings anuncia Error antes dos warnings e da mensagem operacional",
+    "Success ou PartialSuccess somente e anunciado depois da escrita bem-sucedida do artefato e, quando solicitado, dos timings",
+    "run_watch deriva WatchStatus usando o Instant de P1365 e has_warnings, emite o bloco P1364 na callback e nao emite status terminal depois do retorno",
+    "run_compile fornece callback vazia e permanece sem status de watch",
+    "o status e os diagnosticos de cada saida sao agrupados por report_in_order, sem duplicacao nem omissao",
+    "o teste exato prova ordem, cardinalidade 1/1 e preservacao com closures sentinela em memoria, sem filesystem, relogio, sleep, processo, watch ou w",
+    "warnings preservam ordem interna anterior a errors; compile nao ganha status observavel",
+    "polling, staging, publish, abandon, wait, eviction, formatacao diagnostica e demais comandos permanecem inalterados"
+  ],
+  "unknown_policy": {
+    "default": "fail_closed",
+    "rule": "Unknown nao conta como Preserved nem como rejeicao de mutante. Somente casos declarados opacos podem esperar Unknown; qualquer Unknown inesperado bloqueia selo e PASS."
+  },
+  "roles": [
+    {
+      "role": "contract_author",
+      "executor": "/root/contrato_p1366",
+      "read_allowlist": [
+        "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+        "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+        "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+        "AGENTS.md",
+        "00_nucleo/materialization/typst-passo-1366.md",
+        "00_nucleo/diagnosticos/p1366-watch-diagnostic-order-preflight.md",
+        "00_nucleo/prompts/wiring.md",
+        "04_wiring/src/main.rs somente como baseline anterior ao candidato",
+        "lab/typst-original/crates/typst-cli/src/compile.rs somente como referencia de intencao/baseline"
+      ],
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1366-manifest.json",
+        "00_nucleo/diagnosticos/p1366-contract.json"
+      ],
+      "forbidden": ["candidate_patch", "productive_code", "tests", "l0", "step", "preflight", "cargo", "test", "build", "watch", "w", "lint"]
+    },
+    {
+      "role": "oracle_and_adversary",
+      "executor": "separate_authority",
+      "inputs": ["manifest", "contract", "frozen_l0", "raw_baseline"],
+      "writes": ["oracles", "mutants"],
+      "forbidden": ["productive_code", "tests", "verdict"]
+    },
+    {
+      "role": "implementer",
+      "executor": "separate_authority",
+      "inputs": ["sealed_manifest", "sealed_contract"],
+      "writes": ["04_wiring/src/main.rs authorized delta only"],
+      "forbidden": ["manifest", "contract", "oracles", "mutants", "seal", "tests", "verdict"]
+    },
+    {
+      "role": "ab_tester",
+      "executor": "separate_authority",
+      "inputs": ["frozen_l0", "sealed_contract"],
+      "writes": ["one authorized exact in-process test in 04_wiring/src/main.rs"],
+      "forbidden": ["candidate_patch_before_test_freeze", "productive_code", "contract", "verdict"]
+    },
+    {
+      "role": "verifier",
+      "executor": "separate_authority",
+      "inputs": ["sealed_artifacts", "candidate_outputs", "bounded_receipts"],
+      "writes": ["verification", "report"],
+      "forbidden": ["repair_of_verified_artifacts", "productive_code", "tests"]
+    }
+  ],
+  "memory_safety": {
+    "forbidden_processes": ["typst watch", "typst w", "external wiring suite", "broad test suite", "filesystem in test", "real clock in test"],
+    "test_mode": "um unico teste exato in-process seguido de um unico build; execucao estritamente sequencial",
+    "cargo_build_jobs": 1,
+    "timeout_seconds_per_dynamic_command_max": 120,
+    "stdout_limit_bytes_per_stream": 4194304,
+    "stderr_limit_bytes_per_stream": 4194304,
+    "receipt_total_limit_bytes": 16777216,
+    "required_conditions": ["test_count_exactly_one", "test_count_nonzero", "exit_expected", "no_timeout", "no_oom", "no_unexpected_unknown"]
+  },
+  "invalidation": [
+    "mudanca do digest normativo de wiring.md, descontada exclusivamente a linha Hash do Código",
+    "mudanca raw do passo ou preflight",
+    "identidade raw do baseline main.rs diferente antes da abertura da materializacao",
+    "mudanca da fonte vanila ratificada",
+    "delta produtivo fora do fragmento autorizado em main.rs",
+    "leitura do patch candidato pelo autor do contrato",
+    "execucao de watch, w, suite externa, suite ampla, filesystem ou relogio real no teste",
+    "mais de um teste exato ou mais de um build dinamico",
+    "comandos dinamicos paralelos",
+    "Unknown tratado como sucesso",
+    "recibo individual ou agregado acima do budget"
+  ]
+}

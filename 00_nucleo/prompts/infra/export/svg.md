@@ -422,6 +422,17 @@ quando semanticamente igual ao default SVG e ao valor transportado.
 - `rect(radius: 4pt, stroke: 2pt + blue)` emite centro de stroke com raio 3pt,
   fill e stroke separados, mantendo raio exterior 4pt.
 
+## P1360 — ativação produtiva de `SvgOptions.pretty`
+
+O campo público `SvgOptions.pretty` já controla o `XmlWriter`: false usa
+`Indent::None`; true usa dois espaços. P1360 não altera este exporter nem sua
+API; torna obrigatório que a pipeline produtiva deixe de fixar
+`SvgOptions::default()` e encaminhe a escolha recebida.
+
+Pretty altera somente whitespace XML. Grafo, IDs, atributos, escapes,
+geometria, ordem de pintura, fontes, destinos e fallback permanecem iguais.
+Aceitação compara árvore/morfologia e presença de indentação, não bytes.
+
 ### P1248 — imagens web, SVG embutido e fallback observável
 
 Medição anterior à decisão: `FrameItem::Image` já entrega a este owner bytes,

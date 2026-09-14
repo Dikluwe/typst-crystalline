@@ -2439,6 +2439,7 @@ dependencies = [
  "anyhow",
  "comemo",
  "serde_json",
+ "time",
  "typst-core",
  "typst-infra",
  "typst-shell",

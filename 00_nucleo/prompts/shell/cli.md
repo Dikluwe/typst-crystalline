@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 60dbd715
+Hash do Código: 51babfb3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -889,6 +889,80 @@ reutiliza `CompileArgs`. Ausente significa tags habilitadas; presente significa
 tags desabilitadas. L2 transporta apenas o booleano com a polaridade da CLI e
 não importa `PdfTags`; L4 traduz para o enum L3. A flag não altera `compact`,
 não tem efeito em PNG/SVG/HTML e não promete conformidade PDF/UA.
+
+## P1359 — flag `--pdf-tagged` tri-state
+
+### Medição antes da decisão
+
+No vanilla ratificado `586e1bd43`, `--pdf-tagged`,
+`--pdf-tagged=true` e `--pdf-tagged=false` são formas válidas das opções de
+compilação. A fonte em `typst-cli/src/args.rs:360-380` modela a opção como
+`Option<bool>` com valor ausente igual a `true`, no máximo um argumento e
+valor explícito exigindo `=`. A resolução em `compile.rs:153-184` dá
+precedência ao valor explícito sobre o legado `--no-pdf-tags`; sem ambos, o
+default continua tagueado.
+
+O cristalino já possui o legado e transporta sua polaridade até L4, mas rejeita
+as três formas modernas com exit 2. A infraestrutura `PdfTags` e o default
+tagueado já existem; não há obrigação nova para L3.
+
+### Decisão pública
+
+`CompileArgs` ganha:
+
+```rust
+#[arg(
+    long = "pdf-tagged",
+    default_missing_value = "true",
+    num_args = 0..=1,
+    require_equals = true,
+)]
+pdf_tagged: Option<bool>,
+```
+
+`CompileIntent` ganha `pub pdf_tagged: Option<bool>` e conserva
+`pub no_pdf_tags: bool` para compatibilidade. `compile`, `watch` e o alias `w`
+reutilizam o mesmo `CompileArgs` e o mesmo resolvedor. Bare produz
+`Some(true)`; `=true` e `=false` preservam o booleano; ausência produz `None`.
+Um valor separado sem `=` é inválido.
+
+L2 não importa `PdfTags` nem resolve morfologia PDF. A ordem explícita é
+materializada em L4: `Some(true)` habilita, `Some(false)` desabilita e vence o
+legado; `None` consulta `no_pdf_tags`; ausência de ambos habilita. A flag
+permanece ortogonal a `compact` e neutra para PNG, SVG e HTML.
+
+Ficam fora deste contrato `--pretty`, `--pages`, standards acessíveis e o
+warning de depreciação de `--no-pdf-tags`. O gate de contrato público da
+ADR-0127 foi confirmado pelo dono em 2026-09-12 pela instrução para escrever
+o passo e implementar.
+
+## P1360 — flag `compile --pretty` tri-state
+
+### Medição antes da decisão
+
+O preflight `diagnosticos/p1360-preflight.md` mede no vanila ratificado
+`586e1bd43` que compile aceita `--pretty`, `--pretty=true` e
+`--pretty=false` pelo mesmo protocolo `Option<bool>` de P1359: bare é true,
+valor explícito exige `=` e ausência é `None`. A opção pertence aos argumentos
+reutilizados por compile/watch, embora processos watch sejam proibidos no gate.
+
+### Decisão pública
+
+`CompileArgs` ganha `pretty: Option<bool>` com `default_missing_value =
+"true"`, `num_args = 0..=1` e `require_equals = true`. `CompileIntent` ganha
+`pub pretty: Option<bool>` e L2 apenas transporta o tri-state. Compile, watch e
+alias `w` parseiam a mesma forma. `--pretty=maybe` e `--pretty=` falham como
+valores booleanos. Já em `--pretty false`, `require_equals` impede que `false`
+seja consumido como valor da opção: `--pretty` resolve `Some(true)` e o token
+separado continua sujeito às regras posicionais do subcomando (por exemplo,
+como `output` de `compile`). Esse comportamento observado é o do vanila
+ratificado; não se exige uma rejeição artificial no parser.
+
+L2 não decide formatação de target nem converte pretty em `compact`.
+Ausência/false e true são resolvidos pelo fio L4/L3. Eval, query e info mantêm
+as suas flags `pretty: bool` preexistentes e independentes. O gate público
+ADR-0127 foi confirmado pelo dono em 2026-09-12 ao pedir a implementação do
+próximo passo.
 
 ## P1286 — aceitação compatível de `--pdf-standard`
 

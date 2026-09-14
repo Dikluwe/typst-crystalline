@@ -1,13 +1,34 @@
 # Passo 1356 — Rebaseline integral de paridade após o sync `586e1bd43`
 
+## Retificação de autoridade e política de continuidade
+
+Existe um único **vanilla** neste passo: o alvo ratificado
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`. O pin `a51e02804` é somente um
+**snapshot histórico não autoritativo**, útil para atribuir a origem temporal
+de um delta. Nunca o chamar de “vanilla antigo”, nem tratar `586e1bd43` como
+“vanilla novo”. A comparação normativa de paridade é sempre:
+
+```text
+cristalino atual ↔ vanilla ratificado 586e1bd43
+```
+
+As palavras `BLOCKED` e “bloqueio” não governam a continuidade do trabalho.
+Uma lacuna de observação significa apenas **alegação ainda não demonstrada**:
+o resultado medido continua válido no seu escopo e o próximo ensaio deve ser
+desenhado e executado pelo assistente. Só há devolução de decisão ao humano
+quando faltar intenção de produto, houver interpretações incompatíveis ou for
+necessária autoridade externa. Falha de harness, `Unknown` ou cobertura parcial
+não são, isoladamente, pedidos para o humano comandar o rumo do experimento.
+
 ## Estado e motivação
 
 O cristalino está sendo reescrito sob Tekt enquanto o upstream também muda. O
-P1355 substituiu o vanilla ratificado `a51e02804` por upstream/main
+P1355 ratificou como vanilla o upstream/main
 `586e1bd43fae6c9a973218163d3165c53ab8d16d`, árvore
 `2847920eeaa98d26a41dc6fb0f9c02334b9d593b`. Entre os pins há 35 commits e
 mudanças públicas deliberadas; portanto as 175 rotas divergentes medidas por
-P1353 são uma fotografia histórica, não o saldo corrente.
+P1353 contra o snapshot `a51e02804` são uma fotografia histórica, não o saldo
+corrente nem outro vanilla.
 
 A atualização inclui, entre outras coisas, a família pública `format`, formatos
 settable, `columns.separator`, correções de `luma`, mudanças de diagnóstico,
@@ -34,13 +55,14 @@ Produzir uma baseline reproduzível da paridade contra `586e1bd43`, cobrindo:
 Usar o protocolo completo de materialização segregada porque o resultado será
 autoridade para os próximos passos.
 
-- **Autor do contrato:** recebe este passo, ADR-0107/0108, o pin novo e a
+- **Autor do contrato:** recebe este passo, ADR-0107/0108, o pin ratificado e a
   definição canônica P1353; não lê implementação de harness candidata.
-- **Autor do oráculo:** recebe os dois pins upstream e observáveis públicos;
+- **Autor do oráculo:** recebe o pin vanilla, o snapshot histórico e observáveis públicos;
   produz casos positivos, negativos e opacos sem ler o runner candidato.
 - **Implementador do harness:** recebe contrato e oráculos selados; não altera
   expected, pins ou política de `Unknown`.
-- **Adversário:** tenta sobreviver com pin antigo, SHA errado, profile
+- **Adversário:** tenta substituir o vanilla pelo snapshot histórico, aceitar
+  SHA errado, usar profile
   assimétrico, alias indireto omitido, kind antigo e `Unknown` promovido.
 - **Verificador:** somente lê artefatos selados e saídas; não corrige runner,
   catálogo ou produto.
@@ -94,8 +116,8 @@ UNKNOWN
 
 O gate discriminatório deve obter `mutation_score = 1.0` contra, no mínimo:
 
-- substituir o pin novo pelo antigo;
-- aceitar SHA vanilla antigo;
+- substituir o pin ratificado pelo snapshot histórico;
+- aceitar o SHA do snapshot histórico como identidade do vanilla;
 - trocar a ordem de resultados sem recanonicalizar;
 - executar features diferentes nos dois lados;
 - omitir bindings criados por `prelude_path`;
@@ -144,18 +166,18 @@ Executar cada célula duas vezes e também em ordem inversa. Para atribuir a
 mudança de alvo, medir com o mesmo corpus:
 
 ```text
-cristalino atual ↔ vanilla antigo a51e02804
-cristalino atual ↔ vanilla novo 586e1bd43
-vanilla antigo a51e02804 ↔ vanilla novo 586e1bd43
+cristalino atual ↔ snapshot histórico a51e02804
+cristalino atual ↔ vanilla ratificado 586e1bd43
+snapshot histórico a51e02804 ↔ vanilla ratificado 586e1bd43
 ```
 
-O vanilla antigo deve ser reconstruído isoladamente do commit completo com
+O snapshot histórico deve ser reconstruído isoladamente do commit completo com
 `TYPST_COMMIT_SHA` explícito; não depender de backup efêmero em `/tmp`.
 
 Classificar cada rota não-MATCH como:
 
 - `RETAINED_GAP`: já divergente e continua divergente;
-- `RESOLVED_BY_PRODUCT`: gap antigo fechado pelo cristalino;
+- `RESOLVED_BY_PRODUCT`: gap registrado no snapshot histórico e fechado pelo cristalino;
 - `TARGET_DRIFT`: mudou somente porque o upstream mudou;
 - `NEW_CRYSTALLINE_GAP`: superfície nova do alvo ausente/diferente;
 - `HARNESS_GAP`: comparador não representa o observável;
@@ -222,9 +244,11 @@ Também exigir:
 
 ## Critério de fecho
 
-O P1356 fecha somente quando existe um saldo reproduzível contra
-`586e1bd43`, com catálogo novo e atribuição path a path. O resultado não precisa
-ser paridade total; precisa dizer precisamente o que falta e por quê.
+O P1356 produz um saldo reproduzível contra `586e1bd43`, com catálogo novo e
+atribuição path a path. O resultado não precisa ser paridade total; precisa
+dizer precisamente o que falta e por quê. Cobertura parcial limita a alegação,
+mas não paralisa o programa de trabalho: o assistente abre e executa o próximo
+ensaio observável sem exigir que o humano administre gates metodológicos.
 
 Depois do fecho, escrever passos de implementação separados por owner L0 e
 fronteira semântica. Não misturar no mesmo lote a arquitetura `format`, layout

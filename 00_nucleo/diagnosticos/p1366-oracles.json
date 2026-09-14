@@ -1,0 +1,142 @@
+{
+  "schema": "tekt-oracle-suite/v1",
+  "step": "P1366",
+  "created_at": "2026-09-13T10:58:11-03:00",
+  "regime": "executado sem atestacao de isolamento",
+  "authority": {
+    "role": "oracle_and_adversary",
+    "executor": "/root/oraculos_p1366",
+    "shared_workspace": true,
+    "candidate_read": false,
+    "writes": [
+      "00_nucleo/diagnosticos/p1366-oracles.json",
+      "00_nucleo/diagnosticos/p1366-mutants.json"
+    ],
+    "forbidden_actions_observed": [
+      "no productive code edit",
+      "no test edit",
+      "no manifest or contract edit",
+      "no cargo",
+      "no test execution",
+      "no build",
+      "no watch or w",
+      "no lint",
+      "no verdict"
+    ]
+  },
+  "inputs": {
+    "manifest": {"path":"00_nucleo/diagnosticos/p1366-manifest.json","raw_sha256":"137c8a7838d89a0ee138eaa68071254a12e93a62891c79fd3d3292b4772f8729"},
+    "contract": {"path":"00_nucleo/diagnosticos/p1366-contract.json","raw_sha256":"d38752f2a62d08edc0adc88e6ccb8421f3f375c10c6be5a2420479530f595f4d"},
+    "step": {"path":"00_nucleo/materialization/typst-passo-1366.md","raw_sha256":"692cfef7a7e85ece42e532792d23a7e2fb9ca4659a17d9279e210e6308e506ff"},
+    "preflight": {"path":"00_nucleo/diagnosticos/p1366-watch-diagnostic-order-preflight.md","raw_sha256":"31cfa756e2134d6077f1ec31422b252f57235bc7e08b0d8b946c5d955031f40f"},
+    "wiring_l0": {"path":"00_nucleo/prompts/wiring.md","raw_sha256":"044b17396a552cbfaa37a52f13dd2d58d52c794077c3706723b07922cb771db7","normative_sha256":"878b0fdd459b6d9eb86dd08ce013f1bff85cc5761527471567ddeb524d496dc6"},
+    "baseline": {"path":"04_wiring/src/main.rs","raw_sha256":"fa78bb9f1b91c7b16bb5d564b5c7038b8c8780f0e5b9063b2a6558c5a14206f5"},
+    "vanila_source": {"path":"lab/typst-original/crates/typst-cli/src/compile.rs","commit":"586e1bd43fae6c9a973218163d3165c53ab8d16d","raw_sha256":"a943a87637dd1f85a95f39c29175225c378cbf6d7a0e8d30645eb5cca7470703"}
+  },
+  "public_observation": {
+    "fixture": "two FnOnce sentinels append distinct immutable tokens and increment independent in-memory counters; source inspection records callback values and causal positions without running compilation or watch",
+    "fields": [
+      "fixture_event_log",
+      "status_count",
+      "diagnostics_count",
+      "status_effect",
+      "diagnostics_effect",
+      "helper_signature",
+      "helper_visibility",
+      "observer_signature",
+      "observer_callback_sites",
+      "callback_arguments",
+      "callback_position",
+      "artifact_write_position",
+      "timings_write_position",
+      "warning_drain_position",
+      "error_drain_position",
+      "operational_message_position",
+      "warning_predicate_source",
+      "watch_callback_body",
+      "watch_post_return_status_sites",
+      "compile_callback_body",
+      "observer_return_shape",
+      "test_forbidden_calls",
+      "productive_delta_paths",
+      "public_surface_delta"
+    ],
+    "canonical_fixture": {
+      "fixture_event_log": ["status", "diagnostics"],
+      "status_count": 1,
+      "diagnostics_count": 1,
+      "status_effect": "status-token-31",
+      "diagnostics_effect": "diagnostics-token-47"
+    },
+    "canonical_compiled_error_order": ["callback(1,has_warnings)", "warnings", "errors"],
+    "canonical_success_order": ["artifact write", "requested timings write", "callback(SUCCESS,has_warnings)", "warnings"],
+    "canonical_write_failure_order": ["failed write", "callback(2,has_warnings)", "warnings", "operational error message"]
+  },
+  "classifier": {
+    "Preserved": "all public predicates of the case are decidable and true",
+    "Violated": "at least one public predicate is decidable and false, with the declared public witness",
+    "Unknown": "the case is explicitly opaque or a required public fact is absent or ambiguous",
+    "fail_closed": "Unknown is never promoted to Preserved and never rejects a mutant; any unexpected Unknown blocks seal and PASS",
+    "binding_rule": "classification uses only canonical in-memory observations and frozen source facts; it does not execute a watcher or infer status from rendered text"
+  },
+  "positive_cases": [
+    {"id":"P01","predicate":"fixture_event_log equals [status,diagnostics] exactly","expected":"Preserved"},
+    {"id":"P02","predicate":"status_count is exactly one and diagnostics_count is exactly one per helper invocation","expected":"Preserved"},
+    {"id":"P03","predicate":"status_effect and diagnostics_effect remain byte-identical to their distinct sentinel effects, with no inserted event","expected":"Preserved"},
+    {"id":"P04","predicate":"a fresh repeated invocation and reverse corpus traversal retain the same order, counts, classifications and witnesses","expected":"Preserved"},
+    {"id":"P05","predicate":"report_in_order is private and accepts status then diagnostics as FnOnce closures without a public surface change","expected":"Preserved"},
+    {"id":"P06","predicate":"run_compile_observed accepts one private FnMut(ExitCode,bool) observer and preserves its existing triple return shape","expected":"Preserved"},
+    {"id":"P07","predicate":"each preliminary input, world or source failure calls observer exactly once with ExitCode 2,false before its operational message","expected":"Preserved"},
+    {"id":"P08","predicate":"compiled failure without warnings orders callback(1,false), then errors exactly once","expected":"Preserved"},
+    {"id":"P09","predicate":"compiled failure with warnings orders callback(1,true), warnings once, then errors once","expected":"Preserved"},
+    {"id":"P10","predicate":"successful output is written, then requested timings are written, then callback receives SUCCESS and warnings-presence derived from collection emptiness","expected":"Preserved"},
+    {"id":"P11","predicate":"artifact-write failure calls callback(2,has_warnings) exactly once before warning drain and artifact operational message and never announces success","expected":"Preserved"},
+    {"id":"P12","predicate":"timings-write failure calls callback(2,has_warnings) exactly once before warning drain and timings operational message and never announces success","expected":"Preserved"},
+    {"id":"P13","predicate":"watch observer maps typed exit code and boolean warnings plus the P1365 marker elapsed to one WatchStatus and emits one P1364 block","expected":"Preserved"},
+    {"id":"P14","predicate":"run_watch has no terminal-status derivation or emission after run_compile_observed returns","expected":"Preserved"},
+    {"id":"P15","predicate":"run_compile passes a truly empty observer closure and emits no watch status","expected":"Preserved"},
+    {"id":"P16","predicate":"productive delta is confined to the private helper, private observer routing and causal reordering; polling and all declared scope-outs are unchanged","expected":"Preserved"}
+  ],
+  "negative_cases": [
+    {"id":"N01","attack":"diagnostics executes before status","expected":"Violated","public_witness":"expected [status,diagnostics], actual [diagnostics,status]"},
+    {"id":"N02","attack":"status is omitted or invoked twice","expected":"Violated","public_witness":"expected status_count 1, actual 0 or 2"},
+    {"id":"N03","attack":"diagnostics is omitted or invoked twice","expected":"Violated","public_witness":"expected diagnostics_count 1, actual 0 or 2"},
+    {"id":"N04","attack":"helper defers, stores or inserts an action between the closures","expected":"Violated","public_witness":"event log is not the immediate exact pair [status,diagnostics]"},
+    {"id":"N05","attack":"helper transforms, replaces or aliases either sentinel effect","expected":"Violated","public_witness":"observed sentinel effect differs from the closure-produced token"},
+    {"id":"N06","attack":"observer callback is missing from one return path or called more than once on one path","expected":"Violated","public_witness":"callback cardinality for a reachable return is not exactly one"},
+    {"id":"N07","attack":"preliminary operational error is printed before callback","expected":"Violated","public_witness":"message position precedes callback(2,false)"},
+    {"id":"N08","attack":"preliminary failure passes an exit code other than 2 or passes true warnings","expected":"Violated","public_witness":"callback arguments differ from (2,false)"},
+    {"id":"N09","attack":"compiled errors or warnings are drained before callback","expected":"Violated","public_witness":"first compiled-result event is a drain rather than callback"},
+    {"id":"N10","attack":"compiled failure passes SUCCESS or ExitCode 2","expected":"Violated","public_witness":"callback typed exit differs from ExitCode 1"},
+    {"id":"N11","attack":"errors are drained before warnings","expected":"Violated","public_witness":"expected warning_drain_position before error_drain_position"},
+    {"id":"N12","attack":"has_warnings is fixed, parsed from diagnostic text or computed only after warnings are consumed","expected":"Violated","public_witness":"warning_predicate_source is not the pre-drain boolean from warnings.is_empty"},
+    {"id":"N13","attack":"success callback runs before artifact write completes","expected":"Violated","public_witness":"callback SUCCESS position precedes artifact_write_position"},
+    {"id":"N14","attack":"success callback runs before requested timings write completes","expected":"Violated","public_witness":"callback SUCCESS position precedes timings_write_position"},
+    {"id":"N15","attack":"artifact or timings write failure announces success before or in addition to error","expected":"Violated","public_witness":"one failing path contains SUCCESS or more than one callback"},
+    {"id":"N16","attack":"write failure drains warnings or prints its operational error before callback Error","expected":"Violated","public_witness":"callback(2,has_warnings) is not the first reporting event after failed write"},
+    {"id":"N17","attack":"run_watch keeps or adds a terminal status site after observer return","expected":"Violated","public_witness":"watch_post_return_status_sites is nonzero"},
+    {"id":"N18","attack":"watch callback uses a fresh timer, ignores typed callback arguments or calculates status from message text","expected":"Violated","public_witness":"watch callback source is not typed exit/boolean plus returned P1365 marker elapsed"},
+    {"id":"N19","attack":"run_compile observer is non-noop, including logging, formatting or status construction","expected":"Violated","public_witness":"compile_callback_body has an observable effect"},
+    {"id":"N20","attack":"test accesses real clock, sleep, filesystem, environment, process, watch or w","expected":"Violated","public_witness":"test_forbidden_calls is nonempty"},
+    {"id":"N21","attack":"helper or observer becomes public or changes the existing public return contract","expected":"Violated","public_witness":"public_surface_delta is nonempty"},
+    {"id":"N22","attack":"polling, dependencies, staging, publish, abandon, wait, eviction, formatter internals, other commands or another file changes","expected":"Violated","public_witness":"productive_delta_paths exceeds the frozen private fragment"}
+  ],
+  "opaque_cases": [
+    {"id":"O01","input":"external transcript from a real watch or w process","expected":"Unknown","reason":"execution is prohibited by the memory policy"},
+    {"id":"O02","input":"terminal buffering and physical flush instant","expected":"Unknown","reason":"explicit scope-out"},
+    {"id":"O03","input":"color, fullscreen, cursor and cleaning behavior","expected":"Unknown","reason":"explicit scope-out"},
+    {"id":"O04","input":"content and internal formatting of individual diagnostics","expected":"Unknown","reason":"contract covers block order, not diagnostic formatting"},
+    {"id":"O05","input":"order of later opt-in measurement logging relative to pipeline output","expected":"Unknown","reason":"explicit scope-out"},
+    {"id":"O06","input":"runtime behavior of polling, dependencies, staging, publish, abandon, wait or eviction","expected":"Unknown","reason":"watch mechanics are not executed in this step"},
+    {"id":"O07","input":"absolute elapsed duration from the real clock","expected":"Unknown","reason":"the deterministic test cannot observe the real clock"},
+    {"id":"O08","input":"general functional parity of watch, stderr or diagnostics with vanila","expected":"Unknown","reason":"the frozen contract covers only one causal status-before-diagnostics fragment"}
+  ],
+  "determinism_protocol": {
+    "repeat": ["P01","P02","P03","P04","P05","P06","P07","P08","P09","P10","P11","P12","P13","P14","P15","P16","N01","N02","N03","N04","N05","N06","N07","N08","N09","N10","N11","N12","N13","N14","N15","N16","N17","N18","N19","N20","N21","N22","O01","O02","O03","O04","O05","O06","O07","O08"],
+    "orders": ["P01..P16,N01..N22,O01..O08", "O08..O01,N22..N01,P16..P01"],
+    "required": "same classification, reason code and public witness under repetition and reverse order",
+    "state_rule": "classifier is a pure function of frozen observation fields; no cache, wall clock, filesystem, process, environment or evaluation-order dependence"
+  },
+  "counts": {"positive":16,"negative":22,"opaque":8},
+  "claim_limit": "This suite specifies discrimination only for the frozen P1366 causal status-before-diagnostics fragment; it does not attest isolation or general vanila parity."
+}

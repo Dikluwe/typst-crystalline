@@ -1,0 +1,553 @@
+{
+  "schema": "tekt-observable-contract/v1",
+  "contract_id": "P1360-compile-pretty",
+  "status": "candidate-unsealed-revised-after-l0-correction",
+  "regime": {
+    "kind": "full-segregated-protocol",
+    "reason": "P1360 changes the public compile CLI contract and target-specific serialization and therefore requires an independently authored observable contract, adversarial discrimination, a sealed mutation score, and a later independent verdict.",
+    "attestation_claim": "segregated-contract-authorship-only"
+  },
+  "authority": {
+    "role": "contract-author",
+    "executor": "/root/contrato_p1360",
+    "environment": "shared workspace with read/write capability restricted by declared allowlists",
+    "created_at": "2026-09-12T23:19:53-03:00",
+    "revised_after": "corrective vanilla measurement at 2026-09-12T23:57:00-03:00",
+    "repository_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "causal_predecessor": "P1360 preflight and updated L0 prompts existed before this contract",
+    "candidate_implementation_read": false,
+    "candidate_diff_read": false,
+    "product_or_test_executed": false
+  },
+  "frozen_intent": {
+    "baseline": {
+      "kind": "ratified-vanilla",
+      "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "binary_path": "lab/typst-original/target/release/typst",
+      "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "purpose": "language and public CLI intent oracle; byte identity with its exporters is not required"
+    },
+    "input_hashes": [
+      {
+        "path": "00_nucleo/diagnosticos/p1360-preflight.md",
+        "sha256": "ade428efee0bc965eff01f670b755c87f4b8a0bbc2bdbc034214da15dfd72f85",
+        "kind": "measurement"
+      },
+      {
+        "path": "00_nucleo/materialization/typst-passo-1360.md",
+        "sha256": "8f86022e615227e759cb5e61334965829b348824d41dfaa7c74ea6c2d30e4207",
+        "kind": "execution-step"
+      },
+      {
+        "path": "00_nucleo/prompts/shell/cli.md",
+        "sha256": "698bd37b02542ce470af0c9b645c33f1015a97a77cc822681c4ea7a39a4fc661",
+        "kind": "l0"
+      },
+      {
+        "path": "00_nucleo/prompts/wiring.md",
+        "sha256": "058e6053e98a77f5570e78ba858259617bc40d7d09e234b6025c33a32a2a278e",
+        "kind": "l0"
+      },
+      {
+        "path": "00_nucleo/prompts/infra/pipeline.md",
+        "sha256": "00602f723df6d1570337461a37c2505ebe5bbbd2358c9092291d0192bf6696ed",
+        "kind": "l0"
+      },
+      {
+        "path": "00_nucleo/prompts/infra/export/mod.md",
+        "sha256": "b63daea9a069c860ac6e33daba8bb37a4a3fde85199a334bbe4b44600fcc7696",
+        "kind": "l0"
+      },
+      {
+        "path": "00_nucleo/prompts/infra/export/builder.md",
+        "sha256": "29f9f4b546b107a308c0f07e158e8da6d6cb86416ed8e180d9b0c68ba4d9643a",
+        "kind": "l0"
+      },
+      {
+        "path": "00_nucleo/prompts/infra/export/html.md",
+        "sha256": "890dbf55d8aa757aaee30816e69876215c25843e0aa2f4497cad599021ed66d1",
+        "kind": "l0"
+      },
+      {
+        "path": "00_nucleo/prompts/infra/export/svg.md",
+        "sha256": "58f64423d35533e41ab7187462ff17e00769be60412d7732789312b3baf4d145",
+        "kind": "l0"
+      }
+    ]
+  },
+  "result_domain": {
+    "values": [
+      "Preserved",
+      "Violated",
+      "Unknown"
+    ],
+    "preserved": "Every mandatory observable for the case is established and all applicable preservation controls pass.",
+    "violated": "At least one mandatory observable differs, with a public witness and reason_code.",
+    "unknown": "Identity, parsing, construction, extraction, normalization, timeout, size, or budget is insufficient to decide safely.",
+    "unknown_policy": {
+      "default": "fail-closed",
+      "credit": 0,
+      "may_satisfy": "Only a case explicitly classified as opaque whose expected result is Unknown.",
+      "must_not_be_coerced_to_preserved": true,
+      "dynamic_gate_action": "stop the dynamic gate and report the public reason_code"
+    }
+  },
+  "scope": {
+    "in": [
+      "compile/watch/w parsing of --pretty as Option<bool>",
+      "compile diagnostics for accepted and rejected spellings",
+      "L4 resolution None to false and target-only forwarding",
+      "PDF page content-stream serialization mode",
+      "orthogonality of PDF serialization, StreamMode, and PdfTags",
+      "SVG and HTML structural whitespace only",
+      "PNG semantic neutrality",
+      "preservation of target, feature, HTML escaping mode, layout, diagnostics, and unrelated commands"
+    ],
+    "out": [
+      "page selection",
+      "PDF standards and PDF/UA claims",
+      "byte equality with krilla",
+      "object identity, object numbering, xref spelling, or exact line counts",
+      "bundle",
+      "pretty configured inside the Typst language",
+      "reformatting eval, query, or info",
+      "watch loop behavior or any watch subprocess execution",
+      "general PDF, SVG, HTML, or PNG equivalence"
+    ]
+  },
+  "observables": {
+    "parse_tri_state": {
+      "kind": "public-cli-plus-in-process-intent",
+      "commands": [
+        "compile",
+        "watch",
+        "w"
+      ],
+      "accepted": [
+        {
+          "spelling": "absent",
+          "resolved_intent": "None"
+        },
+        {
+          "spelling": "--pretty",
+          "resolved_intent": "Some(true)"
+        },
+        {
+          "spelling": "--pretty=true",
+          "resolved_intent": "Some(true)"
+        },
+        {
+          "spelling": "--pretty=false",
+          "resolved_intent": "Some(false)"
+        }
+      ],
+      "separated_token": {
+        "spelling": "--pretty false",
+        "commands": [
+          "compile",
+          "watch",
+          "w"
+        ],
+        "parser_assertions": [
+          "--pretty resolves to Some(true)",
+          "the token false is not consumed as the boolean value of --pretty",
+          "the token false remains subject to the command's existing positional rules"
+        ],
+        "compile_positional_witness": "with an unfilled output positional, false is parsed as the output path; the ratified vanilla process later exits 1 because the output format cannot be inferred, not because clap rejected the boolean",
+        "watch_and_w_constraint": "assert only through Args::try_parse_from; where an output positional is available, false occupies it, otherwise the existing positional parser decides independently of --pretty",
+        "parser_result": "not PRETTY_INVALID_BOOLEAN and not PRETTY_VALUE_REQUIRES_EQUALS"
+      },
+      "rejected": [
+        {
+          "spelling": "--pretty=maybe",
+          "reason_code": "PRETTY_INVALID_BOOLEAN"
+        },
+        {
+          "spelling": "--pretty=",
+          "reason_code": "PRETTY_EMPTY_BOOLEAN"
+        }
+      ],
+      "diagnostic_contract": {
+        "accepted_parser_result": "Ok",
+        "rejected_parser_exit_equivalent": 2,
+        "channel": "stderr-equivalent clap diagnostic",
+        "must_identify": [
+          "--pretty",
+          "the invalid or misplaced value when present",
+          "the applicable boolean constraint"
+        ],
+        "normalization_allowed": [
+          "ANSI color",
+          "executable path",
+          "terminal-width wrapping"
+        ],
+        "normalization_forbidden": [
+          "error class",
+          "argument name",
+          "offending token",
+          "boolean-value semantics",
+          "exit-equivalent classification"
+        ]
+      },
+      "execution_constraint": "watch and w are parser-only via Args::try_parse_from; they are never spawned"
+    },
+    "target_resolution": {
+      "none": false,
+      "some_false": false,
+      "some_true": true,
+      "invariants": [
+        "pretty does not select or change output format",
+        "pretty does not activate HTML feature",
+        "pretty does not change HtmlSerializationMode",
+        "pretty does not change layout or evaluated content",
+        "only the selected target encoder receives the resolved boolean",
+        "compatibility wrappers resolve to false"
+      ]
+    },
+    "pdf": {
+      "fixture_requirements": "finite deterministic document with at least one profitable page content stream, visible text/operators, and no artifact above 4 MiB",
+      "page_content_stream_identification": "resolve each Page /Contents reference through a bounded PDF parser; do not classify font, image, ICC, metadata, object, or xref streams as page content streams",
+      "compact_default_false": [
+        "absence and --pretty=false are observably equivalent",
+        "profitable page content streams carry /Filter /FlateDecode",
+        "decoded operators and rendered morphology are preserved"
+      ],
+      "pretty_true": [
+        "every page content stream omits /FlateDecode",
+        "page operators are present in clear text and parse as a valid content stream",
+        "decoded operator sequence and rendered morphology equal the corresponding pretty=false case",
+        "font, image, ICC, and metadata compression policies are unchanged"
+      ],
+      "stream_mode_matrix": {
+        "axes": {
+          "pretty": [
+            false,
+            true
+          ],
+          "compact": [
+            false,
+            true
+          ]
+        },
+        "required_cases": 4,
+        "invariant": "pretty controls page-stream compression/readability; compact controls operator vocabulary only; all four combinations remain expressible",
+        "witness": "for fixed compact value, toggling pretty preserves the decoded operators; for fixed pretty value, toggling compact preserves document morphology while retaining the selected pretty compression policy"
+      },
+      "pdf_tags_matrix": {
+        "axes": {
+          "pretty": [
+            false,
+            true
+          ],
+          "pdf_tags": [
+            "Enabled",
+            "Disabled"
+          ]
+        },
+        "required_cases": 4,
+        "invariant": "pretty never enables or disables tags; all four combinations remain expressible",
+        "witness": "tagged structure markers follow PdfTags alone while page-stream FlateDecode follows pretty alone"
+      },
+      "not_observable_as_equality": [
+        "whole-file bytes",
+        "object IDs",
+        "xref offsets",
+        "line count",
+        "krilla serializer mechanics"
+      ]
+    },
+    "svg": {
+      "fixture_requirements": "finite page exercising text, attributes containing > inside quotes, at least one nested group, geometry, and escaping",
+      "compact": "absence and --pretty=false have compact serialization with no structural indentation requirement",
+      "pretty": "--pretty=true has two-space structural indentation",
+      "equivalence": "parse both outputs as XML and compare the ordered tree including element names, namespaces, ordered child relation, attributes, text nodes carrying semantic text, references, geometry, and paint after discarding indentation-only nodes introduced between elements",
+      "preserve": [
+        "graph and resolved references",
+        "IDs modulo alpha-renaming with graph isomorphism",
+        "attribute values and escapes",
+        "geometry and paint order",
+        "fonts, destinations, and explicit fallback markers"
+      ],
+      "forbidden_shortcut": "raw-byte or line-count equality is not the tree oracle"
+    },
+    "html": {
+      "fixture_requirements": "finite semantic content exercising document/head/block boundaries, phrasing text, title/raw context, void element, protected space, escaped attributes including >, and both HtmlSerializationMode values",
+      "compact": "absence and --pretty=false preserve the compact encoder",
+      "pretty": "--pretty=true adds a final newline and two-space indentation only at structural document, block, and head-metadata boundaries",
+      "equivalence": "parse compact and pretty as HTML and compare the ordered DOM, attributes, text semantics, void/raw behavior, protected spaces, and selected escaping mode after excluding formatter-owned indentation nodes at declared structural boundaries",
+      "must_not_insert_whitespace_inside": [
+        "phrasing content",
+        "text",
+        "title",
+        "attribute values",
+        "semantically protected spaces"
+      ],
+      "tokenization_guard": "a > character inside a quoted attribute value does not close a tag for formatting purposes",
+      "serialization_mode_matrix": {
+        "axes": {
+          "pretty": [
+            false,
+            true
+          ],
+          "html_serialization": [
+            "Crystalline",
+            "Vanilla"
+          ]
+        },
+        "required_cases": 4,
+        "invariant": "pretty changes only structural whitespace; escaping remains selected solely by HtmlSerializationMode"
+      }
+    },
+    "png": {
+      "accepted_forms": [
+        "absent",
+        "--pretty=false",
+        "--pretty=true"
+      ],
+      "invariant": "pretty is accepted by compile but is not forwarded to or interpreted by the PNG exporter",
+      "required_observations": [
+        "successful compile under the same finite fixture",
+        "valid PNG signature",
+        "same dimensions, color model, alpha behavior, and decoded pixel morphology",
+        "no pretty-dependent diagnostic or target change"
+      ],
+      "strong_control": "when the deterministic encoder yields stable bytes for the same frozen inputs, all three SHA-256 values must match; decoded morphology remains the normative oracle"
+    },
+    "preservation": {
+      "must_hold": [
+        "compile errors and warnings unrelated to --pretty retain severity, channel, ordering, and exit class",
+        "eval, query, and info retain their independent existing pretty behavior and argument domains",
+        "watch and w reuse the tri-state parser but no watch loop is exercised",
+        "output selection, features, HTML target, HTML serialization, layout, PDF tags, StreamMode, and PNG rendering remain independent",
+        "absence and explicit false are equivalent at each exporter while remaining distinct parser states",
+        "existing public wrappers produce compact serialization by default"
+      ]
+    }
+  },
+  "case_families": [
+    {
+      "id": "PARSE-POSITIVE",
+      "expected": "Preserved",
+      "population": "three commands times four accepted spellings",
+      "count": 12
+    },
+    {
+      "id": "PARSE-NEGATIVE",
+      "expected": "Violated for a parser that accepts the spelling; Preserved for the required rejection",
+      "population": "three commands times two rejected equals-form spellings",
+      "count": 6
+    },
+    {
+      "id": "PARSE-SEPARATED",
+      "expected": "Preserved only when --pretty is Some(true) and false is left to existing positional parsing",
+      "population": "compile, watch, and w parser-only cases for --pretty false",
+      "count": 3
+    },
+    {
+      "id": "PDF-STREAMMODE",
+      "expected": "Preserved",
+      "population": "pretty x compact matrix",
+      "count": 4
+    },
+    {
+      "id": "PDF-TAGS",
+      "expected": "Preserved",
+      "population": "pretty x PdfTags matrix",
+      "count": 4
+    },
+    {
+      "id": "SVG-WHITESPACE",
+      "expected": "Preserved",
+      "population": "absence, false, and true with ordered-tree comparison",
+      "count": 3
+    },
+    {
+      "id": "HTML-WHITESPACE",
+      "expected": "Preserved",
+      "population": "pretty x HtmlSerializationMode matrix plus absence control",
+      "count": 5
+    },
+    {
+      "id": "PNG-NEUTRAL",
+      "expected": "Preserved",
+      "population": "absence, false, and true",
+      "count": 3
+    },
+    {
+      "id": "OPAQUE-BOUNDARY",
+      "expected": "Unknown",
+      "population": "ambiguous PDF page-stream ownership, malformed XML/HTML/PDF, unresolved reference graph, artifact over limit, timeout, or exhausted budget",
+      "count": "generated-by-oracle-author-with-at-least-one-per-opaque-class"
+    }
+  ],
+  "required_mutations": [
+    {
+      "id": "M01",
+      "description": "collapse absent and explicit false in the parser intent",
+      "must_result": "Violated",
+      "witness": "PARSE-POSITIVE"
+    },
+    {
+      "id": "M02",
+      "description": "bare --pretty resolves false",
+      "must_result": "Violated",
+      "witness": "PARSE-POSITIVE"
+    },
+    {
+      "id": "M03",
+      "description": "consume the separated token in --pretty false as the option's boolean value, resolve Some(false), or reject it as an invalid --pretty boolean instead of leaving it to positional parsing",
+      "must_result": "Violated",
+      "witness": "PARSE-SEPARATED",
+      "reclassification": "The previous mutation incorrectly required parser rejection. The valid adversarial mutation now targets consumption or boolean rejection of the separated token; baseline acceptance as a positional token is the preserved behavior."
+    },
+    {
+      "id": "M04",
+      "description": "accept invalid or empty boolean as false",
+      "must_result": "Violated",
+      "witness": "PARSE-NEGATIVE"
+    },
+    {
+      "id": "M05",
+      "description": "watch or w does not share compile tri-state parsing",
+      "must_result": "Violated",
+      "witness": "PARSE-POSITIVE, PARSE-SEPARATED, and PARSE-NEGATIVE parser-only"
+    },
+    {
+      "id": "M06",
+      "description": "None resolves true or compatibility wrappers default to true",
+      "must_result": "Violated",
+      "witness": "all absence controls"
+    },
+    {
+      "id": "M07",
+      "description": "pretty changes StreamMode or compact changes pretty",
+      "must_result": "Violated",
+      "witness": "PDF-STREAMMODE"
+    },
+    {
+      "id": "M08",
+      "description": "pretty changes PdfTags or tagging changes pretty",
+      "must_result": "Violated",
+      "witness": "PDF-TAGS"
+    },
+    {
+      "id": "M09",
+      "description": "pretty page content streams retain FlateDecode",
+      "must_result": "Violated",
+      "witness": "PDF pretty=true"
+    },
+    {
+      "id": "M10",
+      "description": "pretty disables compression for fonts, images, ICC, or metadata",
+      "must_result": "Violated",
+      "witness": "PDF non-page-stream preservation control"
+    },
+    {
+      "id": "M11",
+      "description": "default or explicit false disables profitable page-stream compression",
+      "must_result": "Violated",
+      "witness": "PDF pretty=false profitable fixture"
+    },
+    {
+      "id": "M12",
+      "description": "SVG true is ignored or false is indented",
+      "must_result": "Violated",
+      "witness": "SVG-WHITESPACE"
+    },
+    {
+      "id": "M13",
+      "description": "SVG pretty changes graph, attributes, geometry, escapes, or painting order",
+      "must_result": "Violated",
+      "witness": "SVG ordered-tree and morphology comparison"
+    },
+    {
+      "id": "M14",
+      "description": "HTML pretty inserts whitespace inside phrasing, title, text, attribute, void/raw, or protected-space content",
+      "must_result": "Violated",
+      "witness": "HTML-WHITESPACE"
+    },
+    {
+      "id": "M15",
+      "description": "HTML formatter treats > inside a quoted attribute as tag closure",
+      "must_result": "Violated",
+      "witness": "HTML tokenization guard"
+    },
+    {
+      "id": "M16",
+      "description": "HTML pretty changes the selected escaping mode",
+      "must_result": "Violated",
+      "witness": "HTML serialization mode matrix"
+    },
+    {
+      "id": "M17",
+      "description": "PNG output or diagnostics depend on pretty",
+      "must_result": "Violated",
+      "witness": "PNG-NEUTRAL"
+    },
+    {
+      "id": "M18",
+      "description": "Unknown, timeout, oversize, malformed, or ambiguous evidence is credited as Preserved",
+      "must_result": "Violated",
+      "witness": "OPAQUE-BOUNDARY"
+    },
+    {
+      "id": "M19",
+      "description": "pretty changes target, feature activation, layout, or unrelated eval/query/info behavior",
+      "must_result": "Violated",
+      "witness": "preservation controls"
+    }
+  ],
+  "discriminatory_gate": {
+    "required_mutation_score": 1.0,
+    "formula": "valid_required_mutations_rejected / valid_required_mutations",
+    "seal_condition": "all positive cases Preserved, all valid required mutations Violated with witnesses, all deliberate opaque cases Unknown, and repeated/reordered execution has the same classification vector",
+    "surviving_mutation_action": "do not seal",
+    "unknown_action": "zero credit and do not seal unless it is the expected result of an explicit opaque case",
+    "repetition": "at least two identical-order runs after focal success",
+    "reordering": "forward and reverse case order produce the same vector",
+    "protected_input_change": "invalidate this contract candidate and restart from the first affected phase"
+  },
+  "execution_safety": {
+    "watch_subprocess": "forbidden",
+    "w_subprocess": "forbidden",
+    "watch_parser": "Args::try_parse_from only",
+    "w_parser": "Args::try_parse_from only",
+    "allowed_product_subcommand": "compile only",
+    "process_timeout_seconds_max": 20,
+    "artifact_size_bytes_max": 4194304,
+    "stdout_stderr": "redirect each stream to a bounded file; unlimited capture is forbidden",
+    "cargo_environment": {
+      "CARGO_BUILD_JOBS": "1"
+    },
+    "test_scope": "one focal crate or one focal test target at a time",
+    "workspace_wide_suite": "forbidden",
+    "broad_text_filter_that_can_capture_existing_watch_tests": "forbidden",
+    "red_policy": "after the RED cause is localized, do not repeat an integral compilation solely to reproduce it",
+    "limit_failure": "timeout, oversize, capture overflow, or budget exhaustion classifies Unknown with zero credit and stops the dynamic gate"
+  },
+  "calibration_budget": {
+    "contract_revisions_max": 2,
+    "oracle_revisions_max": 2,
+    "full_corpus_runs_max_before_seal": 2,
+    "full_corpus_runs_max_final_verification": 2,
+    "focal_runs_per_failed_class_max": 2,
+    "concurrent_product_processes_max": 1,
+    "process_timeout_seconds_max": 20,
+    "artifact_size_bytes_max": 4194304,
+    "stop_rule": "two consecutive revisions with the same classification vector and dominant reason_code require architectural review before another complete run",
+    "budget_semantics": "budget exhaustion never weakens an observable and never converts Unknown to Preserved"
+  },
+  "final_gates_expected_after_seal": [
+    "independent focal tests derived from this frozen contract",
+    "repeat and reverse-order discriminatory checks",
+    "cargo fmt --check",
+    "git diff --check",
+    "crystalline-lint .",
+    "protected hash revalidation"
+  ],
+  "limitations": [
+    "This artifact is a candidate contract, not a seal or certificate.",
+    "No oracle suite, mutation run, implementation verdict, or isolation certificate is claimed here.",
+    "The contract covers only P1360 observables and does not establish general functional equivalence with vanilla."
+  ]
+}

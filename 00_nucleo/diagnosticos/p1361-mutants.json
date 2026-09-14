@@ -1,0 +1,90 @@
+{
+  "schema":"tekt-mutant-suite/v1",
+  "suite_id":"P1361_DURATION_FORMATTER_MUTANTS",
+  "manifest_sha256":"10c0d40a0e8dc6fc4507dd5cb9675018a7f55bf100e559e72916d084e051ac40",
+  "contract_sha256":"e0362460eceb7b74232463a694ee4c0dada9cfcd50ad2f724db4d46887e54ced",
+  "oracle_suite": {
+    "path":"00_nucleo/diagnosticos/p1361-oracles.json",
+    "hash_is_recorded_by_successor":true
+  },
+  "target_mutation_score":1.0,
+  "score_formula":"valid mutants classified Violated / valid mutants",
+  "unknown_acceptance_credit":0,
+  "survivor_blocks_seal":true,
+  "lineage_revision": {
+    "revision":3,
+    "semantic_obligations_changed":false,
+    "valid_mutant_count_unchanged":22,
+    "opaque_unknown_count_unchanged":7,
+    "prior_seal_invalidated":true,
+    "prospective_seal_available":false,
+    "retrospective_limited_verification_available":true,
+    "reason":"Productive owner metadata and the dedicated integration-test owner were formalized after the first candidate and first GREEN."
+  },
+  "mutants":[
+    {"id":"M01","class":"unit/day-divisor","contract_negative":"N01","mutation":"derive days with a 23-hour divisor","valid":true,"required":"Violated","witnesses":["P02"],"distinguishing_effect":"24 h no longer formats exactly as 1 d"},
+    {"id":"M02","class":"unit/hour-divisor","contract_negative":"N02","mutation":"derive hours with a 59-minute divisor","valid":true,"required":"Violated","witnesses":["P03"],"distinguishing_effect":"3600 s no longer formats exactly as 1 h"},
+    {"id":"M03","class":"unit/minute-divisor","contract_negative":"N03","mutation":"derive minutes with a 59-second divisor","valid":true,"required":"Violated","witnesses":["P05","P06"],"distinguishing_effect":"minute/remainder decomposition differs"},
+    {"id":"M04","class":"order","contract_negative":"N04","mutation":"emit hour before day","valid":true,"required":"Violated","witnesses":["P01"],"distinguishing_effect":"piece order differs from 11 d 13 h 46 min"},
+    {"id":"M05","class":"omission/early-return","contract_negative":"N05","mutation":"continue to seconds after a nonzero day or hour","valid":true,"required":"Violated","witnesses":["P04"],"distinguishing_effect":"adds a forbidden 0 s piece"},
+    {"id":"M06","class":"omission/minutes","contract_negative":"N06","mutation":"never emit the minute piece","valid":true,"required":"Violated","witnesses":["P04","P06"],"distinguishing_effect":"nonzero minutes disappear"},
+    {"id":"M07","class":"threshold/five-minute-shift","contract_negative":"N07","mutation":"move the fractional-drop threshold from 300 s to 300.010 s","valid":true,"required":"Violated","witnesses":["B04"],"distinguishing_effect":"300.006 s becomes 5 min 0.01 s instead of 5 min 0 s","note":"This valid shifted-threshold mutant replaces the equivalent >= to > mutation recorded separately as E01."},
+    {"id":"M08","class":"omission/fraction","contract_negative":"N08","mutation":"retain fractional seconds at or above five minutes","valid":true,"required":"Violated","witnesses":["P05"],"distinguishing_effect":"364.77 s becomes 6 min 4.77 s"},
+    {"id":"M09","class":"threshold/second","contract_negative":"N09","mutation":"select seconds only above, not at, 1 s","valid":true,"required":"Violated","witnesses":["P09"],"distinguishing_effect":"1 s is labeled 1000 ms"},
+    {"id":"M10","class":"threshold/millisecond","contract_negative":"N10","mutation":"select milliseconds only above, not at, 1 ms","valid":true,"required":"Violated","witnesses":["P11"],"distinguishing_effect":"1 ms is labeled 1000 µs"},
+    {"id":"M11","class":"threshold/microsecond","contract_negative":"N11","mutation":"select microseconds only above, not at, 1 µs","valid":true,"required":"Violated","witnesses":["P15"],"distinguishing_effect":"1 µs is labeled 1000 ns"},
+    {"id":"M12","class":"rounding/truncation","contract_negative":"N12","mutation":"truncate at two decimal places instead of rounding","valid":true,"required":"Violated","witnesses":["P08","P12"],"distinguishing_effect":"2.8492 s becomes 2.84 s and 294.816 ms becomes 294.81 ms"},
+    {"id":"M13","class":"rounding/precision","contract_negative":"N13","mutation":"round to one decimal place","valid":true,"required":"Violated","witnesses":["P06","P12"],"distinguishing_effect":"required two-decimal values change"},
+    {"id":"M14","class":"rounding/trailing-zero","contract_negative":"N14","mutation":"force exactly two fractional digits","valid":true,"required":"Violated","witnesses":["P07","P09","P11"],"distinguishing_effect":"integer scalars gain .00"},
+    {"id":"M15","class":"spacing","contract_negative":"N15","mutation":"remove the ASCII space between scalar and unit","valid":true,"required":"Violated","witnesses":["P17"],"distinguishing_effect":"1 ns becomes 1ns"},
+    {"id":"M16","class":"unit-label","contract_negative":"N16","mutation":"replace micro sign U+00B5 by ASCII u","valid":true,"required":"Violated","witnesses":["P13","P15"],"distinguishing_effect":"UTF-8 output differs"},
+    {"id":"M17","class":"zero","contract_negative":"N17","mutation":"format zero as 0 ns instead of following the seconds branch","valid":true,"required":"Violated","witnesses":["P18"],"distinguishing_effect":"violates frozen P18 = 0 s"},
+    {"id":"M18","class":"unit/subsecond-scale","contract_negative":"N18","mutation":"divide millisecond values by 100 rather than 1000000 nanoseconds","valid":true,"required":"Violated","witnesses":["P10","P12"],"distinguishing_effect":"subsecond scalar is off by a power of ten or more"},
+    {"id":"M19","class":"clock/purity","contract_negative":"N19","mutation":"replace the frozen argument with Instant::now().elapsed() before formatting","valid":true,"required":"Violated","witnesses":["S08"],"distinguishing_effect":"static purity oracle detects a clock read and argument substitution"},
+    {"id":"M20","class":"public-api","contract_negative":"N20","mutation":"make format_duration private or return String instead of impl Display","valid":true,"required":"Violated","witnesses":["S09"],"distinguishing_effect":"the frozen public signature or L2 re-export fails"},
+    {"id":"M21","class":"threshold/day-rollover","contract_negative":"N21","mutation":"roll over to one day at 23 hours","valid":true,"required":"Violated","witnesses":["B03"],"distinguishing_effect":"23 h 59 min is prematurely represented as a day"},
+    {"id":"M22","class":"rounding/normalization","contract_negative":"N22","mutation":"normalize a rounded 60-second remainder into the next minute","valid":true,"required":"Violated","witnesses":["B01"],"distinguishing_effect":"4 min 60 s becomes 5 min 0 s"}
+  ],
+  "excluded_equivalent_mutants":[
+    {
+      "id":"E01",
+      "contract_negative":"N07",
+      "mutation":"change duration >= 5 min to duration > 5 min",
+      "valid":false,
+      "witnesses":[],
+      "reason_code":"EQUIVALENT_AT_EXACT_THRESHOLD",
+      "evidence":"At exactly 300 s both branches emit the already-present 5 min piece followed by scalar 0 s; for every duration above 300 s both comparisons are true. B02 therefore cannot distinguish the mutation.",
+      "acceptance_credit":0
+    }
+  ],
+  "witness_coverage": {
+    "all_valid_mutants_have_at_least_one_witness":true,
+    "valid_mutant_count":22,
+    "excluded_equivalent_count":1,
+    "required_violated":22,
+    "required_mutation_score":1.0,
+    "opaque_unknowns_never_enter_denominator":true
+  },
+  "resolved_findings":[
+    {"id":"C01","status":"resolved-by-frozen-revision-2","effect":"P18 and M17 now agree with the ratified vanilla zero result 0 s."},
+    {"id":"C02","status":"resolved-by-frozen-revision-2","effect":"The literal inclusive-to-exclusive mutant remains explicitly excluded as E01; valid M07 shifts the threshold to 300.010 s and is killed by B04 at 300.006 s."}
+  ],
+  "execution_policy": {
+    "execution_performed":false,
+    "watch_or_w_process":"prohibited",
+    "cargo_or_product":"not executed by oracle/adversary",
+    "future_gate":"one bounded deterministic static oracle-gate invocation only; no watch, w, broad Cargo filter or workspace suite",
+    "timeout_seconds_max":120,
+    "streams":"redirect stdout and stderr to capped files",
+    "receipt_bytes_max_each":4194304,
+    "receipt_bytes_max_total":16777216,
+    "timeout_oom_unexpected_unknown_zero_tests_or_valid_survivor":"blocks PASS"
+  },
+  "verdict": {
+    "design_target_mutation_score":1.0,
+    "mutation_gate_executed":false,
+    "eligible_for_prospective_seal":false,
+    "eligible_for_retrospective_limited_verification":true,
+    "reason":"All 22 valid mutants retain witnesses, but revision 3 cannot retroactively make ownership lineage prospective before the first GREEN."
+  }
+}

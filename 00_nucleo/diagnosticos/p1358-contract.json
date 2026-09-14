@@ -1,0 +1,81 @@
+{
+  "schema": "p1358-luma-contract-v1",
+  "regime": "full_segregated_materialization_protocol",
+  "attestation": "executado sem atestação de isolamento",
+  "authority": {
+    "role": "contract_author",
+    "executor": "/root",
+    "candidate_patch_exists": false,
+    "candidate_patch_read": false,
+    "writes": ["00_nucleo/diagnosticos/p1358-contract.json"]
+  },
+  "frozen_inputs": {
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "l0_path": "00_nucleo/prompts/compiler/stdlib/foundations/color.md",
+    "l0_sha256": "c0938544b8fcf20a34b43729bd29a49b945a510fc370b5caa9cbaf1c0a590d3c",
+    "step_path": "00_nucleo/materialization/typst-passo-1358.md",
+    "step_sha256": "9078953e7c6e9de0082072c858d6d1ce7a007fa150b6df3bec339ee56a52b709",
+    "preflight_path": "00_nucleo/diagnosticos/p1358-luma-preflight.md",
+    "preflight_sha256": "534facef55519ce2aec8a49c47e405a873a0e69740d49caa20e7449ab09bc98f"
+  },
+  "scope": {
+    "owner": "01_core/src/compiler/stdlib/foundations/color.rs",
+    "function": "native_luma",
+    "included": "numeric argument protocol, positional alpha and public diagnostics",
+    "excluded": [
+      "luma(color) conversion formula or alpha behavior",
+      "Color and ColorSpace entities",
+      "rendering, gradients and other constructors"
+    ]
+  },
+  "profiles": ["default", "html", "a11y-extras", "html+a11y"],
+  "values": [
+    {"id": "V01", "expression": "repr(luma(0))", "expected": "luma(0%)"},
+    {"id": "V02", "expression": "repr(luma(128))", "expected": "luma(50.2%)"},
+    {"id": "V03", "expression": "repr(luma(255))", "expected": "luma(100%)"},
+    {"id": "V04", "expression": "repr(luma(40, 50%))", "expected": "luma(15.69%, 50%)"},
+    {"id": "V05", "expression": "repr(luma(40, 127))", "expected": "luma(15.69%, 49.8%)"},
+    {"id": "V06", "expression": "repr(luma(40, 0))", "expected": "luma(15.69%, 0%)"},
+    {"id": "V07", "expression": "repr(luma(40, 255))", "expected": "luma(15.69%)"},
+    {"id": "V08", "expression": "repr(luma(128).components())", "expected": "(50.2%, 100%)"},
+    {"id": "V09", "expression": "repr(luma(128, 0).components())", "expected": "(50.2%, 0%)"}
+  ],
+  "diagnostics": [
+    {"id": "D01", "expression": "luma()", "message": "missing argument: lightness component", "hint": "try writing `white` or `luma(100%)`"},
+    {"id": "D02", "expression": "luma(\"invalid\")", "message": "expected integer or ratio, found string"},
+    {"id": "D03", "expression": "luma(10%, \"invalid\")", "message": "expected integer or ratio, found string"},
+    {"id": "D04", "expression": "luma(-1)", "message": "number must be between 0 and 255"},
+    {"id": "D05", "expression": "luma(256)", "message": "number must be between 0 and 255"},
+    {"id": "D06", "expression": "luma(10%, -1)", "message": "number must be between 0 and 255"},
+    {"id": "D07", "expression": "luma(10%, 256)", "message": "number must be between 0 and 255"},
+    {"id": "D08", "expression": "luma(-1%)", "message": "ratio must be between 0% and 100%"},
+    {"id": "D09", "expression": "luma(101%)", "message": "ratio must be between 0% and 100%"},
+    {"id": "D10", "expression": "luma(10%, -1%)", "message": "ratio must be between 0% and 100%"},
+    {"id": "D11", "expression": "luma(10%, 101%)", "message": "ratio must be between 0% and 100%"},
+    {"id": "D12", "expression": "luma(10%, 0.5)", "message": "expected integer or ratio, found float"},
+    {"id": "D13", "expression": "luma(128, alpha: 40%)", "message": "unexpected argument: alpha"},
+    {"id": "D14", "expression": "luma(255, key: \"val\")", "message": "unexpected argument: key"},
+    {"id": "D15", "expression": "luma(25%, 50%, \"val\")", "message": "unexpected argument", "message_match": "prefix_or_exact"},
+    {"id": "D16", "expression": "luma(red, 50%)", "message": "unexpected argument", "message_match": "prefix_or_exact"}
+  ],
+  "preservation": [
+    {"id": "P01_LUMA_COLOR_ALPHA_SCOPE_OUT", "expression": "repr(luma(rgb(255, 0, 0, 40%)).components())", "expected_crystalline": "(49.85%, 40%)", "reason": "explicit scope-out"},
+    {"id": "P02_LUMA_PUBLIC_KIND", "expression": "type(luma)", "expected": "function"}
+  ],
+  "structural_gates": [
+    "git diff contains no public Rust signature, entity, phase, renderer or other color-constructor change",
+    "the only productive consumer changed by P1358 is 01_core/src/compiler/stdlib/foundations/color.rs"
+  ],
+  "unknown_policy": {
+    "mode": "fail_closed",
+    "production_unknown_counts_as_success": false,
+    "allowed_only_for_predeclared_opaque_fixture": true
+  },
+  "acceptance": {
+    "mutation_score": 1.0,
+    "red_before_green": true,
+    "bilateral_and_deterministic": true,
+    "claim_boundary": "numeric protocol only; never total luma parity"
+  }
+}

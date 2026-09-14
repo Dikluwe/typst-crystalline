@@ -1,0 +1,111 @@
+{
+  "schema": "tekt-segregated-materialization-seal/v1",
+  "step": "P1364",
+  "created_at": "2026-09-13T09:13:00-03:00",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "SEALED",
+  "scope": "terminacao morfologica dos quatro blocos de status P1363 no modo watch nao-fullscreen",
+  "inputs": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1364-manifest.json",
+      "raw_sha256": "999f6c381d521a0259b13992291eb352fcafb40daf875306b29a2f2bddcfc453"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1364-contract.json",
+      "raw_sha256": "f4ee434732b3e98cb6d03e036c411cd691ffe9bfa83a1193a55fd6dc8b2fa128"
+    },
+    "oracles": {
+      "path": "00_nucleo/diagnosticos/p1364-oracles.json",
+      "raw_sha256": "3bbd5abb5f2251910bba3e74ce53599a007b0e5ba1693df1d5a28515c9c48409"
+    },
+    "mutants": {
+      "path": "00_nucleo/diagnosticos/p1364-mutants.json",
+      "raw_sha256": "bcd230ca0772e1ed4bd0413cc737e71d2b3525006d4c5b9543a27ea0fd611447"
+    },
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1364.md",
+      "raw_sha256": "0b73ad9bd170d6000bac25f673a03b744ab6bdf1f353acd3fafe5eb8bec428b7"
+    },
+    "preflight": {
+      "path": "00_nucleo/diagnosticos/p1364-watch-spacing-preflight.md",
+      "raw_sha256": "f928cfaaf1a46df8b39af50d0a6fe20b23484e2cee3a9deb3f85f77359099fe0"
+    },
+    "wiring_l0": {
+      "path": "00_nucleo/prompts/wiring.md",
+      "raw_sha256_at_seal": "e87dea3b0584363f8d2f6475ef57c9e84a9fc1672ed2002992ee808b4629727a",
+      "normative_sha256": "14efe9983549ef437fd719ff786185416c740b79040324b3daad80bf3b5d31ee",
+      "normalization": "remove exclusivamente a linha que comeca exatamente por Hash do Código: e sua quebra"
+    },
+    "baseline": {
+      "path": "04_wiring/src/main.rs",
+      "raw_sha256": "beaafca23a97e86774e8f6d81d2c756575ca0e210a8ea79cb41a2650487d0290",
+      "candidate_helpers_at_seal": "absent"
+    },
+    "vanila_source": {
+      "path": "lab/typst-original/crates/typst-cli/src/watch.rs",
+      "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "raw_sha256": "3d5ee88a01513902055881b8cd4245540327ef33a4d10a6788bcabce17cdb585"
+    }
+  },
+  "gate": {
+    "path": "00_nucleo/diagnosticos/p1364-contract-gate.py",
+    "raw_sha256": "a430d6316f8c7f1ff41e3241e61b2eee3360dc1b74f42852abba8242a850a455",
+    "command": "timeout 10s python3 00_nucleo/diagnosticos/p1364-contract-gate.py",
+    "invocations": 1,
+    "exit_code": 0,
+    "verdict": "SEALABLE",
+    "mode": "pure_static_bounded",
+    "receipt": {
+      "transport": "bounded exec-tool stdout capture",
+      "chunk_id": "f6e935",
+      "max_output_tokens": 12000,
+      "original_token_count": 1162,
+      "persistent_tmp_file": false,
+      "note": "A saida permaneceu limitada pela captura da ferramenta, mas nao foi persistida em /tmp; o gate nao foi repetido para respeitar o limite de uma invocacao."
+    }
+  },
+  "discrimination": {
+    "positive_preserved": 14,
+    "positive_total": 14,
+    "negative_violated": 18,
+    "negative_total": 18,
+    "opaque_unknown": 8,
+    "opaque_total": 8,
+    "opaque_credit": 0,
+    "unexpected_unknown": 0,
+    "valid_mutants_rejected": 26,
+    "valid_mutants": 26,
+    "mutation_score": 1.0,
+    "repeat_equal": true,
+    "reverse_equal": true
+  },
+  "protected_after_seal": [
+    "00_nucleo/diagnosticos/p1364-manifest.json",
+    "00_nucleo/diagnosticos/p1364-contract.json",
+    "00_nucleo/diagnosticos/p1364-oracles.json",
+    "00_nucleo/diagnosticos/p1364-mutants.json",
+    "00_nucleo/materialization/typst-passo-1364.md",
+    "00_nucleo/diagnosticos/p1364-watch-spacing-preflight.md",
+    "00_nucleo/prompts/wiring.md normative digest",
+    "00_nucleo/diagnosticos/p1364-contract-gate.py"
+  ],
+  "authorized_product_delta": "04_wiring/src/main.rs: somente helpers privados watch_block_at/watch_block_now e substituicao dos dois pontos de emissao run_watch pelo bloco pronto",
+  "execution_safety": {
+    "cargo": 0,
+    "tests": 0,
+    "binary": 0,
+    "watch_or_w": 0,
+    "lint": 0,
+    "network": 0,
+    "timeout_seconds": 10,
+    "oom": false
+  },
+  "attestation_limitations": [
+    "workspace partilhado: hashes e capacidades foram registrados, mas isolamento tecnico nao e atestado",
+    "o selador nao alterou entradas protegidas, L0, codigo produtivo ou testes",
+    "a captura do unico gate foi limitada pela ferramenta, nao gravada em /tmp",
+    "o selo prova poder discriminatorio estatico, nao comportamento do candidato"
+  ],
+  "invalidation": "Qualquer mudanca nas entradas raw protegidas, no digest normativo do L0, no gate, ou delta produtivo fora da fronteira invalida este selo.",
+  "claim_limit": "O selo autoriza somente a materializacao P1364 congelada; nao prova equivalencia funcional geral de watch, terminal ou diagnosticos com o vanila."
+}

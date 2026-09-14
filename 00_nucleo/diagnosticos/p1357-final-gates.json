@@ -1,0 +1,22 @@
+{
+  "schema": "p1357-final-gates-v1",
+  "verdict": "PASS",
+  "executor": "/root",
+  "executed_utc": "2026-09-12T19:58:49Z",
+  "source": {
+    "head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "tree": "c3c2fa834e6ec318690ddb88e181277ff2e25b27",
+    "working_tree": "not committed",
+    "tracked_diff_stat": "00_nucleo/materialization/typst-passo-1356.md: 54 lines changed; lab/surface-inventory/src/main.rs: 74 lines changed; lab/typst-original/crates/p1140-inventory/src/main.rs: 81 lines changed"
+  },
+  "command": "cargo fmt --all -- --check && cargo build --workspace --release --locked && cargo test --workspace --release --locked --no-fail-fast && crystalline-lint . && git diff --check",
+  "results": {
+    "cargo_fmt": "PASS",
+    "cargo_build_workspace_release_locked": "PASS",
+    "cargo_test_workspace_release_locked_no_fail_fast": "PASS",
+    "crystalline_lint": "PASS_WITH_PREEXISTING_V16_V20_WARNINGS_AND_ZERO_VIOLATIONS",
+    "git_diff_check": "PASS",
+    "l1_l4_changed_by_p1357": false
+  },
+  "attestation": "final integral gate receipt; P1357 semantic verification remains executed without attestation of isolation"
+}

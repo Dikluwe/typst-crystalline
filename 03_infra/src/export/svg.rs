@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash 1d226a55
+//! @prompt-hash 14f4cf08
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -46,6 +46,44 @@ pub struct SvgOptions {
     pub pretty: bool,
     /// Se true, inclui o canvas físico; false recorta ao TrimBox.
     pub render_bleed: bool,
+}
+
+#[cfg(test)]
+mod p1360_ab_tests {
+    use super::*;
+
+    fn empty_page() -> Page {
+        Page {
+            width: 100.0,
+            height: 80.0,
+            numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items: vec![],
+        }
+    }
+
+    #[test]
+    fn p1360_ab_svg_options_default_compact_and_true_indents() {
+        assert!(!SvgOptions::default().pretty);
+        let compact = export_svg(
+            &empty_page(),
+            &SvgOptions { pretty: false, ..Default::default() },
+        );
+        let pretty =
+            export_svg(&empty_page(), &SvgOptions { pretty: true, ..Default::default() });
+        assert!(!compact.contains("\n  <"));
+        assert!(pretty.contains("\n  <"));
+        let compact_lines = compact.lines().map(str::trim).collect::<String>();
+        let pretty_lines = pretty.lines().map(str::trim).collect::<String>();
+        assert_eq!(
+            compact_lines, pretty_lines,
+            "pretty must change only structural XML whitespace"
+        );
+    }
 }
 
 impl Default for SvgOptions {

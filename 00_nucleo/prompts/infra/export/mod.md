@@ -158,3 +158,15 @@ export_html_with_serialization}`, nunca o submódulo privado.
 
 APIs e dispatches PDF, PNG e SVG permanecem inalterados. Não duplicar o enum,
 criar forwarding ou mover lógica de serialização para `mod.rs`.
+
+## P1360 — fachada da serialização legível
+
+Adicionar `PdfSerializationMode { Compact, Pretty }`, com default `Compact`,
+ortogonal a `StreamMode` e `PdfTags`. Variantes PDF explícitas com sufixo
+`_and_serialization` encaminham o modo ao `PdfBuilder`; as APIs anteriores
+delegam com `Compact`. O `mod.rs` não comprime nem formata conteúdo.
+
+A fachada HTML também reexporta
+`export_html_with_serialization_and_pretty`. SVG conserva `SvgOptions.pretty`
+já público. PNG permanece sem opção. Nenhuma combinação de nomes autoriza
+tratar `StreamMode::Compact` como serialização compacta de ficheiro.

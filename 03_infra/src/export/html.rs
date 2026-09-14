@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html.md
-//! @prompt-hash 2637355b
+//! @prompt-hash aaf28732
 //! @layer L3
 
 use typst_core::entities::content::Content;
@@ -73,49 +73,294 @@ pub enum HtmlSerializationMode {
     Vanilla,
 }
 
+#[cfg(test)]
+mod p1360_ab_tests {
+    use super::*;
+    use std::sync::Arc;
+    use typst_core::entities::html::{HtmlAttrs, HtmlBody, HtmlElem};
+
+    fn elem(tag: &str, body: Content) -> Content {
+        Content::HtmlElem(Arc::new(HtmlElem::new(
+            tag.into(),
+            None,
+            HtmlBody::Content(Box::new(body)),
+        )))
+    }
+
+    fn fixture() -> Content {
+        let title = elem("title", Content::text("A  > B"));
+        let head = elem("head", title);
+        let phrasing = Content::sequence(vec![
+            elem("span", Content::text("left")),
+            Content::Space,
+            elem("em", Content::text("right")),
+            Content::HtmlElem(Arc::new(HtmlElem::new(
+                "br".into(),
+                None,
+                HtmlBody::Unset,
+            ))),
+        ]);
+        let mut attrs = HtmlAttrs::default();
+        attrs.insert("data-guard".into(), "left>right".into());
+        let article = Content::HtmlElem(Arc::new(HtmlElem::new(
+            "article".into(),
+            Some(attrs),
+            HtmlBody::Content(Box::new(phrasing)),
+        )));
+        elem("html", Content::sequence(vec![head, elem("body", article)]))
+    }
+
+    #[test]
+    fn p1360_ab_html_pretty_preserves_phrasing_title_and_quoted_gt() {
+        for (mode, attribute) in [
+            (HtmlSerializationMode::Crystalline, "data-guard=\"left&gt;right\""),
+            (HtmlSerializationMode::Vanilla, "data-guard=\"left>right\""),
+        ] {
+            let compact =
+                export_html_with_serialization_and_pretty(&fixture(), mode, false)
+                    .expect("compact HTML");
+            let pretty =
+                export_html_with_serialization_and_pretty(&fixture(), mode, true)
+                    .expect("pretty HTML");
+
+            assert!(!compact.ends_with('\n'));
+            assert!(pretty.ends_with('\n'));
+            assert!(pretty.contains("\n  <head>"));
+            assert!(pretty.contains("<title>A  > B</title>"));
+            assert!(!pretty.contains("<title>\n"));
+            assert!(pretty.contains("<span>left</span> <em>right</em><br>"));
+            assert!(pretty.contains(attribute));
+            assert!(!pretty.contains("left>\nright"));
+            assert_eq!(compact.contains(attribute), pretty.contains(attribute));
+        }
+    }
+}
+
 pub fn export_html(content: &Content) -> Result<String, SourceDiagnostic> {
-    export_html_with_serialization(content, HtmlSerializationMode::Crystalline)
+    export_html_with_serialization_and_pretty(
+        content,
+        HtmlSerializationMode::Crystalline,
+        false,
+    )
 }
 
 pub fn export_html_with_serialization(
     content: &Content,
     mode: HtmlSerializationMode,
 ) -> Result<String, SourceDiagnostic> {
-    if let Some(root) = explicit_document_root(content)? {
-        return if matches!(root, Content::HtmlElem(elem) if elem.tag == "html") {
+    export_html_with_serialization_and_pretty(content, mode, false)
+}
+
+pub fn export_html_with_serialization_and_pretty(
+    content: &Content,
+    mode: HtmlSerializationMode,
+    pretty: bool,
+) -> Result<String, SourceDiagnostic> {
+    let compact = if let Some(root) = explicit_document_root(content)? {
+        if matches!(root, Content::HtmlElem(elem) if elem.tag == "html") {
             Ok(format!("{DOCTYPE}{}", inline(root, mode)?))
         } else {
             Ok(format!("{AUTO_ROOT_PREFIX}{}</html>", inline(root, mode)?))
+        }
+    } else {
+        let body = match content {
+            Content::Empty => String::new(),
+            Content::Heading(h) => {
+                format!("<h{}>{}</h{}>", h.level, inline(&h.body, mode)?.trim(), h.level)
+            }
+            Content::HtmlElem(elem) if should_group_into_paragraph(elem.tag.as_str()) => {
+                format!("<p>{}</p>", inline(content, mode)?)
+            }
+            Content::HtmlElem(_) => inline(content, mode)?,
+            Content::Table(_) => inline(content, mode)?,
+            Content::Sequence(seq)
+                if seq.iter().any(|c| {
+                    matches!(
+                        c,
+                        Content::Heading(_)
+                            | Content::Parbreak
+                            | Content::Par { .. }
+                            | Content::HtmlElem(_)
+                            | Content::Table(_)
+                    )
+                }) =>
+            {
+                block_sequence(seq, mode)?
+            }
+            Content::Par { body } => format!("<p>{}</p>", inline(body, mode)?.trim()),
+            other => format!("<p>{}</p>", inline(other, mode)?.trim()),
         };
-    }
-    let body = match content {
-        Content::Empty => String::new(),
-        Content::Heading(h) => {
-            format!("<h{}>{}</h{}>", h.level, inline(&h.body, mode)?.trim(), h.level)
-        }
-        Content::HtmlElem(elem) if should_group_into_paragraph(elem.tag.as_str()) => {
-            format!("<p>{}</p>", inline(content, mode)?)
-        }
-        Content::HtmlElem(_) => inline(content, mode)?,
-        Content::Table(_) => inline(content, mode)?,
-        Content::Sequence(seq)
-            if seq.iter().any(|c| {
-                matches!(
-                    c,
-                    Content::Heading(_)
-                        | Content::Parbreak
-                        | Content::Par { .. }
-                        | Content::HtmlElem(_)
-                        | Content::Table(_)
-                )
-            }) =>
-        {
-            block_sequence(seq, mode)?
-        }
-        Content::Par { body } => format!("<p>{}</p>", inline(body, mode)?.trim()),
-        other => format!("<p>{}</p>", inline(other, mode)?.trim()),
+        Ok(format!("{PREFIX}{body}</body></html>"))
     };
-    Ok(format!("{PREFIX}{body}</body></html>"))
+
+    compact.map(|html| if pretty { pretty_html(&html) } else { html })
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum HtmlTokenKind {
+    Open,
+    Close,
+    Void,
+    Declaration,
+    Text,
+}
+
+struct HtmlToken<'a> {
+    raw: &'a str,
+    name: &'a str,
+    kind: HtmlTokenKind,
+}
+
+/// Adds whitespace only between structural tokens. The compact encoder is
+/// still the semantic source of truth; this pass never rewrites a token.
+fn pretty_html(html: &str) -> String {
+    let tokens = html_tokens(html);
+    let mut out = String::with_capacity(html.len() + tokens.len() * 2);
+    let mut stack: Vec<&str> = Vec::new();
+    let mut last_was_structural = false;
+
+    for token in tokens {
+        let protected = stack.iter().any(|name| is_protected_html_context(name));
+        let structural = token.kind != HtmlTokenKind::Text
+            && token.kind != HtmlTokenKind::Declaration
+            && !should_group_into_paragraph(token.name);
+
+        match token.kind {
+            HtmlTokenKind::Declaration => {
+                out.push_str(token.raw);
+                last_was_structural = true;
+            }
+            HtmlTokenKind::Open => {
+                if structural && !protected {
+                    push_structural_newline(&mut out, stack.len());
+                }
+                out.push_str(token.raw);
+                stack.push(token.name);
+                last_was_structural = structural && !protected;
+            }
+            HtmlTokenKind::Void => {
+                if structural && !protected {
+                    push_structural_newline(&mut out, stack.len());
+                }
+                out.push_str(token.raw);
+                last_was_structural = structural && !protected;
+            }
+            HtmlTokenKind::Close => {
+                let depth = stack.len().saturating_sub(1);
+                let closing_protected = is_protected_html_context(token.name)
+                    || stack
+                        .iter()
+                        .take(depth)
+                        .any(|name| is_protected_html_context(name));
+                if structural && !closing_protected && last_was_structural {
+                    push_structural_newline(&mut out, depth);
+                }
+                out.push_str(token.raw);
+                stack.pop();
+                last_was_structural = structural && !closing_protected;
+            }
+            HtmlTokenKind::Text => {
+                out.push_str(token.raw);
+                if !token.raw.is_empty() {
+                    last_was_structural = false;
+                }
+            }
+        }
+    }
+
+    out.push('\n');
+    out
+}
+
+fn push_structural_newline(out: &mut String, depth: usize) {
+    if !out.is_empty() && !out.ends_with('\n') {
+        out.push('\n');
+    }
+    out.extend(std::iter::repeat(' ').take(depth * 2));
+}
+
+fn is_protected_html_context(tag: &str) -> bool {
+    should_group_into_paragraph(tag)
+        || matches!(
+            tag,
+            "p" | "h1"
+                | "h2"
+                | "h3"
+                | "h4"
+                | "h5"
+                | "h6"
+                | "title"
+                | "pre"
+                | "textarea"
+                | "script"
+                | "style"
+                | "td"
+                | "th"
+        )
+}
+
+fn html_tokens(html: &str) -> Vec<HtmlToken<'_>> {
+    let mut tokens = Vec::new();
+    let bytes = html.as_bytes();
+    let mut cursor = 0;
+    while cursor < bytes.len() {
+        if bytes[cursor] != b'<' {
+            let end = html[cursor..]
+                .find('<')
+                .map(|offset| cursor + offset)
+                .unwrap_or(bytes.len());
+            tokens.push(HtmlToken {
+                raw: &html[cursor..end],
+                name: "",
+                kind: HtmlTokenKind::Text,
+            });
+            cursor = end;
+            continue;
+        }
+
+        let end = quoted_tag_end(bytes, cursor).unwrap_or(bytes.len() - 1);
+        let raw = &html[cursor..=end];
+        let (name, kind) = classify_html_tag(raw);
+        tokens.push(HtmlToken { raw, name, kind });
+        cursor = end + 1;
+    }
+    tokens
+}
+
+fn quoted_tag_end(bytes: &[u8], start: usize) -> Option<usize> {
+    let mut quote = None;
+    for (offset, byte) in bytes[start + 1..].iter().copied().enumerate() {
+        match byte {
+            b'\'' | b'"' if quote.is_none() => quote = Some(byte),
+            current if quote == Some(current) => quote = None,
+            b'>' if quote.is_none() => return Some(start + 1 + offset),
+            _ => {}
+        }
+    }
+    None
+}
+
+fn classify_html_tag(raw: &str) -> (&str, HtmlTokenKind) {
+    if raw.starts_with("<!") || raw.starts_with("<?") {
+        return ("", HtmlTokenKind::Declaration);
+    }
+    let closing = raw.starts_with("</");
+    let name_start = if closing { 2 } else { 1 };
+    let rest = raw.get(name_start..).unwrap_or("");
+    let name_end = rest
+        .find(|character: char| {
+            character.is_ascii_whitespace() || character == '>' || character == '/'
+        })
+        .unwrap_or(rest.len());
+    let name = &rest[..name_end];
+    let kind = if closing {
+        HtmlTokenKind::Close
+    } else if VOID_TAGS.contains(&name) || raw.trim_end().ends_with("/>") {
+        HtmlTokenKind::Void
+    } else {
+        HtmlTokenKind::Open
+    };
+    (name, kind)
 }
 
 fn explicit_document_root(

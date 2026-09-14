@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell.md
-//! @prompt-hash b3e08b92
+//! @prompt-hash e0de5f64
 //! @layer L2
 //! @updated 2026-04-23
 //!
@@ -12,5 +12,6 @@
 pub mod cli;
 pub mod completions;
 pub mod diagnostic;
+pub mod duration;
 pub mod fonts;
 pub mod info;

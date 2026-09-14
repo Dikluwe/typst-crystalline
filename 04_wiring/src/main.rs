@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 4f93cd5f
+//! @prompt-hash f757e40d
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -43,15 +43,16 @@ mod eviction;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
+use std::time::{Duration, Instant};
 
 use typst_core::contracts::world::World;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
-    compile_to_pdf_bytes_full_error_and_document_id_with_features,
-    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features,
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization,
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization,
     compile_to_png_bytes_with_timings_full_error_and_features,
-    compile_to_svg_string_with_timings_full_error_and_features,
+    compile_to_svg_string_with_timings_full_error_and_features_and_pretty,
 };
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{
@@ -59,6 +60,7 @@ use typst_shell::cli::{
     InfoIntent, InitIntent, OutputFormat, QueryIntent, RunIntent, WatchIntent,
 };
 use typst_shell::diagnostic::{format_diagnostic, DiagnosticSource};
+use typst_shell::duration::{format_watch_line, WatchStatus};
 
 const HTML_EXPERIMENTAL_WARNING: &str = concat!(
     "warning: html export is under active development and incomplete\n",
@@ -81,6 +83,231 @@ mod tests {
             "\n",
         );
         assert_eq!(super::HTML_EXPERIMENTAL_WARNING.as_bytes(), expected.as_bytes());
+    }
+
+    #[test]
+    fn p1362_watch_status_for_outcome_selects_typed_status() {
+        use std::process::ExitCode;
+        use std::time::Duration;
+        use typst_shell::duration::WatchStatus;
+
+        let elapsed = Duration::new(2, 849_200_000);
+
+        assert!(matches!(
+            super::watch_status_for_outcome(ExitCode::SUCCESS, false, elapsed),
+            WatchStatus::Success(actual) if actual == elapsed
+        ));
+        assert!(matches!(
+            super::watch_status_for_outcome(ExitCode::SUCCESS, true, elapsed),
+            WatchStatus::PartialSuccess(actual) if actual == elapsed
+        ));
+        assert!(matches!(
+            super::watch_status_for_outcome(ExitCode::from(1), false, elapsed),
+            WatchStatus::Error
+        ));
+        assert!(matches!(
+            super::watch_status_for_outcome(ExitCode::from(2), true, elapsed),
+            WatchStatus::Error
+        ));
+    }
+
+    #[test]
+    fn p1363_watch_line_at_uses_the_supplied_literal_time() {
+        use std::time::Duration;
+        use time::Time;
+        use typst_shell::duration::WatchStatus;
+
+        let time = Time::from_hms(3, 4, 5).expect("03:04:05 is a valid literal time");
+        let elapsed = Duration::new(2, 849_200_000);
+
+        assert_eq!(
+            super::watch_line_at(&WatchStatus::Compiling, time),
+            "[03:04:05] compiling ..."
+        );
+        assert_eq!(
+            super::watch_line_at(&WatchStatus::Success(elapsed), time),
+            "[03:04:05] compiled successfully in 2.85 s"
+        );
+        assert_eq!(
+            super::watch_line_at(&WatchStatus::PartialSuccess(elapsed), time),
+            "[03:04:05] compiled with warnings in 2.85 s"
+        );
+        assert_eq!(
+            super::watch_line_at(&WatchStatus::Error, time),
+            "[03:04:05] compiled with errors"
+        );
+    }
+
+    #[test]
+    fn p1364_watch_block_at_uses_one_lf_for_compiling_and_two_for_terminal_statuses() {
+        use std::time::Duration;
+        use time::Time;
+        use typst_shell::duration::WatchStatus;
+
+        let time = Time::from_hms(3, 4, 5).expect("03:04:05 is a valid literal time");
+        let elapsed = Duration::new(2, 849_200_000);
+        let cases = [
+            (WatchStatus::Compiling, "[03:04:05] compiling ...\n"),
+            (
+                WatchStatus::Success(elapsed),
+                "[03:04:05] compiled successfully in 2.85 s\n\n",
+            ),
+            (
+                WatchStatus::PartialSuccess(elapsed),
+                "[03:04:05] compiled with warnings in 2.85 s\n\n",
+            ),
+            (WatchStatus::Error, "[03:04:05] compiled with errors\n\n"),
+        ];
+
+        for (status, expected) in cases {
+            let actual = super::watch_block_at(&status, time);
+            assert_eq!(actual, expected);
+            assert!(!actual.contains('\r'));
+        }
+    }
+
+    #[test]
+    fn p1365_prepare_watch_cycle_captures_before_formatting_once() {
+        use std::cell::{Cell, RefCell};
+
+        let order = RefCell::new(Vec::new());
+        let capture_calls = Cell::new(0);
+        let format_calls = Cell::new(0);
+        let expected_token = String::from("captured-token-73");
+        let expected_block = String::from("[03:04:05] compiling ...\n");
+
+        let (token, block) = super::prepare_watch_cycle_with(
+            || {
+                order.borrow_mut().push("capture");
+                capture_calls.set(capture_calls.get() + 1);
+                expected_token.clone()
+            },
+            || {
+                order.borrow_mut().push("format");
+                format_calls.set(format_calls.get() + 1);
+                expected_block.clone()
+            },
+        );
+
+        assert_eq!(&*order.borrow(), &["capture", "format"]);
+        assert_eq!(capture_calls.get(), 1);
+        assert_eq!(format_calls.get(), 1);
+        assert_eq!(token, expected_token);
+        assert_eq!(block, expected_block);
+    }
+
+    #[test]
+    fn p1366_report_in_order_runs_status_before_diagnostics_once() {
+        use std::cell::{Cell, RefCell};
+
+        let order = RefCell::new(Vec::new());
+        let status_calls = Cell::new(0);
+        let diagnostics_calls = Cell::new(0);
+
+        super::report_in_order(
+            || {
+                order.borrow_mut().push("status");
+                status_calls.set(status_calls.get() + 1);
+            },
+            || {
+                order.borrow_mut().push("diagnostics");
+                diagnostics_calls.set(diagnostics_calls.get() + 1);
+            },
+        );
+
+        assert_eq!(&*order.borrow(), &["status", "diagnostics"]);
+        assert_eq!(status_calls.get(), 1);
+        assert_eq!(diagnostics_calls.get(), 1);
+    }
+
+    #[test]
+    fn p1367_write_watch_block_writes_then_flushes_and_propagates_failures() {
+        use std::io::{self, ErrorKind, Write};
+
+        #[derive(Clone, Copy)]
+        enum Mode {
+            Success,
+            WriteError,
+            FlushError,
+        }
+
+        #[derive(Debug, PartialEq, Eq)]
+        enum Event {
+            Write(Vec<u8>),
+            Flush,
+        }
+
+        struct FakeWriter {
+            mode: Mode,
+            bytes: Vec<u8>,
+            events: Vec<Event>,
+            write_calls: usize,
+            flush_calls: usize,
+        }
+
+        impl FakeWriter {
+            fn new(mode: Mode) -> Self {
+                Self {
+                    mode,
+                    bytes: Vec::new(),
+                    events: Vec::new(),
+                    write_calls: 0,
+                    flush_calls: 0,
+                }
+            }
+        }
+
+        impl Write for FakeWriter {
+            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+                self.write_calls += 1;
+                self.events.push(Event::Write(buf.to_vec()));
+                if matches!(self.mode, Mode::WriteError) {
+                    return Err(io::Error::new(ErrorKind::BrokenPipe, "write sentinel"));
+                }
+                self.bytes.extend_from_slice(buf);
+                Ok(buf.len())
+            }
+
+            fn flush(&mut self) -> io::Result<()> {
+                self.flush_calls += 1;
+                self.events.push(Event::Flush);
+                if matches!(self.mode, Mode::FlushError) {
+                    return Err(io::Error::new(ErrorKind::TimedOut, "flush sentinel"));
+                }
+                Ok(())
+            }
+        }
+
+        let block = "[03:04:05] status:\0 café\n\n";
+        let expected_bytes = block.as_bytes();
+
+        let mut success = FakeWriter::new(Mode::Success);
+        assert!(super::write_watch_block(&mut success, block).is_ok());
+        assert_eq!(success.bytes, expected_bytes);
+        assert_eq!(success.events, [Event::Write(expected_bytes.to_vec()), Event::Flush]);
+        assert_eq!(success.write_calls, 1);
+        assert_eq!(success.flush_calls, 1);
+
+        let mut write_error = FakeWriter::new(Mode::WriteError);
+        let error = super::write_watch_block(&mut write_error, block)
+            .expect_err("the BrokenPipe sentinel must be propagated");
+        assert_eq!(error.kind(), ErrorKind::BrokenPipe);
+        assert_eq!(write_error.bytes, b"");
+        assert_eq!(write_error.events, [Event::Write(expected_bytes.to_vec())]);
+        assert_eq!(write_error.write_calls, 1);
+        assert_eq!(write_error.flush_calls, 0);
+
+        let mut flush_error = FakeWriter::new(Mode::FlushError);
+        let error = super::write_watch_block(&mut flush_error, block)
+            .expect_err("the TimedOut sentinel must be propagated");
+        assert_eq!(error.kind(), ErrorKind::TimedOut);
+        assert_eq!(flush_error.bytes, expected_bytes);
+        assert_eq!(
+            flush_error.events,
+            [Event::Write(expected_bytes.to_vec()), Event::Flush]
+        );
+        assert_eq!(flush_error.write_calls, 1);
+        assert_eq!(flush_error.flush_calls, 1);
     }
 }
 
@@ -116,7 +343,15 @@ fn run_watch(intent: WatchIntent) -> ExitCode {
     loop {
         let mut compile = intent.compile.clone();
         compile.output = staging.clone();
-        let (exit_code, dependencies) = run_compile_observed(compile);
+        let (started, compiling) = prepare_watch_cycle();
+        emit_watch_block(&compiling);
+        let mut report_status = |exit_code, has_warnings| {
+            let status =
+                watch_status_for_outcome(exit_code, has_warnings, started.elapsed());
+            emit_watch_block(&watch_block_now(&status));
+        };
+        let (exit_code, dependencies, _) =
+            run_compile_observed(compile, &mut report_status);
         let dependencies = if dependencies.is_empty() {
             vec![intent.compile.input.clone()]
         } else {
@@ -146,6 +381,69 @@ fn run_watch(intent: WatchIntent) -> ExitCode {
             std::time::Duration::from_millis(100),
         );
     }
+}
+
+fn write_watch_block(out: &mut impl std::io::Write, block: &str) -> std::io::Result<()> {
+    out.write_all(block.as_bytes())?;
+    out.flush()
+}
+
+fn emit_watch_block(block: &str) {
+    let stderr = std::io::stderr();
+    let mut out = stderr.lock();
+    write_watch_block(&mut out, block).expect("failed to write watch status");
+}
+
+fn watch_line_at(status: &WatchStatus, time: time::Time) -> String {
+    format_watch_line(time.hour(), time.minute(), time.second(), status)
+}
+
+fn watch_block_at(status: &WatchStatus, time: time::Time) -> String {
+    let mut block = watch_line_at(status, time);
+    if matches!(status, WatchStatus::Compiling) {
+        block.push('\n');
+    } else {
+        block.push_str("\n\n");
+    }
+    block
+}
+
+fn watch_block_now(status: &WatchStatus) -> String {
+    let now = time::OffsetDateTime::now_local()
+        .unwrap_or_else(|_| time::OffsetDateTime::now_utc());
+    watch_block_at(status, now.time())
+}
+
+fn prepare_watch_cycle_with<T>(
+    capture: impl FnOnce() -> T,
+    format_compiling: impl FnOnce() -> String,
+) -> (T, String) {
+    let started = capture();
+    let compiling = format_compiling();
+    (started, compiling)
+}
+
+fn prepare_watch_cycle() -> (Instant, String) {
+    prepare_watch_cycle_with(Instant::now, || watch_block_now(&WatchStatus::Compiling))
+}
+
+fn watch_status_for_outcome(
+    exit_code: ExitCode,
+    has_warnings: bool,
+    elapsed: Duration,
+) -> WatchStatus {
+    if exit_code != ExitCode::SUCCESS {
+        WatchStatus::Error
+    } else if has_warnings {
+        WatchStatus::PartialSuccess(elapsed)
+    } else {
+        WatchStatus::Success(elapsed)
+    }
+}
+
+fn report_in_order(status: impl FnOnce(), diagnostics: impl FnOnce()) {
+    status();
+    diagnostics();
 }
 
 fn run_init(intent: InitIntent) -> ExitCode {
@@ -256,10 +554,14 @@ fn run_fonts(intent: FontsIntent) -> ExitCode {
 }
 
 fn run_compile(intent: CompileIntent) -> ExitCode {
-    run_compile_observed(intent).0
+    let mut report_status = |_, _| {};
+    run_compile_observed(intent, &mut report_status).0
 }
 
-fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
+fn run_compile_observed(
+    intent: CompileIntent,
+    report_status: &mut impl FnMut(ExitCode, bool),
+) -> (ExitCode, Vec<PathBuf>, bool) {
     // P428 (DEBT-59): `full_error` é fiado de RunIntent até L1 pelo caminho
     // interno de L3. O campo mantém default `false` quando a flag não é usada.
     let CompileIntent {
@@ -276,6 +578,8 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
         document_id,
         inputs,
         compact,
+        pretty,
+        pdf_tagged,
         no_pdf_tags,
         oracle_pdf,
         cert_path,
@@ -284,8 +588,16 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),
         None => {
-            eprintln!("error: input path must have a file name: {}", input.display());
-            return (ExitCode::from(2), vec![input]);
+            report_in_order(
+                || report_status(ExitCode::from(2), false),
+                || {
+                    eprintln!(
+                        "error: input path must have a file name: {}",
+                        input.display()
+                    )
+                },
+            );
+            return (ExitCode::from(2), vec![input], false);
         }
     };
 
@@ -302,16 +614,22 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
                 typst_infra::plugin_host::WasmiPluginHost::new(),
             )),
         Err(e) => {
-            eprintln!("error: {}", e);
-            return (ExitCode::from(2), vec![input]);
+            report_in_order(
+                || report_status(ExitCode::from(2), false),
+                || eprintln!("error: {}", e),
+            );
+            return (ExitCode::from(2), vec![input], false);
         }
     };
 
     let source = match world.source(world.main()) {
         Ok(s) => s,
         Err(e) => {
-            eprintln!("error: failed to load source: {:?}", e);
-            return (ExitCode::from(2), world.dependencies());
+            report_in_order(
+                || report_status(ExitCode::from(2), false),
+                || eprintln!("error: failed to load source: {:?}", e),
+            );
+            return (ExitCode::from(2), world.dependencies(), false);
         }
     };
 
@@ -329,14 +647,23 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
     } else {
         typst_infra::export::StreamMode::Verbose
     };
-    let pdf_tags = if no_pdf_tags {
-        typst_infra::export::PdfTags::Disabled
+    let pretty = pretty.unwrap_or(false);
+    let pdf_serialization = if pretty {
+        typst_infra::export::PdfSerializationMode::Pretty
     } else {
-        typst_infra::export::PdfTags::Enabled
+        typst_infra::export::PdfSerializationMode::Compact
+    };
+    let pdf_tags = match pdf_tagged {
+        Some(true) => typst_infra::export::PdfTags::Enabled,
+        Some(false) => typst_infra::export::PdfTags::Disabled,
+        None if no_pdf_tags => typst_infra::export::PdfTags::Disabled,
+        None => typst_infra::export::PdfTags::Enabled,
     };
     // **P980** — a flag `--oracle-pdf` (bool cru de L2) selecciona a
     // entrada do oráculo de paridade de operador (só afecta PDF).
     let oracle_pdf = oracle_pdf && matches!(output_format, OutputFormat::Pdf);
+    let emit_html_experimental_warning = matches!(&output_format, OutputFormat::Html)
+        && features.contains(typst_core::entities::compiler_features::Feature::Html);
     let (result, warnings, timings): (
         Result<Vec<u8>, Vec<SourceDiagnostic>>,
         Vec<SourceDiagnostic>,
@@ -345,7 +672,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
         OutputFormat::Pdf => {
             if oracle_pdf {
                 let (r, w) =
-                    typst_infra::pipeline::compile_to_pdf_bytes_oracle_with_features(
+                    typst_infra::pipeline::compile_to_pdf_bytes_oracle_with_features_and_serialization(
                         &world,
                         &source,
                         full_error,
@@ -353,11 +680,12 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
                         stream_mode,
                         pdf_tags,
                         features,
+                        pdf_serialization,
                     );
                 (r, w, typst_infra::pipeline::Timings::default())
             } else if timings_json.is_some() {
                 let (r, w, t) =
-                    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features(
+                    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization(
                         &world,
                         &source,
                         full_error,
@@ -365,11 +693,12 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
                         stream_mode,
                         pdf_tags,
                         features,
+                        pdf_serialization,
                     );
                 (r, w, t)
             } else {
                 let (r, w) =
-                    compile_to_pdf_bytes_full_error_and_document_id_with_features(
+                    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization(
                         &world,
                         &source,
                         full_error,
@@ -377,6 +706,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
                         stream_mode,
                         pdf_tags,
                         features,
+                        pdf_serialization,
                     );
                 (r, w, typst_infra::pipeline::Timings::default())
             }
@@ -397,22 +727,19 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
         OutputFormat::Svg => {
             if timings_json.is_some() {
                 let (r, w, t) =
-                    compile_to_svg_string_with_timings_full_error_and_features(
-                        &world, &source, full_error, features,
+                    compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
+                        &world, &source, full_error, features, pretty,
                     );
                 (r.map(|s| s.into_bytes()), w, t)
             } else {
                 let (r, w, _) =
-                    compile_to_svg_string_with_timings_full_error_and_features(
-                        &world, &source, full_error, features,
+                    compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
+                        &world, &source, full_error, features, pretty,
                     );
                 (r.map(|s| s.into_bytes()), w, typst_infra::pipeline::Timings::default())
             }
         }
         OutputFormat::Html => {
-            if features.contains(typst_core::entities::compiler_features::Feature::Html) {
-                eprint!("{HTML_EXPERIMENTAL_WARNING}");
-            }
             let html_serialization = match html_serialization {
                 typst_shell::cli::HtmlSerialization::Crystalline => {
                     typst_infra::export::HtmlSerializationMode::Crystalline
@@ -422,43 +749,75 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
                 }
             };
             let (r, w) =
-                typst_infra::pipeline::compile_to_html_string_with_features_and_serialization(
+                typst_infra::pipeline::compile_to_html_string_with_features_and_serialization_and_pretty(
                     &world,
                     &source,
                     features,
                     html_serialization,
+                    pretty,
                 );
             (r.map(String::into_bytes), w, typst_infra::pipeline::Timings::default())
         }
     };
-    drain_to_stderr(&world, &warnings, &input, colored);
+    let has_warnings = !warnings.is_empty();
     let dependencies = world.dependencies();
+    let mut errors = None;
+    let mut operational_error = None;
 
     let exit_code = match result {
         Ok(output_bytes) => {
             if let Err(e) = std::fs::write(&output, &output_bytes) {
-                eprintln!("error: failed to write {}: {}", output.display(), e);
-                return (ExitCode::from(2), dependencies);
-            }
-            if let Some(path) = timings_json {
+                operational_error =
+                    Some(format!("error: failed to write {}: {}", output.display(), e));
+            } else if let Some(path) = timings_json.as_ref() {
                 if let Err(e) = std::fs::write(&path, timings.to_json()) {
-                    eprintln!("error: failed to write timings {}: {}", path.display(), e);
-                    return (ExitCode::from(2), dependencies);
+                    operational_error = Some(format!(
+                        "error: failed to write timings {}: {}",
+                        path.display(),
+                        e
+                    ));
                 }
             }
-            ExitCode::SUCCESS
+            if operational_error.is_some() {
+                ExitCode::from(2)
+            } else {
+                ExitCode::SUCCESS
+            }
         }
-        Err(errors) => {
-            drain_to_stderr(&world, &errors, &input, colored);
-            if let Some(path) = timings_json {
+        Err(compilation_errors) => {
+            errors = Some(compilation_errors);
+            if let Some(path) = timings_json.as_ref() {
                 if let Err(e) = std::fs::write(&path, timings.to_json()) {
-                    eprintln!("error: failed to write timings {}: {}", path.display(), e);
-                    return (ExitCode::from(2), dependencies);
+                    operational_error = Some(format!(
+                        "error: failed to write timings {}: {}",
+                        path.display(),
+                        e
+                    ));
                 }
             }
-            ExitCode::from(1)
+            if operational_error.is_some() {
+                ExitCode::from(2)
+            } else {
+                ExitCode::from(1)
+            }
         }
     };
+
+    report_in_order(
+        || report_status(exit_code, has_warnings),
+        || {
+            if emit_html_experimental_warning {
+                eprint!("{HTML_EXPERIMENTAL_WARNING}");
+            }
+            drain_to_stderr(&world, &warnings, &input, colored);
+            if let Some(errors) = errors.as_deref() {
+                drain_to_stderr(&world, errors, &input, colored);
+            }
+            if let Some(error) = operational_error {
+                eprintln!("{error}");
+            }
+        },
+    );
 
     // P204G (M8): logging opt-in. `CRYSTALLINE_MEASUREMENTS=1`
     // dump cache_stats + introspector_call_counts no fim do
@@ -479,7 +838,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
         }
     }
 
-    (exit_code, dependencies)
+    (exit_code, dependencies, has_warnings)
 }
 
 fn run_eval(intent: EvalIntent) -> ExitCode {

@@ -282,3 +282,17 @@ fase e não é inferido por tag, texto, path ou estado global.
 
 Testes distinguem os dois modos e provam DOM equivalente, além de preservar
 void, whitespace e `title`.
+
+## P1360 — whitespace estrutural opcional
+
+Adicionar `export_html_with_serialization_and_pretty(content, mode, pretty)`;
+as funções anteriores delegam com `pretty=false`. Quando true, o encoder
+insere newline final e indentação de dois espaços somente em fronteiras
+estruturais de documento/bloco/head metadata. Conteúdo phrasing, texto,
+`title`, atributos e espaços semanticamente protegidos não recebem whitespace
+novo no seu interior.
+
+Compacto e pretty devem produzir o mesmo DOM ordenado e os mesmos escapes no
+modo selecionado. O formatador identifica o fim de tags respeitando aspas em
+atributos; `>` dentro de atributo não encerra token. Void, raw, erros e
+subset suportado permanecem iguais.

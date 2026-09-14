@@ -1,0 +1,364 @@
+{
+  "schema": "tekt-segregated-manifest/v1",
+  "manifest_id": "P1360-compile-pretty",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "status": "contract-candidate-revised-after-protected-l0-change-unsealed",
+  "regime": {
+    "kind": "full-segregated-protocol",
+    "reason": "The change alters a public CLI contract and serialization semantics across multiple targets and explicitly requires independent contract, adversarial mutation testing, and a later attested verdict.",
+    "current_claim": "segregated-contract-authorship-only",
+    "not_claimed": [
+      "sealed contract",
+      "mutation score",
+      "implementation correctness",
+      "isolation attestation for later roles",
+      "general vanilla equivalence"
+    ]
+  },
+  "created_at": "2026-09-12T23:19:53-03:00",
+  "revision": {
+    "trigger": "Corrective ratified-vanilla measurement established that --pretty false leaves false as a positional token rather than producing a boolean parser error.",
+    "measured_at": "2026-09-12T23:57:00-03:00",
+    "effect": "The prior protected preflight, cli L0, contract, and manifest hashes are invalidated and replaced here; no oracle, mutant, implementation, test, or seal was edited."
+  },
+  "repository": {
+    "path": "/repos/Antigravity/typst-crystalline",
+    "head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree": "not asserted clean; candidate diff was not read by the contract author",
+    "causal_order": [
+      "ratified baseline and P1360 preflight",
+      "updated owner L0 prompts",
+      "this manifest and independently authored candidate contract",
+      "future independent oracles and mutations",
+      "future discriminatory gate and seal",
+      "future implementation and independent A/B tests",
+      "future final gates and verifier certificate"
+    ]
+  },
+  "procedure_sources": [
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    }
+  ],
+  "baseline": {
+    "name": "ratified vanilla",
+    "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "binary_path": "lab/typst-original/target/release/typst",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "immutability": "commit and binary digest are protected inputs",
+    "use": "public intent and language-level oracle only"
+  },
+  "prompt_roots": [
+    {
+      "path": "00_nucleo/prompts/shell/cli.md",
+      "sha256": "698bd37b02542ce470af0c9b645c33f1015a97a77cc822681c4ea7a39a4fc661"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring.md",
+      "sha256": "058e6053e98a77f5570e78ba858259617bc40d7d09e234b6025c33a32a2a278e"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline.md",
+      "sha256": "00602f723df6d1570337461a37c2505ebe5bbbd2358c9092291d0192bf6696ed"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/mod.md",
+      "sha256": "b63daea9a069c860ac6e33daba8bb37a4a3fde85199a334bbe4b44600fcc7696"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/builder.md",
+      "sha256": "29f9f4b546b107a308c0f07e158e8da6d6cb86416ed8e180d9b0c68ba4d9643a"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/html.md",
+      "sha256": "890dbf55d8aa757aaee30816e69876215c25843e0aa2f4497cad599021ed66d1"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/svg.md",
+      "sha256": "58f64423d35533e41ab7187462ff17e00769be60412d7732789312b3baf4d145"
+    }
+  ],
+  "supporting_inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1360-preflight.md",
+      "sha256": "ade428efee0bc965eff01f670b755c87f4b8a0bbc2bdbc034214da15dfd72f85"
+    },
+    {
+      "path": "00_nucleo/materialization/typst-passo-1360.md",
+      "sha256": "8f86022e615227e759cb5e61334965829b348824d41dfaa7c74ea6c2d30e4207"
+    }
+  ],
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1360-contract.json",
+    "sha256": "f4bd6f61c773106fdaf7f239ec7c4a21102b91e8d22505d02bda30b99107f3bd",
+    "status": "candidate-unsealed-revised-after-l0-correction",
+    "mandatory_observables": [
+      "compile/watch/w parsing tri-state and parser diagnostics, including --pretty false resolving Some(true) while false remains positional where applicable",
+      "None and Some(false) resolve to compact target serialization while Some(true) resolves to pretty",
+      "PDF page content streams omit FlateDecode only in pretty mode",
+      "PDF serialization mode is orthogonal to StreamMode and PdfTags",
+      "SVG and HTML differ only by declared structural whitespace and retain equivalent ordered trees",
+      "PNG is semantically neutral",
+      "unrelated target, feature, escaping, layout, diagnostic, eval, query, and info behavior is preserved",
+      "Unknown is fail-closed"
+    ],
+    "self_hash_policy": "Any edit changes this digest, invalidates downstream artifacts, and requires rebuilding the manifest before oracle authorship begins."
+  },
+  "protected_hashes": [
+    {
+      "kind": "baseline-commit",
+      "value": "586e1bd43fae6c9a973218163d3165c53ab8d16d"
+    },
+    {
+      "kind": "baseline-binary-sha256",
+      "value": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    },
+    {
+      "kind": "preflight-sha256",
+      "value": "ade428efee0bc965eff01f670b755c87f4b8a0bbc2bdbc034214da15dfd72f85"
+    },
+    {
+      "kind": "step-sha256",
+      "value": "8f86022e615227e759cb5e61334965829b348824d41dfaa7c74ea6c2d30e4207"
+    },
+    {
+      "kind": "contract-sha256",
+      "value": "f4bd6f61c773106fdaf7f239ec7c4a21102b91e8d22505d02bda30b99107f3bd"
+    },
+    {
+      "kind": "l0-set-sha256",
+      "algorithm": "sha256 over the ordered newline-separated path:sha256 pairs in prompt_roots",
+      "value": "deferred-to-sealer",
+      "reason": "individual protected L0 digests are normative; a derived aggregate must be independently reproduced by the sealer"
+    }
+  ],
+  "roles": [
+    {
+      "role": "intent-author",
+      "executor": "repository owner and authors of the frozen P1360 L0 inputs",
+      "read_allowlist": [
+        "domain measurements",
+        "ratified baseline sources",
+        "owner L0 prompts"
+      ],
+      "write_allowlist": [
+        "P1360 L0 prompts before contract freeze"
+      ],
+      "forbidden": [
+        "approve its own materialization verdict"
+      ],
+      "status": "predecessor-complete"
+    },
+    {
+      "role": "contract-author",
+      "executor": "/root/contrato_p1360",
+      "read_allowlist": [
+        "00_nucleo/diagnosticos/p1360-preflight.md",
+        "00_nucleo/materialization/typst-passo-1360.md",
+        "the seven L0 paths in prompt_roots",
+        "ratified vanilla 586e1bd43 sources solely to confirm intent",
+        "the three procedure_sources"
+      ],
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1360-contract.json",
+        "00_nucleo/diagnosticos/p1360-manifest.json"
+      ],
+      "forbidden": [
+        "read candidate implementation or candidate diff",
+        "edit productive code",
+        "edit tests",
+        "edit L0",
+        "execute product, tests, watch, or w",
+        "author seal or final verdict"
+      ],
+      "context_inherited": "task instruction, repository AGENTS.md, selected Tekt skill and mandatory references, and the explicit input allowlist only",
+      "inputs_received": "procedure_sources, baseline, supporting_inputs, and prompt_roots at the recorded hashes",
+      "outputs": [
+        "00_nucleo/diagnosticos/p1360-contract.json",
+        "00_nucleo/diagnosticos/p1360-manifest.json"
+      ],
+      "status": "complete"
+    },
+    {
+      "role": "oracle-author",
+      "executor": "unassigned independent authority",
+      "read_allowlist": [
+        "frozen L0 hashes",
+        "this manifest",
+        "candidate contract",
+        "ratified baseline"
+      ],
+      "write_allowlist": [
+        "P1360 positive, negative, opaque oracle fixtures and receipts only"
+      ],
+      "forbidden": [
+        "read candidate patch before freezing oracle hashes",
+        "adapt expected results to candidate output",
+        "edit contract, L0, implementation, or final verdict"
+      ],
+      "status": "unassigned"
+    },
+    {
+      "role": "adversary",
+      "executor": "unassigned independent authority",
+      "read_allowlist": [
+        "frozen L0 hashes",
+        "this manifest",
+        "candidate contract",
+        "ratified baseline",
+        "frozen oracle interface"
+      ],
+      "write_allowlist": [
+        "P1360 mutation definitions and mutation receipts only"
+      ],
+      "forbidden": [
+        "correct or select the implementation",
+        "edit protected inputs or verdict"
+      ],
+      "status": "unassigned"
+    },
+    {
+      "role": "implementer",
+      "executor": "unassigned authority distinct from contract author and verifier",
+      "read_allowlist": [
+        "frozen L0 prompts",
+        "sealed P1360 contract and manifest"
+      ],
+      "write_allowlist": [
+        "authorized productive consumers and implementation-owned focused tests only"
+      ],
+      "forbidden": [
+        "edit baseline, manifest, contract, sealed oracles, independent A/B tests, or verdict"
+      ],
+      "status": "blocked-until-seal"
+    },
+    {
+      "role": "ab-tester",
+      "executor": "unassigned independent authority",
+      "read_allowlist": [
+        "frozen P1360 spec inputs"
+      ],
+      "write_allowlist": [
+        "independent P1360 focused tests only"
+      ],
+      "forbidden": [
+        "read candidate implementation before freezing test hashes",
+        "edit contract, implementation, or verdict"
+      ],
+      "status": "blocked-until-contract-seal"
+    },
+    {
+      "role": "verifier",
+      "executor": "unassigned independent authority",
+      "read_allowlist": [
+        "all sealed artifacts and candidate outputs",
+        "reproducible receipts"
+      ],
+      "write_allowlist": [
+        "P1360 receipt, seal, certificate, or inconclusive verdict only"
+      ],
+      "forbidden": [
+        "edit any artifact it verifies",
+        "silently repair contract, oracles, implementation, tests, or hashes"
+      ],
+      "status": "unassigned"
+    }
+  ],
+  "capability_separation": {
+    "forbidden_fusions": [
+      "contract-author + implementer + verifier",
+      "implementer with write access to protected oracles",
+      "A/B tester with candidate-patch access before test freeze",
+      "verifier with write access to verified artifacts"
+    ],
+    "artifact_exchange": "roles exchange information only through canonically hashed artifacts registered in receipts",
+    "shared_workspace_warning": "filesystem co-location alone does not attest isolation; every later receipt must record effective read/write capability and inherited context"
+  },
+  "unknown_policy": {
+    "default": "fail-closed",
+    "success_credit": 0,
+    "allowed_success_case": "none",
+    "opaque_case_rule": "Unknown is correct only where the frozen contract explicitly expects opacity",
+    "triggers": [
+      "ambiguous identity",
+      "unsupported or malformed parser input outside the classified diagnostic",
+      "ambiguous page content-stream ownership",
+      "malformed or unparseable PDF/XML/HTML",
+      "unresolved graph reference",
+      "timeout",
+      "artifact larger than 4 MiB",
+      "unbounded or truncated capture",
+      "budget exhaustion"
+    ],
+    "action": "stop the dynamic gate, record reason_code, and do not seal"
+  },
+  "execution_policy": {
+    "watch_and_w": "parser-only through Args::try_parse_from; never execute as subprocesses",
+    "product_processes": "compile subcommand only",
+    "timeout_seconds_max": 20,
+    "artifact_size_bytes_max": 4194304,
+    "capture": "stdout and stderr redirected to separately bounded files; unlimited capture forbidden",
+    "environment": {
+      "CARGO_BUILD_JOBS": "1"
+    },
+    "parallel_product_processes_max": 1,
+    "test_scope": "at most one focal crate or one focal test target per invocation",
+    "workspace_wide_suite": "forbidden",
+    "broad_filter_matching_preexisting_watch_tests": "forbidden",
+    "contract_author_execution": "none"
+  },
+  "budget": {
+    "contract_revisions_max": 2,
+    "oracle_revisions_max": 2,
+    "full_corpus_runs_max_before_seal": 2,
+    "full_corpus_runs_max_final_verification": 2,
+    "focal_runs_per_failed_class_max": 2,
+    "process_timeout_seconds_max": 20,
+    "artifact_size_bytes_max": 4194304,
+    "cargo_build_jobs": 1,
+    "diminishing_returns_stop": "After two consecutive revisions with the same classification vector and dominant reason_code, stop and review architecture, observability, or protocol before any third complete run.",
+    "no_relaxation": "Budget exhaustion cannot weaken the contract or turn Unknown into Preserved."
+  },
+  "seal_requirements": {
+    "mutation_score": 1.0,
+    "positive_cases": "all Preserved",
+    "negative_mutations": "all valid required mutations Violated with witnesses",
+    "opaque_cases": "all explicitly opaque cases Unknown",
+    "determinism": "same classification vector under repetition and reverse ordering",
+    "hashes": [
+      "manifest",
+      "all prompt_roots",
+      "contract",
+      "baseline commit and binary",
+      "oracle suites",
+      "mutation suite"
+    ],
+    "protected_change": "Any change invalidates the seal and restarts at the first affected phase."
+  },
+  "receipts_required": [
+    "manifest hash",
+    "command and working directory",
+    "tool and binary versions",
+    "input hashes",
+    "start/end timestamp",
+    "exit status",
+    "bounded stdout/stderr paths and sizes",
+    "artifact paths and sizes",
+    "classification and reason_code",
+    "cost and classification delta from the prior revision",
+    "effective role capabilities and inherited context"
+  ],
+  "manifest_self_hash": {
+    "value": "external",
+    "reason": "A JSON artifact cannot contain its own full-file SHA-256 without a recursive convention; the sealer and every receipt must compute and reference the byte hash of this file as written."
+  }
+}

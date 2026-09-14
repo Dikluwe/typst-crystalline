@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash a23727fc
+//! @prompt-hash 60ec5d32
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -41,6 +41,90 @@ fn display_commit(commit: Option<&'static str>) -> &'static str {
     match commit {
         Some(s) => &s[..s.len().min(LENGTH)],
         None => "unknown commit",
+    }
+}
+
+#[cfg(test)]
+mod p1360_ab_tests {
+    use super::*;
+
+    fn parsed_pretty(command: &str, spelling: Option<&str>) -> Option<bool> {
+        let mut argv = vec!["typst", command, "p1360.typ"];
+        if let Some(spelling) = spelling {
+            argv.push(spelling);
+        }
+        let parsed =
+            Args::try_parse_from(argv).expect("P1360 accepted spelling must parse");
+        match parsed.command {
+            Command::Compile(args) => args.compile.pretty,
+            Command::Watch(args) => args.pretty,
+            _ => panic!("P1360 test selected an unexpected command"),
+        }
+    }
+
+    #[test]
+    fn p1360_ab_parser_tri_state_compile_watch_and_w() {
+        for command in ["compile", "watch", "w"] {
+            assert_eq!(parsed_pretty(command, None), None, "{command}: absent");
+            assert_eq!(
+                parsed_pretty(command, Some("--pretty")),
+                Some(true),
+                "{command}: bare"
+            );
+            assert_eq!(
+                parsed_pretty(command, Some("--pretty=true")),
+                Some(true),
+                "{command}: true"
+            );
+            assert_eq!(
+                parsed_pretty(command, Some("--pretty=false")),
+                Some(false),
+                "{command}: false"
+            );
+        }
+    }
+
+    #[test]
+    fn p1360_ab_parser_separates_positional_and_rejects_invalid_booleans() {
+        for command in ["compile", "watch", "w"] {
+            let separate = Args::try_parse_from([
+                "typst",
+                command,
+                "p1360.typ",
+                "--pretty",
+                "false",
+            ])
+            .expect(
+                "the token after bare --pretty remains available to positional parsing",
+            );
+            let compile = match separate.command {
+                Command::Compile(args) => args.compile,
+                Command::Watch(args) => args,
+                _ => panic!("P1360 test selected an unexpected command"),
+            };
+            assert_eq!(compile.pretty, Some(true), "{command}: bare --pretty");
+            assert_eq!(
+                compile.output,
+                Some(PathBuf::from("false")),
+                "{command}: the separated token must be the output positional"
+            );
+
+            for invalid in ["--pretty=maybe", "--pretty="] {
+                let error =
+                    Args::try_parse_from(["typst", command, "p1360.typ", invalid])
+                        .expect_err("an invalid explicit boolean must be rejected");
+                assert_eq!(error.exit_code(), 2);
+                let message = error.to_string();
+                assert!(message.contains("--pretty"));
+                if invalid.ends_with("maybe") {
+                    assert!(message.contains("maybe"));
+                }
+                assert!(
+                    message.contains("true") && message.contains("false"),
+                    "diagnostic must expose the boolean domain: {message}"
+                );
+            }
+        }
     }
 }
 
@@ -203,6 +287,27 @@ struct CompileArgs {
     /// operadores do vanilla. Sem efeito em `--format png|svg`.
     #[arg(long = "compact", action = clap::ArgAction::SetTrue)]
     compact: bool,
+
+    /// Pretty-print the selected output format when supported.
+    /// An omitted value is equivalent to `--pretty=true`; an explicit value
+    /// must use `=` so the absent state remains distinguishable in L4.
+    #[arg(
+        long = "pretty",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        require_equals = true
+    )]
+    pretty: Option<bool>,
+
+    /// Define explicitamente se PDFs devem conter estrutura lógica tagueada.
+    /// Sem valor, `--pdf-tagged` equivale a `--pdf-tagged=true`.
+    #[arg(
+        long = "pdf-tagged",
+        num_args = 0..=1,
+        default_missing_value = "true",
+        require_equals = true
+    )]
+    pdf_tagged: Option<bool>,
 
     /// Desativar a estrutura lógica PDF. Por omissão, PDFs são tagueados.
     #[arg(long = "no-pdf-tags", action = clap::ArgAction::SetTrue)]
@@ -389,6 +494,11 @@ pub struct CompileIntent {
     /// de L3; a tradução bool → modo é em L4, `wiring.md` §P956). Ausente →
     /// verbose (padrão); presente → compacto. Sem efeito em PNG/SVG.
     pub compact: bool,
+    /// Raw tri-state selected by `compile --pretty`; L4 resolves `None` to
+    /// `false` and forwards the result only to the selected encoder.
+    pub pretty: Option<bool>,
+    /// Escolha moderna tri-state; `None` delega ao legado `no_pdf_tags`.
+    pub pdf_tagged: Option<bool>,
     /// Polaridade pública do CLI; L4 traduz para `PdfTags`.
     pub no_pdf_tags: bool,
     /// **P980** — dado cru da flag `--oracle-pdf` (diagnóstico). L4 chama
@@ -597,6 +707,8 @@ fn compile_intent(
         document_id,
         inputs,
         compact: args.compact,
+        pretty: args.pretty,
+        pdf_tagged: args.pdf_tagged,
         no_pdf_tags: args.no_pdf_tags,
         oracle_pdf: args.oracle_pdf,
         cert_path,
@@ -1766,6 +1878,59 @@ mod tests {
             };
             assert!(compile.no_pdf_tags);
             assert!(!compile.compact, "eixos devem permanecer independentes");
+        }
+    }
+
+    #[test]
+    fn p1359_pdf_tagged_tristate_parseia_e_chega_ao_compile_intent() {
+        let cases = [
+            (vec!["typst", "compile", "in.typ", "--pdf-tagged"], Some(true)),
+            (vec!["typst", "compile", "in.typ", "--pdf-tagged=true"], Some(true)),
+            (vec!["typst", "compile", "in.typ", "--pdf-tagged=false"], Some(false)),
+            (vec!["typst", "compile", "in.typ"], None),
+            (vec!["typst", "watch", "in.typ", "--pdf-tagged"], Some(true)),
+            (vec!["typst", "watch", "in.typ", "--pdf-tagged=false"], Some(false)),
+            (vec!["typst", "w", "in.typ", "--pdf-tagged=true"], Some(true)),
+        ];
+
+        for (argv, expected) in cases {
+            let parsed = Args::try_parse_from(argv).expect("forma P1359 deve parsear");
+            let compile = match parsed.command {
+                Command::Compile(args) => args.compile,
+                Command::Watch(args) => args,
+                _ => panic!("comando compile/watch esperado"),
+            };
+            assert_eq!(compile.pdf_tagged, expected);
+            let intent =
+                compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+            assert_eq!(intent.pdf_tagged, expected);
+        }
+    }
+
+    #[test]
+    fn p1359_pdf_tagged_exige_equals_e_bool_valido() {
+        let cases = [
+            (
+                vec!["typst", "compile", "in.typ", "out.pdf", "--pdf-tagged", "false"],
+                "unexpected argument 'false'",
+            ),
+            (
+                vec!["typst", "compile", "in.typ", "--pdf-tagged=maybe"],
+                "invalid value 'maybe'",
+            ),
+            (
+                vec!["typst", "compile", "in.typ", "out.pdf", "--pdf-tagged="],
+                "a value is required",
+            ),
+        ];
+
+        for (argv, expected) in cases {
+            let error =
+                Args::try_parse_from(argv).expect_err("forma inválida deve falhar");
+            assert!(
+                error.to_string().contains(expected),
+                "esperava {expected:?}; erro: {error}"
+            );
         }
     }
 

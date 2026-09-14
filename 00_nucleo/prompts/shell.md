@@ -1,5 +1,5 @@
 # Shell — typst-shell
-Hash do Código: a8c743da
+Hash do Código: a76b2a55
 
 ## Propósito
 
@@ -21,6 +21,9 @@ era stub (só header).
   vanilla-espelhado para `SourceDiagnostic`, com fontes já materializadas e
   suporte opcional a cores ANSI (P1139; adendo à ADR-0045).
   Ver prompt `00_nucleo/prompts/shell/diagnostic.md`.
+- **`duration`** (`02_shell/src/duration.rs`) — formatter humano puro de
+  `std::time::Duration`, sem relógio nem I/O; adaptador binding-free das
+  fronteiras S11. Ver prompt `00_nucleo/prompts/shell/duration.md`.
 
 ## Evolução
 

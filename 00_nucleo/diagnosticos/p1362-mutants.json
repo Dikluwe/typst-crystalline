@@ -1,0 +1,241 @@
+{
+  "schema": "tekt-mutant-suite/v1",
+  "step": "P1362",
+  "suite_id": "P1362-watch-status-mutants-v1",
+  "authorship": {
+    "role": "oracle_author_and_adversary",
+    "executor": "/root/oraculos_p1362",
+    "candidate_implementation_read": false,
+    "product_code_write": false,
+    "product_or_cargo_executed": false,
+    "watch_or_w_executed": false,
+    "isolation_attestation": "not_attested"
+  },
+  "frozen_inputs": {
+    "manifest_sha256": "3216260f0b29fcd3b8dbc2cf483f9749573f4e89975de2b5a20ac809aefbf39e",
+    "contract_sha256": "17ae4ff69097473817b0f3e2d135c85f5aeee854de980286b74cabaf98799bb2",
+    "prompt_normative_sha256": {
+      "00_nucleo/prompts/shell/duration.md": "02bb6aa40c3fd936d786ee20ecdbd3d078c41dc23bbbf547a7608db0c3c3499b",
+      "00_nucleo/prompts/shell/tests/p1361-duration.md": "14216054705c8f2b0cee0e3f8b17677d37065c7dd706a49086d1ed9206ba1ded",
+      "00_nucleo/prompts/wiring.md": "e9907dedd503cbc2e82829632b0a6996342ea67cffe5545fffb23a6cda76ab1e"
+    }
+  },
+  "valid_mutants": [
+    {
+      "id": "M01",
+      "mutation": "Change the Compiling body from `compiling ...` to `compiling...`.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P01"],
+      "reason_code": "EXACT_BODY_MISMATCH"
+    },
+    {
+      "id": "M02",
+      "mutation": "Swap the final Success and PartialSuccess variants for exit=0.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P05", "P06", "P14", "P15"],
+      "reason_code": "SUCCESS_PARTIAL_SWAP"
+    },
+    {
+      "id": "M03",
+      "mutation": "Infer has_warnings by searching or counting warning-like text in rendered stderr instead of using the typed warning collection.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P10", "P11"],
+      "reason_code": "STDERR_INFERENCE_FORBIDDEN"
+    },
+    {
+      "id": "M04",
+      "mutation": "Emit Compiling and a selected final watch status from the ordinary compile path.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P19", "P20"],
+      "reason_code": "WATCH_STATUS_LEAKS_TO_COMPILE"
+    },
+    {
+      "id": "M05",
+      "mutation": "Omit Compiling for every watched compilation.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P12", "P13", "P14", "P15", "P16"],
+      "reason_code": "COMPILING_MISSING"
+    },
+    {
+      "id": "M06",
+      "mutation": "Emit Compiling only after the watched compile invocation begins or returns.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P12", "P13"],
+      "reason_code": "COMPILING_TOO_LATE"
+    },
+    {
+      "id": "M07",
+      "mutation": "Write any P1362 status body to stdout instead of stderr.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P17"],
+      "reason_code": "WRONG_CHANNEL"
+    },
+    {
+      "id": "M08",
+      "mutation": "Emit a P1362 body without its terminating newline.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P18", "P14", "P15", "P16"],
+      "reason_code": "NEWLINE_MISSING"
+    },
+    {
+      "id": "M09",
+      "mutation": "Emit two terminating newlines after a P1362 body.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P18", "P14", "P15", "P16"],
+      "reason_code": "NEWLINE_EXTRA"
+    },
+    {
+      "id": "M10",
+      "mutation": "Append elapsed duration to Error, for example `compiled with errors in 2.85 s`.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P04", "P16", "P21"],
+      "reason_code": "ERROR_DURATION_FORBIDDEN"
+    },
+    {
+      "id": "M11",
+      "mutation": "Read Instant, SystemTime, or another clock inside L2 WatchStatus or format_duration.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P02", "P03", "source-guard:L2_ZERO_CLOCK_READS"],
+      "reason_code": "CLOCK_READ_IN_L2"
+    },
+    {
+      "id": "M12",
+      "mutation": "Implement a P1362 test by spawning `typst watch`, `typst w`, `watch`, or `w`.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["execution-guard:NO_WATCH_PROCESS", "manifest:execution_safety"],
+      "reason_code": "FORBIDDEN_WATCH_PROCESS"
+    },
+    {
+      "id": "M13",
+      "mutation": "Select PartialSuccess when exit is nonzero and typed warnings are present.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P08", "P16"],
+      "reason_code": "NONZERO_MUST_ERROR"
+    },
+    {
+      "id": "M14",
+      "mutation": "Select Success when exit is nonzero and typed warnings are absent.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P07", "P16"],
+      "reason_code": "NONZERO_MUST_ERROR"
+    },
+    {
+      "id": "M15",
+      "mutation": "Compute has_warnings after draining or consuming the typed warning collection, thereby observing false for a warned success.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P06", "P10", "P15"],
+      "reason_code": "WARNING_BIT_COMPUTED_TOO_LATE"
+    },
+    {
+      "id": "M16",
+      "mutation": "Transport has_warnings=true from an early return that never produced a typed warning collection.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P09"],
+      "reason_code": "EARLY_RETURN_INVENTS_WARNING"
+    },
+    {
+      "id": "M17",
+      "mutation": "Emit Compiling only on the initial iteration and omit it on the second watched compilation.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P13"],
+      "reason_code": "COMPILING_NOT_PER_ITERATION"
+    },
+    {
+      "id": "M18",
+      "mutation": "Emit zero or two final statuses for one completed watched compilation.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P14", "P15", "P16"],
+      "reason_code": "FINAL_STATUS_MULTIPLICITY"
+    },
+    {
+      "id": "M19",
+      "mutation": "Make Success omit the duration suffix or render the literal as 2.8492 s instead of 2.85 s.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P02", "P14"],
+      "reason_code": "SUCCESS_DURATION_MISMATCH"
+    },
+    {
+      "id": "M20",
+      "mutation": "Make PartialSuccess omit `with warnings`, omit the duration, or use the Success prefix.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P03", "P06", "P15"],
+      "reason_code": "PARTIAL_BODY_MISMATCH"
+    },
+    {
+      "id": "M21",
+      "mutation": "Measure the watch duration in L4 with SystemTime or a wall-clock timestamp rather than Instant.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["source-guard:L4_USES_INSTANT", "contract:selection.inputs.elapsed"],
+      "reason_code": "NON_MONOTONIC_WATCH_CLOCK"
+    },
+    {
+      "id": "M22",
+      "mutation": "Emit or irrevocably choose the final status before the typed compile outcome and warning bit exist.",
+      "validity": "valid",
+      "expected_classification": "Violated",
+      "witnesses": ["P05", "P06", "P07", "P08", "P14", "P15", "P16"],
+      "reason_code": "FINAL_STATUS_PRECEDES_OUTCOME"
+    }
+  ],
+  "excluded_attacks": [
+    {
+      "id": "X01",
+      "attack": "Change filesystem polling or observation behavior.",
+      "validity": "invalid_for_P1362",
+      "expected_classification": "Unknown",
+      "witness": "O06",
+      "reason_code": "WATCH_MECHANICS_SCOPED_OUT"
+    },
+    {
+      "id": "X02",
+      "attack": "Change dependency renewal or normalization behavior.",
+      "validity": "invalid_for_P1362",
+      "expected_classification": "Unknown",
+      "witness": "O06",
+      "reason_code": "WATCH_MECHANICS_SCOPED_OUT"
+    },
+    {
+      "id": "X03",
+      "attack": "Change arm, publish, abandon, staging, or eviction behavior.",
+      "validity": "invalid_for_P1362",
+      "expected_classification": "Unknown",
+      "witness": "O06",
+      "reason_code": "WATCH_MECHANICS_SCOPED_OUT"
+    }
+  ],
+  "mutation_gate": {
+    "numerator": "valid mutants classified Violated",
+    "denominator": 22,
+    "required_score": 1.0,
+    "survivor_policy": "Any valid survivor blocks sealing.",
+    "unknown_policy": "Unknown receives zero credit unless the case is explicitly excluded as out of scope; excluded attacks never enter the denominator.",
+    "determinism": "Evaluate canonical and reverse order three times; classification and witnesses must remain identical."
+  },
+  "counts": {
+    "valid_mutants": 22,
+    "expected_violated": 22,
+    "excluded_out_of_scope_attacks": 3,
+    "required_mutation_score": 1.0
+  }
+}

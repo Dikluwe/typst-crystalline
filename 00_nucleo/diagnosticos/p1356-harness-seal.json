@@ -1,0 +1,74 @@
+{
+  "attestation": "executado sem atestação de isolamento",
+  "claim_limitations": [
+    "S11 explicit HARNESS_GAP",
+    "all 11 attempted sentinel families miss at least one frozen required profile; several also miss required subcases/observables",
+    "inventory discovery still covers only default/html, not a11y-extras/html+a11y"
+  ],
+  "cost_and_discriminatory_delta": {
+    "catalog_entries_after": 124,
+    "catalog_entries_before": 0,
+    "delta_attributions_after": 986,
+    "delta_attributions_before": 19368,
+    "false_resolved_after": 0,
+    "false_resolved_before": 18382,
+    "focal_revision": 2,
+    "full_matrices_rerun": false,
+    "gate_result_delta": "unchanged PASS 16/16, mutation_score 1.0",
+    "incomplete_observations": 2,
+    "public_side_observations": 38,
+    "sentinel_families_attempted": 12,
+    "unchanged_matrix_hashes": [
+      "e9b867e1364bbdd16f33dbbf78130ce3c094c7d87598701f6a2c98d3f315ea6a",
+      "58c6751b6f6dac0d6666d0b93a8ffb906ccc6022b68638922405749cba57fcb7",
+      "6e1f8b8b459c77a289134df4f907a7391d18fc4861b9f0e2a3cda2a3710e4323"
+    ]
+  },
+  "created_utc": "2026-09-12T18:49:25Z",
+  "executor": "/root/verificador_p1356",
+  "gate": {
+    "canonical_payload_sha256": "8a12281fbf5c4897aae7ed68c411934b78456db6ec24df509151048afd66e55f",
+    "mutation_score": 1.0,
+    "rejected": 16,
+    "valid_mutants": 16
+  },
+  "harness_gate": "PASS",
+  "hashes": {
+    "catalog": "13a457696c21724eae6197e5fca3b0b6380c4c9612adbdd6e39c81ed0b4c1a57",
+    "contract": "0f562f0058b0fe392a38888efa60a2aba9da5a0db2bef1042d681a33c53fed27",
+    "delta_r2": "0a675f4a32dd1f11972c30f4d37c0da80dc42523687c8d36950442357ce4eb5c",
+    "gate_r2": "1a7b09cb8b9c1c0d8118470320dacd12e1013368d9d91c1209b7c9b73f974e1b",
+    "harness_r2": "485385d29b47551b85a459175c4088ef612060d6b0c805d5fc37ab0c53297ee3",
+    "manifest": "5fc083ddd885a6567f15ab5cc76ba07ec2b59c4c640996e4731e4a143f7f730c",
+    "mutants": "145c3ea7769c7ddd020d0881e8026e9965e12531ffd2f3e4bdf8f12697f5974e",
+    "oracles": "99c43b8e5ad5ab0600980a0d1c16d8ddc541be3b8b7f528a32efc18652e6e69e",
+    "sentinels_r2": "eff91e88eadaa20fcb01d1edbaca047bec8eae95c4d1a440c40a0939f92c64a2"
+  },
+  "p1356_claim": "INTEGRAL_CLAIM_NOT_DEMONSTRATED",
+  "protected_hashes_match": false,
+  "post_measurement_authority_revision": "The owner corrected baseline naming and continuity policy after measurement. This intentionally invalidates the prior certificate without erasing the measured payloads; a future run uses vanilla=586e1bd43 and historical_snapshot=a51e02804.",
+  "read_allowlist": [
+    "sealed P1356 manifest/contract/oracles/mutants",
+    "audited p1356-harness.py",
+    "prior inventories/catalog/matrices",
+    "/tmp/p1356-delta-r2.json",
+    "/tmp/p1356-sentinels-r2-final.json",
+    "/tmp/p1356-gate-r2.json",
+    "P1353/P1355 diagnostics and Tekt instructions"
+  ],
+  "revision": 2,
+  "schema": "p1356-harness-seal-v2",
+  "source": {
+    "head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "tracked_diff_stat": "empty before final outputs; candidate inputs and receipts untracked",
+    "tree": "c3c2fa834e6ec318690ddb88e181277ff2e25b27"
+  },
+  "verdict": "MEASUREMENT_VALID_SCOPE_PARTIAL",
+  "write_allowlist": [
+    "p1356-harness-seal.json",
+    "p1356-inventory-summary.json",
+    "p1356-matrix-summary.json",
+    "p1356-delta-attribution.json",
+    "p1356-parity-report.md"
+  ]
+}

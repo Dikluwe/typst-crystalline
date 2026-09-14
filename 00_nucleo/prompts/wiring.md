@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: e13e2ed6
+Hash do Código: 98e9c075
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -157,6 +157,150 @@ Fora dos passos 113–122:
   `SystemWorld` ignora `root` para imports e usa `directory_of(
   current_file)`.
 
+## P1362 — corpos de status temporizado no ciclo `watch`
+
+### Medição anterior à decisão
+
+O recibo `diagnosticos/p1362-watch-status-preflight.md` registra que o vanila
+possui quatro corpos de status em stderr e que o ciclo cristalino não os emite.
+`run_compile_observed` já detém a coleção tipada de warnings, mas devolve apenas
+exit e dependências. O formatter puro P1361 já existe em L2.
+
+### Decisão de composição
+
+Somente `run_watch` emite `WatchStatus::Compiling.message()` antes de chamar a
+compilação. Ele captura `Instant::now()` nesse ponto e, após o retorno, emite:
+
+- `Success(elapsed)` quando exit é zero e `has_warnings` é falso;
+- `PartialSuccess(elapsed)` quando exit é zero e `has_warnings` é verdadeiro;
+- `Error` quando exit é não zero.
+
+`run_compile_observed` passa a devolver também `has_warnings`, calculado por
+`!warnings.is_empty()` antes de consumir/apresentar a coleção. Early returns
+usam false. O wrapper `run_compile` ignora esse terceiro valor e permanece sem
+status. Não analisar stderr, não alterar o conteúdo dos diagnósticos e não
+introduzir tipo em L4.
+
+Os corpos são escritos em stderr com uma quebra de linha. Timestamp, cor,
+fullscreen, limpeza/reordenação de terminal e posição exata perante
+diagnósticos ficam fora de P1362. Nenhuma mudança em polling, armamento,
+publicação, abandono, dependências ou eviction.
+
+## P1363 — prefixo local `HH:MM:SS`
+
+### Medição e decisão
+
+`diagnosticos/p1363-watch-timestamp-preflight.md` mede o envelope vanila
+`[{hora local em %H:%M:%S}] {corpo}`. L4 declara a dependência `time` já pinada
+no workspace. P1363 introduziu dois helpers privados:
+
+```rust
+fn watch_line_at(status: &WatchStatus, time: time::Time) -> String;
+fn watch_line_now(status: &WatchStatus) -> String;
+```
+
+`watch_line_at` apenas passa `hour`, `minute`, `second` a
+`typst_shell::duration::format_watch_line`. Em P1363, `watch_line_now` tentava
+`OffsetDateTime::now_local()` e, se o offset local não estivesse disponível,
+usava `OffsetDateTime::now_utc()`; então delegava o `Time`. Os dois pontos de emissão de
+P1362 passaram a chamá-lo e continuaram exclusivos de `run_watch`. P1364
+substitui esse helper por `watch_block_now` e remove `watch_line_now` depois de
+seus call sites chegarem a zero; `watch_line_at` permanece como unidade pura.
+
+Teste unitário usa somente `Time::from_hms(3, 4, 5)` e nunca chama o helper
+`now`, o loop ou um processo. Não mover relógio para L2/L1. Cor, fullscreen,
+cursor, data/offset/fração, posição perante diagnósticos e mecânica do watcher
+permanecem fora.
+
+## P1364 — terminação do bloco não-fullscreen
+
+### Medição e decisão
+
+`diagnosticos/p1364-watch-spacing-preflight.md` mede em
+`lab/typst-original/crates/typst-cli/src/watch.rs:97-109` que a mensagem já
+termina com uma quebra e que estados diferentes de `Compiling` recebem uma
+segunda quebra. O cristalino P1363 usa uma única `eprintln!` para todas as
+variantes.
+
+L4 mantém `watch_line_at` como linha sem terminador e acrescenta os helpers
+privados `watch_block_at(status, time) -> String` e
+`watch_block_now(status) -> String`. O primeiro acrescenta exatamente `\n` a
+`Compiling` e `\n\n` a `Success`, `PartialSuccess` e `Error`; o segundo apenas
+obtém o mesmo instante local-com-fallback definido em P1363 e delega. Os dois
+pontos de `run_watch` escrevem o bloco pronto sem acrescentar outro terminador.
+Como `watch_block_now` assume integralmente a captura do instante e os únicos
+call sites produtivos, o helper privado intermediário `watch_line_now` é
+removido; manter código morto não integra o comportamento requerido.
+
+Teste unitário usa somente `Time::from_hms(3, 4, 5)` e duração literal. Cor,
+fullscreen, limpeza/cursor, ordem perante diagnósticos, buffering, flush e
+toda mecânica do watcher permanecem fora. Nenhuma API pública muda.
+
+## P1365 — fronteira inicial da duração do `watch`
+
+### Medição e decisão
+
+`diagnosticos/p1365-watch-timer-boundary-preflight.md` mede que o vanila
+ratificado captura o marcador monotônico antes de formar e emitir o status
+`Compiling`, enquanto o cristalino P1364 o captura depois. Como a duração
+resultante integra a mensagem pública de sucesso, a fronteira é observável;
+`Instant`, closures e ordem interna específica são mecânica livre.
+
+L4 acrescenta `prepare_watch_cycle_with(capture, format_compiling)`, helper
+privado que chama uma vez `capture` e, somente depois, uma vez
+`format_compiling`, devolvendo o par sem alteração. O wrapper privado
+`prepare_watch_cycle()` fornece `Instant::now` e
+`watch_block_now(&WatchStatus::Compiling)`. A cada iteração, `run_watch` chama
+o wrapper, emite o bloco pronto e usa exclusivamente o marcador devolvido para
+o `elapsed()` do status terminal.
+
+O teste usa closures sentinela e valores literais, sem relógio, sleep, I/O ou
+processo. Cor, fullscreen, flush, ordem do status terminal perante
+diagnósticos e toda mecânica do watcher permanecem fora. Nenhuma API pública
+muda.
+
+## P1366 — status terminal antes dos diagnósticos
+
+### Medição e decisão
+
+`diagnosticos/p1366-watch-diagnostic-order-preflight.md` mede que o vanila
+emite `Success`, `PartialSuccess` ou `Error` antes de apresentar warnings e
+errors. No cristalino P1365, `run_compile_observed` apresenta os diagnósticos
+antes de retornar, e `run_watch` só então emite o status terminal.
+
+L4 introduz o helper privado `report_in_order(status, diagnostics)`, que chama
+as duas closures exatamente uma vez e nessa ordem. `run_compile_observed`
+recebe uma callback privada `FnMut(ExitCode, bool)` e usa o helper em todas as
+saídas. O caminho `watch` fornece a callback que deriva o `WatchStatus` com o
+marcador P1365 e emite o bloco P1364; o status pós-retorno é removido. O caminho
+`compile` fornece callback vazia e continua sem status de watch.
+
+Resultado, artefato e timings de sucesso são resolvidos antes do anúncio de
+sucesso. Falhas preliminares ou de escrita anunciam `Error` antes da mensagem
+operacional. No segundo estágio, warnings continuam antes de errors. O teste
+do helper usa somente closures em memória. Cor, fullscreen, flush, medições
+opt-in e toda mecânica do watcher permanecem fora. Nenhuma API pública muda.
+
+## P1367 — escrita e flush de cada bloco de status
+
+### Medição e decisão
+
+`diagnosticos/p1367-watch-flush-preflight.md` mede que o vanila chama
+`flush()` depois de formar cada status, enquanto o cristalino P1366 usa
+`eprint!` sem fronteira explícita observável. O flush é relevante porque o
+status `Compiling` deve chegar ao utilizador antes de uma compilação longa.
+
+L4 acrescenta `write_watch_block(out, block) -> io::Result<()>`, helper privado
+que executa `write_all` uma vez com os bytes integrais e depois `flush` uma
+vez. Falha de escrita impede flush; falha de flush é propagada. O wrapper
+privado `emit_watch_block` bloqueia stderr e exige sucesso, preservando a
+semântica de falha das macros de impressão. Os dois call sites exclusivos de
+status P1366 passam a usar o wrapper; diagnósticos não passam por ele.
+
+O teste usa somente writers falsos em memória e cobre sucesso, falha de escrita
+e falha de flush. Cor, fullscreen, TTY, buffering posterior ao flush e toda
+mecânica do watcher permanecem fora. Nenhuma API pública muda.
+
 
 ## P956 — tradução da flag `--compact` para `StreamMode`
 
@@ -287,6 +431,48 @@ Nos caminhos PDF de `compile` e `watch`, L4 traduz
 `PdfTags::Disabled`, passando o enum depois de `StreamMode` às entry points
 L3. Não combinar as duas decisões nem propagar tagging aos exports PNG, SVG ou
 HTML. L4 continua sem criar tipo próprio e sem validar PDF/UA.
+
+## P1359 — precedência de `--pdf-tagged`
+
+### Medição antes da decisão
+
+P1140.6 já materializou a tradução thin do legado `no_pdf_tags` para
+`PdfTags`, e todas as entry points PDF já recebem esse enum. O novo protocolo
+tri-state medido no vanilla ratificado é resolvido antes da chamada ao
+exportador e não exige nova fase nem mudança em L3.
+
+### Decisão
+
+L4 destrutura `pdf_tagged: Option<bool>` de `CompileIntent` e resolve:
+
+```text
+Some(true)  -> PdfTags::Enabled
+Some(false) -> PdfTags::Disabled
+None + no_pdf_tags -> PdfTags::Disabled
+None sem legado    -> PdfTags::Enabled
+```
+
+O valor moderno explícito vence o legado. O enum continua sendo passado
+somente aos caminhos PDF; PNG, SVG e HTML permanecem neutros. `StreamMode` e
+`compact` continuam eixo independente. L4 não emite política de standards,
+não implementa seleção de páginas e não altera exportadores.
+
+O gate ADR-0127 foi confirmado pelo dono em 2026-09-12 junto com a autorização
+explícita para implementar P1359.
+
+## P1360 — composição ortogonal de `pretty`
+
+L4 destrutura `pretty: Option<bool>` de `CompileIntent` e resolve ausência
+como `false`, coerente com os defaults de formato medidos. O booleano segue
+somente ao encoder do target: PDF recebe `PdfSerializationMode`, SVG recebe
+`SvgOptions.pretty`, HTML recebe a variante pretty da pipeline e PNG ignora o
+valor.
+
+`pretty` não altera `StreamMode`, `PdfTags`, feature HTML,
+`HtmlSerializationMode`, formato selecionado, layout ou código de saída. Em
+particular, `--compact --pretty=true` mantém operadores compactos com
+serialização PDF legível, e `--pdf-tagged=false --pretty=true` mantém tags
+desligadas. L4 não formata bytes nem inspeciona DOM/PDF/SVG.
 
 ## P1198 — fronteira com as suítes de integração
 

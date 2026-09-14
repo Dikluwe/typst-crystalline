@@ -1,0 +1,150 @@
+{
+  "schema": "tekt-observable-contract/v1",
+  "step": "P1363",
+  "manifest_path": "00_nucleo/diagnosticos/p1363-manifest.json",
+  "baseline_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "fragment": "prefixo local HH:MM:SS dos quatro status P1362 no ciclo watch",
+  "public_contract": {
+    "l2_signature": "pub fn format_watch_line(hour: u8, minute: u8, second: u8, status: &WatchStatus) -> String",
+    "l4_helpers": [
+      "fn watch_line_at(status: &WatchStatus, time: time::Time) -> String",
+      "fn watch_line_now(status: &WatchStatus) -> String"
+    ],
+    "exact_lines_without_newline": [
+      "[03:04:05] compiling ...",
+      "[03:04:05] compiled successfully in 2.85 s",
+      "[03:04:05] compiled with warnings in 2.85 s",
+      "[03:04:05] compiled with errors"
+    ],
+    "format": {
+      "grammar": "[HH:MM:SS] BODY",
+      "hour": "decimal, exactly two digits, valid caller range 00..23",
+      "minute": "decimal, exactly two digits, valid caller range 00..59",
+      "second": "decimal, exactly two digits, valid caller range 00..59",
+      "separator": "exactly one ASCII space after ]",
+      "l2_termination": "no CR or LF anywhere in the returned string",
+      "l4_channel_and_termination": "each run_watch status call uses eprintln! once, therefore stderr receives exactly one trailing newline"
+    },
+    "clock": {
+      "watch_line_at": "pure deterministic adapter from supplied time::Time components; it must not read the clock",
+      "watch_line_now": "call time::OffsetDateTime::now_local(); on failure only, call time::OffsetDateTime::now_utc(); delegate the resulting Time to watch_line_at",
+      "l2": "must not read clock, environment, timezone or I/O"
+    },
+    "routing": {
+      "watch": "both P1362 emission sites call watch_line_now and use eprintln!",
+      "compile": "normal compile path emits no Compiling/Success/PartialSuccess/Error status line",
+      "other_commands": "unchanged and status-silent"
+    },
+    "dependency": {
+      "workspace_identity": "Cargo.toml raw sha256 e594f6eb560ba88be6e59abfcb0a8cde363e24dbe383c4b2bfbeb9d75c6238ed already pins time 0.3 with local-offset",
+      "wiring_baseline": "04_wiring/Cargo.toml raw sha256 dbc8a208f247b5ca46767892d3cb974071a444e673ba6a06c7a83d29ec3e94ef",
+      "authorized_target_delta": "add exactly time = { workspace = true } to [dependencies], with no direct version and no other semantic dependency change"
+    }
+  },
+  "positive_cases": [
+    {"id": "P01", "input": "03:04:05 + Compiling", "expected": "[03:04:05] compiling ...", "classification": "Preserved"},
+    {"id": "P02", "input": "03:04:05 + Success(2.8492s)", "expected": "[03:04:05] compiled successfully in 2.85 s", "classification": "Preserved"},
+    {"id": "P03", "input": "03:04:05 + PartialSuccess(2.8492s)", "expected": "[03:04:05] compiled with warnings in 2.85 s", "classification": "Preserved"},
+    {"id": "P04", "input": "03:04:05 + Error", "expected": "[03:04:05] compiled with errors", "classification": "Preserved"},
+    {"id": "P05", "input": "00:00:00 + Compiling", "expected": "[00:00:00] compiling ...", "classification": "Preserved"},
+    {"id": "P06", "input": "09:08:07 + Error", "expected": "[09:08:07] compiled with errors", "classification": "Preserved"},
+    {"id": "P07", "input": "23:59:59 + Error", "expected": "[23:59:59] compiled with errors", "classification": "Preserved"},
+    {"id": "P08", "input": "all four L2 strings", "expected": "no CR, no LF, exactly one ASCII space after ]", "classification": "Preserved"},
+    {"id": "P09", "input": "watch_line_at(Error, Time::from_hms(3,4,5)) repeated and reordered", "expected": "byte-identical deterministic result", "classification": "Preserved"},
+    {"id": "P10", "input": "watch_line_now with available local offset", "expected": "local Time is delegated to watch_line_at", "classification": "Preserved"},
+    {"id": "P11", "input": "watch_line_now with unavailable local offset", "expected": "UTC Time is delegated to watch_line_at", "classification": "Preserved"},
+    {"id": "P12", "input": "normal compile path", "expected": "no watch status formatter or emission is called", "classification": "Preserved"},
+    {"id": "P13", "input": "run_watch pre/post compilation status sites", "expected": "each delegates through watch_line_now and eprintln! to stderr", "classification": "Preserved"},
+    {"id": "P14", "input": "04_wiring/Cargo.toml", "expected": "only workspace-inherited time dependency is added", "classification": "Preserved"}
+  ],
+  "negative_cases": [
+    {"id": "N01", "witness": "[3:04:05] compiling ...", "reason": "hour is not padded", "classification": "Violated"},
+    {"id": "N02", "witness": "[03:4:05] compiling ...", "reason": "minute is not padded", "classification": "Violated"},
+    {"id": "N03", "witness": "[03:04:5] compiling ...", "reason": "second is not padded", "classification": "Violated"},
+    {"id": "N04", "witness": "[03:04:05]  compiling ...", "reason": "two separator spaces", "classification": "Violated"},
+    {"id": "N05", "witness": "[03:04:05]compiling ...", "reason": "missing separator space", "classification": "Violated"},
+    {"id": "N06", "witness": "L2 result contains LF or CR", "reason": "formatter must not terminate the line", "classification": "Violated"},
+    {"id": "N07", "witness": "L4 uses eprint! without newline", "reason": "run_watch line must be terminated", "classification": "Violated"},
+    {"id": "N08", "witness": "L4 uses println! or stdout", "reason": "vanila channel is stderr", "classification": "Violated"},
+    {"id": "N09", "witness": "watch_line_at reads now", "reason": "deterministic helper is no longer deterministic", "classification": "Violated"},
+    {"id": "N10", "witness": "watch_line_now always uses UTC", "reason": "local time is the default", "classification": "Violated"},
+    {"id": "N11", "witness": "now_local failure returns error or panics", "reason": "UTC fallback is mandatory", "classification": "Violated"},
+    {"id": "N12", "witness": "L2 imports time or reads a clock", "reason": "clock belongs to L4", "classification": "Violated"},
+    {"id": "N13", "witness": "normal compile emits a watch status", "reason": "compile must remain silent", "classification": "Violated"},
+    {"id": "N14", "witness": "only one of the two run_watch sites is timestamped", "reason": "both P1362 emissions are in scope", "classification": "Violated"},
+    {"id": "N15", "witness": "04_wiring uses time = '0.3' directly", "reason": "dependency identity must be inherited from workspace", "classification": "Violated"},
+    {"id": "N16", "witness": "date, offset or subseconds appear", "reason": "grammar is exactly HH:MM:SS", "classification": "Violated"}
+  ],
+  "opaque_cases": [
+    {"id": "O01", "input": "hour/minute/second outside valid ranges", "reason": "caller precondition; behavior deliberately unspecified", "expected": "Unknown"},
+    {"id": "O02", "input": "which wall-clock second is captured at a second boundary", "reason": "scheduler and capture instant are not observable deterministically", "expected": "Unknown"},
+    {"id": "O03", "input": "host timezone and DST rule correctness", "reason": "environmental state outside the frozen fragment", "expected": "Unknown"},
+    {"id": "O04", "input": "color/fullscreen/cursor cleanup", "reason": "explicit scope-out", "expected": "Unknown"},
+    {"id": "O05", "input": "ordering relative to diagnostics, buffering and flush", "reason": "explicit scope-out", "expected": "Unknown"},
+    {"id": "O06", "input": "polling, staging, publish, abandon, wait and eviction behavior", "reason": "watch mechanics are outside this textual fragment", "expected": "Unknown"},
+    {"id": "O07", "input": "external watch/w process behavior", "reason": "execution is prohibited by memory policy", "expected": "Unknown"},
+    {"id": "O08", "input": "general parity of watch or diagnostics", "reason": "contract covers only the frozen timestamp envelope", "expected": "Unknown"}
+  ],
+  "mutations": [
+    {"id": "M01", "change": "remove hour padding", "must_be": "Violated", "witness": "P01/P05/P06"},
+    {"id": "M02", "change": "remove minute padding", "must_be": "Violated", "witness": "P01/P06"},
+    {"id": "M03", "change": "remove second padding", "must_be": "Violated", "witness": "P01/P06"},
+    {"id": "M04", "change": "remove opening bracket", "must_be": "Violated", "witness": "P01-P04"},
+    {"id": "M05", "change": "remove closing bracket", "must_be": "Violated", "witness": "P01-P04"},
+    {"id": "M06", "change": "replace a colon with hyphen", "must_be": "Violated", "witness": "P01-P04"},
+    {"id": "M07", "change": "remove separator space", "must_be": "Violated", "witness": "P08"},
+    {"id": "M08", "change": "insert second separator space", "must_be": "Violated", "witness": "P08"},
+    {"id": "M09", "change": "append newline in format_watch_line", "must_be": "Violated", "witness": "P08"},
+    {"id": "M10", "change": "replace Compiling body", "must_be": "Violated", "witness": "P01"},
+    {"id": "M11", "change": "replace Success body", "must_be": "Violated", "witness": "P02"},
+    {"id": "M12", "change": "replace PartialSuccess body", "must_be": "Violated", "witness": "P03"},
+    {"id": "M13", "change": "replace Error body", "must_be": "Violated", "witness": "P04"},
+    {"id": "M14", "change": "swap Success and PartialSuccess", "must_be": "Violated", "witness": "P02/P03"},
+    {"id": "M15", "change": "read clock inside L2 formatter", "must_be": "Violated", "witness": "N12"},
+    {"id": "M16", "change": "make watch_line_at call now", "must_be": "Violated", "witness": "P09/N09"},
+    {"id": "M17", "change": "always choose UTC", "must_be": "Violated", "witness": "P10/N10"},
+    {"id": "M18", "change": "remove UTC fallback", "must_be": "Violated", "witness": "P11/N11"},
+    {"id": "M19", "change": "use eprint! at L4 emission", "must_be": "Violated", "witness": "N07"},
+    {"id": "M20", "change": "use println! at L4 emission", "must_be": "Violated", "witness": "N08"},
+    {"id": "M21", "change": "emit status from normal compile", "must_be": "Violated", "witness": "P12/N13"},
+    {"id": "M22", "change": "timestamp only pre-compile emission", "must_be": "Violated", "witness": "P13/N14"},
+    {"id": "M23", "change": "timestamp only post-compile emission", "must_be": "Violated", "witness": "P13/N14"},
+    {"id": "M24", "change": "omit time dependency from 04_wiring", "must_be": "Violated", "witness": "P14"},
+    {"id": "M25", "change": "declare direct time version in 04_wiring", "must_be": "Violated", "witness": "P14/N15"},
+    {"id": "M26", "change": "add date, offset or subseconds", "must_be": "Violated", "witness": "N16"},
+    {"id": "M27", "change": "format timestamp in L4 instead of delegating to L2", "must_be": "Violated", "witness": "public_contract.clock and l4_helpers"},
+    {"id": "M28", "change": "alter 04_wiring/Cargo.toml beyond the single authorized dependency", "must_be": "Violated", "witness": "strict baseline hash and authorized delta"}
+  ],
+  "scope_outs": [
+    "cor, fullscreen, limpeza e movimento de cursor",
+    "data, timezone exibido, offset, subseguundos e locale",
+    "posicao perante diagnosticos, buffering e flush",
+    "polling, dependencias, staging, arm, publish, abandon, wait e eviction",
+    "execucao externa de watch ou w",
+    "instante exato capturado dentro do segundo",
+    "comportamento para componentes de tempo invalidos",
+    "paridade geral de watch, terminal ou diagnosticos"
+  ],
+  "gate": {
+    "required_positive_result": "all Preserved",
+    "required_negative_result": "all Violated with witness",
+    "required_opaque_result": "all and only opaque cases Unknown",
+    "required_mutation_score": 1.0,
+    "determinism": "same classification under repetition and reversed order",
+    "unexpected_unknown": "fail_closed",
+    "zero_tests": "fail",
+    "timeout": "fail",
+    "oom": "fail"
+  },
+  "execution_safety": {
+    "never_execute": ["watch", "w", "external wiring suite", "broad suite"],
+    "allowed_tests": "exactly two named in-process tests, sequential",
+    "cargo_build_jobs": 1,
+    "timeout_seconds_max": 120,
+    "max_stdout_bytes": 4194304,
+    "max_stderr_bytes": 4194304,
+    "max_all_receipts_bytes": 16777216,
+    "expected_time_source": "literal Time::from_hms(3,4,5), never real clock"
+  },
+  "claim_limit": "Passing this contract proves only the P1363 timestamp envelope for the frozen inputs; it does not prove general functional equivalence with vanila."
+}

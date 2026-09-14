@@ -1,0 +1,155 @@
+{
+  "schema": "tekt-oracle-suite/v1",
+  "step": "P1367",
+  "created_at": "2026-09-13T11:26:47-03:00",
+  "regime": "executado sem atestacao de isolamento",
+  "authority": {
+    "role": "oracle_and_adversary",
+    "executor": "/root/oraculos_p1367",
+    "shared_workspace": true,
+    "candidate_read": false,
+    "writes": [
+      "00_nucleo/diagnosticos/p1367-oracles.json",
+      "00_nucleo/diagnosticos/p1367-mutants.json"
+    ],
+    "forbidden_actions_observed": [
+      "no productive code edit",
+      "no test edit",
+      "no manifest or contract edit",
+      "no cargo",
+      "no test execution",
+      "no build",
+      "no watch or w",
+      "no lint",
+      "no verdict"
+    ]
+  },
+  "inputs": {
+    "manifest": {"path":"00_nucleo/diagnosticos/p1367-manifest.json","raw_sha256":"e8a1a213975dfeabf6349744c09b3062713d78b1181e74beab22e67f9e5369a7"},
+    "contract": {"path":"00_nucleo/diagnosticos/p1367-contract.json","raw_sha256":"a1e53731a58fd67960efbc76ae5e03a5f301f73f96b886184026b72ac1ceba71"},
+    "step": {"path":"00_nucleo/materialization/typst-passo-1367.md","raw_sha256":"d309456868ca7d76d4c49febad775cc9a40dc5daa484c191c57961e712627bb8"},
+    "preflight": {"path":"00_nucleo/diagnosticos/p1367-watch-flush-preflight.md","raw_sha256":"750b38647bf228aa707c2fde21976a9e5fcac1cf7276cfff3a9633874c7a7270"},
+    "wiring_l0": {"path":"00_nucleo/prompts/wiring.md","raw_sha256":"9434a96fd7603586a23340a0e11367d820a1141a71df7d9a6eeb261df726d986","normative_sha256":"26a68f44e4a20e629b75c91ddf7c39bfb7193afcf979c810ef0c387eb1554bec"},
+    "baseline": {"path":"04_wiring/src/main.rs","raw_sha256":"36eac05d1eb208b21dbcb7e936cab328c4e1f262e15123d6f73f4daa74462e3d"},
+    "vanila_watch": {"path":"lab/typst-original/crates/typst-cli/src/watch.rs","commit":"586e1bd43fae6c9a973218163d3165c53ab8d16d","raw_sha256":"3d5ee88a01513902055881b8cd4245540327ef33a4d10a6788bcabce17cdb585"},
+    "vanila_terminal": {"path":"lab/typst-original/crates/typst-cli/src/terminal.rs","commit":"586e1bd43fae6c9a973218163d3165c53ab8d16d","raw_sha256":"0fbde0a28d5f7842d2c0b692b6710d422784f8df1b61ee7c77d74bf40d2f04a5"}
+  },
+  "public_observation": {
+    "fixture": "one in-memory fake Write records a single write attempt with exact bytes and a flush token; configured modes are success, BrokenPipe on write, and TimedOut on flush",
+    "fields": [
+      "helper_signature",
+      "helper_visibility",
+      "write_api",
+      "write_all_call_count",
+      "write_argument_bytes",
+      "flush_call_count",
+      "event_log",
+      "result_kind",
+      "wrapper_visibility",
+      "stderr_lock_extent",
+      "wrapper_helper_call_count",
+      "wrapper_failure_policy",
+      "initial_status_argument",
+      "terminal_status_argument",
+      "productive_status_callsites",
+      "legacy_status_eprint_sites",
+      "diagnostic_helper_callsites",
+      "test_function_count",
+      "test_forbidden_calls",
+      "productive_delta_paths",
+      "public_surface_delta"
+    ],
+    "canonical_success": {
+      "block_bytes": [91,48,51,58,48,52,58,48,53,93,32,97,195,167,0,98,10],
+      "event_log": ["write(exact-block-bytes)","flush"],
+      "write_all_call_count": 1,
+      "flush_call_count": 1,
+      "result_kind": "Ok"
+    },
+    "canonical_write_failure": {
+      "event_log": ["write(BrokenPipe)"],
+      "write_all_call_count": 1,
+      "flush_call_count": 0,
+      "result_kind": "BrokenPipe"
+    },
+    "canonical_flush_failure": {
+      "event_log": ["write(exact-block-bytes)","flush(TimedOut)"],
+      "write_all_call_count": 1,
+      "flush_call_count": 1,
+      "result_kind": "TimedOut"
+    }
+  },
+  "classifier": {
+    "Preserved": "all public predicates of the case are decidable and true",
+    "Violated": "at least one public predicate is decidable and false, with the declared public witness",
+    "Unknown": "the case is explicitly opaque or a required public fact is absent or ambiguous",
+    "fail_closed": "Unknown is never promoted to Preserved and never rejects a mutant; any unexpected Unknown blocks seal and PASS",
+    "binding_rule": "classification uses only frozen source structure and the canonical in-memory Write observations; no real stderr, terminal, process or watcher is executed"
+  },
+  "positive_cases": [
+    {"id":"P01","predicate":"write_watch_block is private, has the frozen &mut impl Write plus &str signature, returns io::Result<()> and does not capture stderr","expected":"Preserved"},
+    {"id":"P02","predicate":"success invokes Write::write_all exactly once with the complete byte sequence including UTF-8, NUL and embedded LF, without prefix, suffix or transformation","expected":"Preserved"},
+    {"id":"P03","predicate":"success event log equals [write(exact-block-bytes),flush], with one write_all, one flush and Ok","expected":"Preserved"},
+    {"id":"P04","predicate":"a BrokenPipe write failure returns BrokenPipe after one write attempt and before any flush","expected":"Preserved"},
+    {"id":"P05","predicate":"a TimedOut flush failure occurs after one integral successful write, records one flush and returns TimedOut","expected":"Preserved"},
+    {"id":"P06","predicate":"fresh writers under repetition and normal/reverse corpus order retain identical bytes, event logs, cardinalities, ErrorKinds, classifications and witnesses","expected":"Preserved"},
+    {"id":"P07","predicate":"emit_watch_block is private, obtains stderr, holds one mutable lock through exactly one write_watch_block delegation and passes the original block unchanged","expected":"Preserved"},
+    {"id":"P08","predicate":"emit_watch_block treats any helper Err as explicit failure through expect, unwrap or an equivalent non-silent boundary","expected":"Preserved"},
+    {"id":"P09","predicate":"the P1365 Compiling block is passed unchanged to emit_watch_block exactly once before run_compile_observed","expected":"Preserved"},
+    {"id":"P10","predicate":"the terminal P1366 callback block is passed unchanged to emit_watch_block exactly once before diagnostics","expected":"Preserved"},
+    {"id":"P11","predicate":"productive inventory contains exactly two emit_watch_block status callsites and zero retained eprint status callsites","expected":"Preserved"},
+    {"id":"P12","predicate":"drain_to_stderr, drain_to_stderr_with_primary, warnings, errors, HTML warning and operational messages have zero calls to either P1367 helper","expected":"Preserved"},
+    {"id":"P13","predicate":"exactly one in-process test function exercises success, write failure and flush failure only through an in-memory fake writer","expected":"Preserved"},
+    {"id":"P14","predicate":"productive delta is confined to two private helpers and two status callsite migrations in main.rs; test and lineage are the only other authorized delta","expected":"Preserved"},
+    {"id":"P15","predicate":"public API, status bytes, P1366 diagnostic order, polling, staging, publish, abandon, wait, eviction and non-watch commands remain unchanged","expected":"Preserved"}
+  ],
+  "negative_cases": [
+    {"id":"N01","attack":"flush occurs before write_all","expected":"Violated","public_witness":"event_log begins with flush instead of write(exact-block-bytes)"},
+    {"id":"N02","attack":"helper uses Write::write, write_fmt or a formatting macro instead of one Write::write_all call","expected":"Violated","public_witness":"write_api differs from write_all or write_all_call_count is zero"},
+    {"id":"N03","attack":"write_all is omitted or invoked more than once, including fragmentation across calls","expected":"Violated","public_witness":"expected write_all_call_count 1, actual 0 or greater than 1"},
+    {"id":"N04","attack":"only a prefix/suffix/slice is written or bytes are prefixed, suffixed, reconstructed, trimmed, replaced or recoded","expected":"Violated","public_witness":"write_argument_bytes differs byte-for-byte from block.as_bytes()"},
+    {"id":"N05","attack":"flush is omitted after successful write","expected":"Violated","public_witness":"expected success flush_call_count 1, actual 0"},
+    {"id":"N06","attack":"flush occurs twice or more after successful write","expected":"Violated","public_witness":"expected success flush_call_count 1, actual at least 2"},
+    {"id":"N07","attack":"write error is swallowed and flush is attempted","expected":"Violated","public_witness":"BrokenPipe case records flush or returns Ok"},
+    {"id":"N08","attack":"write error kind is replaced","expected":"Violated","public_witness":"expected BrokenPipe, actual different ErrorKind"},
+    {"id":"N09","attack":"flush error is swallowed or replaced","expected":"Violated","public_witness":"expected TimedOut, actual Ok or different ErrorKind"},
+    {"id":"N10","attack":"wrapper accesses stderr without locking or lock lifetime does not cover the complete helper call","expected":"Violated","public_witness":"stderr_lock_extent does not enclose one complete delegation"},
+    {"id":"N11","attack":"wrapper delegates zero or more than once or changes the block","expected":"Violated","public_witness":"helper call count differs from one or delegated bytes differ"},
+    {"id":"N12","attack":"wrapper discards helper Result or returns normally on failure","expected":"Violated","public_witness":"wrapper_failure_policy is silent success"},
+    {"id":"N13","attack":"initial Compiling remains on eprint, is duplicated or is not passed to wrapper","expected":"Violated","public_witness":"initial wrapper count differs from one or legacy status eprint remains"},
+    {"id":"N14","attack":"terminal callback status remains on eprint, is duplicated or is not passed to wrapper","expected":"Violated","public_witness":"terminal wrapper count differs from one or legacy status eprint remains"},
+    {"id":"N15","attack":"only one of the two status callsites is migrated or a third productive callsite appears","expected":"Violated","public_witness":"productive_status_callsites differs from exactly two"},
+    {"id":"N16","attack":"a diagnostic, warning, error, HTML warning or operational message is routed through a P1367 helper","expected":"Violated","public_witness":"diagnostic_helper_callsites is nonempty"},
+    {"id":"N17","attack":"test calls emit_watch_block or real stderr","expected":"Violated","public_witness":"test_forbidden_calls contains wrapper or stderr"},
+    {"id":"N18","attack":"test uses filesystem, environment, real clock, sleep, subprocess, watch or w","expected":"Violated","public_witness":"test_forbidden_calls contains an external or nondeterministic capability"},
+    {"id":"N19","attack":"fixture is split into multiple tests, omits one failure mode or does not assert success order/cardinality/bytes","expected":"Violated","public_witness":"test_function_count differs from one or required observation is absent"},
+    {"id":"N20","attack":"write_watch_block or emit_watch_block becomes pub or pub(crate), or a productive type/API is introduced","expected":"Violated","public_witness":"public_surface_delta is nonempty"},
+    {"id":"N21","attack":"status content, timestamp, spacing, P1366 order or any diagnostic formatting is changed together with flush","expected":"Violated","public_witness":"productive delta contains a frozen status or diagnostics change"},
+    {"id":"N22","attack":"polling, dependency handling, staging, publish, abandon, wait, eviction, another command or another product file changes","expected":"Violated","public_witness":"productive_delta_paths exceeds the frozen P1367 private fragment"}
+  ],
+  "opaque_cases": [
+    {"id":"O01","input":"instant at which flushed bytes physically reach a terminal device","expected":"Unknown","reason":"operating-system and device buffering are outside the observable fragment"},
+    {"id":"O02","input":"transcript from a real watch or w process","expected":"Unknown","reason":"process execution is prohibited by the memory policy"},
+    {"id":"O03","input":"a real stderr write or flush failure","expected":"Unknown","reason":"the deterministic fixture never accesses real stderr"},
+    {"id":"O04","input":"a real writer that accepts partial chunks or reports Interrupted","expected":"Unknown","reason":"retry is delegated to std::io::Write::write_all and is not simulated by the bounded fake"},
+    {"id":"O05","input":"color, fullscreen, cursor, cleaning and TTY detection","expected":"Unknown","reason":"explicit scope-out"},
+    {"id":"O06","input":"flush policy and physical delivery of non-watch diagnostics","expected":"Unknown","reason":"diagnostics are explicitly excluded from the P1367 boundary"},
+    {"id":"O07","input":"runtime behavior of polling, dependencies, staging, publish, abandon, wait and eviction","expected":"Unknown","reason":"watcher mechanics are not executed in this step"},
+    {"id":"O08","input":"general functional parity of watch, terminal or stderr with vanila","expected":"Unknown","reason":"the contract covers only integral write and explicit flush of two frozen status blocks"}
+  ],
+  "determinism_protocol": {
+    "repeat": ["P01","P02","P03","P04","P05","P06","P07","P08","P09","P10","P11","P12","P13","P14","P15","N01","N02","N03","N04","N05","N06","N07","N08","N09","N10","N11","N12","N13","N14","N15","N16","N17","N18","N19","N20","N21","N22","O01","O02","O03","O04","O05","O06","O07","O08"],
+    "orders": ["P01..P15,N01..N22,O01..O08","O08..O01,N22..N01,P15..P01"],
+    "required": "same classification, reason code and public witness under fresh repetition and reverse order",
+    "state_rule": "classifier is a pure function of frozen source and bounded in-memory observation fields; no cache, clock, filesystem, environment, stderr, process or evaluation-order dependence"
+  },
+  "calibration_budget": {
+    "full_corpus_runs_before_seal_max": 2,
+    "revision_attempts_per_failure_class_max": 2,
+    "dynamic_processes": 0,
+    "max_artifact_bytes_each": 262144,
+    "stop_rule": "two consecutive revisions without a changed classification vector or new witness require redesign; mutation score 1.0 ends calibration"
+  },
+  "counts": {"positive":15,"negative":22,"opaque":8},
+  "claim_limit": "This suite discriminates only the frozen P1367 integral-write, explicit-flush, error-propagation and two-status routing fragment; it does not attest isolation or general vanila parity."
+}

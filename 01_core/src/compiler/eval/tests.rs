@@ -17104,7 +17104,7 @@ mod tests {
     fn p1252_luma_e_tres_gradients_preservam_alpha_publicamente() {
         let m = p729_eval(
             "#let source = rgb(100%, 25.49%, 21.18%, 40%)\n\
-             #let direct = luma(54.02%, alpha: 40%)\n\
+             #let direct = luma(54.02%, 40%)\n\
              #let converted = luma(source)\n\
              #let l = gradient.linear(source, blue, space: luma)\n\
              #let r = gradient.radial(source, blue, space: luma)\n\

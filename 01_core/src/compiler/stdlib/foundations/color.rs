@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/color.md
-//! @prompt-hash b78f1b5c
+//! @prompt-hash c3001912
 //! @layer L1
-//! @updated 2026-08-13
+//! @updated 2026-09-12
 //!
 //! Construtores de cor: rgb, luma, oklab, oklch, linear_rgb, cmyk, hsl, hsv.
 //! Fatiado de `foundations.rs` no Passo 1032.
@@ -135,7 +135,7 @@ fn as_u8(v: &Value) -> SourceResult<u8> {
     }
 }
 
-/// `luma()`, `luma(l, alpha: alpha)` ou `luma(color)` → Color::Luma.
+/// `luma(lightness[, alpha])` ou `luma(color)` → Color::Luma.
 ///
 /// **P257 (ADR-0083 PROPOSTO)** — refactor: constrói `Color::Luma`
 /// dedicado (em vez de `Color::Srgb` cinzento). Aceita Int [0, 255]
@@ -143,15 +143,11 @@ fn as_u8(v: &Value) -> SourceResult<u8> {
 /// internamente. PDF output bit-equivalente via `to_srgb()` que
 /// expande Luma para sRGB cinzento.
 ///
-/// **P705** — aceita também `Ratio` [0%, 100%] (paridade vanilla
-/// `Component`, `visualize/color.rs:2677-2692`). Fallback silencioso
-/// verbatim: qualquer valor que não caste (tipo errado, fora de gama) ou a
-/// ausência do argumento devolve **branco**, não erro — replica
-/// `args.expect(...).unwrap_or(Component(Ratio::one()))` do vanilla,
-/// medido directamente (`luma("bad")`, `luma(300)`, `luma(150%)`,
-/// `luma()` → todos `luma(100%)` no vanilla). P1252 completa a forma
-/// `luma(l, alpha: alpha)` e a conversão `luma(color)`; nesta última, o cristalino
-/// preserva alpha como correção `Known-Upstream-Bug`.
+/// **P1358** — lightness é obrigatório e alpha é o segundo positional
+/// opcional. Ambos usam `Component`: Int [0, 255] ou Ratio [0%, 100%], com
+/// diagnósticos públicos para tipo/range inválido. Named args são rejeitados.
+/// A conversão `luma(color)` permanece integralmente a de P1252 e preserva
+/// alpha como correção `Known-Upstream-Bug`.
 /// ADR-0107: comportamento
 /// observável da língua, não mecânica — paridade exige replicar, não
 /// substituir por erro.
@@ -161,40 +157,68 @@ pub fn native_luma(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let alpha = match args.named.get("alpha") {
-        Some(value) => Some(component_to_ratio(value).ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                Span::detached(),
-                "luma(lightness, alpha: alpha): alpha inválido",
-            )]
-        })?),
-        None => None,
-    };
-    for key in args.named.keys() {
-        if key.as_str() != "alpha" {
-            return err(format!("luma(): argumento nomeado inesperado '{}'", key));
-        }
+    if let Some(key) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            named_span(args, key),
+            format!("unexpected argument: {key}"),
+        )]);
     }
     match args.items.as_slice() {
-        [] if alpha.is_none() => Ok(Value::Color(Color::luma(1.0))),
-        [Value::Color(color)] if alpha.is_none() => {
-            Ok(Value::Color((*color).to_space(ColorSpace::Luma)))
-        }
-        [v] => Ok(Value::Color(Color::Luma {
-            l: component_to_ratio(v).unwrap_or(1.0),
-            a: alpha.unwrap_or(1.0),
+        [] => Err(vec![SourceDiagnostic::error(
+            args.span,
+            "missing argument: lightness component",
+        )
+        .with_hint("try writing `white` or `luma(100%)`")]),
+        [Value::Color(color)] => Ok(Value::Color((*color).to_space(ColorSpace::Luma))),
+        [lightness] => Ok(Value::Color(Color::Luma {
+            l: luma_component(lightness, positional_span(args, 0))?,
+            a: 1.0,
         })),
-        _ => err(format!(
-            "luma() requer 0 ou 1 argumento posicional, recebeu {} args",
-            args.items.len()
-        )),
+        [Value::Color(_), _] => Err(vec![SourceDiagnostic::error(
+            positional_span(args, 1),
+            "unexpected argument",
+        )]),
+        [lightness, alpha] => Ok(Value::Color(Color::Luma {
+            l: luma_component(lightness, positional_span(args, 0))?,
+            a: luma_component(alpha, positional_span(args, 1))?,
+        })),
+        _ => Err(vec![SourceDiagnostic::error(
+            positional_span(args, 2),
+            "unexpected argument",
+        )]),
     }
 }
 
-fn component_to_ratio(v: &Value) -> Option<f32> {
+fn positional_span(args: &Args, index: usize) -> Span {
+    args.occurrences
+        .as_ref()
+        .and_then(|occurrences| {
+            occurrences.iter().filter(|item| item.name.is_none()).nth(index)
+        })
+        .map(|item| item.value_span)
+        .unwrap_or(Span::detached())
+}
+
+fn named_span(args: &Args, name: &str) -> Span {
+    args.occurrences
+        .as_ref()
+        .and_then(|occurrences| {
+            occurrences.iter().find(|item| item.name.as_deref() == Some(name))
+        })
+        .map(|item| item.span)
+        .unwrap_or(Span::detached())
+}
+
+fn luma_component(v: &Value, span: Span) -> SourceResult<f32> {
     match v {
-        Value::Int(i) if (0..=255).contains(i) => Some(*i as f32 / 255.0),
-        Value::Ratio(r) if (0.0..=1.0).contains(&r.get()) => Some(r.get() as f32),
+        Value::Int(i) if (0..=255).contains(i) => Ok(*i as f32 / 255.0),
+        Value::Int(_) => {
+            Err(vec![SourceDiagnostic::error(span, "number must be between 0 and 255")])
+        }
+        Value::Ratio(r) if (0.0..=1.0).contains(&r.get()) => Ok(r.get() as f32),
+        Value::Ratio(_) => {
+            Err(vec![SourceDiagnostic::error(span, "ratio must be between 0% and 100%")])
+        }
         // P705 — percentagens simples (`50%`, `v * 1%`) avaliavam para
         // Value::Relative neste cristalino (unificado com `length`);
         // desde P842 (#32) avaliam para `Value::Ratio` (braço acima) —
@@ -207,9 +231,18 @@ fn component_to_ratio(v: &Value) -> Option<f32> {
                 (true, true)
             ) =>
         {
-            Some(rel.rel as f32)
+            Ok(rel.rel as f32)
         }
-        _ => None, // neutro: N16[β] — Value não-numérico/ratio retorna None na coerção de componente de cor
+        Value::Relative(rel) if rel.abs == Length::ZERO => {
+            Err(vec![SourceDiagnostic::error(span, "ratio must be between 0% and 100%")])
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected integer or ratio, found {}",
+                if matches!(other, Value::Str(_)) { "string" } else { other.type_name() }
+            ),
+        )]),
     }
 }
 
@@ -706,8 +739,8 @@ mod tests_p705_luma_ratio {
 
     #[test]
     fn p1252_luma_lightness_alpha_preserva_alpha_publico() {
-        let mut args = Args::positional(vec![Value::Ratio(Ratio(0.5))]);
-        args.named.insert("alpha".into(), Value::Ratio(Ratio(0.4)));
+        let args =
+            Args::positional(vec![Value::Ratio(Ratio(0.5)), Value::Ratio(Ratio(0.4))]);
         assert_eq!(
             native_luma(&mut ctx(), &args, &NullWorld::default(), tfid()).unwrap(),
             Value::Color(Color::Luma { l: 0.5, a: 0.4 })
@@ -749,13 +782,14 @@ mod tests_p705_luma_ratio {
     }
 
     #[test]
-    fn percentagem_com_parte_absoluta_cai_no_fallback() {
-        // `50% + 1pt` não é um componente de cor válido (nem no vanilla) —
-        // deve cair no fallback branco, não ser tratado como 50%.
+    fn percentagem_com_parte_absoluta_e_tipo_invalido() {
+        // `50% + 1pt` não é um componente de cor válido (nem no vanilla) e
+        // deve propagar erro de tipo, não ser tratado como 50%.
         use crate::entities::layout_types::Length;
         use crate::entities::rel::Rel;
         let rel = Value::Relative(Rel { rel: 0.5, abs: Length::pt(1.0) });
-        assert_eq!(luma(vec![rel]), Value::Color(Color::luma(1.0)));
+        let error = p1358_error(Args::positional(vec![rel]));
+        assert_eq!(error.message, "expected integer or ratio, found relative length");
     }
 
     #[test]
@@ -765,26 +799,38 @@ mod tests_p705_luma_ratio {
     }
 
     #[test]
-    fn int_fora_de_gama_devolve_branco_nao_erro() {
-        // P705 — corrigido: paridade vanilla medida (luma(300) -> branco).
-        assert_eq!(luma(vec![Value::Int(300)]), Value::Color(Color::luma(1.0)));
-        assert_eq!(luma(vec![Value::Int(256)]), Value::Color(Color::luma(1.0)));
+    fn int_fora_de_gama_propaga_erro() {
+        for value in [300, 256] {
+            assert_eq!(
+                p1358_error(Args::positional(vec![Value::Int(value)])).message,
+                "number must be between 0 and 255"
+            );
+        }
     }
 
     #[test]
-    fn ratio_fora_de_gama_devolve_branco_nao_erro() {
-        assert_eq!(luma(vec![Value::Ratio(Ratio(1.5))]), Value::Color(Color::luma(1.0)));
-        assert_eq!(luma(vec![Value::Ratio(Ratio(-0.2))]), Value::Color(Color::luma(1.0)));
+    fn ratio_fora_de_gama_propaga_erro() {
+        for value in [1.5, -0.2] {
+            assert_eq!(
+                p1358_error(Args::positional(vec![Value::Ratio(Ratio(value))])).message,
+                "ratio must be between 0% and 100%"
+            );
+        }
     }
 
     #[test]
-    fn tipo_errado_devolve_branco_nao_erro() {
-        assert_eq!(luma(vec![Value::Str("bad".into())]), Value::Color(Color::luma(1.0)));
+    fn tipo_errado_propaga_erro() {
+        assert_eq!(
+            p1358_error(Args::positional(vec![Value::Str("bad".into())])).message,
+            "expected integer or ratio, found string"
+        );
     }
 
     #[test]
-    fn sem_argumentos_devolve_branco() {
-        assert_eq!(luma(vec![]), Value::Color(Color::luma(1.0)));
+    fn sem_argumentos_propaga_erro_com_hint() {
+        let error = p1358_error(Args::positional(vec![]));
+        assert_eq!(error.message, "missing argument: lightness component");
+        assert_eq!(error.hints, ["try writing `white` or `luma(100%)`"]);
     }
 
     #[test]
@@ -796,11 +842,7 @@ mod tests_p705_luma_ratio {
             tfid(),
         )
         .unwrap_err();
-        assert!(
-            e[0].message.contains("requer 0 ou 1 argumento posicional"),
-            "msg: {}",
-            e[0].message
-        );
+        assert!(e[0].message.starts_with("unexpected argument"), "msg: {}", e[0].message);
     }
 
     // ── P1043: Pares de independência testcase() para color.rs:87 e color.rs:155 ─
@@ -840,7 +882,7 @@ mod tests_p705_luma_ratio {
         use crate::entities::rel::Rel;
         // 155 - C1=T, C2=T: rel.abs == Length::ZERO && (0.0..=1.0).contains -> Some(0.5)
         let v = Value::Relative(Rel { rel: 0.5, abs: Length::ZERO });
-        assert_eq!(component_to_ratio(&v), Some(0.5));
+        assert_eq!(luma_component(&v, Span::detached()).ok(), Some(0.5));
     }
 
     #[test]
@@ -849,7 +891,7 @@ mod tests_p705_luma_ratio {
         use crate::entities::rel::Rel;
         // 155 - C1=T, C2=F: rel.abs == Length::ZERO && !contains -> None
         let v = Value::Relative(Rel { rel: 1.5, abs: Length::ZERO });
-        assert_eq!(component_to_ratio(&v), None);
+        assert!(luma_component(&v, Span::detached()).is_err());
     }
 
     #[test]
@@ -858,6 +900,68 @@ mod tests_p705_luma_ratio {
         use crate::entities::rel::Rel;
         // 155 - C1=F, C2=_: rel.abs != Length::ZERO -> None
         let v = Value::Relative(Rel { rel: 0.5, abs: Length::pt(1.0) });
-        assert_eq!(component_to_ratio(&v), None);
+        assert!(luma_component(&v, Span::detached()).is_err());
+    }
+
+    fn p1358_error(args: Args) -> SourceDiagnostic {
+        native_luma(&mut ctx(), &args, &NullWorld::default(), tfid())
+            .unwrap_err()
+            .remove(0)
+    }
+
+    #[test]
+    fn p1358_alpha_e_segundo_component_posicional() {
+        assert_eq!(
+            luma(vec![Value::Int(40), Value::Int(127)]),
+            Value::Color(Color::Luma { l: 40.0 / 255.0, a: 127.0 / 255.0 })
+        );
+        assert_eq!(
+            luma(vec![Value::Int(40), Value::Ratio(Ratio(0.5))]),
+            Value::Color(Color::Luma { l: 40.0 / 255.0, a: 0.5 })
+        );
+    }
+
+    #[test]
+    fn p1358_lightness_ausente_tem_mensagem_e_hint_publicos() {
+        let error = p1358_error(Args::positional(vec![]));
+        assert_eq!(error.message, "missing argument: lightness component");
+        assert_eq!(error.hints, ["try writing `white` or `luma(100%)`"]);
+    }
+
+    #[test]
+    fn p1358_component_propaga_tipo_e_ranges() {
+        for (items, expected) in [
+            (
+                vec![Value::Str("invalid".into())],
+                "expected integer or ratio, found string",
+            ),
+            (vec![Value::Int(-1)], "number must be between 0 and 255"),
+            (vec![Value::Int(256)], "number must be between 0 and 255"),
+            (vec![Value::Ratio(Ratio(-0.01))], "ratio must be between 0% and 100%"),
+            (vec![Value::Ratio(Ratio(1.01))], "ratio must be between 0% and 100%"),
+            (
+                vec![Value::Ratio(Ratio(0.1)), Value::Float(0.5)],
+                "expected integer or ratio, found float",
+            ),
+        ] {
+            assert_eq!(p1358_error(Args::positional(items)).message, expected);
+        }
+    }
+
+    #[test]
+    fn p1358_named_e_excesso_sao_unexpected_argument() {
+        let mut named = Args::positional(vec![Value::Int(128)]);
+        named.named.insert("alpha".into(), Value::Ratio(Ratio(0.4)));
+        assert_eq!(p1358_error(named).message, "unexpected argument: alpha");
+
+        let excessive =
+            Args::positional(vec![Value::Int(25), Value::Int(50), Value::Int(1)]);
+        assert!(p1358_error(excessive).message.starts_with("unexpected argument"));
+
+        let color_alpha = Args::positional(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Ratio(Ratio(0.5)),
+        ]);
+        assert!(p1358_error(color_alpha).message.starts_with("unexpected argument"));
     }
 }

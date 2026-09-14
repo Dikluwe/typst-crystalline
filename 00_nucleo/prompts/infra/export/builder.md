@@ -222,6 +222,20 @@ emite-se o stream sem `/Filter`.
 - Validação em poppler (`pdftoppm`, `pdftotext`) e ghostscript para documentos
   de benchmark após a mudança.
 
+### P1360 — exceção explícita para PDF pretty
+
+`PdfBuilder` recebe `PdfSerializationMode` separado de `StreamMode`. Em
+`Compact`, preserva integralmente P884. Em `Pretty`, os três caminhos de
+build emitem os content streams de página com `<< /Length N >>`, sem
+`/FlateDecode`, preservando em claro os bytes já produzidos por
+`build_page_stream`. Compressão de fontes, imagens, ICC e metadata permanece
+inalterada.
+
+Pretty não troca operadores verbose/compact, não liga/desliga tags, não muda
+IDs, xref, trailer, geometria ou texto. A aceitação observa stream de página
+legível e PDF parseável; não exige bytes, line count ou serializer krilla
+idênticos.
+
 ## §P941 — Glifos bitmap (CBDT/CBLC) como imagens XObject, não fonte embutida
 
 **Data:** 2026-07-31

@@ -627,6 +627,20 @@ O modo afeta somente o encode final: warnings, errors, feature gate, target e
 conteúdo avaliado permanecem iguais. Não ler CLI/env, inferir pelo path,
 duplicar o enum ou observar esse modo no pipeline paginado.
 
+## P1360 — transporte da serialização legível por target
+
+A pipeline oferece variantes explícitas que acrescentam `pretty: bool` às
+entrypoints usadas por L4, preservando wrappers anteriores com `false`.
+No PDF, o valor é encaminhado como `PdfSerializationMode` aos três ramos
+font-aware, sem alterar `StreamMode`, `PdfTags`, features, documento ou fases.
+No SVG, constrói `SvgOptions { pretty, ..Default::default() }`. No HTML,
+encaminha o valor ao exporter junto do `HtmlSerializationMode` já resolvido.
+PNG não recebe parâmetro novo.
+
+O pipeline não formata saída, não infere pretty pela extensão e não combina
+pretty com modo compacto/tagging. As variantes de compatibilidade continuam
+com saída compacta (`pretty=false`).
+
 ## P1340 — delegação da estabilização contextual seletiva
 
 ### Medição anterior à decisão

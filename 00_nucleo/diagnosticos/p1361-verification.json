@@ -1,0 +1,204 @@
+{
+  "schema": "tekt-restricted-verification/v1",
+  "step": "P1361",
+  "verified_at": "2026-09-13",
+  "verifier": "/root/verificador_p1361",
+  "method": "read-only inspection of protected artifacts, candidate source and bounded receipts; no Cargo, product, test, watch or w execution by the verifier",
+  "verdict": "PASS_RETROSPECTIVE_LIMITED",
+  "regime": "full-segregated-protocol",
+  "isolation_attestation": "executado sem atestacao de isolamento",
+  "prospective_seal": false,
+  "general_equivalence_claim": false,
+  "watch_status_claim": false,
+  "protected_inputs": {
+    "status": "UNCHANGED",
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1361-manifest.json",
+      "sha256": "10c0d40a0e8dc6fc4507dd5cb9675018a7f55bf100e559e72916d084e051ac40"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1361-contract.json",
+      "sha256": "e0362460eceb7b74232463a694ee4c0dada9cfcd50ad2f724db4d46887e54ced"
+    },
+    "oracles": {
+      "path": "00_nucleo/diagnosticos/p1361-oracles.json",
+      "sha256": "92ca8560fdb6714e23957ce0f0b74da1baeeb2adf13e383a663d0852b7de48e5"
+    },
+    "mutants": {
+      "path": "00_nucleo/diagnosticos/p1361-mutants.json",
+      "sha256": "1153d68cff2cba129e1aed9f57276f52ff80f5430088617c1ca204230de82315"
+    },
+    "contract_gate": {
+      "path": "00_nucleo/diagnosticos/p1361-contract-gate.py",
+      "sha256": "7102b7b1f8cd3ef2731381d8da2affbde7b8e2e9a0952034e84f07a43d9d6fda"
+    },
+    "retrospective_seal": {
+      "path": "00_nucleo/diagnosticos/p1361-seal.json",
+      "sha256": "3065b76d59540284a6e2d1508cf44a383c5fb27b3c6d801f7af842c61c2ad8f6"
+    },
+    "execution_step": {
+      "path": "00_nucleo/materialization/typst-passo-1361.md",
+      "sha256": "b2820089d6c938ccbb22b69961e043ab002e2e4d28d8852470e2b1acdba05c4f"
+    },
+    "preflight": {
+      "path": "00_nucleo/diagnosticos/p1361-duration-preflight.md",
+      "sha256": "916c27c1d94fb530b711c5940df2eb837eb226f04848bef08d5d835f3054940b"
+    },
+    "productive_owner_prompt": {
+      "path": "00_nucleo/prompts/shell/duration.md",
+      "sha256": "3d16117ca89f924a316185952ebba78ff18b5ae3125dd46f089835241e7273e9"
+    },
+    "crate_index_prompt": {
+      "path": "00_nucleo/prompts/shell.md",
+      "sha256": "a9903c7cf25c1bc12ef7c60924fc2463ba90281203ab5ab074f4aa5a6895bac2"
+    },
+    "integration_test_owner_prompt": {
+      "path": "00_nucleo/prompts/shell/tests/p1361-duration.md",
+      "sha256": "4a844cbedd5daf1d4a998e97660ed66b10c195e8b329c56c10c940e779d0fa90"
+    },
+    "ratified_vanilla_source": {
+      "path": "lab/typst-original/crates/typst-utils/src/duration.rs",
+      "sha256": "8c4aebfcb63da6b6df1cbd9c539ba3142dbd9496b6e23d4c8f9fd10104019a07",
+      "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d"
+    }
+  },
+  "candidate": {
+    "productive_source": {
+      "path": "02_shell/src/duration.rs",
+      "sha256": "b0bd3c7e720b276b09b5fd5d796f7b0ce75af0d93fa5c84d5c11fedb438ed928"
+    },
+    "crate_index": {
+      "path": "02_shell/src/lib.rs",
+      "sha256": "6f558a169f306c04dc9ef848945f3f380e2ac0d81ba7d45e28289bd072cc7f82"
+    },
+    "independent_test": {
+      "path": "02_shell/tests/p1361_duration.rs",
+      "sha256": "fcae4541293b23630b335f92d05929307c9ba337c8170a1735f707a3166d5252"
+    },
+    "public_signature": "pub fn format_duration(duration: Duration) -> impl Display",
+    "purity_and_memory": {
+      "verdict": "PASS_STATIC",
+      "evidence": [
+        "the formatter receives a frozen Duration and returns a single-field Display wrapper",
+        "formatting uses a fixed number of scalar locals and writes pieces directly to Formatter",
+        "there is no input-sized collection, recursion, loop, global mutable state or retained cache in productive code",
+        "there is no clock read, sleep, filesystem, environment, network, process, watch or w access"
+      ],
+      "productive_auxiliary_space": "constant with respect to the input duration",
+      "test_bound": "22 literal cases; seven sequential observations using bounded BTreeMap instances"
+    }
+  },
+  "contract_gate": {
+    "kind": "deterministic-static-only",
+    "result": "PASS_RETROSPECTIVE_LIMITED",
+    "mutation_score": 1.0,
+    "valid_mutants": 22,
+    "valid_mutants_classified_violated": 22,
+    "opaque_unknown": 7,
+    "opaque_acceptance_credit": 0,
+    "excluded_equivalent_mutant": "E01",
+    "limitation": "The score establishes discrimination of the frozen static contract and witnesses; it is not a general executable equivalence claim for the candidate."
+  },
+  "receipts": {
+    "accepted_total_bytes": 323191,
+    "per_file_limit_bytes": 4194304,
+    "total_limit_bytes": 16777216,
+    "within_limits": true,
+    "test": {
+      "selection": "p1361_duration_exact_vector_is_deterministic_and_boundary_safe, exact integration-test target",
+      "exit_code": 0,
+      "result": "1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out",
+      "stdout": {
+        "path": "/tmp/p1361-green-final.stdout",
+        "bytes": 187,
+        "sha256": "c9909a215704348c60ed2edc5942d1fe44d63146e3b11fd84b8f8b4cab2bed21"
+      },
+      "stderr": {
+        "path": "/tmp/p1361-green-final.stderr",
+        "bytes": 22953,
+        "sha256": "4460b3e614fd5e38a0a0f7e3d42322017bbf27a3a59c0d4044ef41900f138b89"
+      }
+    },
+    "build": {
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/p1361-build-final.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/p1361-build-final.stderr",
+        "bytes": 22783,
+        "sha256": "01226c52b1f4a965398f84281a7904a44b28940518441f907a773ae6ec6430d0"
+      }
+    },
+    "format": {
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "crystalline_lint": {
+      "exit_code": 0,
+      "violations": 0,
+      "stdout": {
+        "path": "/tmp/p1361-lint-final.stdout",
+        "bytes": 277268,
+        "sha256": "425e2317c91dc661c22df9409058927b55b7de0b5722f380219470520ec79f79"
+      },
+      "stderr": {
+        "path": "/tmp/p1361-lint-final.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "The receipt contains warnings and informational findings, but no violation."
+    },
+    "execution_policy": {
+      "cargo_build_jobs": 1,
+      "timeout_seconds_max": 120,
+      "streams_redirected": true,
+      "broad_suite_executed": false,
+      "watch_or_w_started": false,
+      "timeout_or_oom": false,
+      "zero_test_receipt": false
+    }
+  },
+  "historical_red": {
+    "causal": true,
+    "result": "compile failure E0432: unresolved import typst_shell::duration",
+    "stdout": {
+      "path": "/tmp/p1361-red-test.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/p1361-red-test.stderr",
+      "bytes": 23171,
+      "sha256": "be5e5b58fe9ccaf52b327c21ab964d33c7c418509b139ca27a398b50cec08b5b"
+    }
+  },
+  "resolved_contract_corrections": [
+    {
+      "id": "C01",
+      "finding": "the initial zero expectation was wrong",
+      "resolution": "Duration::ZERO is frozen as 0 s from the ratified vanilla source"
+    },
+    {
+      "id": "C02",
+      "finding": "changing only >= 5 min to > 5 min is observationally equivalent for Duration",
+      "resolution": "E01 has zero credit and valid M07 shifts the threshold to 300.010 s, killed by B04 at 300.006 s"
+    }
+  ],
+  "lineage_limitations": [
+    "No prospective seal exists for the final lineage revision.",
+    "Productive owner metadata and the dedicated integration-test L0/header were formalized after the first candidate and first GREEN.",
+    "The shared workspace and inherited context do not attest technical isolation.",
+    "The certificate covers only the pure P1361 duration formatter/adaptor fragment and does not attest watch status behavior or general equivalence."
+  ]
+}

@@ -1,0 +1,365 @@
+{
+  "schema": "p1356-oracles-v1",
+  "artifact": {
+    "path": "00_nucleo/diagnosticos/p1356-oracles.json",
+    "kind": "segregated_positive_and_opaque_oracles",
+    "status": "CANDIDATE_UNSEALED",
+    "created_utc": "2026-09-12T17:45:35Z",
+    "step": 1356,
+    "execution_performed": false,
+    "runner_read": false,
+    "runner_executed": false,
+    "product_observations_collected": false,
+    "verdict_issued": false
+  },
+  "authority": {
+    "regime": "full_segregated_materialization_protocol",
+    "role": "oracle_author",
+    "executor": "/root/oraculos_p1356",
+    "environment": "Codex delegated agent in the shared typst-crystalline worktree",
+    "context_inherited": "none",
+    "candidate_implementation_read": false,
+    "write_authority": [
+      "00_nucleo/diagnosticos/p1356-oracles.json"
+    ],
+    "repository_read_allowlist": [
+      "00_nucleo/materialization/typst-passo-1356.md",
+      "00_nucleo/diagnosticos/p1356-contract.json"
+    ],
+    "explicitly_excluded_inputs": [
+      "any P1356 harness implementation",
+      "any P1356 runner implementation",
+      "any P1356 matrix output",
+      "any P1356 manifest",
+      "any P1356 seal",
+      "candidate product code"
+    ]
+  },
+  "frozen_inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1356.md",
+      "sha256": "0e0cdbbb7016293898ff096fc956aef361c2a15dec527b2f4c105b0649cf2ddc"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1356-contract.json",
+      "sha256": "203f4c9ba20705ac23c9133835b967bcf84a2d3055d01cc68d9366e2c9f0ec1f"
+    }
+  ],
+  "baseline_identity_constraints": {
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_tree": "2847920eeaa98d26a41dc6fb0f9c02334b9d593b",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "vanilla_version_sentinel": "typst 0.15.1 (586e1bd4)",
+    "identity_rule": "commit, tree, build recipe and binary SHA-256 are authoritative; the version string is only a sentinel",
+    "historical_snapshot_commit_prefix": "a51e02804",
+    "historical_snapshot_complete_identity_required_before_execution": true
+  },
+  "oracle_semantics": {
+    "positive_expected": "Preserved",
+    "opaque_expected": "Unknown",
+    "negative_cases_owned_elsewhere": true,
+    "positive_pair_rule": "A positive oracle supplies complete, identity-valid bilateral observations whose declared public semantic, syntactic, morphological or diagnostic observable is the same; a conforming evaluator returns Preserved.",
+    "sentinel_self_pair_rule": "Each public sentinel is a positive baseline self-pair oracle. Preserved means the harness retained the complete public observable without changing its kind, value, diagnostic meaning or morphology; it does not assert that the current crystalline product already matches the baseline.",
+    "unknown_dominates": true,
+    "unknown_never_means_preserved": true,
+    "allowed_unknown_reason_codes": [
+      "AMBIGUOUS_PRODUCT_IDENTITY",
+      "SOURCE_MISSING",
+      "TIMEOUT",
+      "PARSER_UNSUPPORTED",
+      "OBSERVER_INCOMPLETE",
+      "ENVIRONMENT_INVALID",
+      "BUDGET_EXHAUSTED"
+    ],
+    "profile_order": [
+      "default",
+      "html",
+      "a11y-extras",
+      "html+a11y"
+    ],
+    "conceptual_only": "Sources, expressions and commands below define oracle stimuli and public observations. They were not executed while authoring this artifact."
+  },
+  "positive_contract_fixtures": [
+    {
+      "id": "P01_EQUAL_VALUE",
+      "purpose": "accept equal complete language values",
+      "input": {
+        "left": {"complete": true, "outcome_kind": "VALUE", "public_observable": "value:version(0,15,1)", "reason_code": null},
+        "right": {"complete": true, "outcome_kind": "VALUE", "public_observable": "value:version(0,15,1)", "reason_code": null}
+      },
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "P02_EQUAL_DIAGNOSTIC",
+      "purpose": "accept equal complete public diagnostics",
+      "input": {
+        "left": {"complete": true, "outcome_kind": "DIAGNOSTIC", "public_observable": "diagnostic:invalid-key", "reason_code": null},
+        "right": {"complete": true, "outcome_kind": "DIAGNOSTIC", "public_observable": "diagnostic:invalid-key", "reason_code": null}
+      },
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "P03_PUBLIC_KIND_IS_OBSERVABLE",
+      "purpose": "retain function kind rather than collapsing it into binding presence",
+      "input": {
+        "left": {"complete": true, "outcome_kind": "VALUE", "public_observable": "kind:function", "reason_code": null},
+        "right": {"complete": true, "outcome_kind": "VALUE", "public_observable": "kind:function", "reason_code": null}
+      },
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "P04_PRELUDE_ALIAS_IS_INVENTORIED",
+      "purpose": "retain an independently public alias introduced through prelude_path",
+      "input": {
+        "catalog_routes": ["format.pdf", "pdf"],
+        "scheduled_profiles": ["default", "html", "a11y-extras", "html+a11y"],
+        "bilateral_feature_vectors_equal": true
+      },
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "P05_PROFILE_SYMMETRY",
+      "purpose": "accept a cell only when both products receive the same frozen feature vector",
+      "input": {
+        "profile": "html+a11y",
+        "left_features": ["html", "a11y-extras"],
+        "right_features": ["html", "a11y-extras"]
+      },
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "P06_REVERSE_ORDER_RECANONICALIZED",
+      "purpose": "preserve the same semantic payload under physical reverse execution",
+      "input": {
+        "canonical_execution_ids": ["a/default", "b/default"],
+        "reverse_execution_ids": ["b/default", "a/default"],
+        "canonical_serialization_ids": ["a/default", "b/default"]
+      },
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "P07_RENDER_BYTES_MECHANICALLY_DIFFERENT",
+      "purpose": "ignore rendered-byte differences when the declared public language witness is preserved",
+      "input": {
+        "left_render_sha256_token": "render-bytes-a",
+        "right_render_sha256_token": "render-bytes-b",
+        "left_public_morphology": "same-morphology",
+        "right_public_morphology": "same-morphology",
+        "declared_render_bytes_as_public_observable": false
+      },
+      "expected": "Preserved",
+      "reason_code": null
+    }
+  ],
+  "required_public_sentinels": [
+    {
+      "id": "S01_FORMAT_BINDINGS_KINDS_SCOPES_ALIASES",
+      "family": "format binding types, scopes and aliases",
+      "profiles": ["default", "html", "a11y-extras", "html+a11y"],
+      "source": "#repr((type(format), type(format.pdf), type(pdf), type(format.html), type(html), type(format.svg), type(svg), type(format.png), type(png), type(format.bundle), type(asset)))",
+      "expressions": ["type(format)", "type(format.pdf)", "type(pdf)", "type(format.html)", "type(html)", "type(format.svg)", "type(svg)", "type(format.png)", "type(png)", "type(format.bundle)", "type(asset)"],
+      "conceptual_commands": ["NEW_VANILLA compile --features PROFILE s01.typ s01.out", "NEW_VANILLA query --features PROFILE s01.typ '<metadata>'"],
+      "public_observable": "canonical tuple of public kinds plus independent presence of every qualified and prelude alias; html and pdf must be observed as function, never rewritten to module",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S02_FORMAT_SET_RULE_SCOPE_AND_PRECEDENCE",
+      "family": "format set rules, CLI precedence and container rejection",
+      "profiles": ["default", "a11y-extras"],
+      "source": "#set pdf(tagged: true, pretty: true)\nDocument control\n#box[#set pdf(tagged: false)\nNested rejection control]",
+      "expressions": ["top-level set rule acceptance", "document setting versus CLI override", "nested set rule rejection diagnostic"],
+      "conceptual_commands": ["NEW_VANILLA compile --pdf-tagged=false --pretty=false s02.typ s02.pdf", "NEW_VANILLA compile --pdf-tagged=true --pretty=true s02.typ s02.pdf"],
+      "public_observable": "top-level acceptance, frozen precedence of document settings versus CLI options, and public rejection diagnostic for a format set rule inside a container",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S03_PDF_NAMED_ARGUMENTS_WARNINGS_INCOMPATIBILITIES",
+      "family": "pdf named arguments, warnings and incompatibilities",
+      "profiles": ["default", "a11y-extras"],
+      "source": "#set pdf(pages: auto, standard: auto, tagged: true, pretty: true)\nPDF option probe",
+      "expressions": ["pdf(pages:)", "pdf(standard:)", "pdf(tagged:)", "pdf(pretty:)"],
+      "conceptual_commands": ["NEW_VANILLA compile s03-valid.typ s03-valid.pdf", "NEW_VANILLA compile s03-incompatible.typ s03-incompatible.pdf"],
+      "public_observable": "named-argument acceptance and canonical public warnings or incompatibility diagnostics; PDF bytes are excluded unless a named semantic witness is declared",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S04_LUMA_OMISSION_HINT_ALPHA",
+      "family": "luma omitted lightness, hint and integer alpha",
+      "profiles": ["default", "html", "a11y-extras", "html+a11y"],
+      "source": "#repr((luma(), luma(128), luma(128, 0), luma(128, 255)))",
+      "expressions": ["luma()", "luma with hint", "luma(..., 0)", "luma(..., 255)"],
+      "conceptual_commands": ["NEW_VANILLA compile --features PROFILE s04.typ s04.out"],
+      "public_observable": "canonical language values and boundary acceptance for integer alpha 0 through 255, including omitted lightness and hint behavior",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S05_ARRAY_TO_DICT_INVALID_KEY_DIAGNOSTIC",
+      "family": "array.to-dict invalid-key diagnostic",
+      "profiles": ["default", "html", "a11y-extras", "html+a11y"],
+      "source": "#((\"ok\", 1), (1, 2)).to-dict()",
+      "expressions": ["array.to-dict() with a non-string key"],
+      "conceptual_commands": ["NEW_VANILLA compile --features PROFILE s05.typ s05.out"],
+      "public_observable": "public diagnostic meaning and message for the invalid key, including the source span when exposed publicly",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S06_COLUMNS_SEPARATOR_CASES",
+      "family": "columns separator in LTR, RTL, empty-column and custom-content cases",
+      "profiles": ["default", "a11y-extras"],
+      "source": "#columns(2, separator: line(length: 100%))[A #colbreak() B]\n#set text(dir: rtl)\n#columns(2, separator: [|])[يمين #colbreak()]",
+      "expressions": ["LTR separator", "RTL separator", "empty column", "custom separator content"],
+      "conceptual_commands": ["NEW_VANILLA compile s06.typ s06.pdf", "PUBLIC_LAYOUT_OBSERVER inspect s06.pdf --witness columns-separator"],
+      "public_observable": "semantic or morphological separator presence, direction, placement and empty-column behavior; raw render-byte identity is excluded",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S07_LONE_TAGGED_BLOCK_VERTICAL_EXPANSION",
+      "family": "lone tagged block vertical expansion",
+      "profiles": ["a11y-extras", "html+a11y"],
+      "source": "#block(height: 100%)[#metadata(\"tagged-lone\")<lone> Lone]\n#block(height: 100%)[First #metadata(\"tagged-multi\")<multi> Second]",
+      "expressions": ["lone child tagged block", "multiple-child control"],
+      "conceptual_commands": ["NEW_VANILLA compile --features a11y-extras s07.typ s07.pdf", "PUBLIC_LAYOUT_OBSERVER inspect s07.pdf --witness vertical-expansion-and-tags"],
+      "public_observable": "vertical expansion and tag morphology of the lone-child case compared with the multiple-child control",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S08_CJK_PAIR_POSITION_AND_BREAK",
+      "family": "CJK pairs by position and break behavior",
+      "profiles": ["default", "html", "a11y-extras", "html+a11y"],
+      "source": "｟甲｠ 〘乙〙 〝丙〟",
+      "expressions": ["｟｠ at start, middle and line boundary", "〘〙 at start, middle and line boundary", "〝〟 at start, middle and line boundary"],
+      "conceptual_commands": ["NEW_VANILLA compile --features PROFILE s08.typ s08.out", "PUBLIC_TEXT_LAYOUT_OBSERVER inspect s08.out --witness positions-and-breaks"],
+      "public_observable": "language-level position and line-break morphology for all three punctuation pairs",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S09_HTML_AUTHOR_META_CARDINALITY",
+      "family": "one HTML author meta element per author",
+      "profiles": ["html", "html+a11y"],
+      "source": "#set document(author: (\"Ada\", \"Grace\", \"Linus\"))\nAuthors",
+      "expressions": ["document authors list", "HTML head author metadata"],
+      "conceptual_commands": ["NEW_VANILLA compile --features PROFILE --format html s09.typ s09.html", "PUBLIC_HTML_OBSERVER select s09.html 'head meta[name=author]'"],
+      "public_observable": "exactly three author meta elements, one per author, preserving author order and content",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S10_CLI_PUBLIC_OPTIONS",
+      "family": "CLI input, watch, viewer, pretty, tagged and PPI options",
+      "profiles": ["default", "html", "a11y-extras", "html+a11y"],
+      "source": "CLI probe document",
+      "expressions": ["-i", "watch --no-fullscreen", "--open=VIEWER", "--pretty", "--pretty=true", "--pretty=false", "--pdf-tagged", "--pdf-tagged=true", "--pdf-tagged=false", "--ppi"],
+      "conceptual_commands": ["NEW_VANILLA compile -i key=value s10.typ s10.pdf", "NEW_VANILLA watch --no-fullscreen --open=VIEWER s10.typ s10.pdf", "NEW_VANILLA compile --pretty s10.typ s10.pdf", "NEW_VANILLA compile --pretty=false --pdf-tagged=true --ppi 144 s10.typ s10.pdf"],
+      "public_observable": "option acceptance, exit status, public output meaning and diagnostics; process timing and scheduling are excluded",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S11_DURATION_FORMATTER_BOUNDARIES",
+      "family": "exact duration formatter boundaries",
+      "profiles": ["default"],
+      "source": "No Typst source; this is a public CLI duration-formatting oracle.",
+      "expressions": ["one unit below each formatter transition", "exactly at each transition", "one unit above each transition", "rounding and pluralization controls"],
+      "conceptual_commands": ["NEW_VANILLA PUBLIC_DURATION_SURFACE --duration DURATION_BOUNDARY_VECTOR"],
+      "public_observable": "exact public formatted strings for the frozen boundary vector, captured from the authoritative new vanilla before comparison; no boundary value or expected string may be inferred from the current product",
+      "expected": "Preserved",
+      "reason_code": null
+    },
+    {
+      "id": "S12_SYS_VERSION_EXACT_VALUE",
+      "family": "sys.version exact language value",
+      "profiles": ["default", "html", "a11y-extras", "html+a11y"],
+      "source": "#repr(sys.version == version(0, 15, 1))",
+      "expressions": ["sys.version", "version(0, 15, 1)", "sys.version == version(0, 15, 1)"],
+      "conceptual_commands": ["NEW_VANILLA compile --features PROFILE s12.typ s12.out"],
+      "public_observable": "the exact language value version(0, 15, 1) and equality result true; no inference about why the value has that revision",
+      "expected": "Preserved",
+      "reason_code": null
+    }
+  ],
+  "opaque_fixtures": [
+    {
+      "id": "O01_AMBIGUOUS_PRODUCT_IDENTITY",
+      "deliberately_unavailable_fact": "which executable produced the otherwise complete-looking observation",
+      "input": {"complete": false, "binary_sha256": null, "commit": null, "observable_token": "value:any"},
+      "expected": "Unknown",
+      "reason_code": "AMBIGUOUS_PRODUCT_IDENTITY"
+    },
+    {
+      "id": "O02_SOURCE_MISSING",
+      "deliberately_unavailable_fact": "the source bytes named by the fixture receipt",
+      "input": {"complete": false, "source_sha256": null, "source_reference": "missing://opaque-source"},
+      "expected": "Unknown",
+      "reason_code": "SOURCE_MISSING"
+    },
+    {
+      "id": "O03_TIMEOUT",
+      "deliberately_unavailable_fact": "a completed public observation before the frozen timeout",
+      "input": {"complete": false, "timeout_reached": true, "partial_stdout_must_not_be_compared": true},
+      "expected": "Unknown",
+      "reason_code": "TIMEOUT"
+    },
+    {
+      "id": "O04_PARSER_UNSUPPORTED",
+      "deliberately_unavailable_fact": "the semantic value inside a syntactically valid but intentionally unsupported observer payload",
+      "input": {"complete": false, "payload": "opaque-public-value-v1", "parser_support": false},
+      "expected": "Unknown",
+      "reason_code": "PARSER_UNSUPPORTED"
+    },
+    {
+      "id": "O05_OBSERVER_INCOMPLETE",
+      "deliberately_unavailable_fact": "whether a public morphological witness omitted by the observer differs",
+      "input": {"complete": false, "captured_fields": ["exit_code", "stdout_sha256"], "missing_fields": ["canonical_observable_sha256"]},
+      "expected": "Unknown",
+      "reason_code": "OBSERVER_INCOMPLETE"
+    },
+    {
+      "id": "O06_ENVIRONMENT_INVALID",
+      "deliberately_unavailable_fact": "whether the observation was produced under the frozen symmetric profile environment",
+      "input": {"complete": false, "left_profile_features": ["html"], "right_profile_features": [], "environment_receipt_valid": false},
+      "expected": "Unknown",
+      "reason_code": "ENVIRONMENT_INVALID"
+    },
+    {
+      "id": "O07_BUDGET_EXHAUSTED",
+      "deliberately_unavailable_fact": "the observation that would require work beyond the predeclared oracle budget",
+      "input": {"complete": false, "budget_declared": true, "budget_remaining": 0, "observation_started": false},
+      "expected": "Unknown",
+      "reason_code": "BUDGET_EXHAUSTED"
+    }
+  ],
+  "gate_requirements": {
+    "positive_fixture_count": 7,
+    "required_public_sentinel_count": 12,
+    "opaque_fixture_count": 7,
+    "positive_rule": "every positive contract fixture and every required public sentinel self-pair returns Preserved with null reason_code",
+    "opaque_rule": "every opaque fixture returns Unknown with exactly its predeclared allowed reason_code",
+    "exclusivity_rule": "no non-opaque fixture may satisfy the gate as Unknown and no opaque fixture may satisfy it as Preserved",
+    "determinism_rule": "two repetitions in canonical and reverse physical order produce byte-identical canonically sorted oracle result payloads",
+    "profile_rule": "every sentinel is scheduled in every profile listed by that sentinel and both sides receive an identical frozen feature vector",
+    "identity_rule": "a fixture cannot be Preserved unless all required product and source identities are complete and valid",
+    "mechanics_rule": "render bytes, process order and internal representation cannot change a verdict unless the fixture explicitly declares them as the public observable",
+    "execution_deferred": true
+  },
+  "limitations": [
+    "This artifact defines positive and deliberately opaque oracles only; adversarial negative mutants are owned by the adversary role.",
+    "No runner, harness, matrix, manifest, seal or candidate product code was read.",
+    "No source, expression, command, product or oracle was executed.",
+    "Preserved on a sentinel self-pair proves oracle retention of its public observable, not current crystalline parity.",
+    "Exact values not stated by the two frozen inputs, including duration strings and the complete old vanilla commit identity, remain measurements required before execution and are not guessed here."
+  ]
+}
