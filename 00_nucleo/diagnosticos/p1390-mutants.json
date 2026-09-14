@@ -1,0 +1,14 @@
+{
+  "schema": "tekt-mutants/v1",
+  "step": 1390,
+  "mutants": [
+    {"id":"M1","change":"keep unequal pair rejected","killer":"positive pairs remain two pages"},
+    {"id":"M2","change":"reserve global maximum twice","killer":"One differs from vanila"},
+    {"id":"M3","change":"omit second line metrics","killer":"fractional tail overshoots"},
+    {"id":"M4","change":"accept a size at or below outer","killer":"fail-closed control"},
+    {"id":"M5","change":"accept multiword body","killer":"P1389 multiword control"},
+    {"id":"M6","change":"remove forced outer flush","killer":"More differs"},
+    {"id":"M7","change":"duplicate block boundary","killer":"P1388 boundary control"},
+    {"id":"M8","change":"alter equal-size path","killer":"P1389 matrix"}
+  ]
+}

@@ -1,5 +1,5 @@
 # Prompt L0 — layout de sequência
-Hash do Código: 14ff41c2
+Hash do Código: 0f4d3dd7
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/layout/sequence.rs`
@@ -534,3 +534,36 @@ recursão, coleção proporcional, API pública ou mudança de fase.
 `Lead`, `More`, `One`, `Two`, `After` e `Tail`, dentro de 0,001pt. 20→20 sem
 wrap e os controles P1374–P1388 permanecem exatos. Multiword e mais de um wrap
 continuam `Unknown`.
+
+## P1390 — wrap único entre wrappers de tamanhos desiguais
+
+### Medição anterior à decisão
+
+Nos pares size-only 21→24, 24→21, 22→30 e 30→22, ambos os motores quebram
+exatamente antes do segundo fragmento. O vanila mantém uma página e
+`After=Tail=220,166`; o cristalino P1389 preserva as duas linhas, mas pagina
+`After`. As posições de `More` também divergem nas quatro células.
+
+### Decisão interna
+
+O certificado de wrap único passa a aceitar também exatamente dois
+`Styled(Text)` size-only desiguais e estritamente maiores que o estilo
+exterior, com uma palavra não-whitespace por body, wrap somente na fronteira
+entre eles e reserva vertical completa na região.
+
+O carrier privado e os dois fechamentos exteriores de P1389 são reutilizados.
+A altura fixa soma separadamente `top + descent + leading exterior` da
+primeira e da segunda linha. Repetir o máximo global para ambas é proibido:
+essa mecânica superestima uma das linhas quando os tamanhos diferem. A
+boundary P1388 continua separada e aplicada uma vez.
+
+Tamanho igual continua pertencendo a P1389. Tamanho igual ou abaixo do
+exterior, texto multiword, delta composto, terceiro fragmento, wrapper
+aninhado, wrap interno/múltiplo, forma opaca e reserva insuficiente continuam
+`Unknown`. Não há API pública, simulação, recursão ou coleção proporcional.
+
+### Aceitação
+
+21→24, 24→21, 22→30 e 30→22 ficam em uma página e coincidem com o vanila em
+`Lead`, `More`, `One`, `Two`, `After` e `Tail` dentro de 0,001pt. P1389 igual,
+P1388 sem wrap e os controles P1374–P1387 conservam seus vereditos.

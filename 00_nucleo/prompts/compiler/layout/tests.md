@@ -1,5 +1,5 @@
 # Prompt L0 — regressões do motor de layout
-Hash do Código: f2dc7523
+Hash do Código: 6b581e08
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -130,3 +130,19 @@ Adicionar controles independentes que congelem, por página e bbox:
 Os testes devem matar separadamente: gap omitido; Place ancorado no topo;
 correção apenas em replay; constante em pt; e translação global de itens em
 Cursor. Não podem ler campos internos como substituto do observável.
+
+## P1390 — regressão do wrap desigual anterior a `fr`
+
+### Medição anterior à decisão
+
+Nos pares 21→24 e 24→21, o vanila conserva uma página e alinha `After` com
+`Tail`; o cristalino P1389 pagina `After`. Ambos já concordam que existe um
+único wrap antes de `More`, portanto o teste não deve confundir morfologia com
+a reserva vertical fracionária.
+
+### Obrigação test-only
+
+Adicionar regressão bilateral das duas ordens que exige uma página,
+`After=Tail` dentro de 0,001pt e duas baselines distintas. Preservar como
+controles o par igual P1389, a boundary P1388 e o multiword opaco. O teste não
+pode inspecionar o carrier privado nem impor estrutura de dados produtiva.

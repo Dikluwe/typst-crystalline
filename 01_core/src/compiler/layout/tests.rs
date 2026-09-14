@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 09301c53
+//! @prompt-hash 04b54bf9
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -6316,6 +6316,28 @@ Tail"#,
         );
         assert_eq!(doc.pages.len(), 1);
         assert!((p1379_text_y(&doc, "After") - p1379_text_y(&doc, "Tail")).abs() < 0.001);
+    }
+
+    #[test]
+    fn p1390_wrap_desigual_nas_duas_ordens_distribui_ate_o_fundo() {
+        for (first, second) in [(21, 24), (24, 21), (22, 30), (30, 22)] {
+            let doc = p1385_layout_pair(first, second);
+            assert_eq!(doc.pages.len(), 1, "first={first}, second={second}");
+            assert_ne!(p1379_text_y(&doc, "Lead"), p1379_text_y(&doc, "More"));
+            let after = p1379_text_y(&doc, "After");
+            let tail = p1379_text_y(&doc, "Tail");
+            assert!(
+                (after - tail).abs() < 0.001,
+                "first={first}, second={second}, After={after}, Tail={tail}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1390_wrap_com_segundo_tamanho_exterior_permanece_opaco() {
+        let doc = p1385_layout_pair(40, 11);
+        assert_ne!(p1379_text_y(&doc, "Lead"), p1379_text_y(&doc, "More"));
+        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
     }
 
     #[test]

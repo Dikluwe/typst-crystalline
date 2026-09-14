@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence.md
-//! @prompt-hash 7d574d32
+//! @prompt-hash b5c3d127
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -203,6 +203,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
     // P1381 — espelha os acumuladores escalares de `flush_line`: o maior
     // estilo parte do exterior, enquanto o leading pertence ao último texto.
     let mut max_style = layouter.style.clone();
+    let mut first_style = None;
     let mut last_style = None;
     let outer_size = layouter.style.size.0;
     let mut text_fragments = 0usize;
@@ -286,6 +287,9 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         if let Some((top, style)) = fragment.1 {
             text_fragments += 1;
             first_size.get_or_insert(style.size.0);
+            if first_style.is_none() {
+                first_style = Some(style.clone());
+            }
             last_size = Some(style.size.0);
             size_changed |= style.size.0 != outer_size;
             if first_top.is_none() {
@@ -362,8 +366,19 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         && second_fragment_size_only
         && first_size.is_some_and(|size| size > outer_size)
         && first_size == last_size;
+    // P1390 — a forma desigual só é adicionada quando o wrap já foi provado
+    // na fronteira entre os dois fragmentos. Isso não amplia a célula
+    // crescente sem wrap, que continua opaca.
+    let p1390_unequal_wrapped_pair_above_outer = wrap_before.is_some()
+        && text_fragments == 2
+        && first_fragment_size_only
+        && second_fragment_size_only
+        && first_size.is_some_and(|size| size > outer_size)
+        && last_size.is_some_and(|size| size > outer_size)
+        && first_size != last_size;
     if wrap_before.is_some()
-        && (!p1387_equal_pair_above_outer || !all_fragments_single_word)
+        && (!(p1387_equal_pair_above_outer || p1390_unequal_wrapped_pair_above_outer)
+            || !all_fragments_single_word)
     {
         return None;
     }
@@ -372,6 +387,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         && !p1385_styled_pair_to_outer_or_smaller
         && !p1386_decreasing_pair_above_outer
         && !p1387_equal_pair_above_outer
+        && !p1390_unequal_wrapped_pair_above_outer
     {
         return None;
     }
@@ -382,6 +398,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         && !p1385_styled_pair_to_outer_or_smaller
         && !p1386_decreasing_pair_above_outer
         && !p1387_equal_pair_above_outer
+        && !p1390_unequal_wrapped_pair_above_outer
     {
         return None;
     }
@@ -397,6 +414,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         || p1385_styled_pair_to_outer_or_smaller
         || p1386_decreasing_pair_above_outer
         || p1387_equal_pair_above_outer
+        || p1390_unequal_wrapped_pair_above_outer
     {
         &layouter.style
     } else {
@@ -416,6 +434,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
             || p1385_styled_pair_to_outer_or_smaller
             || p1386_decreasing_pair_above_outer
             || p1387_equal_pair_above_outer
+            || p1390_unequal_wrapped_pair_above_outer
         {
             layouter.metrics.text_edges(layouter.style.size, &layouter.style).0 .0
         } else {
@@ -425,22 +444,38 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         0.0
     };
     let block_boundary = (paragraph_spacing(layouter) - leading).max(0.0);
-    let fixed_boundary =
-        if p1386_decreasing_pair_above_outer || p1387_equal_pair_above_outer {
-            0.0
-        } else {
-            block_boundary
-        };
-    let wrapped_line_advance =
-        if wrap_before.is_some() { top.0 + (-bottom.0) + leading } else { 0.0 };
-    Some(InlinePrefix {
-        end,
-        fixed_height: initial_top
-            + top.0
-            + (-bottom.0)
+    let fixed_boundary = if p1386_decreasing_pair_above_outer
+        || p1387_equal_pair_above_outer
+        || p1390_unequal_wrapped_pair_above_outer
+    {
+        0.0
+    } else {
+        block_boundary
+    };
+    let fixed_height = if wrap_before.is_some() {
+        // P1390 — cada singleton tem métricas próprias. P1389 era igual e
+        // podia reutilizar o máximo; fazê-lo para tamanhos desiguais
+        // superestima uma das linhas e encurta a parcela fracionária.
+        let first_style = first_style.as_ref()?;
+        let second_style = last_style;
+        let (first_line_top, first_line_bottom) =
+            layouter.metrics.text_edges(first_style.size, first_style);
+        let (second_line_top, second_line_bottom) =
+            layouter.metrics.text_edges(second_style.size, second_style);
+        initial_top
+            + first_line_top.0
+            + (-first_line_bottom.0)
+            + leading
+            + second_line_top.0
+            + (-second_line_bottom.0)
             + leading
             + fixed_boundary
-            + wrapped_line_advance,
+    } else {
+        initial_top + top.0 + (-bottom.0) + leading + fixed_boundary
+    };
+    Some(InlinePrefix {
+        end,
+        fixed_height,
         closes_line: true,
         block_boundary,
         wrap_before,

@@ -1,0 +1,25 @@
+{
+  "schema": "tekt-materialization-verification/v1",
+  "step": "P1390",
+  "verified_at": "2026-09-14T12:06:15-03:00",
+  "repository_head": "906e2ed5a744779ab1a109d123f965f827500240",
+  "manifest_sha256": "c6fe34698feb50803de8bbcafa5c4c98b5345cc6511d3a33af8daaaf9d07001c",
+  "seal_sha256": "403d4db93e20dcb99804e29a0fa170cf0bb1e3eb6855df770212c1b566092297",
+  "checks": [
+    {"name":"P1390 RED","status":"pass","run":1,"failed":1},
+    {"name":"P1390 focal and fail-closed","status":"pass","run":2,"passed":2},
+    {"name":"P138 controls","status":"pass","run":29,"passed":29},
+    {"name":"P137 controls","status":"pass","run":21,"passed":21},
+    {"name":"bilateral sealed matrix","status":"pass","match":4},
+    {"name":"adversarial oracle review","status":"pass","declared":8,"discriminated":8,"mechanically_executed":0},
+    {"name":"cargo build release","status":"pass"},
+    {"name":"cargo check workspace","status":"pass"},
+    {"name":"cargo fmt check","status":"pass"},
+    {"name":"git diff check","status":"pass"},
+    {"name":"crystalline lint","status":"pass","violations":0,"warnings":248,"info":1185,"new_advisories":0}
+  ],
+  "memory": {"bounded":true,"parallel_processes":1,"peak_rss_kib":1958764,"host_oom":false,"swap":false,"timeout":false,"sigkill":false},
+  "verdict": "verified within the manifest claim limit",
+  "independence": "not attested; same authority performed all roles",
+  "mutation_limit": "declared mutants were not mechanically injected"
+}
